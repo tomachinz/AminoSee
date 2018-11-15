@@ -13,6 +13,8 @@ Download this repo to your machine:
 ```
 git clone https://github.com/tomachinz/AminoSee
 cd AminoSee
+npm install
+npm link aminosee
 ```
 
 

@@ -1,6 +1,5 @@
 {
   "name": "AminoSee",
-  "productName": "aminosee",
   "version": "1.0.1",
   "description": "DNA viewer. A terminal command in node renders a unique colour view of RNA or DNA stored in text files, output to PNG graphics file, then launches an WebGL browser that projects the image onto a 3D Hilbert curve for immersive viewing, using THREEjs.",
   "main": "index.js",
