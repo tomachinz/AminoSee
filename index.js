@@ -31,7 +31,7 @@ const radMessage = terminalRGB(`
   let cyclesPerUpdate = 1000; // start valuue only this is auto tuneded to users computer speed based on msPerUpdate
 
   // const codonsPerPixel = 99; // 99 is also good hard coded 4 codons per pixel (for large DNA bigger than 2MP).
-  const codonsPerPixel = 240; // this gives an AMAZING regular texture. current contender for the standard. .
+  const codonsPerPixel = 33; // this gives an AMAZING regular texture. current contender for the standard. .
   // const codonsPerPixel = 120; // this gives an AMAZING regular texture. current contender for the standard. .
   // const codonsPerPixel = 9; // 33 low values create big images.
 
@@ -49,10 +49,10 @@ const radMessage = terminalRGB(`
   let blue = 0;
   let alpha = 0;
   const startStopLength = 5
-  const opacity = 2 / codonsPerPixel; // 0.9 is used to make it brighter, also due to line breaks
+  const opacity = 1 / codonsPerPixel; // 0.9 is used to make it brighter, also due to line breaks
   const proteinHighlight = 6; // px
   const startStopHighlight = 6; // px
-  let filename, filenamePNG, genomeSize, reader, hilbertPoints, herbs, levels, zoom, progress, status, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, textFile, rawDNA, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, fileUploadShowing, testColors, chunksMax, chunksize, chunksizeBytes, baseChars, cpu, subdivisions, userFeedback, contextBitmap, aminoacid, colClock, start, updateClock, percentComplete, kBytesPerSecond, pixelStacking, isStartStopCodon, justNameOfDNA, justNameOfPNG, sliceDNA, filenameHTML;
+  let filename, filenamePNG, genomeSize, reader, hilbertPoints, herbs, levels, zoom, progress, status, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, textFile, rawDNA, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, fileUploadShowing, testColors, chunksMax, chunksize, chunksizeBytes, baseChars, cpu, subdivisions, userFeedback, contextBitmap, aminoacid, colClock, start, updateClock, percentComplete, kBytesPerSecond, pixelStacking, isStartStopCodon, justNameOfDNA, justNameOfPNG, sliceDNA, filenameHTML, howManyFiles;
   // set the process name in task manager
   process.title = "AminoSee DNA Viewer";
   rawDNA ="@"; // debug
@@ -66,7 +66,7 @@ const radMessage = terminalRGB(`
     // launchNonBlockingServer();
     const args = minimist(process.argv.slice(2))
     const cmd = args._[0]
-    const howManyFiles = args._.length;
+    howManyFiles = args._.length;
     output("howManyFiles: "+ howManyFiles);
 
     if (args.verbose || args.v) {
@@ -117,14 +117,15 @@ const radMessage = terminalRGB(`
         // output(radMessage);
         // launchNonBlockingServer();
       } else {
-        // filename = path.resolve(process.env.PATH + cmd);
-        output(` [cli parameter] ${cmd}`);
         output(` [all args] ${args._}`);
 
-        filename = path.resolve(cmd);
-        setupFNames();
-
-        output(` [file path] ${filename}`);
+        for (cli = 0; cli < howManyFiles; cli++) {
+          const cmd = args._[cli]
+          output(` [cli file batch ${cli+1} done, ${howManyFiles-cli}] to go!`);
+          output( terminalRGB( cmd, 200,100,64) );
+          processFile(path.resolve(cmd), cmd);
+        }
+        processFile(path.resolve(cmd), cmd);
 
         processNewStreamingMethod(filename);
         if (!devmode) {
@@ -138,6 +139,13 @@ const radMessage = terminalRGB(`
       }
       break
     }
+  }
+  function processFile(pf, cmd) {
+    filename = pf;
+    // filename = path.resolve(process.env.PATH + cmd);
+    output(` [cli parameter] ${pf}`);
+    setupFNames();
+    output(` [file path] ${filename}`);
   }
   function setupFNames() {
     const asdf = "_aminosee_" + codonsPerPixel;
@@ -171,6 +179,8 @@ const radMessage = terminalRGB(`
   }
 
   function openMiniWebsite() {
+    // opn(`http://127.0.0.1:3210/${justNameOfHTML}`);
+
     opn('http://127.0.0.1:3210/');
     stat("Personal mini-Webserver starting up around now (hopefully) on port 3210");
     stat("visit http://127.0.0.1:3210/ in your browser to see 3D WebGL visualisation");
@@ -222,27 +232,24 @@ const radMessage = terminalRGB(`
           // openMiniWebsite();
           // Opens the image in the default image viewer
           if (!devmode) {
-            output("AminoSee node may need your image viewer to close to finish.");
-            // opn(`http://127.0.0.1:3210/${justNameOfHTML}`);
-
-            const util = require('util');
-            const setImmediatePromise = util.promisify(setImmediate);
-
-            setImmediatePromise('foobar').then((value) => {
-              // value === 'foobar' (passing values is optional)
-              // This is executed after all I/O callbacks.
-              log("Done. (sync)");
+            setImmediate(() => {
+              // console.log('Opening in browser');
               opn(filenameHTML);
-
             });
 
+            output("AminoSee may wait on your image viewer to close... or try Control-c");
+            const util = require('util');
+            const setImmediatePromise = util.promisify(setImmediate);
+            setImmediatePromise('foobar').then((value) => {
+              log("Done. (sync)"); // This is executed after all I/O callbacks.
+              opn(filenameHTML);
+            });
 
             // opn(filenamePNG).then().catch();
-
           } else {
             log("[devmode]");
+            output(`Report created: ${justNameOfHTML}`);
           }
-          output(`Open ${justNameOfHTML} in your browser to see report`);
 
           // launchBlockingServer();
 
@@ -276,7 +283,7 @@ const radMessage = terminalRGB(`
     <body>
     <h1>Histogram for ${justNameOfDNA}</h1>
 
-<a href="#scrollDownToSeeImage" class="button" title"Click To Scroll Down To See Image">VIEW IMAGE</a>
+    <a href="#scrollDownToSeeImage" class="button" title"Click To Scroll Down To See Image">Scroll To Image</a>
 
 
     <div id="monkeys">
@@ -309,11 +316,7 @@ const radMessage = terminalRGB(`
     </thead>
     <tbody>
     `;
-    // "Codon": "Ochre",
-    // "Description": "STOP Codon",
-    // "Hue": 0,
-    // "Alpha": 1,
-    // "Histocount": 0,
+    // histoGRAM = [Codon, Description, Hue, Alpha, Histocount]
     for (i=0; i<histoGRAM.length; i++) {
       let theHue = histoGRAM[i].Hue;
       log(theHue);
@@ -342,7 +345,8 @@ const radMessage = terminalRGB(`
     </tfoot>
     </table>
     <a name="scrollDownToSeeImage" ></a>
-    <img src="${justNameOfPNG}">
+    <a href="${justNameOfPNG}" ><img src="${justNameOfPNG}"></a>
+
     <h2>About Start and Stop Codons</h2>
     <p>The codon AUG is called the START codon as it the first codon in the transcribed mRNA that undergoes translation. AUG is the most common START codon and it codes for the amino acid methionine (Met) in eukaryotes and formyl methionine (fMet) in prokaryotes. During protein synthesis, the tRNA recognizes the START codon AUG with the help of some initiation factors and starts translation of mRNA.
 
@@ -387,8 +391,6 @@ const radMessage = terminalRGB(`
   }
 
   function launchBlockingServer() {
-
-
     // openMiniWebsite();
     log("[appPath:] "+ appPath);
     // const serverPath = appPath
