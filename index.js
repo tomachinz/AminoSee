@@ -185,7 +185,7 @@ const radMessage = terminalRGB(`
     output('use * to process all files in current directory');
     output('use serve to run the web server');
     output(terminalRGB('if you need some DNA try:', 255,255,200));
-    output('curl https://www.funk.co.nz/aminosee/dna/megabase.fa');
+    output('wget https://www.funk.co.nz/aminosee/dna/megabase.fa');
     output(' ');
     output('usage: ');
     output('       aminosee [human-genome-DNA.txt]    (render file to image)');
