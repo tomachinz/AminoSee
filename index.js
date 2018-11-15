@@ -8,8 +8,9 @@ const radMessage = terminalRGB(`
   ah-mee no-see         "say it like a mexican"
   `, 96, 64, 245);
 
-  let devmode = false;
-  let verbose = false;
+  let devmode = false; // kills the auto opening of reports etc
+  let verbose = false; // not recommended. will slow down due to console.
+  let forceOverwrite = false; // safety
   const minimist = require('minimist')
   const fetch = require("node-fetch");
   const path = require('path');
@@ -75,6 +76,10 @@ const radMessage = terminalRGB(`
     if (args.devmode || args.debug || args.d) {
       output("devmode enabled");
       devmode = true;
+    }
+    if (args.force || args.f) {
+      output("force overwrite enabled");
+      forceOverwrite = true;
     }
 
     if (args.help || args.h) {
@@ -181,9 +186,9 @@ const radMessage = terminalRGB(`
     output('works with .mfa .fa .gbk DNA text files');
     output(' ');
     output('flags:');
-    output('     --verbose -v    Verbose (devmode)');
-    output('     --help -h    Help (todo)');
-    output('     --force -f Force Overwrite if existing .png file present');
+    output('     --verbose -v                          Verbose (dev mode)');
+    output('     --help -h                                    Help (todo)');
+    output('     --force -f     (Overwrite existing .png file if present)');
     output('use * to process all files in current directory');
     output('use serve to run the web server');
     output(terminalRGB('if you need some DNA try:', 255,255,200));
@@ -219,7 +224,19 @@ const radMessage = terminalRGB(`
           if (!devmode) {
             output("AminoSee node may need your image viewer to close to finish.");
             // opn(`http://127.0.0.1:3210/${justNameOfHTML}`);
-            opn(filenameHTML);
+
+            const util = require('util');
+            const setImmediatePromise = util.promisify(setImmediate);
+
+            setImmediatePromise('foobar').then((value) => {
+              // value === 'foobar' (passing values is optional)
+              // This is executed after all I/O callbacks.
+              log("Done. (sync)");
+              opn(filenameHTML);
+
+            });
+
+
             // opn(filenamePNG).then().catch();
 
           } else {
@@ -324,7 +341,7 @@ const radMessage = terminalRGB(`
     </tr>
     </tfoot>
     </table>
-    <a name="scrollDownToSeeImage" />
+    <a name="scrollDownToSeeImage" ></a>
     <img src="${justNameOfPNG}">
     <h2>About Start and Stop Codons</h2>
     <p>The codon AUG is called the START codon as it the first codon in the transcribed mRNA that undergoes translation. AUG is the most common START codon and it codes for the amino acid methionine (Met) in eukaryotes and formyl methionine (fMet) in prokaryotes. During protein synthesis, the tRNA recognizes the START codon AUG with the help of some initiation factors and starts translation of mRNA.
@@ -384,6 +401,9 @@ const radMessage = terminalRGB(`
     console.log( `stdout: ${httpServer.stdout.toString()}` );
   }
   function checkIfPNGExists() {
+    if (forceOverwrite == true) {
+      return false;
+    }
     let imageExists, result;
     imageExists = false;
     // log("fs.lstatSync(filenamePNG)" + fs.lstatSync(filenamePNG)).isDirectory();
