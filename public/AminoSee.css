@@ -45,7 +45,7 @@ div.stats {
 #monkeys  h2,#monkeys  h2.a {
 	font-size: 14.4px;
 }
-body {
+#webgl body {
 	background-color: #000000;
 	margin: 0;
 	overflow: hidden;

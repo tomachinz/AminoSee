@@ -9,6 +9,7 @@ const radMessage = terminalRGB(`
   `, 96, 64, 245);
 
   let devmode = false;
+  let verbose = false;
   const minimist = require('minimist')
   const fetch = require("node-fetch");
   const path = require('path');
@@ -57,191 +58,6 @@ const radMessage = terminalRGB(`
   filename = "./TestPattern.txt";        // for some reason this needs to be here. hopefully the open source community can come to rescue and fix this Kludge.
   setupFNames();
 
-  let histoGRAM = [
-    {
-      "Codon": "Non-coding NNN",
-      "Description": "Expressed as NNN Codon",
-      "Hue": 120,
-      "Alpha": 0,
-      "Histocount": 0,
-    },
-    {
-      "Codon": "Ochre",
-      "Description": "STOP Codon",
-      "Hue": 0,
-      "Alpha": 1,
-      "Histocount": 0,
-    },
-    {
-      "Codon": "Glutamic acid",
-      "Description": "Group III: Acidic amino acids",
-      "Hue": 16,
-      "Alpha": 0.1,
-      "Histocount": 0,
-    },
-    {
-      "Codon": "Aspartic acid",
-      "Description": "Group III: Acidic amino acids",
-      "Hue": 31,
-      "Alpha": 0.1,
-      "Histocount": 0,
-    },
-    {
-      "Codon": "Amber",
-      "Description": "STOP Codon",
-      "Hue": 47,
-      "Alpha": 1,
-      "Histocount": 0,
-    },
-    {
-      "Codon": "Cysteine",
-      "Description": "Group II: Polar, uncharged amino acids",
-      "Hue": 63,
-      "Alpha": 0.1,
-      "Histocount": 0,
-    },
-    {
-      "Codon": "Glycine",
-      "Description": "Group I: Nonpolar amino acids",
-      "Hue": 78,
-      "Alpha": 0.1,
-      "Histocount": 0,
-    },
-    {
-      "Codon": "Alanine",
-      "Description": "Group I: Nonpolar amino acids",
-      "Hue": 94,
-      "Alpha": 0.1,
-      "Histocount": 0,
-    },
-    {
-      "Codon": "Methionine",
-      "Description": "START Codon",
-      "Hue": 110,
-      "Alpha": 1,
-      "Histocount": 0,
-    },
-    {
-      "Codon": "Valine",
-      "Description": "Group I: Nonpolar amino acids",
-      "Hue": 125,
-      "Alpha": 0.1,
-      "Histocount": 0,
-    },
-    {
-      "Codon": "Leucine",
-      "Description": "Group I: Nonpolar amino acids",
-      "Hue": 141,
-      "Alpha": 0.1,
-      "Histocount": 0,
-    },
-    {
-      "Codon": "Isoleucine",
-      "Description": "Group I: Nonpolar amino acids",
-      "Hue": 157,
-      "Alpha": 0.1,
-      "Histocount": 0,
-    },
-    {
-      "Codon": "Phenylalanine",
-      "Description": "Group I: Nonpolar amino acids",
-      "Hue": 172,
-      "Alpha": 0.1,
-      "Histocount": 0,
-    },
-    {
-      "Codon": "Tryptophan",
-      "Description": "Group I: Nonpolar amino acids",
-      "Hue": 188,
-      "Alpha": 0.1,
-      "Histocount": 0,
-    },
-    {
-      "Codon": "Serine",
-      "Description": "Group II: Polar, uncharged amino acids",
-      "Hue": 203,
-      "Alpha": 0.1,
-      "Histocount": 0,
-    },
-    {
-      "Codon": "Threonine",
-      "Description": "Group II: Polar, uncharged amino acids",
-      "Hue": 219,
-      "Alpha": 0.1,
-      "Histocount": 0,
-    },
-    {
-      "Codon": "Opal",
-      "Description": "STOP Codon",
-      "Hue": 240,
-      "Alpha": 1,
-      "Histocount": 0,
-    },
-    {
-      "Codon": "Glutamine",
-      "Description": "Group II: Polar, uncharged amino acids",
-      "Hue": 250,
-      "Alpha": 0.1,
-      "Histocount": 0,
-    },
-    {
-      "Codon": "Asparagine",
-      "Description": "Group II: Polar, uncharged amino acids",
-      "Hue": 266,
-      "Alpha": 0.1,
-      "Histocount": 0,
-    },
-    {
-      "Codon": "Tyrosine",
-      "Description": "Group II: Polar, uncharged amino acids",
-      "Hue": 282,
-      "Alpha": 0.1,
-      "Histocount": 0,
-    },
-    {
-      "Codon": "Arginine",
-      "Description": "Group IV: Basic amino acids",
-      "Hue": 297,
-      "Alpha": 0.1,
-      "Histocount": 0,
-    },
-    {
-      "Codon": "Lysine",
-      "Description": "Group IV: Basic amino acids",
-      "Hue": 313,
-      "Alpha": 0.1,
-      "Histocount": 0,
-    },
-    {
-      "Codon": "Histidine",
-      "Description": "Group IV: Basic amino acids",
-      "Hue": 329,
-      "Alpha": 0.1,
-      "Histocount": 0,
-    },
-    {
-      "Codon": "TOTAL Start Codons",
-      "Description": "Count of Methionine",
-      "Hue": 120,
-      "Alpha": 0.0,
-      "Histocount": 0,
-    },
-    {
-      "Codon": "TOTAL Stop Codons",
-      "Description": "One of Opal, Ochre, or Amber",
-      "Hue": 120,
-      "Alpha": 0.0,
-      "Histocount": 0,
-    },
-    {
-      "Codon": "Proline",
-      "Description": "Group I: Nonpolar amino acids",
-      "Hue": 344,
-      "Alpha": 0.1,
-      "Histocount": 0,
-    }
-  ]
-  ;
   module.exports = () => {
     welcomeMessage();
     // createTick();
@@ -249,9 +65,18 @@ const radMessage = terminalRGB(`
     // initWebserver();
     const args = minimist(process.argv.slice(2))
     const cmd = args._[0]
-    if (args.verbose || args.v || args.devmode || args.debug) {
+    const howManyFiles = args._.length;
+    output("howManyFiles: "+ howManyFiles);
+
+    if (args.verbose || args.v) {
+      output("verbose enabled");
+      verbose = true;
+    }
+    if (args.devmode || args.debug || args.d) {
+      output("devmode enabled");
       devmode = true;
     }
+
     if (args.help || args.h) {
       output("I've not made a help file yet");
     }
@@ -264,7 +89,7 @@ const radMessage = terminalRGB(`
       case 'serve':
       // require('./cmds/today')(args)
       // initWebserver();
-      launchHttpServerCmd();
+      launchBlockingServer();
       openMiniWebsite();
 
       break;
@@ -311,10 +136,12 @@ const radMessage = terminalRGB(`
     }
   }
   function setupFNames() {
-    filenamePNG = filename + "_" + codonsPerPixel + "_aminosee.png"; // for some reason this needs to be here. hopefully the open source community can come to rescue and fix this Kludge.  watch it break when you remove it.
-    justNameOfFile = replaceFilepathFileName(filename);
-    justNameOfPNG = justNameOfFile  + "_" + codonsPerPixel + "_aminosee.png";
+    filenamePNG = filename + "_" + codonsPerPixel + "_aminosee.png";
     filenameHTML = filename  + "_" + codonsPerPixel + "_aminosee.html";
+
+    justNameOfFile = replaceFilepathFileName(filename);
+    justNameOfPNG = replaceFilepathFileName(filenamePNG);
+    justNameOfHTML = replaceFilepathFileName(filenameHTML);
 
   }
 
@@ -352,22 +179,26 @@ const radMessage = terminalRGB(`
     output('This CLI is to convert ASCII text files into .png graphics');
     output('works with .mfa .fa .gbk DNA text files');
     output(' ');
-    output('usage: ');
-    output('       aminosee [human-genome-DNA.txt] ');
-    output('       aminosee serve ');
-    output('       aminosee * ');
-    output('optional flags:');
+    output('flags:');
     output('       --verbose -v    Verbose (devmode)');
     output('       --help -h    Help (todo)');
     output('use * to process all files in current directory');
     output('use serve to run the web server');
+    output(terminalRGB('if you need some DNA try:', 255,255,200));
+    output('curl https://www.funk.co.nz/aminosee/dna/megabase.fa');
+    output(' ');
+    output('usage: ');
+    output('       aminosee [human-genome-DNA.txt]    (render file to image)');
+    output('       aminosee serve              (run viewer micro web server)');
+    output('       aminosee *                      (render all files in dir)');
+
 
   }
 
   function saveHistogram() {
     fs.writeFile(filenameHTML, legend(), function (err) {
       if (err) throw err;
-      console.log('Saved!');
+      console.log('Saved histogram to: ' + filenameHTML);
     });
   }
 
@@ -385,8 +216,16 @@ const radMessage = terminalRGB(`
           // Opens the image in the default image viewer
           if (!devmode) {
             output("AminoSee node may need your image viewer to close to finish.");
-            opn(filenamePNG).then().catch();
+            // opn(`http://127.0.0.1:3210/${justNameOfHTML}`);
+            opn(filenameHTML);
+            // opn(filenamePNG).then().catch();
+
+          } else {
+            log("[devmode]");
           }
+          output(`Open ${justNameOfHTML} in your browser to see report`);
+
+          launchBlockingServer();
 
           // process.exit()
         });
@@ -410,7 +249,7 @@ const radMessage = terminalRGB(`
   function legend() {
     var html = `<html>
     <head>
-    <link rel="stylesheet" type="text/css" href="https://www.funk.co.nz/aminosee/public/AminoSee.css">
+    <!-- link rel="stylesheet" type="text/css" href="https://www.funk.co.nz/aminosee/public/AminoSee.css" -->
     <link href='https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz:700,400,200,100' rel='stylesheet' type='text/css'>
     <link href="https://www.funk.co.nz/css/menu.css" rel="stylesheet">
     <link href="https://www.funk.co.nz/css/funk2014.css" rel="stylesheet">
@@ -523,13 +362,14 @@ const radMessage = terminalRGB(`
     console.log("Help section." + args);
   }
 
-  function launchHttpServerCmd() {
-    openMiniWebsite();
+  function launchBlockingServer() {
+    // openMiniWebsite();
     log("[appPath:] "+ appPath);
     // const serverPath = appPath
+    output("Control-c to quit");
     const
     { spawnSync } = require( 'child_process' ),
-    httpServer = spawnSync( 'http-server', [ '-p', '3210', './' ] );
+    httpServer = spawnSync( 'http-server', [ '-p', '3210', appPath ] );
 
     // console.log( `stderr: ${ls.stderr.toString()}` );
     // console.log( `stdout: ${ls.stdout.toString()}` );
@@ -635,7 +475,7 @@ const radMessage = terminalRGB(`
     console.log(txt)
   }
   function log(txt) {
-    if (devmode) {
+    if (verbose) {
       process.stdout.write(txt + " ");
     }
   }
@@ -849,13 +689,13 @@ const radMessage = terminalRGB(`
       return `  [ very raw ${ rawDNA.substring(i-360,i)} ]
       [ raw:     ${ removeLineBreaks(rawDNA.substring(i-360,i))} ]
       [ clean: ${ cleanString(rawDNA.substring(i-360,i))} ]
-`;
+      `;
     } else {
       return `
       [ raw:   ${ removeLineBreaks(rawDNA.substring(i-69,i))} ]
       [ clean: ${ cleanString(rawDNA.substring(i-69,i))} ]
 
-`;
+      `;
     }
   }
 
@@ -933,8 +773,9 @@ const radMessage = terminalRGB(`
           isStartStopCodon = false;
         } else if (alpha == 0.0) {
           log("erm... why is alpha at 0.0? setting to 255");
-          alpha = 255;
         }
+        alpha = 255;
+
         // the first section TRUE does start/stop codons
         // the FALSE section does Amino acid codons
         if (isStartStopCodon) { // 255 = 1.0
@@ -994,7 +835,6 @@ const radMessage = terminalRGB(`
 
       if (pixelStacking >= codonsPerPixel) {
 
-        alpha = 255;
         red = 0;
         green = 0;
         blue = 0; // START WITH BLACK
@@ -1113,7 +953,7 @@ const radMessage = terminalRGB(`
       text += `\t    [ PROCESSING FILE COMPLETE ]`;
     } else {
       text += `
-    [ PROCESSING REMAIN ${timeRemain} s ]`;
+      [ PROCESSING REMAIN ${timeRemain} s ]`;
     }
 
     text += `${filename}
@@ -1848,3 +1688,191 @@ const radMessage = terminalRGB(`
         img_png.data = Buffer.from(img_data);
         img_png.pack().pipe(fs.createWriteStream(fname));
       }
+
+
+
+      let histoGRAM = [
+        {
+          "Codon": "Non-coding NNN",
+          "Description": "Expressed as NNN Codon",
+          "Hue": 120,
+          "Alpha": 0,
+          "Histocount": 0,
+        },
+        {
+          "Codon": "Ochre",
+          "Description": "STOP Codon",
+          "Hue": 0,
+          "Alpha": 1,
+          "Histocount": 0,
+        },
+        {
+          "Codon": "Glutamic acid",
+          "Description": "Group III: Acidic amino acids",
+          "Hue": 16,
+          "Alpha": 0.1,
+          "Histocount": 0,
+        },
+        {
+          "Codon": "Aspartic acid",
+          "Description": "Group III: Acidic amino acids",
+          "Hue": 31,
+          "Alpha": 0.1,
+          "Histocount": 0,
+        },
+        {
+          "Codon": "Amber",
+          "Description": "STOP Codon",
+          "Hue": 47,
+          "Alpha": 1,
+          "Histocount": 0,
+        },
+        {
+          "Codon": "Cysteine",
+          "Description": "Group II: Polar, uncharged amino acids",
+          "Hue": 63,
+          "Alpha": 0.1,
+          "Histocount": 0,
+        },
+        {
+          "Codon": "Glycine",
+          "Description": "Group I: Nonpolar amino acids",
+          "Hue": 78,
+          "Alpha": 0.1,
+          "Histocount": 0,
+        },
+        {
+          "Codon": "Alanine",
+          "Description": "Group I: Nonpolar amino acids",
+          "Hue": 94,
+          "Alpha": 0.1,
+          "Histocount": 0,
+        },
+        {
+          "Codon": "Methionine",
+          "Description": "START Codon",
+          "Hue": 110,
+          "Alpha": 1,
+          "Histocount": 0,
+        },
+        {
+          "Codon": "Valine",
+          "Description": "Group I: Nonpolar amino acids",
+          "Hue": 125,
+          "Alpha": 0.1,
+          "Histocount": 0,
+        },
+        {
+          "Codon": "Leucine",
+          "Description": "Group I: Nonpolar amino acids",
+          "Hue": 141,
+          "Alpha": 0.1,
+          "Histocount": 0,
+        },
+        {
+          "Codon": "Isoleucine",
+          "Description": "Group I: Nonpolar amino acids",
+          "Hue": 157,
+          "Alpha": 0.1,
+          "Histocount": 0,
+        },
+        {
+          "Codon": "Phenylalanine",
+          "Description": "Group I: Nonpolar amino acids",
+          "Hue": 172,
+          "Alpha": 0.1,
+          "Histocount": 0,
+        },
+        {
+          "Codon": "Tryptophan",
+          "Description": "Group I: Nonpolar amino acids",
+          "Hue": 188,
+          "Alpha": 0.1,
+          "Histocount": 0,
+        },
+        {
+          "Codon": "Serine",
+          "Description": "Group II: Polar, uncharged amino acids",
+          "Hue": 203,
+          "Alpha": 0.1,
+          "Histocount": 0,
+        },
+        {
+          "Codon": "Threonine",
+          "Description": "Group II: Polar, uncharged amino acids",
+          "Hue": 219,
+          "Alpha": 0.1,
+          "Histocount": 0,
+        },
+        {
+          "Codon": "Opal",
+          "Description": "STOP Codon",
+          "Hue": 240,
+          "Alpha": 1,
+          "Histocount": 0,
+        },
+        {
+          "Codon": "Glutamine",
+          "Description": "Group II: Polar, uncharged amino acids",
+          "Hue": 250,
+          "Alpha": 0.1,
+          "Histocount": 0,
+        },
+        {
+          "Codon": "Asparagine",
+          "Description": "Group II: Polar, uncharged amino acids",
+          "Hue": 266,
+          "Alpha": 0.1,
+          "Histocount": 0,
+        },
+        {
+          "Codon": "Tyrosine",
+          "Description": "Group II: Polar, uncharged amino acids",
+          "Hue": 282,
+          "Alpha": 0.1,
+          "Histocount": 0,
+        },
+        {
+          "Codon": "Arginine",
+          "Description": "Group IV: Basic amino acids",
+          "Hue": 297,
+          "Alpha": 0.1,
+          "Histocount": 0,
+        },
+        {
+          "Codon": "Lysine",
+          "Description": "Group IV: Basic amino acids",
+          "Hue": 313,
+          "Alpha": 0.1,
+          "Histocount": 0,
+        },
+        {
+          "Codon": "Histidine",
+          "Description": "Group IV: Basic amino acids",
+          "Hue": 329,
+          "Alpha": 0.1,
+          "Histocount": 0,
+        },
+        {
+          "Codon": "TOTAL Start Codons",
+          "Description": "Count of Methionine",
+          "Hue": 120,
+          "Alpha": 0.0,
+          "Histocount": 0,
+        },
+        {
+          "Codon": "TOTAL Stop Codons",
+          "Description": "One of Opal, Ochre, or Amber",
+          "Hue": 120,
+          "Alpha": 0.0,
+          "Histocount": 0,
+        },
+        {
+          "Codon": "Proline",
+          "Description": "Group I: Nonpolar amino acids",
+          "Hue": 344,
+          "Alpha": 0.1,
+          "Histocount": 0,
+        }
+      ]
+      ;

@@ -19,6 +19,22 @@ sudo npm link
 ```
 Now you should be able to just run `aminosee` from your terminal.
 
+## How To Convert DNA into PNG
+
+```
+aminosee dna.txt
+```
+
+First get some DNA or RNA. I built the app using .fa, .mfa, and .gbk files as references. You should be able to see ATCATCGGGTTT type lettering through the file. It's case insenstive. All other letters are filtered out and codons need to be grouped as three consecutive bytes with no line breaks midway.
+
+### Example DNA
+Head over to https://www.funk.co.nz/aminosee/dna/ to grab a test file.
+
+For example, this will grab a 1 Megabyte demo file:
+```
+wget https://www.funk.co.nz/aminosee/dna/megabase.fa
+aminosee megabase.fa
+```
 ###Official Site
 This site was built using [AminoSee Official Site](https://www.funk.co.nz/aminosee/).
 
@@ -32,3 +48,4 @@ This site was built using [AminoSee Official Site](https://www.funk.co.nz/aminos
 - [ ] Finish the UI, it's possible to move forward using W but but backwards with S not work.
 - [ ] Test if array map is faster than for loops, its currently done with for loops
 - [ ] Implement GPU acceleration for transcoding step. It uses GPU for the WebGL viewer.
+- [ ] During transcoding the histogram shows totals for codons these always show zero still

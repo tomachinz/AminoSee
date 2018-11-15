@@ -1,3 +1,7 @@
+# AMINOSEE IGNORES
+.DS_Store
+aminosee/
+
 # Logs
 logs
 *.log

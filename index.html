@@ -1,19 +1,17 @@
 <!DOCTYPE html>
-<!-- saved from url=(0052)https://threejs.org/examples/webgl_lines_colors.html -->
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 	<title>AminoSeeNoEvil :: WebGL 3D DNA Visualisation Pseudo-Hilbert Curve Projection :: Funk NZ</title>
 	<meta name="description" content="A new way to view DNA that attributes a colour hue to each Amino acid codon triplet">
 
 	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 	<meta http-equiv="Content-Security-Policy" content="default-src https://dev.funk.co.nz https://www.funk.co.nz * data: blob: 'unsafe-inline' 'unsafe-eval' ws: wss:;">
-	<script src="../node_modules/three/build/three.min.js"></script>
-	<script src="../node_modules/jquery/dist/jquery.min.js"></script>
+	<script src="node_modules/three/build/three.min.js"></script>
+	<script src="node_modules/jquery/dist/jquery.min.js"></script>
 	<script src="public/hilbert3D.js"></script>
 	<script src="public/hilbert2D.js"></script>
 	<script src="public/WebGL.js"></script>
-	<script src="../node_modules/hammerjs/hammer.min.js"></script>
+	<script src="node_modules/hammerjs/hammer.min.js"></script>
 	<script src="public/AminoSee.js"></script>
-	<!-- <script src="../node_modules/localforage/dist/localforage.min.js"></script> -->
 
 	<link rel="stylesheet" type="text/css" href="public/AminoSee.css">
 	<link href='https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz:700,400,200,100' rel='stylesheet' type='text/css'>
@@ -29,9 +27,8 @@
 	'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
 	})(window,document,'script','dataLayer','GTM-P8JX');</script>
 	<!-- End Google Tag Manager -->
-	<base href="https://www.funk.co.nz">
 </head>
-<body class="black nocse">
+<body id="webgl" class="black nocse">
 	<div id="supercontainer">
 		<div id="colorPicker" class="hidden">
 			<canvas id="rhinoCanv" width="578" height="200"></canvas>
@@ -45,33 +42,33 @@
 
 		<nav id="nav">
 			<ul>
-		    	<li><a href="/" style="width: 100px;" title="Return to FUNK Homepage"><img src="https://www.funk.co.nz/images/nav/funk-logo-140px.png" width="140" height="70" alt="Home" style="position: absolute; top: -2px; left: 26px;"/>Home</a></li>
-				<li><a href="/auckland-music-update/" title="Upcoming Gigs">Upcoming Gigs</a></li>
-		        <li><a href="/blog/" title="The Funk Blog - Some Stuff That Some People Wrote">Blog</a></li>
+		    	<li><a href="https://www.funk.co.nz/" style="width: 100px;" title="Return to FUNK Homepage"><img src="https://www.funk.co.nz/images/nav/funk-logo-140px.png" width="140" height="70" alt="Home" style="position: absolute; top: -2px; left: 26px;"/>Home</a></li>
+				<li><a href="https://www.funk.co.nz/auckland-music-update/" title="Upcoming Gigs">Upcoming Gigs</a></li>
+		        <li><a href="https://www.funk.co.nz/blog/" title="The Funk Blog - Some Stuff That Some People Wrote">Blog</a></li>
 
-		      <li><a href="/h/" title="Auckland NZ Handy Links">Handy Links</a></li>
+		      <li><a href="https://www.funk.co.nz/h/" title="Auckland NZ Handy Links">Handy Links</a></li>
 			  <li><a href="http://www.funk.co.nz/blog/business/the-tomachi-corporation-is-a-go">Web Consulting</a></li>
-			  <li><a href="/menu/contact.php" title="Contact Us">Contact Us</a>
+			  <li><a href="https://www.funk.co.nz/menu/contact.php" title="Contact Us">Contact Us</a>
 			    <ul>
-			      <li><a href="/amu/" title="Receive Email Updates">Subscribe to Updates</a></li>
-			      <!--li><a href="/menu/about-author.html" title="About the author - Tom Atkinson">About</a></li-->
-			      <li><a href="/cv/" title="Curriculum Vitae">CV / Resume</a></li>
+			      <li><a href="https://www.funk.co.nz/amu/" title="Receive Email Updates">Subscribe to Updates</a></li>
+			      <!--li><a href="https://www.funk.co.nz/menu/about-author.html" title="About the author - Tom Atkinson">About</a></li-->
+			      <li><a href="https://www.funk.co.nz/cv/" title="Curriculum Vitae">CV / Resume</a></li>
 		        </ul>
 		      </li>
 			  <li><a href="#">Bands</a>
 
 			  <ul>
-			    <li><a href="/tomachi/">Tomachi</a></li>
+			    <li><a href="https://www.funk.co.nz/tomachi/">Tomachi</a></li>
 			    <li><a href="http://www.triptonites.com/mexico-preview/" target="_blank">The Triptonites</a></li>
-			    <li><a href="/tomachi/">Past Bands > ></a>
+			    <li><a href="https://www.funk.co.nz/tomachi/">Past Bands > ></a>
 			      <ul>
-			        <li><a href="/damnative/">Dam Native</a></li>
-			        <li><a href="/sjd/">SJD</a></li>
-			        <li><a href="/blog/music/breaks-co-op-uk-tour-2006-tour-dates">Breaks Co-op</a></li>
-			        <li><a href="/foghorn/">Foghorn</a></li>
-			        <li><a href="/omd/">one million dollars</a></li>
-			        <li><a href="/hmx/">HMX</a></li>
-			        <li><a href="/roughness/">The Roughness</a></li>
+			        <li><a href="https://www.funk.co.nz/damnative/">Dam Native</a></li>
+			        <li><a href="https://www.funk.co.nz/sjd/">SJD</a></li>
+			        <li><a href="https://www.funk.co.nz/blog/music/breaks-co-op-uk-tour-2006-tour-dates">Breaks Co-op</a></li>
+			        <li><a href="https://www.funk.co.nz/foghorn/">Foghorn</a></li>
+			        <li><a href="https://www.funk.co.nz/omd/">one million dollars</a></li>
+			        <li><a href="https://www.funk.co.nz/hmx/">HMX</a></li>
+			        <li><a href="https://www.funk.co.nz/roughness/">The Roughness</a></li>
 			      </ul>
 			    </li>
 			  </ul>
