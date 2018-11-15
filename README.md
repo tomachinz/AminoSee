@@ -22,7 +22,7 @@ npm install
 echo Use sudo npm link to enable command "aminosee" for all users
 sudo npm link
 ```
-Now you should be able to just run `aminosee` from your terminal.
+Now you should be able to just run `aminosee` from your terminal, anywhere. If thats not an option then you'd perhaps need to run `node bin/aminosee.js` each time, which the files in your path. Best to use to use npm link.
 
 ## How To Convert DNA into PNG
 
