@@ -1,0 +1,307 @@
+html, body, form, input, textarea, a, p, h1, h2, h3, h4, h5, h6, div {
+	font-family: "Yanone Kaffeesatz";
+}
+form, input, textarea {
+	height: 36px;
+}
+#stats h6 {
+padding: 1px;
+margin: 1px 1px 1px 1px;
+}
+#stats pre {
+
+}
+div.stats {
+	position: fixed;
+	/* position: absolute; */
+	bottom: 0;
+	left: 0;
+	color: #eeeeee;
+	font-size: 7px;
+	font-family: "Old-School-Adventures", "04B", "Yanone Kaffeesatz";
+	/* font-weight: bold; */
+	background-color: rgb(0, 0, 0);
+	background-color: rgba(0, 0, 0, 0.4);
+
+	width: 100%;
+	/* max-width: 400px; */
+	z-index: 5;
+	padding: 16px;
+	height: 256px;
+	/* white-space: nowrap; */
+	text-align: left;
+}
+@font-face {
+	font-family: 'Old-School-Adventures';
+	font-style: normal;
+	font-weight: 200;
+	src: local('Old-School-Adventures'), local('Old-School-Adventures'), url(/css/Old-School-Adventures.woff) format('woff');
+	/* font-size: 12px; */
+}
+
+#monkeys h1, #monkeys  h1.a {
+	font-size: 23.4px;
+}
+#monkeys  h2,#monkeys  h2.a {
+	font-size: 14.4px;
+}
+body {
+	background-color: #000000;
+	margin: 0;
+	overflow: hidden;
+}
+
+input[type=button], input[type=submit], input[type=reset] {
+	min-width: 140px;
+	padding: 8px 8px;
+}
+/* #hide input[type=button], input[type=submit], input[type=reset] {
+background-color: blue;
+padding: 8px 8px;
+} */
+#hide {
+	/* background-color: #ffffaa; */
+	font-size: 20px;
+	pading: 8px;
+	font-weight: bold;
+	color: black;
+}
+input[type=number] {
+	font-size: 26px;
+}
+
+/* ********** USE FOR DEFAULT POS ******** */
+.headingStatus {
+	font-size: 16px;
+	display: block;
+}
+/* ********** USE TO GET ATTENTION ******** */
+.modalCentered, #colorPicker  {
+	font-size: 26px;
+	/* position: fixed; */
+	/* z-index: 11; */
+	top: 50%;
+	bottom: 50%;
+	left: 50%;
+	right: 50%;
+	width: 128px;
+	height: 64px;
+	background-color: rgb(255,240,50);
+	background-color: rgba(255,240,50, 0.7);
+	color: #003;
+	font-weight: bold;
+	padding: 64px;
+	border: dotted black 1px;
+	/* transform: translateX(-50%); */
+}
+#colorPicker {
+	/* z-index: 999; */
+	width: 40%;
+	height: 40%;
+	/* transform: translate(-50%, -50%); */
+	background-color: rgb(100,240,200);
+	background-color: rgba(100,240,200, 0.5);
+}
+
+#info {
+	/* white-space: nowrap; */
+	position: absolute;
+	width: 70%;
+	margin-left: 15%;
+	margin-right: 15%;
+	color: #ffffff;
+	padding: 16px;
+	font-family: Monospace;
+	text-align: center;
+	z-index:10;
+}
+
+#supercontainer {
+	position: absolute;
+	margin-top: 0;
+	width: 100%;
+	height: 100%;
+
+}
+#fileheader {
+	display: block;
+	visibility: hidden;
+	display: none;
+}
+.hidable {
+	/* display: block; */
+	visibility: visible;
+}
+.hidden {
+	visibility: hidden;
+	display: none;
+}
+.gridcontainer {
+	display: grid;
+	/* width: 100%; */
+	grid-template-columns: repeat(12, 1fr);
+	grid-template-rows: 120px 120px 120px 120px 120px 120px 120px 120px 120px 120px 120px 120px;
+	/* height: 16px; */
+
+}
+
+.header, {
+	grid-column: span 12;
+}
+.gadgets {
+	grid-column: span 1;
+}
+
+.stats {
+	grid-column: span 8;
+}
+#controls, input.controls {
+	grid-column: span 8;
+	height: 16px;
+	position: fixed;
+	top: 32px;
+	z-index: 10;
+}
+
+#monkeys img {
+	/* max-width: 220px; */
+}
+#monkeys h1, #monkeys b,#monkeys p, #monkeys h2 {
+	color: black;
+
+}
+#monkeys.tiny h1, #monkeys.tiny b,#monkeys.tiny p, #monkeys.tiny h2 {
+	font-size: 12px;
+	/* display: inline; */
+}
+#monkeys.tiny img {
+	max-width: 64px;
+	padding: 2px;
+	margin: 2px;
+}
+
+/* 70PX IS HALF OF BUTTON WIDTH min-width: 140px; */
+
+@media screen and (min-width: 3000px) {
+	#monkeys h1 {
+		font-size: 26px;
+	}
+	#monkeys h2 {
+		font-size: 16px;
+	}
+	#monkeys img {
+		max-width: 400px;
+	}
+}
+@media screen and (min-width: 1440px) {
+
+	#monkeys img {
+		max-width: 220px;
+	}
+	.gadgets {
+		grid-column: span 1;
+	}
+}
+@media screen and (max-width: 1440px) {
+
+	#monkeys h1, #monkeys h2 {
+		display: inline;
+	}
+	#monkeys {
+		padding: 8px;
+	}
+	#monkeys h1  {
+		font-size: 26px;
+	}
+	#monkeys img {
+		max-width: 64px;
+	}
+	.gadgets {
+		grid-column: span 2;
+	}
+
+}
+@media screen and (max-width: 990px) {
+
+	.header {
+		grid-column: span 3;
+	}
+	.stats, .controls {
+		grid-column: span 3;
+	}
+	#controls {
+		top: 64px;
+	}
+	#monkeys h1, #monkeys h2 {
+		display: inline;
+	}
+	#monkeys {
+		padding: 1px;
+		background: teal;
+	}
+	#monkeys img {
+		width: 50px;
+	}
+	.gadgets {
+		grid-column: span 3;
+	}
+
+}
+@media screen and (max-width: 990px) {
+	.gadgets {
+		grid-column: span 4;
+	}
+
+}
+@media screen and (max-width: 680px) {
+	.grid-item {
+		grid-column: span 4;
+	}
+	#description, #h2 {
+		visibility: hidden;
+		display: none;
+	}
+}
+a {
+	color: black;
+	text-decoration: none;
+}
+a:hover {
+	text-decoration: underline;
+	color: orange;
+	background-color: black;
+}
+
+#progress_bar {
+	/* margin: 10px 0; */
+	padding: 3px;
+	border: 1px solid #000;
+	font-size: 14px;
+	clear: both;
+	opacity: 0;
+	-moz-transition: opacity 1s linear;
+	-o-transition: opacity 1s linear;
+	-webkit-transition: opacity 1s linear;
+}
+#progress_bar.loading {
+	opacity: 1.0;
+
+}
+#progress_bar .percent {
+	background-color: #99ccff;
+	height: auto;
+	width: 0;
+}
+#monkeys {
+	position: fixed;
+	bottom: 0;
+	right: 0;
+	max-width: 295;
+	z-index: 10;
+
+
+	background-color: white;
+	padding: 16px;
+	white-space: nowrap;
+	text-align: center;
+}
