@@ -10,6 +10,9 @@ Head over to https://www.funk.co.nz/aminosee for the 3D Hilbert Curve projection
 
 Soon the demo page will host many images I've generated while developing the software. It can take my machine about 3 minutes to process an entire human chromosome.
 
+## HTML Amino acid histogram
+It will output an html histogram to frame the image. See: https://www.funk.co.nz/aminosee/dna/megabase.fa_aminosee_240.html
+
 ## Easy Install
 Eventually, I'm hoping to have some prebuilt binaries for Mac, Windows and Linux using Electron. Today, the only way to get the DNA converter on your machine is via source code:
 

@@ -48,7 +48,7 @@ div.stats {
 #webgl body {
 	background-color: #000000;
 	margin: 0;
-	overflow: hidden;
+	/* overflow: hidden; */
 }
 
 input[type=button], input[type=submit], input[type=reset] {

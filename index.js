@@ -51,7 +51,7 @@ const radMessage = terminalRGB(`
   const opacity = 2 / codonsPerPixel; // 0.9 is used to make it brighter, also due to line breaks
   const proteinHighlight = 6; // px
   const startStopHighlight = 6; // px
-  let filename, filenamePNG, genomeSize, reader, hilbertPoints, herbs, levels, zoom, progress, status, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, textFile, rawDNA, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, fileUploadShowing, testColors, chunksMax, chunksize, chunksizeBytes, baseChars, cpu, subdivisions, userFeedback, contextBitmap, aminoacid, colClock, start, updateClock, percentComplete, kBytesPerSecond, pixelStacking, isStartStopCodon, justNameOfFile, justNameOfPNG, sliceDNA, filenameHTML;
+  let filename, filenamePNG, genomeSize, reader, hilbertPoints, herbs, levels, zoom, progress, status, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, textFile, rawDNA, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, fileUploadShowing, testColors, chunksMax, chunksize, chunksizeBytes, baseChars, cpu, subdivisions, userFeedback, contextBitmap, aminoacid, colClock, start, updateClock, percentComplete, kBytesPerSecond, pixelStacking, isStartStopCodon, justNameOfDNA, justNameOfPNG, sliceDNA, filenameHTML;
   // set the process name in task manager
   process.title = "AminoSee DNA Viewer";
   rawDNA ="@"; // debug
@@ -135,10 +135,11 @@ const radMessage = terminalRGB(`
     }
   }
   function setupFNames() {
-    filenamePNG = filename + "_" + codonsPerPixel + "_aminosee.png";
-    filenameHTML = filename  + "_" + codonsPerPixel + "_aminosee.html";
+    const asdf = "_aminosee_" + codonsPerPixel;
+    filenamePNG = filename + asdf + ".png";
+    filenameHTML = filename + asdf + ".html";
 
-    justNameOfFile = replaceFilepathFileName(filename);
+    justNameOfDNA = replaceFilepathFileName(filename);
     justNameOfPNG = replaceFilepathFileName(filenamePNG);
     justNameOfHTML = replaceFilepathFileName(filenameHTML);
 
@@ -180,17 +181,18 @@ const radMessage = terminalRGB(`
     output('works with .mfa .fa .gbk DNA text files');
     output(' ');
     output('flags:');
-    output('       --verbose -v    Verbose (devmode)');
-    output('       --help -h    Help (todo)');
+    output('     --verbose -v    Verbose (devmode)');
+    output('     --help -h    Help (todo)');
+    output('     --force -f Force Overwrite if existing .png file present');
     output('use * to process all files in current directory');
     output('use serve to run the web server');
     output(terminalRGB('if you need some DNA try:', 255,255,200));
     output('wget https://www.funk.co.nz/aminosee/dna/megabase.fa');
     output(' ');
     output('usage: ');
-    output('       aminosee [human-genome-DNA.txt]    (render file to image)');
-    output('       aminosee serve              (run viewer micro web server)');
-    output('       aminosee *                      (render all files in dir)');
+    output('     aminosee [human-genome-DNA.txt]    (render file to image)');
+    output('     aminosee serve              (run viewer micro web server)');
+    output('     aminosee *                      (render all files in dir)');
 
 
   }
@@ -225,7 +227,7 @@ const radMessage = terminalRGB(`
           }
           output(`Open ${justNameOfHTML} in your browser to see report`);
 
-          launchBlockingServer();
+          // launchBlockingServer();
 
           // process.exit()
         });
@@ -249,16 +251,20 @@ const radMessage = terminalRGB(`
   function legend() {
     var html = `<html>
     <head>
-    <!-- link rel="stylesheet" type="text/css" href="https://www.funk.co.nz/aminosee/public/AminoSee.css" -->
+    <link rel="stylesheet" type="text/css" href="https://www.funk.co.nz/aminosee/public/AminoSee.css">
     <link href='https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz:700,400,200,100' rel='stylesheet' type='text/css'>
     <link href="https://www.funk.co.nz/css/menu.css" rel="stylesheet">
     <link href="https://www.funk.co.nz/css/funk2014.css" rel="stylesheet">
     </head>
     <body>
-    <h1>Histogram for ${justNameOfFile}</h1>
+    <h1>Histogram for ${justNameOfDNA}</h1>
+
+<input type="button" value="VIEW IMAGE" onclick="window.location = '#'">
+
+
     <div id="monkeys">
     <div><a href="http://aminosee.funk.co.nz/">
-    <input type="button" id="hide" name="hide" value="VISIT WEBSITE" onclick="window.location = 'http://aminosee.funk.nz/'"><br>
+    <input type="button" value="VISIT WEBSITE" onclick="window.location = '#scrollDownToSeeImage'"><br>
 
     <img src="https://www.funk.co.nz/aminosee/aminosee/seenoevilmonkeys.jpg">
 
@@ -318,6 +324,7 @@ const radMessage = terminalRGB(`
     </tr>
     </tfoot>
     </table>
+    <a name="scrollDownToSeeImage" />
     <img src="${justNameOfPNG}">
     <h2>About Start and Stop Codons</h2>
     <p>The codon AUG is called the START codon as it the first codon in the transcribed mRNA that undergoes translation. AUG is the most common START codon and it codes for the amino acid methionine (Met) in eukaryotes and formyl methionine (fMet) in prokaryotes. During protein synthesis, the tRNA recognizes the START codon AUG with the help of some initiation factors and starts translation of mRNA.
@@ -949,7 +956,7 @@ const radMessage = terminalRGB(`
     }
     text = "";
     text += `
-    @i ${i.toLocaleString()} File: ${justNameOfFile}
+    @i ${i.toLocaleString()} File: ${justNameOfDNA}
     `;
     if (percentComplete == 100) {
       text += `\t    [ PROCESSING FILE COMPLETE ]`;
