@@ -199,6 +199,7 @@ const radMessage = terminalRGB(`
     output('     --verbose -v                          Verbose (dev mode)');
     output('     --help -h                                    Help (todo)');
     output('     --force -f     (Overwrite existing .png file if present)');
+    output('     --force -f     (Overwrite existing .png file if present)');
     output('use * to process all files in current directory');
     output('use serve to run the web server');
     output(terminalRGB('if you need some DNA try:', 255,255,200));
@@ -208,7 +209,6 @@ const radMessage = terminalRGB(`
     output('     aminosee [human-genome-DNA.txt]    (render file to image)');
     output('     aminosee serve              (run viewer micro web server)');
     output('     aminosee *                      (render all files in dir)');
-
 
   }
 

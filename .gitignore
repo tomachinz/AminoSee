@@ -1,7 +1,16 @@
 # AMINOSEE IGNORES
 .DS_Store
 aminosee/
-dna/
+
+# this kludge is so i can have a shell script in there "process-all-files-in-cd.sh"
+dna/*.fa
+dna/*.mfa
+dna/*.gbk
+dna/*.txt
+dna/*.png
+dna/*.html
+
+
 
 # Logs
 logs
