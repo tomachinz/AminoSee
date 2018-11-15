@@ -16,13 +16,10 @@ cd AminoSee
 npm install
 echo Use sudo npm link to enable command "aminosee" for all users
 sudo npm link
-npm link aminosee
 ```
+Now you should be able to just run `aminosee` from your terminal.
 
-
-###Links
-You can create an inline link by wrapping link text in brackets [ ], and then wrapping the URL in parentheses ( ). You can also use the keyboard shortcut command + k to create a link.
-
+###Official Site
 This site was built using [AminoSee Official Site](https://www.funk.co.nz/aminosee/).
 
 
@@ -35,12 +32,3 @@ This site was built using [AminoSee Official Site](https://www.funk.co.nz/aminos
 - [ ] Finish the UI, it's possible to move forward using W but but backwards with S not work.
 - [ ] Test if array map is faster than for loops, its currently done with for loops
 - [ ] Implement GPU acceleration for transcoding step. It uses GPU for the WebGL viewer.
-
-
-
-
-Style	Syntax	Keyboard shortcut	Example	Output
-Bold	** ** or __ __	command/control + b	**This is bold text**	This is bold text
-Italic	* * or _ _	command/control + i	*This text is italicized*	This text is italicized
-Strikethrough	~~ ~~		~~This was mistaken text~~	This was mistaken text
-Bold and italic	** ** and _ _		**This text is _extremely_ important**	This text is extremely
