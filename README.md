@@ -12,6 +12,7 @@ Eventually, I'm hoping to have some prebuilt binaries for Mac, Windows and Linux
 Download this repo to your machine:
 ```
 git clone https://github.com/tomachinz/AminoSee
+cd AminoSee
 ```
 
 

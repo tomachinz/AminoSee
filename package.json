@@ -35,8 +35,12 @@
   "keywords": ["dna", "genomics", "visualisation"],
   "author": "Tom Atkinson <tom@funk.co.nz>",
   "website": "http://aminosee.funk.co.nz",
-  "license": "GNUv2",
+  "license": "GPL-2.0-only",
   "bin": {
     "aminosee": "./bin/aminosee.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/tomachinz/AminoSee.git"
   }
 }
