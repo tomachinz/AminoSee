@@ -259,7 +259,7 @@ const radMessage = terminalRGB(`
     <body>
     <h1>Histogram for ${justNameOfDNA}</h1>
 
-<input type="button" value="VIEW IMAGE" onclick="window.location = '#'">
+<a href="#scrollDownToSeeImage" class="button" title"Click To Scroll Down To See Image">VIEW IMAGE</a>
 
 
     <div id="monkeys">
