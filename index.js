@@ -62,7 +62,7 @@ const radMessage = terminalRGB(`
     welcomeMessage();
     // createTick();
 
-    // initWebserver();
+    // launchNonBlockingServer();
     const args = minimist(process.argv.slice(2))
     const cmd = args._[0]
     const howManyFiles = args._.length;
@@ -87,8 +87,7 @@ const radMessage = terminalRGB(`
       break;
 
       case 'serve':
-      // require('./cmds/today')(args)
-      // initWebserver();
+      // launchNonBlockingServer();
       launchBlockingServer();
       openMiniWebsite();
 
@@ -111,7 +110,7 @@ const radMessage = terminalRGB(`
 
       if (cmd == undefined) {
         // output(radMessage);
-        // initWebserver();
+        // launchNonBlockingServer();
       } else {
         // filename = path.resolve(process.env.PATH + cmd);
         output(` [cli parameter] ${cmd}`);
@@ -145,7 +144,10 @@ const radMessage = terminalRGB(`
 
   }
 
-  function initWebserver() {
+  function launchNonBlockingServer() {
+    const handleReq = function (req) {
+      console.log("listening", req);
+    }
     var server = httpServer.createServer({
       root: '../',
       robots: true,
@@ -156,14 +158,12 @@ const radMessage = terminalRGB(`
     });
     try {
       server.listen(3210);
-      server.callback(null, server);
+      server.callback(null, handleReq);
     } catch(e) {
       console.warn(e);
     }
   }
-  function server(req) {
-    console.log("listening", req);
-  }
+
   function openMiniWebsite() {
     opn('http://127.0.0.1:3210/');
     stat("Personal mini-Webserver starting up around now (hopefully) on port 3210");
@@ -355,7 +355,7 @@ const radMessage = terminalRGB(`
       console.log('Error while reading file.', err);
     })
     .on('end', function(){
-      console.log('Read entire file.')
+      console.log('Stream complete.')
     }));
   }
   function helpCmd(args) {
@@ -363,16 +363,18 @@ const radMessage = terminalRGB(`
   }
 
   function launchBlockingServer() {
+
+
     // openMiniWebsite();
     log("[appPath:] "+ appPath);
     // const serverPath = appPath
     output("Control-c to quit");
     const
     { spawnSync } = require( 'child_process' ),
-    httpServer = spawnSync( 'http-server', [ '-p', '3210', appPath ] );
+    httpServer = spawnSync( 'http-server -p 3210', [ appPath ] );
 
-    // console.log( `stderr: ${ls.stderr.toString()}` );
-    // console.log( `stdout: ${ls.stdout.toString()}` );
+    console.log( `stderr: ${httpServer.stderr.toString()}` );
+    console.log( `stdout: ${httpServer.stdout.toString()}` );
   }
   function checkIfPNGExists() {
     let imageExists, result;

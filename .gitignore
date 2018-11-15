@@ -1,6 +1,7 @@
 # AMINOSEE IGNORES
 .DS_Store
 aminosee/
+dna/
 
 # Logs
 logs
