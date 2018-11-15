@@ -31,7 +31,11 @@
     "test": "vows --spec --isolate",
     "start": "aminosee"
   },
-  "keywords": ["dna", "genomics", "visualisation"],
+  "keywords": [
+    "dna",
+    "genomics",
+    "visualisation"
+  ],
   "author": "Tom Atkinson <tom@funk.co.nz>",
   "website": "http://aminosee.funk.co.nz",
   "license": "GPL-2.0-only",

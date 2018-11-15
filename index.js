@@ -531,8 +531,8 @@ const radMessage = terminalRGB(`
     { spawnSync } = require( 'child_process' ),
     httpServer = spawnSync( 'http-server', [ '-p', '3210', './' ] );
 
-    console.log( `stderr: ${ls.stderr.toString()}` );
-    console.log( `stdout: ${ls.stdout.toString()}` );
+    // console.log( `stderr: ${ls.stderr.toString()}` );
+    // console.log( `stdout: ${ls.stdout.toString()}` );
   }
   function checkIfPNGExists() {
     let imageExists, result;

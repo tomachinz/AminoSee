@@ -14,6 +14,8 @@ Download this repo to your machine:
 git clone https://github.com/tomachinz/AminoSee
 cd AminoSee
 npm install
+echo Use sudo npm link to enable command "aminosee" for all users
+sudo npm link
 npm link aminosee
 ```
 
