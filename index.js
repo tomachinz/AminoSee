@@ -158,9 +158,7 @@ module.exports = () => {
         output( terminalRGB( asterix, 200,100,64) );
         processFile(path.resolve(asterix), asterix);
         processNewStreamingMethod(asterix);
-        if (!devmode) {
-          saveHistogram();
-        }
+
       }
       // https://stackoverflow.com/questions/16010915/parsing-huge-logfiles-in-node-js-read-in-line-by-line
     }
@@ -681,7 +679,9 @@ function processNewStreamingMethod(f) {
     // let renderSummary = "";
     // arrayToPNG(bytesRGBAkludge); // fingers crossed!
     arrayToPNG(); // fingers crossed!
-
+    if (!devmode) {
+      saveHistogram();
+    }
   }));
 }
 function helpCmd(args) {
