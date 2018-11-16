@@ -1,6 +1,7 @@
 
 // MADE IN NEW ZEALAND
-const radMessage = terminalRGB(`
+const radMessage =
+terminalRGB(`
   ╔═╗┌┬┐┬┌┐┌┌─┐╔═╗┌─┐┌─┐  ╔╦╗╔╗╔╔═╗  ╦  ╦┬┌─┐┬ ┬┌─┐┬─┐
   ╠═╣││││││││ │╚═╗├┤ ├┤    ║║║║║╠═╣  ╚╗╔╝│├┤ │││├┤ ├┬┘
   ╩ ╩┴ ┴┴┘└┘└─┘╚═╝└─┘└─┘  ═╩╝╝╚╝╩ ╩   ╚╝ ┴└─┘└┴┘└─┘┴└─
@@ -11,6 +12,8 @@ const radMessage = terminalRGB(`
   let devmode = false; // kills the auto opening of reports etc
   let verbose = false; // not recommended. will slow down due to console.
   let forceOverwrite = false; // safety
+  let scienceMode = false; // for Charlie
+  let zoomFactor = 240; // compress big images using a larger integer
   const minimist = require('minimist')
   const fetch = require("node-fetch");
   const path = require('path');
@@ -19,7 +22,7 @@ const radMessage = terminalRGB(`
 
   let fs = require("fs");
   let request = require('request');
-  let httpServer = require('./node_modules/http-server');
+  // let httpServer = require('./node_modules/http-server');
   let histogram = require('ascii-histogram');
   let bytes = require('bytes');
   let Jimp = require('jimp');
@@ -31,7 +34,7 @@ const radMessage = terminalRGB(`
   let cyclesPerUpdate = 1000; // start valuue only this is auto tuneded to users computer speed based on msPerUpdate
 
   // const codonsPerPixel = 99; // 99 is also good hard coded 4 codons per pixel (for large DNA bigger than 2MP).
-  const codonsPerPixel = 33; // this gives an AMAZING regular texture. current contender for the standard. .
+  const codonsPerPixel = 3 * zoomFactor; // this gives an AMAZING regular texture. current contender for the standard. .
   // const codonsPerPixel = 120; // this gives an AMAZING regular texture. current contender for the standard. .
   // const codonsPerPixel = 9; // 33 low values create big images.
 
@@ -48,11 +51,13 @@ const radMessage = terminalRGB(`
   let green = 0;
   let blue = 0;
   let alpha = 0;
+  let charClock = 0;
+
   const startStopLength = 5
   const opacity = 1 / codonsPerPixel; // 0.9 is used to make it brighter, also due to line breaks
   const proteinHighlight = 6; // px
   const startStopHighlight = 6; // px
-  let filename, filenamePNG, genomeSize, reader, hilbertPoints, herbs, levels, zoom, progress, status, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, textFile, rawDNA, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, fileUploadShowing, testColors, chunksMax, chunksize, chunksizeBytes, baseChars, cpu, subdivisions, userFeedback, contextBitmap, aminoacid, colClock, start, updateClock, percentComplete, kBytesPerSecond, pixelStacking, isStartStopCodon, justNameOfDNA, justNameOfPNG, sliceDNA, filenameHTML, howManyFiles;
+  let filename, filenamePNG, genomeSize, reader, hilbertPoints, herbs, levels, zoom, progress, status, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, textFile, rawDNA, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, fileUploadShowing, testColors, chunksMax, chunksize, chunksizeBytes, baseChars, cpu, subdivisions, renderSummary, contextBitmap, aminoacid, colClock, start, updateClock, percentComplete, kBytesPerSecond, pixelStacking, isStartStopCodon, justNameOfDNA, justNameOfPNG, sliceDNA, filenameHTML, howManyFiles;
   // set the process name in task manager
   process.title = "AminoSee DNA Viewer";
   rawDNA ="@"; // debug
@@ -60,14 +65,9 @@ const radMessage = terminalRGB(`
   setupFNames();
 
   module.exports = () => {
-    welcomeMessage();
-    // createTick();
 
-    // launchNonBlockingServer();
-    const args = minimist(process.argv.slice(2))
-    const cmd = args._[0]
-    howManyFiles = args._.length;
-    output("howManyFiles: "+ howManyFiles);
+    welcomeMessage();
+    const args = minimist(process.argv.slice(2));
 
     if (args.verbose || args.v) {
       output("verbose enabled");
@@ -81,101 +81,134 @@ const radMessage = terminalRGB(`
       output("force overwrite enabled");
       forceOverwrite = true;
     }
-
     if (args.help || args.h) {
       output("I've not made a help file yet");
     }
-
+    if (args.science || args.s) {
+      output("Disable Artistic mode. Enabled SCIENCE mode! All Codons will now be drawn the same way, no special treatment for start/stop codons in the image.");
+      scienceMode = true;
+    }
+    if (args.zoom || args.z) {
+      zoomFactor = args.zoom || args.z; // javascript is amazing
+      output("Zoom factor adjusted to: "+zoomFactor);
+      codonsPerPixel = zoomFactor * 3; // has to be multiple of 3. guess why. actually thats a trick question, i might change this.
+    }
+    let cmd = args._[0];
+    howManyFiles = args._.length;
+    output("howManyFiles: "+ howManyFiles+ " cmd: " + cmd)
     switch (cmd) {
       case 'unknown':
       output(` [unknown argument] ${cmd}`);
       break;
 
       case 'serve':
-      // launchNonBlockingServer();
-      launchBlockingServer();
-      openMiniWebsite();
-
+      // launchBlockingServer();
+      launchNonBlockingServer();
+      // openMiniWebsite();
       break;
 
-
       case 'help':
-      // require('./cmds/help')(args)
       helpCmd(args);
       break;
 
       case 'tick':
-      // var fs = require('fs'),
-      // PNG = require('pngjs2').PNG;
       createTick();
-
       break
 
       default:
-
       if (cmd == undefined) {
+        output(`cmd == undefined [all args] ${args._}`);
+
         // output(radMessage);
+        launchBlockingServer();
         // launchNonBlockingServer();
       } else {
         output(` [all args] ${args._}`);
 
-        for (cli = 0; cli < howManyFiles; cli++) {
-          const cmd = args._[cli]
-          output(` [cli file batch ${cli+1} done, ${howManyFiles-cli}] to go!`);
-          output( terminalRGB( cmd, 200,100,64) );
-          processFile(path.resolve(cmd), cmd);
-        }
         processFile(path.resolve(cmd), cmd);
-
         processNewStreamingMethod(filename);
+
+        // processOldWayNonStreamed(filename);
         if (!devmode) {
           saveHistogram();
         }
+
+
+        // for (cli = 0; cli < howManyFiles; cli++) {
+        //   asterix = args._[cli]
+        //   output(` [ file batch ${cli+1} done, ${howManyFiles-cli} to go! ]`);
+        //   output( terminalRGB( asterix, 200,100,64) );
+        //   processFile(path.resolve(asterix), asterix);
+        // }
         // https://stackoverflow.com/questions/16010915/parsing-huge-logfiles-in-node-js-read-in-line-by-line
 
-        processOldWayNonStreamed(filename);
-        // output("PROCESS EXIT");
-        // process.exit()
+
       }
-      break
+      break;
     }
   }
+
   function processFile(pf, cmd) {
-    filename = pf;
-    // filename = path.resolve(process.env.PATH + cmd);
+    filename = pf; // set a global. i know. god i gotta stop using those.
     output(` [cli parameter] ${pf}`);
-    setupFNames();
     output(` [file path] ${filename}`);
+    setupFNames();
+
+
   }
   function setupFNames() {
-    const asdf = "_aminosee_" + codonsPerPixel;
-    filenamePNG = filename + asdf + ".png";
-    filenameHTML = filename + asdf + ".html";
+    let ext = ".aminosee_" + zoomFactor;
+
+    filenamePNG = filename + ext + ".png";
+    filenameHTML = filename + ext + ".html";
 
     justNameOfDNA = replaceFilepathFileName(filename);
     justNameOfPNG = replaceFilepathFileName(filenamePNG);
     justNameOfHTML = replaceFilepathFileName(filenameHTML);
-
   }
 
   function launchNonBlockingServer() {
-    const handleReq = function (req) {
-      console.log("listening", req);
-    }
-    var server = httpServer.createServer({
-      root: '../',
-      robots: true,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Credentials': 'true'
+
+    const server = require('node-http-server');
+    log("appPath " + appPath);
+    server.deploy(
+      {
+        port: 3210,
+        root: appPath
       }
-    });
-    try {
-      server.listen(3210);
-      server.callback(null, handleReq);
-    } catch(e) {
-      console.warn(e);
-    }
+    );
+
+
+
+    // const server = require('http-server');
+    // const { get, post } = server.router;
+    // Launch server
+    // server({ port: 3210 }, [
+    //   get('/', ctx => 'Hello world!')
+    // ]);
+
+    //
+    // const handleReq = function (req) {
+    //   console.log("listening", req);
+    // }
+    //  server = httpServer.createServer({
+    //   port: 3210,
+    //   root: '../',
+    //   robots: true,
+    //   headers: {
+    //     'Access-Control-Allow-Origin': '*',
+    //     'Access-Control-Allow-Credentials': 'true'
+    //   },
+    // }, [get('/', ctx => 'Hello world!')]);
+
+
+    // });
+    // try {
+    //   server.listen(3210);
+    //   server.callback(null, handleReq);
+    // } catch(e) {
+    //   console.warn(e);
+    // }
   }
 
   function openMiniWebsite() {
@@ -199,7 +232,9 @@ const radMessage = terminalRGB(`
     output('     --verbose -v                          Verbose (dev mode)');
     output('     --help -h                                    Help (todo)');
     output('     --force -f     (Overwrite existing .png file if present)');
-    output('     --force -f     (Overwrite existing .png file if present)');
+    output('     --science -s (disable art mode, use 1:1 for start/stops)');
+    output('     --zoom -z      (positive int 1=virus size file 99=human)');
+    output(' ');
     output('use * to process all files in current directory');
     output('use serve to run the web server');
     output(terminalRGB('if you need some DNA try:', 255,255,200));
@@ -231,19 +266,19 @@ const radMessage = terminalRGB(`
           arrayToPNG(deCodons()); // ***********************THE MAGIC
           // openMiniWebsite();
           // Opens the image in the default image viewer
-          if (!devmode) {
+          if (!devmode) { // https://nodejs.org/en/docs/guides/event-loop-timers-and-nexttick/
             setImmediate(() => {
               // console.log('Opening in browser');
               opn(filenameHTML);
             });
 
             output("AminoSee may wait on your image viewer to close... or try Control-c");
-            const util = require('util');
-            const setImmediatePromise = util.promisify(setImmediate);
-            setImmediatePromise('foobar').then((value) => {
-              log("Done. (sync)"); // This is executed after all I/O callbacks.
-              opn(filenameHTML);
-            });
+            // const util = require('util');
+            // const setImmediatePromise = util.promisify(setImmediate);
+            // setImmediatePromise('foobar').then((value) => {
+            //   log("Done. (sync)"); // This is executed after all I/O callbacks.
+            //   opn(filenameHTML);
+            // });
 
             // opn(filenamePNG).then().catch();
           } else {
@@ -269,8 +304,222 @@ const radMessage = terminalRGB(`
     const fileSizeInBytes = stats.size
     return fileSizeInBytes
   }
+  function parseFileForStream(f) {
+    start = new Date().getTime();
+    let isGood = false; // This is the return value
+    const extensions = [ ".txt", ".fa", ".mfa", ".gbk", ".dna"];
+    if (extensions.some(checkFileExtension)) {
+      output("File extension appears correct");
+      isGood = true;
+    } else {
+      output("WRONG FILE EXTENSION");
+      output("must be one of");
+      console.log(extensions);
+      // setImmediate(() => {
+      //   process.exit()
+      // });
+    }
+    baseChars = getFilesizeInBytes(f);
+    output("[FILESIZE] " + baseChars);
+    function checkFileExtension(extension) {
+      const index = f.slice(-4).indexOf(extension);
+      log(index);
+      return index !== -1;
+    }
+    // if there is a png, dont render just quit
+    if (!checkIfPNGExists()) {
+      try {
+        fs.readFile(f, function (err, data) {
+          if (err) { console.warn("nothing"); }
+          // GREAT SUCCESS
+          output("preparing to stream infinite sized file")
+          isGood = true;
+        });
+      } catch(e) {
+        console.warn(e);
+      }
+    } else {
+      log("Image already rendered, use --force to overwrite");
+      isGood = false; // dont render
+    }
+    return isGood;
+  }
   function processLine(l) {
     // output(l);
+    let lineLength = l.length; // replaces baseChars
+    let codonRGBA, geneRGBA, mixRGBA = [0,0,0,0]; // codonRGBA is colour of last codon, geneRGBA is temporary pixel colour before painting.
+    let codon = "";
+
+    for (column=0; column<lineLength; column++) {
+      // build a three digit codon
+      let c = cleanChar(l.charAt(column)); // has to be ATCG
+      charClock++;
+      // ERROR DETECTING
+      // IMPLMENTED AFTER ENABLEDING "N" TO AFFECT THE IMAGE
+      // ITS AT THE STAGE WHERE IT CAN EAT ANY FILE WITH DNA
+      // BUT IF ANY META DATA CONTAINS THE WORD "CAT", "TAG" etc these are taken as coding (its a bug)
+      while ( c == ".") { // biff it and get another
+        codon =  ""; // we wipe it because... codons should not cross line break boundaries.
+        column++;
+        c = cleanChar(l.charAt(column)); // line breaks
+        charClock++;
+        red = 0;
+        green = 0;
+        blue = 0;
+
+        if (column > lineLength) {
+          log("BREAK - END OF LINE")
+          break
+        }
+      }
+      codon += c; // add the base
+
+      if (codon.length ==  3) {
+        pixelStacking++;
+        genomeSize++;
+        codonRGBA = codonToRGBA(codon); // this will report alpha info
+        if (CRASH) {
+          output("IM CRASHING Y'ALL: " + codon);
+          crashReport();
+          process.exit();
+        }
+        codon = "";// wipe for next time
+
+        // if ALPHA come back 1 = its a START/STOP codon
+        // if ALPHA is 0.1 it is an amino acid that needs custom ALPHA
+        alpha = codonRGBA[3].valueOf(); // either 0.1 or 1.0
+        if (alpha == 1.0) { // 255 = 1.0
+          isStartStopCodon = true;
+        } else if (alpha == 0.1) { // protein coding codon
+          isStartStopCodon = false;
+        } else if (alpha == 0.0) {
+          log("erm... why is alpha at 0.0? setting to 255");
+        }
+        alpha = 255;
+
+
+        if (scienceMode == true) {
+          // the first section TRUE does start/stop codons
+          // the FALSE section does Amino acid codons
+          if (isStartStopCodon) { // 255 = 1.0
+            red = codonRGBA[0].valueOf();
+            green = codonRGBA[1].valueOf();
+            blue = codonRGBA[2].valueOf();
+            paintPixel(); // BRIGHT FULL SATURATION START STOP CODON
+          } else {
+            //  not a START/STOP codon. Stack four colours per pixel.
+            // HERE WE ADDITIVELY BUILD UP THE VALUES with +=
+            mixRGBA[0] +=   parseFloat(codonRGBA[0].valueOf()) * opacity;
+            mixRGBA[1] +=   parseFloat(codonRGBA[1].valueOf()) * opacity;
+            mixRGBA[2] +=   parseFloat(codonRGBA[2].valueOf()) * opacity;
+          }
+          // pixelStacking blends colour on one pixel
+          if (pixelStacking >= codonsPerPixel) {
+            red = mixRGBA[0];
+            green = mixRGBA[1];
+            blue = mixRGBA[2];
+            paintPixel(); // FULL BRIGHTNESS
+            // reset inks:
+            pixelStacking = 0;
+            mixRGBA[0] ==   0;
+            mixRGBA[1] ==   0;
+            mixRGBA[2] ==   0;
+          }
+          // end science mode
+        } else {
+
+
+          // the first section TRUE does start/stop codons
+          // the FALSE section does Amino acid codons
+          if (isStartStopCodon) { // 255 = 1.0
+            // FADE PREVIOUS COLOUR
+            red = mixRGBA[0] * 1.5; // NOT SURE WHAT BRIGHTNESS IT WILL BE
+            green = mixRGBA[0] * 1.5;
+            blue = mixRGBA[0] * 1.5;
+            paintPixel(); // BRIGHTEN THE FIRST PIXEL BECAUSE ITS DIM
+            red = red * 0.5;
+            green = green * 0.5;
+            blue = blue * 0.5;
+            paintPixel(); // DARKEST SPACER
+            red = 200;
+            green = 200;
+            blue = 200;
+            red +=   parseFloat(codonRGBA[0].valueOf()) * 0.99;
+            green += parseFloat(codonRGBA[1].valueOf()) * 0.99;
+            blue +=  parseFloat(codonRGBA[2].valueOf()) * 0.99;
+            paintPixel(); // BRIGHT OFF-WHITE SYNC DOT PIXEL
+            red = codonRGBA[0].valueOf();
+            green = codonRGBA[1].valueOf();
+            blue = codonRGBA[2].valueOf();
+            paintPixel(); // BRIGHT FULL SATURATION START STOP CODON
+            red = red / 1.5;
+            green = green / 1.5;
+            blue = blue / 1.5;
+            paintPixel();
+            red = red / 1.5;
+            green = green / 1.5;
+            blue = blue / 1.5;
+            paintPixel();
+
+          } else {
+            //  not a START/STOP codon. Stack four colours per pixel.
+            //  isStartStopCodon = false;
+
+            // HERE WE ADDITIVELY BUILD UP THE VALUES with +=
+            mixRGBA[0] +=   parseFloat(codonRGBA[0].valueOf()) * opacity;
+            mixRGBA[1] +=   parseFloat(codonRGBA[1].valueOf()) * opacity;
+            mixRGBA[2] +=   parseFloat(codonRGBA[2].valueOf()) * opacity;
+          }
+          // pixelStacking blends colour on one pixel
+          if (pixelStacking >= codonsPerPixel) {
+
+            red = 0;
+            green = 0;
+            blue = 0; // START WITH BLACK
+            paintPixel();
+            red = mixRGBA[0];
+            green = mixRGBA[1];
+            blue = mixRGBA[2];
+            paintPixel();
+            red = red / 1.1;
+            green = green / 1.1;
+            blue = blue / 1.1;
+            paintPixel();
+            red = red / 1.1;
+            green = green / 1.1;
+            blue = blue / 1.1;
+            paintPixel();
+            red = red / 1.1;
+            green = green / 1.1;
+            blue = blue / 1.1;
+            paintPixel();
+            red = red / 1.1;
+            green = green / 1.1;
+            blue = blue / 1.1;
+            paintPixel();
+            red = red / 1.1;
+            green = green / 1.1;
+            blue = blue / 1.1;
+            paintPixel();
+            red = red / 1.1;
+            green = green / 1.1;
+            blue = blue / 1.1;
+            paintPixel();
+            red = red / 1.1;
+            green = green / 1.1;
+            blue = blue / 1.1;
+            paintPixel();
+
+            // reset inks:
+            pixelStacking = 0;
+            mixRGBA[0] ==   0;
+            mixRGBA[1] ==   0;
+            mixRGBA[2] ==   0;
+          } // artistic mode
+        } // scienceMode
+
+      } // END OF MAIN LOOP!
+    }
   }
   function legend() {
     var html = `<html>
@@ -364,18 +613,30 @@ const radMessage = terminalRGB(`
 
     var lineNr = 0;
 
-    parseFileForStream(f);
+    if (!parseFileForStream(f)) {
+      return false;
+    };
+    let colorClock = 0;
+    let errorClock = 0; // increment each non DNA, such as line break. is reset after each codon
+    percentComplete = 0;
+    pixelStacking = 0; // how we fit more than one codon on each pixel
+    colClock = 0; // which pixel are we painting?
+    alpha = 255;
+    log("STARTING MAIN LOOP");
+    update();
+
+    // setTimeout(() => {
+    //   console.log('timeout');
+    //   update();
+    // }, msPerUpdate);
 
     var s = fs.createReadStream(f).pipe(es.split()).pipe(es.mapSync(function(line){
-
       // pause the readstream
       s.pause();
-
       lineNr += 1;
       // process line here and call s.resume() when rdy
       // function below was for logging memory usage
       processLine(line);
-
       // resume the readstream, possibly from a callback
       s.resume();
     })
@@ -383,7 +644,27 @@ const radMessage = terminalRGB(`
       console.log('Error while reading file.', err);
     })
     .on('end', function(){
-      console.log('Stream complete.')
+      console.log('Stream complete.');
+      // finalUpdate(); // last update
+
+      renderSummary += `
+      Filename: ${justNameOfDNA}
+      Image Size: ${Math.round(colormapsize/100000)/10} Megapixels
+      Input bytes: ${baseChars}
+      Codons per pixel: ${codonsPerPixel}
+      Codon triplets matched: ${genomeSize}
+      Amino acid blend opacity: ${Math.round(opacity*10000)/100}%
+      `;
+      log("preparing to store: " + colormapsize + " pixels");
+      log("length in bytes rgba " + bytesRGBAkludge.length);
+
+
+      // finalUpdate();
+      // let renderSummary = "";
+
+      // arrayToPNG(bytesRGBAkludge); // fingers crossed!
+      arrayToPNG(); // fingers crossed!
+
     }));
   }
   function helpCmd(args) {
@@ -391,16 +672,16 @@ const radMessage = terminalRGB(`
   }
 
   function launchBlockingServer() {
-    // openMiniWebsite();
-    log("[appPath:] "+ appPath);
-    // const serverPath = appPath
-    output("Control-c to quit");
-    const
-    { spawnSync } = require( 'child_process' ),
-    httpServer = spawnSync( 'http-server -p 3210', [ appPath ] );
-
-    console.log( `stderr: ${httpServer.stderr.toString()}` );
-    console.log( `stdout: ${httpServer.stdout.toString()}` );
+    // // openMiniWebsite();
+    // log("[appPath:] "+ appPath);
+    // // const serverPath = appPath
+    // output("Control-c to quit");
+    // const
+    // { spawnSync } = require( 'child_process' ),
+    // httpServer = spawnSync( 'http-server -p 3210', [ appPath ] );
+    //
+    // console.log( `stderr: ${httpServer.stderr.toString()}` );
+    // console.log( `stdout: ${httpServer.stdout.toString()}` );
   }
   function checkIfPNGExists() {
     if (forceOverwrite == true) {
@@ -439,11 +720,12 @@ const radMessage = terminalRGB(`
     return buf;
   }
 
-  function arrayToPNG(regularJavascriptArray) {
+  function arrayToPNG() {
+
     let pixels, height, width;
 
-    bytes = regularJavascriptArray.length / 4 ;
-    pixels = regularJavascriptArray.length / 4 ;
+    bytes = bytesRGBAkludge.length / 4 ;
+    pixels = bytesRGBAkludge.length / 4 ;
 
     if (pixels <= widthMax) {
       width = pixels;
@@ -462,18 +744,18 @@ const radMessage = terminalRGB(`
     output("first 512 bytes: ");
     output("Saved: " + filenamePNG);
 
-    let kludgeBuffer = new ArrayBuffer(regularJavascriptArray.length); // RGBA byte order
+    let kludgeBuffer = new ArrayBuffer(bytesRGBAkludge.length); // RGBA byte order
     let kludgeClamped = Uint8ClampedArray.from(kludgeBuffer);
 
-    for (i=0;i<512;i++) {
-      log( regularJavascriptArray[i] );
+    for (i=0;i<256;i++) {
+      log( bytesRGBAkludge[i] );
     }
-    for (i=0;i<regularJavascriptArray.length;i++) {
+    for (i=0;i<bytesRGBAkludge.length;i++) {
       // kludgeClamped
-      kludgeClamped[i] = Math.round(regularJavascriptArray[i]);
+      kludgeClamped[i] = Math.round(bytesRGBAkludge[i]);
       // log( kludgeClamped[i] );
     }
-    for (i=0;i<512;i++) {
+    for (i=0;i<256;i++) {
       log( kludgeClamped[i] );
     }
     // var fname = n + new Date().getTime() + "-tick.png";
@@ -534,9 +816,9 @@ const radMessage = terminalRGB(`
 
 
       case 'do_FileInfo':
-      userFeedback = e.data.userFeedback;
+      renderSummary = e.data.renderSummary;
       Math.round(cpu/1000) + " K iops "
-      stat("[userFeedback] " + userFeedback);
+      stat("[renderSummary] " + renderSummary);
       break;
 
 
@@ -602,30 +884,7 @@ const radMessage = terminalRGB(`
     helloWorldBitmap("test");
   }
 
-  function parseFileForStream(f) {
-    let isGood = false;
-    const extensions = [ ".txt", ".fa", ".mfa", ".gbk", ".dna"];
-    if (extensions.some(checkFileExtension)) {
-      output("File extension appears correct");
-      isGood = true;
-    } else {
-      output("WRONG FILE EXTENSION");
-      output("must be one of");
-      console.log(extensions);
-      process.exit()
-    }
-    baseChars = getFilesizeInBytes(filename);
-    output("[FILESIZE] " + baseChars);
-    function checkFileExtension(extension) {
-      const index = f.slice(-4).indexOf(extension);
-      log(index);
-      return index !== -1;
 
-    }
-    return isGood;
-
-
-  }
   // it used to chop the headers
   // but not it just helps with the streaming read design.
   function parseFileMeta() {
@@ -637,19 +896,8 @@ const radMessage = terminalRGB(`
     // var regexp = "/[ATCGUNatcgun][ATCGUNatcgun][ATCGUNatcgun][ATCGUNatcgun][ATCGUNatcgun][ATCGUNatcgun]/";
     output("baseChars " + baseChars);
     output(removeLineBreaks(first1k.substring(0,360)));
-    // output("REGEX " + first1k.match(/[ATCGUN|atcgun][ATCGUNatcgun][ATCGUNatcgun][ATCGUNatcgun][ATCGUNatcgun][ATCGUNatcgun]/));
-    // let startIndex = first1k.indexOf(first1k.match(/[ATCGUN|atcgun][ATCGUNatcgun][ATCGUNatcgun][ATCGUNatcgun][ATCGUNatcgun][ATCGUNatcgun]/)); // THE BROWN KIWI FROM NEW ZEALAND crashed this function
-    // if (startIndex == null) {
-    // output("Could not find any DNA sequences in the first 10,000 bytes!");
-    // output("our regex to match:     /[ATCGUNatcgun][ATCGUNatcgun][ATCGUNatcgun][ATCGUNatcgun][ATCGUNatcgun][ATCGUNatcgun]/")
-    // output("Im gonna continue but always remember:");
-    // output("     ....to err is human, but to fuck things up properly requires.... a computer!");
-    // output("PRESS CONTROL-C TO INTERUPT");
-    // output("PRESS CONTROL-C TO INTERUPT");
-    //   output("PRESS CONTROL-C TO INTERUPT");
-    // } else {
-    //   output("Looks like DNA or RNA to me! I'll save you the lecture about trying to convert random other files for next time");
-    // }
+
+
   }
 
   // remove anything that isn't ATCG, convert U to T
@@ -681,24 +929,11 @@ const radMessage = terminalRGB(`
   }
   function paintPixel() {
     let byteIndex = colClock * 4; // 4 bytes per pixel. RGBA.
-    // let temp = Uint8ClampedArray.from([red, green, blue, alpha]);
-    //
-    // red = temp[0];
-    // green = temp[1];
-    // blue = temp[2];
-    // alpha = temp[3];
 
-    // output(red, green, blue, alpha);
-    //
-    // bytesRGBA[byteIndex+0] = red;
-    // bytesRGBA[byteIndex+1] = green;
-    // bytesRGBA[byteIndex+2] = blue;
-    // bytesRGBA[byteIndex+3] = alpha;
-
-    bytesRGBAkludge.push(red);
-    bytesRGBAkludge.push(green);
-    bytesRGBAkludge.push(blue);
-    bytesRGBAkludge.push(alpha);
+    bytesRGBAkludge.push(Math.round(red));
+    bytesRGBAkludge.push(Math.round(green));
+    bytesRGBAkludge.push(Math.round(blue));
+    bytesRGBAkludge.push(Math.round(alpha));
 
     colClock++;
   }
@@ -732,12 +967,12 @@ const radMessage = terminalRGB(`
 
   function deCodons() {
 
-    parseFileMeta(rawDNA);
+    // parseFileMeta(rawDNA);
     start = new Date().getTime();
 
     output("[AminoSee] job started at: " + new Date() + " " + baseChars + " chars ");
     let codonRGBA, geneRGBA, mixRGBA = [0,0,0,0]; // codonRGBA is colour of last codon, geneRGBA is temporary pixel colour before painting.
-    let userFeedback = "";
+    let renderSummary = "";
     let codon = "";
     let colorClock = 0;
     let errorClock = 0; // increment each non DNA, such as line break. is reset after each codon
@@ -760,14 +995,12 @@ const radMessage = terminalRGB(`
       while ( c == ".") { // biff it and get another
         codon =  ""; // we wipe it because... codons should not cross line break boundaries.
         baseCursor++;
-        errorClock++;
         red = 255;
         green = 255;
         blue = 255;
         // paintPixel();
         // if we've started building a codon then...
         // sometimes matches the header eg "CANnabis" but is not a valid codon
-        // log(codon + " " + c + " * " + errorClock);
         c = cleanChar(rawDNA.charAt(baseCursor)); // line breaks
         if (baseCursor > baseChars) {      // check for end of file
           log("BREAK - END OF FILE")
@@ -777,13 +1010,11 @@ const radMessage = terminalRGB(`
       codon += c; // add the base
 
       if (codon.length ==  3) {
-        // log("["+codon+"]");
-        errorClock = 0; // no error in decode.
         pixelStacking++;
         genomeSize++;
         updateClock++;
         if (updateClock > cyclesPerUpdate) {
-          update(baseCursor);
+          update();
         } else if (updateClock == baseChars - 1) {
           finalUpdate(); // last update
         }
@@ -807,22 +1038,25 @@ const radMessage = terminalRGB(`
         }
         alpha = 255;
 
+
+        if (scienceMode == true) {
+
+        } else {
+
+        }
+
         // the first section TRUE does start/stop codons
         // the FALSE section does Amino acid codons
         if (isStartStopCodon) { // 255 = 1.0
-          // dump the current pixel out:
-          // PREVIOUS HALF PIXEL
+          // FADE PREVIOUS COLOUR
           red = mixRGBA[0] * 1.5; // NOT SURE WHAT BRIGHTNESS IT WILL BE
           green = mixRGBA[0] * 1.5;
           blue = mixRGBA[0] * 1.5;
-          alpha = 255;
           paintPixel(); // BRIGHTEN THE FIRST PIXEL BECAUSE ITS DIM
-
           red = red * 0.5;
           green = green * 0.5;
           blue = blue * 0.5;
           paintPixel(); // DARKEST SPACER
-
           red = 200;
           green = 200;
           blue = 200;
@@ -830,7 +1064,6 @@ const radMessage = terminalRGB(`
           green += parseFloat(codonRGBA[1].valueOf()) * 0.99;
           blue +=  parseFloat(codonRGBA[2].valueOf()) * 0.99;
           paintPixel(); // BRIGHT OFF-WHITE SYNC DOT PIXEL
-
           red = codonRGBA[0].valueOf();
           green = codonRGBA[1].valueOf();
           blue = codonRGBA[2].valueOf();
@@ -844,26 +1077,17 @@ const radMessage = terminalRGB(`
           blue = blue / 1.5;
           paintPixel();
 
-        } else { //  not a START/STOP codon. Stack four colours per pixel.
-          // isStartStopCodon = false;
+        } else {
+          //  not a START/STOP codon. Stack four colours per pixel.
+          //  isStartStopCodon = false;
 
           // HERE WE ADDITIVELY BUILD UP THE VALUES with +=
-          // RESULT: instead of grey mix of colour it has interference colour splash.
-          // red +=   parseFloat(codonRGBA[0].valueOf()) * opacity;
-          // green += parseFloat(codonRGBA[1].valueOf()) * opacity;
-          // blue +=  parseFloat(codonRGBA[2].valueOf()) * opacity;
-
-
           mixRGBA[0] +=   parseFloat(codonRGBA[0].valueOf()) * opacity;
           mixRGBA[1] +=   parseFloat(codonRGBA[1].valueOf()) * opacity;
           mixRGBA[2] +=   parseFloat(codonRGBA[2].valueOf()) * opacity;
-
-          // no need to increment counters this is done at front of loop
         }
-        // IF THIS RUNS MORE THAN TWICE THE STREAM IS NOT DNA:
       }
-      // pixelStacking builds colour on one pixel
-
+      // pixelStacking blends colour on one pixel
       if (pixelStacking >= codonsPerPixel) {
 
         red = 0;
@@ -903,28 +1127,17 @@ const radMessage = terminalRGB(`
         blue = blue / 1.1;
         paintPixel();
 
-
-        //
-        // red = codonRGBA[0].valueOf();
-        // green = codonRGBA[1].valueOf();
-        // blue = codonRGBA[2].valueOf();
-        // paintPixel();
-
         // reset inks:
         pixelStacking = 0;
         mixRGBA[0] ==   0;
         mixRGBA[1] ==   0;
         mixRGBA[2] ==   0;
-        // alpha = 128;
-
       }
 
-      // see how long it takes to do 1 million base
-      // then rig updates for once per second based on that perf
 
     } // END OF MAIN LOOP!
 
-    userFeedback += `
+    renderSummary += `
     Filename: ${filename}
     Input bytes: ${rawDNA.length}
     Codon triplets: ${genomeSize}
@@ -943,6 +1156,7 @@ const radMessage = terminalRGB(`
   function finalUpdate() {
     percentComplete = 100;
     clearPrint("\r @FINISHED \r" + drawHistogram(baseChars));
+    log("finalUpdate()");
   }
   function printRadMessage() {
     console.log(terminalRGB("╔═╗┌┬┐┬┌┐┌┌─┐╔═╗┌─┐┌─┐  ╔╦╗╔╗╔╔═╗  ╦  ╦┬┌─┐┬ ┬┌─┐┬─┐\t\r", 255, 60, 250) );
@@ -951,13 +1165,16 @@ const radMessage = terminalRGB(`
     console.log(terminalRGB(" by Tom Atkinson           aminosee.funk.co.nz      \t\r", 225, 225, 130) );
     console.log(terminalRGB("  ah-mee-no-see      'I See It Now - I AminoSee it!' \t\r", 255, 180, 90) );
   }
-  function update(i) {
-    clearPrint(drawHistogram(i));
+  function update() {
+    clearPrint(drawHistogram());
+    log("this is update")
+
   }
   function crashReport() {
     dnaTail();
   }
-  function drawHistogram(i) {
+  function drawHistogram() {
+    let i = charClock; // location in the mail loop in bytes
     percentComplete = Math.round(i / baseChars * 10000) / 100;
     let now = new Date().getTime();
     let runningDuration = now - start;
@@ -983,27 +1200,30 @@ const radMessage = terminalRGB(`
     if (percentComplete == 100) {
       text += `\t    [ PROCESSING FILE COMPLETE ]`;
     } else {
-      text += `
-      [ PROCESSING REMAIN ${timeRemain} s ]`;
+      text += `\t    [ PROCESSING REMAIN ${timeRemain} s ]`;
+      setTimeout(() => {
+        update();
+        log('timeout');
+
+      }, msPerUpdate);
     }
 
     text += `${filename}
     [ CPU ${kBytesPerSecond.toLocaleString()}Kb/s ${kCodonsPerSecond.toLocaleString()} KiloCodons/s next update in ${msPerUpdate.toLocaleString()} ms]`;
     text += `
     [ ASCII: ${Math.round(baseChars/100000)/10} Mb] Codons per tile: ${codonsPerPixel} Pixels painted: ${bytesRGBAkludge.length.toLocaleString()}`;
-    text += `
-    [ ${Math.round(runningDuration/1000)} s runtime ${percentComplete}% done ] [codons: ${genomeSize.toLocaleString()}] Last Acid: `;
+    // text += `
+    // [ ${Math.round(runningDuration/1000)} s runtime ${percentComplete}% done ] [codons: ${genomeSize.toLocaleString()}] Last Acid: `;
     text += terminalRGB(aminoacid, red, green, blue);
     text += `
     `;
 
     text += dnaTail(i);
     text += histogram(aacdata, { bar: '*', width: 50, sort: true, map:  aacdata.Histocount} );
-    updateClock = 0;
+
     return text;
   }
   function isCodon(cdn) {
-
     return cdn == this.Codon;
   }
   // *
