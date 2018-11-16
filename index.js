@@ -24,24 +24,18 @@ const fetch = require("node-fetch");
 const path = require('path');
 const opn = require('opn');
 const parse = require('./node_modules/parse-apache-directory-index');
-
 let fs = require("fs");
 let request = require('request');
-// let httpServer = require('./node_modules/http-server');
 let histogram = require('ascii-histogram');
 let bytes = require('bytes');
 let Jimp = require('jimp');
 let PNG = require('pngjs').PNG;
 const appPath = require.main.filename;
 let codonRGBA, geneRGBA, mixRGBA = [0,0,0,0]; // codonRGBA is colour of last codon, geneRGBA is temporary pixel colour before painting.
-
-
 const widthMax = 1920/2;
 const resSD = 960*768;
 const resHD = 1920*1080;
 const res4K = 1920*1080*4;
-// let buffer = new ArrayBuffer(resSD*4); // RGBA byte order
-// let bytesRGBA = new Uint8ClampedArray(buffer);
 let bytesRGBAkludge = []; // um.
 const maxcolorpix = resSD; // for large genomes
 const colormapsize = resSD*4; // custom fit.
@@ -59,10 +53,9 @@ const opacity = 1 / codonsPerPixel; // 0.9 is used to make it brighter, also due
 const proteinHighlight = 6; // px
 const startStopHighlight = 6; // px
 let filename, filenamePNG, reader, hilbertPoints, herbs, levels, zoom, progress, status, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, textFile, rawDNA, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, fileUploadShowing, testColors, chunksMax, chunksize, chunksizeBytes, baseChars, cpu, subdivisions, renderSummary, contextBitmap, aminoacid, colClock, start, updateClock, percentComplete, kBytesPerSecond, pixelStacking, isStartStopCodon, justNameOfDNA, justNameOfPNG, sliceDNA, filenameHTML, howManyFiles;
-// set the process name in task manager
 process.title = "aminosee.funk.nz";
 rawDNA ="@"; // debug
-filename = "[LOADING]";        // for some reason this needs to be here. hopefully the open source community can come to rescue and fix this Kludge.
+filename = "[LOADING]"; // for some reason this needs to be here. hopefully the open source community can come to rescue and fix this Kludge.
 setupFNames();
 
 module.exports = () => {
@@ -154,19 +147,21 @@ module.exports = () => {
       // launchNonBlockingServer();
     } else {
       output(` [all args] ${args._}`);
-      processFile(path.resolve(cmd), cmd); // mvoe this one function up
 
-      processNewStreamingMethod(filename);
+      // processFile(path.resolve(cmd), cmd);
+      // processNewStreamingMethod(filename);
       // processOldWayNonStreamed(filename);
-      // if (!devmode) {
-      //   saveHistogram();
-      // }
-      // for (cli = 0; cli < howManyFiles; cli++) {
-      //   asterix = args._[cli]
-      //   output(` [ file batch ${cli+1} done, ${howManyFiles-cli} to go! ]`);
-      //   output( terminalRGB( asterix, 200,100,64) );
-      //   processFile(path.resolve(asterix), asterix);
-      // }
+
+      for (cli = 0; cli < howManyFiles; cli++) {
+        asterix = args._[cli]
+        output(` [ file batch ${cli+1} done, ${howManyFiles-cli} to go! ]`);
+        output( terminalRGB( asterix, 200,100,64) );
+        processFile(path.resolve(asterix), asterix);
+        processNewStreamingMethod(asterix);
+        if (!devmode) {
+          saveHistogram();
+        }
+      }
       // https://stackoverflow.com/questions/16010915/parsing-huge-logfiles-in-node-js-read-in-line-by-line
     }
     break;

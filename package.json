@@ -8,6 +8,7 @@
     "bmp-js": "^0.1.0",
     "bytes": "^3.0.0",
     "comlink-fetch": "^0.1.2",
+    "electron-packager": "^12.2.0",
     "event-stream": "^4.0.1",
     "hammerjs": "^2.0.8",
     "jimp": "^0.5.6",
