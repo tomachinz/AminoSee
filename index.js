@@ -6,7 +6,7 @@
 //        ah-mee no-see       "I See It Now - I AminoSee it!"
 
 let devmode = false; // kills the auto opening of reports etc
-let verbose = true; // not recommended. will slow down due to console.
+let verbose = false; // not recommended. will slow down due to console.
 let forceOverwrite = false; // safety
 let scienceMode = false; // for Charlie
 let zoomFactor = 240; // compress big images using a larger integer
@@ -420,7 +420,7 @@ function processLine(l) {
       }
       alpha = 255;
 
-
+      // output(" pixelStacking: "  + pixelStacking + " bytesRGBAkludge: " + bytesRGBAkludge.length);
       if (scienceMode == true) {
         // the first section TRUE does start/stop codons
         // the FALSE section does Amino acid codons
@@ -428,7 +428,7 @@ function processLine(l) {
           red = codonRGBA[0].valueOf();
           green = codonRGBA[1].valueOf();
           blue = codonRGBA[2].valueOf();
-          paintPixel(); // BRIGHT FULL SATURATION START STOP CODON
+          // paintPixel(); // BRIGHT FULL SATURATION START STOP CODON
         } else {
           //  not a START/STOP codon. Stack four colours per pixel.
           // HERE WE ADDITIVELY BUILD UP THE VALUES with +=
@@ -981,7 +981,7 @@ function dnaTail() {
 
 function finalUpdate() {
   percentComplete = 100;
-  clearPrint("\r @FINISHED \r" + drawHistogram(baseChars));
+  // clearPrint("\r @FINISHED \r" + drawHistogram(baseChars));
   log("finalUpdate()");
 }
 function prettyDate() {
