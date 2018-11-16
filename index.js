@@ -340,7 +340,7 @@ function parseFileForStream(f) {
   function checkFileExtension(extension) {
     const index = f.slice(-4).indexOf(extension);
     log(index);
-    return index !== -1;
+    return index != -1;
   }
   // if there is a png, dont render just quit
   if (!checkIfPNGExists()) {
@@ -680,7 +680,7 @@ function processNewStreamingMethod(f) {
     // arrayToPNG(bytesRGBAkludge); // fingers crossed!
     arrayToPNG(); // fingers crossed!
     if (!devmode) {
-      saveHistogram();
+      // saveHistogram();
     }
   }));
 }
@@ -967,15 +967,12 @@ function renderPixels() {
 }
 
 function dnaTail() {
-  if (devmode==false) {
     // DEBUG
-    return `  [ very raw ${rawDNA} ]
+    return `
     [ raw:     ${ removeLineBreaks(rawDNA)} ]
     [ clean: ${ cleanString(rawDNA)} ]
     `;
-  } else {
-    return `\r  [ raw:   ${ removeLineBreaks(rawDNA)} ]\r  [ clean: ${ cleanString(rawDNA)} ]\r\r`;
-  }
+
 }
 
 
