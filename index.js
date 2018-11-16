@@ -1027,11 +1027,10 @@ function drawHistogram() {
 
   if (charClock >= baseChars-1) {
     text += `\r  [ PROCESSING FILE COMPLETE ]`;
-    clearTimeout(nekMinut);
+    clearTimeout();
   } else {
     text += `  [ Time remain: ${timeRemain.toLocaleString()} s ]`;
     if (percentComplete < 100) {
-      const nekMinut =
       setTimeout(() => {
 
         clearPrint(drawHistogram()); // MAKE THE HISTOGRAM AGAIN LATER
