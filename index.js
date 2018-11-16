@@ -184,7 +184,8 @@ function processFile(pf, cmd) {
 
 }
 function setupFNames() {
-  let ext = ".aminosee_" + zoomFactor;
+  let ext = ".aminosee_z" + zoomFactor;
+  ( scienceMode ? ext += "_sci" : ext += "_artistic")
 
   filenamePNG = filename + ext + ".png";
   filenameHTML = filename + ext + ".html";
@@ -966,6 +967,9 @@ function clearPrint(t) {
   printRadMessage();
   console.log(t);
 }
+function render() {
+
+}
 function dnaTail(dna) {
   if (devmode) {
     // DEBUG
@@ -978,194 +982,7 @@ function dnaTail(dna) {
   }
 }
 
-function deCodons() {
 
-  // parseFileMeta(rawDNA);
-  start = new Date().getTime();
-
-  output("[AminoSee] job started at: " + new Date() + " " + baseChars + " chars ");
-  let codonRGBA, geneRGBA, mixRGBA = [0,0,0,0]; // codonRGBA is colour of last codon, geneRGBA is temporary pixel colour before painting.
-  let renderSummary = "";
-  let codon = "";
-  let colorClock = 0;
-  let errorClock = 0; // increment each non DNA, such as line break. is reset after each codon
-  updateClock = 0;
-  percentComplete = 0;
-  pixelStacking = 0; // how we fit more than one codon on each pixel
-  colClock = 0; // which pixel are we painting?
-  alpha = 255;
-  log("STARTING MAIN LOOP");
-  for (baseCursor=0; baseCursor<baseChars; baseCursor++) {
-    // log(baseCursor);
-    // build a three digit codon
-    let c = cleanChar(rawDNA.charAt(baseCursor)); // has to be ATCG
-    // log(c);
-    // ERROR DETECTING
-    // IMPLMENTED AFTER ENABLEDING "N" TO AFFECT THE IMAGE
-    // ITS AT THE STAGE WHERE IT CAN EAT ANY FILE WITH DNA
-    // BUT IF ANY META DATA CONTAINS THE WORD "CAT", "TAG" etc these are taken as coding (its a bug)
-    while ( c == ".") { // biff it and get another
-      log(".");
-      codon =  ""; // we wipe it because... codons should not cross line break boundaries.
-      baseCursor++;
-      red = 255;
-      green = 255;
-      blue = 255;
-      // paintPixel();
-      // if we've started building a codon then...
-      // sometimes matches the header eg "CANnabis" but is not a valid codon
-      c = cleanChar(rawDNA.charAt(baseCursor)); // line breaks
-      if (baseCursor > baseChars) {      // check for end of file
-        log("BREAK - END OF FILE")
-        break
-      }
-    }
-    codon += c; // add the base
-
-    if (codon.length ==  3) {
-      pixelStacking++;
-      genomeSize++;
-      updateClock++;
-      if (updateClock > cyclesPerUpdate) {
-        update();
-      } else if (updateClock == baseChars - 1) {
-        finalUpdate(); // last update
-      }
-      codonRGBA = codonToRGBA(codon); // this will report alpha info
-      if (CRASH) {
-        output("IM CRASHING Y'ALL: " + codon);
-        crashReport();
-        process.exit();
-      }
-      codon = "";// wipe for next time
-
-      // if ALPHA come back 1 = its a START/STOP codon
-      // if ALPHA is 0.1 it is an amino acid that needs custom ALPHA
-      alpha = codonRGBA[3].valueOf(); // either 0.1 or 1.0
-      if (alpha == 1.0) { // 255 = 1.0
-        isStartStopCodon = true;
-      } else if (alpha == 0.1) { // protein coding codon
-        isStartStopCodon = false;
-      } else if (alpha == 0.0) {
-        log("erm... why is alpha at 0.0? setting to 255");
-      }
-      alpha = 255;
-
-
-      if (scienceMode == true) {
-
-      } else {
-
-      }
-
-      // the first section TRUE does start/stop codons
-      // the FALSE section does Amino acid codons
-      if (isStartStopCodon) { // 255 = 1.0
-        // FADE PREVIOUS COLOUR
-        red = mixRGBA[0] * 1.5; // NOT SURE WHAT BRIGHTNESS IT WILL BE
-        green = mixRGBA[0] * 1.5;
-        blue = mixRGBA[0] * 1.5;
-        paintPixel(); // BRIGHTEN THE FIRST PIXEL BECAUSE ITS DIM
-        red = red * 0.5;
-        green = green * 0.5;
-        blue = blue * 0.5;
-        paintPixel(); // DARKEST SPACER
-        red = 200;
-        green = 200;
-        blue = 200;
-        red +=   parseFloat(codonRGBA[0].valueOf()) * 0.99;
-        green += parseFloat(codonRGBA[1].valueOf()) * 0.99;
-        blue +=  parseFloat(codonRGBA[2].valueOf()) * 0.99;
-        paintPixel(); // BRIGHT OFF-WHITE SYNC DOT PIXEL
-        red = codonRGBA[0].valueOf();
-        green = codonRGBA[1].valueOf();
-        blue = codonRGBA[2].valueOf();
-        paintPixel(); // BRIGHT FULL SATURATION START STOP CODON
-        red = red / 1.5;
-        green = green / 1.5;
-        blue = blue / 1.5;
-        paintPixel();
-        red = red / 1.5;
-        green = green / 1.5;
-        blue = blue / 1.5;
-        paintPixel();
-
-      } else {
-        //  not a START/STOP codon. Stack four colours per pixel.
-        //  isStartStopCodon = false;
-
-        // HERE WE ADDITIVELY BUILD UP THE VALUES with +=
-        mixRGBA[0] +=   parseFloat(codonRGBA[0].valueOf()) * opacity;
-        mixRGBA[1] +=   parseFloat(codonRGBA[1].valueOf()) * opacity;
-        mixRGBA[2] +=   parseFloat(codonRGBA[2].valueOf()) * opacity;
-      }
-    }
-    // pixelStacking blends colour on one pixel
-    if (pixelStacking >= codonsPerPixel) {
-
-      red = 0;
-      green = 0;
-      blue = 0; // START WITH BLACK
-      paintPixel();
-      red = mixRGBA[0];
-      green = mixRGBA[1];
-      blue = mixRGBA[2];
-      paintPixel();
-      red = red / 1.1;
-      green = green / 1.1;
-      blue = blue / 1.1;
-      paintPixel();
-      red = red / 1.1;
-      green = green / 1.1;
-      blue = blue / 1.1;
-      paintPixel();
-      red = red / 1.1;
-      green = green / 1.1;
-      blue = blue / 1.1;
-      paintPixel();
-      red = red / 1.1;
-      green = green / 1.1;
-      blue = blue / 1.1;
-      paintPixel();
-      red = red / 1.1;
-      green = green / 1.1;
-      blue = blue / 1.1;
-      paintPixel();
-      red = red / 1.1;
-      green = green / 1.1;
-      blue = blue / 1.1;
-      paintPixel();
-      red = red / 1.1;
-      green = green / 1.1;
-      blue = blue / 1.1;
-      paintPixel();
-
-      // reset inks:
-      pixelStacking = 0;
-      mixRGBA[0] ==   0;
-      mixRGBA[1] ==   0;
-      mixRGBA[2] ==   0;
-    }
-
-
-  } // END OF MAIN LOOP!
-
-  renderSummary += `
-  Filename: ${filename}
-  Input bytes: ${rawDNA.length}
-  Codon triplets: ${genomeSize}
-  Codons per pixel: ${codonsPerPixel}
-  Image: ${Math.round(colormapsize/100000)/10} Megapixels
-  Amino acid opacity: ${opacity}%
-  `;
-  log("preparing to store: " + colormapsize + " pixels");
-  log("length in bytes rgba " + bytesRGBAkludge.length);
-
-
-  finalUpdate();
-  // return bytesRGBA;
-  return bytesRGBAkludge;
-}
 function finalUpdate() {
   percentComplete = 100;
   clearPrint("\r @FINISHED \r" + drawHistogram(baseChars));
@@ -1229,7 +1046,7 @@ function drawHistogram() {
   }
   if (scienceMode) { text += "[ Science Mode 1:1]" }
   text += `
-  [ ${Math.round(runningDuration/1000)} s runtime ${percentComplete}% done ] [codons: ${genomeSize.toLocaleString()}] Byte remain: ${Math.round((baseChars - charClock)/1000)/1000} Last Acid: `;
+  [ ${Math.round(runningDuration/1000)} s runtime ${percentComplete}% done ] [codons: ${genomeSize.toLocaleString()}] MB remain: ${Math.round((baseChars - charClock)/1000)/1000} Last Acid: `;
 
 
   text += terminalRGB(aminoacid, red, green, blue);
@@ -2153,7 +1970,183 @@ function isRawRGBAData(obj) {
       }
     ]
     ;
-
+    // function deCodons() {
+    //
+    //   // parseFileMeta(rawDNA);
+    //   start = new Date().getTime();
+    //
+    //   output("[AminoSee] job started at: " + new Date() + " " + baseChars + " chars ");
+    //   let codonRGBA, geneRGBA, mixRGBA = [0,0,0,0]; // codonRGBA is colour of last codon, geneRGBA is temporary pixel colour before painting.
+    //   let renderSummary = "";
+    //   let codon = "";
+    //   let colorClock = 0;
+    //   let errorClock = 0; // increment each non DNA, such as line break. is reset after each codon
+    //   updateClock = 0;
+    //   percentComplete = 0;
+    //   pixelStacking = 0; // how we fit more than one codon on each pixel
+    //   colClock = 0; // which pixel are we painting?
+    //   alpha = 255;
+    //   log("STARTING MAIN LOOP");
+    //   for (baseCursor=0; baseCursor<baseChars; baseCursor++) {
+    //     // log(baseCursor);
+    //     // build a three digit codon
+    //     let c = cleanChar(rawDNA.charAt(baseCursor)); // has to be ATCG
+    //     // log(c);
+    //     // ERROR DETECTING
+    //     // IMPLMENTED AFTER ENABLEDING "N" TO AFFECT THE IMAGE
+    //     // ITS AT THE STAGE WHERE IT CAN EAT ANY FILE WITH DNA
+    //     // BUT IF ANY META DATA CONTAINS THE WORD "CAT", "TAG" etc these are taken as coding (its a bug)
+    //     while ( c == ".") { // biff it and get another
+    //       log(".");
+    //       codon =  ""; // we wipe it because... codons should not cross line break boundaries.
+    //       baseCursor++;
+    //       red = 255;
+    //       green = 255;
+    //       blue = 255;
+    //       // paintPixel();
+    //       // if we've started building a codon then...
+    //       // sometimes matches the header eg "CANnabis" but is not a valid codon
+    //       c = cleanChar(rawDNA.charAt(baseCursor)); // line breaks
+    //       if (baseCursor > baseChars) {      // check for end of file
+    //         log("BREAK - END OF FILE")
+    //         break
+    //       }
+    //     }
+    //     codon += c; // add the base
+    //
+    //     if (codon.length ==  3) {
+    //       pixelStacking++;
+    //       genomeSize++;
+    //       updateClock++;
+    //       if (updateClock > cyclesPerUpdate) {
+    //         update();
+    //       } else if (updateClock == baseChars - 1) {
+    //         finalUpdate(); // last update
+    //       }
+    //       codonRGBA = codonToRGBA(codon); // this will report alpha info
+    //       if (CRASH) {
+    //         output("IM CRASHING Y'ALL: " + codon);
+    //         crashReport();
+    //         process.exit();
+    //       }
+    //       codon = "";// wipe for next time
+    //
+    //       // if ALPHA come back 1 = its a START/STOP codon
+    //       // if ALPHA is 0.1 it is an amino acid that needs custom ALPHA
+    //       alpha = codonRGBA[3].valueOf(); // either 0.1 or 1.0
+    //       if (alpha == 1.0) { // 255 = 1.0
+    //         isStartStopCodon = true;
+    //       } else if (alpha == 0.1) { // protein coding codon
+    //         isStartStopCodon = false;
+    //       } else if (alpha == 0.0) {
+    //         log("erm... why is alpha at 0.0? setting to 255");
+    //       }
+    //       alpha = 255;
+    //
+    //
+    //
+    //
+    //       if (isStartStopCodon) { // 255 = 1.0
+    //         // FADE PREVIOUS COLOUR
+    //         red = mixRGBA[0] * 1.5; // NOT SURE WHAT BRIGHTNESS IT WILL BE
+    //         green = mixRGBA[0] * 1.5;
+    //         blue = mixRGBA[0] * 1.5;
+    //         paintPixel(); // BRIGHTEN THE FIRST PIXEL BECAUSE ITS DIM
+    //         red = red * 0.5;
+    //         green = green * 0.5;
+    //         blue = blue * 0.5;
+    //         paintPixel(); // DARKEST SPACER
+    //         red = 200;
+    //         green = 200;
+    //         blue = 200;
+    //         red +=   parseFloat(codonRGBA[0].valueOf()) * 0.99;
+    //         green += parseFloat(codonRGBA[1].valueOf()) * 0.99;
+    //         blue +=  parseFloat(codonRGBA[2].valueOf()) * 0.99;
+    //         paintPixel(); // BRIGHT OFF-WHITE SYNC DOT PIXEL
+    //         red = codonRGBA[0].valueOf();
+    //         green = codonRGBA[1].valueOf();
+    //         blue = codonRGBA[2].valueOf();
+    //         paintPixel(); // BRIGHT FULL SATURATION START STOP CODON
+    //         red = red / 1.5;
+    //         green = green / 1.5;
+    //         blue = blue / 1.5;
+    //         paintPixel();
+    //         red = red / 1.5;
+    //         green = green / 1.5;
+    //         blue = blue / 1.5;
+    //         paintPixel();
+    //
+    //       } else {
+    //
+    //
+    //         mixRGBA[0] +=   parseFloat(codonRGBA[0].valueOf()) * opacity;
+    //         mixRGBA[1] +=   parseFloat(codonRGBA[1].valueOf()) * opacity;
+    //         mixRGBA[2] +=   parseFloat(codonRGBA[2].valueOf()) * opacity;
+    //       }
+    //     }
+    //     if (pixelStacking >= codonsPerPixel) {
+    //
+    //       red = 0;
+    //       green = 0;
+    //       blue = 0; // START WITH BLACK
+    //       paintPixel();
+    //       red = mixRGBA[0];
+    //       green = mixRGBA[1];
+    //       blue = mixRGBA[2];
+    //       paintPixel();
+    //       red = red / 1.1;
+    //       green = green / 1.1;
+    //       blue = blue / 1.1;
+    //       paintPixel();
+    //       red = red / 1.1;
+    //       green = green / 1.1;
+    //       blue = blue / 1.1;
+    //       paintPixel();
+    //       red = red / 1.1;
+    //       green = green / 1.1;
+    //       blue = blue / 1.1;
+    //       paintPixel();
+    //       red = red / 1.1;
+    //       green = green / 1.1;
+    //       blue = blue / 1.1;
+    //       paintPixel();
+    //       red = red / 1.1;
+    //       green = green / 1.1;
+    //       blue = blue / 1.1;
+    //       paintPixel();
+    //       red = red / 1.1;
+    //       green = green / 1.1;
+    //       blue = blue / 1.1;
+    //       paintPixel();
+    //       red = red / 1.1;
+    //       green = green / 1.1;
+    //       blue = blue / 1.1;
+    //       paintPixel();
+    //
+    //       pixelStacking = 0;
+    //       mixRGBA[0] ==   0;
+    //       mixRGBA[1] ==   0;
+    //       mixRGBA[2] ==   0;
+    //     }
+    //
+    //
+    //   } // END OF MAIN LOOP!
+    //
+    //   renderSummary += `
+    //   Filename: ${filename}
+    //   Input bytes: ${rawDNA.length}
+    //   Codon triplets: ${genomeSize}
+    //   Codons per pixel: ${codonsPerPixel}
+    //   Image: ${Math.round(colormapsize/100000)/10} Megapixels
+    //   Amino acid opacity: ${opacity}%
+    //   `;
+    //   log("preparing to store: " + colormapsize + " pixels");
+    //   log("length in bytes rgba " + bytesRGBAkludge.length);
+    //
+    //
+    //   finalUpdate();
+    //   return bytesRGBAkludge;
+    // }
 
     const radMessage =
     terminalRGB(`
