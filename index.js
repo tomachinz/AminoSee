@@ -370,7 +370,7 @@ function parseFileForStream(f) {
 }
 function processLine(l) {
   rawDNA = l;
-  // output(l);
+  output(l);
   let lineLength = l.length; // replaces baseChars
   let codonRGBA, geneRGBA, mixRGBA = [0,0,0,0]; // codonRGBA is colour of last codon, geneRGBA is temporary pixel colour before painting.
   let codon = "";
