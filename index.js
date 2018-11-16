@@ -179,14 +179,20 @@ function processFile(pf, cmd) {
 }
 function setupFNames() {
   let ext = ".aminosee_z" + zoomFactor;
+  justNameOfDNA = replaceFilepathFileName(filename);
+  // let posi = filename.indexOf(justNameOfDNA);
+
   ( scienceMode ? ext += "_sci" : ext += "_artistic")
 
+  // filenamePNG = filename.substring(0, filename.length-posi) + "/images/"  + ext + ".png";
   filenamePNG = filename + ext + ".png";
   filenameHTML = filename + ext + ".html";
 
-  justNameOfDNA = replaceFilepathFileName(filename);
   justNameOfPNG = replaceFilepathFileName(filenamePNG);
   justNameOfHTML = replaceFilepathFileName(filenameHTML);
+
+  console.log("FILENAMES SETUP AS: ");
+  console.log(filenamePNG, filenameHTML);
 }
 
 function launchNonBlockingServer() {
@@ -424,9 +430,9 @@ function processLine(l) {
         // the first section TRUE does start/stop codons
         // the FALSE section does Amino acid codons
         if (isStartStopCodon) { // 255 = 1.0
-          red = codonRGBA[0].valueOf();
-          green = codonRGBA[1].valueOf();
-          blue = codonRGBA[2].valueOf();
+          red = codonRGBA[0].valueOf()*0.75;
+          green = codonRGBA[1].valueOf()*0.75;
+          blue = codonRGBA[2].valueOf()*0.75;
           // paintPixel(); // BRIGHT FULL SATURATION START STOP CODON
         } else {
           //  not a START/STOP codon. Stack four colours per pixel.
@@ -456,7 +462,7 @@ function processLine(l) {
         if (isStartStopCodon) { // 255 = 1.0
           // FADE PREVIOUS COLOUR
           red = mixRGBA[0] * 1.5; // NOT SURE WHAT BRIGHTNESS IT WILL BE
-          green = mixRGBA[0] * 1.5;
+          green = mixRGBA[0] * 1.5; // TRYING TO BRIGHTEN IT 
           blue = mixRGBA[0] * 1.5;
           paintPixel(); // BRIGHTEN THE FIRST PIXEL BECAUSE ITS DIM
           red = red * 0.5;
