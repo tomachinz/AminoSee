@@ -15,9 +15,9 @@ let clearscreen = true;
 let msPerUpdate = 500; // milliseconds per  update
 const maxMsPerUpdate = 12000; // milliseconds per update
 let cyclesPerUpdate = 1000; // start valuue only this is auto tuneded to users computer speed based on msPerUpdate
-const codonsPerPixel = 99; // 99 is also good hard coded 4 codons per pixel (for large DNA bigger than 2MP).
+// const codonsPerPixel = 99; // 99 is also good hard coded 4 codons per pixel (for large DNA bigger than 2MP).
 // const codonsPerPixel = 3 * zoomFactor; // this gives an AMAZING regular texture. current contender for the standard. .
-// const codonsPerPixel = 120; // this gives an AMAZING regular texture. current contender for the standard. .
+const codonsPerPixel = 1200; // this gives an AMAZING regular texture. current contender for the standard. .
 // const codonsPerPixel = 9; // 33 low values create big images.
 const minimist = require('minimist')
 const fetch = require("node-fetch");
@@ -33,6 +33,7 @@ let bytes = require('bytes');
 let Jimp = require('jimp');
 let PNG = require('pngjs').PNG;
 const appPath = require.main.filename;
+let codonRGBA, geneRGBA, mixRGBA = [0,0,0,0]; // codonRGBA is colour of last codon, geneRGBA is temporary pixel colour before painting.
 
 
 const widthMax = 1920/2;
@@ -150,7 +151,7 @@ module.exports = () => {
       output(`cmd == undefined [all args] ${args._}`);
 
       // output(radMessage);
-      launchBlockingServer();
+      // launchBlockingServer();
       // launchNonBlockingServer();
     } else {
       output(` [all args] ${args._}`);
@@ -370,9 +371,8 @@ function parseFileForStream(f) {
 }
 function processLine(l) {
   rawDNA = l;
-  output(l);
+  // output(l);
   let lineLength = l.length; // replaces baseChars
-  let codonRGBA, geneRGBA, mixRGBA = [0,0,0,0]; // codonRGBA is colour of last codon, geneRGBA is temporary pixel colour before painting.
   let codon = "";
 
   for (column=0; column<lineLength; column++) {
@@ -978,7 +978,7 @@ function dnaTail(dna) {
     [ clean: ${ cleanString(rawDNA.substring(charClock-360,charClock))} ]
     `;
   } else {
-    return `\n  [ raw:   ${ removeLineBreaks(rawDNA.substring(charClock-69,charClock))} ]\n  [ clean: ${ cleanString(rawDNA.substring(charClock-69,charClock))} ]\n\n`;
+    return `\r  [ raw:   ${ removeLineBreaks(rawDNA.substring(charClock-69,charClock))} ]\r  [ clean: ${ cleanString(rawDNA.substring(charClock-69,charClock))} ]\r\r`;
   }
 }
 
@@ -1025,8 +1025,8 @@ function drawHistogram() {
   for (h=0;h<histoGRAM.length;h++) {
     aacdata[histoGRAM[h].Codon] = histoGRAM[h].Histocount ;
   }
-  text = "\n";
-  text += `      @i ${charClock.toLocaleString()} File: ${terminalRGB(justNameOfDNA, 255, 255, 255)}\n`;
+  text = "\r";
+  text += `      @i ${charClock.toLocaleString()} File: ${terminalRGB(justNameOfDNA, 255, 255, 255)}\r`;
   // text += terminalRGB(aminoacid, red, green, blue);
 
   if (charClock >= baseChars-5) {
@@ -1044,7 +1044,7 @@ function drawHistogram() {
       log("ntdoneyet");
     }
   }
-  if (scienceMode) { text += "[ Science Mode 1:1]" }
+  if (scienceMode) { text += " [ Science Mode 1:1]" }
   text += `
   [ ${Math.round(runningDuration/1000)} s runtime ${percentComplete}% done ] [codons: ${genomeSize.toLocaleString()}] MB remain: ${Math.round((baseChars - charClock)/1000)/1000} Last Acid: `;
 
