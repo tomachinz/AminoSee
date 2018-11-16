@@ -9,10 +9,10 @@ terminalRGB(`
   ah-mee no-see         "say it like a mexican"
   `, 96, 64, 245);
 
-  let devmode = false; // kills the auto opening of reports etc
-  let verbose = false; // not recommended. will slow down due to console.
-  let forceOverwrite = false; // safety
-  let scienceMode = false; // for Charlie
+  let devmode = true; // kills the auto opening of reports etc
+  let verbose = true; // not recommended. will slow down due to console.
+  let forceOverwrite = true; // safety
+  let scienceMode = true; // for Charlie
   let zoomFactor = 240; // compress big images using a larger integer
   const minimist = require('minimist')
   const fetch = require("node-fetch");
@@ -67,8 +67,21 @@ terminalRGB(`
   module.exports = () => {
 
     welcomeMessage();
-    const args = minimist(process.argv.slice(2));
+    // const args = minimist(process.argv.slice(2));
 
+    const args = minimist(process.argv.slice(2), {
+      string: [ 'lang' ],
+      boolean: [ 'science' ],
+      boolean: [ 'verbose' ],
+      alias: { h: 'help', v: 'verbose', s: 'science', f: 'forceOverwrite' },
+      default: { lang: 'en' },
+      '--': true,
+      stopEarly: true, /* populate _ with first non-option */
+      unknown: function unKnownParam() {
+        log('unKnownParam');
+      } /* invoked on unknown param */
+    })
+console.dir(args);
     if (args.verbose || args.v) {
       output("verbose enabled");
       verbose = true;
@@ -320,6 +333,7 @@ terminalRGB(`
       // });
     }
     baseChars = getFilesizeInBytes(f);
+
     output("[FILESIZE] " + baseChars);
     function checkFileExtension(extension) {
       const index = f.slice(-4).indexOf(extension);
@@ -336,6 +350,7 @@ terminalRGB(`
           isGood = true;
         });
       } catch(e) {
+        log("Unable to access disk.");
         console.warn(e);
       }
     } else {
@@ -363,6 +378,7 @@ terminalRGB(`
         column++;
         c = cleanChar(l.charAt(column)); // line breaks
         charClock++;
+        errorClock++;
         red = 0;
         green = 0;
         blue = 0;
@@ -619,6 +635,7 @@ terminalRGB(`
     let colorClock = 0;
     let errorClock = 0; // increment each non DNA, such as line break. is reset after each codon
     percentComplete = 0;
+    genomeSize = 0; // number of codons.
     pixelStacking = 0; // how we fit more than one codon on each pixel
     colClock = 0; // which pixel are we painting?
     alpha = 255;
@@ -646,7 +663,7 @@ terminalRGB(`
     .on('end', function(){
       console.log('Stream complete.');
       // finalUpdate(); // last update
-
+      percentComplete = 100;
       renderSummary += `
       Filename: ${justNameOfDNA}
       Image Size: ${Math.round(colormapsize/100000)/10} Megapixels
@@ -888,7 +905,6 @@ terminalRGB(`
   // it used to chop the headers
   // but not it just helps with the streaming read design.
   function parseFileMeta() {
-    rawDNA = rawDNA + " "; // convert to string. is this a kludge? maybe i not know how to program. maybe this is a bug in Javascript?
     // show users a sample of their file
     const first1k = rawDNA.substring(0,999);
     baseChars = rawDNA.length; // Size of file in bytes
@@ -896,8 +912,6 @@ terminalRGB(`
     // var regexp = "/[ATCGUNatcgun][ATCGUNatcgun][ATCGUNatcgun][ATCGUNatcgun][ATCGUNatcgun][ATCGUNatcgun]/";
     output("baseChars " + baseChars);
     output(removeLineBreaks(first1k.substring(0,360)));
-
-
   }
 
   // remove anything that isn't ATCG, convert U to T
@@ -1199,21 +1213,24 @@ terminalRGB(`
     `;
     if (percentComplete == 100) {
       text += `\t    [ PROCESSING FILE COMPLETE ]`;
+      clearTimeout();
     } else {
-      text += `\t    [ PROCESSING REMAIN ${timeRemain} s ]`;
-      setTimeout(() => {
-        update();
-        log('timeout');
+      text += `\t     [ PROCESSING REMAIN ${timeRemain} s ]`;
+      if (percentComplete != 100) {
+        setTimeout(() => {
+          update();
+          log('timeout');
 
-      }, msPerUpdate);
+        }, msPerUpdate);
+      }
     }
 
     text += `${filename}
     [ CPU ${kBytesPerSecond.toLocaleString()}Kb/s ${kCodonsPerSecond.toLocaleString()} KiloCodons/s next update in ${msPerUpdate.toLocaleString()} ms]`;
     text += `
     [ ASCII: ${Math.round(baseChars/100000)/10} Mb] Codons per tile: ${codonsPerPixel} Pixels painted: ${bytesRGBAkludge.length.toLocaleString()}`;
-    // text += `
-    // [ ${Math.round(runningDuration/1000)} s runtime ${percentComplete}% done ] [codons: ${genomeSize.toLocaleString()}] Last Acid: `;
+    text += `
+    [ ${Math.round(runningDuration/1000)} s runtime ${percentComplete}% done ] [codons: ${genomeSize.toLocaleString()}] Last Acid: `;
     text += terminalRGB(aminoacid, red, green, blue);
     text += `
     `;
