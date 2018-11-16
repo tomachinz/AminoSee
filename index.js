@@ -17,7 +17,7 @@ const maxMsPerUpdate = 12000; // milliseconds per update
 let cyclesPerUpdate = 1000; // start valuue only this is auto tuneded to users computer speed based on msPerUpdate
 // const codonsPerPixel = 99; // 99 is also good hard coded 4 codons per pixel (for large DNA bigger than 2MP).
 // const codonsPerPixel = 3 * zoomFactor; // this gives an AMAZING regular texture. current contender for the standard. .
-const codonsPerPixel = 1200; // this gives an AMAZING regular texture. current contender for the standard. .
+let codonsPerPixel = 1200; // this gives an AMAZING regular texture. current contender for the standard. .
 // const codonsPerPixel = 9; // 33 low values create big images.
 const minimist = require('minimist')
 const fetch = require("node-fetch");
@@ -60,24 +60,23 @@ const proteinHighlight = 6; // px
 const startStopHighlight = 6; // px
 let filename, filenamePNG, reader, hilbertPoints, herbs, levels, zoom, progress, status, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, textFile, rawDNA, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, fileUploadShowing, testColors, chunksMax, chunksize, chunksizeBytes, baseChars, cpu, subdivisions, renderSummary, contextBitmap, aminoacid, colClock, start, updateClock, percentComplete, kBytesPerSecond, pixelStacking, isStartStopCodon, justNameOfDNA, justNameOfPNG, sliceDNA, filenameHTML, howManyFiles;
 // set the process name in task manager
-process.title = "AminoSee DNA Viewer";
+process.title = "aminosee.funk.nz";
 rawDNA ="@"; // debug
-filename = "./TestPattern.txt";        // for some reason this needs to be here. hopefully the open source community can come to rescue and fix this Kludge.
+filename = "[LOADING]";        // for some reason this needs to be here. hopefully the open source community can come to rescue and fix this Kludge.
 setupFNames();
 
 module.exports = () => {
 
   welcomeMessage();
-  // const args = minimist(process.argv.slice(2));
 
-  let args = minimist(process.argv.slice(2), {
+  const args = minimist(process.argv.slice(2), {
     boolean: [ 'verbose' ],
     boolean: [ 'devmode' ],
     boolean: [ 'clearscreen' ],
+    string: [ 'zoom'],
     default: { clearscreen: true },
     '--': true,
 
- /* invoked on unknown param */
   });
     /*
     alias: { v: 'verbose', s: 'science', d: 'devmode' },
@@ -270,9 +269,10 @@ function welcomeMessage() {
   output('wget https://www.funk.co.nz/aminosee/dna/megabase.fa');
   output(' ');
   output('usage: ');
-  output('     aminosee [human-genome-DNA.txt]    (render file to image)');
-  output('     aminosee serve              (run viewer micro web server)');
-  output('     aminosee *                      (render all files in dir)');
+  output('     aminosee [human-genome-DNA.txt]     (render file to image)');
+  output('     aminosee serve               (run viewer micro web server)');
+  output('     aminosee *                       (render all files in dir)');
+  output('     aminosee * -z 1000 --science (zoom all files science mode)');
 
 }
 
@@ -670,7 +670,7 @@ function processNewStreamingMethod(f) {
   })
   .on('end', function(){
     console.log('Stream complete.');
-    // finalUpdate(); // last update
+    finalUpdate(); // last update
     percentComplete = 100;
     renderSummary += `
     Filename: ${justNameOfDNA}
@@ -959,26 +959,27 @@ function paintPixel() {
 }
 
 function clearPrint(t) {
-  if (clearscreen) {
+  // if (clearscreen) {
     process.stdout.write("\r\x1b[K");
     process.stdout.write('\033c');
-  }
+  // }
 
   printRadMessage();
   console.log(t);
 }
-function render() {
+function renderPixels() {
 
 }
-function dnaTail(dna) {
-  if (devmode) {
+
+function dnaTail() {
+  if (devmode==false) {
     // DEBUG
-    return `  [ very raw ${ rawDNA.substring(charClock-360,charClock)} ]
-    [ raw:     ${ removeLineBreaks(rawDNA.substring(charClock-360,charClock))} ]
-    [ clean: ${ cleanString(rawDNA.substring(charClock-360,charClock))} ]
+    return `  [ very raw ${rawDNA} ]
+    [ raw:     ${ removeLineBreaks(rawDNA)} ]
+    [ clean: ${ cleanString(rawDNA)} ]
     `;
   } else {
-    return `\r  [ raw:   ${ removeLineBreaks(rawDNA.substring(charClock-69,charClock))} ]\r  [ clean: ${ cleanString(rawDNA.substring(charClock-69,charClock))} ]\r\r`;
+    return `\r  [ raw:   ${ removeLineBreaks(rawDNA)} ]\r  [ clean: ${ cleanString(rawDNA)} ]\r\r`;
   }
 }
 
@@ -1029,12 +1030,13 @@ function drawHistogram() {
   text += `      @i ${charClock.toLocaleString()} File: ${terminalRGB(justNameOfDNA, 255, 255, 255)}\r`;
   // text += terminalRGB(aminoacid, red, green, blue);
 
-  if (charClock >= baseChars-5) {
+  if (charClock >= baseChars-1) {
     text += `\r  [ PROCESSING FILE COMPLETE ]`;
-    clearTimeout();
+    clearTimeout(nekMinut);
   } else {
     text += `  [ Time remain: ${timeRemain.toLocaleString()} s ]`;
     if (percentComplete < 100) {
+      const nekMinut =
       setTimeout(() => {
 
         clearPrint(drawHistogram()); // MAKE THE HISTOGRAM AGAIN LATER
@@ -1058,7 +1060,7 @@ function drawHistogram() {
   [ DNA Filesize: ${Math.round(baseChars/1000)/1000} Mb Codons per tile: ${codonsPerPixel} Pixels painted: ${bytesRGBAkludge.length.toLocaleString()} ]`;
 
   text += dnaTail();
-  text += histogram(aacdata, { bar: '*', width: 50, sort: true, map:  aacdata.Histocount} );
+  text += histogram(aacdata, { bar: '/', width: 50, sort: true, map:  aacdata.Histocount} );
            // TOTAL Start Codons (enough space to line up nicely)
   text += "                  " + filename;
   return text;
