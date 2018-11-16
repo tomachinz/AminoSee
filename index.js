@@ -154,7 +154,8 @@ module.exports = () => {
 
       for (cli = 0; cli < howManyFiles; cli++) {
         asterix = args._[cli]
-        output(` [ file batch ${cli+1} done, ${howManyFiles-cli} to go! ]`);
+        output(` [ file batch ${cli+1} done, ${howManyFiles-cli} to go! ] ${asterix}`);
+        setupFNames();
         output( terminalRGB( asterix, 200,100,64) );
         processFile(path.resolve(asterix), asterix);
         processNewStreamingMethod(asterix);
@@ -679,9 +680,9 @@ function processNewStreamingMethod(f) {
     // let renderSummary = "";
     // arrayToPNG(bytesRGBAkludge); // fingers crossed!
     arrayToPNG(); // fingers crossed!
-    if (!devmode) {
+    // if (!devmode) {
       // saveHistogram();
-    }
+    // }
   }));
 }
 function helpCmd(args) {
