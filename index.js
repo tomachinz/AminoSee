@@ -20,7 +20,6 @@ let codonsPerPixel = 1; // this gives an AMAZING regular texture. current conten
 const minimist = require('minimist')
 const fetch = require("node-fetch");
 const path = require('path');
-// const opn = require('opn');
 const opn = require('./node_modules/opn');
 const parse = require('./node_modules/parse-apache-directory-index');
 let fs = require("fs");
@@ -51,16 +50,16 @@ const startStopLength = 5
 const opacity = 1 / codonsPerPixel; // 0.9 is used to make it brighter, also due to line breaks
 const proteinHighlight = 6; // px
 const startStopHighlight = 6; // px
-let filename, filenamePNG, reader, hilbertPoints, herbs, levels, progress, status, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, textFile, rawDNA, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, fileUploadShowing, testColors, chunksMax, chunksize, chunksizeBytes, baseChars, cpu, subdivisions, renderSummary, contextBitmap, aminoacid, colClock, start, updateClock, percentComplete, kBytesPerSecond, pixelStacking, isStartStopCodon, justNameOfDNA, justNameOfPNG, sliceDNA, filenameHTML, howManyFiles;
+let filename, filenamePNG, reader, hilbertPoints, herbs, levels, progress, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, textFile, rawDNA, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, fileUploadShowing, testColors, chunksMax, chunksize, chunksizeBytes, baseChars, cpu, subdivisions, renderSummary, contextBitmap, aminoacid, colClock, start, updateClock, percentComplete, kBytesPerSecond, pixelStacking, isStartStopCodon, justNameOfDNA, justNameOfPNG, sliceDNA, filenameHTML, howManyFiles;
 process.title = "aminosee.funk.nz";
 rawDNA ="@"; // debug
 filename = "[LOADING]"; // for some reason this needs to be here. hopefully the open source community can come to rescue and fix this Kludge.
 const extensions = [ "txt", "fa", "mfa", "gbk", "dna"];
-
+let status = "load";
 setupFNames();
-
+opn("megabase.aminosee_z2_artistic.png");
 module.exports = () => {
-
+  status = "exports";
   welcomeMessage();
 
   const args = minimist(process.argv.slice(2), {
@@ -121,15 +120,19 @@ module.exports = () => {
     clear = false;
   }
 
-
   let cmd = args._[0];
   howManyFiles = args._.length;
   output("howManyFiles: "+ howManyFiles+ " cmd: " + cmd)
-  output("howManyFiles: "+ howManyFiles+ " cmd: " + cmd)
-  output("howManyFiles: "+ howManyFiles+ " cmd: " + cmd)
-  output("howManyFiles: "+ howManyFiles+ " cmd: " + cmd)
+  if (howManyFiles > 0) {
   filename = path.resolve(cmd);
-
+} else {
+  log("no files provided, exiting")
+  setTimeout(() => {
+    printRadMessage();
+    output("bye");
+    process.exit();
+  }, 1000);
+}
   switch (cmd) {
     case 'unknown':
     output(` [unknown argument] ${cmd}`);
@@ -158,19 +161,19 @@ module.exports = () => {
       // launchNonBlockingServer();
     } else {
       output(` [all args] ${args._}`);
-
-      // processFile(path.resolve(cmd), cmd);
-      processNewStreamingMethod(filename);
+      status = "pre-streaming";
+      // processNewStreamingMethod(filename);
       // processOldWayNonStreamed(filename);
 
-      // for (cli = 1; cli < howManyFiles; cli++) {
-      //   asterix = args._[cli]
-      //   output(` [ file batch ${cli+1} done, ${howManyFiles-cli} to go! ] ${asterix}`);
-      //   setupFNames();
-      //   output( terminalRGB( asterix, 200,100,64) );
-      //   processFile(path.resolve(asterix), asterix);
-      //   processNewStreamingMethod(asterix);
-      // }
+      for (cli = 0; cli < howManyFiles; cli++) {
+        status = "args loop";
+
+        asterix = args._[cli]
+        output(` [ file batch ${cli+1} done, ${howManyFiles-cli} to go! ] ${asterix}`);
+        setupFNames();
+        output( terminalRGB( asterix, 200,100,64) );
+        processNewStreamingMethod(asterix);
+      }
       // https://stackoverflow.com/questions/16010915/parsing-huge-logfiles-in-node-js-read-in-line-by-line
     }
     break;
@@ -179,12 +182,7 @@ module.exports = () => {
 function cmdTest() {
   output("started from CLI");
 }
-// function processFile(pf, cmd) {
-//   filename = pf; // set a global. i know. god i gotta stop using those.
-//   output(` [cli parameter] ${pf}`);
-//   output(` [file path] ${filename}`);
-//   setupFNames();
-// }
+
 function removeFileExtension(f) {
   return f.substring(0, f.length - (getFileExtension(f).length+1));
 }
@@ -437,7 +435,7 @@ function processLine(l) {
           mixRGBA[2] =   0;
           red = 0;
           green = 0;
-          blue =0;
+          blue = 0;
           // paintPixel(); // FULL BRIGHTNESS
 
         }
@@ -630,7 +628,6 @@ function legend() {
 function processNewStreamingMethod(f) {
   var fs = require('fs')
   , es = require('event-stream');
-  // processFile(path.resolve(filename), filename);
 
   filename = f; // set a global. i know. god i gotta stop using those.
   setupFNames();
@@ -666,7 +663,7 @@ function processNewStreamingMethod(f) {
     output('Error while reading file: ' + filename, err);
   })
   .on('end', function(){
-    console.log('Stream complete.');
+    clearPrint('Stream complete.');
     finalUpdate(); // last update
     percentComplete = 100;
     renderSummary += `
@@ -676,6 +673,7 @@ function processNewStreamingMethod(f) {
     Codons per pixel: ${codonsPerPixel}
     Codon triplets matched: ${genomeSize}
     Amino acid blend opacity: ${Math.round(opacity*10000)/100}%
+    Error Clock: ${errorClock}
     `;
     log("preparing to store: " + colormapsize.toLocaleString() + " pixels");
     log("length in bytes rgba " + rgbArray.length.toLocaleString());
@@ -813,7 +811,7 @@ function makeRequest(url) {
   }
 }
 function output(txt) {
-  console.log(txt)
+  console.log("["+ status +"] " + txt);
 }
 function log(txt) {
   if (verbose) {
@@ -1041,21 +1039,21 @@ function drawHistogram() {
     clearTimeout();
   } else {
     text += `\r\r  [ Time remain: ${timeRemain.toLocaleString()} s ]`;
-    if (percentComplete < 50) {
+    if (baseChars - charClock > 10) {
       setTimeout(() => {
 
         clearPrint(drawHistogram()); // MAKE THE HISTOGRAM AGAIN LATER
 
       }, msPerUpdate);
     } else {
-      log("ntdoneyet");
+      output("DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE ");
     }
   }
   if (artistic) {  }
-  ( artistic ? text += " [ Science Mode 1:1]" : text += ` [ Artistic Mode 1:${proteinHighlight}]` )
+  ( artistic ? text += ` [ Artistic Mode 1:${proteinHighlight}]` : text += " [ Science Mode 1:1]" )
 
   text += `
-  [ ${Math.round(runningDuration/1000)} s runtime ${percentComplete}% done Codons: ${genomeSize.toLocaleString()}] MB remain: ${Math.round((baseChars - charClock)/1000)/1000} Last Acid: `;
+  [ ${Math.round(runningDuration/1000)} s runtime ${percentComplete}% done Codons: ${genomeSize.toLocaleString()}] MB remain: ${(Math.round((baseChars - charClock)/1000000)/1000000).toLocaleString()} Last Acid: `;
 
 
   text += terminalRGB(aminoacid, red, green, blue);
