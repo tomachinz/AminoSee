@@ -15,7 +15,7 @@ let CRASH = false; // hopefully not
 let clear; // clear the terminal each update
 let msPerUpdate = 500; // milliseconds per  update
 const maxMsPerUpdate = 12000; // milliseconds per update
-let cyclesPerUpdate = 1000; // start valuue only this is auto tuneded to users computer speed based on msPerUpdate
+let cyclesPerUpdate = 100; // start valuue only this is auto tuneded to users computer speed based on msPerUpdate
 let codonsPerPixel = 1; // this gives an AMAZING regular texture. current contender for the standard. .
 const minimist = require('minimist')
 const fetch = require("node-fetch");
@@ -46,10 +46,9 @@ let errorClock = 0; // increment each non DNA, such as line break. is reset afte
 let breakClock = 0;
 let streamLineNr = 0;
 let genomeSize = 0;
-const startStopLength = 5
-const opacity = 1 / codonsPerPixel; // 0.9 is used to make it brighter, also due to line breaks
-const proteinHighlight = 6; // px
-const startStopHighlight = 6; // px
+const opacity = 0.95 / codonsPerPixel; // 0.9 is used to make it brighter, also due to line breaks
+const proteinHighlight = 6; // px only use in artistic mode.
+const startStopHighlight = 6; // px only use in artistic mode.
 let filename, filenamePNG, reader, hilbertPoints, herbs, levels, progress, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, textFile, rawDNA, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, fileUploadShowing, testColors, chunksMax, chunksize, chunksizeBytes, baseChars, cpu, subdivisions, renderSummary, contextBitmap, aminoacid, colClock, start, updateClock, percentComplete, kBytesPerSecond, pixelStacking, isStartStopCodon, justNameOfDNA, justNameOfPNG, sliceDNA, filenameHTML, howManyFiles;
 process.title = "aminosee.funk.nz";
 rawDNA ="@"; // debug
@@ -57,7 +56,8 @@ filename = "[LOADING]"; // for some reason this needs to be here. hopefully the 
 const extensions = [ "txt", "fa", "mfa", "gbk", "dna"];
 let status = "load";
 setupFNames();
-opn("megabase.aminosee_z2_artistic.png");
+// opn("megabase.aminosee_z2_artistic.png"); // <-- this can crash the flow
+
 module.exports = () => {
   status = "exports";
   welcomeMessage();
@@ -67,22 +67,22 @@ module.exports = () => {
     boolean: [ 'devmode' ],
     boolean: [ 'clear' ],
     string: [ 'width'],
-    string: [ 'compress'],
-    alias: { a: 'artistic', f: 'force', d: 'devmode', w: 'width', v: 'verbose', z: 'compress' },
+    string: [ 'codons'],
+    alias: { a: 'artistic', c: 'codons', f: 'force', d: 'devmode', w: 'width', v: 'verbose' },
     default: { clear: true },
     '--': true,
 
   });
 
   console.dir(args);
-  if (args.zoom || args.z || args.compress ) {
-    codonsPerPixel = Math.round(args.compress || args.zoom || args.z); // javascript is amazing
+  if (args.c || args.codons ) {
+    codonsPerPixel = Math.round(args.codons || args.c); // javascript is amazing
     if (codonsPerPixel < 1) {
       codonsPerPixel = 1;
     } else if (codonsPerPixel > 6000) {
       codonsPerPixel = 6000;
     }
-    output("Compression factor adjusted to: "+codonsPerPixel);
+    output("Codons per pixel adjusted to: "+codonsPerPixel);
   }
   if (args.artistic || args.a) {
     output(`artistic enabled. Start (Methione = Green) and Stop codons (Amber, Ochre, Opal) interupt the pixel timing creating columns. protein coding codons are diluted they are made ${Math.round(opacity*100).toLocaleString()}% translucent and ${codonsPerPixel} of them are blended together to make one colour that is then faded across ${proteinHighlight} pixels horizontally. The start/stop codons get a whole pixel to themselves, and are faded across ${startStopHighlight} pixels horizontally.`);
@@ -91,8 +91,8 @@ module.exports = () => {
     output("1:1 science mode enabled.");
     artistic = false;
   }
-  if (args.compress || args.z) {
-    output("shrink the image by blending ${codonsPerPixel} per pixel.");
+  if (args.codons || args.c ) {
+    output("shrink the image by blending ${codonsPerPixel} codons per pixel.");
     verbose = true;
   }
 
@@ -124,15 +124,15 @@ module.exports = () => {
   howManyFiles = args._.length;
   output("howManyFiles: "+ howManyFiles+ " cmd: " + cmd)
   if (howManyFiles > 0) {
-  filename = path.resolve(cmd);
-} else {
-  log("no files provided, exiting")
-  setTimeout(() => {
-    printRadMessage();
-    output("bye");
-    process.exit();
-  }, 1000);
-}
+    filename = path.resolve(cmd);
+  } else {
+    log("no files provided, exiting")
+    setTimeout(() => {
+      printRadMessage();
+      output("bye");
+      process.exit();
+    }, 1000);
+  }
   switch (cmd) {
     case 'unknown':
     output(` [unknown argument] ${cmd}`);
@@ -178,6 +178,7 @@ module.exports = () => {
     }
     break;
   }
+  status = "global";
 }
 function cmdTest() {
   output("started from CLI");
@@ -272,10 +273,11 @@ function welcomeMessage() {
   output(' ');
   output('flags:');
   output('     --verbose -v                          Verbose (dev mode)');
-  output('     --help -h                                    Help (todo)');
+  // output('     --help -h                                    Help (todo)');
   output('     --force -f     (Overwrite existing .png file if present)');
-  output('     --science -s (disable art mode, use 1:1 for start/stops)');
-  output('     --zoom -z      (positive int 1=virus size file 99=human)');
+  output('     --devmode -d         (dont automatically open the image)');
+  output('     --artistitc -a  (creates a visual rhythm in the picture)');
+  output('     --codons -c  1-6000            (default is 1 per pixel )');
   output(' ');
   output('use * to process all files in current directory');
   output('use serve to run the web server');
@@ -284,9 +286,9 @@ function welcomeMessage() {
   output(' ');
   output('usage: ');
   output('     aminosee [human-genome-DNA.txt]     (render file to image)');
-  output('     aminosee serve               (run viewer micro web server)');
+  // output('     aminosee serve               (run viewer micro web server)');
   output('     aminosee *                       (render all files in dir)');
-  output('     aminosee * -z 1000 --science (zoom all files science mode)');
+  output('     aminosee * -c 4 --force   (-c 4 reduces image size to 25%)');
 
 }
 
@@ -411,9 +413,9 @@ function processLine(l) {
         // the first section TRUE does start/stop codons
         // the FALSE section does Amino acid codons
         if (isStartStopCodon) { // 255 = 1.0
-          mixRGBA[0] += codonRGBA[0].valueOf()*0.75; // red
-          mixRGBA[1] += codonRGBA[1].valueOf()*0.75; // green
-          mixRGBA[2] += codonRGBA[2].valueOf()*0.75; // blue
+          mixRGBA[0] += codonRGBA[0].valueOf() * 1.75 * opacity; // red
+          mixRGBA[1] += codonRGBA[1].valueOf() * 1.75 * opacity; // green
+          mixRGBA[2] += codonRGBA[2].valueOf() * 1.75 * opacity; // blue
           // paintPixel(); // unlike artistic mode it blends normally
         } else {
           //  not a START/STOP codon. Stack multiple codons per pixel.
@@ -647,6 +649,7 @@ function processNewStreamingMethod(f) {
   colClock = 0; // which pixel are we painting?
   alpha = 255;
   log("STARTING MAIN LOOP");
+  status = "args loop";
   clearPrint(drawHistogram()); // MAKE THE HISTOGRAM
 
   var s = fs.createReadStream(f).pipe(es.split()).pipe(es.mapSync(function(line){
@@ -664,7 +667,8 @@ function processNewStreamingMethod(f) {
   })
   .on('end', function(){
     clearPrint('Stream complete.');
-    finalUpdate(); // last update
+    status ="complete";
+    // finalUpdate(); // last update
     percentComplete = 100;
     renderSummary += `
     Filename: ${justNameOfDNA}
@@ -679,8 +683,8 @@ function processNewStreamingMethod(f) {
     log("length in bytes rgba " + rgbArray.length.toLocaleString());
     // finalUpdate();
     // let renderSummary = "";
-    // arrayToPNG(rgbArray); // fingers crossed!
     arrayToPNG(); // fingers crossed!
+    status = "saving";
     // if (!devmode) {
     // saveHistogram();
     // }
@@ -756,27 +760,6 @@ function arrayToPNG() {
   output("Dimensions: " + width + "x"   + height);
   output("First 100  bytes: " + rgbArray.slice(0,99));
 
-  // let kludgeBuffer = new ArrayBuffer(rgbArray.length); // RGBA byte order
-  // let kludgeClamped = Uint8ClampedArray.from(kludgeBuffer);
-
-  // for (i=0;i<256;i++) {
-  // log(" before: " + rgbArray[i] );
-  // }
-  // for (i=0; i<rgbArray.length; i++) {
-  // kludgeClamped
-  // if (rgbArray[i] > 255) {
-  // log(` [Clamped ${rgbArray[i]} => 255`);
-  // rgbArray[i] = 255;
-  // }
-  // kludgeClamped[i] = Math.round(rgbArray[i]);
-  // log( " after: " + kludgeClamped[i] );
-  // }
-  // for (i=0;i<256;i++) {
-  // log( " after: " +  kludgeClamped[i] );
-  // }
-  // var fname = n + new Date().getTime() + "-tick.png";
-
-  // var img_data = Uint8ClampedArray.from(bytesRGBA);
   var img_data = Uint8ClampedArray.from(rgbArray);
   var img_png = new PNG({width: width, height: height})
   img_png.data = Buffer.from(img_data);
@@ -787,9 +770,11 @@ function arrayToPNG() {
     output("Saved PNG: " + filenamePNG);
     // output("value returned by parseFileForStream " + parseFileForStream());
     if (!devmode) {
-      output("Now opening your image... either quit image viewer or Control-c ")
+      output("Opening your image in 3 seconds... either quit image viewer or Control-c ")
       output("To prevent automatically opening the image, use --devmode option")
-      opn(filenamePNG);
+      setTimeout(() => {
+        opn(filenamePNG);
+      }, 3000);
     }
   });
 }
@@ -954,6 +939,7 @@ function cleanString(s) {
   return ret;
 }
 function paintPixel() {
+  status = "paint";
   let byteIndex = colClock * 4; // 4 bytes per pixel. RGBA.
 
   rgbArray.push(Math.round(red));
@@ -988,11 +974,7 @@ function dnaTail() {
   return `\r  [ raw:     ${ removeLineBreaks(rawDNA)} ]\r  [ clean: ${ cleanString(rawDNA)} ]\r`;
 }
 
-function finalUpdate() {
-  percentComplete = 100;
-  // clearPrint("\r @FINISHED \r" + drawHistogram(baseChars));
-  log("finalUpdate()");
-}
+
 function prettyDate() {
   var options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
   var today  = new Date();
@@ -1015,10 +997,10 @@ function drawHistogram() {
   percentComplete = Math.round(charClock / baseChars * 10000) / 100;
   let now = new Date().getTime();
   let runningDuration = now - start;
-  let kCodonsPerSecond = Math.round(genomeSize / runningDuration) +0.1;
-  let kBytesPerSecond = Math.round(charClock / runningDuration);
-  let timeRemain = Math.round(runningDuration * ((baseChars-charClock)/charClock)/1000);
-  let text = " ";
+  let kCodonsPerSecond = Math.round(genomeSize+1 / runningDuration+1);
+  let kBytesPerSecond = Math.round(charClock+1 / runningDuration+1);
+  let timeRemain = Math.round(runningDuration * ((baseChars-charClock)/charClock+1)/1000);
+  let text = status + "\r";
   let aacdata = [];
 
   if (msPerUpdate < maxMsPerUpdate) {
@@ -1030,51 +1012,69 @@ function drawHistogram() {
   for (h=0;h<histoGRAM.length;h++) {
     aacdata[histoGRAM[h].Codon] = histoGRAM[h].Histocount ;
   }
-  // text = "\r";
-  text += `\r\r\r\r\r      @i ${charClock.toLocaleString()} File: ${terminalRGB(justNameOfDNA, 255, 255, 255)} Line breaks: ${breakClock} \r`;
+  text += `      @i ${charClock.toLocaleString()} File: ${terminalRGB(justNameOfDNA, 255, 255, 255)} Line breaks: ${breakClock}`;
   // text += terminalRGB(aminoacid, red, green, blue);
+  // text += "\r";
 
-  if (charClock >= baseChars-1) {
-    text += `\r  [ PROCESSING COMPLETE | Time used: ${runningDuration.toLocaleString()}]`;
+  if (status == "complete" || status == "stopped") {
+    text += `  [ PROCESSING COMPLETE | Time used: ${runningDuration.toLocaleString()}]`;
+    percentComplete = 100;
+    msPerUpdate = 0;
+    output(text);
+    output("DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE ");
     clearTimeout();
+    status = "stopped";
   } else {
-    text += `\r\r  [ Time remain: ${timeRemain.toLocaleString()} s ]`;
-    if (baseChars - charClock > 10) {
-      setTimeout(() => {
+    if (status == "args loop" || status == "global" || status == "paint") {
 
-        clearPrint(drawHistogram()); // MAKE THE HISTOGRAM AGAIN LATER
+      if (status == "saving") {
+        text += terminalRGB("   [ SAVING IMAGE ]", 128, 255, 128);
+      }  else {
+        text += `  [ Time remain: ${timeRemain.toLocaleString()}sec  ${Math.round(runningDuration/1000)}sec elapsed KB remain: ${(Math.round((baseChars - charClock)/1000)).toLocaleString()} next update: ${msPerUpdate.toLocaleString()}ms]`;
+      }
 
-      }, msPerUpdate);
-    } else {
-      output("DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE ");
+      if (baseChars - charClock > 10 || status != "complete") {
+        setTimeout(() => {
+
+          clearPrint(drawHistogram()); // MAKE THE HISTOGRAM AGAIN LATER
+
+        }, msPerUpdate);
+        output("updates should continue.")
+
+      } else {
+        output("updates should stop.")
+      }
     }
   }
   if (artistic) {  }
   ( artistic ? text += ` [ Artistic Mode 1:${proteinHighlight}]` : text += " [ Science Mode 1:1]" )
 
   text += `
-  [ ${Math.round(runningDuration/1000)} s runtime ${percentComplete}% done Codons: ${genomeSize.toLocaleString()}] MB remain: ${(Math.round((baseChars - charClock)/1000000)/1000000).toLocaleString()} Last Acid: `;
+  [ ${percentComplete}% done Codons: ${genomeSize.toLocaleString()}]  Last Acid: `;
 
 
   text += terminalRGB(aminoacid, red, green, blue);
+  text += ` [ CPU ${Math.round(kBytesPerSecond/1000).toLocaleString()} Kb/s ${Math.round(kCodonsPerSecond).toLocaleString()} Codons/s  ] `;
+  text += `[ DNA Filesize: ${Math.round(baseChars/1000)/1000} MB ]`;
   text += `
-  [ CPU ${kBytesPerSecond.toLocaleString()} Kb/s ${kCodonsPerSecond.toLocaleString()} KiloCodons/s next update in ${msPerUpdate.toLocaleString()} ms ] `;
-
-
-  text += `
-  [ DNA Filesize: ${Math.round(baseChars/1000)/1000} Mb Codons per tile: ${codonsPerPixel} Pixels painted: ${rgbArray.length.toLocaleString()} ]`;
-
+  [ Mb Codons per pixel: ${codonsPerPixel} Pixels painted: ${rgbArray.length.toLocaleString()} ] `;
+  text += `\r`;
   text += histogram(aacdata, { bar: '/', width: 40, sort: true, map:  aacdata.Histocount} );
   // TOTAL Start Codons (enough space to line up nicely)
   // text += dnaTail();
-  text += `\r  [ raw:     ${ removeLineBreaks(rawDNA)} ]\r  [ clean: ${ cleanString(rawDNA)} ]\r`;
-
+  text += `  [ raw:     ${ removeLineBreaks(rawDNA)} ]  [ clean: ${ cleanString(rawDNA)} ]`;
   text += "                  " + filename;
+  text += "       [ status " + status + "    ]";
   return text;
 }
 // function megaByte() {
 //   return
 // }
+function doInMs(f, ms){
+  setTimeout(() => {
+    f();
+  }, ms);
+}
 function isCodon(cdn) {
   return cdn == this.Codon;
 }
