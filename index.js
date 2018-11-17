@@ -31,6 +31,7 @@ let PNG = require('pngjs').PNG;
 const appPath = require.main.filename;
 let codonRGBA, geneRGBA, mixRGBA = [0,0,0,0]; // codonRGBA is colour of last codon, geneRGBA is temporary pixel colour before painting.
 const widthMax = 1920/2;
+const golden = true;
 const resSD = 960*768;
 const resHD = 1920*1080;
 const res4K = 1920*1080*4;
@@ -77,6 +78,15 @@ module.exports = () => {
   });
 
   console.dir(args);
+  if (args.width || args.w) {
+    widthMax = Math.round(args.width || args.w);
+    if (widthMax < 1) {
+      widthMax = 1;
+    } else if (widthMax > 10000) {
+      widthMax = 10000;
+    }
+    output("using custom width: "+ widthMax);
+  }
   if (args.codons || args.c || args.z ) {
     codonsPerPixel = Math.round(args.codons || args.c || args.z); // javascript is amazing
     if (codonsPerPixel < 1) {
@@ -737,16 +747,21 @@ function arrayToPNG() {
   bytes = rgbArray.length;
   pixels = (rgbArray.length / 4) + 1 ; // to avoid the dreaded "off by one error"... one exra pixel wont bother nobody
 
-  if (golden) { // thanks to https://www.omnicalculator.com/math/golden-ratio
-    let phi = ((Math.sqrt(5) + 1) / 2) ; // 1.618033988749895 * 1000000
-    width = pixels / phi; // 297 = 62370 * 0.618034
-    height = (pixels - width); // 381966 = 1000000 -  618034
-    width = pixels / height; // 1132.057983970689532
-    // using A4 210 x 297 = 62370 * -phi = -100916.779878330941683 +
-    // (a+b)/a = a/b     (a*b)/2 = b * (a/2)
-    // c = a * b
-    // c / b = a
+  // if (golden) { // thanks to https://www.omnicalculator.com/math/golden-ratio
 
+  // if (square || golden) {
+  //   width = Math.round(Math.sqrt(pixels + 2));
+  //   height = width;
+  // }
+  if (golden) {
+    width = Math.sqrt(pixels + 2);
+    height = width;
+    let phi = ((Math.sqrt(5) + 1) / 2) ; // 1.618033988749895
+    width =  ( height * phi ) - height; // 16.18 * 6.18 = 99.99
+    height = pixels / width;
+    width = Math.round(width);
+    height = Math.round(height);
+    output("GOLDEN CHECK: pixels: " + pixels + " width x height = " + (width*height));
   } else {
     if (pixels <= widthMax) {
       width = pixels;
@@ -758,12 +773,12 @@ function arrayToPNG() {
         height=1;
       }
     }
-
   }
 
   output("Raw image bytes: " + bytes.toLocaleString());
   output("Pixels: " + pixels.toLocaleString());
   output("Dimensions: " + width + "x"   + height);
+  output("GOLDEN CHECK: width x height = " + (width*height).toLocaleString());
   output("First 100  bytes: " + rgbArray.slice(0,99));
 
   var img_data = Uint8ClampedArray.from(rgbArray);
@@ -1070,18 +1085,10 @@ function drawHistogram() {
   text += "\r";
   text += `  [ raw:   ${ removeLineBreaks(rawDNA)} ]  [ clean: ${ cleanString(rawDNA)} ] `;
   text += "                  " + filename;
-  text += "       [ status " + status + "    ]";
-  // console.log(text);
+  // text +=  (verbose ! "V" : " ")+(devmode ! "D" : " ")+(artistic ! "A" : "S")+codonsPerPixel+(golden ! "GOLD" : "T960")
   return text;
 }
-// function megaByte() {
-//   return
-// }
-function doInMs(f, ms){
-  setTimeout(() => {
-    f();
-  }, ms);
-}
+
 function isCodon(cdn) {
   return cdn == this.Codon;
 }
