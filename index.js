@@ -46,7 +46,9 @@ let errorClock = 0; // increment each non DNA, such as line break. is reset afte
 let breakClock = 0;
 let streamLineNr = 0;
 let genomeSize = 0;
-let opacity = 0.95 / codonsPerPixel; // 0.9 is used to make it brighter, also due to line breaks
+let proteinBrightness = 0.7;
+let startStopBrightness = 2.1;
+let opacity = proteinBrightness / codonsPerPixel; // 0.9 is used to make it brighter, also due to line breaks
 const proteinHighlight = 6; // px only use in artistic mode.
 const startStopHighlight = 6; // px only use in artistic mode.
 let filename, filenamePNG, reader, hilbertPoints, herbs, levels, progress, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, textFile, rawDNA, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, fileUploadShowing, testColors, chunksMax, chunksize, chunksizeBytes, baseChars, cpu, subdivisions, renderSummary, contextBitmap, aminoacid, colClock, start, updateClock, percentComplete, kBytesPerSecond, pixelStacking, isStartStopCodon, justNameOfDNA, justNameOfPNG, sliceDNA, filenameHTML, howManyFiles;
@@ -406,9 +408,9 @@ function processLine(l) {
         // the first section TRUE does start/stop codons
         // the FALSE section does Amino acid codons
         if (isStartStopCodon) { // 255 = 1.0
-          mixRGBA[0] += codonRGBA[0].valueOf() * 1.75 * opacity; // red
-          mixRGBA[1] += codonRGBA[1].valueOf() * 1.75 * opacity; // green
-          mixRGBA[2] += codonRGBA[2].valueOf() * 1.75 * opacity; // blue
+          mixRGBA[0] += codonRGBA[0].valueOf() * startStopBrightness * opacity; // red
+          mixRGBA[1] += codonRGBA[1].valueOf() * startStopBrightness * opacity; // green
+          mixRGBA[2] += codonRGBA[2].valueOf() * startStopBrightness * opacity; // blue
           // paintPixel(); // unlike artistic mode it blends normally
         } else {
           //  not a START/STOP codon. Stack multiple codons per pixel.
@@ -730,19 +732,33 @@ function toBuffer(ab) {
 function arrayToPNG() {
 
   let pixels, height, width;
+  let golden = true; // golden section ratio.
 
-  bytes = rgbArray.length ;
-  pixels = rgbArray.length / 4 ;
+  bytes = rgbArray.length;
+  pixels = (rgbArray.length / 4) + 1 ; // to avoid the dreaded "off by one error"... one exra pixel wont bother nobody
 
-  if (pixels <= widthMax) {
-    width = pixels;
-    height = 1;
+  if (golden) { // thanks to https://www.omnicalculator.com/math/golden-ratio
+    let phi = ((Math.sqrt(5) + 1) / 2) ; // 1.618033988749895 * 1000000
+    width = pixels / phi; // 297 = 62370 * 0.618034
+    height = (pixels - width); // 381966 = 1000000 -  618034
+    width = pixels / height; // 1132.057983970689532
+    // using A4 210 x 297 = 62370 * -phi = -100916.779878330941683 +
+    // (a+b)/a = a/b     (a*b)/2 = b * (a/2)
+    // c = a * b
+    // c / b = a
+
   } else {
-    width = widthMax;
-    height = Math.round((pixels / widthMax) - 0.49); // you can have half a line. more and its an extra vert line
-    if (height<1) {
-      height=1;
+    if (pixels <= widthMax) {
+      width = pixels;
+      height = 1;
+    } else {
+      width = widthMax;
+      height = Math.round((pixels / widthMax) - 0.49); // you can have half a line. more and its an extra vert line
+      if (height<1) {
+        height=1;
+      }
     }
+
   }
 
   output("Raw image bytes: " + bytes.toLocaleString());
