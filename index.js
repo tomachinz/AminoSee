@@ -59,6 +59,8 @@ let filename, filenamePNG, reader, hilbertPoints, herbs, levels, zoom, progress,
 process.title = "aminosee.funk.nz";
 rawDNA ="@"; // debug
 filename = "[LOADING]"; // for some reason this needs to be here. hopefully the open source community can come to rescue and fix this Kludge.
+const extensions = [ "txt", "fa", "mfa", "gbk", "dna"];
+
 setupFNames();
 
 module.exports = () => {
@@ -115,6 +117,7 @@ module.exports = () => {
     codonsPerPixel = zoomFactor * 3; // has to be multiple of 3. guess why. actually thats a trick question, i might change this.
   }
   let cmd = args._[0];
+  filename = path.resolve(cmd);
   howManyFiles = args._.length;
   output("howManyFiles: "+ howManyFiles+ " cmd: " + cmd)
   switch (cmd) {
@@ -146,19 +149,18 @@ module.exports = () => {
     } else {
       output(` [all args] ${args._}`);
 
-      processFile(path.resolve(cmd), cmd);
+      // processFile(path.resolve(cmd), cmd);
       processNewStreamingMethod(filename);
       // processOldWayNonStreamed(filename);
 
-      for (cli = 1; cli < howManyFiles; cli++) {
-        asterix = args._[cli]
-        output(` [ file batch ${cli+1} done, ${howManyFiles-cli} to go! ] ${asterix}`);
-        setupFNames();
-        output( terminalRGB( asterix, 200,100,64) );
-        processFile(path.resolve(asterix), asterix);
-        processNewStreamingMethod(asterix);
-
-      }
+      // for (cli = 1; cli < howManyFiles; cli++) {
+      //   asterix = args._[cli]
+      //   output(` [ file batch ${cli+1} done, ${howManyFiles-cli} to go! ] ${asterix}`);
+      //   setupFNames();
+      //   output( terminalRGB( asterix, 200,100,64) );
+      //   processFile(path.resolve(asterix), asterix);
+      //   processNewStreamingMethod(asterix);
+      // }
       // https://stackoverflow.com/questions/16010915/parsing-huge-logfiles-in-node-js-read-in-line-by-line
     }
     break;
@@ -167,30 +169,36 @@ module.exports = () => {
 function cmdTest() {
   output("started from CLI");
 }
-function processFile(pf, cmd) {
-  filename = pf; // set a global. i know. god i gotta stop using those.
-  output(` [cli parameter] ${pf}`);
-  output(` [file path] ${filename}`);
-  setupFNames();
-
-
+// function processFile(pf, cmd) {
+//   filename = pf; // set a global. i know. god i gotta stop using those.
+//   output(` [cli parameter] ${pf}`);
+//   output(` [file path] ${filename}`);
+//   setupFNames();
+// }
+function removeFileExtension(f) {
+    return f.substring(0, f.length - (getFileExtension(f).length+1));
 }
 function setupFNames() {
   let ext = ".aminosee_z" + zoomFactor;
   justNameOfDNA = replaceFilepathFileName(filename);
   // let posi = filename.indexOf(justNameOfDNA);
+  // chop the extension for display:
+  const extension = getFileExtension(filename);
+  justNameOfDNA = removeFileExtension(justNameOfDNA);
 
   ( artistic ? ext += "_sci" : ext += "_artistic")
 
   // filenamePNG = filename.substring(0, filename.length-posi) + "/images/"  + ext + ".png";
-  filenamePNG = filename + ext + ".png";
-  filenameHTML = filename + ext + ".html";
+  filenamePNG = removeFileExtension(filename) + ext + ".png";
+  filenameHTML = removeFileExtension(filename) + ext + ".html";
 
-  justNameOfPNG = replaceFilepathFileName(filenamePNG);
-  justNameOfHTML = replaceFilepathFileName(filenameHTML);
+  justNameOfPNG = justNameOfDNA + ext + ".png";
+  justNameOfHTML = justNameOfDNA+ ext + ".html";
 
-  console.log("FILENAMES SETUP AS: ");
-  console.log(filenamePNG, filenameHTML);
+  output("FILENAMES SETUP AS: ");
+  output(justNameOfDNA);
+  output(justNameOfPNG);
+  output(justNameOfHTML);
 }
 
 function launchNonBlockingServer() {
@@ -285,49 +293,50 @@ function getFilesizeInBytes(filename) {
   const fileSizeInBytes = stats.size
   return fileSizeInBytes
 }
-function parseFileForStream(f) {
+function getFileExtension(f) {
+  let lastFive = f.slice(-5);
+  return lastFive.replace(/.*\./, '').toLowerCase();
+}
+function parseFileForStream() {
+  // var extensions = ["jpg", "jpeg", "txt", "png"];  // Globally defined
+  // Get extension and make it lowercase
+  // This uses a regex replace to remove everything up to
+  // and including the last dot
   start = new Date().getTime();
-  let isGood = false; // This is the return value
-  const extensions = [ ".txt", ".fa", ".mfa", ".gbk", ".dna"];
-  if (extensions.some(checkFileExtension)) {
-    output("File extension appears correct");
-    isGood = true;
-  } else {
-    output("WRONG FILE EXTENSION");
-    output("must be one of");
-    console.log(extensions);
-    return false;
-    // setImmediate(() => {
-    //   process.exit()
-    // });
-  }
-  baseChars = getFilesizeInBytes(f);
+  baseChars = getFilesizeInBytes(filename);
 
-  output("[FILESIZE] " + baseChars.toLocaleString());
-  function checkFileExtension(extension) {
-    const index = f.slice(-4).indexOf(extension);
-    log(index);
-    return index != -1;
-  }
-  // if there is a png, dont render just quit
-  if (!checkIfPNGExists()) {
-    try {
-      fs.readFile(f, function (err, data) {
-        if (err) { console.warn("nothing"); }
-        // GREAT SUCCESS
-        output("preparing to begin ingest stream")
-        isGood = true;
-      });
-    } catch(e) {
-      log("Unable to access disk.");
-      console.warn(e);
-      isGood = false; // dont render
-    }
+  const extension = getFileExtension(filename);
+  output("[FILESIZE] " + baseChars.toLocaleString() + " extension: " + extension);
+
+  if (extensions.indexOf(extension) < 0) {
+    output("WRONG FILE EXTENSION: " + extension);
+    return false;
   } else {
-    log("Image already rendered, use --force to overwrite");
-    isGood = false; // dont render
+    log("File ext ok. Now checking PNG.")
+    // if there is a png, dont render just quit
+    if (checkIfPNGExists() == false) {
+      try {
+        fs.readFile(filenamePNG, function (err, data) {
+          if (err) {
+            // NO EXISTING PNG FOUND
+            output("preparing to begin ingest stream: " + filename);
+            return true;
+          } else {
+            log("Image MAYBE already rendered, use --force to overwrite");
+            return false;
+          }
+        });
+      } catch(e) {
+        log("Unable to access disk.");
+        console.warn(e);
+        return true;
+      }
+    } else {
+      log("Image already rendered, use --force to overwrite");
+      return false;
+    }
   }
-  return isGood;
+  return true;
 }
 function processLine(l) {
   rawDNA = l;
@@ -602,15 +611,18 @@ function legend() {
 function processNewStreamingMethod(f) {
   var fs = require('fs')
   , es = require('event-stream');
-
   // processFile(path.resolve(filename), filename);
 
+  filename = f; // set a global. i know. god i gotta stop using those.
+  setupFNames();
+  output(` [ cli parameter: ${f} ]`);
+  output(` [ justNameOfDNA: ${justNameOfDNA} ]`);
 
-  if (!parseFileForStream(f)) {
-    output("parseFileForStream returned false for: " + filename);
-    return false;
+  if (parseFileForStream() == true) {
+    output(justNameOfDNA + " was parsed OK. ");
   } else {
-    output(filename + " was parsed OK. ");
+    output("STOPPING. parseFileForStream returned false for: " + filename);
+    return false;
   };
   let colorClock = 0;
   percentComplete = 0;
@@ -653,7 +665,7 @@ function processNewStreamingMethod(f) {
     // arrayToPNG(rgbArray); // fingers crossed!
     arrayToPNG(); // fingers crossed!
     // if (!devmode) {
-      // saveHistogram();
+    // saveHistogram();
     // }
   }));
 }
@@ -661,22 +673,13 @@ function helpCmd(args) {
   console.log("Help section." + args);
 }
 
-function launchBlockingServer() {
-  // // openMiniWebsite();
-  // log("[appPath:] "+ appPath);
-  // // const serverPath = appPath
-  // output("Control-c to quit");
-  // const
-  // { spawnSync } = require( 'child_process' ),
-  // httpServer = spawnSync( 'http-server -p 3210', [ appPath ] );
-  //
-  // console.log( `stderr: ${httpServer.stderr.toString()}` );
-  // console.log( `stdout: ${httpServer.stdout.toString()}` );
-}
 function checkIfPNGExists() {
+  output("checkIfPNGExists RUNNING");
   if (force == true) {
     log("force == true");
     return false;
+  } else {
+    log("force == false");
   }
   let imageExists, result;
   imageExists = false;
@@ -684,23 +687,26 @@ function checkIfPNGExists() {
   try {
     result = fs.lstatSync(filenamePNG).isDirectory;
     // output("[result]" + result);
-    output("An image has already been generated for this DNA: " + filenamePNG)
+    output("An png image has already been generated for this DNA: " + filenamePNG)
     output("use -f to overwrite");
     imageExists = true;
   } catch(e){
     // Handle error
     if(e.code == 'ENOENT'){
       //no such file or directory
-      output("Output will be saved to: " + filenamePNG );
-      imageExists = false;
+      output(e);
     }
+    output("Output png will be saved to: " + filenamePNG );
+    imageExists = false;
   }
   // output("value of imageExists is "+ imageExists);
   return imageExists;
 }
+
 function stat(txt) {
   console.log(txt);
 }
+
 function toBuffer(ab) {
   var buf = new Buffer(ab.byteLength);
   var view = new Uint8Array(ab);
@@ -737,19 +743,19 @@ function arrayToPNG() {
   // let kludgeClamped = Uint8ClampedArray.from(kludgeBuffer);
 
   // for (i=0;i<256;i++) {
-    // log(" before: " + rgbArray[i] );
+  // log(" before: " + rgbArray[i] );
   // }
   // for (i=0; i<rgbArray.length; i++) {
-    // kludgeClamped
-    // if (rgbArray[i] > 255) {
-      // log(` [Clamped ${rgbArray[i]} => 255`);
-      // rgbArray[i] = 255;
-    // }
-    // kludgeClamped[i] = Math.round(rgbArray[i]);
-    // log( " after: " + kludgeClamped[i] );
+  // kludgeClamped
+  // if (rgbArray[i] > 255) {
+  // log(` [Clamped ${rgbArray[i]} => 255`);
+  // rgbArray[i] = 255;
+  // }
+  // kludgeClamped[i] = Math.round(rgbArray[i]);
+  // log( " after: " + kludgeClamped[i] );
   // }
   // for (i=0;i<256;i++) {
-    // log( " after: " +  kludgeClamped[i] );
+  // log( " after: " +  kludgeClamped[i] );
   // }
   // var fname = n + new Date().getTime() + "-tick.png";
 
@@ -762,7 +768,7 @@ function arrayToPNG() {
   setImmediate(() => {
     output("Input DNA: " + filename)
     output("Saved PNG: " + filenamePNG);
-    output("value returned by parseFileForStream " + parseFileForStream(filename));
+    output("value returned by parseFileForStream " + parseFileForStream());
     // opn(filenamePNG);
   });
 }
@@ -951,8 +957,8 @@ function renderPixels() {
 }
 
 function dnaTail() {
-    // DEBUG
-    return `\r  [ raw:     ${ removeLineBreaks(rawDNA)} ]\r  [ clean: ${ cleanString(rawDNA)} ]\r`;
+  // DEBUG
+  return `\r  [ raw:     ${ removeLineBreaks(rawDNA)} ]\r  [ clean: ${ cleanString(rawDNA)} ]\r`;
 }
 
 function finalUpdate() {
@@ -1031,7 +1037,7 @@ function drawHistogram() {
 
   text += dnaTail();
   text += histogram(aacdata, { bar: '/', width: 50, sort: true, map:  aacdata.Histocount} );
-           // TOTAL Start Codons (enough space to line up nicely)
+  // TOTAL Start Codons (enough space to line up nicely)
   text += "                  " + filename;
   return text;
 }
