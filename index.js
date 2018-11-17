@@ -11,16 +11,12 @@ let devmode = false; // kills the auto opening of reports etc
 let verbose = false; // not recommended. will slow down due to console.
 let force = false; // force overwrite existing PNG and HTML reports
 let artistic = false; // for Charlie
-let zoomFactor = 240; // compress big images using a larger integer
 let CRASH = false; // hopefully not
 let clear; // clear the terminal each update
 let msPerUpdate = 500; // milliseconds per  update
 const maxMsPerUpdate = 12000; // milliseconds per update
 let cyclesPerUpdate = 1000; // start valuue only this is auto tuneded to users computer speed based on msPerUpdate
-// const codonsPerPixel = 99; // 99 is also good hard coded 4 codons per pixel (for large DNA bigger than 2MP).
-// const codonsPerPixel = 3 * zoomFactor; // this gives an AMAZING regular texture. current contender for the standard. .
-let codonsPerPixel = 999; // this gives an AMAZING regular texture. current contender for the standard. .
-// const codonsPerPixel = 9; // 33 low values create big images.
+let codonsPerPixel = 1; // this gives an AMAZING regular texture. current contender for the standard. .
 const minimist = require('minimist')
 const fetch = require("node-fetch");
 const path = require('path');
@@ -55,7 +51,7 @@ const startStopLength = 5
 const opacity = 1 / codonsPerPixel; // 0.9 is used to make it brighter, also due to line breaks
 const proteinHighlight = 6; // px
 const startStopHighlight = 6; // px
-let filename, filenamePNG, reader, hilbertPoints, herbs, levels, zoom, progress, status, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, textFile, rawDNA, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, fileUploadShowing, testColors, chunksMax, chunksize, chunksizeBytes, baseChars, cpu, subdivisions, renderSummary, contextBitmap, aminoacid, colClock, start, updateClock, percentComplete, kBytesPerSecond, pixelStacking, isStartStopCodon, justNameOfDNA, justNameOfPNG, sliceDNA, filenameHTML, howManyFiles;
+let filename, filenamePNG, reader, hilbertPoints, herbs, levels, progress, status, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, textFile, rawDNA, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, fileUploadShowing, testColors, chunksMax, chunksize, chunksizeBytes, baseChars, cpu, subdivisions, renderSummary, contextBitmap, aminoacid, colClock, start, updateClock, percentComplete, kBytesPerSecond, pixelStacking, isStartStopCodon, justNameOfDNA, justNameOfPNG, sliceDNA, filenameHTML, howManyFiles;
 process.title = "aminosee.funk.nz";
 rawDNA ="@"; // debug
 filename = "[LOADING]"; // for some reason this needs to be here. hopefully the open source community can come to rescue and fix this Kludge.
@@ -68,19 +64,27 @@ module.exports = () => {
   welcomeMessage();
 
   const args = minimist(process.argv.slice(2), {
-    boolean: [ 'verbose' ],
+    boolean: [ 'artistic' ],
     boolean: [ 'devmode' ],
     boolean: [ 'clear' ],
-    boolean: [ 'artistic' ],
-    string: [ 'zoom'],
     string: [ 'width'],
-    alias: { a: 'artistic', v: 'verbose', s: 'science', f: 'force', d: 'devmode', w: 'width' },
+    string: [ 'compress'],
+    alias: { a: 'artistic', f: 'force', d: 'devmode', w: 'width', v: 'verbose', z: 'compress' },
     default: { clear: true },
     '--': true,
 
   });
 
   console.dir(args);
+  if (args.zoom || args.z || args.compress ) {
+    codonsPerPixel = Math.round(args.compress || args.zoom || args.z); // javascript is amazing
+    if (codonsPerPixel < 1) {
+      codonsPerPixel = 1;
+    } else if (codonsPerPixel > 6000) {
+      codonsPerPixel = 6000;
+    }
+    output("Compression factor adjusted to: "+codonsPerPixel);
+  }
   if (args.artistic || args.a) {
     output(`artistic enabled. Start (Methione = Green) and Stop codons (Amber, Ochre, Opal) interupt the pixel timing creating columns. protein coding codons are diluted they are made ${Math.round(opacity*100).toLocaleString()}% translucent and ${codonsPerPixel} of them are blended together to make one colour that is then faded across ${proteinHighlight} pixels horizontally. The start/stop codons get a whole pixel to themselves, and are faded across ${startStopHighlight} pixels horizontally.`);
     artistic = true;
@@ -88,6 +92,11 @@ module.exports = () => {
     output("1:1 science mode enabled.");
     artistic = false;
   }
+  if (args.compress || args.z) {
+    output("shrink the image by blending ${codonsPerPixel} per pixel.");
+    verbose = true;
+  }
+
   if (args.verbose || args.v) {
     output("verbose enabled.");
     verbose = true;
@@ -112,11 +121,7 @@ module.exports = () => {
     clear = false;
   }
 
-  if (args.zoom || args.z) {
-    zoomFactor = args.zoom || args.z; // javascript is amazing
-    output("Zoom factor adjusted to: "+zoomFactor);
-    codonsPerPixel = zoomFactor * 3; // has to be multiple of 3. guess why. actually thats a trick question, i might change this.
-  }
+
   let cmd = args._[0];
   howManyFiles = args._.length;
   output("howManyFiles: "+ howManyFiles+ " cmd: " + cmd)
@@ -181,10 +186,10 @@ function cmdTest() {
 //   setupFNames();
 // }
 function removeFileExtension(f) {
-    return f.substring(0, f.length - (getFileExtension(f).length+1));
+  return f.substring(0, f.length - (getFileExtension(f).length+1));
 }
 function setupFNames() {
-  let ext = ".aminosee_z" + zoomFactor;
+  let ext = ".aminosee_z" + codonsPerPixel;
   justNameOfDNA = replaceFilepathFileName(filename);
   // let posi = filename.indexOf(justNameOfDNA);
   // chop the extension for display:
@@ -290,7 +295,7 @@ function welcomeMessage() {
 function saveHistogram() {
   fs.writeFile(filenameHTML, legend(), function (err) {
     if (err) throw err;
-    console.log('Saved histogram to: ' + filenameHTML);
+    output('Saved histogram to: ' + filenameHTML);
   });
 }
 function getFilesizeInBytes(filename) {
@@ -401,6 +406,10 @@ function processLine(l) {
 
       // log(" pixelStacking: "  + pixelStacking + " rgbArray: " + rgbArray.length);
       if (artistic != true) {
+        // science mode blacks the pixel everytime:
+        // mixRGBA[0] += 0; // red
+        // mixRGBA[1] += 0; // green
+        // mixRGBA[2] += 0; // blue
         // the first section TRUE does start/stop codons
         // the FALSE section does Amino acid codons
         if (isStartStopCodon) { // 255 = 1.0
@@ -421,11 +430,16 @@ function processLine(l) {
           green = mixRGBA[1];
           blue = mixRGBA[2];
           paintPixel(); // FULL BRIGHTNESS
-          // reset inks:
+          // reset inks, using codonsPerPixel cycles for each pixel:
           pixelStacking = 0;
-          mixRGBA[0] ==   0;
-          mixRGBA[1] ==   0;
-          mixRGBA[2] ==   0;
+          mixRGBA[0] =   0;
+          mixRGBA[1] =   0;
+          mixRGBA[2] =   0;
+          red = 0;
+          green = 0;
+          blue =0;
+          // paintPixel(); // FULL BRIGHTNESS
+
         }
         // end science mode
       } else {
@@ -649,7 +663,7 @@ function processNewStreamingMethod(f) {
     s.resume();
   })
   .on('error', function(err){
-    console.log('Error while reading file: ' + filename, err);
+    output('Error while reading file: ' + filename, err);
   })
   .on('end', function(){
     console.log('Stream complete.');
@@ -675,7 +689,7 @@ function processNewStreamingMethod(f) {
   }));
 }
 function helpCmd(args) {
-  console.log("Help section." + args);
+  output("Help section." + args);
 }
 
 function checkIfPNGExists() {
@@ -805,6 +819,8 @@ function log(txt) {
   if (verbose) {
     let d = new Date().getTime();
     process.stdout.write("[ " + d.toLocaleString() + " ] " + txt + " ");
+  } else {
+    process.stdout.write(".");
   }
 }
 function isAminoAcid(acid) {
@@ -952,8 +968,12 @@ function paintPixel() {
 
 function clearPrint(t) {
   if (clear) {
-    process.stdout.write("\r\x1b[K");
-    process.stdout.write('\033c');
+    // process.stdout.write("\r\x1b[K");
+    // process.stdout.write('\033c');
+    // console.log('\033c');
+    // process.stdout.write("\x1B[2J");
+    process.stdout.write('\x1B[2J\x1B[0f');
+
   } else {
     output("noclear");
   }
@@ -1013,11 +1033,11 @@ function drawHistogram() {
     aacdata[histoGRAM[h].Codon] = histoGRAM[h].Histocount ;
   }
   // text = "\r";
-  text += `\r\r\r      @i ${charClock.toLocaleString()} File: ${terminalRGB(justNameOfDNA, 255, 255, 255)} Line breaks: ${breakClock} \r`;
+  text += `\r\r\r\r\r      @i ${charClock.toLocaleString()} File: ${terminalRGB(justNameOfDNA, 255, 255, 255)} Line breaks: ${breakClock} \r`;
   // text += terminalRGB(aminoacid, red, green, blue);
 
   if (charClock >= baseChars-1) {
-    text += `\r  [ PROCESSING FILE COMPLETE Time used: ${runningDuration.toLocaleString()}]`;
+    text += `\r  [ PROCESSING COMPLETE | Time used: ${runningDuration.toLocaleString()}]`;
     clearTimeout();
   } else {
     text += `\r\r  [ Time remain: ${timeRemain.toLocaleString()} s ]`;
@@ -1031,7 +1051,9 @@ function drawHistogram() {
       log("ntdoneyet");
     }
   }
-  if (artistic) { text += " [ Science Mode 1:1]" }
+  if (artistic) {  }
+  ( artistic ? text += " [ Science Mode 1:1]" : text += ` [ Artistic Mode 1:${proteinHighlight}]` )
+
   text += `
   [ ${Math.round(runningDuration/1000)} s runtime ${percentComplete}% done Codons: ${genomeSize.toLocaleString()}] MB remain: ${Math.round((baseChars - charClock)/1000)/1000} Last Acid: `;
 
@@ -1044,9 +1066,11 @@ function drawHistogram() {
   text += `
   [ DNA Filesize: ${Math.round(baseChars/1000)/1000} Mb Codons per tile: ${codonsPerPixel} Pixels painted: ${rgbArray.length.toLocaleString()} ]`;
 
-  text += dnaTail();
-  text += histogram(aacdata, { bar: '/', width: 50, sort: true, map:  aacdata.Histocount} );
+  text += histogram(aacdata, { bar: '/', width: 40, sort: true, map:  aacdata.Histocount} );
   // TOTAL Start Codons (enough space to line up nicely)
+  // text += dnaTail();
+  text += `\r  [ raw:     ${ removeLineBreaks(rawDNA)} ]\r  [ clean: ${ cleanString(rawDNA)} ]\r`;
+
   text += "                  " + filename;
   return text;
 }
