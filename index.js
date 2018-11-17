@@ -13,7 +13,7 @@ let force = false; // force overwrite existing PNG and HTML reports
 let artistic = false; // for Charlie
 let CRASH = false; // hopefully not
 let clear; // clear the terminal each update
-let msPerUpdate = 500; // milliseconds per  update
+let msPerUpdate = 200; // milliseconds per  update
 const maxMsPerUpdate = 12000; // milliseconds per update
 let cyclesPerUpdate = 100; // start valuue only this is auto tuneded to users computer speed based on msPerUpdate
 let codonsPerPixel = 1; // this gives an AMAZING regular texture. current contender for the standard. .
@@ -139,9 +139,7 @@ module.exports = () => {
     break;
 
     case 'serve':
-    // launchBlockingServer();
     launchNonBlockingServer();
-    // openMiniWebsite();
     break;
 
     case 'help':
@@ -155,7 +153,7 @@ module.exports = () => {
     default:
     if (cmd == undefined) {
       output(`cmd == undefined [all args] ${args._}`);
-
+      status = "no command";
       // output(radMessage);
       // launchBlockingServer();
       // launchNonBlockingServer();
@@ -205,7 +203,7 @@ function setupFNames() {
   justNameOfHTML = justNameOfDNA+ ext + ".html";
 
   output("FILENAMES SETUP AS: ");
-  output(justNameOfDNA);
+  output(justNameOfDNA + " canonical name format: " + extension);
   output(justNameOfPNG);
   output(justNameOfHTML);
 }
@@ -1012,9 +1010,11 @@ function drawHistogram() {
   for (h=0;h<histoGRAM.length;h++) {
     aacdata[histoGRAM[h].Codon] = histoGRAM[h].Histocount ;
   }
-  text += `      @i ${charClock.toLocaleString()} File: ${terminalRGB(justNameOfDNA, 255, 255, 255)} Line breaks: ${breakClock}`;
+  text += "\r";
+
+  text += ` @i ${charClock.toLocaleString()} File: ${terminalRGB(justNameOfDNA, 255, 255, 255)} Line breaks: ${breakClock}`;
   // text += terminalRGB(aminoacid, red, green, blue);
-  // text += "\r";
+  text += "\r";
 
   if (status == "complete" || status == "stopped") {
     text += `  [ PROCESSING COMPLETE | Time used: ${runningDuration.toLocaleString()}]`;
@@ -1030,7 +1030,8 @@ function drawHistogram() {
       if (status == "saving") {
         text += terminalRGB("   [ SAVING IMAGE ]", 128, 255, 128);
       }  else {
-        text += `  [ Time remain: ${timeRemain.toLocaleString()}sec  ${Math.round(runningDuration/1000)}sec elapsed KB remain: ${(Math.round((baseChars - charClock)/1000)).toLocaleString()} next update: ${msPerUpdate.toLocaleString()}ms]`;
+
+        text += `[ Time remain: ${timeRemain.toLocaleString()}sec  ${Math.round(runningDuration/1000)}sec elapsed KB remain: ${(Math.round((baseChars - charClock)/1000)).toLocaleString()} next update: ${msPerUpdate.toLocaleString()}ms]`;
       }
 
       if (baseChars - charClock > 10 || status != "complete") {
@@ -1054,6 +1055,8 @@ function drawHistogram() {
 
 
   text += terminalRGB(aminoacid, red, green, blue);
+  text += "\r";
+
   text += ` [ CPU ${Math.round(kBytesPerSecond/1000).toLocaleString()} Kb/s ${Math.round(kCodonsPerSecond).toLocaleString()} Codons/s  ] `;
   text += `[ DNA Filesize: ${Math.round(baseChars/1000)/1000} MB ]`;
   text += `
