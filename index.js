@@ -768,8 +768,8 @@ function arrayToPNG() {
   setImmediate(() => {
     output("Input DNA: " + filename)
     output("Saved PNG: " + filenamePNG);
-    output("value returned by parseFileForStream " + parseFileForStream());
-    // opn(filenamePNG);
+    // output("value returned by parseFileForStream " + parseFileForStream());
+    opn(filenamePNG);
   });
 }
 
