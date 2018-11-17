@@ -195,7 +195,7 @@ function setupFNames() {
   const extension = getFileExtension(filename);
   justNameOfDNA = removeFileExtension(justNameOfDNA);
 
-  ( artistic ? ext += "_sci" : ext += "_artistic")
+  ( artistic ? ext += "_artistic" : ext += "_sci")
 
   // filenamePNG = filename.substring(0, filename.length-posi) + "/images/"  + ext + ".png";
   filenamePNG = removeFileExtension(filename) + ext + ".png";
