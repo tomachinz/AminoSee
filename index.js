@@ -46,7 +46,7 @@ let errorClock = 0; // increment each non DNA, such as line break. is reset afte
 let breakClock = 0;
 let streamLineNr = 0;
 let genomeSize = 0;
-const opacity = 0.95 / codonsPerPixel; // 0.9 is used to make it brighter, also due to line breaks
+let opacity = 0.95 / codonsPerPixel; // 0.9 is used to make it brighter, also due to line breaks
 const proteinHighlight = 6; // px only use in artistic mode.
 const startStopHighlight = 6; // px only use in artistic mode.
 let filename, filenamePNG, reader, hilbertPoints, herbs, levels, progress, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, textFile, rawDNA, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, fileUploadShowing, testColors, chunksMax, chunksize, chunksizeBytes, baseChars, cpu, subdivisions, renderSummary, contextBitmap, aminoacid, colClock, start, updateClock, percentComplete, kBytesPerSecond, pixelStacking, isStartStopCodon, justNameOfDNA, justNameOfPNG, sliceDNA, filenameHTML, howManyFiles;
@@ -82,6 +82,7 @@ module.exports = () => {
     } else if (codonsPerPixel > 6000) {
       codonsPerPixel = 6000;
     }
+    opacity = 0.95 / codonsPerPixel;
     output(`shrink the image by blending ${codonsPerPixel} codons per pixel.`);
   }
   if (args.artistic || args.a) {
@@ -1043,7 +1044,7 @@ function drawHistogram() {
   text += lineBreak;
   text += `[ Mb Codons per pixel: ${codonsPerPixel} Pixels painted: ${colClock.toLocaleString()} ] `;
 
-  text += `[ DNA Filesize: ${Math.round(baseChars/1000)/1000} MB ] `;
+  text += `[ DNA Filesize: ${Math.round(baseChars/1000)/1000} MB Codon Opacity: ${opacity}] `;
   text += lineBreak;
 
   text += "\r";
@@ -1051,7 +1052,7 @@ function drawHistogram() {
   text += "\r";
   text += histogram(aacdata, { bar: '/', width: 40, sort: true, map:  aacdata.Histocount} );
   text += "\r";
-  text += `  [ raw:     ${ removeLineBreaks(rawDNA)} ]  [ clean: ${ cleanString(rawDNA)} ] `;
+  text += `  [ raw:   ${ removeLineBreaks(rawDNA)} ]  [ clean: ${ cleanString(rawDNA)} ] `;
   text += "                  " + filename;
   text += "       [ status " + status + "    ]";
   // console.log(text);
