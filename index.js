@@ -75,14 +75,14 @@ module.exports = () => {
   });
 
   console.dir(args);
-  if (args.c || args.codons ) {
-    codonsPerPixel = Math.round(args.codons || args.c); // javascript is amazing
+  if (args.codons || args.c || args.z ) {
+    codonsPerPixel = Math.round(args.codons || args.c || args.z); // javascript is amazing
     if (codonsPerPixel < 1) {
       codonsPerPixel = 1;
     } else if (codonsPerPixel > 6000) {
       codonsPerPixel = 6000;
     }
-    output("Codons per pixel adjusted to: "+codonsPerPixel);
+    output(`shrink the image by blending ${codonsPerPixel} codons per pixel.`);
   }
   if (args.artistic || args.a) {
     output(`artistic enabled. Start (Methione = Green) and Stop codons (Amber, Ochre, Opal) interupt the pixel timing creating columns. protein coding codons are diluted they are made ${Math.round(opacity*100).toLocaleString()}% translucent and ${codonsPerPixel} of them are blended together to make one colour that is then faded across ${proteinHighlight} pixels horizontally. The start/stop codons get a whole pixel to themselves, and are faded across ${startStopHighlight} pixels horizontally.`);
@@ -91,11 +91,6 @@ module.exports = () => {
     output("1:1 science mode enabled.");
     artistic = false;
   }
-  if (args.codons || args.c ) {
-    output("shrink the image by blending ${codonsPerPixel} codons per pixel.");
-    verbose = true;
-  }
-
   if (args.verbose || args.v) {
     output("verbose enabled.");
     verbose = true;
@@ -109,7 +104,7 @@ module.exports = () => {
     force = true;
   }
   if (args.help || args.h) {
-    output("I've not made a help file yet.");
+    output("Hello. I've not made a help file yet.");
   }
 
   if (args.clear || args.c) {
@@ -402,7 +397,6 @@ function processLine(l) {
       }
       alpha = 255;
 
-      // log(" pixelStacking: "  + pixelStacking + " rgbArray: " + rgbArray.length);
       if (artistic != true) {
         // science mode blacks the pixel everytime:
         // mixRGBA[0] += 0; // red
@@ -422,21 +416,19 @@ function processLine(l) {
           mixRGBA[1] +=   parseFloat(codonRGBA[1].valueOf()) * opacity;
           mixRGBA[2] +=   parseFloat(codonRGBA[2].valueOf()) * opacity;
         }
-        // pixelStacking blends colour on one pixel
+        //  blends colour on one pixel
         if (pixelStacking >= codonsPerPixel) {
           red = mixRGBA[0];
           green = mixRGBA[1];
           blue = mixRGBA[2];
           paintPixel(); // FULL BRIGHTNESS
           // reset inks, using codonsPerPixel cycles for each pixel:
-          pixelStacking = 0;
           mixRGBA[0] =   0;
           mixRGBA[1] =   0;
           mixRGBA[2] =   0;
           red = 0;
           green = 0;
           blue = 0;
-          // paintPixel(); // FULL BRIGHTNESS
 
         }
         // end science mode
@@ -488,7 +480,7 @@ function processLine(l) {
           mixRGBA[1] +=   parseFloat(codonRGBA[1].valueOf()) * opacity;
           mixRGBA[2] +=   parseFloat(codonRGBA[2].valueOf()) * opacity;
         }
-        // pixelStacking blends colour on one pixel
+        // blends colour on one pixel
         if (pixelStacking >= codonsPerPixel) {
 
           red = 0;
@@ -640,7 +632,6 @@ function processNewStreamingMethod(f) {
     output("STOPPING. parseFileForStream returned false for: " + filename);
     return false;
   };
-  let colorClock = 0;
   percentComplete = 0;
   genomeSize = 0; // number of codons.
   pixelStacking = 0; // how we fit more than one codon on each pixel
@@ -944,32 +935,29 @@ function paintPixel() {
   rgbArray.push(Math.round(green));
   rgbArray.push(Math.round(blue));
   rgbArray.push(Math.round(alpha));
-
+  pixelStacking = 0;
   colClock++;
 }
 
 function clearPrint(t) {
   if (clear) {
+    // process.stdout.write('\x1B[2J\x1B[0f');
     // process.stdout.write("\r\x1b[K");
     // process.stdout.write('\033c');
     // console.log('\033c');
     // process.stdout.write("\x1B[2J");
-    process.stdout.write('\x1B[2J\x1B[0f');
+    console.log('\x1Bc');
 
   } else {
     output("noclear");
   }
-
   printRadMessage();
-  console.log(t);
+  process.stdout.write(t)
+
 }
+
 function renderPixels() {
 
-}
-
-function dnaTail() {
-  // DEBUG
-  return `\r  [ raw:     ${ removeLineBreaks(rawDNA)} ]\r  [ clean: ${ cleanString(rawDNA)} ]\r`;
 }
 
 
@@ -998,7 +986,7 @@ function drawHistogram() {
   let kCodonsPerSecond = Math.round(genomeSize+1 / runningDuration+1);
   let kBytesPerSecond = Math.round(charClock+1 / runningDuration+1);
   let timeRemain = Math.round(runningDuration * ((baseChars-charClock)/charClock+1)/1000);
-  let text = status + "\r";
+  let text = status + lineBreak;
   let aacdata = [];
 
   if (msPerUpdate < maxMsPerUpdate) {
@@ -1010,18 +998,18 @@ function drawHistogram() {
   for (h=0;h<histoGRAM.length;h++) {
     aacdata[histoGRAM[h].Codon] = histoGRAM[h].Histocount ;
   }
-  text += "\r";
+  text += lineBreak;
 
   text += ` @i ${charClock.toLocaleString()} File: ${terminalRGB(justNameOfDNA, 255, 255, 255)} Line breaks: ${breakClock}`;
   // text += terminalRGB(aminoacid, red, green, blue);
-  text += "\r";
+  text += lineBreak;
 
   if (status == "complete" || status == "stopped") {
     text += `  [ PROCESSING COMPLETE | Time used: ${runningDuration.toLocaleString()}]`;
     percentComplete = 100;
     msPerUpdate = 0;
     output(text);
-    output("DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE ");
+    output(" DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE ");
     clearTimeout();
     status = "stopped";
   } else {
@@ -1029,9 +1017,6 @@ function drawHistogram() {
 
       if (status == "saving") {
         text += terminalRGB("   [ SAVING IMAGE ]", 128, 255, 128);
-      }  else {
-
-        text += `[ Time remain: ${timeRemain.toLocaleString()}sec  ${Math.round(runningDuration/1000)}sec elapsed KB remain: ${(Math.round((baseChars - charClock)/1000)).toLocaleString()} next update: ${msPerUpdate.toLocaleString()}ms]`;
       }
 
       if (baseChars - charClock > 10 || status != "complete") {
@@ -1049,25 +1034,27 @@ function drawHistogram() {
   }
   if (artistic) {  }
   ( artistic ? text += ` [ Artistic Mode 1:${proteinHighlight}]` : text += " [ Science Mode 1:1]" )
-
+  text += `[ Time remain: ${timeRemain.toLocaleString()}sec Elapsed: ${Math.round(runningDuration/1000)}sec KB remain: ${(Math.round((baseChars - charClock)/1000)).toLocaleString()} Next update: ${msPerUpdate.toLocaleString()}ms ]`;
   text += `
   [ ${percentComplete}% done Codons: ${genomeSize.toLocaleString()}]  Last Acid: `;
-
-
   text += terminalRGB(aminoacid, red, green, blue);
-  text += "\r";
-
+  text += lineBreak;
   text += ` [ CPU ${Math.round(kBytesPerSecond/1000).toLocaleString()} Kb/s ${Math.round(kCodonsPerSecond).toLocaleString()} Codons/s  ] `;
-  text += `[ DNA Filesize: ${Math.round(baseChars/1000)/1000} MB ]`;
-  text += `
-  [ Mb Codons per pixel: ${codonsPerPixel} Pixels painted: ${rgbArray.length.toLocaleString()} ] `;
-  text += `\r`;
+  text += lineBreak;
+  text += `[ Mb Codons per pixel: ${codonsPerPixel} Pixels painted: ${colClock.toLocaleString()} ] `;
+
+  text += `[ DNA Filesize: ${Math.round(baseChars/1000)/1000} MB ] `;
+  text += lineBreak;
+
+  text += "\r";
+  text += "\r";
+  text += "\r";
   text += histogram(aacdata, { bar: '/', width: 40, sort: true, map:  aacdata.Histocount} );
-  // TOTAL Start Codons (enough space to line up nicely)
-  // text += dnaTail();
-  text += `  [ raw:     ${ removeLineBreaks(rawDNA)} ]  [ clean: ${ cleanString(rawDNA)} ]`;
+  text += "\r";
+  text += `  [ raw:     ${ removeLineBreaks(rawDNA)} ]  [ clean: ${ cleanString(rawDNA)} ] `;
   text += "                  " + filename;
   text += "       [ status " + status + "    ]";
+  // console.log(text);
   return text;
 }
 // function megaByte() {
@@ -1995,3 +1982,6 @@ function isRawRGBAData(obj) {
       by Tom Atkinson          aminosee.funk.co.nz
       ah-mee no-see         "I See It Now - I AminoSee it!"
       `, 96, 64, 245);
+
+      const lineBreak = `
+      `;
