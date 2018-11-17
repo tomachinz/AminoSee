@@ -73,7 +73,8 @@ module.exports = () => {
     boolean: [ 'clear' ],
     boolean: [ 'artistic' ],
     string: [ 'zoom'],
-    alias: { a: 'artistic', v: 'verbose', s: 'science', f: 'force', d: 'devmode' },
+    string: [ 'width'],
+    alias: { a: 'artistic', v: 'verbose', s: 'science', f: 'force', d: 'devmode', w: 'width' },
     default: { clear: true },
     '--': true,
 
@@ -117,9 +118,13 @@ module.exports = () => {
     codonsPerPixel = zoomFactor * 3; // has to be multiple of 3. guess why. actually thats a trick question, i might change this.
   }
   let cmd = args._[0];
-  filename = path.resolve(cmd);
   howManyFiles = args._.length;
   output("howManyFiles: "+ howManyFiles+ " cmd: " + cmd)
+  output("howManyFiles: "+ howManyFiles+ " cmd: " + cmd)
+  output("howManyFiles: "+ howManyFiles+ " cmd: " + cmd)
+  output("howManyFiles: "+ howManyFiles+ " cmd: " + cmd)
+  filename = path.resolve(cmd);
+
   switch (cmd) {
     case 'unknown':
     output(` [unknown argument] ${cmd}`);
@@ -769,7 +774,11 @@ function arrayToPNG() {
     output("Input DNA: " + filename)
     output("Saved PNG: " + filenamePNG);
     // output("value returned by parseFileForStream " + parseFileForStream());
-    opn(filenamePNG);
+    if (!devmode) {
+      output("Now opening your image... either quit image viewer or Control-c ")
+      output("To prevent automatically opening the image, use --devmode option")
+      opn(filenamePNG);
+    }
   });
 }
 
@@ -1063,7 +1072,10 @@ function codonToRGBA(cod) {
           histoGRAM[h].Histocount++;
 
           if (aminoacid == "Amber" || aminoacid == "Ochre" || aminoacid == "Opal" ) {
-            histoGRAM.some(isCodon).Histocount++;
+            histoGRAM.indexOf("STOP Codon").Histocount++;
+          } else if (aminoacid == "Methione") {
+            histoGRAM[histoGRAM.indexOf("START Codon")].Histocount++;
+
           }
           break
         }
