@@ -39,8 +39,9 @@ const resSD = 960*768;
 const resHD = 1920*1080;
 const res4K = 1920*1080*4;
 let rgbArray = []; // um.
-const maxcolorpix = resSD; // for large genomes
-const colormapsize = resSD*4; // custom fit.
+const maxcolorpix = res4K; // for large genomes
+const colormapsize = res4K*4; // custom fit.
+const resolutionFileExtension = "4K"; // SD   HD
 let red = 0;
 let green = 0;
 let blue = 0;
@@ -238,16 +239,20 @@ function initStream(f) {
     output('Error while reading file: ' + filename, err);
   })
   .on('end', function(){
-    clearPrint('Stream complete.');
+    output(`Stream complete.`);
     status ="complete";
     // finalUpdate(); // last update
     percentComplete = 100;
+    colormapsize = rgbArray.length;
     renderSummary += `
     Filename: ${justNameOfDNA}
+    Output max resolution: ${resolutionFileExtension}
     Image Size: ${Math.round(colormapsize/100000)/10} Megapixels
     Input bytes: ${baseChars}
     Codons per pixel: ${codonsPerPixel}
     Codon triplets matched: ${genomeSize}
+    colClock: ${colClock}
+    rgbArray.length: ${rgbArray.length}
     Amino acid blend opacity: ${Math.round(opacity*10000)/100}%
     Error Clock: ${errorClock}
     `;
@@ -293,7 +298,7 @@ function removeFileExtension(f) {
   return f.substring(0, f.length - (getFileExtension(f).length+1));
 }
 function setupFNames() {
-  let ext = ".aminosee_z" + codonsPerPixel;
+  let ext = ".aminosee_" + resolutionFileExtension +  "_z" + codonsPerPixel;
   justNameOfDNA = replaceFilepathFileName(filename);
   // let posi = filename.indexOf(justNameOfDNA);
   // chop the extension for display:
