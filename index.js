@@ -422,6 +422,7 @@ function parseFileForStream() {
   // and including the last dot
   start = new Date().getTime();
   baseChars = getFilesizeInBytes(filename);
+  setupFNames();
   setupZfactor(); // fix zoom
 
   const extension = getFileExtension(filename);
