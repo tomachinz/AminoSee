@@ -7,6 +7,8 @@
 //       by Tom Atkinson            aminosee.funk.co.nz
 //        ah-mee no-see       "I See It Now - I AminoSee it!"
 
+let proteinBrightness = 0.6;
+let startStopBrightness = 2.4;
 let devmode = false; // kills the auto opening of reports etc
 let verbose = false; // not recommended. will slow down due to console.
 let force = false; // force overwrite existing PNG and HTML reports
@@ -47,8 +49,7 @@ let errorClock = 0; // increment each non DNA, such as line break. is reset afte
 let breakClock = 0;
 let streamLineNr = 0;
 let genomeSize = 0;
-let proteinBrightness = 0.7;
-let startStopBrightness = 2.1;
+
 let opacity = proteinBrightness / codonsPerPixel; // 0.9 is used to make it brighter, also due to line breaks
 const proteinHighlight = 6; // px only use in artistic mode.
 const startStopHighlight = 6; // px only use in artistic mode.
