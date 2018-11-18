@@ -13,6 +13,7 @@ let devmode = false; // kills the auto opening of reports etc
 let verbose = false; // not recommended. will slow down due to console.
 let force = false; // force overwrite existing PNG and HTML reports
 let artistic = false; // for Charlie
+let antialias = false;
 let CRASH = false; // hopefully not
 let clear; // clear the terminal each update
 let msPerUpdate = 200; // milliseconds per  update
@@ -61,7 +62,68 @@ const extensions = [ "txt", "fa", "mfa", "gbk", "dna"];
 let status = "load";
 setupFNames();
 // opn("megabase.aminosee_z2_artistic.png"); // <-- this can crash the flow
+function initStream(f) {
+  var fs = require('fs')
+  , es = require('event-stream');
 
+  filename = f; // set a global. i know. god i gotta stop using those.
+  setupFNames();
+  output(` [ cli parameter: ${f} ]`);
+  output(` [ justNameOfDNA: ${justNameOfDNA} ]`);
+
+  if (parseFileForStream() == true) {
+    output(justNameOfDNA + " was parsed OK. ");
+  } else {
+    output("STOPPING. parseFileForStream returned false for: " + filename);
+    return false;
+  };
+  percentComplete = 0;
+  genomeSize = 0; // number of codons.
+  pixelStacking = 0; // how we fit more than one codon on each pixel
+  colClock = 0; // which pixel are we painting?
+  alpha = 255;
+  log("STARTING MAIN LOOP");
+  status = "args loop";
+  clearPrint(drawHistogram()); // MAKE THE HISTOGRAM
+
+  var s = fs.createReadStream(f).pipe(es.split()).pipe(es.mapSync(function(line){
+    // pause the readstream
+    s.pause();
+    streamLineNr++;
+    // process line here and call s.resume() when rdy
+    // function below was for logging memory usage
+    processLine(line);
+    // resume the readstream, possibly from a callback
+    s.resume();
+  })
+  .on('error', function(err){
+    output('Error while reading file: ' + filename, err);
+  })
+  .on('end', function(){
+    clearPrint('Stream complete.');
+    status ="complete";
+    // finalUpdate(); // last update
+    percentComplete = 100;
+    renderSummary += `
+    Filename: ${justNameOfDNA}
+    Image Size: ${Math.round(colormapsize/100000)/10} Megapixels
+    Input bytes: ${baseChars}
+    Codons per pixel: ${codonsPerPixel}
+    Codon triplets matched: ${genomeSize}
+    Amino acid blend opacity: ${Math.round(opacity*10000)/100}%
+    Error Clock: ${errorClock}
+    `;
+    log("preparing to store: " + colormapsize.toLocaleString() + " pixels");
+    log("length in bytes rgba " + rgbArray.length.toLocaleString());
+    // finalUpdate();
+    // let renderSummary = "";
+    arrayToPNG(); // fingers crossed!
+    status = "saving";
+    // if (!devmode) {
+    // saveHistogram();
+    // }
+  }));
+}
 module.exports = () => {
   status = "exports";
   welcomeMessage();
@@ -90,12 +152,6 @@ module.exports = () => {
   }
   if (args.codons || args.c || args.z ) {
     codonsPerPixel = Math.round(args.codons || args.c || args.z); // javascript is amazing
-    if (codonsPerPixel < 1) {
-      codonsPerPixel = 1;
-    } else if (codonsPerPixel > 6000) {
-      codonsPerPixel = 6000;
-    }
-    opacity = 0.95 / codonsPerPixel;
     output(`shrink the image by blending ${codonsPerPixel} codons per pixel.`);
   }
   if (args.artistic || args.a) {
@@ -169,23 +225,64 @@ module.exports = () => {
     } else {
       output(` [all args] ${args._}`);
       status = "pre-streaming";
-      // processNewStreamingMethod(filename);
+
+
+      // initStream(filename);
       // processOldWayNonStreamed(filename);
 
-      for (cli = 0; cli < howManyFiles; cli++) {
+
+
+
+      // const util = require('util');
+      // const fs = require('fs');
+      //
+      // async function callStream() {
+      //   const stream = await initStream(asterix);
+      //   status  = `Promise returned for: ${asterix}`
+      //   console.log(status);
+      // }
+      // const initStream = util.promisify(initStream);
+
+
+
+
+
+      // for (cli = 0; cli < howManyFiles; cli++) {
+        for (cli = 0; cli < 5; cli++) {
         status = "args loop";
 
         asterix = args._[cli]
         output(` [ file batch ${cli+1} done, ${howManyFiles-cli} to go! ] ${asterix}`);
         setupFNames();
         output( terminalRGB( asterix, 200,100,64) );
-        processNewStreamingMethod(asterix);
+        initStream(asterix);
       }
       // https://stackoverflow.com/questions/16010915/parsing-huge-logfiles-in-node-js-read-in-line-by-line
     }
     break;
   }
   status = "global";
+}
+// CODONS PER PIXEL
+function setupZfactor() {
+  codonsPerPixel = Math.round(codonsPerPixel); // javascript is amazing
+  if (codonsPerPixel < 1) {
+    codonsPerPixel = 1;
+  } else if (codonsPerPixel > 6000) {
+    codonsPerPixel = 6000;
+  }
+
+  let estimatedPixels = baseChars * 1.4;
+
+  if (estimatedPixels < maxcolorpix) {
+    codonsPerPixel = 1;
+  } else if (estimatedPixels > maxcolorpix){
+    if ( estimatedPixels / codonsPerPixel > maxcolorpix) {
+      codonsPerPixel = Math.round(estimatedPixels / maxcolorpix);
+    }
+  }
+  opacity = 0.95 / codonsPerPixel;
+  return codonsPerPixel;
 }
 function cmdTest() {
   output("started from CLI");
@@ -321,9 +418,11 @@ function parseFileForStream() {
   // and including the last dot
   start = new Date().getTime();
   baseChars = getFilesizeInBytes(filename);
+  setupZfactor(); // fix zoom
 
   const extension = getFileExtension(filename);
   output("[FILESIZE] " + baseChars.toLocaleString() + " extension: " + extension);
+
 
   if (extensions.indexOf(extension) < 0) {
     output("WRONG FILE EXTENSION: " + extension);
@@ -631,68 +730,7 @@ function legend() {
   `;
   return html;
 }
-function processNewStreamingMethod(f) {
-  var fs = require('fs')
-  , es = require('event-stream');
 
-  filename = f; // set a global. i know. god i gotta stop using those.
-  setupFNames();
-  output(` [ cli parameter: ${f} ]`);
-  output(` [ justNameOfDNA: ${justNameOfDNA} ]`);
-
-  if (parseFileForStream() == true) {
-    output(justNameOfDNA + " was parsed OK. ");
-  } else {
-    output("STOPPING. parseFileForStream returned false for: " + filename);
-    return false;
-  };
-  percentComplete = 0;
-  genomeSize = 0; // number of codons.
-  pixelStacking = 0; // how we fit more than one codon on each pixel
-  colClock = 0; // which pixel are we painting?
-  alpha = 255;
-  log("STARTING MAIN LOOP");
-  status = "args loop";
-  clearPrint(drawHistogram()); // MAKE THE HISTOGRAM
-
-  var s = fs.createReadStream(f).pipe(es.split()).pipe(es.mapSync(function(line){
-    // pause the readstream
-    s.pause();
-    streamLineNr++;
-    // process line here and call s.resume() when rdy
-    // function below was for logging memory usage
-    processLine(line);
-    // resume the readstream, possibly from a callback
-    s.resume();
-  })
-  .on('error', function(err){
-    output('Error while reading file: ' + filename, err);
-  })
-  .on('end', function(){
-    clearPrint('Stream complete.');
-    status ="complete";
-    // finalUpdate(); // last update
-    percentComplete = 100;
-    renderSummary += `
-    Filename: ${justNameOfDNA}
-    Image Size: ${Math.round(colormapsize/100000)/10} Megapixels
-    Input bytes: ${baseChars}
-    Codons per pixel: ${codonsPerPixel}
-    Codon triplets matched: ${genomeSize}
-    Amino acid blend opacity: ${Math.round(opacity*10000)/100}%
-    Error Clock: ${errorClock}
-    `;
-    log("preparing to store: " + colormapsize.toLocaleString() + " pixels");
-    log("length in bytes rgba " + rgbArray.length.toLocaleString());
-    // finalUpdate();
-    // let renderSummary = "";
-    arrayToPNG(); // fingers crossed!
-    status = "saving";
-    // if (!devmode) {
-    // saveHistogram();
-    // }
-  }));
-}
 function helpCmd(args) {
   output("Help section." + args);
 }
@@ -747,7 +785,9 @@ function arrayToPNG() {
 
   bytes = rgbArray.length;
   pixels = (rgbArray.length / 4) + 1 ; // to avoid the dreaded "off by one error"... one exra pixel wont bother nobody
+  if (antialias) {
 
+  }
   // if (golden) { // thanks to https://www.omnicalculator.com/math/golden-ratio
 
   // if (square || golden) {
