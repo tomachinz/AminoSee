@@ -1,8 +1,12 @@
 # macos
-# find -f *.fa *.mfa *.gbk  -exec aminosee -v -d -f --no-clear --zoom 100 -f {} \;
+find -f *.fa *.mfa *.gbk *.txt -exec aminosee -v -d --no-clear {} \;
+
+if $(uname)=Linux
+find -f *.fa *.mfa *.gbk *.txt -exec aminosee -v -d --no-clear {} \;
+fi
 
 # linux
-# find -f *.fa *.mfa *.gbk  -exec aminosee -v -d -f --no-clear --zoom 100 -f {} \;
+
 aminosee megabase.fa -d
 aminosee megabase.fa -d -z 2
 aminosee megabase.fa -d -z 3
@@ -21,7 +25,7 @@ find . -name "*.gbk" -type f -print0 | xargs -0 aminosee -d  --zoom 20
 find . -name "*.txt" -type f -print0 | xargs -0 aminosee -d  --zoom 20
 find . -name "*.dna" -type f -print0 | xargs -0 aminosee -d  --zoom 20
 
-
+ # find . | grep -E "(\.fa|\.mfa|\.gbk)" | xargs -0  aminosee
 
 find . -name "*.fa"  -type f -print0 | xargs -0 aminosee -v -d -f --no-clear --zoom 100
 find . -name "*.mfa" -type f -print0 | xargs -0 aminosee -v -d -f --no-clear --zoom 100
