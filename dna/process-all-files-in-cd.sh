@@ -1,10 +1,12 @@
 # macos
-if $(uname)=Darwin
-find -f *.fa *.mfa *.gbk *.txt -exec aminosee -v -d --no-clear {} \;
+# if [ -z "$1" ]; then
+
+if [ $(uname)=Darwin ]; then
+  find -f *.fa *.mfa *.gbk *.txt -exec aminosee -v -d --no-clear {} \;
 fi
 
-if $(uname)=Linux
-find *.fa *.mfa *.gbk *.txt -exec aminosee -v -d --no-clear {} \;
+if [ $(uname)=Linux ]; then
+  find *.fa *.mfa *.gbk *.txt -exec aminosee -v -d --no-clear {} \;
 fi
 
 # linux
