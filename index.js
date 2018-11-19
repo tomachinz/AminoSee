@@ -13,13 +13,14 @@ let devmode = false; // kills the auto opening of reports etc
 let verbose = false; // not recommended. will slow down due to console.
 let force = false; // force overwrite existing PNG and HTML reports
 let artistic = false; // for Charlie
-let spew = false; // firehose your screen with DNA
+let spew = true; // firehose your screen with DNA
 let CRASH = false; // hopefully not
 let clear; // clear the terminal each update
 let msPerUpdate = 200; // milliseconds per  update
 const maxMsPerUpdate = 12000; // milliseconds per update
 let cyclesPerUpdate = 100; // start valuue only this is auto tuneded to users computer speed based on msPerUpdate
-let codonsPerPixel = 1; //  one codon per pixel maximum
+const defaultC = 10;
+let codonsPerPixel = defaultC; //  one codon per pixel maximum
 const minimist = require('minimist')
 const fetch = require("node-fetch");
 const path = require('path');
@@ -39,8 +40,7 @@ const resSD = 960*768;
 const resHD = 1920*1080;
 const res4K = 3840*2160;
 let rgbArray = [];
-const maxcolorpix = res4K; // for large genomes
-let colormapsize = maxcolorpix*4; // custom fit.
+const maxpix = res4K; // for large genomes
 const resolutionFileExtension = "4K"; // SD   HD
 let red = 0;
 let green = 0;
@@ -53,7 +53,7 @@ let streamLineNr = 0;
 let genomeSize = 0;
 let filesDone = 0;
 let spewClock = 0;
-let spewThresh = 5000;
+let spewThresh = 50000;
 let opacity = proteinBrightness / codonsPerPixel; // 0.9 is used to make it brighter, also due to line breaks
 const proteinHighlight = 6; // px only use in artistic mode.
 const startStopHighlight = 6; // px only use in artistic mode.
@@ -63,8 +63,7 @@ rawDNA ="@"; // debug
 filename = "[LOADING]"; // for some reason this needs to be here. hopefully the open source community can come to rescue and fix this Kludge.
 const extensions = [ "txt", "fa", "mfa", "gbk", "dna"];
 let status = "load";
-// setupFNames();
-// opn("megabase.aminosee_z2_artistic.png"); // <-- this can crash the flow
+
 // var keypress = require('keypress');
 //
 // // make `process.stdin` begin emitting "keypress" events
@@ -75,7 +74,7 @@ let status = "load";
 //   log('got "keypress"', key);
 //
 //   if (key && key.ctrl && key.name == 'c') {
-//     process.stdin.pause();
+//     // process.stdin.pause();
 //     status = "TERMINATED WITH CONTROL-C";
 //     console.log(status);
 //     printRadMessage();
@@ -146,7 +145,7 @@ module.exports = () => {
     string: [ 'width'],
     string: [ 'codons'],
     alias: { a: 'artistic', c: 'codons', f: 'force', d: 'devmode', s: 'spew', w: 'width', v: 'verbose', z: 'codons' },
-    default: { clear: true },
+    default: { clear: true, spew: true },
     '--': true,
 
   });
@@ -163,10 +162,17 @@ module.exports = () => {
     output("using custom width: "+ widthMax);
   }
   if (args.codons || args.c || args.z ) {
+
     codonsPerPixel = Math.round(args.codons || args.c || args.z); // javascript is amazing
-    autoconfCodonsPerPixel();
+
     setupFNames();
     output(`shrink the image by blending ${codonsPerPixel} codons per pixel.`);
+  } else {
+    autoconfCodonsPerPixel();
+    if ( codonsPerPixel != defaultC ) {
+      output("WARNING: AminoSee is designed for large files. If your image is a small virus or otherwise appears to small try using -c 2 or -c3 or higher.");
+      codonsPerPixel = defaultC; // I want it to "just work" for super large files.
+    }
   }
   if (args.artistic || args.a) {
     output(`artistic enabled. Start (Methione = Green) and Stop codons (Amber, Ochre, Opal) interupt the pixel timing creating columns. protein coding codons are diluted they are made ${Math.round(opacity*100).toLocaleString()}% translucent and ${codonsPerPixel} of them are blended together to make one colour that is then faded across ${proteinHighlight} pixels horizontally. The start/stop codons get a whole pixel to themselves, and are faded across ${startStopHighlight} pixels horizontally.`);
@@ -211,11 +217,14 @@ module.exports = () => {
   if (howManyFiles > 0) {
     filename = path.resolve(cmd);
   } else {
-    log("no files provided, exiting")
+    log("try using aminosee * in a directory with DNA")
     setTimeout(() => {
-      printRadMessage();
+
+      // printRadMessage();
       output("bye");
-      quit();
+      process.stdin.setRawMode(false);
+
+      process.exit();
     }, 1000);
   }
   switch (cmd) {
@@ -237,7 +246,6 @@ module.exports = () => {
 
     default:
     if (cmd == undefined) {
-      output(`cmd == undefined [all args] ${args._}`);
       status = "no command";
       // output(radMessage);
       // launchBlockingServer();
@@ -330,7 +338,7 @@ function initStream(f) {
   alpha = 255;
   timeRemain = 0;
   log("STARTING MAIN LOOP");
-  status = "read stream";
+  status = "paint";
   clearPrint(drawHistogram()); // MAKE THE HISTOGRAM
 
   var s = fs.createReadStream(f).pipe(es.split()).pipe(es.mapSync(function(line){
@@ -353,21 +361,20 @@ function initStream(f) {
     clearPrint(drawHistogram());
 
     output(`Stream complete.`);
-    colormapsize = rgbArray.length/4;
     output(renderSummary());
     arrayToPNG(); // fingers crossed!
-    status = "saving";
-    // if (!devmode) {
-    // saveHistogram();
-    // }
+    status = "saving html report";
+    if (!devmode) {
+      // saveHistogram();
+    }
   }));
 }
 
 function renderSummary() {
   return `
   Filename: ${justNameOfDNA}
-  Image Size: ${Math.round(colormapsize/100000)/10} Megapixels
-  Input bytes: ${baseChars.toLocaleString()}
+  Size cap: ${Math.round(maxpix/100000)/10} Megapixels
+  Input bytes: ${baseChars.toLocaleString()}*
   Output bytes: ${rgbArray.length.toLocaleString()});
   Codons per pixel: ${codonsPerPixel.toLocaleString()}
   Codon triplets matched: ${genomeSize.toLocaleString()}
@@ -375,38 +382,47 @@ function renderSummary() {
   Pixels: ${rgbArray.length/4} (rgbArray.length/4)
   Amino acid blend opacity: ${Math.round(opacity*10000)/100}%
   Error Clock: ${errorClock}
+  CharClock: ${charClock}*       *(fails on files over 3GB or so)
   Output max res setting: ${resolutionFileExtension}`;
 }
 
 // CODONS PER PIXEL
 function autoconfCodonsPerPixel() {
+  let existing = codonsPerPixel;
+
   codonsPerPixel = Math.round(codonsPerPixel); // javascript is amazing
-  if (codonsPerPixel < 1) {
-    codonsPerPixel = 1;
+  if (codonsPerPixel < 4) {
+    codonsPerPixel = 4;
   } else if (codonsPerPixel > 6000) {
     codonsPerPixel = 6000;
   }
 
+
   let estimatedPixels = baseChars * 1.333;
 
-  if (estimatedPixels < maxcolorpix) { // for sequence smaller than the screen
+  if (estimatedPixels < maxpix) { // for sequence smaller than the screen
     if (codonsPerPixel > 16) {
       codonsPerPixel = 16; // dont let user shrink it too much
     } else {
-      codonsPerPixel = 1; // normally we want 1:1 for smalls
+      codonsPerPixel = 4; // normally we want 1:1 for smalls
     }
-  } else if (estimatedPixels > maxcolorpix){ // for seq bigger than screen
-    if ( estimatedPixels / codonsPerPixel > maxcolorpix) { // still too big?
-      if ( codonsPerPixel == 1) { // default startup state
-        codonsPerPixel = Math.round(estimatedPixels / maxcolorpix);
-      } else if (codonsPerPixel < (estimatedPixels / maxcolorpix)*10) {
-        output(terminalRGB(`WARNING: Target Codons Per Pixel setting ${codonsPerPixel} is likely to exceed the max image size of ${maxcolorpix.toLocaleString()}`))
+  } else if (estimatedPixels > maxpix){ // for seq bigger than screen
+    if ( estimatedPixels / codonsPerPixel > maxpix) { // still too big?
+      if ( codonsPerPixel == 10) { // default startup state
+        codonsPerPixel = Math.round(estimatedPixels / maxpix);
+      } else if (codonsPerPixel < (estimatedPixels / maxpix)*10) {
+        output(terminalRGB(`WARNING: Target Codons Per Pixel setting ${codonsPerPixel} is likely to exceed the max image size of ${maxpix.toLocaleString()}`))
       } else {
-        codonsPerPixel = Math.round(estimatedPixels / maxcolorpix);
+        codonsPerPixel = Math.round(estimatedPixels / maxpix);
       }
     }
   }
   opacity = 0.95 / codonsPerPixel;
+  if (existing != codonsPerPixel && existing != defaultC) {
+    output(terminalRGB("Your selected codons per pixel setting was alterered from ${existing} to ${codonsPerPixel} ", 255, 255, 255));
+    output("this may have happend due to overflow if your file is over 2 GB.");
+    output(terminalRGB("try using -c value higher than the default of ${defaultC}", 255, 128, 64));
+  }
   return codonsPerPixel;
 }
 
@@ -568,16 +584,15 @@ function parseFileForStream() {
 
 }
 function quit() {
-  output("QUITING IN 1 S");
-  output("QUITING IN 1 S");
-  output("QUITING IN 1 S");
-
+  output("Quiting in 1 millisecond.");
+  status = "bye";
+  process.stdin.setRawMode(false);
+  clearTimeout();
+  msPerUpdate = 0;
+  howManyFiles = 0;
   setTimeout(() => {
-    output("QUITING NOW");
-    output("QUITING NOW");
-    output("QUITING NOW");
     process.exit;
-  }, 999);
+  }, 1);
 }
 function processLine(l) {
   rawDNA = l;
@@ -929,8 +944,14 @@ function arrayToPNG() {
   let pixels, height, width;
   let golden = true; // golden section ratio.
 
+  if (colClock==0) {
+    output("No DNA or RNA in this file sorry?! You sure you gave a file with sequences? " + filename);
+    return;
+  }
+
   bytes = rgbArray.length;
-  pixels = (rgbArray.length / 4) + 1 ; // to avoid the dreaded "off by one error"... one exra pixel wont bother nobody
+
+  pixels = (bytes / 4) + 1 ; // to avoid the dreaded "off by one error"... one exra pixel wont bother nobody
   // if (antialias) {
   //
   // }
@@ -995,11 +1016,11 @@ function arrayToPNG() {
     }
     asterix = args._.pop()
     howManyFiles--;
-    if (parseFileForStream(asterix) == true) {
-      output(asterix + " was parsed OK. ");
+    if (howManyFiles > 0) {
+      initStream(asterix);
     } else {
-      status = "File parse failed:" + asterix;
-      return false;
+      status = "quit";
+      // return false;
     };
   });
 }
@@ -1174,27 +1195,19 @@ function drawHistogram() {
     aacdata[histoGRAM[h].Codon] = histoGRAM[h].Histocount ;
   }
   text += lineBreak;
-  text += ` @i ${charClock.toLocaleString()} File: ${terminalRGB(justNameOfDNA, 255, 255, 255)} Line breaks: ${breakClock} Files: ${howManyFiles} `;
+  text += ` @i ${charClock.toLocaleString()} File: ${terminalRGB(justNameOfDNA, 255, 255, 255)} Line breaks: ${breakClock} Files: ${howManyFiles} Base Chars: ${baseChars} `;
   text += lineBreak;
 
-  if (status == "complete" || status == "stopped") {
-    text += `  [ PROCESSING COMPLETE | Time used: ${runningDuration.toLocaleString()}]`;
-    percentComplete = 100;
-    msPerUpdate = 0;
+  text += terminalRGB(`   [ ${status.toUpperCase()} ]`, 128, 255, 128);
+
+  if (status != "paint") {
     output(text);
     clearTimeout();
-    status = "stopped";
   } else {
-
-    if (status == "saving") {
-      text += terminalRGB("   [ SAVING IMAGE ]", 128, 255, 128);
-    }
-
     if (howManyFiles>0) {
       setTimeout(() => {
         clearPrint(drawHistogram()); // MAKE THE HISTOGRAM AGAIN LATER
       }, msPerUpdate);
-
     }
   }
   if (artistic) {  }
@@ -1269,6 +1282,10 @@ function codonToRGBA(cod) {
       spewClock++;
       if (spew && spewClock > spewThresh) {
         log(terminalRGB(aminoacid.charAt(0), red, green, blue));
+        if(colClock % 10 ==0 ){
+          output(` [ ${colClock} ] `);
+          log(terminalRGB(rawDNA, red, green, blue));
+        }
         spewClock = 0;
       }
       return [red, green, blue, alpha];

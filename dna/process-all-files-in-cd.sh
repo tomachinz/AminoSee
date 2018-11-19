@@ -3,7 +3,7 @@
 aminosee megabase.fa -d -c 2
 aminosee megabase.fa -d -c 3
 aminosee megabase.fa -d -c 4
-
+aminosee *
 # macos
 # if [ -c "$1" ]; then
 
