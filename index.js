@@ -65,9 +65,9 @@ const extensions = [ "txt", "fa", "mfa", "gbk", "dna"];
 let status = "load";
 // setupFNames();
 // opn("megabase.aminosee_z2_artistic.png"); // <-- this can crash the flow
-var keypress = require('keypress');
-
-// make `process.stdin` begin emitting "keypress" events
+// var keypress = require('keypress');
+//
+// // make `process.stdin` begin emitting "keypress" events
 // keypress(process.stdin);
 //
 // // listen for the "keypress" event

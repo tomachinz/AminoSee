@@ -1,8 +1,10 @@
 # macos
+if $(uname)=Darwin
 find -f *.fa *.mfa *.gbk *.txt -exec aminosee -v -d --no-clear {} \;
+fi
 
 if $(uname)=Linux
-find -f *.fa *.mfa *.gbk *.txt -exec aminosee -v -d --no-clear {} \;
+find *.fa *.mfa *.gbk *.txt -exec aminosee -v -d --no-clear {} \;
 fi
 
 # linux
@@ -27,11 +29,11 @@ find . -name "*.dna" -type f -print0 | xargs -0 aminosee -d  --zoom 20
 
  # find . | grep -E "(\.fa|\.mfa|\.gbk)" | xargs -0  aminosee
 
-find . -name "*.fa"  -type f -print0 | xargs -0 aminosee -v -d -f --no-clear --zoom 100
-find . -name "*.mfa" -type f -print0 | xargs -0 aminosee -v -d -f --no-clear --zoom 100
-find . -name "*.gbk" -type f -print0 | xargs -0 aminosee -v -d -f --no-clear --zoom 100
-find . -name "*.txt" -type f -print0 | xargs -0 aminosee -v -d -f --no-clear --zoom 100
-find . -name "*.dna" -type f -print0 | xargs -0 aminosee -v -d -f --no-clear --zoom 100
+find . -name "*.fa"  -type f -print0 | xargs -0 aminosee -v -d  --no-clear --zoom 100
+find . -name "*.mfa" -type f -print0 | xargs -0 aminosee -v -d  --no-clear --zoom 100
+find . -name "*.gbk" -type f -print0 | xargs -0 aminosee -v -d  --no-clear --zoom 100
+find . -name "*.txt" -type f -print0 | xargs -0 aminosee -v -d  --no-clear --zoom 100
+find . -name "*.dna" -type f -print0 | xargs -0 aminosee -v -d  --no-clear --zoom 100
 
 aminosee homo-sapien-hs_ref_GRCh38.p12_chr2.fa -d -z 255
 aminosee homo-sapien-hs_ref_GRCh38.p12_chr2.fa -d -z 128
