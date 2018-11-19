@@ -261,7 +261,7 @@ module.exports = () => {
       baseChars = getFilesizeInBytes(filename);
 
       initStream(filename); // moving to the poll
-      pollForWork(); // <-- instead of for loop, a chain of callbacks to pop the array
+      // pollForWork(); // <-- instead of for loop, a chain of callbacks to pop the array
       status = "leaving command handler";
       return true;
       // https://stackoverflow.com/questions/16010915/parsing-huge-logfiles-in-node-js-read-in-line-by-line
@@ -275,7 +275,7 @@ module.exports = () => {
 function pollForWork() {
   howManyFiles = args._.length;
   status = "polling"+filesDone;
-  asterix = args._.pop()
+  // asterix = args._.pop()
   output( args._ );
   output(`Total files to process: ${howManyFiles}`);
 
@@ -339,8 +339,9 @@ function initStream(f) {
     status ="complete";
     // finalUpdate(); // last update
     percentComplete = 100;
-    howManyFiles--;
     clearPrint(drawHistogram());
+    // howManyFiles--;
+
     output(`Stream complete.`);
     colormapsize = rgbArray.length/4;
     output(renderSummary());
@@ -489,7 +490,7 @@ function welcomeMessage() {
   output('     --help -h                                          Help)');
   output('     --force -f     (Overwrite existing .png file if present)');
   output('     --devmode -d         (dont automatically open the image)');
-  output('     --artistitc -a  (creates a visual rhythm in the picture)');
+  // output('     --artistitc -a  (creates a visual rhythm in the picture)');
   output('     --codons -c  1-6000            (default is 1 per pixel )');
   output('     --spew -s          (spew DNA bases to the screen during)');
   output('     --no-clear              (dont clear the terminal during)');
