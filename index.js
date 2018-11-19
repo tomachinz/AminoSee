@@ -7,8 +7,8 @@
 //       by Tom Atkinson            aminosee.funk.co.nz
 //        ah-mee no-see       "I See It Now - I AminoSee it!"
 
-let proteinBrightness = 0.00;
-let startStopBrightness = 3;
+let proteinBrightness = 3.00;
+let startStopBrightness = 0.5;
 let devmode = false; // kills the auto opening of reports etc
 let verbose = false; // not recommended. will slow down due to console.
 let force = false; // force overwrite existing PNG and HTML reports
@@ -37,7 +37,7 @@ const widthMax = 1920/2;
 const golden = true;
 const resSD = 960*768;
 const resHD = 1920*1080;
-const res4K = 1920*1080*4;
+const res4K = 3840*2160;
 let rgbArray = [];
 const maxcolorpix = res4K; // for large genomes
 let colormapsize = maxcolorpix*4; // custom fit.
@@ -57,7 +57,7 @@ let spewThresh = 5000;
 let opacity = proteinBrightness / codonsPerPixel; // 0.9 is used to make it brighter, also due to line breaks
 const proteinHighlight = 6; // px only use in artistic mode.
 const startStopHighlight = 6; // px only use in artistic mode.
-let args, filename, filenamePNG, reader, hilbertPoints, herbs, levels, progress, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, textFile, rawDNA, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, fileUploadShowing, testColors, chunksMax, chunksize, chunksizeBytes, baseChars, cpu, subdivisions, contextBitmap, aminoacid, colClock, start, updateClock, percentComplete, kBytesPerSecond, pixelStacking, isStartStopCodon, justNameOfDNA, justNameOfPNG, sliceDNA, filenameHTML, howManyFiles;
+let args, filename, filenamePNG, reader, hilbertPoints, herbs, levels, progress, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, textFile, rawDNA, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, fileUploadShowing, testColors, chunksMax, chunksize, chunksizeBytes, baseChars, cpu, subdivisions, contextBitmap, aminoacid, colClock, start, updateClock, percentComplete, kBytesPerSecond, pixelStacking, isStartStopCodon, justNameOfDNA, justNameOfPNG, sliceDNA, filenameHTML, howManyFiles, timeRemain, runningDuration;
 process.title = "aminosee.funk.nz";
 rawDNA ="@"; // debug
 filename = "[LOADING]"; // for some reason this needs to be here. hopefully the open source community can come to rescue and fix this Kludge.
@@ -68,84 +68,71 @@ let status = "load";
 var keypress = require('keypress');
 
 // make `process.stdin` begin emitting "keypress" events
-keypress(process.stdin);
-
-// listen for the "keypress" event
-process.stdin.on('keypress', function (ch, key) {
-  log('got "keypress"', key);
-
-  if (key && key.ctrl && key.name == 'c') {
-      process.stdin.pause();
-      status = "TERMINATED WITH CONTROL-C";
-      console.log(status);
-      printRadMessage();
-      process.exit();
-    }
-
-  if (key && key.name == 's') {
-    toggleSpew();
-  }
-  if (key && key.name == 'f') {
-    toggleForce();
-  }
-  if (key && key.name == 'd') {
-    toggleDevmode();
-  }
-  if (key && key.name == 'Space') {
-    msPerUpdate = 200;
-  }
-  if (key && key.name == 'c') {
-    toggleClearScreen();
-  }
-  if (key && key.name == 'u') {
-    msPerUpdate = 5000;
-  }
-
-
-  function toggleVerbose() {
-    verbose = !verbose;
-    output('verbose mode ${verbose}');
-  }
-
-  function toggleSpew() {
-    spew = !spew;
-    output('spew mode ${spew}');
-  }
-    function toggleDevmode() {
-    devmode = !devmode;
-    output('devmode ${devmode}');
-  }
-  function toggleForce() {
-    force = !force;
-    output('force overwrite ${force}');
-  }
-  function showHelp() {
-    output("Hello! Thanks for checking this. I've not made a help file yet.");
-    output("Author:         tom@funk.co.nz or +64212576422");
-    output("calls only between 2pm and 8pm NZT (GMT+11hrs)");
-  }
-
-  function toggleClearScreen() {
-    clear = !clear;
-    output("clear screen toggled.");
-  }
-
-
-
-
-
-
-
-
-
-
-
-
-
-});
-process.stdin.setRawMode(true);
-process.stdin.resume();
-
+// keypress(process.stdin);
+//
+// // listen for the "keypress" event
+// process.stdin.on('keypress', function (ch, key) {
+//   log('got "keypress"', key);
+//
+//   if (key && key.ctrl && key.name == 'c') {
+//     process.stdin.pause();
+//     status = "TERMINATED WITH CONTROL-C";
+//     console.log(status);
+//     printRadMessage();
+//     process.exit();
+//   }
+//   if (key && key.name == 's') {
+//     toggleSpew();
+//   }
+//   if (key && key.name == 'f') {
+//     toggleForce();
+//   }
+//   if (key && key.name == 'd') {
+//     toggleDevmode();
+//   }
+//   if (key && key.name == 'v') {
+//     toggleVerbose();
+//   }
+//   if (key && key.name == 'c') {
+//     toggleClearScreen();
+//   }
+//   if (key && key.name == 'Space' ||  key.name == 'Enter') {
+//     msPerUpdate = 200;
+//   }
+//   if (key && key.name == 'u') {
+//     msPerUpdate = 10000;
+//   }
+//
+//
+//   function toggleVerbose() {
+//     verbose = !verbose;
+//     output('verbose mode ${verbose}');
+//   }
+//   function toggleSpew() {
+//     spew = !spew;
+//     output('spew mode ${spew}');
+//   }
+//   function toggleDevmode() {
+//     devmode = !devmode;
+//     output('devmode ${devmode}');
+//   }
+//   function toggleForce() {
+//     force = !force;
+//     output('force overwrite ${force}');
+//   }
+//   function showHelp() {
+//     output("Hello! Thanks for checking this. I've not made a help file yet.");
+//     output("Author:         tom@funk.co.nz or +64212576422");
+//     output("calls only between 2pm and 8pm NZT (GMT+11hrs)");
+//   }
+//   function toggleClearScreen() {
+//     clear = !clear;
+//     output("clear screen toggled.");
+//   }
+// });
+//
+// process.stdin.setRawMode(true);
+// process.stdin.resume();
 
 module.exports = () => {
   status = "exports";
@@ -156,7 +143,6 @@ module.exports = () => {
     boolean: [ 'devmode' ],
     boolean: [ 'clear' ],
     boolean: [ 'spew' ],
-
     string: [ 'width'],
     string: [ 'codons'],
     alias: { a: 'artistic', c: 'codons', f: 'force', d: 'devmode', s: 'spew', w: 'width', v: 'verbose', z: 'codons' },
@@ -261,8 +247,6 @@ module.exports = () => {
       status = "pre-streaming";
 
 
-
-
       // const util = require('util');
       // const fs = require('fs');
       //
@@ -274,29 +258,42 @@ module.exports = () => {
       // const initStream = util.promisify(initStream);
 
       status = "enqueue";
-      pollForWork(); // <-- instead of for loop, a chain of callbacks to pop the array
+      baseChars = getFilesizeInBytes(filename);
+
       initStream(filename); // moving to the poll
+      pollForWork(); // <-- instead of for loop, a chain of callbacks to pop the array
       status = "leaving command handler";
-      return;
+      return true;
       // https://stackoverflow.com/questions/16010915/parsing-huge-logfiles-in-node-js-read-in-line-by-line
     }
+    // process.exit();
+
     break;
   }
   status = "global";
 }
 function pollForWork() {
+  howManyFiles = args._.length;
   status = "polling"+filesDone;
-  asterix = args._[0]
+  asterix = args._.pop()
   output( args._ );
   output(`Total files to process: ${howManyFiles}`);
 
   filesDone++;
   output(` [ file batch no ${filesDone} done, ${howManyFiles} to go! ] ${asterix}`);
   output( terminalRGB( asterix, 255,128,64) );
-  if (parseFileForStream()) {
-    initStream(filename);
-  } else {
-    output( "Wrong file format: " + filename);
+  // if (checkIfPNGExists()) {
+    // output( "Wrong file format: " + filename);
+  // } else {
+    // initStream( filename );
+    // initStream( asterix );
+    // initStream(  args._.pop() );
+  // }
+  howManyFiles = args._.length;
+  output(`Total files to process: ${howManyFiles}`);
+  if (howManyFiles < 1) {
+    output("maybe quit here");
+    // quit();
   }
 }
 
@@ -309,10 +306,10 @@ function initStream(f) {
   output(` [ cli parameter: ${f} ]`);
   output(` [ justNameOfDNA: ${justNameOfDNA} ]`);
 
-  if (parseFileForStream() == true) {
+  if (parseFileForStream(f) == true) {
     output(justNameOfDNA + " was parsed OK. ");
   } else {
-    output("STOPPING. parseFileForStream returned false for: " + filename);
+    status = "File parse failed."
     return false;
   };
   percentComplete = 0;
@@ -320,8 +317,9 @@ function initStream(f) {
   pixelStacking = 0; // how we fit more than one codon on each pixel
   colClock = 0; // which pixel are we painting?
   alpha = 255;
+  timeRemain = 0;
   log("STARTING MAIN LOOP");
-  status = "args loop";
+  status = "read stream";
   clearPrint(drawHistogram()); // MAKE THE HISTOGRAM
 
   var s = fs.createReadStream(f).pipe(es.split()).pipe(es.mapSync(function(line){
@@ -341,9 +339,10 @@ function initStream(f) {
     status ="complete";
     // finalUpdate(); // last update
     percentComplete = 100;
+    howManyFiles--;
     clearPrint(drawHistogram());
     output(`Stream complete.`);
-    colormapsize = rgbArray.length;
+    colormapsize = rgbArray.length/4;
     output(renderSummary());
     arrayToPNG(); // fingers crossed!
     status = "saving";
@@ -362,7 +361,7 @@ function renderSummary() {
   Codons per pixel: ${codonsPerPixel.toLocaleString()}
   Codon triplets matched: ${genomeSize.toLocaleString()}
   Pixels: ${colClock.toLocaleString()} (colClock)
-  Pixels: ${rgbArray.length} (rgbArray.length)
+  Pixels: ${rgbArray.length/4} (rgbArray.length/4)
   Amino acid blend opacity: ${Math.round(opacity*10000)/100}%
   Error Clock: ${errorClock}
   Output max res setting: ${resolutionFileExtension}`;
@@ -530,10 +529,14 @@ function parseFileForStream() {
   // This uses a regex replace to remove everything up to
   // and including the last dot
   start = new Date().getTime();
-  baseChars = getFilesizeInBytes(filename);
+
+  timeRemain, runningDuration, baseChars, charClock, percentComplete, genomeSize, colClock, opacity = 0;
+  msPerUpdate = 1234;
+
 
   setupZfactor();
   setupFNames();
+
 
   const extension = getFileExtension(filename);
   output("[FILESIZE] " + baseChars.toLocaleString() + " extension: " + extension);
@@ -546,28 +549,31 @@ function parseFileForStream() {
     log("File ext ok. Now checking PNG.")
     // if there is a png, dont render just quit
     if (checkIfPNGExists() == false) {
-      try {
-        fs.readFile(filenamePNG, function (err, data) {
-          if (err) {
-            // NO EXISTING PNG FOUND
-            output("preparing to begin ingest stream: " + filename);
-            return true;
-          } else {
-            log("Image MAYBE already rendered, use --force to overwrite");
-            return false;
-          }
-        });
-      } catch(e) {
-        log("Unable to access disk.");
-        console.warn(e);
-        return true;
-      }
+      return true;
     } else {
-      log("Image already rendered, use --force to overwrite");
-      return false;
+      log("Image already rendered, use --force to overwrite. Files left: " + howManyFiles);
+      if (howManyFiles<2) {
+        // process.exit;
+      }
+
+      // quit();
+
+
+
+      return true;
     }
   }
   return true;
+}
+function quit() {
+  output("QUITING IN 1 S");
+  output("QUITING IN 1 S");
+  output("QUITING IN 1 S");
+
+  setTimeout(() => {
+    process.exit;
+  }, 999);
+
 }
 function processLine(l) {
   rawDNA = l;
@@ -931,7 +937,7 @@ function arrayToPNG() {
   //   height = width;
   // }
   if (golden) {
-    width = Math.sqrt(pixels + 4);
+    width = Math.sqrt(pixels + 40);
     height = width; // 1mp = 1000 x 1000
     let phi = ((Math.sqrt(5) + 1) / 2) ; // 1.618033988749895
     height =  ( width * phi ) - width; // 16.18 - 6.18 = 99.99
@@ -943,9 +949,7 @@ function arrayToPNG() {
     } else {
       output("GOLDEN CHECK TOO MANY PIXELS: pixels: " + pixels + " width x height = " + (width*height));
 
-      setTimeout(() => {
-        process.exit;
-      }, 500);
+      // quit();
     }
   } else {
     if (pixels <= widthMax) {
@@ -974,6 +978,8 @@ function arrayToPNG() {
   setImmediate(() => {
     output("Input DNA: " + filename)
     output("Saved PNG: " + filenamePNG);
+    howManyFiles = args._.length;
+    output("howManyFiles " + howManyFiles);
     // output("value returned by parseFileForStream " + parseFileForStream());
     if (!devmode) {
       output("Opening your image in 3 seconds... either quit image viewer or Control-c ")
@@ -981,6 +987,14 @@ function arrayToPNG() {
       setTimeout(() => {
         opn(filenamePNG);
       }, 3000);
+      // if (howManyFiles>0) {
+      //   setTimeout(() => {
+      //     pollForWork();
+      //   }, 1);
+      // } else {
+      //   quit();
+      // }
+
     }
   });
 }
@@ -1009,10 +1023,10 @@ function output(txt) {
   }
 }
 function log(txt) {
-  if (verbose || devmode) {
+  if (verbose && devmode) {
     let d = new Date().getTime();
     console.log("[ " + d.toLocaleString() + " ] " + txt + " ");
-  } else if (!verbose) {
+  } else {
     process.stdout.write(txt);
   }
 }
@@ -1139,13 +1153,12 @@ function crashReport() {
 function drawHistogram() {
   percentComplete = Math.round(charClock / baseChars * 10000) / 100;
   let now = new Date().getTime();
-  let runningDuration = now - start;
+  runningDuration = now - start;
   let kCodonsPerSecond = Math.round(genomeSize+1 / runningDuration+1);
   let kBytesPerSecond = Math.round(charClock+1 / runningDuration+1);
-  let timeRemain = Math.round(runningDuration * ((baseChars-charClock)/charClock+1)/1000);
+  timeRemain = Math.round(runningDuration * ((baseChars-charClock)/charClock+1)/1000);
   let text = status + lineBreak;
   let aacdata = [];
-
   if (msPerUpdate < maxMsPerUpdate) {
     msPerUpdate += 20; // begin to not update screen so much over time
   }
@@ -1156,10 +1169,7 @@ function drawHistogram() {
     aacdata[histoGRAM[h].Codon] = histoGRAM[h].Histocount ;
   }
   text += lineBreak;
-
-  text += ` @i ${charClock.toLocaleString()} File: ${terminalRGB(justNameOfDNA, 255, 255, 255)} Line breaks: ${breakClock}`;
-  // text += terminalRGB(aminoacid, red, green, blue);
-  text += lineBreak;
+  text += ` @i ${charClock.toLocaleString()} File: ${terminalRGB(justNameOfDNA, 255, 255, 255)} Line breaks: ${breakClock} Files: ${howManyFiles} `;
   text += lineBreak;
 
   if (status == "complete" || status == "stopped") {
@@ -1167,32 +1177,29 @@ function drawHistogram() {
     percentComplete = 100;
     msPerUpdate = 0;
     output(text);
-    output(" DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE DONE ");
     clearTimeout();
     status = "stopped";
   } else {
-    if (status == "args loop" || status == "global" || status == "paint") {
 
       if (status == "saving") {
         text += terminalRGB("   [ SAVING IMAGE ]", 128, 255, 128);
       }
 
-      if (baseChars - charClock > 10 || status != "complete") {
+      if (howManyFiles>0) {
         setTimeout(() => {
           clearPrint(drawHistogram()); // MAKE THE HISTOGRAM AGAIN LATER
         }, msPerUpdate);
 
       }
-    }
   }
   if (artistic) {  }
-  ( artistic ? text += ` [ Artistic Mode 1:${proteinHighlight}]` : text += " [ Science Mode 1:1]" )
-  text += `[ Time remain: ${timeRemain.toLocaleString()}sec Elapsed: ${Math.round(runningDuration/1000)}sec KB remain: ${(Math.round((baseChars - charClock)/1000)).toLocaleString()} Next update: ${msPerUpdate.toLocaleString()}ms ]`;
+  ( artistic ? text += `[ Artistic Mode 1:${proteinHighlight}] ` : text += " [ Science Mode 1:1] " )
+  text += `[ Time remain: ${timeRemain.toLocaleString()}sec Elapsed: ${Math.round(runningDuration/1000)}sec KB remain: ${(Math.round((baseChars - charClock)/1000)).toLocaleString()} Next update: ${msPerUpdate.toLocaleString()}ms ] `;
   text += `
   [ ${percentComplete}% done Codons: ${genomeSize.toLocaleString()}]  Last Acid: `;
   text += terminalRGB(aminoacid, red, green, blue);
   text += lineBreak;
-  text += ` [ CPU ${Math.round(kBytesPerSecond/1000).toLocaleString()} Kb/s ${Math.round(kCodonsPerSecond).toLocaleString()} Codons/s  ] `;
+  text += `[ CPU ${Math.round(kBytesPerSecond/1000).toLocaleString()} Kb/s ${Math.round(kCodonsPerSecond).toLocaleString()} Codons/s  ] `;
   text += lineBreak;
   text += `[ Mb Codons per pixel: ${codonsPerPixel} Pixels painted: ${colClock.toLocaleString()} ] `;
 
@@ -1202,17 +1209,17 @@ function drawHistogram() {
 
   text += histogram(aacdata, { bar: '/', width: 40, sort: true, map:  aacdata.Histocount} );
   text += lineBreak;
-  text += `  [ raw:   ${ removeLineBreaks(rawDNA)} ]  [ clean: ${ cleanString(rawDNA)} ] `;
+  text += `[ raw:   ${ removeLineBreaks(rawDNA)} ]  [ clean: ${ cleanString(rawDNA)} ] `;
   text += lineBreak;
-  text += ` [Input file: ${justNameOfDNA}]`;
+  text += `Input file: ${justNameOfDNA}]`;
   text += lineBreak;
-  text += ` [Output file: ${filenamePNG}]
-  V       (verbose mode)
-  F      (Overwrite png)
-  D            (devmode)
-  S (spew DNA to screen)
-  C     (clear terminal)
-  `;
+  // text += `[Output file: ${filenamePNG}]
+  // V       (verbose mode)
+  // F      (Overwrite png)
+  // D            (devmode)
+  // S (spew DNA to screen)
+  // C     (clear terminal)
+  // `;
   // output('U (dont provide stats)');
   // text +=  (verbose ! "V" : " ")+(devmode ! "D" : " ")+(artistic ! "A" : "S")+codonsPerPixel+(golden ! "GOLD" : "T960")
   return text;
@@ -2137,7 +2144,7 @@ function isRawRGBAData(obj) {
       ╩ ╩┴ ┴┴┘└┘└─┘╚═╝└─┘└─┘  ═╩╝╝╚╝╩ ╩   ╚╝ ┴└─┘└┴┘└─┘┴└─
       by Tom Atkinson          aminosee.funk.co.nz
       ah-mee no-see         "I See It Now - I AminoSee it!"
-`, 96, 64, 245);
+      `, 96, 64, 245);
 
       const lineBreak = `
-`;
+      `;
