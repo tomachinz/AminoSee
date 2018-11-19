@@ -19,7 +19,7 @@ let clear; // clear the terminal each update
 let msPerUpdate = 200; // milliseconds per  update
 const maxMsPerUpdate = 12000; // milliseconds per update
 let cyclesPerUpdate = 100; // start valuue only this is auto tuneded to users computer speed based on msPerUpdate
-let codonsPerPixel = 1; // this gives an AMAZING regular texture. current contender for the standard. .
+let codonsPerPixel = 1; //  one codon per pixel maximum
 const minimist = require('minimist')
 const fetch = require("node-fetch");
 const path = require('path');
@@ -79,7 +79,7 @@ let status = "load";
 //     status = "TERMINATED WITH CONTROL-C";
 //     console.log(status);
 //     printRadMessage();
-//     process.exit();
+//     quit();
 //   }
 //   if (key && key.name == 's') {
 //     toggleSpew();
@@ -164,7 +164,7 @@ module.exports = () => {
   }
   if (args.codons || args.c || args.z ) {
     codonsPerPixel = Math.round(args.codons || args.c || args.z); // javascript is amazing
-    setupZfactor();
+    autoconfCodonsPerPixel();
     setupFNames();
     output(`shrink the image by blending ${codonsPerPixel} codons per pixel.`);
   }
@@ -215,7 +215,7 @@ module.exports = () => {
     setTimeout(() => {
       printRadMessage();
       output("bye");
-      process.exit();
+      quit();
     }, 1000);
   }
   switch (cmd) {
@@ -266,7 +266,7 @@ module.exports = () => {
       return true;
       // https://stackoverflow.com/questions/16010915/parsing-huge-logfiles-in-node-js-read-in-line-by-line
     }
-    // process.exit();
+    // quit();
 
     break;
   }
@@ -275,25 +275,27 @@ module.exports = () => {
 function pollForWork() {
   howManyFiles = args._.length;
   status = "polling"+filesDone;
-  // asterix = args._.pop()
   output( args._ );
   output(`Total files to process: ${howManyFiles}`);
 
   filesDone++;
-  output(` [ file batch no ${filesDone} done, ${howManyFiles} to go! ] ${asterix}`);
-  output( terminalRGB( asterix, 255,128,64) );
+  output(` [ file batch no ${filesDone} done, ${howManyFiles} to go! ] ${justNameOfDNA}`);
+  output( terminalRGB( justNameOfDNA, 255,128,64) );
   // if (checkIfPNGExists()) {
-    // output( "Wrong file format: " + filename);
+  // output( "Wrong file format: " + filename);
   // } else {
-    // initStream( filename );
-    // initStream( asterix );
-    // initStream(  args._.pop() );
+  // initStream( filename );
+  // initStream( asterix );
+  // initStream(  args._.pop() );
   // }
   howManyFiles = args._.length;
   output(`Total files to process: ${howManyFiles}`);
   if (howManyFiles < 1) {
     output("maybe quit here");
     // quit();
+  } else {
+    output("work to do!...");
+    initStream(  args._.pop() );
   }
 }
 
@@ -309,7 +311,16 @@ function initStream(f) {
   if (parseFileForStream(f) == true) {
     output(justNameOfDNA + " was parsed OK. ");
   } else {
-    status = "File parse failed."
+    status = "File parse failed. howManyFiles = " + howManyFiles;
+    log(status);
+    if (howManyFiles>0) {
+      setTimeout(() => {
+        pollForWork();
+      }, 1);
+    } else {
+      quit();
+    }
+
     return false;
   };
   percentComplete = 0;
@@ -340,7 +351,6 @@ function initStream(f) {
     // finalUpdate(); // last update
     percentComplete = 100;
     clearPrint(drawHistogram());
-    // howManyFiles--;
 
     output(`Stream complete.`);
     colormapsize = rgbArray.length/4;
@@ -369,7 +379,7 @@ function renderSummary() {
 }
 
 // CODONS PER PIXEL
-function setupZfactor() {
+function autoconfCodonsPerPixel() {
   codonsPerPixel = Math.round(codonsPerPixel); // javascript is amazing
   if (codonsPerPixel < 1) {
     codonsPerPixel = 1;
@@ -524,6 +534,7 @@ function getFileExtension(f) {
   let lastFive = f.slice(-5);
   return lastFive.replace(/.*\./, '').toLowerCase();
 }
+// return TRUE if we should start to render
 function parseFileForStream() {
   // var extensions = ["jpg", "jpeg", "txt", "png"];  // Globally defined
   // Get extension and make it lowercase
@@ -533,11 +544,6 @@ function parseFileForStream() {
 
   timeRemain, runningDuration, baseChars, charClock, percentComplete, genomeSize, colClock, opacity = 0;
   msPerUpdate = 1234;
-
-
-  setupZfactor();
-  setupFNames();
-
 
   const extension = getFileExtension(filename);
   output("[FILESIZE] " + baseChars.toLocaleString() + " extension: " + extension);
@@ -549,22 +555,17 @@ function parseFileForStream() {
   } else {
     log("File ext ok. Now checking PNG.")
     // if there is a png, dont render just quit
-    if (checkIfPNGExists() == false) {
-      return true;
-    } else {
+    if (checkIfPNGExists() && !force) {
       log("Image already rendered, use --force to overwrite. Files left: " + howManyFiles);
-      if (howManyFiles<2) {
-        // process.exit;
-      }
-
-      // quit();
-
-
-
-      return true;
+      return false;
+    } else {
+      log("Saving to: " + justNameOfPNG);
     }
   }
+  autoconfCodonsPerPixel();
+  setupFNames();
   return true;
+
 }
 function quit() {
   output("QUITING IN 1 S");
@@ -572,9 +573,11 @@ function quit() {
   output("QUITING IN 1 S");
 
   setTimeout(() => {
+    output("QUITING NOW");
+    output("QUITING NOW");
+    output("QUITING NOW");
     process.exit;
   }, 999);
-
 }
 function processLine(l) {
   rawDNA = l;
@@ -632,7 +635,7 @@ function processLine(l) {
       if (CRASH) {
         output("IM CRASHING Y'ALL: " + codon);
         crashReport();
-        process.exit();
+        quit();
       }
       codon = "";// wipe for next time
 
@@ -988,15 +991,16 @@ function arrayToPNG() {
       setTimeout(() => {
         opn(filenamePNG);
       }, 3000);
-      // if (howManyFiles>0) {
-      //   setTimeout(() => {
-      //     pollForWork();
-      //   }, 1);
-      // } else {
-      //   quit();
-      // }
 
     }
+    asterix = args._.pop()
+    howManyFiles--;
+    if (parseFileForStream(asterix) == true) {
+      output(asterix + " was parsed OK. ");
+    } else {
+      status = "File parse failed:" + asterix;
+      return false;
+    };
   });
 }
 
@@ -1182,16 +1186,16 @@ function drawHistogram() {
     status = "stopped";
   } else {
 
-      if (status == "saving") {
-        text += terminalRGB("   [ SAVING IMAGE ]", 128, 255, 128);
-      }
+    if (status == "saving") {
+      text += terminalRGB("   [ SAVING IMAGE ]", 128, 255, 128);
+    }
 
-      if (howManyFiles>0) {
-        setTimeout(() => {
-          clearPrint(drawHistogram()); // MAKE THE HISTOGRAM AGAIN LATER
-        }, msPerUpdate);
+    if (howManyFiles>0) {
+      setTimeout(() => {
+        clearPrint(drawHistogram()); // MAKE THE HISTOGRAM AGAIN LATER
+      }, msPerUpdate);
 
-      }
+    }
   }
   if (artistic) {  }
   ( artistic ? text += `[ Artistic Mode 1:${proteinHighlight}] ` : text += " [ Science Mode 1:1] " )
