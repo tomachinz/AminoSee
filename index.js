@@ -391,8 +391,8 @@ function autoconfCodonsPerPixel() {
   let existing = codonsPerPixel;
 
   codonsPerPixel = Math.round(codonsPerPixel); // javascript is amazing
-  if (codonsPerPixel < 4) {
-    codonsPerPixel = 4;
+  if (codonsPerPixel < defaultC) {
+    codonsPerPixel = defaultC;
   } else if (codonsPerPixel > 6000) {
     codonsPerPixel = 6000;
   }
@@ -404,13 +404,13 @@ function autoconfCodonsPerPixel() {
     if (codonsPerPixel > 16) {
       codonsPerPixel = 16; // dont let user shrink it too much
     } else {
-      codonsPerPixel = 4; // normally we want 1:1 for smalls
+      codonsPerPixel = defaultC; // normally we want 1:1 for smalls
     }
   } else if (estimatedPixels > maxpix){ // for seq bigger than screen
     if ( estimatedPixels / codonsPerPixel > maxpix) { // still too big?
-      if ( codonsPerPixel == 10) { // default startup state
+      if ( codonsPerPixel == defaultC) { // default startup state
         codonsPerPixel = Math.round(estimatedPixels / maxpix);
-      } else if (codonsPerPixel < (estimatedPixels / maxpix)*10) {
+      } else if (codonsPerPixel < (estimatedPixels / maxpix)*defaultC) {
         output(terminalRGB(`WARNING: Target Codons Per Pixel setting ${codonsPerPixel} is likely to exceed the max image size of ${maxpix.toLocaleString()}`))
       } else {
         codonsPerPixel = Math.round(estimatedPixels / maxpix);
