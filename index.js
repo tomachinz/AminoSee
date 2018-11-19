@@ -169,8 +169,8 @@ module.exports = () => {
     output(`shrink the image by blending ${codonsPerPixel} codons per pixel.`);
   } else {
     autoconfCodonsPerPixel();
-    if ( codonsPerPixel != defaultC ) {
-      output("WARNING: AminoSee is designed for large files. If your image is a small virus or otherwise appears to small try using -c 2 or -c3 or higher.");
+    if ( codonsPerPixel == 1 ) {
+      output("WARNING: AminoSee is designed for large files. If your image is a small virus or otherwise appears to small try using -c 2 or -c3 or higher. When c = 1 this can also be a sign that filesize detection has failed for large file, so we err on the safe side and choose the default");
       codonsPerPixel = defaultC; // I want it to "just work" for super large files.
     }
   }
