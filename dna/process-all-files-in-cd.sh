@@ -6,12 +6,12 @@ find . | grep -E "(\.fa|\.mfa|\.gbk|\.txt)" | xargs -0  aminosee -d --no-clear
 # aminosee megabase.fa -d -c 2
 # aminosee megabase.fa -d -c 3
 # aminosee megabase.fa -d -c 4
-aminosee * -d
-aminosee * -d
-aminosee * -d
-aminosee * --no-clear -c -d 8
-aminosee * --no-clear -c -d 7
-aminosee * --no-clear -c 6
+# aminosee * -d
+# aminosee * -d
+# aminosee * -d
+# aminosee * --no-clear -c -d 8
+# aminosee * --no-clear -c -d 7
+# aminosee * --no-clear -c 6
 
 # macos
 # if [ -c "$1" ]; then

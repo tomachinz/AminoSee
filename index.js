@@ -7,6 +7,12 @@
 //       by Tom Atkinson            aminosee.funk.co.nz
 //        ah-mee no-see       "I See It Now - I AminoSee it!"
 
+const resSD = 960*768;
+const resHD = 1920*1080;
+const res4K = 3840*2160;
+const maxpix = resSD; // for large genomes
+const resolutionFileExtension = "SD"; //4K"; // SD   HD
+
 let proteinBrightness = 3.00;
 let startStopBrightness = 0.5;
 const defaultC = 1; // back when it could not handle 3+GB files.
@@ -39,12 +45,8 @@ const appPath = require.main.filename;
 let codonRGBA, geneRGBA, mixRGBA = [0,0,0,0]; // codonRGBA is colour of last codon, geneRGBA is temporary pixel colour before painting.
 const widthMax = 1920/2;
 const golden = true;
-const resSD = 960*768;
-const resHD = 1920*1080;
-const res4K = 3840*2160;
+
 let rgbArray = [];
-const maxpix = res4K; // for large genomes
-const resolutionFileExtension = "4K"; //4K"; // SD   HD
 let red = 0;
 let green = 0;
 let blue = 0;
@@ -441,7 +443,7 @@ function removeFileExtension(f) {
 }
 
 function setupFNames() {
-  let ext = ".aminosee_" + resolutionFileExtension +  "_c" + codonsPerPixel;
+  let ext = ".ami" + resolutionFileExtension +  "_c" + codonsPerPixel;
   justNameOfDNA = replaceFilepathFileName(filename);
 
   const extension = getFileExtension(filename);
@@ -1080,7 +1082,7 @@ function output(txt) {
 function log(txt) {
   if (verbose && devmode) {
     let d = new Date().getTime();
-    console.lerboseog("[ " + d.toLocaleString() + " ] " + txt + " ");
+    console.log("[ " + d.toLocaleString() + " ] " + txt + " ");
   } else {
     process.stdout.write(txt);
   }
