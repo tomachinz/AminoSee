@@ -1,4 +1,4 @@
 #!/usr/bin/env node
-require('../')()
+require('../aminosee.js')()
 // require('./aminosee-cli')()
 // require('../aminosee-cli.js')()
