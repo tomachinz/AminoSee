@@ -7,11 +7,10 @@
 //       by Tom Atkinson            aminosee.funk.co.nz
 //        ah-mee no-see       "I See It Now - I AminoSee it!"
 
-let stats = true;
 let proteinBrightness = 3.00;
 let startStopBrightness = 0.5;
 const defaultC = 1; // back when it could not handle 3+GB files.
-let spewThresh = 500000;
+let spewThresh = 50000;
 let codonsPerPixel = defaultC; //  one codon per pixel maximum
 let devmode = false; // kills the auto opening of reports etc
 let verbose = false; // not recommended. will slow down due to console.
@@ -20,6 +19,7 @@ let artistic = false; // for Charlie
 let spew = false; // firehose your screen with DNA
 let CRASH = false; // hopefully not
 let clear; // clear the terminal each update
+let updates; // stats display
 let msPerUpdate = 200; // milliseconds per  update
 const maxMsPerUpdate = 12000; // milliseconds per update
 let cyclesPerUpdate = 100; // start valuue only this is auto tuneded to users computer speed based on msPerUpdate
@@ -59,7 +59,7 @@ let spewClock = 0;
 let opacity = proteinBrightness / codonsPerPixel; // 0.9 is used to make it brighter, also due to line breaks
 const proteinHighlight = 6; // px only use in artistic mode.
 const startStopHighlight = 6; // px only use in artistic mode.
-let args, filename, filenamePNG, reader, hilbertPoints, herbs, levels, progress, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, textFile, rawDNA, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, fileUploadShowing, testColors, chunksMax, chunksize, chunksizeBytes, baseChars, cpu, subdivisions, contextBitmap, aminoacid, colClock, start, updateClock, percentComplete, kBytesPerSecond, pixelStacking, isStartStopCodon, justNameOfDNA, justNameOfPNG, sliceDNA, filenameHTML, howManyFiles, timeRemain, runningDuration;
+let args, filename, filenamePNG, reader, hilbertPoints, herbs, levels, progress, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, textFile, rawDNA, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, fileUploadShowing, testColors, chunksMax, chunksize, chunksizeBytes, baseChars, cpu, subdivisions, contextBitmap, aminoacid, colClock, start, updateClock, percentComplete, kBytesPerSecond, pixelStacking, isStartStopCodon, justNameOfDNA, justNameOfPNG, sliceDNA, filenameHTML, howManyFiles, timeRemain, runningDuration, kbRemain;
 process.title = "aminosee.funk.nz";
 rawDNA ="@"; // debug
 filename = "[LOADING]"; // for some reason this needs to be here. hopefully the open source community can come to rescue and fix this Kludge.
@@ -144,11 +144,11 @@ module.exports = () => {
     boolean: [ 'devmode' ],
     boolean: [ 'clear' ],
     boolean: [ 'spew' ],
-    boolean: [ 'stats' ],
+    boolean: [ 'updates' ],
     string: [ 'width'],
     string: [ 'codons'],
     alias: { a: 'artistic', c: 'codons', f: 'force', d: 'devmode', s: 'spew', w: 'width', v: 'verbose', z: 'codons' },
-    default: { clear: true, spew: true, stats: true },
+    default: { clear: true, updates: true },
     '--': true,
 
   });
@@ -188,6 +188,7 @@ module.exports = () => {
     output("verbose enabled.");
     verbose = true;
   }
+
   if (args.spew || args.s) {
     output("spew mode enabled.");
     spew = true;
@@ -213,7 +214,13 @@ module.exports = () => {
     output("clear screen disabled.");
     clear = false;
   }
-
+  if (args.updates || args.u) {
+    output("statistics updates enabled");
+    updates = true;
+  } else {
+    output("statistics updates disabled");
+    updates = false;
+  }
   let cmd = args._[0];
   howManyFiles = args._.length;
   output("howManyFiles: "+ howManyFiles+ " cmd: " + cmd)
@@ -292,13 +299,7 @@ function pollForWork() {
   filesDone++;
   output(` [ file batch no ${filesDone} done, ${howManyFiles} to go! ] ${justNameOfDNA}`);
   output( terminalRGB( justNameOfDNA, 255,128,64) );
-  // if (checkIfPNGExists()) {
-  // output( "Wrong file format: " + filename);
-  // } else {
-  // initStream( filename );
-  // initStream( asterix );
-  // initStream(  args._.pop() );
-  // }
+
   howManyFiles = args._.length;
   output(`Total files to process: ${howManyFiles}`);
   if (howManyFiles < 1) {
@@ -367,7 +368,7 @@ function initStream(f) {
     arrayToPNG(); // fingers crossed!
     status = "saving html report";
     if (!devmode) {
-      // saveHistogram();
+      saveHistogram();
     }
   }));
 }
@@ -522,7 +523,7 @@ function welcomeMessage() {
   output('     --codons -c  1-6000            (default is 1 per pixel )');
   output('     --spew -s          (spew DNA bases to the screen during)');
   output('     --no-clear              (dont clear the terminal during)');
-  output('     --no-update                         (dont provide stats)');
+  output('     --no-update                         (dont provide updates)');
   output(' ');
   output('use * to process all files in current directory');
   output('use serve to run the web server');
@@ -540,9 +541,23 @@ function welcomeMessage() {
 function saveHistogram() {
   fs.writeFile(filenameHTML, legend(), function (err) {
     if (err) throw err;
-    output('Saved histogram to: ' + filenameHTML);
+    output('Saved report to: ' + filenameHTML);
+  });
+  setImmediate(() => {
+    log("saveHistogram done");
   });
 }
+function touchPNG() {
+  fs.writeFile(filenamePNG, "touched by Aminosee. This is to enabled cluster rendering in storage networks, and super computers. This file will be replaced by the rendered PNG.", function (err) {
+    if (err) throw err;
+    log('Touched OK: ' + filenamePNG);
+  });
+
+  setImmediate(() => {
+    log("touchPNG done");
+  });
+}
+
 function getFilesizeInBytes() {
   baseChars = fs.statSync(filename).size;
   return baseChars;
@@ -577,6 +592,7 @@ function parseFileForStream() {
       return false;
     } else {
       log("Saving to: " + justNameOfPNG);
+      touchPNG();
     }
   }
   autoconfCodonsPerPixel();
@@ -800,11 +816,7 @@ function processLine(l) {
 
     } // END OF MAIN LOOP!
   }
-  // spewClock++;
-  // if (spew && spewClock > spewThresh) {
-  //   log(spewClock + cleanDNA.replace(".", ""));
-  //   spewClock =0;
-  // }
+
 }
 function legend() {
   var html = `<html>
@@ -1016,7 +1028,8 @@ function arrayToPNG() {
     asterix = args._.pop()
     howManyFiles--;
     if (howManyFiles > 0) {
-      initStream(asterix);
+      if (status != "paint") { initStream(asterix); } // BADDASS RACE CONDITION
+
     } else {
       status = "quit";
       // return false;
@@ -1041,7 +1054,7 @@ function makeRequest(url) {
   }
 }
 function output(txt) {
-  if (devmode) {
+  if (verbose) {
     console.log("["+ status +"] " + txt);
   } else {
     console.log(txt);
@@ -1050,7 +1063,7 @@ function output(txt) {
 function log(txt) {
   if (verbose && devmode) {
     let d = new Date().getTime();
-    console.log("[ " + d.toLocaleString() + " ] " + txt + " ");
+    console.lerboseog("[ " + d.toLocaleString() + " ] " + txt + " ");
   } else {
     process.stdout.write(txt);
   }
@@ -1175,9 +1188,13 @@ function printRadMessage() {
 function crashReport() {
   dnaTail();
 }
+function calcUpdate() {
+  timeRemain = Math.round(runningDuration * ((baseChars-charClock)/charClock+1)/1000);
+  kbRemain = (Math.round((baseChars - charClock)/1000)).toLocaleString();
+}
 function drawHistogram() {
-  if (!stats) {
-    spew = false;
+  if (updates == false) {
+    // spew = false;
     return "Stats display disabled";
   }
 
@@ -1186,7 +1203,7 @@ function drawHistogram() {
   runningDuration = now - start;
   let kCodonsPerSecond = Math.round(genomeSize+1 / runningDuration+1);
   let kBytesPerSecond = Math.round(charClock+1 / runningDuration+1);
-  timeRemain = Math.round(runningDuration * ((baseChars-charClock)/charClock+1)/1000);
+  calcUpdate();
   let text = status + lineBreak;
   let aacdata = [];
   if (msPerUpdate < maxMsPerUpdate) {
@@ -1216,12 +1233,12 @@ function drawHistogram() {
   }
   if (artistic) {  }
   ( artistic ? text += `[ Artistic Mode 1:${proteinHighlight}] ` : text += " [ Science Mode 1:1] " )
-  text += `[ Time remain: ${timeRemain.toLocaleString()}sec Elapsed: ${Math.round(runningDuration/1000)}sec KB remain: ${(Math.round((baseChars - charClock)/1000)).toLocaleString()} Next update: ${msPerUpdate.toLocaleString()}ms ] `;
+  text += `[ Time remain: ${timeRemain.toLocaleString()} sec Elapsed: ${Math.round(runningDuration/1000)} sec KB remain: ${kbRemain} Next update: ${msPerUpdate.toLocaleString()}ms ] `;
   text += `
   [ ${percentComplete}% done Codons: ${genomeSize.toLocaleString()}]  Last Acid: `;
   text += terminalRGB(aminoacid, red, green, blue);
   text += lineBreak;
-  text += `[ CPU ${Math.round(kBytesPerSecond/1000).toLocaleString()} Kb/s ${Math.round(kCodonsPerSecond).toLocaleString()} Codons/s  ] `;
+  text += `[ CPU ${Math.round(kBytesPerSecond/10000).toLocaleString()} Kb/s ${Math.round(kCodonsPerSecond).toLocaleString()} Codons/s  ] `;
   text += lineBreak;
   text += `[ Mb Codons per pixel: ${codonsPerPixel} Pixels painted: ${colClock.toLocaleString()} ] `;
 
@@ -1242,7 +1259,7 @@ function drawHistogram() {
   // S (spew DNA to screen)
   // C     (clear terminal)
   // `;
-  // output('U (dont provide stats)');
+  // output('U (dont provide updates)');
   // text +=  (verbose ! "V" : " ")+(devmode ! "D" : " ")+(artistic ! "A" : "S")+codonsPerPixel+(golden ! "GOLD" : "T960")
   return text;
 }
@@ -1288,7 +1305,7 @@ function codonToRGBA(cod) {
         log(terminalRGB(aminoacid.charAt(0), red, green, blue));
         if(colClock % 10 ==0 ){
           output(` [ ${colClock} ] `);
-          log(terminalRGB(rawDNA, red, green, blue));
+          log(terminalRGB(rawDNA + " ", 64, 128, 64));
         }
         spewClock = 0;
       }

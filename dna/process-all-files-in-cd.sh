@@ -3,9 +3,9 @@
 # aminosee megabase.fa -d -c 2
 # aminosee megabase.fa -d -c 3
 # aminosee megabase.fa -d -c 4
-aminosee * --no-clear -d
-aminosee * --no-clear -d
-aminosee * --no-clear -d
+aminosee * -d
+aminosee * -d
+aminosee * -d
 aminosee * --no-clear -c -d 8
 aminosee * --no-clear -c -d 7
 aminosee * --no-clear -c 6
