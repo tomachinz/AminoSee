@@ -12,8 +12,8 @@ const resHD = 1920*1080; // W2
 const res4K = 3840*2160; // W4
 let maxpix = res4K; // for large genomes
 
-let proteinBrightness = 0.20;
-let startStopBrightness = 4.0;
+let proteinBrightness = 4;
+let startStopBrightness = 0.5;
 const defaultC = 1; // back when it could not handle 3+GB files.
 let spewThresh = 50000;
 let codonsPerPixel = defaultC; //  one codon per pixel maximum
