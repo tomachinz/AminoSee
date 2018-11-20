@@ -12,8 +12,8 @@ const resHD = 1920*1080; // W2
 const res4K = 3840*2160; // W4
 let maxpix = res4K; // for large genomes
 
-let proteinBrightness = 4;
-let startStopBrightness = 0.5;
+let proteinBrightness = 0.5;
+let startStopBrightness = 4;
 const defaultC = 1; // back when it could not handle 3+GB files.
 let spewThresh = 50000;
 let codonsPerPixel = defaultC; //  one codon per pixel maximum
@@ -40,6 +40,9 @@ let histogram = require('ascii-histogram');
 let bytes = require('bytes');
 let Jimp = require('jimp');
 let PNG = require('pngjs').PNG;
+const chalk = require('chalk');
+const clog = console.log;
+
 const appPath = require.main.filename;
 let codonRGBA, geneRGBA, mixRGBA = [0,0,0,0]; // codonRGBA is colour of last codon, geneRGBA is temporary pixel colour before painting.
 let widthMax = 1920*2;
@@ -365,7 +368,6 @@ function initStream(f) {
     output(justNameOfDNA + " was parsed OK. ");
   } else {
     status = "File parse failed. howManyFiles = " + howManyFiles;
-    log(status);
     if (howManyFiles>0) {
       setTimeout(() => {
         pollForWork();
@@ -427,7 +429,9 @@ function renderSummary() {
   Amino acid blend opacity: ${Math.round(opacity*10000)/100}%
   Error Clock: ${errorClock}
   CharClock: ${charClock}*       *(fails on files over 3GB or so)
-  Output max res setting: ${resolutionFileExtension}`;
+  Output max res setting: ${resolutionFileExtension}
+  Protein Brightness ${proteinBrightness}
+  Start/Stop Brightness ${startStopBrightness}`;
 }
 
 // CODONS PER PIXEL
@@ -742,9 +746,13 @@ function processLine(l) {
         // the first section TRUE does start/stop codons
         // the FALSE section does Amino acid codons
         if (isStartStopCodon) { // 255 = 1.0
-          mixRGBA[0] += codonRGBA[0].valueOf() * startStopBrightness * opacity; // red
-          mixRGBA[1] += codonRGBA[1].valueOf() * startStopBrightness * opacity; // green
-          mixRGBA[2] += codonRGBA[2].valueOf() * startStopBrightness * opacity; // blue
+          // mixRGBA[0] += codonRGBA[0].valueOf() * startStopBrightness * opacity; // red
+          // mixRGBA[1] += codonRGBA[1].valueOf() * startStopBrightness * opacity; // green
+          // mixRGBA[2] += codonRGBA[2].valueOf() * startStopBrightness * opacity; // bluev
+
+          mixRGBA[0] = codonRGBA[0].valueOf() * startStopBrightness;// * opacity; // red
+          mixRGBA[1] = codonRGBA[1].valueOf() * startStopBrightness;// * opacity; // green
+          mixRGBA[2] = codonRGBA[2].valueOf() * startStopBrightness;// * opacity; // blue
           // paintPixel(); // unlike artistic mode it blends normally
         } else {
           //  not a START/STOP codon. Stack multiple codons per pixel.
@@ -881,9 +889,13 @@ function legend() {
   </head>
   <body>
   <h1>Histogram for ${justNameOfDNA}</h1>
-
-  <a href="#scrollDownToSeeImage" class="button" title"Click To Scroll Down To See Image">
-  <img width="640" height="245" style="border: 3px black;" src="${justNameOfPNG}">
+    <div class="fineprint" style="text-align: right; float: right;">
+      <pre>
+        ${renderSummary()}
+      </pre>
+    </div>
+  <a href="#scrollDownToSeeImage" class="button" title"Click To Scroll Down To See Image"><br />
+  <img width="320" height="122" style="border: 3px black;" src="${justNameOfPNG}">
   Scroll To Image
   </a>
 
@@ -1226,8 +1238,14 @@ function clearPrint(t) {
     output("noclear");
   }
   printRadMessage();
-  process.stdout.write(t)
-
+  console.log(t)
+  // process.stdout.write(t)
+  // console.log(`
+  // CPU: ${chalk.red('90%')}
+  // RAM: ${chalk.green('40%')}
+  // DISK: ${chalk.yellow('70%')}
+  // `);
+  // console.log();
 }
 
 function renderPixels() {
@@ -1248,8 +1266,8 @@ function printRadMessage() {
   console.log(terminalRGB("╠═╣││││││││ │╚═╗├┤ ├┤    ║║║║║╠═╣  ╚╗╔╝│├┤ │││├┤ ├┬┘\r", 128, 128, 255) );
   console.log(terminalRGB("╩ ╩┴ ┴┴┘└┘└─┘╚═╝└─┘└─┘  ═╩╝╝╚╝╩ ╩   ╚╝ ┴└─┘└┴┘└─┘┴└─\r", 128, 240, 240) );
   console.log(terminalRGB(" by Tom Atkinson           aminosee.funk.co.nz      \r", 225, 225, 130) );
-  console.log(terminalRGB("  ah-mee-no-see      'I See It Now - I AminoSee it!' \r", 255, 180, 90) );
-  console.log("        " + prettyDate() + "\r");
+  console.log(terminalRGB("  ah-mee-no-see     'I See It Now - I AminoSee it!' \r", 255, 180, 90) );
+  console.log("       " + prettyDate());
 }
 
 function crashReport() {
@@ -1271,7 +1289,7 @@ function drawHistogram() {
   let kCodonsPerSecond = Math.round(genomeSize+1 / runningDuration+1);
   let kBytesPerSecond = Math.round(charClock+1 / runningDuration+1);
   calcUpdate();
-  let text = status + lineBreak;
+  let text = lineBreak;
   let aacdata = [];
   if (msPerUpdate < maxMsPerUpdate) {
     msPerUpdate += 20; // begin to not update screen so much over time
@@ -1282,11 +1300,13 @@ function drawHistogram() {
   for (h=0;h<histoGRAM.length;h++) {
     aacdata[histoGRAM[h].Codon] = histoGRAM[h].Histocount ;
   }
-  text += lineBreak;
   text += ` @i ${charClock.toLocaleString()} File: ${terminalRGB(justNameOfDNA, 255, 255, 255)} Line breaks: ${breakClock} Files: ${howManyFiles} Base Chars: ${baseChars} `;
   text += lineBreak;
+  text += chalk.rgb(128, 255, 128).inverse(`[ ${percentComplete}% done Time remain: ${timeRemain.toLocaleString()} sec Elapsed: ${Math.round(runningDuration/1000)} sec KB remain: ${kbRemain}`)
 
-  text += terminalRGB(`   [ ${status.toUpperCase()} ]`, 128, 255, 128);
+  text += lineBreak;
+  text += chalk.inverse(`[ ${status.toUpperCase()} ]`)
+  // text += terminalRGB(` [ ${status.toUpperCase()} ]`, 128, 255, 128)
 
   if (status != "paint") {
     output(text);
@@ -1300,12 +1320,12 @@ function drawHistogram() {
   }
   if (artistic) {  }
   ( artistic ? text += `[ Artistic Mode 1:${proteinHighlight}] ` : text += " [ Science Mode 1:1] " )
-  text += `[ Time remain: ${timeRemain.toLocaleString()} sec Elapsed: ${Math.round(runningDuration/1000)} sec KB remain: ${kbRemain} Next update: ${msPerUpdate.toLocaleString()}ms ] `;
-  text += `
-  [ ${percentComplete}% done Codons: ${genomeSize.toLocaleString()}]  Last Acid: `;
+
+  // text += lineBreak + ;
+  text += ` Next update: ${msPerUpdate.toLocaleString()}ms ] ` + lineBreak
+  text += `[ Codons: ${genomeSize.toLocaleString()}]  Last Acid: `;
   text += terminalRGB(aminoacid, red, green, blue);
-  text += lineBreak;
-  text += `[ CPU ${Math.round(kBytesPerSecond/10000).toLocaleString()} Kb/s ${Math.round(kCodonsPerSecond).toLocaleString()} Codons/s  ] `;
+  text += lineBreak + `[ CPU ${Math.round(kBytesPerSecond/10000).toLocaleString()} Kb/s ${Math.round(kCodonsPerSecond).toLocaleString()} Codons/s  ] `;
   text += lineBreak;
   text += `[ Mb Codons per pixel: ${codonsPerPixel} Pixels painted: ${colClock.toLocaleString()} ] `;
   text += `[ DNA Filesize: ${Math.round(baseChars/1000)/1000} MB Codon Opacity: ${Math.round(opacity*10000)/100}%] `;
@@ -2044,7 +2064,7 @@ function isRawRGBAData(obj) {
       <tr><th colspan="5"><hr></th></tr>
       </table>
       </body></html>
-      `));
+`));
 
     }
 
@@ -2258,7 +2278,7 @@ function isRawRGBAData(obj) {
       ╩ ╩┴ ┴┴┘└┘└─┘╚═╝└─┘└─┘  ═╩╝╝╚╝╩ ╩   ╚╝ ┴└─┘└┴┘└─┘┴└─
       by Tom Atkinson          aminosee.funk.co.nz
       ah-mee no-see         "I See It Now - I AminoSee it!"
-      `, 96, 64, 245);
+`, 96, 64, 245);
 
       const lineBreak = `
-      `;
+`;
