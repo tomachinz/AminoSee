@@ -1,7 +1,23 @@
+
+#if [ -c "$1" ]; then
+
+if [ $(uname)=Darwin ]; then
+  echo macos
+  find -f *.fa *.mfa *.gbk *.txt -exec aminosee -v -d --no-clear {} \;
+fi
+
+if [ $(uname)=Linux ]; then
+  echo linux
+  find *.fa *.mfa *.gbk *.txt -exec aminosee -v -d --no-clear {} \;
+fi
+
+
+
+
 # warmup:
 # CROSS PLATFORM XARGS BATCH:
-find . | grep -E "(\.fa|\.mfa|\.gbk|\.txt)" | xargs -0  aminosee -d --no-clear
-
+#find -f .  | grep -E "(\.fa|\.mfa|\.gbk|\.txt)" | xargs -0  aminosee -d --no-clear
+#  find  . | sed   -e 's/.\///' | xargs -0  aminosee -d --no-clear
 # aminosee megabase.fa -d -f
 # aminosee megabase.fa -d -c 2
 # aminosee megabase.fa -d -c 3
@@ -13,18 +29,6 @@ find . | grep -E "(\.fa|\.mfa|\.gbk|\.txt)" | xargs -0  aminosee -d --no-clear
 # aminosee * --no-clear -c -d 7
 # aminosee * --no-clear -c 6
 
-# macos
-# if [ -c "$1" ]; then
-
-# if [ $(uname)=Darwin ]; then
-  # find -f *.fa *.mfa *.gbk *.txt -exec aminosee -v -d --no-clear {} \;
-# fi
-
-# if [ $(uname)=Linux ]; then
-#   find *.fa *.mfa *.gbk *.txt -exec aminosee -v -d --no-clear {} \;
-# fi
-
-# linux
 
 #
 #

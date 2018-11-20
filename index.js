@@ -7,11 +7,10 @@
 //       by Tom Atkinson            aminosee.funk.co.nz
 //        ah-mee no-see       "I See It Now - I AminoSee it!"
 
-const resSD = 960*768;
-const resHD = 1920*1080;
-const res4K = 3840*2160;
+const resSD = 960*768; // W1
+const resHD = 1920*1080; // W2
+const res4K = 3840*2160; // W4
 const maxpix = resSD; // for large genomes
-const resolutionFileExtension = "SD"; //4K"; // SD   HD
 
 let proteinBrightness = 3.00;
 let startStopBrightness = 0.5;
@@ -43,7 +42,7 @@ let Jimp = require('jimp');
 let PNG = require('pngjs').PNG;
 const appPath = require.main.filename;
 let codonRGBA, geneRGBA, mixRGBA = [0,0,0,0]; // codonRGBA is colour of last codon, geneRGBA is temporary pixel colour before painting.
-const widthMax = 1920/2;
+let widthMax = 1920/2;
 const golden = true;
 
 let rgbArray = [];
@@ -61,11 +60,13 @@ let spewClock = 0;
 let opacity = proteinBrightness / codonsPerPixel; // 0.9 is used to make it brighter, also due to line breaks
 const proteinHighlight = 6; // px only use in artistic mode.
 const startStopHighlight = 6; // px only use in artistic mode.
-let args, filename, filenamePNG, reader, hilbertPoints, herbs, levels, progress, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, textFile, rawDNA, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, fileUploadShowing, testColors, chunksMax, chunksize, chunksizeBytes, baseChars, cpu, subdivisions, contextBitmap, aminoacid, colClock, start, updateClock, percentComplete, kBytesPerSecond, pixelStacking, isStartStopCodon, justNameOfDNA, justNameOfPNG, sliceDNA, filenameHTML, howManyFiles, timeRemain, runningDuration, kbRemain;
+let args, resolutionFileExtension, filename, filenamePNG, reader, hilbertPoints, herbs, levels, progress, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, textFile, rawDNA, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, fileUploadShowing, testColors, chunksMax, chunksize, chunksizeBytes, baseChars, cpu, subdivisions, contextBitmap, aminoacid, colClock, start, updateClock, percentComplete, kBytesPerSecond, pixelStacking, isStartStopCodon, justNameOfDNA, justNameOfPNG, sliceDNA, filenameHTML, howManyFiles, timeRemain, runningDuration, kbRemain, width;
 process.title = "aminosee.funk.nz";
 rawDNA ="@"; // debug
 filename = "[LOADING]"; // for some reason this needs to be here. hopefully the open source community can come to rescue and fix this Kludge.
 const extensions = [ "txt", "fa", "mfa", "gbk", "dna"];
+const resExt = ['SD','HD','3K','4K','4K','5K','6K','7K','8K'];
+
 let status = "load";
 
 // var keypress = require('keypress');
@@ -158,13 +159,17 @@ module.exports = () => {
   console.dir(args);
 
   if (args.width || args.w) {
-    widthMax = Math.round(args.width || args.w);
-    if (widthMax < 1) {
-      widthMax = 1;
-    } else if (widthMax > 10000) {
-      widthMax = 10000;
+    width = Math.round(args.width || args.w);
+    if (width < 1) {
+      width = 1;
+    } else if (width > 9) {
+      output("max width multiplier is 9 ");
+      width = 9;
     }
-    output("using custom width: "+ widthMax);
+    output(`using w${width}: ${widthMax}px max width`);
+    widthMax = width * 960;
+  } else {
+    width = 4;
   }
   if (args.codons || args.c || args.z ) {
 
@@ -263,7 +268,7 @@ module.exports = () => {
       // launchBlockingServer();
       // launchNonBlockingServer();
     } else {
-      output(` [all args] ${args._}`);
+      // log(` [all args] ${args._}`);
       status = "pre-streaming";
 
 
@@ -443,11 +448,14 @@ function removeFileExtension(f) {
 }
 
 function setupFNames() {
-  let ext = ".ami" + resolutionFileExtension +  "_c" + codonsPerPixel;
-  justNameOfDNA = replaceFilepathFileName(filename);
+  justNameOfDNA = removeFileExtension(replaceFilepathFileName(filename));
+  if (justNameOfDNA.length > 24 ) {
+    justNameOfDNA = justNameOfDNA.substring(0,12) + justNameOfDNA.substring(justNameOfDNA.length-12,justNameOfDNA.length);
+  }
+
+  let ext = ".ami_w" + width + "_" + resExt[width-1] +  "_c" + codonsPerPixel;
 
   const extension = getFileExtension(filename);
-  justNameOfDNA = removeFileExtension(justNameOfDNA);
 
   ( artistic ? ext += "_artistic" : ext += "_sci")
 
@@ -1269,7 +1277,7 @@ function drawHistogram() {
   text += lineBreak;
   text += `[ raw:   ${ removeLineBreaks(rawDNA)} ]  [ clean: ${ cleanString(rawDNA)} ] `;
   text += lineBreak;
-  text += `Input file: ${justNameOfDNA}]`;
+  text += `Output png: ${justNameOfPNG}]`;
   text += lineBreak;
   // text += `[Output file: ${filenamePNG}]
   // V       (verbose mode)
