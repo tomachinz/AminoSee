@@ -7,10 +7,11 @@
 //       by Tom Atkinson            aminosee.funk.co.nz
 //        ah-mee no-see       "I See It Now - I AminoSee it!"
 
+let stats = true;
 let proteinBrightness = 3.00;
 let startStopBrightness = 0.5;
-const defaultC = 1;
-let spewThresh = 100000;
+const defaultC = 1; // back when it could not handle 3+GB files.
+let spewThresh = 500000;
 let codonsPerPixel = defaultC; //  one codon per pixel maximum
 let devmode = false; // kills the auto opening of reports etc
 let verbose = false; // not recommended. will slow down due to console.
@@ -42,8 +43,8 @@ const resSD = 960*768;
 const resHD = 1920*1080;
 const res4K = 3840*2160;
 let rgbArray = [];
-const maxpix = res4K; // for large genomes
-const resolutionFileExtension = "4K"; // SD   HD
+const maxpix = resHD; // for large genomes
+const resolutionFileExtension = "HD"; //4K"; // SD   HD
 let red = 0;
 let green = 0;
 let blue = 0;
@@ -143,10 +144,11 @@ module.exports = () => {
     boolean: [ 'devmode' ],
     boolean: [ 'clear' ],
     boolean: [ 'spew' ],
+    boolean: [ 'stats' ],
     string: [ 'width'],
     string: [ 'codons'],
     alias: { a: 'artistic', c: 'codons', f: 'force', d: 'devmode', s: 'spew', w: 'width', v: 'verbose', z: 'codons' },
-    default: { clear: true, spew: true },
+    default: { clear: true, spew: true, stats: true },
     '--': true,
 
   });
@@ -340,8 +342,7 @@ function initStream(f) {
   timeRemain = 0;
   log("STARTING MAIN LOOP");
   status = "paint";
-  clearPrint(drawHistogram()); // MAKE THE HISTOGRAM
-
+  drawHistogram();
   var s = fs.createReadStream(f).pipe(es.split()).pipe(es.mapSync(function(line){
     // pause the readstream
     s.pause();
@@ -542,17 +543,9 @@ function saveHistogram() {
     output('Saved histogram to: ' + filenameHTML);
   });
 }
-function getFilesizeInBytes(filename) {
-  const stats = fs.statSync(filename);
-
-  const fileSizeInBytes = stats.size
-
-  console.log(fileSizeInBytes);
-  console.log(fileSizeInBytes);
-  console.log(fileSizeInBytes);
-  console.log(fileSizeInBytes);
-
-  return fileSizeInBytes
+function getFilesizeInBytes() {
+  baseChars = fs.statSync(filename).size;
+  return baseChars;
 }
 function getFileExtension(f) {
   let lastFive = f.slice(-5);
@@ -566,9 +559,9 @@ function parseFileForStream() {
   // and including the last dot
   start = new Date().getTime();
 
-  timeRemain, runningDuration, baseChars, charClock, percentComplete, genomeSize, colClock, opacity = 0;
+  timeRemain, runningDuration, charClock, percentComplete, genomeSize, colClock, opacity = 0;
   msPerUpdate = 1234;
-
+  getFilesizeInBytes();
   const extension = getFileExtension(filename);
   output("[FILESIZE] " + baseChars.toLocaleString() + " extension: " + extension);
 
@@ -907,10 +900,8 @@ function helpCmd(args) {
 function checkIfPNGExists() {
   output("checkIfPNGExists RUNNING");
   if (force == true) {
-    log("force == true");
+    log("Not checking - force mode enabled.");
     return false;
-  } else {
-    log("force == false");
   }
   let imageExists, result;
   imageExists = false;
@@ -925,7 +916,7 @@ function checkIfPNGExists() {
     // Handle error
     if(e.code == 'ENOENT'){
       //no such file or directory
-      output(e);
+      // output(e);
     }
     output("Output png will be saved to: " + filenamePNG );
     imageExists = false;
@@ -1185,6 +1176,11 @@ function crashReport() {
   dnaTail();
 }
 function drawHistogram() {
+  if (!stats) {
+    spew = false;
+    return "Stats display disabled";
+  }
+
   percentComplete = Math.round(charClock / baseChars * 10000) / 100;
   let now = new Date().getTime();
   runningDuration = now - start;
@@ -2174,7 +2170,7 @@ function isRawRGBAData(obj) {
       ╩ ╩┴ ┴┴┘└┘└─┘╚═╝└─┘└─┘  ═╩╝╝╚╝╩ ╩   ╚╝ ┴└─┘└┴┘└─┘┴└─
       by Tom Atkinson          aminosee.funk.co.nz
       ah-mee no-see         "I See It Now - I AminoSee it!"
-      `, 96, 64, 245);
+`, 96, 64, 245);
 
       const lineBreak = `
-      `;
+`;
