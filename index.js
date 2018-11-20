@@ -43,8 +43,8 @@ const resSD = 960*768;
 const resHD = 1920*1080;
 const res4K = 3840*2160;
 let rgbArray = [];
-const maxpix = resHD; // for large genomes
-const resolutionFileExtension = "HD"; //4K"; // SD   HD
+const maxpix = res4K; // for large genomes
+const resolutionFileExtension = "4K"; //4K"; // SD   HD
 let red = 0;
 let green = 0;
 let blue = 0;
@@ -1025,8 +1025,13 @@ function arrayToPNG() {
       setTimeout(() => {
         output("Opening your image. If process blocked either quit browser AND image viewer (yeah I know, it's not ideal but you can always fix it and submit a pull request on the Github) or [ CONTROL-C ]");
 
-        opn(filenameHTML);
-        opn(filenamePNG);
+        setImmediate(() => {
+          opn(filenameHTML);
+        });
+        setImmediate(() => {
+          opn(filenamePNG);
+        });
+
       }, 3000);
 
     }
