@@ -10,7 +10,7 @@
 const resSD = 960*768; // W1
 const resHD = 1920*1080; // W2
 const res4K = 3840*2160; // W4
-const maxpix = resSD; // for large genomes
+let maxpix = res4K; // for large genomes
 
 let proteinBrightness = 3.00;
 let startStopBrightness = 0.5;
@@ -42,7 +42,7 @@ let Jimp = require('jimp');
 let PNG = require('pngjs').PNG;
 const appPath = require.main.filename;
 let codonRGBA, geneRGBA, mixRGBA = [0,0,0,0]; // codonRGBA is colour of last codon, geneRGBA is temporary pixel colour before painting.
-let widthMax = 1920/2;
+let widthMax = 1920*2;
 const golden = true;
 
 let rgbArray = [];
@@ -148,9 +148,9 @@ module.exports = () => {
     boolean: [ 'clear' ],
     boolean: [ 'spew' ],
     boolean: [ 'updates' ],
-    string: [ 'width'],
+    string: [ 'megapixels'],
     string: [ 'codons'],
-    alias: { a: 'artistic', c: 'codons', f: 'force', d: 'devmode', s: 'spew', w: 'width', v: 'verbose', z: 'codons' },
+    alias: { a: 'artistic', c: 'codons', f: 'force', d: 'devmode', m: 'megapixels', s: 'spew', w: 'width', v: 'verbose', z: 'codons' },
     default: { clear: true, updates: true },
     '--': true,
 
@@ -158,18 +158,20 @@ module.exports = () => {
 
   console.dir(args);
 
-  if (args.width || args.w) {
-    width = Math.round(args.width || args.w);
-    if (width < 1) {
-      width = 1;
-    } else if (width > 9) {
-      output("max width multiplier is 9 ");
-      width = 9;
+  if (args.megapixels || args.m) {
+    megapixels = Math.round(args.megapixels || args.m);
+    if (megapixels < 1) {
+      megapixels = 1;
+    } else if (megapixels > 10000) {
+      output("max megapixels is 10000");
+      megapixels = 10000;
     }
-    output(`using w${width}: ${widthMax}px max width`);
-    widthMax = width * 960;
+    maxpix = megapixels * 1000000;
+
+    output(`using megapixels ${megapixels}: or  ${maxpix} px max`);
   } else {
-    width = 4;
+    megapixels = 8;
+    maxpix = megapixels * 1000000;
   }
   if (args.codons || args.c || args.z ) {
 
@@ -453,7 +455,8 @@ function setupFNames() {
     justNameOfDNA = justNameOfDNA.substring(0,12) + justNameOfDNA.substring(justNameOfDNA.length-12,justNameOfDNA.length);
   }
 
-  let ext = ".ami_w" + width + "_" + resExt[width-1] +  "_c" + codonsPerPixel;
+  // let ext = ".ami_w" + width + "_" + resExt[width-1] +  "_c" + codonsPerPixel;
+  let ext = ".ami_m" + megapixels + "_" + widthMax +  "_c" + codonsPerPixel;
 
   const extension = getFileExtension(filename);
 
