@@ -306,8 +306,15 @@ function pollForWork() {
     output("maybe quit here");
     // quit();
   } else {
-    output("work to do!...");
-    initStream(  args._.pop() );
+    output("work to do!... polling in 0.1 seconds");
+
+    setTimeout(() => {
+      initStream(  args._.pop() );
+
+      // pollForWork();
+    }, 100);
+
+
   }
 }
 
