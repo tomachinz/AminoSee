@@ -12,8 +12,8 @@ const resHD = 1920*1080; // W2
 const res4K = 3840*2160; // W4
 let maxpix = res4K; // for large genomes
 
-let proteinBrightness = 3.00;
-let startStopBrightness = 0.5;
+let proteinBrightness = 0.05;
+let startStopBrightness = 3.5;
 const defaultC = 1; // back when it could not handle 3+GB files.
 let spewThresh = 50000;
 let codonsPerPixel = defaultC; //  one codon per pixel maximum
@@ -454,9 +454,10 @@ function setupFNames() {
   if (justNameOfDNA.length > 24 ) {
     justNameOfDNA = justNameOfDNA.substring(0,12) + justNameOfDNA.substring(justNameOfDNA.length-12,justNameOfDNA.length);
   }
-
+  // let proteinBrightness = 3.00;
+  // let startStopBrightness = 0.5;
   // let ext = ".ami_w" + width + "_" + resExt[width-1] +  "_c" + codonsPerPixel;
-  let ext = ".ami_m" + megapixels + "_" + widthMax +  "_c" + codonsPerPixel;
+  let ext = `.ami_p${proteinBrightness}_x${startStopBrightness}_m${megapixels}_${widthMax}_c${codonsPerPixel}`;
 
   const extension = getFileExtension(filename);
 
