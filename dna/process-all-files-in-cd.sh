@@ -1,9 +1,15 @@
 # warmup:
 # aminosee megabase.fa -d -f
-aminosee megabase.fa -d -c 2
-aminosee megabase.fa -d -c 3
-aminosee megabase.fa -d -c 4
-aminosee *
+# aminosee megabase.fa -d -c 2
+# aminosee megabase.fa -d -c 3
+# aminosee megabase.fa -d -c 4
+aminosee * --no-clear -d
+aminosee * --no-clear -d
+aminosee * --no-clear -d
+aminosee * --no-clear -c -d 8
+aminosee * --no-clear -c -d 7
+aminosee * --no-clear -c 6
+
 # macos
 # if [ -c "$1" ]; then
 
@@ -11,9 +17,9 @@ aminosee *
   # find -f *.fa *.mfa *.gbk *.txt -exec aminosee -v -d --no-clear {} \;
 # fi
 
-if [ $(uname)=Linux ]; then
-  find *.fa *.mfa *.gbk *.txt -exec aminosee -v -d --no-clear {} \;
-fi
+# if [ $(uname)=Linux ]; then
+#   find *.fa *.mfa *.gbk *.txt -exec aminosee -v -d --no-clear {} \;
+# fi
 
 # linux
 

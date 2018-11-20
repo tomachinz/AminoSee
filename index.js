@@ -9,18 +9,20 @@
 
 let proteinBrightness = 3.00;
 let startStopBrightness = 0.5;
+const defaultC = 1;
+let spewThresh = 100000;
+let codonsPerPixel = defaultC; //  one codon per pixel maximum
 let devmode = false; // kills the auto opening of reports etc
 let verbose = false; // not recommended. will slow down due to console.
 let force = false; // force overwrite existing PNG and HTML reports
 let artistic = false; // for Charlie
-let spew = true; // firehose your screen with DNA
+let spew = false; // firehose your screen with DNA
 let CRASH = false; // hopefully not
 let clear; // clear the terminal each update
 let msPerUpdate = 200; // milliseconds per  update
 const maxMsPerUpdate = 12000; // milliseconds per update
 let cyclesPerUpdate = 100; // start valuue only this is auto tuneded to users computer speed based on msPerUpdate
-const defaultC = 10;
-let codonsPerPixel = defaultC; //  one codon per pixel maximum
+
 const minimist = require('minimist')
 const fetch = require("node-fetch");
 const path = require('path');
@@ -53,7 +55,6 @@ let streamLineNr = 0;
 let genomeSize = 0;
 let filesDone = 0;
 let spewClock = 0;
-let spewThresh = 50000;
 let opacity = proteinBrightness / codonsPerPixel; // 0.9 is used to make it brighter, also due to line breaks
 const proteinHighlight = 6; // px only use in artistic mode.
 const startStopHighlight = 6; // px only use in artistic mode.
@@ -542,8 +543,15 @@ function saveHistogram() {
   });
 }
 function getFilesizeInBytes(filename) {
-  const stats = fs.statSync(filename)
+  const stats = fs.statSync(filename);
+
   const fileSizeInBytes = stats.size
+
+  console.log(fileSizeInBytes);
+  console.log(fileSizeInBytes);
+  console.log(fileSizeInBytes);
+  console.log(fileSizeInBytes);
+
   return fileSizeInBytes
 }
 function getFileExtension(f) {
