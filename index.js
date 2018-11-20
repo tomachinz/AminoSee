@@ -318,7 +318,7 @@ function initStream(f) {
   filename = f; // set a global. i know. god i gotta stop using those.
   setupFNames();
   output(` [ cli parameter: ${f} ]`);
-  output(` [ justNameOfDNA: ${justNameOfDNA} ]`);
+  output(` [ canonical:     ${justNameOfDNA} ]`);
 
   if (parseFileForStream(f) == true) {
     output(justNameOfDNA + " was parsed OK. ");
@@ -829,7 +829,10 @@ function legend() {
   <body>
   <h1>Histogram for ${justNameOfDNA}</h1>
 
-  <a href="#scrollDownToSeeImage" class="button" title"Click To Scroll Down To See Image">Scroll To Image</a>
+  <a href="#scrollDownToSeeImage" class="button" title"Click To Scroll Down To See Image">
+  <img width="640" height="245" style="border: 3px black;" src="${justNameOfPNG}">
+  Scroll To Image
+  </a>
 
 
   <div id="monkeys">
@@ -1018,9 +1021,11 @@ function arrayToPNG() {
     output("howManyFiles " + howManyFiles);
     // output("value returned by parseFileForStream " + parseFileForStream());
     if (!devmode) {
-      output("Opening your image in 3 seconds... either quit image viewer or Control-c ")
       output("To prevent automatically opening the image, use --devmode option")
       setTimeout(() => {
+        output("Opening your image. If process blocked either quit browser AND image viewer (yeah I know, it's not ideal but you can always fix it and submit a pull request on the Github) or [ CONTROL-C ]");
+
+        opn(filenameHTML);
         opn(filenamePNG);
       }, 3000);
 
@@ -1973,7 +1978,7 @@ function isRawRGBAData(obj) {
       <tr><th colspan="5"><hr></th></tr>
       </table>
       </body></html>
-      `));
+`));
 
     }
 
