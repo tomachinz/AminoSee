@@ -208,7 +208,7 @@ module.exports = () => {
 
     output(`using megapixels ${megapixels}: or  ${maxpix} px max`);
   } else {
-    megapixels = 8;
+    megapixels = 5;
     maxpix = megapixels * 1000000;
   }
 
