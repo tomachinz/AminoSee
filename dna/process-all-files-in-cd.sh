@@ -3,24 +3,24 @@ echo List files without ./ in front
 find . | awk '{sub(/.\//," ")}1'
 
 
-aminosee megabase.fa  -m 4  -v -d -f --no-clear -t AAA
-aminosee megabase.fa  -m 4  -v -d -f --no-clear -t GGG
-aminosee megabase.fa  -m 4  -v -d -f --no-clear -t CCC
-aminosee megabase.fa  -m 4  -v -d -f --no-clear -t TTT
-aminosee megabase.fa  -m 4  -v -d -f --no-clear -t ACG
+aminosee megabase.fa  -m 4  -v -d --no-clear -t AAA
+aminosee megabase.fa  -m 4  -v -d --no-clear -t GGG
+aminosee megabase.fa  -m 4  -v -d --no-clear -t CCC
+aminosee megabase.fa  -m 4  -v -d --no-clear -t TTT
+aminosee megabase.fa  -m 4  -v -d --no-clear -t ACG
 
-aminosee megabase.fa  -m 8  -v -d -f --no-clear -t AAA
-aminosee megabase.fa  -m 8  -v -d -f --no-clear -t GGG
-aminosee megabase.fa  -m 8  -v -d -f --no-clear -t CCC
-aminosee megabase.fa  -m 8  -v -d -f --no-clear -t TTT
-aminosee megabase.fa  -m 8  -v -d -f --no-clear -t ACG
+aminosee Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa  -m 8  -v -d --no-clear -t AAA
+aminosee Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa  -m 8  -v -d --no-clear -t GGG
+aminosee Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa  -m 8  -v -d --no-clear -t CCC
+aminosee Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa  -m 8  -v -d --no-clear -t TTT
+aminosee Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa  -m 8  -v -d --no-clear -t ACG
 
 
-aminosee megabase.fa  -m 12  -v -d -f --no-clear -t AAA
-aminosee megabase.fa  -m 12  -v -d -f --no-clear -t GGG
-aminosee megabase.fa  -m 12  -v -d -f --no-clear -t CCC
-aminosee megabase.fa  -m 12  -v -d -f --no-clear -t TTT
-aminosee megabase.fa  -m 12  -v -d -f --no-clear -t ACG
+aminosee Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa -m 12  -v -d --no-clear -t TAA
+aminosee Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa  -m 12  -v -d --no-clear -t TGG
+aminosee Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa  -m 12  -v -d --no-clear -t TCC
+aminosee Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa  -m 12  -v -d --no-clear -t ATT
+aminosee Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa  -m 12  -v -d --no-clear -t TCG
 
 if [ $(uname)=Darwin ]; then
   echo macos
