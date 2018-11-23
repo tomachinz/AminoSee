@@ -13,7 +13,7 @@ const res4K = 3840*2160; // W4
 let maxpix = res4K; // for large genomes
 
 let darkenFactor = 0.5;
-let highlightFactor = 1;
+let highlightFactor = 4;
 const defaultC = 1; // back when it could not handle 3+GB files.
 const proteinHighlight = 6; // px only use in artistic mode.
 let spewThresh = 2000;
@@ -64,7 +64,7 @@ let filesDone = 0;
 let spewClock = 0;
 let opacity = 1 / codonsPerPixel; // 0.9 is used to make it brighter, also due to line breaks
 
-let args, resolutionFileExtension, filename, filenamePNG, reader, hilbertPoints, herbs, levels, progress, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, textFile, rawDNA, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, fileUploadShowing, testColors, chunksMax, chunksize, chunksizeBytes, baseChars, cpu, subdivisions, contextBitmap, aminoacid, colClock, start, updateClock, percentComplete, charsPerSecond, pixelStacking, isStartStopCodon, justNameOfDNA, justNameOfPNG, sliceDNA, filenameHTML, howMany, timeRemain, runningDuration, kbRemain, width, triplet;
+let args, resolutionFileExtension, filename, filenamePNG, reader, hilbertPoints, herbs, levels, progress, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, textFile, rawDNA, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, fileUploadShowing, testColors, chunksMax, chunksize, chunksizeBytes, baseChars, cpu, subdivisions, contextBitmap, aminoacid, colClock, start, updateClock, percentComplete, charsPerSecond, pixelStacking, isHighlightCodon, justNameOfDNA, justNameOfPNG, sliceDNA, filenameHTML, howMany, timeRemain, runningDuration, kbRemain, width, triplet;
 process.title = "aminosee.funk.nz";
 rawDNA ="@"; // debug
 filename = "[LOADING]"; // for some reason this needs to be here. hopefully the open source community can come to rescue and fix this Kludge.
@@ -404,7 +404,8 @@ function pollForWork() {
     output("BREAKING")
     return false;
   }
-  // howMany = args._.length;
+  filename = args._.pop();
+  howMany = args._.length;
   status = "polling"+filesDone;
   output( args._ );
   output(`Total files to process: ${howMany} POLLING FOR WORK`);
@@ -839,9 +840,9 @@ function processLine(l) {
       // if ALPHA is 0.1 it is an amino acid that needs custom ALPHA
       // alpha = codonRGBA[3].valueOf(); // either 0.1 or 1.0
       // if (alpha == 1.0) { // 255 = 1.0
-      //   isStartStopCodon = true;
+      //   isHighlightCodon = true;
       // } else if (alpha == 0.1) { // protein coding codon
-      //   isStartStopCodon = false;
+      //   isHighlightCodon = false;
       // } else if (alpha == 0.0) {
       //   log("erm... why is alpha at 0.0? setting to 255");
       // }
@@ -849,11 +850,11 @@ function processLine(l) {
       // HIGHLIGHT codon --triplet Tryptophan
       // output(aminoacid);
       if (codon == triplet) {
-        isStartStopCodon = true;
+        isHighlightCodon = true;
       } else if (aminoacid == peptide) {
-        isStartStopCodon = true;
+        isHighlightCodon = true;
       } else {
-        isStartStopCodon = false;
+        isHighlightCodon = false;
       }
       if (artistic != true) {
         // science mode blacks the pixel everytime:
@@ -862,14 +863,14 @@ function processLine(l) {
         // mixRGBA[2] += 0; // blue
         // the first section TRUE does start/stop codons
         // the FALSE section does Amino acid codons
-        if (isStartStopCodon) { // 255 = 1.0
+        if (isHighlightCodon) { // 255 = 1.0
           // mixRGBA[0] += codonRGBA[0].valueOf() * highlightFactor * opacity; // red
           // mixRGBA[1] += codonRGBA[1].valueOf() * highlightFactor * opacity; // green
           // mixRGBA[2] += codonRGBA[2].valueOf() * highlightFactor * opacity; // bluev
 
-          mixRGBA[0] = codonRGBA[0].valueOf() * highlightFactor;// * opacity; // red
-          mixRGBA[1] = codonRGBA[1].valueOf() * highlightFactor;// * opacity; // green
-          mixRGBA[2] = codonRGBA[2].valueOf() * highlightFactor;// * opacity; // blue
+          mixRGBA[0]  += codonRGBA[0].valueOf() * highlightFactor * opacity;// * opacity; // red
+          mixRGBA[1]  += codonRGBA[1].valueOf() * highlightFactor * opacity;// * opacity; // green
+          mixRGBA[2]  += codonRGBA[2].valueOf() * highlightFactor * opacity;// * opacity; // blue
           // paintPixel(); // unlike artistic mode it blends normally
         } else {
           //  not a START/STOP codon. Stack multiple codons per pixel.
@@ -898,7 +899,7 @@ function processLine(l) {
 
         // the first section TRUE does start/stop codons
         // the FALSE section does Amino acid codons
-        if (isStartStopCodon) { // 255 = 1.0
+        if (isHighlightCodon) { // 255 = 1.0
           // FADE PREVIOUS COLOUR
           red = mixRGBA[0] * 1.5; // NOT SURE WHAT BRIGHTNESS IT WILL BE
           green = mixRGBA[0] * 1.5; // TRYING TO BRIGHTEN IT
@@ -934,7 +935,7 @@ function processLine(l) {
 
         } else {
           //  not a START/STOP codon. Stack four colours per pixel.
-          //  isStartStopCodon = false;
+          //  isHighlightCodon = false;
 
           // HERE WE ADDITIVELY BUILD UP THE VALUES with +=
           mixRGBA[0] +=   parseFloat(codonRGBA[0].valueOf()) * opacity;
@@ -1229,7 +1230,7 @@ function arrayToPNG() {
     // status = "quit"; // <-- this is the true end point of the program!
     setTimeout(() => {
       output("Thats us cousin")
-
+      pollForWork()
     }, 1000);
     // quit();
 
