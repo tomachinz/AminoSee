@@ -64,7 +64,7 @@ let filesDone = 0;
 let spewClock = 0;
 let opacity = 1 / codonsPerPixel; // 0.9 is used to make it brighter, also due to line breaks
 
-let args, resolutionFileExtension, filename, filenamePNG, reader, hilbertPoints, herbs, levels, progress, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, textFile, rawDNA, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, fileUploadShowing, testColors, chunksMax, chunksize, chunksizeBytes, baseChars, cpu, subdivisions, contextBitmap, aminoacid, colClock, start, updateClock, percentComplete, charsPerSecond, pixelStacking, isStartStopCodon, justNameOfDNA, justNameOfPNG, sliceDNA, filenameHTML, howMany, timeRemain, runningDuration, kbRemain, width, peptide;
+let args, resolutionFileExtension, filename, filenamePNG, reader, hilbertPoints, herbs, levels, progress, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, textFile, rawDNA, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, fileUploadShowing, testColors, chunksMax, chunksize, chunksizeBytes, baseChars, cpu, subdivisions, contextBitmap, aminoacid, colClock, start, updateClock, percentComplete, charsPerSecond, pixelStacking, isStartStopCodon, justNameOfDNA, justNameOfPNG, sliceDNA, filenameHTML, howMany, timeRemain, runningDuration, kbRemain, width, triplet;
 process.title = "aminosee.funk.nz";
 rawDNA ="@"; // debug
 filename = "[LOADING]"; // for some reason this needs to be here. hopefully the open source community can come to rescue and fix this Kludge.
@@ -186,9 +186,9 @@ module.exports = () => {
     boolean: [ 'updates' ],
     string: [ 'megapixels'],
     string: [ 'codons'],
-    string: [ 'peptide'],
+    string: [ 'triplet'],
     string: [ 'ratio'],
-    alias: { a: 'artistic', c: 'codons', f: 'force', d: 'devmode', m: 'megapixels', p: 'peptide', r: 'ratio', s: 'spew', w: 'width', v: 'verbose', z: 'codons' },
+    alias: { a: 'artistic', c: 'codons', f: 'force', d: 'devmode', m: 'megapixels', t: 'triplet', r: 'ratio', s: 'spew', w: 'width', v: 'verbose', z: 'codons' },
     default: { clear: true, updates: true },
     '--': true
   });
@@ -211,22 +211,22 @@ module.exports = () => {
     maxpix = megapixels * 1000000;
   }
 
-  if (args.peptide || args.p) {
-    peptide = args.peptide || args.p;
-    let tempColor = codonToRGBA(peptide);
-    let tempHue = codonToHue(peptide);
+  if (args.triplet || args.t) {
+    triplet = args.triplet || args.t;
+    let tempColor = codonToRGBA(triplet);
+    let tempHue = codonToHue(triplet);
     if (tempColor != [13, 255, 13, 255]){ // this colour is a flag for error
-      output("Found ${peptide} with colour: " + tempHue + tempColor);
+      output("Found ${triplet} with colour: " + tempHue + tempColor);
     } else {
-      output("Error could not lookup peptide: ${peptide}");
+      output("Error could not lookup triplet: ${triplet}");
       // output(`Will highlight Start/Stop codons instead (default)`);
-      peptide = "none";
+      triplet = "none";
     }
 
-    output(`Custom peptide ${peptide} set. Will highlight these codons, they are Hue ${codonToHue(peptide)}° in colour`);
+    output(`Custom triplet ${triplet} set. Will highlight these codons, they are Hue ${codonToHue(triplet)}° in colour`);
   } else {
-    output(`No custom peptide chosen. (default)`);
-    peptide = "none";
+    output(`No custom triplet chosen. (default)`);
+    triplet = "none";
   }
   if (args.codons || args.c || args.z ) {
     codonsPerPixel = Math.round(args.codons || args.c || args.z); // javascript is amazing
@@ -299,7 +299,7 @@ module.exports = () => {
       process.stdin.setRawMode(false);
 
       process.exit();
-    }, 3000);
+    }, 1);
   }
   switch (cmd) {
     case 'unknown':
@@ -337,7 +337,7 @@ module.exports = () => {
       //   status  = `Promise returned for: ${asterix}`
       //   console.log(status);
       // }
-      // const howManytream = util.promisify(initStream);
+      // const howManytream = util.promisify(ream);
 
       status = "enqueue";
       baseChars = getFilesizeInBytes(filename);
@@ -529,8 +529,8 @@ function setupFNames() {
   }
 
   let ext = "_" + extension + "_aminosee_";
-  if ( peptide != "none" ) {
-    ext += `${removeSpacesForFilename(peptide)}_c${codonsPerPixel}`;
+  if ( triplet != "none" ) {
+    ext += `${removeSpacesForFilename(triplet)}_c${codonsPerPixel}`;
   } else {
     ext += `c${codonsPerPixel}`;
   }
@@ -617,7 +617,7 @@ function welcomeMessage() {
   output('     --ratio -r   square|golden|fixed     (image proportions)');
   output('     --width -w   1-20          (only works with fixed ratio)');
   output('     --megapixels -m      (debug setting to limit memory use)');
-  output('     --peptide -p  (highlight peptide eg --petide Tryptophan)');
+  output('     --triplet -t        (highlight triplet eg --triplet GGC)');
   output('     --verbose -v                              (verbose mode)');
   output('     --help -h                                          Help)');
   output('     --force -f     (Overwrite existing .png file if present)');
@@ -761,8 +761,7 @@ function processLine(l) {
         // status = "header";
         msPerUpdate = 100;
       }
-    }
-    if (codon.length ==  3) {
+    } else if (codon.length ==  3) {
       status = "paint";
 
       pixelStacking++;
@@ -772,7 +771,9 @@ function processLine(l) {
       if (CRASH) {
         output("IM CRASHING Y'ALL: " + codon);
         crashReport();
-        quit();
+        // quit();
+        errorClock++;
+        CRASH = false;
       }
       codon = "";// wipe for next time
 
@@ -787,8 +788,8 @@ function processLine(l) {
       //   log("erm... why is alpha at 0.0? setting to 255");
       // }
       alpha = 255;
-      // HIGHLIGHT codon --peptide Tryptophan
-      if (peptide!="none" && aminoacid == peptide) {
+      // HIGHLIGHT codon --triplet Tryptophan
+      if (triplet!="none" && aminoacid == triplet) {
         isStartStopCodon = true;
       } else {
         isStartStopCodon = false;
@@ -1165,6 +1166,7 @@ function arrayToPNG() {
     //     // howManytream(asterix);
     // }
     status = "quit"; // <-- this is the true end point of the program!
+    output("Thats us cousin")
     // quit();
 
   });
@@ -1384,7 +1386,7 @@ function drawHistogram() {
 
     // text += lineBreak + ;
     text += ` Next update: ${msPerUpdate.toLocaleString()}ms `
-    text += ` Highlight peptides: ${peptide}° ` + lineBreak
+    text += ` Highlight triplets: ${triplet}° ` + lineBreak
     text += `[ Codons: ${genomeSize.toLocaleString()}]  Last Acid: `;
     text += terminalRGB(aminoacid, red, green, blue);
     text += lineBreak + `[ CPU ${bytes(charsPerSecond)}/s ${Math.round(kCodonsPerSecond).toLocaleString()} Codons per sec  ] `;
