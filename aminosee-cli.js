@@ -13,8 +13,10 @@ const res4K = 3840*2160; // W4
 let maxpix = res4K; // for large genomes
 
 let proteinBrightness = 0.5;
-let startStopBrightness = 4;
+let highlightFactor = 1;
 const defaultC = 1; // back when it could not handle 3+GB files.
+const proteinHighlight = 6; // px only use in artistic mode.
+const darkenFactor = 0.5;
 let spewThresh = 50000;
 let codonsPerPixel = defaultC; //  one codon per pixel maximum
 let devmode = false; // kills the auto opening of reports etc
@@ -62,9 +64,7 @@ let genomeSize = 0;
 let filesDone = 0;
 let spewClock = 0;
 let opacity = 1 / codonsPerPixel; // 0.9 is used to make it brighter, also due to line breaks
-const proteinHighlight = 6; // px only use in artistic mode.
-const highlightFactor = 1; // px only use in artistic mode.
-const darkenFactor = 0.5;
+
 let args, resolutionFileExtension, filename, filenamePNG, reader, hilbertPoints, herbs, levels, progress, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, textFile, rawDNA, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, fileUploadShowing, testColors, chunksMax, chunksize, chunksizeBytes, baseChars, cpu, subdivisions, contextBitmap, aminoacid, colClock, start, updateClock, percentComplete, charsPerSecond, pixelStacking, isStartStopCodon, justNameOfDNA, justNameOfPNG, sliceDNA, filenameHTML, howManyFiles, timeRemain, runningDuration, kbRemain, width, peptide;
 process.title = "aminosee.funk.nz";
 rawDNA ="@"; // debug
@@ -473,7 +473,7 @@ function renderSummary() {
   CharClock: ${charClock}*       *(fails on files over 3GB or so)
   Output max res setting: ${resolutionFileExtension}
   Protein Brightness ${proteinBrightness}
-  Start/Stop Brightness ${startStopBrightness}`;
+  Start/Stop Brightness ${highlightFactor}`;
 }
 
 // CODONS PER PIXEL
@@ -800,13 +800,13 @@ function processLine(l) {
         // the first section TRUE does start/stop codons
         // the FALSE section does Amino acid codons
         if (isStartStopCodon) { // 255 = 1.0
-          // mixRGBA[0] += codonRGBA[0].valueOf() * startStopBrightness * opacity; // red
-          // mixRGBA[1] += codonRGBA[1].valueOf() * startStopBrightness * opacity; // green
-          // mixRGBA[2] += codonRGBA[2].valueOf() * startStopBrightness * opacity; // bluev
+          // mixRGBA[0] += codonRGBA[0].valueOf() * highlightFactor * opacity; // red
+          // mixRGBA[1] += codonRGBA[1].valueOf() * highlightFactor * opacity; // green
+          // mixRGBA[2] += codonRGBA[2].valueOf() * highlightFactor * opacity; // bluev
 
-          mixRGBA[0] = codonRGBA[0].valueOf() * startStopBrightness;// * opacity; // red
-          mixRGBA[1] = codonRGBA[1].valueOf() * startStopBrightness;// * opacity; // green
-          mixRGBA[2] = codonRGBA[2].valueOf() * startStopBrightness;// * opacity; // blue
+          mixRGBA[0] = codonRGBA[0].valueOf() * highlightFactor;// * opacity; // red
+          mixRGBA[1] = codonRGBA[1].valueOf() * highlightFactor;// * opacity; // green
+          mixRGBA[2] = codonRGBA[2].valueOf() * highlightFactor;// * opacity; // blue
           // paintPixel(); // unlike artistic mode it blends normally
         } else {
           //  not a START/STOP codon. Stack multiple codons per pixel.
