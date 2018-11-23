@@ -16,7 +16,7 @@ let darkenFactor = 0.5;
 let highlightFactor = 1;
 const defaultC = 1; // back when it could not handle 3+GB files.
 const proteinHighlight = 6; // px only use in artistic mode.
-let spewThresh = 50000;
+let spewThresh = 2000;
 let codonsPerPixel = defaultC; //  one codon per pixel maximum
 let devmode = false; // kills the auto opening of reports etc
 let verbose = false; // not recommended. will slow down due to console.
@@ -49,7 +49,7 @@ const appPath = require.main.filename;
 let codonRGBA, geneRGBA, mixRGBA = [0,0,0,0]; // codonRGBA is colour of last codon, geneRGBA is temporary pixel colour before painting.
 let widthMax = 1920*2;
 const golden = true;
-
+let highlightTriplets = [];
 let rgbArray = [];
 let red = 0;
 let green = 0;
@@ -177,22 +177,29 @@ console.log("Amino\x1b[40mSee\x1b[37mNoEvil");
 module.exports = () => {
   status = "exports";
   welcomeMessage();
-
   args = minimist(process.argv.slice(2), {
     boolean: [ 'artistic' ],
     boolean: [ 'devmode' ],
     boolean: [ 'clear' ],
-    boolean: [ 'spew' ],
     boolean: [ 'updates' ],
-    string: [ 'megapixels'],
+    boolean: [ 'force' ],
+    boolean: [ 'spew' ],
+    boolean: [ 'verbose' ],
     string: [ 'codons'],
+    string: [ 'megapixels'],
     string: [ 'triplet'],
+    string: [ 'peptide'],
     string: [ 'ratio'],
-    alias: { a: 'artistic', c: 'codons', f: 'force', d: 'devmode', m: 'megapixels', t: 'triplet', r: 'ratio', s: 'spew', w: 'width', v: 'verbose', z: 'codons' },
+    string: [ 'width'],
+    alias: { a: 'artistic', c: 'codons', d: 'devmode', f: 'force', m: 'megapixels', p: 'peptide', t: 'triplet', r: 'ratio', s: 'spew', w: 'width', v: 'verbose', z: 'codons' },
     default: { clear: true, updates: true },
     '--': true
   });
+/*
+,
+'--': true
 
+*/
   log(args);
 
   if (args.megapixels || args.m) {
@@ -227,6 +234,23 @@ module.exports = () => {
   } else {
     output(`No custom triplet chosen. (default)`);
     triplet = "none";
+  }
+  if (args.peptide || args.p) {
+    peptide = args.peptide || args.p;
+    let tempColor = codonToRGBA( peptide);
+    let tempHue = codonToHue(peptide);
+    if (tempColor != [13, 255, 13, 255]){ // this colour is a flag for error
+      output("Found ${peptide} with colour: " + tempHue + tempColor);
+    } else {
+      output("Error could not lookup peptide: ${peptide}");
+      // output(`Will highlight Start/Stop codons instead (default)`);
+      peptide = "none";
+    }
+
+    output(`Custom peptide ${peptide} set. Will highlight these codons, they are Hue ${codonToHue(peptide)}° in colour`);
+  } else {
+    output(`No custom peptide chosen. (default)`);
+    peptide = "none";
   }
   if (args.codons || args.c || args.z ) {
     codonsPerPixel = Math.round(args.codons || args.c || args.z); // javascript is amazing
@@ -285,11 +309,16 @@ module.exports = () => {
   }
 
 
+  // let cmd = args._[0];
   let cmd = args._[0];
+  console.dir(args);
   howMany = args._.length ;
+  // filename = path.resolve(cmd);
+
+  // howMany = 1;
   output("howMany: " + howMany+ " cmd: " + cmd)
   if (howMany > 0) {
-    filename = path.resolve(cmd);
+    filename = path.resolve(args._[0]);
   } else {
     log("try using aminosee * in a directory with DNA")
     setTimeout(() => {
@@ -341,21 +370,34 @@ module.exports = () => {
 
       status = "enqueue";
       baseChars = getFilesizeInBytes(filename);
-
       initStream(filename); // moving to the poll
+
+      // setImmediate(() => {
+        // initStream(filename); // moving to the poll
+      // });
+      output(filename)
+      // setTimeout(() => {
+      //   initStream( filename );
+      // }, 50);
+
+
       // pollForWork(); // <-- instead of for loop, a chain of callbacks to pop the array
       status = "leaving command handler";
+      log(status)
       return true;
       // https://stackoverflow.com/questions/16010915/parsing-huge-logfiles-in-node-js-read-in-line-by-line
     }
     // quit();
-
-    break;
+    status = "leaving switch";
+    log(status)
+    // break;
   }
   status = "global";
+  log(status)
+
 }
 function codonToHue(c) {
-  // return aminoTable[aminoTable.indexOf(c)].Hue;
+  // return pepTable[pepTable.indexOf(c)].Hue;
 }
 function pollForWork() {
   if (status == "paint") {
@@ -365,7 +407,7 @@ function pollForWork() {
   // howMany = args._.length;
   status = "polling"+filesDone;
   output( args._ );
-  output(`Total files to process: ${howMany}`);
+  output(`Total files to process: ${howMany} POLLING FOR WORK`);
 
   filesDone++;
   output(` [ file batch no ${filesDone} done, ${howMany} to go! ] ${justNameOfDNA}`);
@@ -382,7 +424,7 @@ function pollForWork() {
     // filename = path.resolve( args._[0] );
     // if (status != "paint" || status == "quit") {
       args._.pop();
-      howMany = args._.length ;
+      // howMany = args._.length ;
       setTimeout(() => {
         initStream( filename );
       }, 50);
@@ -394,16 +436,20 @@ function pollForWork() {
 function initStream(f) {
   let fs = require('fs')
   , es = require('event-stream')
+  status = "initStream";
 
 
-
-  filename = f; // set a global. i know. god i gotta stop using those.
+  filename = f;
+  // filename = path.resolve(f); // set a global. i know. god i gotta stop using those.
   setupFNames();
-  output(` [ cli parameter: ${f} ]`);
+  output(` [ cli parameter: ${filename} ]`);
   output(` [ canonical:     ${justNameOfDNA} ]`);
 
-  if (parseFileForStream(f) == true) {
+  if (parseFileForStream(filename) == true) {
     output(justNameOfDNA + " was parsed OK. ");
+  } else {
+    output(justNameOfDNA + " wrong format ");
+    return false;
   }
   percentComplete = 0;
   genomeSize = 0; // number of codons.
@@ -412,7 +458,6 @@ function initStream(f) {
   alpha = 255;
   timeRemain = 0;
   log("STARTING MAIN LOOP");
-  status = "paint";
 
 
   // let bar = new ProgressBar({
@@ -421,16 +466,21 @@ function initStream(f) {
   //   current: percentComplete
   // });
   // let iv = setInterval(function () {
-  //   // bar.tick();
+  //   calcUpdate();
   //   bar.current = percentComplete;
-  //   if (bar.completed) {
+  //   if (bar.completed || status != "paint") {
   //     clearInterval(iv);
   //   }
-  // }, 100);
+  // }, 200);
+
+
+
   if (updates) {
     drawHistogram();
   }
-  var s = fs.createReadStream(f).pipe(es.split()).pipe(es.mapSync(function(line){
+  var s = fs.createReadStream(filename).pipe(es.split()).pipe(es.mapSync(function(line){
+    status = "stream";
+
     // pause the readstream
     s.pause();
     streamLineNr++;
@@ -441,7 +491,9 @@ function initStream(f) {
     s.resume();
   })
   .on('error', function(err){
-    output('Error while reading file: ' + filename, err);
+    output('Error while reading file: ' + filename, err.reason);
+    console.dir(err)
+    output(status)
   })
   .on('end', function(){
     status ="complete";
@@ -457,11 +509,14 @@ function initStream(f) {
       // saveHistogram();
     }
   }));
+
+  log("FINISHED MAIN LOOP");
 }
 
 function renderSummary() {
   return `
   Filename: ${justNameOfDNA}
+  ${ ( peptide || triplet ) ?  "Highlights: " + (peptide || triplet) : " "}
   Size cap: ${Math.round(maxpix/100000)/10} Megapixels
   Input bytes: ${baseChars.toLocaleString()}*
   Output bytes: ${rgbArray.length.toLocaleString()};
@@ -478,10 +533,11 @@ function renderSummary() {
 }
 
 // CODONS PER PIXEL
-function autoconfCodonsPerPixel() {
+function autoconfCodonsPerPixel() { // requires baseChars maxpix defaultC
   let existing = codonsPerPixel;
+  let estimatedPixels = baseChars * 1.333; // divide by 4 times 3
 
-  codonsPerPixel = Math.round(codonsPerPixel); // javascript is amazing
+  codonsPerPixel = Math.round(codonsPerPixel);
   if (codonsPerPixel < defaultC) {
     codonsPerPixel = defaultC;
   } else if (codonsPerPixel > 6000) {
@@ -489,7 +545,6 @@ function autoconfCodonsPerPixel() {
   }
 
 
-  let estimatedPixels = baseChars * 1.333;
 
   if (estimatedPixels < maxpix) { // for sequence smaller than the screen
     if (codonsPerPixel > 16) {
@@ -511,8 +566,6 @@ function autoconfCodonsPerPixel() {
   opacity = 0.95 / codonsPerPixel;
   if (existing != codonsPerPixel && existing != defaultC) {
     output(terminalRGB("Your selected codons per pixel setting was alterered from ${existing} to ${codonsPerPixel} ", 255, 255, 255));
-    output("this may have happend due to overflow if your file is over 2 GB.");
-    output(terminalRGB("try using -c value higher than the default of ${defaultC}", 255, 128, 64));
   }
   return codonsPerPixel;
 }
@@ -528,12 +581,13 @@ function setupFNames() {
     justNameOfDNA = justNameOfDNA.substring(0,12) + justNameOfDNA.substring(justNameOfDNA.length-12,justNameOfDNA.length);
   }
 
-  let ext = "_" + extension + "_aminosee_";
+  let ext = "_" + extension + "_aminosee";
   if ( triplet != "none" ) {
-    ext += `${removeSpacesForFilename(triplet)}_c${codonsPerPixel}`;
-  } else {
-    ext += `c${codonsPerPixel}`;
+    ext += `_${removeSpacesForFilename(triplet)}`;
+  } else if (peptide != "none") {
+    ext += `_${removeSpacesForFilename(peptide)}`;
   }
+  ext += `_c${codonsPerPixel}`;
 
   ( artistic ? ext += "_artistic" : ext += "_sci")
 
@@ -651,8 +705,8 @@ function saveHistogram() {
   });
 }
 function touchPNG() {
-  fs.writeFile(filenamePNG, "touched by Aminosee. This is to enabled cluster rendering in storage networks, and super computers. This file will be replaced by the rendered PNG.", function (err) {
-    if (err) throw err;
+  fs.writeFileSync(filenamePNG, "touched by Aminosee. This is to enabled cluster rendering in storage networks, and super computers. This file will be replaced by the rendered PNG.", function (err) {
+    // if (err) { throw err }
     log('Touched OK: ' + filenamePNG);
   });
 
@@ -688,15 +742,15 @@ function parseFileForStream() {
     output("WRONG FILE EXTENSION: " + extension);
     return false;
   } else {
-    log("File ext ok. Now checking PNG.")
-    // if there is a png, dont render just quit
-    if (checkIfPNGExists() && !force) {
-      log("Image already rendered, use --force to overwrite. Files left: " + howMany);
-      return false;
-    } else {
-      log("Saving to: " + justNameOfPNG);
-      touchPNG();
-    }
+    // log("File ext ok. Now checking PNG.")
+    // // if there is a png, dont render just quit
+    // if (checkIfPNGExists() && !force) {
+    //   log("Image already rendered, use --force to overwrite. Files left: " + howMany);
+    //   return false;
+    // } else {
+    //   log("Saving to: " + justNameOfPNG);
+    //   touchPNG();
+    // }
   }
   autoconfCodonsPerPixel();
   setupFNames();
@@ -713,14 +767,17 @@ function quit() {
   msPerUpdate = 0;
   // howMany = 0;
   setTimeout(() => {
-    // process.exit;
-  }, 1);
+    status = "bye";
+
+    process.exit;
+  }, 10000);
 }
 function processLine(l) {
   rawDNA = l;
   var cleanDNA = "";
   let lineLength = l.length; // replaces baseChars
   let codon = "";
+  CRASH = false;
   for (column=0; column<lineLength; column++) {
     // build a three digit codon
     let c = cleanChar(l.charAt(column)); // has to be ATCG or a . for cleaned chars and line breaks
@@ -749,8 +806,9 @@ function processLine(l) {
     // if (c==".") { c = ""}
     codon += c; // add the base
     // log(c);
-    if (codon=="...") {
+    if (codon == "...") {
       codon="";
+      log(red+green+blue);
       if (red+green+blue>0) { // this is a fade out to show headers.
         red -= codonsPerPixel;
         green-= codonsPerPixel;
@@ -769,11 +827,12 @@ function processLine(l) {
       codonRGBA = codonToRGBA(codon); // this will report alpha info
       cleanDNA += codon;
       if (CRASH) {
-        output("IM CRASHING Y'ALL: " + codon);
+        output(cleanDNA + " IM CRASHING Y'ALL: " + codon);
         crashReport();
         // quit();
         errorClock++;
         CRASH = false;
+        break
       }
 
       // if ALPHA come back 1 = its a START/STOP codon
@@ -788,7 +847,10 @@ function processLine(l) {
       // }
       alpha = 255;
       // HIGHLIGHT codon --triplet Tryptophan
-      if (triplet!="none" && codon == triplet) {
+      // output(aminoacid);
+      if (codon == triplet) {
+        isStartStopCodon = true;
+      } else if (aminoacid == peptide) {
         isStartStopCodon = true;
       } else {
         isStartStopCodon = false;
@@ -833,9 +895,6 @@ function processLine(l) {
         }
         // end science mode
       } else {
-
-
-
 
         // the first section TRUE does start/stop codons
         // the FALSE section does Amino acid codons
@@ -986,19 +1045,19 @@ function legend() {
   </thead>
   <tbody>
   `;
-  // aminoTable = [Codon, Description, Hue, Alpha, Histocount]
-  for (i=0; i<aminoTable.length; i++) {
-    let theHue = aminoTable[i].Hue;
+  // pepTable   = [Codon, Description, Hue, Alpha, Histocount]
+  for (i=0; i<pepTable.length; i++) {
+    let theHue = pepTable[i].Hue;
     log(theHue);
     let c = hsvToRgb( theHue, 0.5, 1.0 );
-    // const c = hsvToRgb( aminoTable[i].Hue );
+    // const c = hsvToRgb( pepTable[i].Hue );
     html += `
     <tr style="background-color: hsl(${theHue}, 50%, 100%);">
-    <td style="background-color: white;">${aminoTable[i].Codon}</td>
+    <td style="background-color: white;">${pepTable[i].Codon}</td>
     <td style="background-color: hsl(${theHue}, 50%, 100%);">${theHue}°</td>
     <td>${c[0]},${c[1]},${c[2]}  #NOTWORK</td>
-    <td>${aminoTable[i].Histocount}</td>
-    <td>${aminoTable[i].Description}</td>
+    <td>${pepTable[i].Histocount}</td>
+    <td>${pepTable[i].Description}</td>
     </tr>
     `
   }
@@ -1075,6 +1134,8 @@ function toBuffer(ab) {
 }
 
 function arrayToPNG() {
+  status = "save"; // <-- this is the true end point of the program!
+
   clearTimeout();
   let pixels, height, width;
   let golden = true; // golden section ratio.
@@ -1165,15 +1226,18 @@ function arrayToPNG() {
     //     });
     //     // howManytream(asterix);
     // }
-    status = "quit"; // <-- this is the true end point of the program!
-    output("Thats us cousin")
+    // status = "quit"; // <-- this is the true end point of the program!
+    setTimeout(() => {
+      output("Thats us cousin")
+
+    }, 1000);
     // quit();
 
   });
 }
 
 function removeSpacesForFilename(string) {
-  return string.replace(/ /, '');
+  return string.replace(/ /, '').toLowerCase();
 }
 
 function replaceFilepathFileName(f) {
@@ -1202,7 +1266,7 @@ function output(txt) {
 function log(txt) {
   if (verbose && devmode) {
     let d = new Date().getTime();
-    console.log("[ " + d.toLocaleString() + " ] " + txt + " ");
+    console.log(status + " [ " + d.toLocaleString() + " ] " + txt + " ");
   } else if (devmode){
     process.stdout.write(txt);
   }
@@ -1210,15 +1274,19 @@ function log(txt) {
 function isAminoAcid(acid) {
   return acid.Codon === acid;
 }
+function isTripletPeptide(t) {
+  return t.Codon == peptide;
+}
+
 function init() {
   // make a HISTOGRAM of amino acids found.
   for (i=0; i < dnaTriplets.length; i++) {
     dnaTriplets[i].Histocount = 0;
 
   }
-  for (i=0; i < aminoTable.length; i++) {
-    aminoTable[i].Histocount = 0;
-    // aminoTable[i].Histocount  = 0;
+  for (i=0; i < pepTable.length; i++) {
+    pepTable[i].Histocount = 0;
+    // pepTable[i].Histocount  = 0;
   }
 }
 function onError(e) {
@@ -1333,7 +1401,7 @@ function printRadMessage() {
 }
 
 function crashReport() {
-  dnaTail();
+  output(cleanDNA);
 }
 function calcUpdate() {
 
@@ -1360,8 +1428,8 @@ function drawHistogram() {
   cyclesPerUpdate = kCodonsPerSecond * msPerUpdate; // one update per second, or 1.8.
 
   // OPTIMISE i should not be creating a new array each frame!
-  for (h=0;h<aminoTable.length;h++) {
-    aacdata[aminoTable[h].Codon] = aminoTable[h].Histocount ;
+  for (h=0;h<pepTable.length;h++) {
+    aacdata[pepTable[h].Codon] = pepTable[h].Histocount ;
   }
   text += ` @i ${charClock.toLocaleString()} File: ${terminalRGB(justNameOfDNA, 255, 255, 255)} Line breaks: ${breakClock} Files: ${howMany} Base Chars: ${baseChars} `;
   text += lineBreak;
@@ -1416,6 +1484,10 @@ function drawHistogram() {
   function isCodon(cdn) {
     return cdn == this.Codon;
   }
+
+  function isHighlightPeptide(p) {
+    return p.Codon == peptide;
+  }
   // *
   // take 3 letters, convert into a Uint8ClampedArray with 4 items
   function codonToRGBA(cod) {
@@ -1426,15 +1498,15 @@ function drawHistogram() {
         aminoacid = dnaTriplets[z].Codon;
         dnaTriplets[z].Histocount++;
 
-        for (h=0; h<aminoTable.length; h++) {
+        for (h=0; h<pepTable.length; h++) {
 
-          if (aminoacid == aminoTable[h].Codon) {
-            aminoTable[h].Histocount++;
+          if (aminoacid == pepTable[h].Codon) {
+            pepTable[h].Histocount++;
 
             if (aminoacid == "Amber" || aminoacid == "Ochre" || aminoacid == "Opal" ) {
-              aminoTable.indexOf("STOP Codon").Histocount++;
+              pepTable.indexOf("STOP Codon").Histocount++;
             } else if (aminoacid == "Methione") {
-              aminoTable[aminoTable.indexOf("START Codon")].Histocount++;
+              pepTable[pepTable.indexOf("START Codon")].Histocount++;
 
             }
             break
@@ -1464,6 +1536,9 @@ function drawHistogram() {
     if ( aminoacid == "ERROR" ) {
       aminoacid = "ERROR " + cod;
       CRASH = true;
+    } else {
+      CRASH = false;
+
     }
     return [13,255,13,128]; // this colour means "ERROR".
   }
@@ -2148,7 +2223,7 @@ function drawHistogram() {
 
 
 
-      let aminoTable = [
+      let pepTable   = [
         {
           "Codon": "Non-coding NNN",
           "Description": "Expressed as NNN Codon",
