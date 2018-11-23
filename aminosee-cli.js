@@ -16,7 +16,6 @@ let darkenFactor = 0.5;
 let highlightFactor = 1;
 const defaultC = 1; // back when it could not handle 3+GB files.
 const proteinHighlight = 6; // px only use in artistic mode.
-const darkenFactor = 0.5;
 let spewThresh = 50000;
 let codonsPerPixel = defaultC; //  one codon per pixel maximum
 let devmode = false; // kills the auto opening of reports etc
