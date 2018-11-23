@@ -773,7 +773,7 @@ function processLine(l) {
       if (CRASH) {
         output("IM CRASHING Y'ALL: " + codon);
         crashReport();
-        // quit();
+        quit();
       }
       codon = "";// wipe for next time
 
@@ -1326,7 +1326,7 @@ function printRadMessage() {
   console.log(terminalRGB("╔═╗┌┬┐┬┌┐┌┌─┐╔═╗┌─┐┌─┐  ╔╦╗╔╗╔╔═╗  ╦  ╦┬┌─┐┬ ┬┌─┐┬─┐\r", 255, 60, 250) );
   console.log(terminalRGB("╠═╣││││││││ │╚═╗├┤ ├┤    ║║║║║╠═╣  ╚╗╔╝│├┤ │││├┤ ├┬┘\r", 128, 128, 255) );
   console.log(terminalRGB("╩ ╩┴ ┴┴┘└┘└─┘╚═╝└─┘└─┘  ═╩╝╝╚╝╩ ╩   ╚╝ ┴└─┘└┴┘└─┘┴└─\r", 128, 240, 240) );
-  console.log(terminalRGB(" by Tom Atkinson           aminosee.funk.co.nz      \r", 225, 225, 130) );
+  console.log(terminalRGB(" by Tom Atkinson          aminosee.funk.co.nz      \r", 225, 225, 130) );
   console.log(terminalRGB("  ah-mee-no-see     'I See It Now - I AminoSee it!' \r", 255, 180, 90) );
   console.log("       " + prettyDate());
 }
