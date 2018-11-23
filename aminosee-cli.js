@@ -191,8 +191,7 @@ module.exports = () => {
     string: [ 'ratio'],
     alias: { a: 'artistic', c: 'codons', f: 'force', d: 'devmode', m: 'megapixels', p: 'peptide', r: 'ratio', s: 'spew', w: 'width', v: 'verbose', z: 'codons' },
     default: { clear: true, updates: true },
-    '--': true,
-
+    '--': true
   });
 
   log(args);
