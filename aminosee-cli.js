@@ -342,8 +342,8 @@ module.exports = () => {
       status = "enqueue";
       baseChars = getFilesizeInBytes(filename);
 
-      initStream(filename); // moving to the poll
-      // pollForWork(); // <-- instead of for loop, a chain of callbacks to pop the array
+      // initStream(filename); // moving to the poll
+      pollForWork(); // <-- instead of for loop, a chain of callbacks to pop the array
       status = "leaving command handler";
       return true;
       // https://stackoverflow.com/questions/16010915/parsing-huge-logfiles-in-node-js-read-in-line-by-line
@@ -394,14 +394,8 @@ function initStream(f) {
     output(justNameOfDNA + " was parsed OK. ");
   } else {
     status = "File parse failed. howManyFiles = " + howManyFiles;
-    if (howManyFiles>0) {
-      setTimeout(() => {
-        pollForWork();
-      }, 1);
-    } else {
-      quit();
-    }
 
+    pollForWork();
     return false;
   };
   percentComplete = 0;
@@ -455,6 +449,7 @@ function initStream(f) {
     if (!devmode) {
       saveHistogram();
     }
+    fs.unlink(filenameTouch); // delete the lock file
   }));
 }
 
@@ -687,7 +682,8 @@ function parseFileForStream() {
   const extension = getFileExtension(filename);
   output("[FILESIZE] " + baseChars.toLocaleString() + " extension: " + extension);
 
-
+  autoconfCodonsPerPixel();
+  setupFNames();
   if (extensions.indexOf(extension) < 0) {
     output("WRONG FILE EXTENSION: " + extension);
     return false;
@@ -702,17 +698,26 @@ function parseFileForStream() {
       touchLockfile();
     }
   }
-  autoconfCodonsPerPixel();
-  setupFNames();
-  return true;
 
+  return checkFileFormat(filename);
+
+}
+function checkFileFormat(f) {
+  extension = getFileExtension(f);
+  if (extensions.indexOf(extension) < 0) {
+    output("WRONG FILE EXTENSION: " + extension);
+    return false;
+  } else {
+    log("File ext ok. Now checking PNG.")
+    return true;
+  }
 }
 function quit() {
   output("bye");
   status = "bye";
+  fs.unlinkSync(filenameTouch); // delete the lock file
   process.stdin.setRawMode(false);
   process.stdin.resume();
-
   clearTimeout();
   msPerUpdate = 0;
   howManyFiles = 0;
@@ -1154,15 +1159,9 @@ function arrayToPNG() {
       }, 3000);
 
     }
-    asterix = args._.pop()
-    howManyFiles--;
-    if (howManyFiles > 0) {
-      if (status != "paint") { initStream(asterix); } // BADDASS RACE CONDITION
 
-    } else {
-      status = "quit"; // <-- this is the true end point of the program!
-      // return false;
-    };
+    pollForWork();
+
   });
 }
 
