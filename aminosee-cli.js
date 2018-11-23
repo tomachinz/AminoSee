@@ -12,7 +12,7 @@ const resHD = 1920*1080; // W2
 const res4K = 3840*2160; // W4
 let maxpix = res4K; // for large genomes
 
-let proteinBrightness = 0.5;
+let darkenFactor = 0.5;
 let highlightFactor = 1;
 const defaultC = 1; // back when it could not handle 3+GB files.
 const proteinHighlight = 6; // px only use in artistic mode.
@@ -474,7 +474,7 @@ function renderSummary() {
   Error Clock: ${errorClock}
   CharClock: ${charClock}*       *(fails on files over 3GB or so)
   Output max res setting: ${resolutionFileExtension}
-  Protein Brightness ${proteinBrightness}
+  Darken Factor ${darkenFactor}
   Start/Stop Brightness ${highlightFactor}`;
 }
 
