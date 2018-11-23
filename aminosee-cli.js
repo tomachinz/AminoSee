@@ -1355,7 +1355,7 @@ function drawHistogram() {
   let text = lineBreak;
   let aacdata = [];
   if (msPerUpdate < maxMsPerUpdate) {
-    msPerUpdate += 20; // begin to not update screen so much over time
+    msPerUpdate += 50; // begin to not update screen so much over time
   }
   cyclesPerUpdate = kCodonsPerSecond * msPerUpdate; // one update per second, or 1.8.
 
