@@ -65,7 +65,7 @@ let filesDone = 0;
 let spewClock = 0;
 let opacity = 1 / codonsPerPixel; // 0.9 is used to make it brighter, also due to line breaks
 
-let args, resolutionFileExtension, filename, filenamePNG, reader, hilbertPoints, herbs, levels, progress, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, textFile, rawDNA, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, fileUploadShowing, testColors, chunksMax, chunksize, chunksizeBytes, baseChars, cpu, subdivisions, contextBitmap, aminoacid, colClock, start, updateClock, percentComplete, charsPerSecond, pixelStacking, isStartStopCodon, justNameOfDNA, justNameOfPNG, sliceDNA, filenameHTML, howManyFiles, timeRemain, runningDuration, kbRemain, width, peptide;
+let args, resolutionFileExtension, filename, filenamePNG, reader, hilbertPoints, herbs, levels, progress, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, textFile, rawDNA, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, fileUploadShowing, testColors, chunksMax, chunksize, chunksizeBytes, baseChars, cpu, subdivisions, contextBitmap, aminoacid, colClock, start, updateClock, percentComplete, charsPerSecond, pixelStacking, isStartStopCodon, justNameOfDNA, justNameOfPNG, sliceDNA, filenameHTML, howMany, timeRemain, runningDuration, kbRemain, width, peptide;
 process.title = "aminosee.funk.nz";
 rawDNA ="@"; // debug
 filename = "[LOADING]"; // for some reason this needs to be here. hopefully the open source community can come to rescue and fix this Kludge.
@@ -288,9 +288,9 @@ module.exports = () => {
 
 
   let cmd = args._[0];
-  howManyFiles = args._.length ;
-  output("HOWMANYFILES: " + howManyFiles+ " cmd: " + cmd)
-  if (howManyFiles > 0) {
+  howMany = args._.length ;
+  output("howMany: " + howMany+ " cmd: " + cmd)
+  if (howMany > 0) {
     filename = path.resolve(cmd);
   } else {
     log("try using aminosee * in a directory with DNA")
@@ -335,11 +335,11 @@ module.exports = () => {
       // const fs = require('fs');
       //
       // async function callStream() {
-      //   const stream = await initStream(asterix);
+      //   const stream = await howManytream(asterix);
       //   status  = `Promise returned for: ${asterix}`
       //   console.log(status);
       // }
-      // const initStream = util.promisify(initStream);
+      // const howManytream = util.promisify(initStream);
 
       status = "enqueue";
       baseChars = getFilesizeInBytes(filename);
@@ -360,24 +360,36 @@ function codonToHue(c) {
   // return aminoTable[aminoTable.indexOf(c)].Hue;
 }
 function pollForWork() {
-  howManyFiles = args._.length;
+  if (status == "paint") {
+    output("BREAKING")
+    return false;
+  }
+  // howMany = args._.length;
   status = "polling"+filesDone;
   output( args._ );
-  output(`Total files to process: ${howManyFiles}`);
+  output(`Total files to process: ${howMany}`);
 
   filesDone++;
-  output(` [ file batch no ${filesDone} done, ${howManyFiles} to go! ] ${justNameOfDNA}`);
+  output(` [ file batch no ${filesDone} done, ${howMany} to go! ] ${justNameOfDNA}`);
   output( terminalRGB( justNameOfDNA, 255,128,64) );
 
-  // howManyFiles = args._.length;
-  output(`Total files to process: ${howManyFiles}`);
-  if (howManyFiles < 1) {
+  // howMany = args._.length;
+  output(`Total files to process: ${howMany}`);
+  if (howMany < 1) {
+    output("pollForWork howMany " + howMany);
+
     output("bye");
     // quit();
   } else {
-    setTimeout(() => {
-      initStream( path.resolve( args._.pop() ) );
-    }, 50);
+    // filename = path.resolve( args._[0] );
+    // if (status != "paint" || status == "quit") {
+      args._.pop();
+      howMany = args._.length ;
+      setTimeout(() => {
+        initStream( filename );
+      }, 50);
+    // }
+
   }
 }
 
@@ -394,18 +406,7 @@ function initStream(f) {
 
   if (parseFileForStream(f) == true) {
     output(justNameOfDNA + " was parsed OK. ");
-  } else {
-    status = "File parse failed. howManyFiles = " + howManyFiles;
-    if (howManyFiles>0) {
-      setTimeout(() => {
-        pollForWork();
-      }, 1);
-    } else {
-      quit();
-    }
-
-    return false;
-  };
+  }
   percentComplete = 0;
   genomeSize = 0; // number of codons.
   pixelStacking = 0; // how we fit more than one codon on each pixel
@@ -453,7 +454,7 @@ function initStream(f) {
     output(`Stream complete.`);
     output(renderSummary());
     arrayToPNG(); // fingers crossed!
-    status = "saving html report";
+    // status = "saving html report";
     if (!devmode) {
       // saveHistogram();
     }
@@ -692,7 +693,7 @@ function parseFileForStream() {
     log("File ext ok. Now checking PNG.")
     // if there is a png, dont render just quit
     if (checkIfPNGExists() && !force) {
-      log("Image already rendered, use --force to overwrite. Files left: " + howManyFiles);
+      log("Image already rendered, use --force to overwrite. Files left: " + howMany);
       return false;
     } else {
       log("Saving to: " + justNameOfPNG);
@@ -712,9 +713,9 @@ function quit() {
 
   clearTimeout();
   msPerUpdate = 0;
-  // howManyFiles = 0;
+  // howMany = 0;
   setTimeout(() => {
-    process.exit;
+    // process.exit;
   }, 1);
 }
 function processLine(l) {
@@ -759,7 +760,7 @@ function processLine(l) {
         paintPixel();
       } else {
         // do nothing this maybe a non-coding header section in the file.
-        status = "header";
+        // status = "header";
         msPerUpdate = 100;
       }
     }
@@ -1075,7 +1076,7 @@ function toBuffer(ab) {
 }
 
 function arrayToPNG() {
-
+  clearTimeout();
   let pixels, height, width;
   let golden = true; // golden section ratio.
 
@@ -1137,8 +1138,8 @@ function arrayToPNG() {
   setImmediate(() => {
     output("Input DNA: " + filename)
     output("Saved PNG: " + filenamePNG);
-    // howManyFiles = args._.length;
-    output("howManyFiles " + howManyFiles);
+    // howMany = args._.length;
+    output("howMany " + howMany);
     // output("value returned by parseFileForStream " + parseFileForStream());
     if (!devmode) {
       output("To prevent automatically opening the image, use --devmode option")
@@ -1155,24 +1156,19 @@ function arrayToPNG() {
       }, 3000);
 
     }
-    // asterix = args._.pop()
-    howManyFiles--;
-    if (howManyFiles > 0) {
-      if (status != "paint") {
+    // howMany--;
+    // if (howMany>0) {
+    //
+    //     setTimeout(() => {
+    //       if (status != "paint") {
+    //       pollForWork();
+    //       } // BADDASS RACE CONDITION
+    //     });
+    //     // howManytream(asterix);
+    // }
+    status = "quit"; // <-- this is the true end point of the program!
+    // quit();
 
-
-        setTimeout(() => {
-          // initStream(asterix);
-          pollForWork();
-
-        }, 50);
-
-        } // BADDASS RACE CONDITION
-
-    } else {
-      status = "quit"; // <-- this is the true end point of the program!
-      // return false;
-    };
   });
 }
 
@@ -1367,7 +1363,7 @@ function drawHistogram() {
   for (h=0;h<aminoTable.length;h++) {
     aacdata[aminoTable[h].Codon] = aminoTable[h].Histocount ;
   }
-  text += ` @i ${charClock.toLocaleString()} File: ${terminalRGB(justNameOfDNA, 255, 255, 255)} Line breaks: ${breakClock} Files: ${howManyFiles} Base Chars: ${baseChars} `;
+  text += ` @i ${charClock.toLocaleString()} File: ${terminalRGB(justNameOfDNA, 255, 255, 255)} Line breaks: ${breakClock} Files: ${howMany} Base Chars: ${baseChars} `;
   text += lineBreak;
   text += chalk.rgb(128, 255, 128).inverse(`[ ${percentComplete}% done Time remain: ${timeRemain.toLocaleString()} sec Elapsed: ${Math.round(runningDuration/1000)} sec KB remain: ${kbRemain}`)
 
@@ -1379,7 +1375,7 @@ function drawHistogram() {
       output(text);
       clearTimeout();
     } else {
-      if (howManyFiles>0) {
+      if (howMany>0) {
         setTimeout(() => {
           clearPrint(drawHistogram()); // MAKE THE HISTOGRAM AGAIN LATER
         }, msPerUpdate);

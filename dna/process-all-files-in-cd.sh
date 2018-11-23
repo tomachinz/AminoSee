@@ -7,22 +7,22 @@ if [ $(uname)=Darwin ]; then
   echo macos
 
 
+#
+# aminosee  Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa -m 4  -v -d  --no-clear  --peptide tryptophan
+# aminosee  Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa -m 4  -v -d  --no-clear  --peptide serine
+# aminosee  Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa -m 4  -v -d  --no-clear  --peptide opal
+# aminosee  Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa -m 4  -v -d  --no-clear  --peptide Glutamine
+# aminosee  Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa -m 4  -v -d  --no-clear  --peptide Asparagine
+# aminosee  Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa -m 4  -v -d  --no-clear  --peptide Tyrosine
+# aminosee  Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa -m 4  -v -d  --no-clear  --peptide Arginine
+# aminosee  Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa -m 4  -v -d  --no-clear  --peptide Lysine
+# aminosee  Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa -m 4  -v -d  --no-clear  --peptide Histidine
+# aminosee  Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa -m 4  -v -d  --no-clear  --peptide Proline
+# aminosee  Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa -m 4  -v -d  --no-clear  --peptide Threonine
 
-aminosee  Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa -m 4  -v -d  --no-clear  --peptide tryptophan
-aminosee  Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa -m 4  -v -d  --no-clear  --peptide serine
-aminosee  Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa -m 4  -v -d  --no-clear  --peptide opal
-aminosee  Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa -m 4  -v -d  --no-clear  --peptide Glutamine
-aminosee  Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa -m 4  -v -d  --no-clear  --peptide Asparagine
-aminosee  Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa -m 4  -v -d  --no-clear  --peptide Tyrosine
-aminosee  Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa -m 4  -v -d  --no-clear  --peptide Arginine
-aminosee  Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa -m 4  -v -d  --no-clear  --peptide Lysine
-aminosee  Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa -m 4  -v -d  --no-clear  --peptide Histidine
-aminosee  Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa -m 4  -v -d  --no-clear  --peptide Proline
-aminosee  Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa -m 4  -v -d  --no-clear  --peptide Threonine
 
-
-find -f *.fa *.mfa *.gbk *.txt -exec aminosee -m 4  -v -d  --no-clear  --peptide tryptophan {} \;
-find -f *.fa *.mfa *.gbk *.txt -exec aminosee -m 4  -v -d  --no-clear  --peptide serine {} \;
+find -f *.fa *.mfa *.gbk *.txt -exec aminosee -m 4  -v -d  -f --no-clear  --peptide tryptophan {} \;
+find -f *.fa *.mfa *.gbk *.txt -exec aminosee -m 4  -v -d  -f --no-clear  --peptide serine {} \;
 find -f *.fa *.mfa *.gbk *.txt -exec aminosee -m 4  -v -d  --no-clear  --peptide opal {} \;
 find -f *.fa *.mfa *.gbk *.txt -exec aminosee -m 4  -v -d  --no-clear  --peptide Glutamine {} \;
 find -f *.fa *.mfa *.gbk *.txt -exec aminosee -m 4  -v -d  --no-clear  --peptide Asparagine {} \;
