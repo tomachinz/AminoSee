@@ -62,9 +62,8 @@ let genomeSize = 0;
 let filesDone = 0;
 let spewClock = 0;
 let opacity = proteinBrightness / codonsPerPixel; // 0.9 is used to make it brighter, also due to line breaks
-const artStretch = 0.5; // likely 0.5 will be very dark
-const highlightFactor = 1.0; // should saturate out to white
-const darkenFactor = 0.5; // should saturate out to white
+const proteinHighlight = 6; // px only use in artistic mode.
+const startStopHighlight = 6; // px only use in artistic mode.
 let args, resolutionFileExtension, filename, filenamePNG, reader, hilbertPoints, herbs, levels, progress, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, textFile, rawDNA, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, fileUploadShowing, testColors, chunksMax, chunksize, chunksizeBytes, baseChars, cpu, subdivisions, contextBitmap, aminoacid, colClock, start, updateClock, percentComplete, charsPerSecond, pixelStacking, isStartStopCodon, justNameOfDNA, justNameOfPNG, sliceDNA, filenameHTML, howManyFiles, timeRemain, runningDuration, kbRemain, width, peptide;
 process.title = "aminosee.funk.nz";
 rawDNA ="@"; // debug
@@ -227,7 +226,7 @@ module.exports = () => {
 
     output(`Custom peptide ${peptide} set. Will highlight these codons, they are Hue ${codonToHue(peptide)}° in colour`);
   } else {
-    // output(`No custom peptide chosen. Will highlight Start/Stop codons instead (default)`);
+    output(`No custom peptide chosen. (default)`);
     peptide = "none";
   }
   if (args.codons || args.c || args.z ) {
@@ -242,7 +241,7 @@ module.exports = () => {
     }
   }
   if (args.artistic || args.a) {
-    output(`artistic enabled. Start (Methione = Green) and Stop codons (Amber, Ochre, Opal) interupt the pixel timing creating columns. protein coding codons are diluted they are made ${Math.round(opacity*100).toLocaleString()}% translucent and ${codonsPerPixel} of them are blended together to make one colour that is then faded across ${artStretch} pixels horizontally. The start/stop codons get a whole pixel to themselves, and are faded across ${highlightFactor} pixels horizontally.`);
+    output(`artistic enabled. Start (Methione = Green) and Stop codons (Amber, Ochre, Opal) interupt the pixel timing creating columns. protein coding codons are diluted they are made ${Math.round(opacity*100).toLocaleString()}% translucent and ${codonsPerPixel} of them are blended together to make one colour that is then faded across ${proteinHighlight} pixels horizontally. The start/stop codons get a whole pixel to themselves, and are faded across ${startStopHighlight} pixels horizontally.`);
     artistic = true;
   } else {
     output("1:1 science mode enabled.");
@@ -342,8 +341,8 @@ module.exports = () => {
       status = "enqueue";
       baseChars = getFilesizeInBytes(filename);
 
-      // initStream(filename); // moving to the poll
-      pollForWork(); // <-- instead of for loop, a chain of callbacks to pop the array
+      initStream(filename); // moving to the poll
+      // pollForWork(); // <-- instead of for loop, a chain of callbacks to pop the array
       status = "leaving command handler";
       return true;
       // https://stackoverflow.com/questions/16010915/parsing-huge-logfiles-in-node-js-read-in-line-by-line
@@ -355,12 +354,12 @@ module.exports = () => {
   status = "global";
 }
 function codonToHue(c) {
-  return aminoTable[aminoTable.indexOf(c)].Hue;
+  // return aminoTable[aminoTable.indexOf(c)].Hue;
 }
 function pollForWork() {
   howManyFiles = args._.length;
   status = "polling"+filesDone;
-  log( args._ );
+  output( args._ );
   output(`Total files to process: ${howManyFiles}`);
 
   filesDone++;
@@ -394,8 +393,14 @@ function initStream(f) {
     output(justNameOfDNA + " was parsed OK. ");
   } else {
     status = "File parse failed. howManyFiles = " + howManyFiles;
+    if (howManyFiles>0) {
+      setTimeout(() => {
+        pollForWork();
+      }, 1);
+    } else {
+      quit();
+    }
 
-    pollForWork();
     return false;
   };
   percentComplete = 0;
@@ -449,7 +454,6 @@ function initStream(f) {
     if (!devmode) {
       saveHistogram();
     }
-    fs.unlink(filenameTouch); // delete the lock file
   }));
 }
 
@@ -514,27 +518,20 @@ function autoconfCodonsPerPixel() {
 function removeFileExtension(f) {
   return f.substring(0, f.length - (getFileExtension(f).length+1));
 }
-function removeSpacesForFilename(string) {
-  return string.replace(/ /, '');
-}
+
 function setupFNames() {
   const extension = getFileExtension(filename);
-
   justNameOfDNA = removeFileExtension(replaceFilepathFileName(filename));
   if (justNameOfDNA.length > 24 ) {
     justNameOfDNA = justNameOfDNA.substring(0,12) + justNameOfDNA.substring(justNameOfDNA.length-12,justNameOfDNA.length);
   }
-  // let proteinBrightness = 3.00;
-  // let startStopBrightness = 0.5;
-  // let ext = ".ami_w" + width + "_" + resExt[width-1] +  "_c" + codonsPerPixel;
-  // let ext = `.ami_p${proteinBrightness}_x${startStopBrightness}_m${megapixels}_c${codonsPerPixel}`;
+
   let ext = "_" + extension + "_aminosee_";
   if ( peptide != "none" ) {
     ext += `${removeSpacesForFilename(peptide)}_c${codonsPerPixel}`;
   } else {
     ext += `c${codonsPerPixel}`;
   }
-
 
   ( artistic ? ext += "_artistic" : ext += "_sci")
 
@@ -615,7 +612,9 @@ function welcomeMessage() {
   output(' ');
   output('flags:');
 
-  output('     --megapixels -m        1-20   (use 8 for 4k or 4 for HD)');
+  output('     --ratio -r   square|golden|fixed     (image proportions)');
+  output('     --width -w   1-20          (only works with fixed ratio)');
+  output('     --megapixels -m      (debug setting to limit memory use)');
   output('     --peptide -p  (highlight peptide eg --petide Tryptophan)');
   output('     --verbose -v                              (verbose mode)');
   output('     --help -h                                          Help)');
@@ -649,14 +648,14 @@ function saveHistogram() {
     log("saveHistogram done");
   });
 }
-function touchLockfile() {
-  fs.writeFile(filenameTouch, "touched by Aminosee. This is to enabled cluster rendering in storage networks, and super computers. This file will be replaced by the rendered PNG.", function (err) {
+function touchPNG() {
+  fs.writeFile(filenamePNG, "touched by Aminosee. This is to enabled cluster rendering in storage networks, and super computers. This file will be replaced by the rendered PNG.", function (err) {
     if (err) throw err;
-    log('Touched OK: ' + filenameTouch);
+    log('Touched OK: ' + filenamePNG);
   });
 
   setImmediate(() => {
-    log("filenameTouch done");
+    log("touchPNG done");
   });
 }
 
@@ -677,13 +676,12 @@ function parseFileForStream() {
   start = new Date().getTime();
 
   timeRemain, runningDuration, charClock, percentComplete, genomeSize, colClock, opacity = 0;
-  msPerUpdate = 100;
+  msPerUpdate = 1234;
   getFilesizeInBytes();
   const extension = getFileExtension(filename);
   output("[FILESIZE] " + baseChars.toLocaleString() + " extension: " + extension);
 
-  autoconfCodonsPerPixel();
-  setupFNames();
+
   if (extensions.indexOf(extension) < 0) {
     output("WRONG FILE EXTENSION: " + extension);
     return false;
@@ -695,29 +693,20 @@ function parseFileForStream() {
       return false;
     } else {
       log("Saving to: " + justNameOfPNG);
-      touchLockfile();
+      touchPNG();
     }
   }
+  autoconfCodonsPerPixel();
+  setupFNames();
+  return true;
 
-  return checkFileFormat(filename);
-
-}
-function checkFileFormat(f) {
-  extension = getFileExtension(f);
-  if (extensions.indexOf(extension) < 0) {
-    output("WRONG FILE EXTENSION: " + extension);
-    return false;
-  } else {
-    log("File ext ok. Now checking PNG.")
-    return true;
-  }
 }
 function quit() {
   output("bye");
   status = "bye";
-  fs.unlinkSync(filenameTouch); // delete the lock file
   process.stdin.setRawMode(false);
   process.stdin.resume();
+
   clearTimeout();
   msPerUpdate = 0;
   howManyFiles = 0;
@@ -785,26 +774,25 @@ function processLine(l) {
       }
       codon = "";// wipe for next time
 
-      // HIGHLIGHT codon --peptide Tryptophan
-      if (peptide!="none" && aminoacid == peptide) {
-        isStartStopCodon = true;
-      } else {
-        isStartStopCodon = false;
-      }
-
-
+      // if ALPHA come back 1 = its a START/STOP codon
       // if ALPHA is 0.1 it is an amino acid that needs custom ALPHA
-      // alpha = codonRGBA[3].valueOf(); // either 0.1 or 1.0
-      // if (alpha == 1.0) { // 255 = 1.0
-      //   isStartStopCodon = true;
-      // } else if (alpha == 0.1) { // protein coding codon
-      //   isStartStopCodon = false;
-      // } else if (alpha == 0.0) {
-      //   log("erm... why is alpha at 0.0? setting to 255");
-      // }
+      alpha = codonRGBA[3].valueOf(); // either 0.1 or 1.0
+      if (alpha == 1.0) { // 255 = 1.0
+        isStartStopCodon = true;
+      } else if (alpha == 0.1) { // protein coding codon
+        isStartStopCodon = false;
+      } else if (alpha == 0.0) {
+        log("erm... why is alpha at 0.0? setting to 255");
+      }
       alpha = 255;
 
       if (artistic != true) {
+        // science mode blacks the pixel everytime:
+        // mixRGBA[0] += 0; // red
+        // mixRGBA[1] += 0; // green
+        // mixRGBA[2] += 0; // blue
+        // the first section TRUE does start/stop codons
+        // the FALSE section does Amino acid codons
         if (isStartStopCodon) { // 255 = 1.0
           // mixRGBA[0] += codonRGBA[0].valueOf() * startStopBrightness * opacity; // red
           // mixRGBA[1] += codonRGBA[1].valueOf() * startStopBrightness * opacity; // green
@@ -1159,13 +1147,21 @@ function arrayToPNG() {
       }, 3000);
 
     }
+    asterix = args._.pop()
+    howManyFiles--;
+    if (howManyFiles > 0) {
+      if (status != "paint") { initStream(asterix); } // BADDASS RACE CONDITION
 
-    pollForWork();
-
+    } else {
+      status = "quit"; // <-- this is the true end point of the program!
+      // return false;
+    };
   });
 }
 
-
+function removeSpacesForFilename(string) {
+  return string.replace(/ /, '');
+}
 
 function replaceFilepathFileName(f) {
   return f.replace(/^.*[\\\/]/, '');
@@ -1373,7 +1369,7 @@ function drawHistogram() {
       }
     }
     if (artistic) {  }
-    ( artistic ? text += `[ Artistic Mode 1:${artStretch}] ` : text += " [ Science Mode 1:1] " )
+    ( artistic ? text += `[ Artistic Mode 1:${proteinHighlight}] ` : text += " [ Science Mode 1:1] " )
 
     // text += lineBreak + ;
     text += ` Next update: ${msPerUpdate.toLocaleString()}ms `
@@ -1388,10 +1384,9 @@ function drawHistogram() {
     text += lineBreak;
     text += histogram(aacdata, { bar: '/', width: 40, sort: true, map:  aacdata.Histocount} );
     text += lineBreak;
-    text += `[ raw:   ${ removeLineBreaks(rawDNA)} ]`+lineBreak;
-    text += `[ clean: ${ cleanString(rawDNA)} ] `;
+    text += `[ raw:   ${ removeLineBreaks(rawDNA)} ]  [ clean: ${ cleanString(rawDNA)} ] `;
     text += lineBreak;
-    text += `[ output: ${justNameOfPNG}]`;
+    text += `Output png: ${justNameOfPNG}]`;
     text += lineBreak;
     // text += `[Output file: ${filenamePNG}]
     // V       (verbose mode)
