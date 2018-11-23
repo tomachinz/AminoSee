@@ -285,9 +285,11 @@ module.exports = () => {
     output("statistics updates disabled");
     updates = false;
   }
+
+
   let cmd = args._[0];
-  howManyFiles = args._.length;
-  output("howManyFiles: "+ howManyFiles+ " cmd: " + cmd)
+  howManyFiles = args._.length ;
+  output("HOWMANYFILES: " + howManyFiles+ " cmd: " + cmd)
   if (howManyFiles > 0) {
     filename = path.resolve(cmd);
   } else {
@@ -299,7 +301,7 @@ module.exports = () => {
       process.stdin.setRawMode(false);
 
       process.exit();
-    }, 1000);
+    }, 3000);
   }
   switch (cmd) {
     case 'unknown':
@@ -367,14 +369,14 @@ function pollForWork() {
   output(` [ file batch no ${filesDone} done, ${howManyFiles} to go! ] ${justNameOfDNA}`);
   output( terminalRGB( justNameOfDNA, 255,128,64) );
 
-  howManyFiles = args._.length;
+  // howManyFiles = args._.length;
   output(`Total files to process: ${howManyFiles}`);
   if (howManyFiles < 1) {
     output("bye");
     // quit();
   } else {
     setTimeout(() => {
-      initStream(  args._.pop() );
+      initStream( path.resolve( args._.pop() ) );
     }, 50);
   }
 }
@@ -453,7 +455,7 @@ function initStream(f) {
     arrayToPNG(); // fingers crossed!
     status = "saving html report";
     if (!devmode) {
-      saveHistogram();
+      // saveHistogram();
     }
   }));
 }
@@ -710,7 +712,7 @@ function quit() {
 
   clearTimeout();
   msPerUpdate = 0;
-  howManyFiles = 0;
+  // howManyFiles = 0;
   setTimeout(() => {
     process.exit;
   }, 1);
@@ -771,7 +773,7 @@ function processLine(l) {
       if (CRASH) {
         output("IM CRASHING Y'ALL: " + codon);
         crashReport();
-        quit();
+        // quit();
       }
       codon = "";// wipe for next time
 
@@ -1135,7 +1137,7 @@ function arrayToPNG() {
   setImmediate(() => {
     output("Input DNA: " + filename)
     output("Saved PNG: " + filenamePNG);
-    howManyFiles = args._.length;
+    // howManyFiles = args._.length;
     output("howManyFiles " + howManyFiles);
     // output("value returned by parseFileForStream " + parseFileForStream());
     if (!devmode) {
@@ -1153,10 +1155,19 @@ function arrayToPNG() {
       }, 3000);
 
     }
-    asterix = args._.pop()
+    // asterix = args._.pop()
     howManyFiles--;
     if (howManyFiles > 0) {
-      if (status != "paint") { initStream(asterix); } // BADDASS RACE CONDITION
+      if (status != "paint") {
+
+
+        setTimeout(() => {
+          // initStream(asterix);
+          pollForWork();
+
+        }, 50);
+
+        } // BADDASS RACE CONDITION
 
     } else {
       status = "quit"; // <-- this is the true end point of the program!
