@@ -23,8 +23,14 @@ if [ $(uname)=Linux ]; then
   find *.fa *.mfa *.gbk *.txt -exec aminosee -m 4  -v -d --peptide tryptophan {} \;
   find *.fa *.mfa *.gbk *.txt -exec aminosee -m 4  -v -d --peptide serine {} \;
   find *.fa *.mfa *.gbk *.txt -exec aminosee -m 4  -v -d --peptide opal {} \;
-  find *.fa *.mfa *.gbk *.txt -exec aminosee -m 4  -v -d --peptide proline {} \;
-
+  find *.fa *.mfa *.gbk *.txt -exec aminosee -m 4  -v -d --peptide Glutamine {} \;
+  find *.fa *.mfa *.gbk *.txt -exec aminosee -m 4  -v -d --peptide Asparagine {} \;
+  find *.fa *.mfa *.gbk *.txt -exec aminosee -m 4  -v -d --peptide Tyrosine {} \;
+  find *.fa *.mfa *.gbk *.txt -exec aminosee -m 4  -v -d --peptide Arginine {} \;
+  find *.fa *.mfa *.gbk *.txt -exec aminosee -m 4  -v -d --peptide Lysine {} \;
+  find *.fa *.mfa *.gbk *.txt -exec aminosee -m 4  -v -d --peptide Histidine {} \;
+  find *.fa *.mfa *.gbk *.txt -exec aminosee -m 4  -v -d --peptide Proline {} \;
+  find *.fa *.mfa *.gbk *.txt -exec aminosee -m 4  -v -d --peptide Threonine {} \;
   find *.fa *.mfa *.gbk *.txt -exec aminosee -m 4  -v -d {} \;
   find *.fa *.mfa *.gbk *.txt -exec aminosee -m 15 -v -d {} \;
   find *.fa *.mfa *.gbk *.txt -exec aminosee -m 20 -v -d {} \;
