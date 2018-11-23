@@ -61,9 +61,10 @@ let streamLineNr = 0;
 let genomeSize = 0;
 let filesDone = 0;
 let spewClock = 0;
-let opacity = proteinBrightness / codonsPerPixel; // 0.9 is used to make it brighter, also due to line breaks
+let opacity = 1 / codonsPerPixel; // 0.9 is used to make it brighter, also due to line breaks
 const proteinHighlight = 6; // px only use in artistic mode.
-const startStopHighlight = 6; // px only use in artistic mode.
+const highlightFactor = 1; // px only use in artistic mode.
+const darkenFactor = 0.5;
 let args, resolutionFileExtension, filename, filenamePNG, reader, hilbertPoints, herbs, levels, progress, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, textFile, rawDNA, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, fileUploadShowing, testColors, chunksMax, chunksize, chunksizeBytes, baseChars, cpu, subdivisions, contextBitmap, aminoacid, colClock, start, updateClock, percentComplete, charsPerSecond, pixelStacking, isStartStopCodon, justNameOfDNA, justNameOfPNG, sliceDNA, filenameHTML, howManyFiles, timeRemain, runningDuration, kbRemain, width, peptide;
 process.title = "aminosee.funk.nz";
 rawDNA ="@"; // debug
@@ -241,7 +242,7 @@ module.exports = () => {
     }
   }
   if (args.artistic || args.a) {
-    output(`artistic enabled. Start (Methione = Green) and Stop codons (Amber, Ochre, Opal) interupt the pixel timing creating columns. protein coding codons are diluted they are made ${Math.round(opacity*100).toLocaleString()}% translucent and ${codonsPerPixel} of them are blended together to make one colour that is then faded across ${proteinHighlight} pixels horizontally. The start/stop codons get a whole pixel to themselves, and are faded across ${startStopHighlight} pixels horizontally.`);
+    output(`artistic enabled. Start (Methione = Green) and Stop codons (Amber, Ochre, Opal) interupt the pixel timing creating columns. protein coding codons are diluted they are made ${Math.round(opacity*100).toLocaleString()}% translucent and ${codonsPerPixel} of them are blended together to make one colour that is then faded across ${proteinHighlight} pixels horizontally. The start/stop codons get a whole pixel to themselves, and are faded across ${highlightFactor} pixels horizontally.`);
     artistic = true;
   } else {
     output("1:1 science mode enabled.");
@@ -776,16 +777,21 @@ function processLine(l) {
 
       // if ALPHA come back 1 = its a START/STOP codon
       // if ALPHA is 0.1 it is an amino acid that needs custom ALPHA
-      alpha = codonRGBA[3].valueOf(); // either 0.1 or 1.0
-      if (alpha == 1.0) { // 255 = 1.0
-        isStartStopCodon = true;
-      } else if (alpha == 0.1) { // protein coding codon
-        isStartStopCodon = false;
-      } else if (alpha == 0.0) {
-        log("erm... why is alpha at 0.0? setting to 255");
-      }
+      // alpha = codonRGBA[3].valueOf(); // either 0.1 or 1.0
+      // if (alpha == 1.0) { // 255 = 1.0
+      //   isStartStopCodon = true;
+      // } else if (alpha == 0.1) { // protein coding codon
+      //   isStartStopCodon = false;
+      // } else if (alpha == 0.0) {
+      //   log("erm... why is alpha at 0.0? setting to 255");
+      // }
       alpha = 255;
-
+      // HIGHLIGHT codon --peptide Tryptophan
+      if (peptide!="none" && aminoacid == peptide) {
+        isStartStopCodon = true;
+      } else {
+        isStartStopCodon = false;
+      }
       if (artistic != true) {
         // science mode blacks the pixel everytime:
         // mixRGBA[0] += 0; // red
@@ -805,9 +811,9 @@ function processLine(l) {
         } else {
           //  not a START/STOP codon. Stack multiple codons per pixel.
           // HERE WE ADDITIVELY BUILD UP THE VALUES with +=
-          mixRGBA[0] +=   parseFloat(codonRGBA[0].valueOf()) * opacity;
-          mixRGBA[1] +=   parseFloat(codonRGBA[1].valueOf()) * opacity;
-          mixRGBA[2] +=   parseFloat(codonRGBA[2].valueOf()) * opacity;
+          mixRGBA[0] +=   parseFloat(codonRGBA[0].valueOf()) * opacity * darkenFactor;
+          mixRGBA[1] +=   parseFloat(codonRGBA[1].valueOf()) * opacity * darkenFactor;
+          mixRGBA[2] +=   parseFloat(codonRGBA[2].valueOf()) * opacity * darkenFactor;
         }
         //  blends colour on one pixel
         if (pixelStacking >= codonsPerPixel) {
