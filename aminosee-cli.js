@@ -775,7 +775,6 @@ function processLine(l) {
         errorClock++;
         CRASH = false;
       }
-      codon = "";// wipe for next time
 
       // if ALPHA come back 1 = its a START/STOP codon
       // if ALPHA is 0.1 it is an amino acid that needs custom ALPHA
@@ -789,7 +788,7 @@ function processLine(l) {
       // }
       alpha = 255;
       // HIGHLIGHT codon --triplet Tryptophan
-      if (triplet!="none" && aminoacid == triplet) {
+      if (triplet!="none" && codon == triplet) {
         isStartStopCodon = true;
       } else {
         isStartStopCodon = false;
@@ -930,6 +929,7 @@ function processLine(l) {
           mixRGBA[2] ==   0;
         } // artistic mode
       } // artistic
+      codon = "";// wipe for next time
 
     } // END OF MAIN LOOP!
   }
