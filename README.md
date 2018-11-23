@@ -23,9 +23,15 @@ git clone https://github.com/tomachinz/AminoSee
 cd AminoSee
 npm install
 echo Use sudo npm link to enable command "aminosee" for all users
-sudo npm link
+npm link
+sudo npm link aminosee
 ```
+
+## Link so you can run 'aminosee' anywhere
 Now you should be able to just run `aminosee` from your terminal, anywhere. If thats not an option then you'd perhaps need to run `node bin/aminosee.js` each time, which the files in your path. Best to use to use npm link.
+https://codurance.com/2016/12/21/how-to-use-npm-link/
+https://medium.com/@alexishevia/the-magic-behind-npm-link-d94dcb3a81af
+https://timber.io/blog/creating-a-real-world-cli-app-with-node/
 
 ## How To Convert DNA into PNG
 
