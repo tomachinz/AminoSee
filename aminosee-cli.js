@@ -814,11 +814,12 @@ function processLine(l) {
         red -= codonsPerPixel;
         green-= codonsPerPixel;
         blue-= codonsPerPixel;
-        paintPixel();
+        // paintPixel();
       } else {
         // do nothing this maybe a non-coding header section in the file.
         // status = "header";
         msPerUpdate = 100;
+        errorClock;
       }
     } else if (codon.length ==  3) {
       status = "paint";
@@ -1146,7 +1147,7 @@ function arrayToPNG() {
     return;
   }
 
-  pixels = (rgbArray.length / 4) + 1 ;// to avoid the dreaded "off by one error"... one exra pixel wont bother nobody
+  pixels = (rgbArray.length / 4) + 4 ;// to avoid the dreaded "off by one error"... one exra pixel wont bother nobody
 
   // if (antialias) {
   //
@@ -1158,18 +1159,17 @@ function arrayToPNG() {
   //   height = width;
   // }
   if (ratio = golden) {
-    width = Math.sqrt(pixels + 40);
+    width = Math.sqrt(pixels + 40); // 40 pixel margn for error
     height = width; // 1mp = 1000 x 1000
     let phi = ((Math.sqrt(5) + 1) / 2) ; // 1.618033988749895
     height =  ( width * phi ) - width; // 16.18 - 6.18 = 99.99
     width = pixels / height;
     width = Math.round(width);
     height = Math.round(height);
-    if ( pixels < width*height) {
-      output("GOLDEN CHECK OK: pixels: " + pixels + " width x height = " + (width*height));
+    if ( pixels > width*height) {
+      output("Golden Check OK: pixels: " + pixels + " width x height = " + (width*height));
     } else {
       output("GOLDEN CHECK TOO MANY PIXELS: pixels: " + pixels + " width x height = " + (width*height));
-
       // quit();
     }
   } else if (ratio = fixWidth){
@@ -1238,7 +1238,7 @@ function arrayToPNG() {
 }
 
 function removeSpacesForFilename(string) {
-  return string.replace(/ /, '').toLowerCase();
+  return string.replace(/ /, '').toUpperCase();
 }
 
 function replaceFilepathFileName(f) {
@@ -1541,7 +1541,8 @@ function drawHistogram() {
       CRASH = false;
 
     }
-    return [13,255,13,128]; // this colour means "ERROR".
+    // return [13,255,13,128]; // this colour means "ERROR".
+    return [255,255,255,0]; // this colour means "ERROR".
   }
 
 
