@@ -130,12 +130,12 @@ if [ $(uname)=Darwin ]; then
   echo macos
   find -f *.fa *.mfa *.gbk *.txt
   sleep 2
-  find -f *.fa *.mfa *.gbk *.txt -exec parallel_file {} \; sleep 5;
+  find -f *.fa *.mfa *.gbk *.txt -exec parallel_file {} \;
 fi
 
 if [ $(uname)=Linux ]; then
   echo linux
   find *.fa *.mfa *.gbk *.txt
   sleep 2
-  find *.fa *.mfa *.gbk *.txt -exec parallel_file {}  \; sleep 5;
+  find *.fa *.mfa *.gbk *.txt -exec parallel_file {}  \;
 fi
