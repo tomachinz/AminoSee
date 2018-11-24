@@ -13,7 +13,7 @@ const res4K = 3840*2160; // W4
 let maxpix = res4K; // for large genomes
 
 let darkenFactor = 0.5;
-let highlightFactor = 4;
+let highlightFactor = 1;
 const defaultC = 1; // back when it could not handle 3+GB files.
 const proteinHighlight = 6; // px only use in artistic mode.
 let spewThresh = 2000;
@@ -63,7 +63,7 @@ let genomeSize = 0;
 let filesDone = 0;
 let spewClock = 0;
 let opacity = 1 / codonsPerPixel; // 0.9 is used to make it brighter, also due to line breaks
-
+let isHighlightSet = false;
 let args, resolutionFileExtension, filename, filenamePNG, reader, hilbertPoints, herbs, levels, progress, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, textFile, rawDNA, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, fileUploadShowing, testColors, chunksMax, chunksize, chunksizeBytes, baseChars, cpu, subdivisions, contextBitmap, aminoacid, colClock, start, updateClock, percentComplete, charsPerSecond, pixelStacking, isHighlightCodon, justNameOfDNA, justNameOfPNG, sliceDNA, filenameHTML, howMany, timeRemain, runningDuration, kbRemain, width, triplet;
 process.title = "aminosee.funk.nz";
 rawDNA ="@"; // debug
@@ -195,11 +195,11 @@ module.exports = () => {
     default: { clear: true, updates: true },
     '--': true
   });
-/*
-,
-'--': true
+  /*
+  ,
+  '--': true
 
-*/
+  */
   log(args);
 
   if (args.megapixels || args.m) {
@@ -251,6 +251,13 @@ module.exports = () => {
   } else {
     output(`No custom peptide chosen. (default)`);
     peptide = "none";
+  }
+  if ( peptide == "none" && triplet == "none") {
+    darkenFactor = 1.0;
+    highlightFactor = 1.0; // set to zero to i notice any bugs
+    isHighlightSet = false;
+  } else {
+    isHighlightSet = true;
   }
   if (args.codons || args.c || args.z ) {
     codonsPerPixel = Math.round(args.codons || args.c || args.z); // javascript is amazing
@@ -373,7 +380,7 @@ module.exports = () => {
       initStream(filename); // moving to the poll
 
       // setImmediate(() => {
-        // initStream(filename); // moving to the poll
+      // initStream(filename); // moving to the poll
       // });
       output(filename)
       // setTimeout(() => {
@@ -424,11 +431,11 @@ function pollForWork() {
   } else {
     // filename = path.resolve( args._[0] );
     // if (status != "paint" || status == "quit") {
-      args._.pop();
-      // howMany = args._.length ;
-      setTimeout(() => {
-        initStream( filename );
-      }, 50);
+    args._.pop();
+    // howMany = args._.length ;
+    setTimeout(() => {
+      initStream( filename );
+    }, 50);
     // }
 
   }
@@ -565,6 +572,14 @@ function autoconfCodonsPerPixel() { // requires baseChars maxpix defaultC
     }
   }
   opacity = 0.95 / codonsPerPixel;
+  // set highlight factor such  that:
+  // if cpp is 1 it is 1
+  // if cpp is 2 it is 1.5
+  // if cpp is 3 it is 1
+  // if cpp is 4 it is 2.5
+  // if cpp is 10 it is 6.5
+  highlightFactor = codonsPerPixel - ((codonsPerPixel - 1 )/2);
+
   if (existing != codonsPerPixel && existing != defaultC) {
     output(terminalRGB("Your selected codons per pixel setting was alterered from ${existing} to ${codonsPerPixel} ", 255, 255, 255));
   }
@@ -778,6 +793,7 @@ function processLine(l) {
   var cleanDNA = "";
   let lineLength = l.length; // replaces baseChars
   let codon = "";
+  isHighlightCodon = false;
   CRASH = false;
   for (column=0; column<lineLength; column++) {
     // build a three digit codon
@@ -837,42 +853,22 @@ function processLine(l) {
         break
       }
 
-      // if ALPHA come back 1 = its a START/STOP codon
-      // if ALPHA is 0.1 it is an amino acid that needs custom ALPHA
-      // alpha = codonRGBA[3].valueOf(); // either 0.1 or 1.0
-      // if (alpha == 1.0) { // 255 = 1.0
-      //   isHighlightCodon = true;
-      // } else if (alpha == 0.1) { // protein coding codon
-      //   isHighlightCodon = false;
-      // } else if (alpha == 0.0) {
-      //   log("erm... why is alpha at 0.0? setting to 255");
-      // }
       alpha = 255;
       // HIGHLIGHT codon --triplet Tryptophan
-      // output(aminoacid);
-      if (codon == triplet) {
-        isHighlightCodon = true;
-      } else if (aminoacid == peptide) {
-        isHighlightCodon = true;
-      } else {
-        isHighlightCodon = false;
+      if (isHighlightSet) {
+        if (codon == triplet) {
+          isHighlightCodon = true;
+        } else if (aminoacid == peptide) {
+          isHighlightCodon = true;
+        } else {
+          isHighlightCodon = false;
+        }
       }
       if (artistic != true) {
-        // science mode blacks the pixel everytime:
-        // mixRGBA[0] += 0; // red
-        // mixRGBA[1] += 0; // green
-        // mixRGBA[2] += 0; // blue
-        // the first section TRUE does start/stop codons
-        // the FALSE section does Amino acid codons
         if (isHighlightCodon) { // 255 = 1.0
-          // mixRGBA[0] += codonRGBA[0].valueOf() * highlightFactor * opacity; // red
-          // mixRGBA[1] += codonRGBA[1].valueOf() * highlightFactor * opacity; // green
-          // mixRGBA[2] += codonRGBA[2].valueOf() * highlightFactor * opacity; // bluev
-
           mixRGBA[0]  += codonRGBA[0].valueOf() * highlightFactor * opacity;// * opacity; // red
           mixRGBA[1]  += codonRGBA[1].valueOf() * highlightFactor * opacity;// * opacity; // green
           mixRGBA[2]  += codonRGBA[2].valueOf() * highlightFactor * opacity;// * opacity; // blue
-          // paintPixel(); // unlike artistic mode it blends normally
         } else {
           //  not a START/STOP codon. Stack multiple codons per pixel.
           // HERE WE ADDITIVELY BUILD UP THE VALUES with +=

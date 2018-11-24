@@ -8,75 +8,101 @@ parallel_file () {
   echo STARTING PARALLEL DECODE FOR $1
   echo "-------------------------------------------"
   echo "                                         =///"
-  aminosee $1  -m 1  -v -d
-  aminosee $1  -m 1  -v -d  --peptide=Ochre &
-  aminosee $1  -m 1  -v -d  --peptide="Glutamic acid" &
-  aminosee $1  -m 1  -v -d  --peptide="Aspartic acid" &
-  aminosee $1  -m 1  -v -d  --peptide=Amber &
+aminosee $1  -m 1  -v -d &
+sleep 1
+nice aminosee $1  -m 1  -v -d  --peptide=Ochre &
+sleep 1
+nice aminosee $1  -m 1  -v -d  --peptide="Glutamic acid"&
+sleep 1
+nice aminosee $1  -m 1  -v -d  --peptide="Aspartic acid" &
+sleep 1
+nice aminosee $1  -m 1  -v -d  --peptide=Amber &
+sleep 1
+nice aminosee $1  -m 1  -v -d  --peptide=Cysteine &
+sleep 1
+nice aminosee $1  -m 1  -v -d  --peptide=Glycine &
+sleep 1
+nice aminosee $1  -m 1  -v -d  --peptide=Alanine
 
-  aminosee $1  -m 1  -v -d  --peptide=Cysteine &
-  aminosee $1  -m 1  -v -d  --peptide=Glycine &
-  aminosee $1  -m 1  -v -d  --peptide=Alanine &
-  aminosee $1  -m 1  -v -d  --peptide=Methionine &
+nice aminosee $1  -m 1  -v -d  --peptide=Methionine &
+sleep 1
+nice aminosee $1  -m 1  -v -d  --peptide=Valine &
+sleep 1
+nice aminosee $1  -m 1  -v -d  --peptide=Leucine &
+sleep 1
+nice aminosee $1  -m 1  -v -d  --peptide=Isoleucine &
+sleep 1
+nice aminosee $1  -m 1  -v -d  --peptide=Phenylalanine &
+sleep 1
+nice aminosee $1  -m 1  -v -d  --peptide=Tryptophan &
+sleep 1
+nice aminosee $1  -m 1  -v -d  --peptide=Serine &
+sleep 1
+nice aminosee $1  -m 1  -v -d  --peptide=Threonine
 
-  aminosee $1  -m 1  -v -d  --peptide=Valine &
-  aminosee $1  -m 1  -v -d  --peptide=Leucine &
-  aminosee $1  -m 1  -v -d  --peptide=Isoleucine &
-  aminosee $1  -m 1  -v -d  --peptide=Phenylalanine &
+nice aminosee $1  -m 1  -v -d  --peptide=Opal &
+sleep 1
+nice aminosee $1  -m 1  -v -d  --peptide=Glutamine &
+sleep 1
+nice aminosee $1  -m 1  -v -d  --peptide=Asparagine &
+sleep 1
+nice aminosee $1  -m 1  -v -d  --peptide=Tyrosine &
+sleep 1
+nice aminosee $1  -m 1  -v -d  --peptide=Arginine &
+sleep 1
+nice aminosee $1  -m 1  -v -d  --peptide=Lysine &
+sleep 1
+nice aminosee $1  -m 1  -v -d  --peptide=Histidine &
+sleep 1
+aminosee $1  -m 1  -v -d  --peptide=Proline
 
-  aminosee $1  -m 1  -v -d  --peptide=Tryptophan &
-  aminosee $1  -m 1  -v -d  --peptide=Serine &
-  aminosee $1  -m 1  -v -d  --peptide=Threonine &
-  aminosee $1  -m 1  -v -d  --peptide=Opal
+aminosee $1   -m 10   -v -d &
+sleep 1
+nice aminosee $1   -m 10   -v -d  --peptide=Ochre &
+sleep 1
+nice aminosee $1   -m 10   -v -d  --peptide="Glutamic acid" &
+sleep 1
+nice aminosee $1   -m 10   -v -d  --peptide="Aspartic acid" &
+sleep 1
+nice aminosee $1   -m 10   -v -d  --peptide=Amber &
+sleep 1
+nice aminosee $1   -m 10   -v -d  --peptide=Cysteine &
+sleep 1
+nice aminosee $1   -m 10   -v -d  --peptide=Glycine &
+sleep 1
+nice aminosee $1   -m 10   -v -d  --peptide=Alanine
 
+nice aminosee $1   -m 10   -v -d  --peptide=Methionine &
+sleep 1
+nice aminosee $1   -m 10   -v -d  --peptide=Valine &
+sleep 1
+nice aminosee $1   -m 10   -v -d  --peptide=Leucine &
+sleep 1
+nice aminosee $1   -m 10   -v -d  --peptide=Isoleucine &
+sleep 1
+nice aminosee $1   -m 10   -v -d  --peptide=Phenylalanine &
+sleep 1
+nice aminosee $1   -m 10   -v -d  --peptide=Tryptophan &
+sleep 1
+nice aminosee $1   -m 10   -v -d  --peptide=Serine &
+sleep 1
+nice aminosee $1   -m 10   -v -d  --peptide=Threonine
 
-  aminosee $1  -m 1  -v -d  --peptide=Glutamine &
-  aminosee $1  -m 1  -v -d  --peptide=Asparagine &
-  aminosee $1  -m 1  -v -d  --peptide=Tyrosine &
-  aminosee $1  -m 1  -v -d  --peptide=Arginine &
-
-  aminosee $1  -m 1  -v -d  --peptide=Lysine &
-  aminosee $1  -m 1  -v -d  --peptide=Histidine &
-  aminosee $1  -m 1  -v -d  --peptide=Proline &
-
-
-  aminosee $1   -m 10   -v -d
-  aminosee $1   -m 10   -v -d  --peptide=Ochre &
-  sleep 1
-  aminosee $1   -m 10   -v -d  --peptide="Glutamic acid" &
-  sleep 1
-  aminosee $1   -m 10   -v -d  --peptide="Aspartic acid" &
-  sleep 1
-  aminosee $1   -m 10   -v -d  --peptide=Amber &
-  sleep 1
-
-  aminosee $1   -m 10   -v -d  --peptide=Cysteine &
-  aminosee $1   -m 10   -v -d  --peptide=Glycine &
-  aminosee $1   -m 10   -v -d  --peptide=Alanine &
-  aminosee $1   -m 10   -v -d  --peptide=Methionine &
-  sleep 2
-
-  aminosee $1   -m 10   -v -d  --peptide=Valine &
-  aminosee $1   -m 10   -v -d  --peptide=Leucine &
-  aminosee $1   -m 10   -v -d  --peptide=Isoleucine &
-  aminosee $1   -m 10   -v -d  --peptide=Phenylalanine &
-  sleep 2
-
-  aminosee $1   -m 10   -v -d  --peptide=Tryptophan &
-  aminosee $1   -m 10   -v -d  --peptide=Serine &
-  aminosee $1   -m 10   -v -d  --peptide=Threonine &
-  aminosee $1   -m 10   -v -d  --peptide=Opal &
-  sleep 2
-
-  aminosee $1   -m 10   -v -d  --peptide=Glutamine &
-  aminosee $1   -m 10   -v -d  --peptide=Asparagine &
-  aminosee $1   -m 10   -v -d  --peptide=Tyrosine &
-  aminosee $1   -m 10   -v -d  --peptide=Arginine &
-  sleep 2
-
-  aminosee $1   -m 10   -v -d  --peptide=Lysine &
-  aminosee $1   -m 10   -v -d  --peptide=Histidine &
-  aminosee $1   -m 10   -v -d  --peptide=Proline
+nice aminosee $1   -m 10   -v -d  --peptide=Opal &
+sleep 1
+nice aminosee $1   -m 10   -v -d  --peptide=Glutamine &
+sleep 1
+nice aminosee $1   -m 10   -v -d  --peptide=Asparagine &
+sleep 1
+nice aminosee $1   -m 10   -v -d  --peptide=Tyrosine &
+sleep 1
+nice aminosee $1   -m 10   -v -d  --peptide=Arginine &
+sleep 1
+nice aminosee $1   -m 10   -v -d  --peptide=Lysine &
+sleep 1
+nice aminosee $1   -m 10   -v -d  --peptide=Histidine &
+sleep 1
+aminosee $1   -m 10   -v -d  --peptide=Proline
 
   echo "                                         =///"
   echo "-------------------------------------------"
@@ -85,10 +111,10 @@ parallel_file () {
   echo "                                         =///"
 }
 
-parallel_file AAA-to-TTT-50k.txt
-parallel_file 64-codons-test-pattern.txt
 parallel_file megabase.fa
+parallel_file AAA-to-TTT-50k.txt
 parallel_file Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa
+parallel_file 64-codons-test-pattern.txt
 parallel_file chrX.fa
 parallel_file chr1.fa
 parallel_file homo-sapien-hs_ref_GRCh38.p12_chr2.mfa
