@@ -42,32 +42,36 @@ sleep 1
 
   aminosee $1   -m 20   -v -d  --peptide=Ochre &
   sleep 1
-
   aminosee $1   -m 20   -v -d  --peptide="Glutamic acid" &
   sleep 1
-
   aminosee $1   -m 20   -v -d  --peptide="Aspartic acid" &
-  aminosee $1   -m 20   -v -d  --peptide=Amber
+  sleep 1
+  aminosee $1   -m 20   -v -d  --peptide=Amber &
+  sleep 1
 
   aminosee $1   -m 20   -v -d  --peptide=Cysteine &
   aminosee $1   -m 20   -v -d  --peptide=Glycine &
   aminosee $1   -m 20   -v -d  --peptide=Alanine &
-  aminosee $1   -m 20   -v -d  --peptide=Methionine
+  aminosee $1   -m 20   -v -d  --peptide=Methionine &
+  sleep 1
 
   aminosee $1   -m 20   -v -d  --peptide=Valine &
   aminosee $1   -m 20   -v -d  --peptide=Leucine &
   aminosee $1   -m 20   -v -d  --peptide=Isoleucine &
-  aminosee $1   -m 20   -v -d  --peptide=Phenylalanine
+  aminosee $1   -m 20   -v -d  --peptide=Phenylalanine &
+  sleep 1
 
   aminosee $1   -m 20   -v -d  --peptide=Tryptophan &
   aminosee $1   -m 20   -v -d  --peptide=Serine &
   aminosee $1   -m 20   -v -d  --peptide=Threonine &
-  aminosee $1   -m 20   -v -d  --peptide=Opal
+  aminosee $1   -m 20   -v -d  --peptide=Opal &
+  sleep 1
 
   aminosee $1   -m 20   -v -d  --peptide=Glutamine &
   aminosee $1   -m 20   -v -d  --peptide=Asparagine &
   aminosee $1   -m 20   -v -d  --peptide=Tyrosine &
-  aminosee $1   -m 20   -v -d  --peptide=Arginine
+  aminosee $1   -m 20   -v -d  --peptide=Arginine &
+  sleep 1
 
   aminosee $1   -m 20   -v -d  --peptide=Lysine &
   aminosee $1   -m 20   -v -d  --peptide=Histidine &
