@@ -13,7 +13,7 @@ const res4K = 3840*2160; // W4
 let maxpix = res4K; // for large genomes
 
 let darkenFactor = 0.5;
-let highlightFactor = 1;
+let highlightFactor = 2;
 const defaultC = 1; // back when it could not handle 3+GB files.
 const proteinHighlight = 6; // px only use in artistic mode.
 let spewThresh = 2000;
@@ -220,7 +220,7 @@ module.exports = () => {
 
   if (args.triplet || args.t) {
     triplet = args.triplet || args.t;
-    let tempColor = codonToRGBA(triplet);
+    let tempColor = codonRGBA(triplet);
     let tempHue = codonToHue(triplet);
     if (tempColor != [13, 255, 13, 255]){ // this colour is a flag for error
       output("Found ${triplet} with colour: " + tempHue + tempColor);
@@ -463,7 +463,6 @@ function initStream(f) {
   genomeSize = 0; // number of codons.
   pixelStacking = 0; // how we fit more than one codon on each pixel
   colClock = 0; // which pixel are we painting?
-  alpha = 255;
   timeRemain = 0;
   log("STARTING MAIN LOOP");
 
@@ -752,24 +751,24 @@ function parseFileForStream() {
   getFilesizeInBytes();
   const extension = getFileExtension(filename);
   output("[FILESIZE] " + baseChars.toLocaleString() + " extension: " + extension);
-
+  autoconfCodonsPerPixel();
+  setupFNames();
 
   if (extensions.indexOf(extension) < 0) {
     output("WRONG FILE EXTENSION: " + extension);
     return false;
   } else {
-    // log("File ext ok. Now checking PNG.")
-    // // if there is a png, dont render just quit
-    // if (checkIfPNGExists() && !force) {
-    //   log("Image already rendered, use --force to overwrite. Files left: " + howMany);
-    //   return false;
-    // } else {
-    //   log("Saving to: " + justNameOfPNG);
-    //   touchPNG();
-    // }
+    log("File ext ok. Now checking PNG.")
+    // if there is a png, dont render just quit
+    if (checkIfPNGExists() && !force) {
+      log("Image already rendered, use --force to overwrite. Files left: " + howMany);
+      return false;
+    } else {
+      log("Saving to: " + justNameOfPNG);
+      touchPNG();
+    }
   }
-  autoconfCodonsPerPixel();
-  setupFNames();
+
   return true;
 
 }
@@ -843,6 +842,8 @@ function processLine(l) {
       pixelStacking++;
       genomeSize++;
       codonRGBA = codonToRGBA(codon); // this will report alpha info
+      let brightness = codonRGBA[0] +  codonRGBA[1] +  codonRGBA[2] + codonRGBA[3];
+      // log(" brightness: " + brightness);
       cleanDNA += codon;
       if (CRASH) {
         output(cleanDNA + " IM CRASHING Y'ALL: " + codon);
@@ -853,7 +854,6 @@ function processLine(l) {
         break
       }
 
-      alpha = 255;
       // HIGHLIGHT codon --triplet Tryptophan
       if (isHighlightSet) {
         if (codon == triplet) {
@@ -869,27 +869,31 @@ function processLine(l) {
           mixRGBA[0]  += codonRGBA[0].valueOf() * highlightFactor * opacity;// * opacity; // red
           mixRGBA[1]  += codonRGBA[1].valueOf() * highlightFactor * opacity;// * opacity; // green
           mixRGBA[2]  += codonRGBA[2].valueOf() * highlightFactor * opacity;// * opacity; // blue
+          mixRGBA[3]  += 255 * highlightFactor * opacity;// * opacity; // blue
         } else {
           //  not a START/STOP codon. Stack multiple codons per pixel.
           // HERE WE ADDITIVELY BUILD UP THE VALUES with +=
           mixRGBA[0] +=   parseFloat(codonRGBA[0].valueOf()) * opacity * darkenFactor;
           mixRGBA[1] +=   parseFloat(codonRGBA[1].valueOf()) * opacity * darkenFactor;
           mixRGBA[2] +=   parseFloat(codonRGBA[2].valueOf()) * opacity * darkenFactor;
+          mixRGBA[3] +=   255 * darkenFactor *  opacity;// * opacity; // blue
         }
         //  blends colour on one pixel
         if (pixelStacking >= codonsPerPixel) {
           red = mixRGBA[0];
           green = mixRGBA[1];
           blue = mixRGBA[2];
+          alpha = mixRGBA[3];
           paintPixel(); // FULL BRIGHTNESS
           // reset inks, using codonsPerPixel cycles for each pixel:
           mixRGBA[0] =   0;
           mixRGBA[1] =   0;
           mixRGBA[2] =   0;
+          mixRGBA[3] =   0;
           red = 0;
           green = 0;
           blue = 0;
-
+          alpha = 0;
         }
         // end science mode
       } else {
@@ -905,9 +909,7 @@ function processLine(l) {
           red = red * 0.5;
           green = green * 0.5;
           blue = blue * 0.5;
-          // alpha = 255;
           paintPixel(); // DARKEST SPACER
-          // alpha = 255;
           red = 200;
           green = 200;
           blue = 200;
@@ -1101,7 +1103,7 @@ function checkIfPNGExists() {
   // log("fs.lstatSync(filenamePNG)" + fs.lstatSync(filenamePNG)).isDirectory();
   try {
     result = fs.lstatSync(filenamePNG).isDirectory;
-    // output("[result]" + result);
+    log("[lstatSync result]" + result);
     output("An png image has already been generated for this DNA: " + filenamePNG)
     output("use -f to overwrite");
     imageExists = true;
@@ -1187,8 +1189,33 @@ function arrayToPNG() {
   output("GOLDEN CHECK: width x height = " + (width*height).toLocaleString());
   output("First 100  bytes: " + rgbArray.slice(0,99));
 
+
+  // fs.createReadStream('in.png')
+  //     .pipe(new PNG({
+  //         colorType: 2,
+  //         bgColor: {
+  //             red: 0,
+  //             green: 255,
+  //             blue: 0
+  //         }
+  //     }))
+  //     .on('parsed', function() {
+  //         this.pack().pipe(fs.createWriteStream('out.png'));
+  //     });
+
+
+
   var img_data = Uint8ClampedArray.from(rgbArray);
-  var img_png = new PNG({width: width, height: height})
+  var img_png = new PNG({
+    width: width,
+    height: height,
+    colorType: 2,
+    bgColor: {
+      red: 0,
+      green: 0,
+      blue: 0
+    }
+  })
   img_png.data = Buffer.from(img_data);
   img_png.pack().pipe(fs.createWriteStream(filenamePNG));
   // createTick();
@@ -1440,11 +1467,13 @@ function drawHistogram() {
       output(text);
       clearTimeout();
     } else {
-      if (howMany>0) {
-        setTimeout(() => {
-          clearPrint(drawHistogram()); // MAKE THE HISTOGRAM AGAIN LATER
-        }, msPerUpdate);
-      }
+      setTimeout(() => {
+        clearPrint(drawHistogram()); // MAKE THE HISTOGRAM AGAIN LATER
+      }, msPerUpdate);
+
+      // if (howMany>0) {
+      //
+      // }
     }
     if (artistic) {  }
     ( artistic ? text += `[ Artistic Mode 1:${proteinHighlight}] ` : text += " [ Science Mode 1:1] " )
@@ -1510,13 +1539,23 @@ function drawHistogram() {
           }
         }
 
-        alpha = dnaTriplets[z].Alpha;
         let hue = dnaTriplets[z].Hue / 360;
         let tempcolor = hsvToRgb(hue, 1, 1);
         // RED, GREEN, BLUE, ALPHA
         red   = tempcolor[0];
         green = tempcolor[1];
         blue  = tempcolor[2];
+
+
+        if (isHighlightSet) {
+          if (aminoacid == peptide || cod == triplet) {
+            alpha = 255;
+          } else {
+            alpha = 0;
+          }
+        } else {
+          alpha = 255; // only custom peptide pngs are transparent
+        }
 
         spewClock++;
         if (spew && spewClock > spewThresh) {
@@ -1538,7 +1577,7 @@ function drawHistogram() {
 
     }
     // return [13,255,13,128]; // this colour means "ERROR".
-    return [255,255,255,0]; // this colour means "ERROR".
+    return [0,0,0,0]; // this colour means "ERROR".
   }
 
 
