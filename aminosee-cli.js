@@ -627,7 +627,7 @@ function autoconfCodonsPerPixel() { // requires baseChars maxpix defaultC
   // if cpp is 3 it is 1
   // if cpp is 4 it is 2.5
   // if cpp is 10 it is 6.5
-  highlightFactor = codonsPerPixel - ((codonsPerPixel - 1 )/3) ;
+  highlightFactor = codonsPerPixel - ((codonsPerPixel - 1 ) / 4) ;
   return codonsPerPixel;
 }
 
