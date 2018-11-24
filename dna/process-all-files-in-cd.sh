@@ -111,15 +111,15 @@ aminosee $1 -m 10 -v -d  --peptide=Proline
   echo "-------------------------------------------"
   echo "                                         =///"
 }
+parallel_file megabase.fa
+parallel_file Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa
 
 parallel_file chrX.fa
 parallel_file chr1.fa
 parallel_file homo-sapien-hs_ref_GRCh38.p12_chr2.mfa
 parallel_file homo-sapien-hs_ref_GRCh38.p12_chr2.gbk
 
-parallel_file megabase.fa
 parallel_file AAA-to-TTT-50k.txt
-parallel_file Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa
 parallel_file 64-codons-test-pattern.txt
 
 # aminosee Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa -m 12  -v -d -f--triplet=TAA

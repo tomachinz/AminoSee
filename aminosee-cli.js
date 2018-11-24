@@ -15,7 +15,7 @@ let maxpix = res4K; // for large genomes
 let darkenFactor = 0.5;
 let highlightFactor = 2;
 const defaultC = 1; // back when it could not handle 3+GB files.
-const proteinHighlight = 6; // px only use in artistic mode.
+const artisticHighlightLength = 12; // px only use in artistic mode. must be 6 or 12 currently
 let spewThresh = 2000;
 let codonsPerPixel = defaultC; //  one codon per pixel maximum
 let devmode = false; // kills the auto opening of reports etc
@@ -47,7 +47,7 @@ const clog = console.log;
 
 const appPath = require.main.filename;
 let codonRGBA, geneRGBA, mixRGBA = [0,0,0,0]; // codonRGBA is colour of last codon, geneRGBA is temporary pixel colour before painting.
-let widthMax = 1920*2;
+let widthMax = 960;
 const golden = true;
 let highlightTriplets = [];
 let rgbArray = [];
@@ -64,7 +64,7 @@ let filesDone = 0;
 let spewClock = 0;
 let opacity = 1 / codonsPerPixel; // 0.9 is used to make it brighter, also due to line breaks
 let isHighlightSet = false;
-let args, resolutionFileExtension, filename, filenamePNG, reader, hilbertPoints, herbs, levels, progress, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, textFile, rawDNA, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, fileUploadShowing, testColors, chunksMax, chunksize, chunksizeBytes, baseChars, cpu, subdivisions, contextBitmap, aminoacid, colClock, start, updateClock, percentComplete, charsPerSecond, pixelStacking, isHighlightCodon, justNameOfDNA, justNameOfPNG, sliceDNA, filenameHTML, howMany, timeRemain, runningDuration, kbRemain, width, triplet;
+let args, filename, filenamePNG, extension, reader, hilbertPoints, herbs, levels, progress, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, textFile, rawDNA, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, fileUploadShowing, testColors, chunksMax, chunksize, chunksizeBytes, baseChars, cpu, subdivisions, contextBitmap, aminoacid, colClock, start, updateClock, percentComplete, charsPerSecond, pixelStacking, isHighlightCodon, justNameOfDNA, justNameOfPNG, sliceDNA, filenameHTML, howMany, timeRemain, runningDuration, kbRemain, width, triplet, updatesTimer;
 process.title = "aminosee.funk.nz";
 rawDNA ="@"; // debug
 filename = "[LOADING]"; // for some reason this needs to be here. hopefully the open source community can come to rescue and fix this Kludge.
@@ -192,7 +192,7 @@ module.exports = () => {
     string: [ 'ratio'],
     string: [ 'width'],
     alias: { a: 'artistic', c: 'codons', d: 'devmode', f: 'force', m: 'megapixels', p: 'peptide', t: 'triplet', r: 'ratio', s: 'spew', w: 'width', v: 'verbose', z: 'codons' },
-    default: { clear: true, updates: true },
+    default: { clear: true, updates: false },
     '--': true
   });
   /*
@@ -207,20 +207,38 @@ module.exports = () => {
     if (megapixels < 1) {
       megapixels = 1;
     } else if (megapixels > 10000) {
-      output("max megapixels is 10000");
+      output("max megapixels is 10000, default is 6!");
       megapixels = 10000;
     }
-    maxpix = megapixels * 1000000;
-
-    output(`using megapixels ${megapixels}: or  ${maxpix} px max`);
   } else {
-    megapixels = 5;
-    maxpix = megapixels * 1000000;
+    megapixels = 6;
   }
+  maxpix = megapixels * 1000000;
+  output(`using megapixels ${megapixels}: or  ${maxpix} px max`);
+
+  if (args.ratio || args.r) {
+    ratio = args.ratio || args.r;
+    ratio = ratio.toLowerCase();
+    if (ratio == "fixed" || ratio == "fix") {
+      ratio = "fixed";
+    } else if (ratio == "square" || ratio == "sqr") {
+      ratio = "square";
+    } else {
+      ratio = "fixed";
+    }
+
+    output("using custom aspect ratio");
+
+  } else {
+    log(`No custom ratio chosen. (default)`);
+    ratio = "fixed";
+  }
+  log("using ${ratio} aspect ratio");
 
   if (args.triplet || args.t) {
     triplet = args.triplet || args.t;
-    let tempColor = codonRGBA(triplet);
+    triplet = triplet.toUpperCase();
+    let tempColor = codonToRGBA(triplet);
     let tempHue = codonToHue(triplet);
     if (tempColor != [13, 255, 13, 255]){ // this colour is a flag for error
       output("Found ${triplet} with colour: " + tempHue + tempColor);
@@ -237,10 +255,11 @@ module.exports = () => {
   }
   if (args.peptide || args.p) {
     peptide = args.peptide || args.p;
-    let tempColor = codonToRGBA( peptide);
-    let tempHue = codonToHue(peptide);
-    if (tempColor != [13, 255, 13, 255]){ // this colour is a flag for error
-      output("Found ${peptide} with colour: " + tempHue + tempColor);
+    output(` tidyPeptideName(peptide) ${tidyPeptideName(peptide)} codons`);
+    peptide = tidyPeptideName();
+
+    if (peptide != "none") { // this colour is a flag for error
+      output("Found ${peptide} with colour: "  + pepToColor(peptide));
     } else {
       output("Error could not lookup peptide: ${peptide}");
       // output(`Will highlight Start/Stop codons instead (default)`);
@@ -251,8 +270,11 @@ module.exports = () => {
   } else {
     output(`No custom peptide chosen. (default)`);
     peptide = "none";
+    output(tidyPeptideName());
+    quit();
   }
   if ( peptide == "none" && triplet == "none") {
+    // DISABLE HIGHLIGHTS
     darkenFactor = 1.0;
     highlightFactor = 1.0; // set to zero to i notice any bugs
     isHighlightSet = false;
@@ -271,7 +293,7 @@ module.exports = () => {
     }
   }
   if (args.artistic || args.a) {
-    output(`artistic enabled. Start (Methione = Green) and Stop codons (Amber, Ochre, Opal) interupt the pixel timing creating columns. protein coding codons are diluted they are made ${Math.round(opacity*100).toLocaleString()}% translucent and ${codonsPerPixel} of them are blended together to make one colour that is then faded across ${proteinHighlight} pixels horizontally. The start/stop codons get a whole pixel to themselves, and are faded across ${highlightFactor} pixels horizontally.`);
+    output(`artistic enabled. Start (Methione = Green) and Stop codons (Amber, Ochre, Opal) interupt the pixel timing creating columns. protein coding codons are diluted they are made ${Math.round(opacity*100).toLocaleString()}% translucent and ${codonsPerPixel} of them are blended together to make one colour that is then faded across ${artisticHighlightLength} pixels horizontally. The start/stop codons get a whole pixel to themselves, and are faded across ${highlightFactor} pixels horizontally.`);
     artistic = true;
   } else {
     output("1:1 science mode enabled.");
@@ -376,19 +398,24 @@ module.exports = () => {
       // const howManytream = util.promisify(ream);
 
       status = "enqueue";
+      filename = args._[0];
       baseChars = getFilesizeInBytes(filename);
+      howManyFiles = args._[0].length;
+      setupFNames();
+
       initStream(filename); // moving to the poll
 
-      // setImmediate(() => {
-      // initStream(filename); // moving to the poll
-      // });
+      setImmediate(() => {
+        // pollForWork(); // <-- instead of for loop, a chain of callbacks to pop the array
+
+        // initStream(filename); // moving to the poll
+      });
       output(filename)
       // setTimeout(() => {
       //   initStream( filename );
       // }, 50);
 
 
-      // pollForWork(); // <-- instead of for loop, a chain of callbacks to pop the array
       status = "leaving command handler";
       log(status)
       return true;
@@ -403,15 +430,38 @@ module.exports = () => {
   log(status)
 
 }
+function aPeptideCodon(a) {
+  // console.log(a);
+  return a.Codon.toUpperCase() == peptide.toUpperCase();
+}
+function tidyPeptideName() {
+  let clean = pepTable.filter(aPeptideCodon);
+  if (clean.length > 0 ) {
+    return clean[0].Codon;
+  } else {
+    return "none";
+  }
+}
+function pepToColor(pep) {
+  let temp = peptide;
+  peptide = pep; // aPeptideCodon depends on this global
+  let clean = pepTable.filter(aPeptideCodon);
+  if (clean.length > 0 ) {
+    return hsvToRgb(clean[0].Hue, 0.5, 1.0);
+  } else {
+    return [0,0,0,0];
+  }
+}
 function codonToHue(c) {
   // return pepTable[pepTable.indexOf(c)].Hue;
 }
 function pollForWork() {
-  if (status == "paint") {
+
+  if (status == "initStream") {
     output("BREAKING")
     return false;
   }
-  filename = args._.pop();
+  // filename = args._.pop();
   howMany = args._.length;
   status = "polling"+filesDone;
   output( args._ );
@@ -423,22 +473,9 @@ function pollForWork() {
 
   // howMany = args._.length;
   output(`Total files to process: ${howMany}`);
-  if (howMany < 1) {
-    output("pollForWork howMany " + howMany);
 
-    output("bye");
-    // quit();
-  } else {
-    // filename = path.resolve( args._[0] );
-    // if (status != "paint" || status == "quit") {
-    args._.pop();
-    // howMany = args._.length ;
-    setTimeout(() => {
-      initStream( filename );
-    }, 50);
-    // }
+  // initStream( filename );
 
-  }
 }
 
 function initStream(f) {
@@ -506,6 +543,7 @@ function initStream(f) {
     status ="complete";
     // finalUpdate(); // last update
     percentComplete = 100;
+    updates = false;
     clearPrint(drawHistogram());
 
     output(`Stream complete.`);
@@ -532,9 +570,9 @@ function renderSummary() {
   Pixels: ${colClock.toLocaleString()} (colClock)
   Pixels: ${rgbArray.length/4} (rgbArray.length/4)
   Amino acid blend opacity: ${Math.round(opacity*10000)/100}%
-  Error Clock: ${errorClock}
-  CharClock: ${charClock}*       *(fails on files over 3GB or so)
-  Output max res setting: ${resolutionFileExtension}
+  Error Clock: ${errorClock.toLocaleString()}
+  CharClock: ${charClock.toLocaleString()}
+  Output max res safety cap: ${maxpix.toLocaleString()}
   Darken Factor ${darkenFactor}
   Start/Stop Brightness ${highlightFactor}`;
 }
@@ -542,9 +580,8 @@ function renderSummary() {
 // CODONS PER PIXEL
 function autoconfCodonsPerPixel() { // requires baseChars maxpix defaultC
   let existing = codonsPerPixel;
-  let estimatedPixels = baseChars * 1.333; // divide by 4 times 3
+  let estimatedPixels = baseChars * 1.334; // divide by 4 times 3
 
-  codonsPerPixel = Math.round(codonsPerPixel);
   if (codonsPerPixel < defaultC) {
     codonsPerPixel = defaultC;
   } else if (codonsPerPixel > 6000) {
@@ -562,26 +599,35 @@ function autoconfCodonsPerPixel() { // requires baseChars maxpix defaultC
   } else if (estimatedPixels > maxpix){ // for seq bigger than screen
     if ( estimatedPixels / codonsPerPixel > maxpix) { // still too big?
       if ( codonsPerPixel == defaultC) { // default startup state
-        codonsPerPixel = Math.round(estimatedPixels / maxpix);
+        codonsPerPixel = estimatedPixels / maxpix;
       } else if (codonsPerPixel < (estimatedPixels / maxpix)*defaultC) {
-        output(terminalRGB(`WARNING: Target Codons Per Pixel setting ${codonsPerPixel} is likely to exceed the max image size of ${maxpix.toLocaleString()}`))
+
+        output(terminalRGB(`WARNING: Target Codons Per Pixel setting ${codonsPerPixel} is likely to exceed the max image size of ${maxpix.toLocaleString()}, sometimes this causes an out of memory error.`))
       } else {
-        codonsPerPixel = Math.round(estimatedPixels / maxpix);
+        codonsPerPixel = estimatedPixels / maxpix;
       }
     }
   }
-  opacity = 0.95 / codonsPerPixel;
+
+
+  if (existing != codonsPerPixel && existing != defaultC) {
+    output(terminalRGB("Your selected codons per pixel setting was alterered from ${existing} to ${codonsPerPixel} ", 255, 255, 255));
+  }
+  if (artistic == true) {
+    codonsPerPixel = codonsPerPixel / artisticHighlightLength; // to pack it into same image size
+  }
+  codonsPerPixel = Math.round(codonsPerPixel);
+  if (codonsPerPixel < defaultC) {
+    codonsPerPixel = defaultC;
+  }
+  opacity = 0.969 / codonsPerPixel;
   // set highlight factor such  that:
   // if cpp is 1 it is 1
   // if cpp is 2 it is 1.5
   // if cpp is 3 it is 1
   // if cpp is 4 it is 2.5
   // if cpp is 10 it is 6.5
-  highlightFactor = codonsPerPixel - ((codonsPerPixel - 1 )/2);
-
-  if (existing != codonsPerPixel && existing != defaultC) {
-    output(terminalRGB("Your selected codons per pixel setting was alterered from ${existing} to ${codonsPerPixel} ", 255, 255, 255));
-  }
+  highlightFactor = codonsPerPixel * 2;
   return codonsPerPixel;
 }
 
@@ -590,10 +636,10 @@ function removeFileExtension(f) {
 }
 
 function setupFNames() {
-  const extension = getFileExtension(filename);
+  extension = getFileExtension(filename);
   justNameOfDNA = removeFileExtension(replaceFilepathFileName(filename));
-  if (justNameOfDNA.length > 24 ) {
-    justNameOfDNA = justNameOfDNA.substring(0,12) + justNameOfDNA.substring(justNameOfDNA.length-12,justNameOfDNA.length);
+  if (justNameOfDNA.length > 20 ) {
+    justNameOfDNA = justNameOfDNA.substring(0,10) + justNameOfDNA.substring(justNameOfDNA.length-10,justNameOfDNA.length);
   }
 
   let ext = "_" + extension + "_aminosee";
@@ -747,9 +793,9 @@ function parseFileForStream() {
   start = new Date().getTime();
 
   timeRemain, runningDuration, charClock, percentComplete, genomeSize, colClock, opacity = 0;
-  msPerUpdate = 1234;
+  msPerUpdate = 200;
   getFilesizeInBytes();
-  const extension = getFileExtension(filename);
+  extension = getFileExtension(filename);
   output("[FILESIZE] " + baseChars.toLocaleString() + " extension: " + extension);
   autoconfCodonsPerPixel();
   setupFNames();
@@ -775,7 +821,7 @@ function parseFileForStream() {
 function quit() {
   output("bye");
   status = "bye";
-  process.stdin.setRawMode(false);
+  // process.stdin.setRawMode(false);
   process.stdin.resume();
 
   clearTimeout();
@@ -785,7 +831,7 @@ function quit() {
     status = "bye";
 
     process.exit;
-  }, 10000);
+  }, 1);
 }
 function processLine(l) {
   rawDNA = l;
@@ -826,16 +872,20 @@ function processLine(l) {
       codon="";
       log(red+green+blue);
       if (red+green+blue>0) { // this is a fade out to show headers.
-        red -= codonsPerPixel;
-        green-= codonsPerPixel;
-        blue-= codonsPerPixel;
+        // red -= codonsPerPixel;
+        // green-= codonsPerPixel;
+        // blue-= codonsPerPixel;
+        red --;
+        green--;
+        blue--;
         // paintPixel();
       } else {
         // do nothing this maybe a non-coding header section in the file.
         // status = "header";
-        msPerUpdate = 100;
-        errorClock;
+        // msPerUpdate = 100;
       }
+      errorClock++;
+
     } else if (codon.length ==  3) {
       status = "paint";
 
@@ -864,22 +914,32 @@ function processLine(l) {
           isHighlightCodon = false;
         }
       }
-      if (artistic != true) {
-        if (isHighlightCodon) { // 255 = 1.0
-          mixRGBA[0]  += codonRGBA[0].valueOf() * highlightFactor * opacity;// * opacity; // red
-          mixRGBA[1]  += codonRGBA[1].valueOf() * highlightFactor * opacity;// * opacity; // green
-          mixRGBA[2]  += codonRGBA[2].valueOf() * highlightFactor * opacity;// * opacity; // blue
-          mixRGBA[3]  += 255 * highlightFactor * opacity;// * opacity; // blue
-        } else {
-          //  not a START/STOP codon. Stack multiple codons per pixel.
-          // HERE WE ADDITIVELY BUILD UP THE VALUES with +=
-          mixRGBA[0] +=   parseFloat(codonRGBA[0].valueOf()) * opacity * darkenFactor;
-          mixRGBA[1] +=   parseFloat(codonRGBA[1].valueOf()) * opacity * darkenFactor;
-          mixRGBA[2] +=   parseFloat(codonRGBA[2].valueOf()) * opacity * darkenFactor;
-          mixRGBA[3] +=   255 * darkenFactor *  opacity;// * opacity; // blue
-        }
-        //  blends colour on one pixel
-        if (pixelStacking >= codonsPerPixel) {
+
+      if (isHighlightCodon) { // 255 = 1.0
+        mixRGBA[0]  += parseFloat(codonRGBA[0].valueOf()) * highlightFactor * opacity;// * opacity; // red
+        mixRGBA[1]  += parseFloat(codonRGBA[1].valueOf()) * highlightFactor * opacity;// * opacity; // green
+        mixRGBA[2]  += parseFloat(codonRGBA[2].valueOf()) * highlightFactor * opacity;// * opacity; // blue
+        mixRGBA[3]  +=   255 * highlightFactor *  opacity;// * opacity; // blue
+      } else {
+        //  not a START/STOP codon. Stack multiple codons per pixel.
+        // HERE WE ADDITIVELY BUILD UP THE VALUES with +=
+        mixRGBA[0] +=   parseFloat(codonRGBA[0].valueOf()) * opacity * darkenFactor;
+        mixRGBA[1] +=   parseFloat(codonRGBA[1].valueOf()) * opacity * darkenFactor;
+        mixRGBA[2] +=   parseFloat(codonRGBA[2].valueOf()) * opacity * darkenFactor;
+        mixRGBA[3] +=   255 * darkenFactor *  opacity;// * opacity; // blue
+      }
+
+
+
+
+
+      //  blends colour on one pixel
+      if (pixelStacking >= codonsPerPixel) {
+
+
+        if (artistic != true) {
+
+
           red = mixRGBA[0];
           green = mixRGBA[1];
           blue = mixRGBA[2];
@@ -894,106 +954,128 @@ function processLine(l) {
           green = 0;
           blue = 0;
           alpha = 0;
-        }
-        // end science mode
-      } else {
 
-        // the first section TRUE does start/stop codons
-        // the FALSE section does Amino acid codons
-        if (isHighlightCodon) { // 255 = 1.0
-          // FADE PREVIOUS COLOUR
-          red = mixRGBA[0] * 1.5; // NOT SURE WHAT BRIGHTNESS IT WILL BE
-          green = mixRGBA[0] * 1.5; // TRYING TO BRIGHTEN IT
-          blue = mixRGBA[0] * 1.5;
-          paintPixel(); // BRIGHTEN THE FIRST PIXEL BECAUSE ITS DIM
-          red = red * 0.5;
-          green = green * 0.5;
-          blue = blue * 0.5;
-          paintPixel(); // DARKEST SPACER
-          red = 200;
-          green = 200;
-          blue = 200;
-          red +=   parseFloat(codonRGBA[0].valueOf()) * 0.99;
-          green += parseFloat(codonRGBA[1].valueOf()) * 0.99;
-          blue +=  parseFloat(codonRGBA[2].valueOf()) * 0.99;
-          paintPixel(); // BRIGHT OFF-WHITE SYNC DOT PIXEL
-          // THIS IS THE FULL COLOUR OF THE CODON:
-          // UNLIKE SCIENCE MODE, WE GIVE IT IT'S OWN PIXEL:
-          red = codonRGBA[0].valueOf();
-          green = codonRGBA[1].valueOf();
-          blue = codonRGBA[2].valueOf();
-          paintPixel(); // BRIGHT FULL SATURATION START STOP CODON
-          red = red / 1.5;
-          green = green / 1.5;
-          blue = blue / 1.5;
-          paintPixel();
-          red = red / 1.5;
-          green = green / 1.5;
-          blue = blue / 1.5;
-          paintPixel();
-
+          // end science mode
         } else {
-          //  not a START/STOP codon. Stack four colours per pixel.
-          //  isHighlightCodon = false;
+          // ************ ARTISTIC MODE
+          if (isHighlightCodon) {
+            if (artisticHighlightLength >= 12) {
+              red = mixRGBA[0]/12;
+              green = mixRGBA[1]/12;
+              blue = mixRGBA[2]/12;
+              paintPixel();
+              red += mixRGBA[0]/12;
+              green += mixRGBA[1]/12;
+              blue += mixRGBA[2]/12;
+              paintPixel();
+              red += mixRGBA[0]/12;
+              green += mixRGBA[1]/12;
+              blue += mixRGBA[2]/12;
+              paintPixel();
+              red += mixRGBA[0]/12;
+              green += mixRGBA[1]/12;
+              blue += mixRGBA[2]/12;
+              paintPixel();
+              red += mixRGBA[0]/12;
+              green += mixRGBA[1]/12;
+              blue += mixRGBA[2]/12;
+              paintPixel();
+              red += mixRGBA[0]/12;
+              green += mixRGBA[1]/12;
+              blue += mixRGBA[2]/12;
+              paintPixel();
+            }
+            red += mixRGBA[0]/3;
+            green += mixRGBA[1]/3;
+            blue += mixRGBA[2]/3;
+            paintPixel();
+            red += mixRGBA[0]/3;
+            green += mixRGBA[1]/3;
+            blue += mixRGBA[2]/3;
+            paintPixel();
+            red = mixRGBA[0];
+            green = mixRGBA[1];
+            blue = mixRGBA[2];
+            paintPixel();
+            red += 200;
+            green += 200;
+            blue += 200;
+            paintPixel();
+            red = mixRGBA[0]/2;
+            green = mixRGBA[1]/2;
+            blue = mixRGBA[2]/2;
+            paintPixel();
+            red = 0;
+            green = 0;
+            blue = 0;
+            paintPixel(); // END WITH BLACK
+            // mixRGBA[0] =   0;
+            // mixRGBA[1] =   0;
+            // mixRGBA[2] =   0;
+            //
+          } else { // non highlight pixel
+            red = 0;
+            green = 0;
+            blue = 0; // START WITH BLACK
+            paintPixel();
+            red = mixRGBA[0]/2;
+            green = mixRGBA[1]/2;
+            blue = mixRGBA[2]/2;
+            paintPixel();
+            red += 200;
+            green += 200;
+            blue += 200;
+            paintPixel();
+            red = mixRGBA[0];
+            green = mixRGBA[1];
+            blue = mixRGBA[2];
+            paintPixel();
+            red = red / 1.2;
+            green = green / 1.2;
+            blue = blue / 1.2;
+            paintPixel();
+            red = red / 1.2;
+            green = green / 1.2;
+            blue = blue / 1.2;
+            paintPixel();
+            if (artisticHighlightLength >= 12) {
+              red = red / 1.1;
+              green = green / 1.1;
+              blue = blue / 1.1;
+              paintPixel();
+              red = red / 1.1;
+              green = green / 1.1;
+              blue = blue / 1.1;
+              paintPixel();red = red / 1.1;
+              green = green / 1.1;
+              blue = blue / 1.1;
+              paintPixel();
+              red = red / 1.1;
+              green = green / 1.1;
+              blue = blue / 1.1;
+              paintPixel();red = red / 1.1;
+              green = green / 1.1;
+              blue = blue / 1.1;
+              paintPixel();
+              red = red / 1.1;
+              green = green / 1.1;
+              blue = blue / 1.1;
+              paintPixel();
+            }
 
-          // HERE WE ADDITIVELY BUILD UP THE VALUES with +=
-          mixRGBA[0] +=   parseFloat(codonRGBA[0].valueOf()) * opacity;
-          mixRGBA[1] +=   parseFloat(codonRGBA[1].valueOf()) * opacity;
-          mixRGBA[2] +=   parseFloat(codonRGBA[2].valueOf()) * opacity;
-        }
-        // blends colour on one pixel
-        if (pixelStacking >= codonsPerPixel) {
-
-          red = 0;
-          green = 0;
-          blue = 0; // START WITH BLACK
-          paintPixel();
-          red = mixRGBA[0];
-          green = mixRGBA[1];
-          blue = mixRGBA[2];
-          paintPixel();
-          red = red / 1.1;
-          green = green / 1.1;
-          blue = blue / 1.1;
-          paintPixel();
-          red = red / 1.1;
-          green = green / 1.1;
-          blue = blue / 1.1;
-          paintPixel();
-          red = red / 1.1;
-          green = green / 1.1;
-          blue = blue / 1.1;
-          paintPixel();
-          red = red / 1.1;
-          green = green / 1.1;
-          blue = blue / 1.1;
-          paintPixel();
-          red = red / 1.1;
-          green = green / 1.1;
-          blue = blue / 1.1;
-          paintPixel();
-          red = red / 1.1;
-          green = green / 1.1;
-          blue = blue / 1.1;
-          paintPixel();
-          red = red / 1.1;
-          green = green / 1.1;
-          blue = blue / 1.1;
-          paintPixel();
-
+          }
           // reset inks:
           pixelStacking = 0;
-          mixRGBA[0] ==   0;
-          mixRGBA[1] ==   0;
-          mixRGBA[2] ==   0;
+          mixRGBA[0] =   0;
+          mixRGBA[1] =   0;
+          mixRGBA[2] =   0;
+
         } // artistic mode
-      } // artistic
-      codon = "";// wipe for next time
-
-    } // END OF MAIN LOOP!
-  }
-
-}
+      } // end pixel stacking
+      codon = ""; // wipe for next time
+    } // end codon.length ==  3
+  } // END OF line LOOP! thats one line but mixRGBA can survive lines
+} // end processLine
 function legend() {
   var html = `<html>
   <head>
@@ -1137,57 +1219,88 @@ function arrayToPNG() {
   status = "save"; // <-- this is the true end point of the program!
 
   clearTimeout();
-  let pixels, height, width;
-  let golden = true; // golden section ratio.
+  let pixels, height, width = 0;
+  // let golden = true; // golden section ratio.
 
   if (colClock==0) {
     output("No DNA or RNA in this file sorry?! You sure you gave a file with sequences? " + filename);
     return;
   }
 
-  pixels = (rgbArray.length / 4) + 4 ;// to avoid the dreaded "off by one error"... one exra pixel wont bother nobody
+  pixels = (rgbArray.length / 4) + 100 ;// to avoid the dreaded "off by one error"... one exra pixel wont bother nobody
 
   // if (antialias) {
   //
   // }
   // if (golden) { // thanks to https://www.omnicalculator.com/math/golden-ratio
 
-  // if (square || golden) {
-  //   width = Math.round(Math.sqrt(pixels + 2));
-  //   height = width;
-  // }
-  if (ratio = golden) {
-    width = Math.sqrt(pixels + 40); // 40 pixel margn for error
-    height = width; // 1mp = 1000 x 1000
-    let phi = ((Math.sqrt(5) + 1) / 2) ; // 1.618033988749895
-    height =  ( width * phi ) - width; // 16.18 - 6.18 = 99.99
-    width = pixels / height;
-    width = Math.round(width);
-    height = Math.round(height);
-    if ( pixels > width*height) {
-      output("Golden Check OK: pixels: " + pixels + " width x height = " + (width*height));
-    } else {
-      output("GOLDEN CHECK TOO MANY PIXELS: pixels: " + pixels + " width x height = " + (width*height));
-      // quit();
+  if (artistic) {
+    ratio = "fixed";
+  }
+  if (ratio == "square") {
+    width = Math.round(Math.sqrt(pixels));
+    height = width;
+    while ( pixels > width*height) {
+      width++;
+      height++;
     }
-  } else if (ratio = fixWidth){
+  }
+  if (ratio == "golden") {
+    let goldenmargin = 1;
+    let phi = ((Math.sqrt(5) + 1) / 2) ; // 1.618033988749895
+    width = 1;
+    height = 1;
+
+
+          width = Math.sqrt(pixels + goldenmargin); // need some extra pixels sometimes
+          height = width; // 1mp = 1000 x 1000
+          height =  ( width * phi ) - width; // 16.18 - 6.18 = 99.99
+          width = pixels / height;
+          height = Math.round(height);
+          width = Math.round(width) - height;
+          log(goldenmargin + " Image allocation check: " + pixels + " > width x height = " + ( width * height ));
+          goldenmargin++;
+
+    while ( pixels < width*height) {
+      width = Math.sqrt(pixels + goldenmargin); // need some extra pixels sometimes
+      height = width; // 1mp = 1000 x 1000
+      height =  ( width * phi ) - width; // 16.18 - 6.18 = 99.99
+      width = pixels / height;
+      height = Math.round(height);
+      width = Math.round(width) - height;
+      log(goldenmargin + " Image allocation check: " + pixels + " > width x height = " + ( width * height ));
+      goldenmargin++;
+    }
+
+
+
+  } else if (ratio == "fixed") {
     if (pixels <= widthMax) {
       width = pixels;
       height = 1;
     } else {
       width = widthMax;
-      height = Math.round((pixels / widthMax) - 0.49); // you can have half a line. more and its an extra vert line
+      height = Math.round(pixels / widthMax); // you can have half a line. more and its an extra vert line
       if (height<1) {
         height=1;
       }
     }
+    while ( pixels > width*height) {
+      height++;
+    }
   }
-
+  if ( pixels < width*height) {
+    output("Image allocation check: " + pixels + " < width x height = " + ( width * height ));
+  } else {
+    output("MEGA FAIL: TOO MANY ARRAY PIXELS NOT ENOUGH IMAGE SIZE: array pixels: " + pixels + " <  width x height = " + (width*height));
+    quit();
+  }
   output("Raw image bytes: " + bytes(pixels/4));
   output("Pixels: " + pixels.toLocaleString());
   output("Dimensions: " + width + "x"   + height);
-  output("GOLDEN CHECK: width x height = " + (width*height).toLocaleString());
+  output("width x height = " + (width*height).toLocaleString());
   output("First 100  bytes: " + rgbArray.slice(0,99));
+  output("Proportions: " + ratio);
 
 
   // fs.createReadStream('in.png')
@@ -1231,35 +1344,32 @@ function arrayToPNG() {
         output("Opening your image. If process blocked either quit browser AND image viewer (yeah I know, it's not ideal but you can always fix it and submit a pull request on the Github) or [ CONTROL-C ]");
 
         setImmediate(() => {
-          opn(filenameHTML);
-        });
-        setImmediate(() => {
-          opn(filenamePNG);
-        });
 
+          // opn(filenameHTML).then(() => {
+          //     log("image viewer closed");
+          // });
+          opn(filenamePNG).then(() => {
+              log("image viewer closed");
+          });
+
+        });
       }, 3000);
 
     }
-    // howMany--;
-    // if (howMany>0) {
-    //
-    //     setTimeout(() => {
-    //       if (status != "paint") {
-    //       pollForWork();
-    //       } // BADDASS RACE CONDITION
-    //     });
-    //     // howManytream(asterix);
-    // }
-    // status = "quit"; // <-- this is the true end point of the program!
-    setTimeout(() => {
-      output("Thats us cousin")
-      pollForWork()
-    }, 1000);
-    // quit();
-
+    // blarg();
   });
 }
-
+function blarg() {
+  filename = args._.pop();
+  howMany = args._.length;
+  if (howMany > 0) {
+    setTimeout(() => {
+      pollForWork()
+    }, 1);
+  } else {
+    output("Thats us cousin")
+  }
+}
 function removeSpacesForFilename(string) {
   return string.replace(/ /, '').toUpperCase();
 }
@@ -1435,7 +1545,8 @@ function calcUpdate() {
 function drawHistogram() {
   if (updates == false) {
     // spew = false;
-    return "Stats display disabled";
+    status = "Stats display disabled";
+    return status;
   }
 
   percentComplete = Math.round(charClock / baseChars * 10000) / 100;
@@ -1455,7 +1566,9 @@ function drawHistogram() {
   for (h=0;h<pepTable.length;h++) {
     aacdata[pepTable[h].Codon] = pepTable[h].Histocount ;
   }
-  text += ` @i ${charClock.toLocaleString()} File: ${terminalRGB(justNameOfDNA, 255, 255, 255)} Line breaks: ${breakClock} Files: ${howMany} Base Chars: ${baseChars} `;
+  // text += ` @i ${charClock.toLocaleString()} File: ${terminalRGB(justNameOfDNA, 255, 255, 255)} Line breaks: ${breakClock} Files: ${howMany} Base Chars: ${baseChars} `;
+  text += ` @i ${charClock.toLocaleString()} File: ${chalk.rgb(255, 255, 255).inverse(justNameOfDNA)}.${extension}  Line breaks: ${breakClock} Files: ${howManyFiles} Base Chars: ${baseChars} `; // ###
+
   text += lineBreak;
   text += chalk.rgb(128, 255, 128).inverse(`[ ${percentComplete}% done Time remain: ${timeRemain.toLocaleString()} sec Elapsed: ${Math.round(runningDuration/1000)} sec KB remain: ${kbRemain}`)
 
@@ -1463,20 +1576,9 @@ function drawHistogram() {
     text += chalk.inverse(`[ ${status.toUpperCase()} ]`)
     // text += terminalRGB(` [ ${status.toUpperCase()} ]`, 128, 255, 128)
 
-    if (status != "paint") {
-      output(text);
-      clearTimeout();
-    } else {
-      setTimeout(() => {
-        clearPrint(drawHistogram()); // MAKE THE HISTOGRAM AGAIN LATER
-      }, msPerUpdate);
 
-      // if (howMany>0) {
-      //
-      // }
-    }
     if (artistic) {  }
-    ( artistic ? text += `[ Artistic Mode 1:${proteinHighlight}] ` : text += " [ Science Mode 1:1] " )
+    ( artistic ? text += `[ Artistic Mode 1:${artisticHighlightLength}] ` : text += " [ Science Mode 1:1] " )
 
     // text += lineBreak + ;
     text += ` Next update: ${msPerUpdate.toLocaleString()}ms `
@@ -1504,6 +1606,16 @@ function drawHistogram() {
     // `;
     // output('U (dont provide updates)');
     // text +=  (verbose ! "V" : " ")+(devmode ! "D" : " ")+(artistic ! "A" : "S")+codonsPerPixel+(golden ! "GOLD" : "T960")
+
+
+    if (status == "paint" || updates) {
+      updatesTimer = setTimeout(() => {
+        clearPrint(drawHistogram()); // MAKE THE HISTOGRAM AGAIN LATER
+      }, msPerUpdate);
+    } else {
+      clearTimeout(updatesTimer);
+    }
+
     return text;
   }
 
@@ -1512,6 +1624,7 @@ function drawHistogram() {
   }
 
   function isHighlightPeptide(p) {
+    // return p.Codon == peptide || p.Codon == triplet;
     return p.Codon == peptide;
   }
   // *
@@ -1546,12 +1659,16 @@ function drawHistogram() {
         green = tempcolor[1];
         blue  = tempcolor[2];
 
-
         if (isHighlightSet) {
-          if (aminoacid == peptide || cod == triplet) {
+          if (aminoacid == peptide ) {
             alpha = 255;
+            // log(`isHighlightSet    ${isHighlightSet}   aminoacid ${aminoacid}  peptide ${peptide}`)
+
+            // log(alpha);
           } else {
             alpha = 0;
+            // log(alpha);
+
           }
         } else {
           alpha = 255; // only custom peptide pngs are transparent
@@ -2240,7 +2357,7 @@ function drawHistogram() {
         <tr><th colspan="5"><hr></th></tr>
         </table>
         </body></html>
-        `));
+`));
 
       }
 
@@ -2454,7 +2571,7 @@ function drawHistogram() {
         ╩ ╩┴ ┴┴┘└┘└─┘╚═╝└─┘└─┘  ═╩╝╝╚╝╩ ╩   ╚╝ ┴└─┘└┴┘└─┘┴└─
         by Tom Atkinson          aminosee.funk.co.nz
         ah-mee no-see         "I See It Now - I AminoSee it!"
-        `, 96, 64, 245);
+`, 96, 64, 245);
 
         const lineBreak = `
-        `;
+`;
