@@ -224,14 +224,14 @@ module.exports = () => {
     } else if (ratio == "square" || ratio == "sqr") {
       ratio = "square";
     } else {
-      ratio = "fixed";
+      ratio = "golden";
     }
 
     output("using custom aspect ratio");
 
   } else {
     log(`No custom ratio chosen. (default)`);
-    ratio = "fixed";
+    ratio = "golden";
   }
   log("using ${ratio} aspect ratio");
 
@@ -271,7 +271,6 @@ module.exports = () => {
     output(`No custom peptide chosen. (default)`);
     peptide = "none";
     output(tidyPeptideName());
-    quit();
   }
   if ( peptide == "none" && triplet == "none") {
     // DISABLE HIGHLIGHTS
@@ -405,11 +404,10 @@ module.exports = () => {
 
       initStream(filename); // moving to the poll
 
-      setImmediate(() => {
+      // setImmediate(() => {
         // pollForWork(); // <-- instead of for loop, a chain of callbacks to pop the array
-
         // initStream(filename); // moving to the poll
-      });
+      // });
       output(filename)
       // setTimeout(() => {
       //   initStream( filename );
@@ -432,7 +430,7 @@ module.exports = () => {
 }
 function aPeptideCodon(a) {
   // console.log(a);
-  return a.Codon.toUpperCase() == peptide.toUpperCase();
+  return a.Codon.toUpperCase().substring(0, 4) == peptide.toUpperCase().substring(0, 4);
 }
 function tidyPeptideName() {
   let clean = pepTable.filter(aPeptideCodon);
@@ -457,11 +455,11 @@ function codonToHue(c) {
 }
 function pollForWork() {
 
-  if (status == "initStream") {
+  if (status == "initStream" || status == "paint") {
     output("BREAKING")
     return false;
   }
-  // filename = args._.pop();
+  filename = args._.pop();
   howMany = args._.length;
   status = "polling"+filesDone;
   output( args._ );
@@ -474,8 +472,22 @@ function pollForWork() {
   // howMany = args._.length;
   output(`Total files to process: ${howMany}`);
 
-  // initStream( filename );
+  if (howMany < 1) {
+      output("pollForWork howMany " + howMany);
 
+      output("bye");
+      // quit();
+    } else {
+      // filename = path.resolve( args._[0] );
+      // if (status != "paint" || status == "quit") {
+      args._.pop();
+      // howMany = args._.length ;
+      setTimeout(() => {
+        initStream( filename );
+      }, 50);
+      // }
+
+    }
 }
 
 function initStream(f) {
@@ -627,8 +639,14 @@ function autoconfCodonsPerPixel() { // requires baseChars maxpix defaultC
   // if cpp is 3 it is 1
   // if cpp is 4 it is 2.5
   // if cpp is 10 it is 6.5
-  highlightFactor = codonsPerPixel - ((codonsPerPixel - 1 ) / 4) ;
-  return codonsPerPixel;
+  if (codonsPerPixel < 100) {
+    highlightFactor = codonsPerPixel - ((codonsPerPixel - 1 ) / 2) ;
+
+  } else {
+    highlightFactor = 50 ;
+
+  }
+    return codonsPerPixel;
 }
 
 function removeFileExtension(f) {
@@ -819,19 +837,14 @@ function parseFileForStream() {
 
 }
 function quit() {
+  updates = false;
+  msPerUpdate = 0;
+  clearTimeout();
   output("bye");
   status = "bye";
   // process.stdin.setRawMode(false);
   process.stdin.resume();
-
-  clearTimeout();
-  msPerUpdate = 0;
-  // howMany = 0;
-  setTimeout(() => {
-    status = "bye";
-
-    process.exit;
-  }, 1);
+  // process.exit;
 }
 function processLine(l) {
   rawDNA = l;
@@ -1302,22 +1315,6 @@ function arrayToPNG() {
   output("First 100  bytes: " + rgbArray.slice(0,99));
   output("Proportions: " + ratio);
 
-
-  // fs.createReadStream('in.png')
-  //     .pipe(new PNG({
-  //         colorType: 2,
-  //         bgColor: {
-  //             red: 0,
-  //             green: 255,
-  //             blue: 0
-  //         }
-  //     }))
-  //     .on('parsed', function() {
-  //         this.pack().pipe(fs.createWriteStream('out.png'));
-  //     });
-
-
-
   var img_data = Uint8ClampedArray.from(rgbArray);
   var img_png = new PNG({
     width: width,
@@ -1331,20 +1328,17 @@ function arrayToPNG() {
   })
   img_png.data = Buffer.from(img_data);
   img_png.pack().pipe(fs.createWriteStream(filenamePNG));
-  // createTick();
+
   setImmediate(() => {
     output("Input DNA: " + filename)
     output("Saved PNG: " + filenamePNG);
-    // howMany = args._.length;
-    output("howMany " + howMany);
-    // output("value returned by parseFileForStream " + parseFileForStream());
+
     if (!devmode) {
       output("To prevent automatically opening the image, use --devmode option")
       setTimeout(() => {
         output("Opening your image. If process blocked either quit browser AND image viewer (yeah I know, it's not ideal but you can always fix it and submit a pull request on the Github) or [ CONTROL-C ]");
 
         setImmediate(() => {
-
           // opn(filenameHTML).then(() => {
           //     log("image viewer closed");
           // });
@@ -1356,20 +1350,15 @@ function arrayToPNG() {
       }, 3000);
 
     }
-    // blarg();
+
+    // setTimeout(() => {
+         output("Thats us cousin")
+         pollForWork()
+       // }, 1);
+
   });
 }
-function blarg() {
-  filename = args._.pop();
-  howMany = args._.length;
-  if (howMany > 0) {
-    setTimeout(() => {
-      pollForWork()
-    }, 1);
-  } else {
-    output("Thats us cousin")
-  }
-}
+
 function removeSpacesForFilename(string) {
   return string.replace(/ /, '').toUpperCase();
 }
