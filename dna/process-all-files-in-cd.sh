@@ -3,29 +3,29 @@ echo List files without ./ in front
 # find . | awk '{sub(/.\//," ")}1'
 
 
-aminosee AAA-to-TTT-50k.txt -d -f --ratio="hilbert" --peptide=LEUCINE &
-aminosee 64-codons-test-pattern.txt -d -f --ratio="hilbert" --peptide=LEUCINE &
-
-aminosee streptococcus_virus_2972_uid15254-NC_007019.gbk -d -f --ratio="hilbert" --peptide=LEUCINE &
-aminosee streptococcus_virus_2972_uid15254-NC_007019.gbk -d -f --ratio="hilbert" --peptide=LEUCINE &
-
-aminosee megabase.fa -m 1 -d -f &
-aminosee megabase.fa -m 2 -d -f --peptide=SERINE &
-aminosee megabase.fa -m 3 -d -f &
-aminosee megabase.fa -m 4 -d -f --peptide=SERINE &
-aminosee megabase.fa -m 5 -d -f &
-aminosee megabase.fa -m 6 -d -f --peptide=SERINE &
-aminosee Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa -m 2 -d -f &
-aminosee Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa -m 3 -d -f --peptide=SERINE &
-aminosee Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa -m 4 -d -f &
-aminosee Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa -m 5 -d -f --peptide=SERINE &
-aminosee Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa -m 6 -d -f &
-aminosee Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa -m 7 -d -f --peptide=SERINE &
-aminosee Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa -m 8 -d -f --peptide=SERINE &
-aminosee Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa -m 9   -d -f --peptide=LEUCINE &
-aminosee Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa  -m 10 -d -f  --peptide=SERINE &
-aminosee Caenorhabditis_elegans.WBcel235.dna_sm.toplevel.fa -d -f  --peptide=LEUCINE &
-aminosee Caenorhabditis_elegans.WBcel235.dna_sm.toplevel.fa  -m 10 -d -f --peptide=PROLINE
+# aminosee AAA-to-TTT-50k.txt -d -f --ratio="hilbert" --peptide=LEUCINE &
+# aminosee 64-codons-test-pattern.txt -d -f --ratio="hilbert" --peptide=LEUCINE &
+#
+# aminosee streptococcus_virus_2972_uid15254-NC_007019.gbk -d -f --ratio="hilbert" --peptide=LEUCINE &
+# aminosee streptococcus_virus_2972_uid15254-NC_007019.gbk -d -f --ratio="hilbert" --peptide=LEUCINE &
+#
+# aminosee megabase.fa -m 1 -d -f &
+# aminosee megabase.fa -m 2 -d -f --peptide=SERINE &
+# aminosee megabase.fa -m 3 -d -f &
+# aminosee megabase.fa -m 4 -d -f --peptide=SERINE &
+# aminosee megabase.fa -m 5 -d -f &
+# aminosee megabase.fa -m 6 -d -f --peptide=SERINE &
+# aminosee Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa -m 2 -d -f &
+# aminosee Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa -m 3 -d -f --peptide=SERINE &
+# aminosee Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa -m 4 -d -f &
+# aminosee Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa -m 5 -d -f --peptide=SERINE &
+# aminosee Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa -m 6 -d -f &
+# aminosee Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa -m 7 -d -f --peptide=SERINE &
+# aminosee Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa -m 8 -d -f --peptide=SERINE &
+# aminosee Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa -m 9   -d -f --peptide=LEUCINE &
+# aminosee Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa  -m 10 -d -f  --peptide=SERINE &
+# aminosee Caenorhabditis_elegans.WBcel235.dna_sm.toplevel.fa -d -f  --peptide=LEUCINE &
+# aminosee Caenorhabditis_elegans.WBcel235.dna_sm.toplevel.fa  -m 10 -d -f --peptide=PROLINE
 #
 # aminosee chrX.fa -d -f --ratio="hilbert" --peptide=LEUCINE &
 # aminosee chrX.fa -m 10  -d -f --ratio="hilbert" --peptide=SERINE &
@@ -69,12 +69,31 @@ aminosee Caenorhabditis_elegans.WBcel235.dna_sm.toplevel.fa  -m 10 -d -f --pepti
 # aminosee chr1.fa -d -f --ratio="hilbert" --artistic --peptide=SERINE
 
 aminosee_do () {
-  nice -n $3 aminosee $1 -d $4 &
+  nice -n $3 aminosee $1 -d $4 $5 $6 &
   echo "done"
   sleep $2
 }
 aminosee_do_foreground() {
-  aminosee $1 -d $4
+  aminosee $1 -d $4 $5 $6
+}
+
+parallel_hilbert() {
+  echo "                                         =///"
+  echo "-------------------------------------------"
+  echo STARTING PARALLEL DECODE FOR $1
+  echo "-------------------------------------------"
+  echo "                                         =///"
+
+  aminosee_do $1 $2 1 -m 1
+  aminosee_do $1 $2 2 -m 2
+  aminosee_do $1 $2 3 -m 3
+  aminosee_do $1 $2 4 -m 4
+  aminosee_do $1 $2 5 -m 5
+  aminosee_do $1 $2 6 -m 6
+  aminosee_do $1 $2 7 -m 7
+  aminosee_do_foreground $1 $2 0 -m 8
+  aminosee_do_foreground $1 $2 0 -m 9
+  aminosee_do_foreground $1 $2 0 -m 10
 }
 
 parallel_file () {
@@ -159,14 +178,22 @@ aminosee_do_foreground $1 $2 0   --peptide=Histidine &
   echo "-------------------------------------------"
   echo "                                         =///"
 }
+
+parallel_hilbert megabase.fa 0
+parallel_hilbert Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa 5
+parallel_hilbert chrX.fa 10
+parallel_hilbert chr1.fa 15
+parallel_hilbert homo-sapien-hs_ref_GRCh38.p12_chr2.mfa 20
+parallel_hilbert homo-sapien-hs_ref_GRCh38.p12_chr2.gbk 20
+parallel_hilbert AAA-to-TTT-50k.txt 0
+parallel_hilbert 64-codons-test-pattern.txt 0
+
 parallel_file megabase.fa 0
 parallel_file Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa 1
-
 parallel_file chrX.fa 5
 parallel_file chr1.fa 10
-parallel_file homo-sapien-hs_ref_GRCh38.p12_chr2.mfa 10
-parallel_file homo-sapien-hs_ref_GRCh38.p12_chr2.gbk 10
-
+parallel_file homo-sapien-hs_ref_GRCh38.p12_chr2.mfa 20
+parallel_file homo-sapien-hs_ref_GRCh38.p12_chr2.gbk 20
 parallel_file AAA-to-TTT-50k.txt 0
 parallel_file 64-codons-test-pattern.txt 0
 
