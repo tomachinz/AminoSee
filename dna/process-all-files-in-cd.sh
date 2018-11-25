@@ -26,11 +26,11 @@ aminosee_do $1 $2 3   --peptide=Aspartic &
 aminosee_do $1 $2 4   --peptide=Amber
 aminosee_do $1 $2 5   --peptide=Cysteine
 aminosee_do $1 $2 6   --peptide=Glycine
-aminosee_do_foreground $1 $2 0  --peptide=Alanine
+aminosee_do_foreground $1 $2 0 --peptide=Alanine
 
 aminosee_do $1 $2 1   --peptide=Methionine &
 aminosee_do $1 $2 2   --peptide=Valine
-aminosee_do_foreground $1 $2 3   --peptide=Leucine
+aminosee_do_foreground $1 $2 3  --peptide=Leucine
 aminosee_do $1 $2 4   --peptide=Isoleucine &
 aminosee_do $1 $2 5   --peptide=Phenylalanine
 aminosee_do $1 $2 6   --peptide=Tryptophan
@@ -83,12 +83,12 @@ aminosee_do_foreground $1 $2 0   --peptide=Histidine &
   echo "                                         =///"
 }
 parallel_file megabase.fa 0
-parallel_file Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa 5
+parallel_file Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa 1
 
-parallel_file chrX.fa 60
-parallel_file chr1.fa 20
-parallel_file homo-sapien-hs_ref_GRCh38.p12_chr2.mfa 20
-parallel_file homo-sapien-hs_ref_GRCh38.p12_chr2.gbk 20
+parallel_file chrX.fa 5
+parallel_file chr1.fa 10
+parallel_file homo-sapien-hs_ref_GRCh38.p12_chr2.mfa 10
+parallel_file homo-sapien-hs_ref_GRCh38.p12_chr2.gbk 10
 
 parallel_file AAA-to-TTT-50k.txt 0
 parallel_file 64-codons-test-pattern.txt 0
