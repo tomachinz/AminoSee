@@ -44,6 +44,8 @@ let PNG = require('pngjs').PNG;
 let ProgressBar = require('ascii-progress');
 const chalk = require('chalk');
 const clog = console.log;
+var os = require("os");
+const hostname = os.hostname();
 
 const appPath = require.main.filename;
 let codonRGBA, geneRGBA, mixRGBA = [0,0,0,0]; // codonRGBA is colour of last codon, geneRGBA is temporary pixel colour before painting.
@@ -51,7 +53,6 @@ let widthMax = 960;
 const golden = true;
 let highlightTriplets = [];
 let rgbArray = [];
-let hilbertImage = [];
 let red = 0;
 let green = 0;
 let blue = 0;
@@ -1131,102 +1132,102 @@ function legend() {
   </head>
   <body>
   <!-- Google Tag Manager -->
-<noscript><iframe src="//www.googletagmanager.com/ns.html?id=GTM-P8JX"
-height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  <noscript><iframe src="//www.googletagmanager.com/ns.html?id=GTM-P8JX"
+  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+  '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
 })(window,document,'script','dataLayer','GTM-P8JX');</script>
 <!-- End Google Tag Manager -->
 
-  <h1>AminoSee Render Summary for ${justNameOfDNA}</h1>
-  <div class="fineprint" style="text-align: right; float: right;">
-  <pre>
-  ${renderSummary()}
-  </pre>
-  </div>
-  <a href="#scrollDownToSeeImage" class="button" title"Click To Scroll Down To See Image"><br />
-  <img width="128" height="128" style="border: 4px black;" src="${justNameOfHILBERT}">
-  Scroll To Image
-  </a>
+<h1>AminoSee Render Summary for ${justNameOfDNA}</h1>
+<div class="fineprint" style="text-align: right; float: right;">
+<pre>
+${renderSummary()}
+</pre>
+</div>
+<a href="#scrollDownToSeeImage" class="button" title"Click To Scroll Down To See Image"><br />
+<img width="128" height="128" style="border: 4px black;" src="${justNameOfHILBERT}">
+Scroll To Image
+</a>
 
 
-  <div id="monkeys">
-  <div><a href="http://aminosee.funk.co.nz/">
-  <input type="button" value="VISIT WEBSITE" onclick="window.location = '#scrollDownToSeeImage'"><br>
+<div id="monkeys">
+<div><a href="http://aminosee.funk.co.nz/">
+<input type="button" value="VISIT WEBSITE" onclick="window.location = '#scrollDownToSeeImage'"><br>
 
-  <img src="https://www.funk.co.nz/aminosee/aminosee/seenoevilmonkeys.jpg">
+<img src="https://www.funk.co.nz/aminosee/aminosee/seenoevilmonkeys.jpg">
 
-  <!-- <h1>AminoSeeNoEvil</h1> -->
-  <h1>Amino<span style="color: #888888;">See</span><span style="color: #dddddd;">NoEvil</span></h1>
-  <div class="hidable">
-  <h2 id="h2">DNA/RNA Chromosome Viewer</h2>
-  <p id="description" class="fineprint hidable">A new way to view DNA that attributes a colour hue to each Amino acid codon triplet</p>
+<!-- <h1>AminoSeeNoEvil</h1> -->
+<h1>Amino<span style="color: #888888;">See</span><span style="color: #dddddd;">NoEvil</span></h1>
+<div class="hidable">
+<h2 id="h2">DNA/RNA Chromosome Viewer</h2>
+<p id="description" class="fineprint hidable">A new way to view DNA that attributes a colour hue to each Amino acid codon triplet</p>
 
 
 
-  </div>
-  </a>
-  </div>
-  </div>
-  <table>
-  <thead>
-  <tr>
-  <th>Amino Acid</th>
-  <th>Hue</th>
-  <th>RGB</th>
-  <th>Count</th>
-  <th>Description</th>
-  </tr>
-  </thead>
-  <tbody>
-  `;
-  // pepTable   = [Codon, Description, Hue, Alpha, Histocount]
-  for (i=0; i<pepTable.length; i++) {
-    let theHue = pepTable[i].Hue;
-    log(theHue);
-    let c = hsvToRgb( theHue, 0.5, 1.0 );
-    // const c = hsvToRgb( pepTable[i].Hue );
-    html += `
-    <tr style="background-color: hsl(${theHue}, 50%, 100%);">
-    <td style="background-color: white;">${pepTable[i].Codon}</td>
-    <td style="background-color: hsl(${theHue}, 50%, 100%);">${theHue}°</td>
-    <td>${c[0]},${c[1]},${c[2]}  #NOTWORK</td>
-    <td>${pepTable[i].Histocount}</td>
-    <td>${pepTable[i].Description}</td>
-    </tr>
-    `
-  }
+</div>
+</a>
+</div>
+</div>
+<table>
+<thead>
+<tr>
+<th>Amino Acid</th>
+<th>Hue</th>
+<th>RGB</th>
+<th>Count</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+`;
+// pepTable   = [Codon, Description, Hue, Alpha, Histocount]
+for (i=0; i<pepTable.length; i++) {
+  let theHue = pepTable[i].Hue;
+  log(theHue);
+  let c = hsvToRgb( theHue, 0.5, 1.0 );
+  // const c = hsvToRgb( pepTable[i].Hue );
   html += `
-  </tbody>
-  <tfoot>
-  <tr>
-  <td>19 Amino Acids, 4 Start/Stop codes, 1 NNN</td>
-  <td>.</td>
-  <td>.</td>
-  <td>.</td>
-  <td>.</td>
+  <tr style="background-color: hsl(${theHue}, 50%, 100%);">
+  <td style="background-color: white;">${pepTable[i].Codon}</td>
+  <td style="background-color: hsl(${theHue}, 50%, 100%);">${theHue}°</td>
+  <td>${c[0]},${c[1]},${c[2]}  #NOTWORK</td>
+  <td>${pepTable[i].Histocount}</td>
+  <td>${pepTable[i].Description}</td>
   </tr>
-  </tfoot>
-  </table>
-  <a name="scrollDownToSeeImage" ></a>
-  <a href="${justNameOfHILBERT}" ><img src="${justNameOfHILBERT}"></a>
+  `
+}
+html += `
+</tbody>
+<tfoot>
+<tr>
+<td>19 Amino Acids, 4 Start/Stop codes, 1 NNN</td>
+<td>.</td>
+<td>.</td>
+<td>.</td>
+<td>.</td>
+</tr>
+</tfoot>
+</table>
+<a name="scrollDownToSeeImage" ></a>
+<a href="${justNameOfHILBERT}" ><img src="${justNameOfHILBERT}"></a>
 
-  <h2>About Start and Stop Codons</h2>
-  <p>The codon AUG is called the START codon as it the first codon in the transcribed mRNA that undergoes translation. AUG is the most common START codon and it codes for the amino acid methionine (Met) in eukaryotes and formyl methionine (fMet) in prokaryotes. During protein synthesis, the tRNA recognizes the START codon AUG with the help of some initiation factors and starts translation of mRNA.
+<h2>About Start and Stop Codons</h2>
+<p>The codon AUG is called the START codon as it the first codon in the transcribed mRNA that undergoes translation. AUG is the most common START codon and it codes for the amino acid methionine (Met) in eukaryotes and formyl methionine (fMet) in prokaryotes. During protein synthesis, the tRNA recognizes the START codon AUG with the help of some initiation factors and starts translation of mRNA.
 
-  Some alternative START codons are found in both eukaryotes and prokaryotes. Alternate codons usually code for amino acids other than methionine, but when they act as START codons they code for Met due to the use of a separate initiator tRNA.
+Some alternative START codons are found in both eukaryotes and prokaryotes. Alternate codons usually code for amino acids other than methionine, but when they act as START codons they code for Met due to the use of a separate initiator tRNA.
 
-  Non-AUG START codons are rarely found in eukaryotic genomes. Apart from the usual Met codon, mammalian cells can also START translation with the amino acid leucine with the help of a leucyl-tRNA decoding the CUG codon. Mitochondrial genomes use AUA and AUU in humans and GUG and UUG in prokaryotes as alternate START codons.
+Non-AUG START codons are rarely found in eukaryotic genomes. Apart from the usual Met codon, mammalian cells can also START translation with the amino acid leucine with the help of a leucyl-tRNA decoding the CUG codon. Mitochondrial genomes use AUA and AUU in humans and GUG and UUG in prokaryotes as alternate START codons.
 
-  In prokaryotes, E. coli is found to use AUG 83%, GUG 14%, and UUG 3% as START codons. The lacA and lacI coding regions in the E coli lac operon don’t have AUG START codon and instead use UUG and GUG as initiation codons respectively.</p>
-  <h2>Linear Projection</h2>
-  The following image is in raster order, top left to bottom right:
-  <a href="${justNameOfPNG}" ><img src="${justNameOfPNG}"></a>
+In prokaryotes, E. coli is found to use AUG 83%, GUG 14%, and UUG 3% as START codons. The lacA and lacI coding regions in the E coli lac operon don’t have AUG START codon and instead use UUG and GUG as initiation codons respectively.</p>
+<h2>Linear Projection</h2>
+The following image is in raster order, top left to bottom right:
+<a href="${justNameOfPNG}" ><img src="${justNameOfPNG}"></a>
 
-  `;
-  return html;
+`;
+return html;
 }
 
 function helpCmd(args) {
@@ -1383,7 +1384,7 @@ function arrayToPNG() {
 
           if (openHtml) {
             opn(filenameHTML).then(() => {
-                log("image viewer closed");
+              log("image viewer closed");
             });
           } else {
             opn(filenameHILBERT).then(() => {
@@ -1415,15 +1416,17 @@ function saveHilbert(array) {
     output("use -m to try different dimensions, 1-11 correspond to: ");
     output(hilbPixels);
     // maxpix = hilbPixels[magnitude];
-    for (i= 0; i < hilbPixels.length-1; i++) {
+    for (i= 0; i < hilbPixels.length-5; i++) {
       dimension = i;
       let filePath = path.resolve(__dirname) ;
+      output("TEST PATTERNS GENERATION " + hilbPixels[i]);
 
       filenameHILBERT = filePath + "/AminoSee_Calibration_" + i + ".png";
-      setTimeout(() => {
-        actuallySaveThatHilbert();
-      }, 1);
-      // actuallySaveThatHilbert();
+
+      // setImmediate(() => {
+      //   actuallySaveThatHilbert();
+      // });
+      actuallySaveThatHilbert();
     }
 
 
@@ -1444,6 +1447,8 @@ function actuallySaveThatHilbert(array) {
   const h = require('hilbert-2d');
   let hilpix = hilbPixels[dimension];
   let test = false;
+  let hilbertImage = [hilpix*4];
+
   if (array == undefined) {
     test = true;
   } else {
@@ -1456,14 +1461,15 @@ function actuallySaveThatHilbert(array) {
   hilbertImage = [hilpix*4]; //  x = x, y % 960
 
   for (i = 0; i < hilpix; i++) {
-
+    // log(i);
     let hilbX, hilbY;
-    [hilbX, hilbY] = h.decode(16,i);
+    [hilbX, hilbY] = h.decode(16,i); // <-- THIS IS WHERE THE MAGIC HILBERT HAPPENS
     let cursorLinear  = 4 * i ;
     let hilbertLinear = 4 * ((hilbX % width) + (hilbY * width));
     let perc = i / hilpix;
 
-    if (test) {
+    output("test " + test );
+    if (test == true) {
       hilbertImage[hilbertLinear] =   255*perc;
       hilbertImage[hilbertLinear+1] = (perc*1024)%255;
       hilbertImage[hilbertLinear+2] = (perc*4096)%255;
@@ -1483,28 +1489,38 @@ function actuallySaveThatHilbert(array) {
     }
   }
 
-    var hilbert_img_data = Uint8ClampedArray.from(hilbertImage);
-    var hilbert_img_png = new PNG({
-      width: width,
-      height: height,
-      colorType: 2,
-      bgColor: {
-        red: 0,
-        green: 0,
-        blue: 0
-      }
-    })
-    hilbert_img_png.data = Buffer.from(hilbert_img_data);
-    hilbert_img_png.pack().pipe(fs.createWriteStream(filenameHILBERT));
+  var hilbert_img_data = Uint8ClampedArray.from(hilbertImage);
+  var hilbert_img_png = new PNG({
+    width: width,
+    height: height,
+    colorType: 2,
+    bgColor: {
+      red: 0,
+      green: 0,
+      blue: 0
+    }
+  })
+  hilbert_img_png.data = Buffer.from(hilbert_img_data);
+  let wstream = fs.createWriteStream(filenameHILBERT);
+  hilbert_img_png.pack().pipe(wstream);
+
+  // wstream.on("open", (data) => {
+  //   wstream.write(data, (err) => {
+  //     if (err) {
+  //       console.warn(err.message);
+  //     } else {
+  //       console.log("bytes written");
+  //
+  //       setImmediate(() => {
+  //         log("Test Patterns done");
+  //         wstream.close();
+  //       });
+  //     }
+  //   })
+  // })
+  // img_png.pack().pipe(fs.createWriteStream(filenamePNG));
 
 }
-// function getFilePath(string) {
-//   let x = string.indexOf( replaceFilepathFileName(string) )
-//   output(string);
-//   output("GET FILE PATH")
-//   output( x );
-//   return string.substring(0, x);
-// }
 
 function removeSpacesForFilename(string) {
   return string.replace(/ /, '').toUpperCase();
@@ -2494,7 +2510,7 @@ function drawHistogram() {
         <tr><th colspan="5"><hr></th></tr>
         </table>
         </body></html>
-`));
+        `));
 
       }
 
@@ -2708,7 +2724,7 @@ function drawHistogram() {
         ╩ ╩┴ ┴┴┘└┘└─┘╚═╝└─┘└─┘  ═╩╝╝╚╝╩ ╩   ╚╝ ┴└─┘└┴┘└─┘┴└─
         by Tom Atkinson          aminosee.funk.co.nz
         ah-mee no-see         "I See It Now - I AminoSee it!"
-`, 96, 64, 245);
+        `, 96, 64, 245);
 
         const lineBreak = `
-`;
+        `;
