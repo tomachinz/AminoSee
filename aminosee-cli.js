@@ -405,8 +405,8 @@ module.exports = () => {
       initStream(filename); // moving to the poll
 
       // setImmediate(() => {
-        // pollForWork(); // <-- instead of for loop, a chain of callbacks to pop the array
-        // initStream(filename); // moving to the poll
+      // pollForWork(); // <-- instead of for loop, a chain of callbacks to pop the array
+      // initStream(filename); // moving to the poll
       // });
       output(filename)
       // setTimeout(() => {
@@ -473,21 +473,21 @@ function pollForWork() {
   output(`Total files to process: ${howMany}`);
 
   if (howMany < 1) {
-      output("pollForWork howMany " + howMany);
+    output("pollForWork howMany " + howMany);
 
-      output("bye");
-      // quit();
-    } else {
-      // filename = path.resolve( args._[0] );
-      // if (status != "paint" || status == "quit") {
-      args._.pop();
-      // howMany = args._.length ;
-      setTimeout(() => {
-        initStream( filename );
-      }, 50);
-      // }
+    output("bye");
+    // quit();
+  } else {
+    // filename = path.resolve( args._[0] );
+    // if (status != "paint" || status == "quit") {
+    args._.pop();
+    // howMany = args._.length ;
+    setTimeout(() => {
+      initStream( filename );
+    }, 50);
+    // }
 
-    }
+  }
 }
 
 function initStream(f) {
@@ -639,14 +639,13 @@ function autoconfCodonsPerPixel() { // requires baseChars maxpix defaultC
   // if cpp is 3 it is 1
   // if cpp is 4 it is 2.5
   // if cpp is 10 it is 6.5
-  if (codonsPerPixel < 100) {
-    highlightFactor = codonsPerPixel - ((codonsPerPixel - 1 ) / 2) ;
+  if (codonsPerPixel < 24) {
+    highlightFactor = 1 + ( codonsPerPixel / 2 ) ;
 
   } else {
-    highlightFactor = 50 ;
-
+    highlightFactor = 12 + ( codonsPerPixel / 4) ;
   }
-    return codonsPerPixel;
+  return codonsPerPixel;
 }
 
 function removeFileExtension(f) {
@@ -932,7 +931,7 @@ function processLine(l) {
         mixRGBA[0]  += parseFloat(codonRGBA[0].valueOf()) * highlightFactor * opacity;// * opacity; // red
         mixRGBA[1]  += parseFloat(codonRGBA[1].valueOf()) * highlightFactor * opacity;// * opacity; // green
         mixRGBA[2]  += parseFloat(codonRGBA[2].valueOf()) * highlightFactor * opacity;// * opacity; // blue
-        mixRGBA[3]  +=   255 * highlightFactor *  opacity;// * opacity; // blue
+        mixRGBA[3]  +=   128 * highlightFactor *  opacity;// * opacity; // blue
       } else {
         //  not a START/STOP codon. Stack multiple codons per pixel.
         // HERE WE ADDITIVELY BUILD UP THE VALUES with +=
@@ -1259,33 +1258,19 @@ function arrayToPNG() {
     }
   }
   if (ratio == "golden") {
-    let goldenmargin = 1;
     let phi = ((Math.sqrt(5) + 1) / 2) ; // 1.618033988749895
+    let bleed = pixels * phi
     width = 1;
     height = 1;
 
 
-          width = Math.sqrt(pixels + goldenmargin); // need some extra pixels sometimes
-          height = width; // 1mp = 1000 x 1000
-          height =  ( width * phi ) - width; // 16.18 - 6.18 = 99.99
-          width = pixels / height;
-          height = Math.round(height);
-          width = Math.round(width) - height;
-          log(goldenmargin + " Image allocation check: " + pixels + " > width x height = " + ( width * height ));
-          goldenmargin++;
-
-    while ( pixels < width*height) {
-      width = Math.sqrt(pixels + goldenmargin); // need some extra pixels sometimes
-      height = width; // 1mp = 1000 x 1000
-      height =  ( width * phi ) - width; // 16.18 - 6.18 = 99.99
-      width = pixels / height;
-      height = Math.round(height);
-      width = Math.round(width) - height;
-      log(goldenmargin + " Image allocation check: " + pixels + " > width x height = " + ( width * height ));
-      goldenmargin++;
-    }
-
-
+    width = Math.sqrt(bleed); // need some extra pixels sometimes
+    height = width; // 1mp = 1000 x 1000
+    height =  ( width * phi ) - width; // 16.18 - 6.18 = 99.99
+    width = bleed / height;
+    height = Math.round(height);
+    width = Math.round(width) - height;
+    log(bleed + " Image allocation check: " + pixels + " > width x height = " + ( width * height ));
 
   } else if (ratio == "fixed") {
     if (pixels <= widthMax) {
@@ -1306,7 +1291,7 @@ function arrayToPNG() {
     output("Image allocation check: " + pixels + " < width x height = " + ( width * height ));
   } else {
     output("MEGA FAIL: TOO MANY ARRAY PIXELS NOT ENOUGH IMAGE SIZE: array pixels: " + pixels + " <  width x height = " + (width*height));
-    quit();
+    // quit();
   }
   output("Raw image bytes: " + bytes(pixels/4));
   output("Pixels: " + pixels.toLocaleString());
@@ -1343,7 +1328,7 @@ function arrayToPNG() {
           //     log("image viewer closed");
           // });
           opn(filenamePNG).then(() => {
-              log("image viewer closed");
+            log("image viewer closed");
           });
 
         });
@@ -1352,9 +1337,9 @@ function arrayToPNG() {
     }
 
     // setTimeout(() => {
-         output("Thats us cousin")
-         pollForWork()
-       // }, 1);
+    output("Thats us cousin")
+    pollForWork()
+    // }, 1);
 
   });
 }
@@ -2346,7 +2331,7 @@ function drawHistogram() {
         <tr><th colspan="5"><hr></th></tr>
         </table>
         </body></html>
-`));
+        `));
 
       }
 
@@ -2560,7 +2545,7 @@ function drawHistogram() {
         ╩ ╩┴ ┴┴┘└┘└─┘╚═╝└─┘└─┘  ═╩╝╝╚╝╩ ╩   ╚╝ ┴└─┘└┴┘└─┘┴└─
         by Tom Atkinson          aminosee.funk.co.nz
         ah-mee no-see         "I See It Now - I AminoSee it!"
-`, 96, 64, 245);
+        `, 96, 64, 245);
 
         const lineBreak = `
-`;
+        `;

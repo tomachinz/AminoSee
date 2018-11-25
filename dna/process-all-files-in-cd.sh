@@ -3,8 +3,8 @@ echo List files without ./ in front
 # find . | awk '{sub(/.\//," ")}1'
 
 aminosee_do () {
-  nice -n $3 aminosee $1 -d $4 &
-  echo "sleeping"
+  nice -n $3 aminosee $1 -f -d $4 &
+  echo "done"
   sleep $2
 }
 aminosee_do_foreground() {
@@ -20,18 +20,18 @@ parallel_file () {
 
 # aminosee $1  -m 1  -v -d &
 aminosee_do_foreground $1 $2 0 &
-aminosee_do $1 $2 1   --peptide=Ochre
-aminosee_do $1 $2 2   --peptide=Glutamic
-aminosee_do $1 $2 3   --peptide=Aspartic
+aminosee_do $1 $2 1   --peptide=Ochre &
+aminosee_do $1 $2 2   --peptide=Glutamic &
+aminosee_do $1 $2 3   --peptide=Aspartic &
 aminosee_do $1 $2 4   --peptide=Amber
 aminosee_do $1 $2 5   --peptide=Cysteine
 aminosee_do $1 $2 6   --peptide=Glycine
-aminosee_do_foreground $1 $2 0   --peptide=Alanine
+aminosee_do_foreground $1 $2 0  --peptide=Alanine
 
 aminosee_do $1 $2 1   --peptide=Methionine
 aminosee_do $1 $2 2   --peptide=Valine
 aminosee_do $1 $2 3   --peptide=Leucine
-aminosee_do $1 $2 4   --peptide=Isoleucine
+aminosee_do_foreground $1 $2 4   --peptide=Isoleucine
 aminosee_do $1 $2 5   --peptide=Phenylalanine
 aminosee_do $1 $2 6   --peptide=Tryptophan
 aminosee_do $1 $2 7   --peptide=Serine
@@ -40,9 +40,9 @@ aminosee_do_foreground $1 $2 0   --peptide=Threonine
 aminosee_do $1 $2 1   --peptide=Opal
 aminosee_do $1 $2 2   --peptide=Glutamine
 aminosee_do $1 $2 3   --peptide=Asparagine
-aminosee_do $1 $2 4   --peptide=Tyrosine
+aminosee_do_foreground $1 0 4   --peptide=Tyrosine
 aminosee_do $1 $2 5   --peptide=Arginine
-aminosee_do $1 $2 6   --peptide=Lysine
+aminosee_do_foreground $1 $2 6   --peptide=Lysine
 aminosee_do_foreground $1 $2 0   --peptide=Histidine &
 
 #
