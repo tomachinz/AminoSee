@@ -12,7 +12,7 @@ const resHD = 1920*1080; // W2
 const res4K = 3840*2160; // W4
 let maxpix = res4K; // for large genomes
 
-let darkenFactor = 0.5;
+let darkenFactor = 0.75;
 let highlightFactor = 2;
 const defaultC = 1; // back when it could not handle 3+GB files.
 const artisticHighlightLength = 12; // px only use in artistic mode. must be 6 or 12 currently
@@ -577,9 +577,10 @@ function initStream(f) {
     output(renderSummary());
     arrayToPNG(); // fingers crossed!
     // status = "saving html report";
-    if (!devmode) {
+    // if (!devmode) {
       saveHTML();
-    }
+    // }
+
   }));
 
   log("FINISHED MAIN LOOP");
@@ -1053,9 +1054,10 @@ function processLine(l) {
             green = 0;
             blue = 0;
             paintPixel(); // END WITH BLACK
-            // mixRGBA[0] =   0;
-            // mixRGBA[1] =   0;
-            // mixRGBA[2] =   0;
+            pixelStacking = 0;
+            mixRGBA[0] =   0;
+            mixRGBA[1] =   0;
+            mixRGBA[2] =   0;
             //
           } else { // non highlight pixel
             red = 0;
@@ -1106,15 +1108,16 @@ function processLine(l) {
               blue = blue / 1.1;
               paintPixel();
             }
-
+            // reset inks:
+            pixelStacking = 0;
+            mixRGBA[0] =   0;
+            mixRGBA[1] =   0;
+            mixRGBA[2] =   0;
           }
-          // reset inks:
-          pixelStacking = 0;
-          mixRGBA[0] =   0;
-          mixRGBA[1] =   0;
-          mixRGBA[2] =   0;
+
 
         } // artistic mode
+
       } // end pixel stacking
       codon = ""; // wipe for next time
     } // end codon.length ==  3
@@ -1363,8 +1366,11 @@ function arrayToPNG() {
   img_png.data = Buffer.from(img_data);
   img_png.pack().pipe(fs.createWriteStream(filenamePNG));
 
-  saveHilbert(rgbArray);
-  // if (ratio == "hilbert") {
+  if (artistic == true ) {
+    output("Cant output hilbert image when using artistic mode");
+  } else {
+    saveHilbert(rgbArray);
+  }
 
   setImmediate(() => {
     output("Input DNA: " + filename)
@@ -1468,7 +1474,7 @@ function actuallySaveThatHilbert(array) {
     let hilbertLinear = 4 * ((hilbX % width) + (hilbY * width));
     let perc = i / hilpix;
 
-    output("test " + test );
+    // output("test " + test );
     if (test == true) {
       hilbertImage[hilbertLinear] =   255*perc;
       hilbertImage[hilbertLinear+1] = (perc*1024)%255;
