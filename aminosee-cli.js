@@ -643,7 +643,7 @@ function autoconfCodonsPerPixel() { // requires baseChars maxpix defaultC
     highlightFactor = 1 + ( codonsPerPixel / 2 ) ;
 
   } else {
-    highlightFactor = 12 + ( codonsPerPixel / 4) ;
+    highlightFactor = 12 + ( codonsPerPixel / 8) ;
   }
   return codonsPerPixel;
 }
