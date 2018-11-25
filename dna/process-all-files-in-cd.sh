@@ -23,8 +23,8 @@ echo List files without ./ in front
 # aminosee Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa -m 7 -d -f --peptide=SERINE &
 # aminosee Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa -m 8 -d -f --peptide=SERINE &
 # aminosee Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa -m 9   -d -f --peptide=LEUCINE &
-# aminosee Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa  -m 10 -d -f  --peptide=SERINE &
-# aminosee Caenorhabditis_elegans.WBcel235.dna_sm.toplevel.fa -d -f  --peptide=LEUCINE &
+# aminosee Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa  -m 10 -d -f$3 --peptide=SERINE &
+# aminosee Caenorhabditis_elegans.WBcel235.dna_sm.toplevel.fa -d -f$3 --peptide=LEUCINE &
 # aminosee Caenorhabditis_elegans.WBcel235.dna_sm.toplevel.fa  -m 10 -d -f --peptide=PROLINE
 #
 # aminosee chrX.fa -d -f --ratio="hilbert" --peptide=LEUCINE &
@@ -104,73 +104,73 @@ parallel_file () {
   echo "                                         =///"
 
 
-  aminosee_do_foreground $1 $2 0 &
-  aminosee_do $1 $2 1   --peptide=Ochre &
-  aminosee_do $1 $2 2   --peptide=Glutamic &
-  aminosee_do $1 $2 3   --peptide=Aspartic &
-  aminosee_do $1 $2 4   --peptide=Amber
-  aminosee_do $1 $2 5   --peptide=Cysteine
-  aminosee_do $1 $2 6   --peptide=Glycine
-  aminosee_do_foreground $1 $2 0 --peptide=Alanine
+  aminosee_do_foreground $1 $2 0 $3   &
+  aminosee_do $1 $2 1 $3 --peptide=Ochre &
+  aminosee_do $1 $2 2 $3 --peptide=Glutamic &
+  aminosee_do $1 $2 3 $3 --peptide=Aspartic &
+  aminosee_do $1 $2 4 $3 --peptide=Amber
+  aminosee_do $1 $2 5 $3 --peptide=Cysteine
+  aminosee_do $1 $2 6 $3 --peptide=Glycine
+  aminosee_do_foreground $1 $2 0 $3--peptide=Alanine
 
 
 # aminosee $1  -m 1  -v -d &
-aminosee_do_foreground $1 $2 0 &
-aminosee_do $1 $2 1   --peptide=Ochre &
-aminosee_do $1 $2 2   --peptide=Glutamic &
-aminosee_do $1 $2 3   --peptide=Aspartic &
-aminosee_do $1 $2 4   --peptide=Amber
-aminosee_do $1 $2 5   --peptide=Cysteine
-aminosee_do $1 $2 6   --peptide=Glycine
+aminosee_do_foreground $1 $2 0 $3 &
+aminosee_do $1 $2 1 $3 --peptide=Ochre &
+aminosee_do $1 $2 2 $3 --peptide=Glutamic &
+aminosee_do $1 $2 3 $3 --peptide=Aspartic &
+aminosee_do $1 $2 4 $3 --peptide=Amber
+aminosee_do $1 $2 5 $3 --peptide=Cysteine
+aminosee_do $1 $2 6 $3 --peptide=Glycine
 aminosee_do_foreground $1 $2 0 --peptide=Alanine
 
-aminosee_do $1 $2 1   --peptide=Methionine &
-aminosee_do $1 $2 2   --peptide=Valine
-aminosee_do_foreground $1 $2 3  --peptide=Leucine
-aminosee_do $1 $2 4   --peptide=Isoleucine &
-aminosee_do $1 $2 5   --peptide=Phenylalanine
-aminosee_do $1 $2 6   --peptide=Tryptophan
-aminosee_do $1 $2 7   --peptide=Serine
-aminosee_do_foreground $1 $2 0   --peptide=Threonine
+aminosee_do $1 $2 1 $3 --peptide=Methionine &
+aminosee_do $1 $2 2 $3 --peptide=Valine
+aminosee_do_foreground $1 $2 3$3 --peptide=Leucine
+aminosee_do $1 $2 4 $3 --peptide=Isoleucine &
+aminosee_do $1 $2 5 $3 --peptide=Phenylalanine
+aminosee_do $1 $2 6 $3 --peptide=Tryptophan
+aminosee_do $1 $2 7 $3 --peptide=Serine
+aminosee_do_foreground $1 $2 0 $3 --peptide=Threonine
 
-aminosee_do $1 $2 1   --peptide=Opal &
-aminosee_do $1 $2 2   --peptide=Glutamine
-aminosee_do $1 $2 3   --peptide=Asparagine
-aminosee_do_foreground $1 0 4   --peptide=Tyrosine
-aminosee_do $1 $2 5   --peptide=Arginine &
-aminosee_do_foreground $1 $2 6   --peptide=Lysine
-aminosee_do_foreground $1 $2 0   --peptide=Histidine &
+aminosee_do $1 $2 1 $3 --peptide=Opal &
+aminosee_do $1 $2 2 $3 --peptide=Glutamine
+aminosee_do $1 $2 3 $3 --peptide=Asparagine
+aminosee_do_foreground $1 0 4 $3 --peptide=Tyrosine
+aminosee_do $1 $2 5 $3 --peptide=Arginine &
+aminosee_do_foreground $1 $2 6 $3 --peptide=Lysine
+aminosee_do_foreground $1 $2 0 $3 --peptide=Histidine &
 
 #
 #
 # aminosee $1 -m 10 -v -d &
-# aminosee_do $1 $2 1 aminosee $1   -m 10   -v -d  --peptide=Ochre &
-# aminosee_do $1 $2 2 aminosee $1   -m 10   -v -d  --peptide="Glutamic acid" &
-# aminosee_do $1 $2 3 aminosee $1   -m 10   -v -d  --peptide="Aspartic acid" &
-# aminosee_do $1 $2 4 aminosee $1   -m 10   -v -d  --peptide=Amber &
-# aminosee_do $1 $2 5 aminosee $1   -m 10   -v -d  --peptide=Cysteine &
-# aminosee_do $1 $2 6 aminosee $1   -m 10   -v -d  --peptide=Glycine &
-# aminosee_do $1 $2 7 aminosee $1   -m 10   -v -d  --peptide=Alanine
+# aminosee_do $1 $2 1 aminosee $1   -m 10   -v -d$3 --peptide=Ochre &
+# aminosee_do $1 $2 2 aminosee $1   -m 10   -v -d$3 --peptide="Glutamic acid" &
+# aminosee_do $1 $2 3 aminosee $1   -m 10   -v -d$3 --peptide="Aspartic acid" &
+# aminosee_do $1 $2 4 aminosee $1   -m 10   -v -d$3 --peptide=Amber &
+# aminosee_do $1 $2 5 aminosee $1   -m 10   -v -d$3 --peptide=Cysteine &
+# aminosee_do $1 $2 6 aminosee $1   -m 10   -v -d$3 --peptide=Glycine &
+# aminosee_do $1 $2 7 aminosee $1   -m 10   -v -d$3 --peptide=Alanine
 #
 #
-# aminosee_do $1 $2 1 aminosee $1   -m 10   -v -d  --peptide=Methionine &
-# # aminosee_do $1 $2 2 aminosee $1   -m 10   -v -d  --peptide=Valine &
-# # aminosee_do $1 $2 3 aminosee $1   -m 10   -v -d  --peptide=Leucine &
-# # aminosee_do $1 $2 4 aminosee $1   -m 10   -v -d  --peptide=Isoleucine &
-# # aminosee_do $1 $2 5 aminosee $1   -m 10   -v -d  --peptide=Phenylalanine &
-# # aminosee_do $1 $2 6 aminosee $1   -m 10   -v -d  --peptide=Tryptophan &
-# # aminosee_do $1 $2 7 aminosee $1   -m 10   -v -d  --peptide=Serine &
+# aminosee_do $1 $2 1 aminosee $1   -m 10   -v -d$3 --peptide=Methionine &
+# # aminosee_do $1 $2 2 aminosee $1   -m 10   -v -d$3 --peptide=Valine &
+# # aminosee_do $1 $2 3 aminosee $1   -m 10   -v -d$3 --peptide=Leucine &
+# # aminosee_do $1 $2 4 aminosee $1   -m 10   -v -d$3 --peptide=Isoleucine &
+# # aminosee_do $1 $2 5 aminosee $1   -m 10   -v -d$3 --peptide=Phenylalanine &
+# # aminosee_do $1 $2 6 aminosee $1   -m 10   -v -d$3 --peptide=Tryptophan &
+# # aminosee_do $1 $2 7 aminosee $1   -m 10   -v -d$3 --peptide=Serine &
 # sleep 5
-# aminosee_do $1 $2 8 aminosee $1   -m 10   -v -d  --peptide=Threonine
+# aminosee_do $1 $2 8 aminosee $1   -m 10   -v -d$3 --peptide=Threonine
 #
-# aminosee_do $1 $2 1 aminosee $1   -m 10   -v -d  --peptide=Opal &
-# aminosee_do $1 $2 2 aminosee $1   -m 10   -v -d  --peptide=Glutamine &
-# aminosee_do $1 $2 3 aminosee $1   -m 10   -v -d  --peptide=Asparagine &
-# aminosee_do $1 $2 4 aminosee $1   -m 10   -v -d  --peptide=Tyrosine &
-# aminosee_do $1 $2 5 aminosee $1   -m 10   -v -d  --peptide=Arginine &
-# aminosee_do $1 $2 6 aminosee $1   -m 10   -v -d  --peptide=Lysine &
-# aminosee_do $1 $2 7 aminosee $1   -m 10   -v -d  --peptide=Histidine &
-# aminosee $1 -m 10 -v -d  --peptide=Proline
+# aminosee_do $1 $2 1 aminosee $1   -m 10   -v -d$3 --peptide=Opal &
+# aminosee_do $1 $2 2 aminosee $1   -m 10   -v -d$3 --peptide=Glutamine &
+# aminosee_do $1 $2 3 aminosee $1   -m 10   -v -d$3 --peptide=Asparagine &
+# aminosee_do $1 $2 4 aminosee $1   -m 10   -v -d$3 --peptide=Tyrosine &
+# aminosee_do $1 $2 5 aminosee $1   -m 10   -v -d$3 --peptide=Arginine &
+# aminosee_do $1 $2 6 aminosee $1   -m 10   -v -d$3 --peptide=Lysine &
+# aminosee_do $1 $2 7 aminosee $1   -m 10   -v -d$3 --peptide=Histidine &
+# aminosee $1 -m 10 -v -d$3 --peptide=Proline
 
   echo "                                         =///"
   echo "-------------------------------------------"
@@ -178,6 +178,21 @@ aminosee_do_foreground $1 $2 0   --peptide=Histidine &
   echo "-------------------------------------------"
   echo "                                         =///"
 }
+
+if [ $(uname)=Darwin ]; then
+  echo macos
+  find -f *.fa *.mfa *.gbk *.txt
+  sleep 2
+  find -f *.fa *.mfa *.gbk *.txt -exec parallel_file {} 30 --artistic \;
+fi
+
+if [ $(uname)=Linux ]; then
+  echo linux
+  find *.fa *.mfa *.gbk *.txt
+  sleep 2
+  find *.fa *.mfa *.gbk *.txt -exec parallel_file {} 30  --artistic \;
+fi
+
 
 parallel_hilbert megabase.fa 0
 parallel_hilbert Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa 5
@@ -203,17 +218,3 @@ parallel_file 64-codons-test-pattern.txt 0
 # aminosee Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa  -m 12  -v -d -f--triplet=ATT
 # aminosee Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa  -m 12  -v -d -f--triplet=TCG
 #
-
-if [ $(uname)=Darwin ]; then
-  echo macos
-  find -f *.fa *.mfa *.gbk *.txt
-  sleep 2
-  find -f *.fa *.mfa *.gbk *.txt -exec parallel_file {} 30 \;
-fi
-
-if [ $(uname)=Linux ]; then
-  echo linux
-  find *.fa *.mfa *.gbk *.txt
-  sleep 2
-  find *.fa *.mfa *.gbk *.txt -exec parallel_file {} 30 \;
-fi
