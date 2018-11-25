@@ -1563,38 +1563,10 @@ function log(txt) {
     process.stdout.write(txt);
   }
 }
-function isAminoAcid(acid) {
-  return acid.Codon === acid;
-}
-function isTripletPeptide(t) {
-  return t.Codon == peptide;
-}
 
-function init() {
-  // make a HISTOGRAM of amino acids found.
-  for (i=0; i < dnaTriplets.length; i++) {
-    dnaTriplets[i].Histocount = 0;
-
-  }
-  for (i=0; i < pepTable.length; i++) {
-    pepTable[i].Histocount = 0;
-    // pepTable[i].Histocount  = 0;
-  }
-}
 function onError(e) {
   output('ERROR: ' + e.toString());
 }
-
-
-function saveBitmap() {
-  try {
-    var fs = requestFileSystemSync(TEMPORARY, 1920 * 1080 * 3 ); /*  6220800 bytes 24 bit */
-  } catch(e) {
-    console.warn(e);
-  }
-  helloWorldBitmap("test");
-}
-
 
 // it used to chop the headers
 // but not it just helps with the streaming read design.
@@ -1610,7 +1582,6 @@ function parseFileMeta() {
 
 // remove anything that isn't ATCG, convert U to T
 function cleanChar(c) {
-  // log(c);
   char = c.toUpperCase();
   if (char == "A" || char == "C" || char == "G" || char == "T" || char == "U") {
     if (char == "U") {
@@ -1627,7 +1598,6 @@ function removeLineBreaks(txt) {
 }
 function cleanString(s) {
   let ret = "";
-  // remove line breaks:
   s = removeLineBreaks(s);
 
   for (i=0; i< s.length; i++) {
@@ -1653,7 +1623,7 @@ function clearPrint(t) {
     // process.stdout.write("\r\x1b[K");
     // process.stdout.write('\033c');
     // console.log('\033c');
-    // process.stdout.write("\x1B[2J");
+    process.stdout.write("\x1B[2J");
     // console.log('\x1Bc');
 
   } else {
@@ -1661,19 +1631,7 @@ function clearPrint(t) {
   }
   printRadMessage();
   console.log(t)
-  // process.stdout.write(t)
-  // console.log(`
-  // CPU: ${chalk.red('90%')}
-  // RAM: ${chalk.green('40%')}
-  // DISK: ${chalk.yellow('70%')}
-  // `);
-  // console.log();
 }
-
-function renderPixels() {
-
-}
-
 
 function prettyDate() {
   var options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
@@ -1682,7 +1640,6 @@ function prettyDate() {
   return today.toLocaleString(options) + "  " + today.toLocaleDateString(options); // Saturday, September 17, 2016
 }
 function printRadMessage() {
-  // BgBlack = "\x1b[40m"
 
   console.log(terminalRGB("╔═╗┌┬┐┬┌┐┌┌─┐╔═╗┌─┐┌─┐  ╔╦╗╔╗╔╔═╗  ╦  ╦┬┌─┐┬ ┬┌─┐┬─┐\r", 255, 60, 250) );
   console.log(terminalRGB("╠═╣││││││││ │╚═╗├┤ ├┤    ║║║║║╠═╣  ╚╗╔╝│├┤ │││├┤ ├┬┘\r", 128, 128, 255) );
@@ -1705,11 +1662,9 @@ function calcUpdate() {
 }
 function drawHistogram() {
   if (updates == false) {
-    // spew = false;
     status = "Stats display disabled";
     return status;
   }
-
 
   calcUpdate();
 
@@ -2515,24 +2470,12 @@ function drawHistogram() {
         <tr><td valign="top"><img src="/icons/folder.gif" alt="[DIR]"></td><td><a href="space20160518/">space20160518/</a>       </td><td align="right">19-May-2016 19:03  </td><td align="right">  - </td><td>&nbsp;</td></tr>
         <tr><th colspan="5"><hr></th></tr>
         </table>
-        </body></html>
-        `));
+        </body></html>`));
 
       }
 
 
 
-      function createTick(n) {
-        var fname = n + new Date().getTime() + "-tick.png";
-        var img_width = 16;
-        var img_height = 16;
-        var tick = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 134, 133, 110, 6, 97, 137, 82, 249, 97, 142, 79, 255, 93, 142, 74, 255, 90, 140, 71, 255, 90, 142, 70, 255, 79, 129, 60, 250, 115, 134, 92, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 133, 152, 125, 15, 111, 151, 96, 255, 223, 255, 209, 255, 174, 253, 148, 255, 158, 249, 126, 255, 141, 249, 103, 255, 71, 145, 43, 255, 68, 143, 42, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 137, 158, 131, 20, 111, 153, 96, 255, 216, 255, 201, 255, 172, 247, 145, 255, 156, 244, 124, 255, 139, 242, 102, 255, 72, 145, 44, 255, 75, 144, 47, 20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 137, 158, 131, 25, 110, 154, 94, 255, 196, 252, 178, 255, 157, 242, 125, 255, 144, 239, 110, 255, 129, 237, 91, 255, 70, 145, 42, 255, 70, 142, 43, 25, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 132, 153, 128, 30, 107, 155, 90, 255, 177, 245, 151, 255, 134, 233, 100, 255, 125, 230, 87, 255, 114, 229, 73, 255, 69, 146, 41, 255, 66, 140, 40, 30, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 126, 154, 120, 55, 103, 155, 83, 255, 154, 236, 125, 255, 111, 223, 71, 255, 109, 222, 69, 255, 109, 225, 69, 255, 69, 146, 40, 255, 63, 133, 41, 44, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 116, 142, 107, 82, 100, 154, 79, 255, 145, 229, 114, 255, 103, 218, 62, 255, 105, 218, 65, 255, 106, 220, 66, 255, 69, 145, 39, 255, 67, 125, 49, 82, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 71, 119, 56, 249, 126, 178, 106, 255, 122, 174, 104, 255, 128, 194, 105, 255, 140, 226, 109, 255, 105, 215, 65, 255, 103, 214, 63, 255, 104, 215, 63, 255, 84, 167, 53, 255, 78, 139, 54, 255, 78, 142, 54, 255, 71, 127, 50, 250, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 31, 91, 8, 240, 63, 157, 29, 255, 134, 222, 103, 255, 153, 229, 124, 255, 166, 233, 140, 255, 110, 213, 73, 255, 100, 210, 61, 255, 100, 210, 61, 255, 125, 221, 91, 255, 124, 221, 89, 255, 78, 179, 43, 255, 54, 122, 29, 240, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 27, 78, 7, 42, 39, 106, 14, 253, 60, 156, 26, 255, 120, 210, 88, 255, 127, 217, 96, 255, 119, 214, 85, 255, 96, 207, 56, 255, 98, 209, 59, 255, 95, 204, 56, 255, 70, 166, 37, 255, 57, 131, 30, 253, 48, 108, 24, 53, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 29, 87, 9, 42, 42, 107, 18, 249, 63, 160, 28, 255, 107, 201, 73, 255, 121, 212, 88, 255, 108, 210, 72, 255, 87, 194, 50, 255, 62, 153, 30, 255, 50, 118, 25, 249, 43, 103, 23, 42, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 32, 93, 13, 38, 46, 109, 22, 241, 68, 166, 32, 255, 99, 197, 63, 255, 89, 185, 55, 255, 54, 141, 24, 255, 44, 108, 20, 241, 36, 93, 19, 38, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 42, 97, 12, 26, 47, 110, 25, 230, 68, 162, 37, 255, 46, 127, 17, 255, 39, 98, 16, 230, 33, 89, 13, 26, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 30, 93, 21, 16, 50, 112, 26, 223, 41, 101, 19, 225, 20, 72, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-
-        var img_data = Uint8ClampedArray.from(tick);
-        var img_png = new PNG({width: img_width, height: img_height})
-        img_png.data = Buffer.from(img_data);
-        img_png.pack().pipe(fs.createWriteStream(fname));
-      }
 
 
 
@@ -2730,7 +2673,7 @@ function drawHistogram() {
         ╩ ╩┴ ┴┴┘└┘└─┘╚═╝└─┘└─┘  ═╩╝╝╚╝╩ ╩   ╚╝ ┴└─┘└┴┘└─┘┴└─
         by Tom Atkinson          aminosee.funk.co.nz
         ah-mee no-see         "I See It Now - I AminoSee it!"
-        `, 96, 64, 245);
+`, 96, 64, 245);
 
         const lineBreak = `
-        `;
+`;
