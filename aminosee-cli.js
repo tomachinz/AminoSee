@@ -639,11 +639,12 @@ function autoconfCodonsPerPixel() { // requires baseChars maxpix defaultC
   // if cpp is 3 it is 1
   // if cpp is 4 it is 2.5
   // if cpp is 10 it is 6.5
-  if (codonsPerPixel < 24) {
-    highlightFactor = 1 + ( codonsPerPixel / 2 ) ;
-
-  } else {
-    highlightFactor = 12 + ( codonsPerPixel / 8) ;
+  if ( codonsPerPixel < 5 ) {
+    highlightFactor = 1 + (codonsPerPixel/2);
+  } else if ( codonsPerPixel < 64 )  {
+    highlightFactor = codonsPerPixel / 8 ;
+  } else if ( codonsPerPixel > 64 ) {
+    highlightFactor = 16 + ( 255 / codonsPerPixel) ;
   }
   return codonsPerPixel;
 }
@@ -746,7 +747,7 @@ function welcomeMessage() {
   output(' ');
   output('flags:');
 
-  output('     --ratio -r   square|golden|fixed     (image proportions)');
+  output('     --ratio -r square|golden|fixed|hilbert (image proportions)');
   output('     --width -w   1-20          (only works with fixed ratio)');
   output('     --megapixels -m      (debug setting to limit memory use)');
   output('     --triplet -t        (highlight triplet eg --triplet GGC)');
@@ -931,7 +932,7 @@ function processLine(l) {
         mixRGBA[0]  += parseFloat(codonRGBA[0].valueOf()) * highlightFactor * opacity;// * opacity; // red
         mixRGBA[1]  += parseFloat(codonRGBA[1].valueOf()) * highlightFactor * opacity;// * opacity; // green
         mixRGBA[2]  += parseFloat(codonRGBA[2].valueOf()) * highlightFactor * opacity;// * opacity; // blue
-        mixRGBA[3]  +=   64 * highlightFactor *  opacity;// * opacity; // blue
+        mixRGBA[3]  +=   255 * highlightFactor *  opacity;// * opacity; // blue
       } else {
         //  not a START/STOP codon. Stack multiple codons per pixel.
         // HERE WE ADDITIVELY BUILD UP THE VALUES with +=
@@ -1190,6 +1191,7 @@ function checkIfPNGExists() {
   output("checkIfPNGExists RUNNING");
   if (force == true) {
     log("Not checking - force mode enabled.");
+    touchPNG();
     return false;
   }
   let imageExists, result;
