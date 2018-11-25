@@ -65,7 +65,7 @@ let filesDone = 0;
 let spewClock = 0;
 let opacity = 1 / codonsPerPixel; // 0.9 is used to make it brighter, also due to line breaks
 let isHighlightSet = false;
-let args, filename, filenamePNG, extension, reader, hilbertPoints, herbs, levels, progress, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, textFile, rawDNA, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, fileUploadShowing, testColors, chunksMax, chunksize, chunksizeBytes, baseChars, cpu, subdivisions, contextBitmap, aminoacid, colClock, start, updateClock, percentComplete, charsPerSecond, pixelStacking, isHighlightCodon, justNameOfDNA, justNameOfPNG, sliceDNA, filenameHTML, howMany, timeRemain, runningDuration, kbRemain, width, triplet, updatesTimer;
+let cppfl, estimatedPixels, args, filename, filenamePNG, extension, reader, hilbertPoints, herbs, levels, progress, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, textFile, rawDNA, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, fileUploadShowing, testColors, chunksMax, chunksize, chunksizeBytes, baseChars, cpu, subdivisions, contextBitmap, aminoacid, colClock, start, updateClock, percentComplete, charsPerSecond, pixelStacking, isHighlightCodon, justNameOfDNA, justNameOfPNG, justNameOfHILBERT, sliceDNA, filenameHTML, howMany, timeRemain, runningDuration, kbRemain, width, triplet, updatesTimer;
 process.title = "aminosee.funk.nz";
 rawDNA ="@"; // debug
 filename = "AminoSeeTestPatterns"; // for some reason this needs to be here. hopefully the open source community can come to rescue and fix this Kludge.
@@ -182,6 +182,7 @@ module.exports = () => {
     boolean: [ 'artistic' ],
     boolean: [ 'devmode' ],
     boolean: [ 'clear' ],
+    boolean: [ 'html' ],
     boolean: [ 'updates' ],
     boolean: [ 'force' ],
     boolean: [ 'spew' ],
@@ -194,7 +195,7 @@ module.exports = () => {
     string: [ 'ratio'],
     string: [ 'width'],
     alias: { a: 'artistic', c: 'codons', d: 'devmode', f: 'force', m: 'magnitude', p: 'peptide', t: 'triplet', r: 'ratio', s: 'spew', w: 'width', v: 'verbose', z: 'codons' },
-    default: { clear: true, updates: false },
+    default: { clear: true, updates: true },
     '--': true
   });
   /*
@@ -304,7 +305,12 @@ module.exports = () => {
     output("verbose enabled.");
     verbose = true;
   }
-
+  if (args.html) {
+    output("will open html instead of image");
+    openHtml = true;
+  } else {
+    openHtml = false;
+  }
   if (args.spew || args.s) {
     output("spew mode enabled.");
     spew = true;
@@ -341,7 +347,6 @@ module.exports = () => {
     output("output test patterns");
     updates = true;
     saveHilbert();
-
   }
 
 
@@ -564,6 +569,7 @@ function initStream(f) {
     // finalUpdate(); // last update
     percentComplete = 100;
     updates = false;
+    calcUpdate();
     clearPrint(drawHistogram());
 
     output(`Stream complete.`);
@@ -571,7 +577,7 @@ function initStream(f) {
     arrayToPNG(); // fingers crossed!
     // status = "saving html report";
     if (!devmode) {
-      // saveHistogram();
+      saveHTML();
     }
   }));
 
@@ -580,27 +586,29 @@ function initStream(f) {
 
 function renderSummary() {
   return `
-  Filename: ${justNameOfDNA}
+  Filename: <b>${justNameOfDNA}</b>
   ${ ( peptide || triplet ) ?  "Highlights: " + (peptide || triplet) : " "}
-  Size cap: ${Math.round(maxpix/100000)/10} magnitude
-  Input bytes: ${baseChars.toLocaleString()}*
+  Input bytes: ${baseChars.toLocaleString()}
   Output bytes: ${rgbArray.length.toLocaleString()};
   Codons per pixel: ${codonsPerPixel.toLocaleString()}
+  Codons high precision: ${cppfl}
   Codon triplets matched: ${genomeSize.toLocaleString()}
   Pixels: ${colClock.toLocaleString()} (colClock)
-  Pixels: ${rgbArray.length/4} (rgbArray.length/4)
+  Estimated Pixels at start: ${Math.round(estimatedPixels).toLocaleString()}
   Amino acid blend opacity: ${Math.round(opacity*10000)/100}%
   Error Clock: ${errorClock.toLocaleString()}
   CharClock: ${charClock.toLocaleString()}
-  Output max res safety cap: ${maxpix.toLocaleString()}
+  Hilbert Magnitude: ${magnitude} / 11
+  Hilbert Curve Pixels: ${maxpix.toLocaleString()}
   Darken Factor ${darkenFactor}
-  Start/Stop Brightness ${highlightFactor}`;
+  Highlight Factor ${highlightFactor}
+  Time used: ${runningDuration.toLocaleString()} miliseconds`;
 }
 
 // CODONS PER PIXEL
 function autoconfCodonsPerPixel() { // requires baseChars maxpix defaultC
   let existing = codonsPerPixel;
-  let estimatedPixels = baseChars * 1.334; // divide by 4 times 3
+  estimatedPixels = baseChars * 1.334; // divide by 4 times 3
 
   if (codonsPerPixel < defaultC) {
     codonsPerPixel = defaultC;
@@ -654,6 +662,9 @@ function autoconfCodonsPerPixel() { // requires baseChars maxpix defaultC
   } else if ( codonsPerPixel > 64 ) {
     highlightFactor = 16 + ( 255 / codonsPerPixel) ;
   }
+
+  cppfl = codonsPerPixel; // store floating point value for summary.
+  codonsPerPixel = Math.round(codonsPerPixel);
   return codonsPerPixel;
 }
 
@@ -667,6 +678,11 @@ function setupFNames() {
   if (justNameOfDNA.length > 20 ) {
     justNameOfDNA = justNameOfDNA.substring(0,10) + justNameOfDNA.substring(justNameOfDNA.length-10,justNameOfDNA.length);
   }
+  log("CWD:")
+  let filePath = path.resolve(path.dirname(filename)) ;
+  // getFilePath(filename);
+  output(filePath);
+  output(filePath);
 
   let ext = "_" + extension + "_aminosee";
   if ( triplet != "none" ) {
@@ -678,13 +694,14 @@ function setupFNames() {
 
   ( artistic ? ext += "_artistic" : ext += "_sci")
 
-  filenameTouch =   removeFileExtension(filename) + ".aminoseetouch";
-  filenamePNG =     removeFileExtension(filename) + ext + ".png";
-  filenameHTML =    removeFileExtension(filename) + ext + ".html";
-  filenameHILBERT = removeFileExtension(filename) + ext + ".hilbert.png";
+  justNameOfPNG =     justNameOfDNA     + ext + ".png";
+  justNameOfHTML =    justNameOfDNA     + ext + ".html";
+  justNameOfHILBERT = justNameOfDNA + "_hilbert" + ext + ".png";
 
-  justNameOfPNG = justNameOfDNA + ext + ".png";
-  justNameOfHTML = justNameOfDNA+ ext + ".html";
+  filenameTouch =  filePath + "/" + justNameOfDNA + ext + ".aminoseetouch";
+  filenamePNG =     filePath + "/" + justNameOfPNG;
+  filenameHTML =    filePath + "/" + justNameOfHTML;
+  filenameHILBERT = filePath + "/" + justNameOfHILBERT ;
 
   output("FILENAMES SETUP AS: ");
   output(justNameOfDNA + " canonical name format: " + extension);
@@ -783,23 +800,23 @@ function welcomeMessage() {
 
 }
 
-function saveHistogram() {
+function saveHTML() {
   fs.writeFile(filenameHTML, legend(), function (err) {
     if (err) throw err;
     output('Saved report to: ' + filenameHTML);
   });
   setImmediate(() => {
-    log("saveHistogram done");
+    log("saveHTML done");
   });
 }
-function touchPNG() {
-  fs.writeFileSync(filenamePNG, "touched by Aminosee. This is to enabled cluster rendering in storage networks, and super computers. This file will be replaced by the rendered PNG.", function (err) {
+function touchLock() {
+  fs.writeFileSync(filenameTouch, "aminosee.funk.co.nz temp lock file. safe to erase.", function (err) {
     // if (err) { throw err }
-    log('Touched OK: ' + filenamePNG);
+    log('Touched OK: ' + filenameTouch);
   });
 
   setImmediate(() => {
-    log("touchPNG done");
+    log("touchLock done");
   });
 }
 
@@ -838,16 +855,20 @@ function parseFileForStream() {
       return false;
     } else {
       log("Saving to: " + justNameOfPNG);
-      touchPNG();
+      touchLock();
     }
   }
 
   return true;
 
 }
+function removeLocks() {
+  return fs.unlinkSync(filenameTouch);
+}
 function quit() {
   updates = false;
   msPerUpdate = 0;
+  removeLocks();
   // clearTimeout();
   output("bye");
   status = "bye";
@@ -1101,20 +1122,32 @@ function processLine(l) {
 function legend() {
   var html = `<html>
   <head>
+  <title>${justNameOfDNA} :: AminoSee HTML Report :: DNA Viewer by Tom Atkinson</title>
+  <meta name="description" content="V${siteDescription}">
   <link rel="stylesheet" type="text/css" href="https://www.funk.co.nz/aminosee/public/AminoSee.css">
   <link href='https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz:700,400,200,100' rel='stylesheet' type='text/css'>
   <link href="https://www.funk.co.nz/css/menu.css" rel="stylesheet">
   <link href="https://www.funk.co.nz/css/funk2014.css" rel="stylesheet">
   </head>
   <body>
-  <h1>Histogram for ${justNameOfDNA}</h1>
+  <!-- Google Tag Manager -->
+<noscript><iframe src="//www.googletagmanager.com/ns.html?id=GTM-P8JX"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-P8JX');</script>
+<!-- End Google Tag Manager -->
+
+  <h1>AminoSee Render Summary for ${justNameOfDNA}</h1>
   <div class="fineprint" style="text-align: right; float: right;">
   <pre>
   ${renderSummary()}
   </pre>
   </div>
   <a href="#scrollDownToSeeImage" class="button" title"Click To Scroll Down To See Image"><br />
-  <img width="320" height="122" style="border: 3px black;" src="${justNameOfPNG}">
+  <img width="128" height="128" style="border: 4px black;" src="${justNameOfHILBERT}">
   Scroll To Image
   </a>
 
@@ -1178,7 +1211,7 @@ function legend() {
   </tfoot>
   </table>
   <a name="scrollDownToSeeImage" ></a>
-  <a href="${justNameOfPNG}" ><img src="${justNameOfPNG}"></a>
+  <a href="${justNameOfHILBERT}" ><img src="${justNameOfHILBERT}"></a>
 
   <h2>About Start and Stop Codons</h2>
   <p>The codon AUG is called the START codon as it the first codon in the transcribed mRNA that undergoes translation. AUG is the most common START codon and it codes for the amino acid methionine (Met) in eukaryotes and formyl methionine (fMet) in prokaryotes. During protein synthesis, the tRNA recognizes the START codon AUG with the help of some initiation factors and starts translation of mRNA.
@@ -1188,6 +1221,10 @@ function legend() {
   Non-AUG START codons are rarely found in eukaryotic genomes. Apart from the usual Met codon, mammalian cells can also START translation with the amino acid leucine with the help of a leucyl-tRNA decoding the CUG codon. Mitochondrial genomes use AUA and AUU in humans and GUG and UUG in prokaryotes as alternate START codons.
 
   In prokaryotes, E. coli is found to use AUG 83%, GUG 14%, and UUG 3% as START codons. The lacA and lacI coding regions in the E coli lac operon don’t have AUG START codon and instead use UUG and GUG as initiation codons respectively.</p>
+  <h2>Linear Projection</h2>
+  The following image is in raster order, top left to bottom right:
+  <a href="${justNameOfPNG}" ><img src="${justNameOfPNG}"></a>
+
   `;
   return html;
 }
@@ -1205,7 +1242,7 @@ function checkIfPNGExists() {
   output("checkIfPNGExists RUNNING");
   if (force == true) {
     log("Not checking - force mode enabled.");
-    touchPNG();
+    touchLock();
     return false;
   }
   let imageExists, result;
@@ -1251,6 +1288,7 @@ function arrayToPNG() {
   status = "save"; // <-- this is the true end point of the program!
 
   clearTimeout();
+  removeLocks();
   let pixels, height, width = 0;
   pixels = (rgbArray.length / 4) + 100 ;// to avoid the dreaded "off by one error"... one exra pixel wont bother nobody
 
@@ -1341,17 +1379,18 @@ function arrayToPNG() {
         output("Opening your image. If process blocked either quit browser AND image viewer (yeah I know, it's not ideal but you can always fix it and submit a pull request on the Github) or [ CONTROL-C ]");
 
         setImmediate(() => {
-          // opn(filenameHTML).then(() => {
-          //     log("image viewer closed");
-          // });
 
-          opn(filenameHILBERT).then(() => {
-            log("image viewer closed");
-          });
 
-          // opn(filenamePNG).then(() => {
-          //   log("image viewer closed");
-          // });
+          if (openHtml) {
+            opn(filenameHTML).then(() => {
+                log("image viewer closed");
+            });
+          } else {
+            opn(filenameHILBERT).then(() => {
+              log("image viewer closed");
+            });
+          }
+
 
         });
       }, 3000);
@@ -1378,12 +1417,15 @@ function saveHilbert(array) {
     // maxpix = hilbPixels[magnitude];
     for (i= 0; i < hilbPixels.length-1; i++) {
       dimension = i;
-      filenameHILBERT = removeFileExtension(filenameHILBERT) + i + '.png';
-      actuallySaveThatHilbert();
+      let filePath = path.resolve(__dirname) ;
+
+      filenameHILBERT = filePath + "/AminoSee_Calibration_" + i + ".png";
+      setTimeout(() => {
+        actuallySaveThatHilbert();
+      }, 1);
+      // actuallySaveThatHilbert();
     }
-    setTimeout(() => {
-      quit(); // MAKE THE HISTOGRAM AGAIN LATER
-    }, 10000);
+
 
   } else {
     pixels = array.length / 4; // safety margin of 69 pixels back at the end.
@@ -1414,11 +1456,7 @@ function actuallySaveThatHilbert(array) {
   hilbertImage = [hilpix*4]; //  x = x, y % 960
 
   for (i = 0; i < hilpix; i++) {
-    if (i-100 > rgbArray.length/4) {
-      output("BREAKING due to ran out of source image");
-      break;
-      quit();
-    }
+
     let hilbX, hilbY;
     [hilbX, hilbY] = h.decode(16,i);
     let cursorLinear  = 4 * i ;
@@ -1435,6 +1473,13 @@ function actuallySaveThatHilbert(array) {
       hilbertImage[hilbertLinear+1] = rgbArray[cursorLinear+1];
       hilbertImage[hilbertLinear+2] = rgbArray[cursorLinear+2];
       hilbertImage[hilbertLinear+3] = rgbArray[cursorLinear+3];
+      if (i-50 > rgbArray.length/4) {
+        output("BREAKING due to ran out of source image");
+        output(` @i ${i} `);
+
+        break;
+        quit();
+      }
     }
   }
 
@@ -1453,6 +1498,14 @@ function actuallySaveThatHilbert(array) {
     hilbert_img_png.pack().pipe(fs.createWriteStream(filenameHILBERT));
 
 }
+// function getFilePath(string) {
+//   let x = string.indexOf( replaceFilepathFileName(string) )
+//   output(string);
+//   output("GET FILE PATH")
+//   output( x );
+//   return string.substring(0, x);
+// }
+
 function removeSpacesForFilename(string) {
   return string.replace(/ /, '').toUpperCase();
 }
@@ -1621,9 +1674,12 @@ function crashReport() {
   output(cleanDNA);
 }
 function calcUpdate() {
-
+  percentComplete = Math.round(charClock / baseChars * 10000) / 100;
+  let now = new Date().getTime();
+  runningDuration = now - start;
   timeRemain = Math.round(runningDuration * ((baseChars-charClock)/charClock+1)/1000);
   kbRemain = (Math.round((baseChars - charClock)/1000)).toLocaleString();
+
 }
 function drawHistogram() {
   if (updates == false) {
@@ -1632,12 +1688,13 @@ function drawHistogram() {
     return status;
   }
 
-  percentComplete = Math.round(charClock / baseChars * 10000) / 100;
-  let now = new Date().getTime();
-  runningDuration = now - start;
+
+  calcUpdate();
+
   let kCodonsPerSecond = Math.round(genomeSize+1 / runningDuration+1);
   let charsPerSecond = Math.round(charClock+1 / runningDuration+1);
-  calcUpdate();
+
+
   let text = lineBreak;
   let aacdata = [];
   if (msPerUpdate < maxMsPerUpdate) {
@@ -2437,7 +2494,7 @@ function drawHistogram() {
         <tr><th colspan="5"><hr></th></tr>
         </table>
         </body></html>
-        `));
+`));
 
       }
 
@@ -2642,7 +2699,7 @@ function drawHistogram() {
         }
       ]
       ;
-
+      const siteDescription = `A unique visualisation of DNA or RNA residing in text files, AminoSee is a way to render huge genomics files into a PNG image using an infinite space filling curve from 18th century! Computation is done locally, and the files do not leave your machine. A back-end terminal daemon cli command that can be scripted is combined with a front-end GUI in Electron, AminoSee features asynchronous streaming processing enabling arbitrary size files to be processed. It has been tested with files in excess of 4 GB and does not need the whole file in memory at any time. Due to issues with the 'aminosee *' command, a batch script is provided for bulk rendering in the dna/ folder. Alertively use the GUI to Drag and drop files to render a unique colour view of RNA or DNA stored in text files, output to PNG graphics file, then launches an WebGL browser that projects the image onto a 3D Hilbert curve for immersive viewing, using THREEjs. Command line options alow one to filter by peptide.`;
 
       const radMessage =
       terminalRGB(`
@@ -2651,7 +2708,7 @@ function drawHistogram() {
         ╩ ╩┴ ┴┴┘└┘└─┘╚═╝└─┘└─┘  ═╩╝╝╚╝╩ ╩   ╚╝ ┴└─┘└┴┘└─┘┴└─
         by Tom Atkinson          aminosee.funk.co.nz
         ah-mee no-see         "I See It Now - I AminoSee it!"
-        `, 96, 64, 245);
+`, 96, 64, 245);
 
         const lineBreak = `
-        `;
+`;
