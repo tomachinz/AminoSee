@@ -15,19 +15,17 @@ aminosee megabase.fa -m 3 -d -f &
 aminosee megabase.fa -m 4 -d -f --peptide=SERINE &
 aminosee megabase.fa -m 5 -d -f &
 aminosee megabase.fa -m 6 -d -f --peptide=SERINE &
-aminosee Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa -m 7 -d -f &
+aminosee Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa -m 2 -d -f &
+aminosee Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa -m 3 -d -f --peptide=SERINE &
+aminosee Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa -m 4 -d -f &
+aminosee Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa -m 5 -d -f --peptide=SERINE &
+aminosee Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa -m 6 -d -f &
+aminosee Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa -m 7 -d -f --peptide=SERINE &
 aminosee Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa -m 8 -d -f --peptide=SERINE &
-aminosee Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa -m 8 -d -f --peptide=SERINE &
-aminosee Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa -m 8 -d -f --peptide=SERINE &
-aminosee Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa -m 8 -d -f --peptide=SERINE &
-aminosee Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa -m 8 -d -f --peptide=SERINE &
-aminosee Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa -m 8 -d -f --peptide=SERINE &
-
-aminosee Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa -d -f --ratio="hilbert" --peptide=LEUCINE &
-aminosee Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa  -m 10 -d -f --ratio="hilbert" --peptide=SERINE &
-
-aminosee Caenorhabditis_elegans.WBcel235.dna_sm.toplevel.fa -d -f --ratio="hilbert" --peptide=LEUCINE &
-aminosee Caenorhabditis_elegans.WBcel235.dna_sm.toplevel.fa  -m 10 -d -f --ratio="hilbert" --peptide=SERINE
+aminosee Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa -m 9   -d -f --peptide=LEUCINE &
+aminosee Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa  -m 10 -d -f  --peptide=SERINE &
+aminosee Caenorhabditis_elegans.WBcel235.dna_sm.toplevel.fa -d -f  --peptide=LEUCINE &
+aminosee Caenorhabditis_elegans.WBcel235.dna_sm.toplevel.fa  -m 10 -d -f --peptide=PROLINE
 #
 # aminosee chrX.fa -d -f --ratio="hilbert" --peptide=LEUCINE &
 # aminosee chrX.fa -m 10  -d -f --ratio="hilbert" --peptide=SERINE &
@@ -183,12 +181,12 @@ if [ $(uname)=Darwin ]; then
   echo macos
   find -f *.fa *.mfa *.gbk *.txt
   sleep 2
-  find -f *.fa *.mfa *.gbk *.txt -exec parallel_file {} 2 \;
+  find -f *.fa *.mfa *.gbk *.txt -exec parallel_file {} 30 \;
 fi
 
 if [ $(uname)=Linux ]; then
   echo linux
   find *.fa *.mfa *.gbk *.txt
   sleep 2
-  find *.fa *.mfa *.gbk *.txt -exec parallel_file {} 2 \;
+  find *.fa *.mfa *.gbk *.txt -exec parallel_file {} 30 \;
 fi

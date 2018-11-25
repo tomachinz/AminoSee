@@ -1386,7 +1386,7 @@ function saveHilbert(array) {
     }, 10000);
 
   } else {
-    pixels = array.length * 4; // safety margin of 69 pixels back at the end.
+    pixels = array.length / 4; // safety margin of 69 pixels back at the end.
     dimension = 0; // array index
     while (pixels > hilbPixels[dimension]) {
       status = "set hilbert dimension";
@@ -1401,7 +1401,7 @@ function saveHilbert(array) {
 function actuallySaveThatHilbert(array) {
   const h = require('hilbert-2d');
   let hilpix = hilbPixels[dimension];
-
+  let test = false;
   if (array == undefined) {
     test = true;
   } else {
@@ -1414,6 +1414,11 @@ function actuallySaveThatHilbert(array) {
   hilbertImage = [hilpix*4]; //  x = x, y % 960
 
   for (i = 0; i < hilpix; i++) {
+    if (i-100 > rgbArray.length/4) {
+      output("BREAKING due to ran out of source image");
+      break;
+      quit();
+    }
     let hilbX, hilbY;
     [hilbX, hilbY] = h.decode(16,i);
     let cursorLinear  = 4 * i ;
@@ -1431,7 +1436,7 @@ function actuallySaveThatHilbert(array) {
       hilbertImage[hilbertLinear+2] = rgbArray[cursorLinear+2];
       hilbertImage[hilbertLinear+3] = rgbArray[cursorLinear+3];
     }
-
+  }
 
     var hilbert_img_data = Uint8ClampedArray.from(hilbertImage);
     var hilbert_img_png = new PNG({
@@ -1446,7 +1451,7 @@ function actuallySaveThatHilbert(array) {
     })
     hilbert_img_png.data = Buffer.from(hilbert_img_data);
     hilbert_img_png.pack().pipe(fs.createWriteStream(filenameHILBERT));
-  }
+
 }
 function removeSpacesForFilename(string) {
   return string.replace(/ /, '').toUpperCase();
