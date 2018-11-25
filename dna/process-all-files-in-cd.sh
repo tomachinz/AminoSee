@@ -3,61 +3,61 @@ echo List files without ./ in front
 # find . | awk '{sub(/.\//," ")}1'
 
 
-aminosee AAA-to-TTT-50k.txt -d -f --peptide=LEUCINE &
-aminosee 64-codons-test-pattern.txt -d -f --peptide=LEUCINE &
+aminosee AAA-to-TTT-50k.txt -d -f --ratio="hilbert" --peptide=LEUCINE &
+aminosee 64-codons-test-pattern.txt -d -f --ratio="hilbert" --peptide=LEUCINE &
 
-aminosee streptococcus_virus_2972_uid15254-NC_007019.gbk -d -f --peptide=LEUCINE &
-aminosee streptococcus_virus_2972_uid15254-NC_007019.gbk -d -f --peptide=LEUCINE &
+aminosee streptococcus_virus_2972_uid15254-NC_007019.gbk -d -f --ratio="hilbert" --peptide=LEUCINE &
+aminosee streptococcus_virus_2972_uid15254-NC_007019.gbk -d -f --ratio="hilbert" --peptide=LEUCINE &
 
-aminosee megabase.fa -d -f --peptide=LEUCINE &
-aminosee megabase.fa -d -f --peptide=SERINE &
+aminosee megabase.fa -d -f --ratio="hilbert" --peptide=LEUCINE &
+aminosee megabase.fa -d -f --ratio="hilbert" --peptide=SERINE &
 
-aminosee Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa -d -f --peptide=LEUCINE &
-aminosee Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa  -m 10 -d -f --peptide=SERINE &
+aminosee Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa -d -f --ratio="hilbert" --peptide=LEUCINE &
+aminosee Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa  -m 10 -d -f --ratio="hilbert" --peptide=SERINE &
 
-aminosee Caenorhabditis_elegans.WBcel235.dna_sm.toplevel.fa -d -f --peptide=LEUCINE &
-aminosee Caenorhabditis_elegans.WBcel235.dna_sm.toplevel.fa  -m 10 -d -f --peptide=SERINE &
+aminosee Caenorhabditis_elegans.WBcel235.dna_sm.toplevel.fa -d -f --ratio="hilbert" --peptide=LEUCINE &
+aminosee Caenorhabditis_elegans.WBcel235.dna_sm.toplevel.fa  -m 10 -d -f --ratio="hilbert" --peptide=SERINE
 
-aminosee chrX.fa -d -f --peptide=LEUCINE &
-aminosee chrX.fa -m 10  -d -f --peptide=SERINE &
+aminosee chrX.fa -d -f --ratio="hilbert" --peptide=LEUCINE &
+aminosee chrX.fa -m 10  -d -f --ratio="hilbert" --peptide=SERINE &
 
-aminosee chr1.fa -d -f --peptide=LEUCINE &
-aminosee chr1.fa -m 10  -d -f --peptide=SERINE
+aminosee chr1.fa -d -f --ratio="hilbert" --peptide=LEUCINE &
+aminosee chr1.fa -m 10  -d -f --ratio="hilbert" --peptide=SERINE
 
-aminosee z_Brown-Kiwi-aptMan1.fa -d -f --peptide=LEUCINE &
-aminosee z_Brown-Kiwi-aptMan1.fa -m 10 -d -f --peptide=SERINE
-
-
-aminosee AAA-to-TTT-50k.txt -d -f --artistic  &
-aminosee streptococcus_virus_2972_uid15254-NC_007019.gbk -d -f --artistic  &
-aminosee megabase.fa -d -f --artistic --peptide=LEUCINE &
-aminosee Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa -d -f --artistic  &
-aminosee Caenorhabditis_elegans.WBcel235.dna_sm.toplevel.fa -d -f --artistic  &
-aminosee chrX.fa -d -f --artistic &
-aminosee chr1.fa -d -f --artistic &
+aminosee z_Brown-Kiwi-aptMan1.fa -d -f --ratio="hilbert" --peptide=LEUCINE &
+aminosee z_Brown-Kiwi-aptMan1.fa -m 10 -d -f --ratio="hilbert" --peptide=SERINE
 
 
+aminosee AAA-to-TTT-50k.txt -d -f --ratio="hilbert" --artistic  &
+aminosee streptococcus_virus_2972_uid15254-NC_007019.gbk -d -f --ratio="hilbert" --artistic  &
+aminosee megabase.fa -d -f --ratio="hilbert" --artistic --peptide=LEUCINE &
+aminosee Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa -d -f --ratio="hilbert" --artistic  &
+aminosee Caenorhabditis_elegans.WBcel235.dna_sm.toplevel.fa -d -f --ratio="hilbert" --artistic  &
+aminosee chrX.fa -d -f --ratio="hilbert" --artistic &
+aminosee chr1.fa -d -f --ratio="hilbert" --artistic
 
-aminosee AAA-to-TTT-50k.txt -d -f --artistic --peptide=LEUCINE &
-aminosee 64-codons-test-pattern.txt -d -f --artistic --peptide=LEUCINE &
 
-aminosee streptococcus_virus_2972_uid15254-NC_007019.gbk -d -f --artistic --peptide=LEUCINE &
-aminosee streptococcus_virus_2972_uid15254-NC_007019.gbk -d -f --artistic --peptide=LEUCINE &
 
-aminosee megabase.fa -d -f --artistic --peptide=LEUCINE &
-aminosee megabase.fa -d -f --artistic --peptide=SERINE &
+aminosee AAA-to-TTT-50k.txt -d -f --ratio="hilbert" --artistic --peptide=LEUCINE &
+aminosee 64-codons-test-pattern.txt -d -f --ratio="hilbert" --artistic --peptide=LEUCINE &
 
-aminosee Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa -d -f --artistic --peptide=LEUCINE &
-aminosee Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa -d -f --artistic --peptide=SERINE &
+aminosee streptococcus_virus_2972_uid15254-NC_007019.gbk -d -f --ratio="hilbert" --artistic --peptide=LEUCINE &
+aminosee streptococcus_virus_2972_uid15254-NC_007019.gbk -d -f --ratio="hilbert" --artistic --peptide=LEUCINE &
 
-aminosee Caenorhabditis_elegans.WBcel235.dna_sm.toplevel.fa -d -f --artistic --peptide=LEUCINE &
-aminosee Caenorhabditis_elegans.WBcel235.dna_sm.toplevel.fa -d -f --artistic --peptide=SERINE &
+aminosee megabase.fa -d -f --ratio="hilbert" --artistic --peptide=LEUCINE &
+aminosee megabase.fa -d -f --ratio="hilbert" --artistic --peptide=SERINE &
 
-aminosee chrX.fa -d -f --artistic --peptide=LEUCINE &
-aminosee chrX.fa -d -f --artistic --peptide=SERINE &
+aminosee Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa -d -f --ratio="hilbert" --artistic --peptide=LEUCINE &
+aminosee Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa -d -f --ratio="hilbert" --artistic --peptide=SERINE &
 
-aminosee chr1.fa -d -f --artistic --peptide=LEUCINE &
-aminosee chr1.fa -d -f --artistic --peptide=SERINE
+aminosee Caenorhabditis_elegans.WBcel235.dna_sm.toplevel.fa -d -f --ratio="hilbert" --artistic --peptide=LEUCINE &
+aminosee Caenorhabditis_elegans.WBcel235.dna_sm.toplevel.fa -d -f --ratio="hilbert" --artistic --peptide=SERINE &
+
+aminosee chrX.fa -d -f --ratio="hilbert" --artistic --peptide=LEUCINE
+aminosee chrX.fa -d -f --ratio="hilbert" --artistic --peptide=SERINE &
+
+aminosee chr1.fa -d -f --ratio="hilbert" --artistic --peptide=LEUCINE &
+aminosee chr1.fa -d -f --ratio="hilbert" --artistic --peptide=SERINE
 
 aminosee_do () {
   nice -n $3 aminosee $1 -d $4 &
