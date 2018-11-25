@@ -931,7 +931,7 @@ function processLine(l) {
         mixRGBA[0]  += parseFloat(codonRGBA[0].valueOf()) * highlightFactor * opacity;// * opacity; // red
         mixRGBA[1]  += parseFloat(codonRGBA[1].valueOf()) * highlightFactor * opacity;// * opacity; // green
         mixRGBA[2]  += parseFloat(codonRGBA[2].valueOf()) * highlightFactor * opacity;// * opacity; // blue
-        mixRGBA[3]  +=   128 * highlightFactor *  opacity;// * opacity; // blue
+        mixRGBA[3]  +=   64 * highlightFactor *  opacity;// * opacity; // blue
       } else {
         //  not a START/STOP codon. Stack multiple codons per pixel.
         // HERE WE ADDITIVELY BUILD UP THE VALUES with +=
