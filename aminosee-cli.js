@@ -231,11 +231,11 @@ module.exports = () => {
     } else if ( ratio == "hilbert" || ratio == "hil") {
       ratio = "hilbert";
     } else {
-      ratio = "golden";
+      ratio = "square";
     }
   } else {
     log(`No custom ratio chosen. (default)`);
-    ratio = "golden";
+    ratio = "square";
   }
   output("using ${ratio} aspect ratio");
 
