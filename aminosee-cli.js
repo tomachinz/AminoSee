@@ -686,19 +686,23 @@ function setupFNames() {
   output(filePath);
   output(filePath);
 
-  let ext = "_" + extension + "_aminosee";
+  let ext = "." + extension + "_aminosee";
+
+
   ext += "_m" + magnitude + "c" + (Math.round(codonsPerPixel*10)/10);
+
+  let pngAmino = "";
   if ( triplet != "none" ) {
-    ext += `_${removeSpacesForFilename(triplet)}`;
+    pngAmino += `_${removeSpacesForFilename(triplet)}`;
   } else if (peptide != "none") {
-    ext += `_${removeSpacesForFilename(peptide)}`;
+    pngAmino += `_${removeSpacesForFilename(peptide)}`;
   }
 
-  ( artistic ? ext += "_artistic" : ext += "_sci")
+  ( artistic ? pngAmino += "_artistic" : pngAmino += "_sci")
 
-  justNameOfPNG =     justNameOfDNA     + ext + ".png";
-  justNameOfHTML =    justNameOfDNA     + ext + ".html";
-  justNameOfHILBERT = justNameOfDNA + "_hilbert" + ext + ".png";
+  justNameOfPNG =     justNameOfDNA + ext + pngAmino + ".png";
+  justNameOfHILBERT = justNameOfDNA + "_hilbert" + ext  + ".png";
+  justNameOfHTML =    justNameOfDNA + ext + ".html";
 
   filenameTouch =   filePath + "/" + justNameOfDNA + ext + ".aminoseetouch";
   filenamePNG =     filePath + "/" + justNameOfPNG;
