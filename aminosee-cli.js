@@ -215,7 +215,7 @@ module.exports = () => {
       magnitude = 11;
     }
   } else {
-    magnitude = 6;
+    magnitude = 10;
   }
   maxpix = hilbPixels[magnitude];
 
