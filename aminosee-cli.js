@@ -10,8 +10,8 @@
 const resSD = 960*768; // W1
 const resHD = 1920*1080; // W2
 const res4K = 3840*2160; // W4
-let maxpix = res4K; // for large genomes
-
+let  = res4K; // for large genomes
+let defaultMagnitude = 9; //  = 4.194304 megapixels
 let darkenFactor = 0.75;
 let highlightFactor = 2;
 const defaultC = 1; // back when it could not handle 3+GB files.
@@ -66,7 +66,7 @@ let filesDone = 0;
 let spewClock = 0;
 let opacity = 1 / codonsPerPixel; // 0.9 is used to make it brighter, also due to line breaks
 let isHighlightSet = false;
-let cppfl, estimatedPixels, args, filename, filenamePNG, extension, reader, hilbertPoints, herbs, levels, progress, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, textFile, rawDNA, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, fileUploadShowing, testColors, chunksMax, chunksize, chunksizeBytes, baseChars, cpu, subdivisions, contextBitmap, aminoacid, colClock, start, updateClock, percentComplete, charsPerSecond, pixelStacking, isHighlightCodon, justNameOfDNA, justNameOfPNG, justNameOfHILBERT, sliceDNA, filenameHTML, howMany, timeRemain, runningDuration, kbRemain, width, triplet, updatesTimer;
+let maxpix, cppfl, estimatedPixels, args, filename, filenamePNG, extension, reader, hilbertPoints, herbs, levels, progress, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, textFile, rawDNA, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, fileUploadShowing, testColors, chunksMax, chunksize, chunksizeBytes, baseChars, cpu, subdivisions, contextBitmap, aminoacid, colClock, start, updateClock, percentComplete, charsPerSecond, pixelStacking, isHighlightCodon, justNameOfDNA, justNameOfPNG, justNameOfHILBERT, sliceDNA, filenameHTML, howMany, timeRemain, runningDuration, kbRemain, width, triplet, updatesTimer;
 process.title = "aminosee.funk.nz";
 rawDNA ="@"; // debug
 filename = "AminoSeeTestPatterns"; // for some reason this needs to be here. hopefully the open source community can come to rescue and fix this Kludge.
@@ -211,11 +211,11 @@ module.exports = () => {
     if (magnitude < 1) {
       magnitude = 1;
     } else if (magnitude > 11) {
-      output("max magnitude is 11, default is 11!");
+      output(`max magnitude is 10, but lets see if 11 won't freeze your machine with ${hilbPixels[11].toLocaleString()} pixels!`);
       magnitude = 11;
     }
   } else {
-    magnitude = 10;
+    magnitude = defaultMagnitude;
   }
   maxpix = hilbPixels[magnitude];
 
@@ -600,7 +600,7 @@ function renderSummary() {
   Amino acid blend opacity: ${Math.round(opacity*10000)/100}%
   Error Clock: ${errorClock.toLocaleString()}
   CharClock: ${charClock.toLocaleString()}
-  Hilbert Magnitude: ${magnitude} / 11
+  Hilbert Magnitude: ${magnitude} / 10
   Hilbert Curve Pixels: ${maxpix.toLocaleString()}
   Darken Factor ${darkenFactor}
   Highlight Factor ${highlightFactor}
@@ -687,12 +687,12 @@ function setupFNames() {
   output(filePath);
 
   let ext = "_" + extension + "_aminosee";
+  ext += "_m" + magnitude + "c" + (Math.round(codonsPerPixel*10)/10);
   if ( triplet != "none" ) {
     ext += `_${removeSpacesForFilename(triplet)}`;
   } else if (peptide != "none") {
     ext += `_${removeSpacesForFilename(peptide)}`;
   }
-  ext += `_c${codonsPerPixel}`;
 
   ( artistic ? ext += "_artistic" : ext += "_sci")
 
@@ -700,7 +700,7 @@ function setupFNames() {
   justNameOfHTML =    justNameOfDNA     + ext + ".html";
   justNameOfHILBERT = justNameOfDNA + "_hilbert" + ext + ".png";
 
-  filenameTouch =  filePath + "/" + justNameOfDNA + ext + ".aminoseetouch";
+  filenameTouch =   filePath + "/" + justNameOfDNA + ext + ".aminoseetouch";
   filenamePNG =     filePath + "/" + justNameOfPNG;
   filenameHTML =    filePath + "/" + justNameOfHTML;
   filenameHILBERT = filePath + "/" + justNameOfHILBERT ;
@@ -1294,7 +1294,7 @@ function arrayToPNG() {
   clearTimeout();
   removeLocks();
   let pixels, height, width = 0;
-  pixels = (rgbArray.length / 4) + 100 ;// to avoid the dreaded "off by one error"... one exra pixel wont bother nobody
+  pixels = (rgbArray.length / 4) + 1 ;// to avoid the dreaded "off by one error"... one exra pixel wont bother nobody
 
   if (colClock==0) {
     output("No DNA or RNA in this file sorry?! You sure you gave a file with sequences? " + filename);
@@ -1343,7 +1343,7 @@ function arrayToPNG() {
     output("Image allocation check: " + pixels + " < width x height = " + ( width * height ));
   } else {
     output("MEGA FAIL: TOO MANY ARRAY PIXELS NOT ENOUGH IMAGE SIZE: array pixels: " + pixels + " <  width x height = " + (width*height));
-    // quit();
+    quit();
   }
   output("Raw image bytes: " + bytes(pixels/4));
   output("Pixels: " + pixels.toLocaleString());
@@ -1485,7 +1485,7 @@ function actuallySaveThatHilbert(array) {
       hilbertImage[hilbertLinear+1] = rgbArray[cursorLinear+1];
       hilbertImage[hilbertLinear+2] = rgbArray[cursorLinear+2];
       hilbertImage[hilbertLinear+3] = rgbArray[cursorLinear+3];
-      if (i-50 > rgbArray.length/4) {
+      if (i-4 > rgbArray.length) {
         output("BREAKING due to ran out of source image");
         output(` @i ${i} `);
 
