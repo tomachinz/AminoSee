@@ -463,8 +463,8 @@ function pollForStream() {
 
       if (parseFileForStream(filename) == true) {
         output(justNameOfDNA + " was parsed OK. ");
-        touchLock(null, initStream)
-        initStream(filename);
+        touchLock()
+        // initStream(filename);
 
       } else {
         output("skipping: " + filename);
@@ -820,11 +820,11 @@ function saveHTML() {
   //   log("saveHTML done");
   // });
 }
-function touchLock(e, cb) {
-  fs.writeFileSync(filenameTouch, "aminosee.funk.co.nz temp lock file. safe to erase.", function (err) {
+function touchLock(e) {
+  fs.writeFile(filenameTouch, "aminosee.funk.co.nz temp lock file. safe to erase.", function (err) {
     if (err) { console.dir(err); console.warning("Touch file error") }
     log('Touched lockfile OK: ' + filenameTouch);
-    cb(filename);
+    initStream(filename);
   });
 
   // setImmediate(() => {
@@ -879,7 +879,9 @@ function parseFileForStream() {
     }
   }
 
-  return true;
+
+
+  return checkLocks();
 
 }
 
@@ -1271,16 +1273,37 @@ function helpCmd(args) {
 
 
 }
+function checkLocks() {
+  log("checkLocks RUNNING");
+  if (force == true) {
+    log("Not checking locks - force mode enabled.");
+    return true;
+  }
+  let unlocked, result;
+  unlocked = true;
+  try {
+    result = fs.lstatSync(filenameTouch).isDirectory;
+    log("[lstatSync result]" + result);
+    output("An lock file exists for this DNA: " + filenameTouch)
+    output("This may happen if you interupt a render.")
+    output("use -f to overwrite");
+    unlocked = false;
+  } catch(e){
+    output("Output png will be saved to: " + filenamePNG );
+    unlocked = true;
+  }
+  return unlocked;
+}
+
 
 function checkIfPNGExists() {
-  output("checkIfPNGExists RUNNING");
+  log("checkIfPNGExists RUNNING");
   if (force == true) {
     log("Not checking - force mode enabled.");
     return false;
   }
   let imageExists, result;
   imageExists = false;
-  // log("fs.lstatSync(filenamePNG)" + fs.lstatSync(filenamePNG)).isDirectory();
   try {
     result = fs.lstatSync(filenamePNG).isDirectory;
     log("[lstatSync result]" + result);
@@ -1288,15 +1311,9 @@ function checkIfPNGExists() {
     output("use -f to overwrite");
     imageExists = true;
   } catch(e){
-    // Handle error
-    if(e.code == 'ENOENT'){
-      //no such file or directory
-      // output(e);
-    }
     output("Output png will be saved to: " + filenamePNG );
     imageExists = false;
   }
-  // output("value of imageExists is "+ imageExists);
   return imageExists;
 }
 
