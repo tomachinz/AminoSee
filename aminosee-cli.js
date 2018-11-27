@@ -256,7 +256,7 @@ module.exports = () => {
       peptide = "none";
     }
 
-    output(`Custom peptide ${peptide} set. Will highlight these codons, they are Hue ${tripletToHue(peptide)}° in colour`);
+    output(`Custom peptide ${peptide} set. Will highlight these codons, they are Hue ${peptideToHue(peptide)}° in colour`);
   } else {
     log(`No custom peptide chosen. (default)`);
     peptide = "none";
@@ -1817,8 +1817,10 @@ function arrayToPNG() {
         return cdn == this.Codon;
       }
       function isTriplet(p) {
-        // return p.Codon == peptide || p.Codon == triplet;
         return p.DNA == triplet;
+      }
+      function isPeptide(p) {
+        return p.Codon == peptide;
       }
       function isHighlightPeptide(p) {
         // return p.Codon == peptide || p.Codon == triplet;
@@ -1828,7 +1830,9 @@ function arrayToPNG() {
         return dnaTriplets.find(isTriplet).Hue;
 
       }
-
+      function peptideToHue(cod) {
+        return pepTable.find(isPeptide).Hue;
+      }
       // *
       // take 3 letters, convert into a Uint8ClampedArray with 4 items
       function codonToRGBA(cod) {
