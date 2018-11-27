@@ -7,7 +7,7 @@
 //       by Tom Atkinson            aminosee.funk.co.nz
 //        ah-mee no-see       "I See It Now - I AminoSee it!"
 
-let defaultMagnitude = 9; //  = 4.194304 megapixels
+let defaultMagnitude = 7; //  = 4.194304 megapixels
 let darkenFactor = 0.75;
 let highlightFactor = 2;
 const defaultC = 1; // back when it could not handle 3+GB files.
