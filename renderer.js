@@ -4,20 +4,52 @@
 
 // for the Electron Desktop App
 
-document.getElementById('supercontainer').ondragstart = (event) => {
-    event.preventDefault()
-    ipcRenderer.send('ondragstart', '/path/to/item')
-}
 
 
 
-if(window.addEventListener) {
+if (window.addEventListener) {
   window.addEventListener('load',pageLoaded,false); //W3C
 } else {
   window.attachEvent('onload',pageLoaded); //IE
 }
 
 function pageLoaded() {
+  let supercontainer = document.getElementById('supercontainer');
+
+  supercontainer.ondragstart = (e) => {
+    e.preventDefault()
+    ipcRenderer.send('ondragstart', '/path/to/item')
+    supercontainer.classList.add('showdropzone')
+
+
+  }
+
+  supercontainer.ondragover = () => {
+    supercontainer.classList.add('showdropzone')
+    return false;
+  };
+
+  supercontainer.ondragleave = () => {
+    supercontainer.classList.remove('showdropzone')
+    return false;
+
+  };
+
+  supercontainer.ondragend = () => {
+    supercontainer.classList.remove('showdropzone')
+    return false;
+  };
+
+  supercontainer.ondrop = (e) => {
+    e.preventDefault();
+
+    for (let f of e.dataTransfer.files) {
+      console.log('File(s) you dragged here: ', f.path)
+    }
+    return false;
+  };
+
+
   // initBitmap();
   init3D();
   setScene();

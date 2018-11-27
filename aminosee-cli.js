@@ -202,7 +202,7 @@ module.exports = () => {
   } else {
     magnitude = defaultMagnitude;
   }
-  maxpix = hilbPixels[magnitude];
+  maxpix = hilbPixels[magnitude]*2; // times two is for anti-alias effect.
 
   log(`using magnitude ${magnitude}: or  ${maxpix} px max`);
 
@@ -905,12 +905,12 @@ function quit() {
     log("I just tried to delete the lock file but it was already gone. Racey conditions ahead.")
   }
   clearTimeout();
-  output("press Control-C again to quit; or.... try T to output test patterns");
+  // output("press Control-C again to quit; or.... try T to output test patterns");
   status = "bye";
   // process.stdin.setRawMode(false);
   // process.stdin.resume();
   printRadMessage();
-  process.exit;
+  // process.exit;
 
 }
 function processLine(l) {

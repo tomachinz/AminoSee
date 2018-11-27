@@ -90,10 +90,10 @@ many_size_hilbert() {
   aminosee_do            $1 $2 4 -m 4
   aminosee_do            $1 $2 5 -m 5
   aminosee_do            $1 $2 6 -m 6
-  aminosee_do            $1 $2 7 -m 7
-  aminosee_do_foreground $1 $2 0 -m 8
-  aminosee_do_foreground $1 $2 0 -m 9
-  aminosee_do_foreground $1 $2 0 -m 10
+  aminosee_do_foreground $1 $2 7 -m 7
+  # aminosee_do_foreground $1 $2 0 -m 8
+  # aminosee_do_foreground $1 $2 0 -m 9
+  # aminosee_do_foreground $1 $2 0 -m 10
 }
 
 parallel_file () {
@@ -185,12 +185,14 @@ aminosee_do_foreground $1 $2 0 $3 $4 --peptide=Histidine &
 #   find *.fa *.mfa *.gbk *.txt -exec parallel_file {} 30  --artistic \;
 # fi
 
+many_size_hilbert megabase.fa 1
+many_size_hilbert Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa 2
 
-aminosee * &
-sleep 5
-aminosee * &
-sleep 5
-aminosee * &
+# aminosee * &
+# sleep 5
+# aminosee * &
+# sleep 5
+# aminosee * &
 
 # parallel_file megabase.fa 0
 # parallel_file Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa 1
