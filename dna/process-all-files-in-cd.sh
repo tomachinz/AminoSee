@@ -171,35 +171,41 @@ aminosee_do_foreground $1 $2 0 $3 $4 --peptide=Histidine &
   echo "                                         =///"
 }
 
-if [ $(uname)=Darwin ]; then
-  echo macos
-  find -f *.fa *.mfa *.gbk *.txt
-  sleep 2
-  find -f *.fa *.mfa *.gbk *.txt -exec parallel_file {} 30 --artistic \;
-fi
+# if [ $(uname)=Darwin ]; then
+#   echo macos
+#   find -f *.fa *.mfa *.gbk *.txt
+#   sleep 2
+#   find -f *.fa *.mfa *.gbk *.txt -exec parallel_file {} 30 --artistic \;
+# fi
+#
+# if [ $(uname)=Linux ]; then
+#   echo linux
+#   find *.fa *.mfa *.gbk *.txt
+#   sleep 2
+#   find *.fa *.mfa *.gbk *.txt -exec parallel_file {} 30  --artistic \;
+# fi
 
-if [ $(uname)=Linux ]; then
-  echo linux
-  find *.fa *.mfa *.gbk *.txt
-  sleep 2
-  find *.fa *.mfa *.gbk *.txt -exec parallel_file {} 30  --artistic \;
-fi
 
+aminosee * &
+sleep 5
+aminosee * &
+sleep 5
+aminosee * &
 
-parallel_file megabase.fa 0
-parallel_file Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa 1
-parallel_file homo-sapien-hs_ref_GRCh38.p12_chr2.mfa 20
-parallel_file chrX.fa 5
-parallel_file chr1.fa 10
-parallel_file homo-sapien-hs_ref_GRCh38.p12_chr2.mfa 20
-parallel_file homo-sapien-hs_ref_GRCh38.p12_chr2.gbk 20
-parallel_file AAA-to-TTT-50k.txt 0
-parallel_file 64-codons-test-pattern.txt 0
-
-many_size_hilbert homo-sapien-hs_ref_GRCh38.p12_chr2.mfa 20
-many_size_hilbert Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa 5
-many_size_hilbert chrX.fa 10
-many_size_hilbert chr1.fa 15
+# parallel_file megabase.fa 0
+# parallel_file Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa 1
+# parallel_file homo-sapien-hs_ref_GRCh38.p12_chr2.mfa 20
+# parallel_file chrX.fa 5
+# parallel_file chr1.fa 10
+# parallel_file homo-sapien-hs_ref_GRCh38.p12_chr2.mfa 20
+# parallel_file homo-sapien-hs_ref_GRCh38.p12_chr2.gbk 20
+# parallel_file AAA-to-TTT-50k.txt 0
+# parallel_file 64-codons-test-pattern.txt 0
+#
+# many_size_hilbert homo-sapien-hs_ref_GRCh38.p12_chr2.mfa 20
+# many_size_hilbert Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa 5
+# many_size_hilbert chrX.fa 10
+# many_size_hilbert chr1.fa 15
 
 # aminosee Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa -m 12  -v -d -f--triplet=TAA
 # aminosee Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa  -m 12  -v -d -f--triplet=TGG
