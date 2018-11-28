@@ -419,165 +419,107 @@ function pepToColor(pep) {
 function pollForStream() {
   output("POLL FOR STREAM " + howMany)
 
-  let pollAgainFlag = true;
+
+  if (status == "paint") {
+    return true;
+  } else {
+    current = args._.pop();
+    // if (current == undefined) {
+    //   log("current maybe im done " + args)
+    //   willStart = false;
+    //   pollAgainFlag = true;
+    //   // return true;
+    }
+    howMany = args._.length;
+    filename = path.resolve(current);
+    output("current: " + filename)
+
+
+
+
+  let pollAgainFlag = false;
   let willStart = true;
 
-  current = args._.pop();
-  howMany = args._.length;
 
-  filename = path.resolve(current);
-  output("current: " + filename)
-  baseChars = getFilesizeInBytes(filename);
-  autoconfCodonsPerPixel();
-  setupFNames();
 
-  if (howMany < 1) {
-    status ="bye"
-    pollAgainFlag = false;
-    willStart = false;
-  }
 
+  //
 
   log( " current is " + current   + args)
-  if (current == undefined) {
-    log("current maybe im done " + args)
-    willStart = false;
-  }
+
+
+
+
+
+
+  // if (howMany < 0) {
+  //   status ="bye"
+  //   output("howMany   ${howMany}")
+  //   willStart = false;
+  // }
+
+
+
   //
   if (!checkFileExtension(getFileExtension(current))) {
     output("checkFileExtension: " + current)
     willStart = false;
+    pollAgainFlag = true;
+
   }
   if (filename == defaultFilename) {
     output("skipping default: " + defaultFilename);
     output("checkFileExtension: " + filename)
-    willStart = false;
+    // willStart = false;
+    pollAgainFlag = true;
   }
   if (!checkFileExtension(getFileExtension(filename))) {
     output("getFileExtension(current): " + getFileExtension(filename));
     output("checkFileExtension(getFileExtension(current)): " + checkFileExtension(getFileExtension(filename)))
     willStart = false;
-  }
+    pollAgainFlag = true;
 
+  } else {
+    baseChars = getFilesizeInBytes(filename);
+    autoconfCodonsPerPixel();
+    setupFNames();
 
-  if (checkIfPNGExists(filenamePNG) == true && !force) {
-    output("checkIfPNGExists(filenamePNG) == true && !force: " + checkIfPNGExists(filenamePNG));
-    log(filenamePNG + " not exist, continuing.");
-    willStart = false;
+    if (checkIfPNGExists(filenamePNG) && !force) {
+      output("checkIfPNGExists(filenamePNG) == true && !force: " + checkIfPNGExists(filenamePNG));
+      log(filenamePNG + " not exist, continuing.");
+      // willStart = false;
+    }
   }
 
   if (!checkLocks(filenameTouch)) {
     log("!checkLocks(filenameTouch) " + !checkLocks(filenameTouch));
     willStart = false;
   }
-
-  if (willStart) {
+  output(`willStart   ${willStart}  pollAgainFlag ${pollAgainFlag}  defaultFilename  ${defaultFilename}  ${filename}  howMany   ${howMany}   status ${status}`)
+  if (!pollAgainFlag) {
     printRadMessage();
-    setTimeout(() => {
+    // setTimeout(() => {
       status = "paint"
       touchLock(filenameTouch); // <--- THIS IS WHERE RENDER STARTS
-      return true;
-    }, 1000);
+      // return true;
+    // }, 1000);
     pollAgainFlag = false;
-  }
+  } else if (pollAgainFlag) {
+
+    // setImmediate(() => {
+      status = "polling"
 
 
-    if (pollAgainFlag) {
       pollForStream();
+
+      return true;
+    // });
+
     } else {
-      log(`pollAgainFlag  ${pollAgainFlag}`)
-      quit();
+      output(`pollAgainFlag  ${pollAgainFlag}`)
+      // quit();
     }
 
-
-
-
-
-
-
-  // if (status != "highland") {
-  //   if (howMany > 1) {
-  //     log("SLEEPING FOR 2 SECONDS ");
-  //     isTimer = setTimeout(() => {
-  //       log("WOKE UP DEAD: " + status + updates + filename)
-  //       howMany--;
-  //
-  //       pollForStream();
-  //     }, 2000);
-  //
-  //   } else {
-  //     if (status == "quit") {
-  //       log("quiting")
-  //       return true;
-  //     }
-  //   }
-  // } else if (status == "highland") {
-  //
-  //   current = args._.pop();
-  //   howMany = args._.length;
-  //
-  //   filename = path.resolve(current);
-  //   output("current: " + filename)
-  //   baseChars = getFilesizeInBytes(filename);
-  //   autoconfCodonsPerPixel();
-  //   setupFNames();
-  //
-  //   if (howMany < 1) {
-  //     status ="bye"
-  //     return true;
-  //   }
-  //
-  //
-  //
-  //   log( " current is " + current   + args)
-  //   if (current == undefined) {
-  //     log("current maybe im done " + args)
-  //     return true;
-  //   }
-  //
-  //   if (!checkFileExtension(getFileExtension(current))) {
-  //     output("checkFileExtension: " + current)
-  //     pollForStream();
-  //     return true;
-  //   }
-  //
-  //
-  //
-  //   if (filename == defaultFilename) {
-  //     output("skipping default: " + defaultFilename);
-  //     output("checkFileExtension: " + filename)
-  //     pollForStream();
-  //     return true;
-  //   }
-  //   if (!checkFileExtension(getFileExtension(filename))) {
-  //     output("getFileExtension(current): " + getFileExtension(filename));
-  //     output("checkFileExtension(getFileExtension(current)): " + checkFileExtension(getFileExtension(filename)))
-  //     // pollForStream();
-  //     return true;
-  //   }
-  //
-  //
-  //   if (checkIfPNGExists(filenamePNG) == true && !force) {
-  //     output("checkIfPNGExists(filenamePNG) == true && !force: " + checkIfPNGExists(filenamePNG));
-  //     log(filenamePNG + " not exist, continuing.");
-  //     // pollForStream();
-  //     return true;
-  //   }
-  //
-  //   if (checkLocks(filenameTouch)) {
-  //     log("current filename: " + filename);
-  //
-  //     setTimeout(() => {
-  //       status = "paint"
-  //       printRadMessage();
-  //       touchLock(filenameTouch); // <--- THIS IS WHERE RENDER STARTS
-  //       return true;
-  //     }, 1000);
-  //   } else {
-  //     output("Prevented by lockfile.");
-  //
-  //   }
-  // }
 
 }
 async function initStream(f) {
@@ -996,19 +938,19 @@ function removeLocks() {
   try {
     fs.unlinkSync(filenameTouch);
 
-    setTimeout(() => {
+    // setTimeout(() => {
       status = "highland";
       pollForStream();
-    }, 1000);
+    // }, 1000);
 
 
   } catch (e) {
     log("removeLocks err: " + e);
 
-    setTimeout(() => {
+    // setTimeout(() => {
       status = "highland";
       pollForStream();
-    }, 1000);
+    // }, 1000);
   }
 
   // try {
@@ -1860,11 +1802,11 @@ function arrayToPNG() {
 
     function clearPrint(t) {
       if (clear) {
-        // process.stdout.write('\x1B[2J\x1B[0f');
+        process.stdout.write('\x1B[2J\x1B[0f'); // CURSOR TO TOP LEFT????
         // process.stdout.write("\r\x1b[K");
         // process.stdout.write('\033c');
         // console.log('\033c');
-        process.stdout.write("\x1B[2J");
+        // process.stdout.write("\x1B[2J"); // CLEAR TERMINAL SCREEN????
         // console.log('\x1Bc');
 
       } else {
@@ -1928,7 +1870,6 @@ function arrayToPNG() {
       text += ` @i ${charClock.toLocaleString()} File: ${chalk.rgb(255, 255, 255).inverse(justNameOfDNA.toUpperCase())}.${extension}  Line breaks: ${breakClock} Files: ${howMany} Base Chars: ${baseChars} `;
       text += lineBreak;
       text += chalk.rgb(128, 255, 128).inverse(`[ ${percentComplete}% done Time remain: ${timeRemain.toLocaleString()} sec Elapsed: ${Math.round(runningDuration/1000)} sec KB remain: ${kbRemain}`);
-        text += lineBreak;
         text += chalk.rgb(128, 255, 128).inverse(`[ ${status.toUpperCase()} ]`);
 
         ( artistic ? text += `[ Artistic Mode 1:${artisticHighlightLength}] ` : text += " [ Science Mode 1:1] " )
@@ -1941,8 +1882,8 @@ function arrayToPNG() {
         text += lineBreak;
         text += `[ Codons: ${genomeSize.toLocaleString()}]  Last Acid: `;
         text += terminalRGB(aminoacid, red, green, blue);
-        text += lineBreak + `[ CPU ${bytes(kbPerSec)}/s ${Math.round(kCodonsPerSecond).toLocaleString()} Codons per sec  ] `;
-        text += lineBreak;
+        text += lineBreak + `[ CPU ${bytes(kbPerSec)}/s Codons per sec: ${Math.round(kCodonsPerSecond).toLocaleString()} ] `;
+        // text += lineBreak;
         text += `[ Mb Codons per pixel: ${codonsPerPixel} Pixels painted: ${colClock.toLocaleString()} ] `;
         text += `[ DNA Filesize: ${Math.round(baseChars/1000)/1000} MB Codon Opacity: ${Math.round(opacity*10000)/100}%] `;
         text += lineBreak;
@@ -1950,7 +1891,7 @@ function arrayToPNG() {
         text += histogram(aacdata, { bar: '/', width: 40, sort: true, map:  aacdata.Histocount} );
         text += lineBreak;
         text += `[ raw:   ${ removeLineBreaks(rawDNA)} ]  [ clean: ${ cleanString(rawDNA)} ] `;
-        text += lineBreak;
+        // text += lineBreak;
         text += `Output png: ${justNameOfPNG}]`;
         text += interactiveKeysGuide;
 
@@ -2921,7 +2862,7 @@ function arrayToPNG() {
             ╩ ╩┴ ┴┴┘└┘└─┘╚═╝└─┘└─┘  ═╩╝╝╚╝╩ ╩   ╚╝ ┴└─┘└┴┘└─┘┴└─
             by Tom Atkinson          aminosee.funk.co.nz
             ah-mee no-see         "I See It Now - I AminoSee it!"
-            `, 96, 64, 245);
+`, 96, 64, 245);
 
             const lineBreak = `
-            `;
+`;
