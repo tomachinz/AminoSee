@@ -417,8 +417,8 @@ function pepToColor(pep) {
   }
 }
 function pollForStream() {
-  output("POLL FOR STREAM " + howMany)
-
+  log(` [ howMany  ${howMany} ]`)
+  out(".");
 
   if (status == "paint") {
     return true;
@@ -432,7 +432,7 @@ function pollForStream() {
     }
     howMany = args._.length;
     filename = path.resolve(current);
-    output("current: " + filename)
+    log("current: " + filename)
 
 
 
@@ -462,20 +462,20 @@ function pollForStream() {
 
   //
   if (!checkFileExtension(getFileExtension(current))) {
-    output("checkFileExtension: " + current)
+    log("checkFileExtension: " + current)
     willStart = false;
     pollAgainFlag = true;
 
   }
   if (filename == defaultFilename) {
-    output("skipping default: " + defaultFilename);
-    output("checkFileExtension: " + filename)
+    log("skipping default: " + defaultFilename);
+    log("checkFileExtension: " + filename)
     // willStart = false;
     pollAgainFlag = true;
   }
   if (!checkFileExtension(getFileExtension(filename))) {
-    output("getFileExtension(current): " + getFileExtension(filename));
-    output("checkFileExtension(getFileExtension(current)): " + checkFileExtension(getFileExtension(filename)))
+    log("getFileExtension(current): " + getFileExtension(filename));
+    log("checkFileExtension(getFileExtension(current)): " + checkFileExtension(getFileExtension(filename)))
     willStart = false;
     pollAgainFlag = true;
 
@@ -485,7 +485,7 @@ function pollForStream() {
     setupFNames();
 
     if (checkIfPNGExists(filenamePNG) && !force) {
-      output("checkIfPNGExists(filenamePNG) == true && !force: " + checkIfPNGExists(filenamePNG));
+      log("checkIfPNGExists(filenamePNG) == true && !force: " + checkIfPNGExists(filenamePNG));
       log(filenamePNG + " not exist, continuing.");
       // willStart = false;
     }
@@ -495,7 +495,7 @@ function pollForStream() {
     log("!checkLocks(filenameTouch) " + !checkLocks(filenameTouch));
     willStart = false;
   }
-  output(`willStart   ${willStart}  pollAgainFlag ${pollAgainFlag}  defaultFilename  ${defaultFilename}  ${filename}  howMany   ${howMany}   status ${status}`)
+  log(`willStart   ${willStart}  pollAgainFlag ${pollAgainFlag}  defaultFilename  ${defaultFilename}  ${filename}  howMany   ${howMany}   status ${status}`)
   if (!pollAgainFlag) {
     printRadMessage();
     // setTimeout(() => {
@@ -516,7 +516,7 @@ function pollForStream() {
     // });
 
     } else {
-      output(`pollAgainFlag  ${pollAgainFlag}`)
+      log(`pollAgainFlag  ${pollAgainFlag}`)
       // quit();
     }
 
@@ -586,6 +586,12 @@ async function initStream(f) {
       clearInterval(iv);
     }
   }, 200);
+
+  if (updatesTimer) {
+    clearTimeout(updatesTimer);
+
+  }
+
 
   if (updates) {
     drawHistogram();
@@ -737,7 +743,7 @@ function setupFNames() {
 
   let ext = "." + extension;
 
-  ext += "._m" + magnitude;
+  ext += ".m" + magnitude;
 
   let pngAmino = "_c" + (Math.round(codonsPerPixel*10)/10);
   if (args.ratio || args.r) {
@@ -979,10 +985,10 @@ function getFileExtension(f) {
 function checkFileExtension(f) {
   let value = extensions.indexOf(getFileExtension(f));
   if ( value < 0) {
-    output(`checkFileExtension FAIL: ${extension}  ${value} `);
+    log(`checkFileExtension FAIL: ${extension}  ${value} `);
     return false;
   } else {
-    output(`checkFileExtension GREAT SUCCESS: ${extension}  ${value} `);
+    log(`checkFileExtension GREAT SUCCESS: ${extension}  ${value} `);
     return true;
   }
 }
@@ -994,13 +1000,13 @@ function parseFileForStream(f) {
   // and including the last dot
 
   if (getFilesizeInBytes(f) == -1) {
-    output("Problem with file.");
+    log("Problem with file.");
     return false;
   } else {
     baseChars = getFilesizeInBytes(f);
   }
   extension = getFileExtension(f);
-  output("[FILESIZE] " + baseChars.toLocaleString() + " extension: " + extension);
+  log("[FILESIZE] " + baseChars.toLocaleString() + " extension: " + extension);
 
   // checkFileExtension
 
@@ -1017,7 +1023,7 @@ function parseFileForStream(f) {
     }
 
   } else {
-    output("WRONG FILE EXTENSION: " + extension);
+    log("WRONG FILE EXTENSION: " + extension);
     return false;
 
 
@@ -1420,7 +1426,7 @@ function checkLocks(ffffff) {
     output("use -f to overwrite, or just delete the touch file above.");
     unlocked = false;
   } catch(e){
-    output("No lockfile found - proceeding to render" );
+    log("No lockfile found - proceeding to render" );
     unlocked = true;
   }
   return unlocked;
@@ -1588,7 +1594,7 @@ function arrayToPNG() {
       output(`Magnitude ${test} curve generation. ${hilbPixels[test]} pixels`);
       dimension = test;
       actuallySaveThatHilbert(); // call with no array for test
-      // arrayToPNG();
+      arrayToPNG();
     }
 
 
@@ -1799,7 +1805,10 @@ function arrayToPNG() {
       pixelStacking = 0;
       colClock++;
     }
+function out(t) {
+  process.stdout.write(t); // CURSOR TO TOP LEFT????
 
+}
     function clearPrint(t) {
       if (clear) {
         process.stdout.write('\x1B[2J\x1B[0f'); // CURSOR TO TOP LEFT????
