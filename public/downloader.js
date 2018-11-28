@@ -150,12 +150,15 @@ function stashedItAway() {
       }
     }
     if (cacheAvailable) {
-      const request = new Request('/aminosee/aminosee/example-sequence.txt');
+      console.log("DISABLED CACHE FOR NOW");
+      return;
+      const request = new Request('/AminoSee_Calibration_7.png');
       const textBlob = new Blob([request], {type: 'text/plain'});
       const stringResponse = new Response(textBlob).then(function (text) {
         return text
-      });;
+      });
       log("[stringResponse] " + stringResponse);
+
     } else {
       log("No caches!");
     }

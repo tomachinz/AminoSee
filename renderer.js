@@ -20,8 +20,6 @@ function pageLoaded() {
     e.preventDefault()
     ipcRenderer.send('ondragstart', '/path/to/item')
     supercontainer.classList.add('showdropzone')
-
-
   }
 
   supercontainer.ondragover = () => {
@@ -41,6 +39,7 @@ function pageLoaded() {
   };
 
   supercontainer.ondrop = (e) => {
+    supercontainer.classList.remove('showdropzone')
     e.preventDefault();
 
     for (let f of e.dataTransfer.files) {
@@ -51,28 +50,28 @@ function pageLoaded() {
 
 
   // initBitmap();
-  init3D();
-  setScene();
-  setupFNames();
-
-  animate();
-  setupColorPicker();
-  stat("[pageLoaded] Welcome to the Amino See DNA viewer");
-  if (devmode) {
-    stat("devmode");
-    togglePause();
-    toggleSpin();
-    togglePause(); // done twice to re-trigger the autopause
-  }
+  // init3D();
+  // setScene();
+  // setupFNames();
+  //
+  // animate();
+  // // setupColorPicker();
+  // stat("[pageLoaded] Welcome to the Amino See DNA viewer");
+  // if (devmode) {
+  //   stat("devmode");
+  //   togglePause();
+  //   toggleSpin();
+  //   togglePause(); // done twice to re-trigger the autopause
+  // }
 }
 
-function setupColorPicker() {
-
-  var canvas = document.getElementById('cloudCanvas');
-  toggleFileUpload();
-  document.getElementById('choosefiles')
-  value_for_Event_Label = "File Chooser"
-}
+// function setupColorPicker() {
+//
+//   var cloudCanvas = document.getElementById('cloudCanvas');
+//   toggleFileUpload();
+//   document.getElementById('choosefiles')
+//   value_for_Event_Label = "File Chooser"
+// }
 
 function updateProgress(evt) {
   // evt is an ProgressEvent.

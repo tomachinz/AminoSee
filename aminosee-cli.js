@@ -1546,7 +1546,7 @@ function arrayToPNG() {
       output(`Magnitude ${test} curve generation. ${hilbPixels[test]} pixels`);
       dimension = test;
       actuallySaveThatHilbert(); // call with no array for test
-      arrayToPNG();
+      // arrayToPNG();
     }
 
 

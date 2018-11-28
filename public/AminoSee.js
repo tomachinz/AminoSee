@@ -7,7 +7,8 @@ const maxcolorpix = 4096 * 16  ; // for large genomes
 const linewidth = 32;
 let autostopdelay = 300; // seconds
 colormapsize = maxcolorpix; // custom fit.
-let downloader = new Worker('./public/downloader.js');
+// let downloaderDisabled = new Worker('./public/downloader.js');
+let downloaderDisabled;
 const resHD = 1920*1080;
 const res4K = 1920*1080*4;
 
@@ -24,7 +25,7 @@ function pageLoaded() {
   setupFNames();
 
   animate();
-  setupColorPicker();
+  // setupColorPicker();
   stat("[pageLoaded] Welcome to the Amino See DNA viewer");
   if (devmode) {
     stat("devmode");
@@ -36,8 +37,8 @@ function pageLoaded() {
 
 function setupColorPicker() {
 
-  var canvas = document.getElementById('cloudCanvas');
-  contextBitmap = canvas.getContext('2d');
+  var cloudCanvas = document.getElementById('cloudCanvas');
+  contextBitmap = cloudCanvas.getContext('2d');
 
   // draw cloud
   contextBitmap.beginPath();
@@ -55,14 +56,14 @@ function setupColorPicker() {
   contextBitmap.strokeStyle = '#0000ff';
   contextBitmap.stroke();
 
-  // save canvas image as data url (png format by default)
-  var dataURL = canvas.toDataURL();
+  // save cloudCanvas image as data url (png format by default)
+  var dataURL = cloudCanvas.toDataURL();
 
   var img = new Image();
   var img = document.createElement('img');
   img.onload = function(e) {
-    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-    var url = canvas.toDataURL(); // Read succeeds, canvas won't be dirty.
+    ctx.drawImage(img, 0, 0, cloudCanvas.width, cloudCanvas.height);
+    var url = cloudCanvas.toDataURL(); // Read succeeds, cloudCanvas won't be dirty.
   };
   img.crossOrigin = ''; // no credentials flag. Same as img.crossOrigin='anonymous'
   img.src = 'rhino.jpg';
@@ -161,119 +162,121 @@ function init3D() {
   document.getElementById('choosefiles').addEventListener('change', handleFileSelect, false);
   window.addEventListener( 'resize', onWindowResize, false );
 
-  downloader.onmessage = function(e) {
-    switch (e.data.aTopic) {
+  // downloaderDisabled.onmessage = function(e) {
+  //   console.log("DOWNLOADER DISABLED")
+  //   return true;
+  //
+  //   switch (e.data.aTopic) {
+  //
+  //     case 'do_IncreaseDetail':
+  //     // lessdetail();
+  //     break;
+  //
+  //     case 'do_ReduceDetail':
+  //     // moredetail();
+  //     break;
+  //
+  //     case 'do_WorkerSendColors':
+  //     // usersColors = e.data.colors;
+  //     paused = true;
+  //     togglePause();
+  //     toggleFileUpload(); // hide that sucka so we can look at shit
+  //     toggleControls();
+  //     break;
+  //
+  //     case 'do_NewColorsArray':
+  //     stat('do_NewColorsArray byteLength ' + e.data.colors.byteLength);
+  //     stat('do_NewColorsArray length ' + e.data.colors.length);
+  //     if (e.data.colors) {
+  //       // applyColorsArray(e.data.colors);
+  //       stat(`do_NewColorsArray was called, but I've disabled it. e.data.colors:  ${e.data.colors}`);
+  //     } else if (!e.data.colors) {
+  //       console.log("[error colors blah] " + e.data);
+  //     }
+  //     break;
+  //
+  //     case 'do_UpdateColorMapSize':
+  //     colormapsize = e.data.colormapsize;
+  //     basepairs = e.data.basepairs;
+  //     codonsPerPixel = e.data.codonsPerPixel;
+  //     codons = e.data.codons;
+  //     filename = e.data.filename;
+  //
+  //     opacity = 1 / codonsPerPixel;
+  //     stat('basepairs ' + basepairs);
+  //     stat('do_UpdateColorMapSize colormapsize '+colormapsize);
+  //     break;
+  //
+  //     case 'do_PercentUpdate':
+  //
+  //     colormapsize = e.data.colormapsize;
+  //     basepairs = e.data.basepairs;
+  //     codonsPerPixel = e.data.codonsPerPixel;
+  //     codons = e.data.codons;
+  //
+  //
+  //     filename  = "um ok lets fix that"
+  //     // filename = e.data.filename;
+  //     // let percentEvent = { loaded: e.data.loaded, total: e.data.total }
+  //     let percentLoaded = Math.round((e.data.loaded / e.data.total) * 100);
+  //     // stat('do_PercentUpdate'+e.data.percent);
+  //     // updateProgress(percentEvent);
+  //     updatePercent(e.data.percent);
+  //     cpu = e.data.cpu;
+  //     let txt = percentLoaded + "%";
+  //     stat(txt);
+  //     break;
+  //
+  //     case 'do_FileInfo':
+  //     userFeedback = e.data.userFeedback;
+  //     Math.round(cpu/1000) + " K iops "
+  //     stat("[userFeedback] " + userFeedback);
+  //     document.getElementById('cancel').classList.remove('hidden');
+  //     toggleFileUpload();
+  //     break;
+  //
+  //
+  //
+  //     default:
+  //     console.log("[downloader DEFAULT] " + e.data);
+  //   }
+  // };
 
-      case 'do_IncreaseDetail':
-      // lessdetail();
-      break;
+  // downloaderDisabled.postMessage({
+  //   aTopic: 'do_Wakeup'
+  // });
 
-      case 'do_ReduceDetail':
-      // moredetail();
-      break;
-
-      case 'do_WorkerSendColors':
-      // usersColors = e.data.colors;
-      paused = true;
-      togglePause();
-      toggleFileUpload(); // hide that sucka so we can look at shit
-      toggleControls();
-      break;
-
-      case 'do_NewColorsArray':
-      stat('do_NewColorsArray byteLength ' + e.data.colors.byteLength);
-      stat('do_NewColorsArray length ' + e.data.colors.length);
-      if (e.data.colors) {
-        applyColorsArray(e.data.colors);
-        // stat('do_NewColorsArray ' + e.data.colors);
-      } else if (!e.data.colors) {
-        console.log("[error colors blah] " + e.data);
-      }
-      break;
-
-      case 'do_UpdateColorMapSize':
-      colormapsize = e.data.colormapsize;
-      basepairs = e.data.basepairs;
-      codonsPerPixel = e.data.codonsPerPixel;
-      codons = e.data.codons;
-      filename = e.data.filename;
-
-      opacity = 1 / codonsPerPixel;
-      // alert('colormapsize ' + colormapsize);
-      stat('basepairs ' + basepairs);
-      stat('do_UpdateColorMapSize colormapsize '+colormapsize);
-      break;
-
-      case 'do_PercentUpdate':
-
-      colormapsize = e.data.colormapsize;
-      basepairs = e.data.basepairs;
-      codonsPerPixel = e.data.codonsPerPixel;
-      codons = e.data.codons;
-
-
-      filename  = "um ok lets fix that"
-      // filename = e.data.filename;
-      // let percentEvent = { loaded: e.data.loaded, total: e.data.total }
-      let percentLoaded = Math.round((e.data.loaded / e.data.total) * 100);
-      // stat('do_PercentUpdate'+e.data.percent);
-      // updateProgress(percentEvent);
-      updatePercent(e.data.percent);
-      cpu = e.data.cpu;
-      let txt = percentLoaded + "%";
-      stat(txt);
-      break;
-
-      case 'do_FileInfo':
-      userFeedback = e.data.userFeedback;
-      Math.round(cpu/1000) + " K iops "
-      stat("[userFeedback] " + userFeedback);
-      document.getElementById('cancel').classList.remove('hidden');
-      toggleFileUpload();
-      break;
-
-
-
-      default:
-      console.log("[downloader DEFAULT] " + e.data);
-    }
-  };
-
-  downloader.postMessage({
-    aTopic: 'do_Wakeup'
-  });
-
-  // downloader.postMessage({
+  // downloaderDisabled.postMessage({
   //   aTopic: 'do_LoadURL',
   //   filename: './AAA-to-TTT-repeated-8-times.txts',
   //   url: '/aminosee/aminosee/AAA-to-TTT-repeated-8-times.txt',
   //   type: 'text/plain'
   // });
-  // downloader.postMessage({
+  // downloaderDisabled.postMessage({
   //   aTopic: 'do_LoadURL',
   //   filename: './64-codons-test-pattern.txt',
   //   url: '/aminosee/aminosee/64-codons-test-pattern.txt',
   //   type: 'text/plain'
   // });
-  // downloader.postMessage({
+  // downloaderDisabled.postMessage({
   //   aTopic: 'do_LoadURL',
   //   filename: './example-mfa.txt',
   //   url: '/aminosee/aminosee/example-mfa.txt',
   //   type: 'text/plain'
   // });
-  downloader.postMessage({
-    aTopic: 'do_LoadURL',
-    filename: './example-fa.txt',
-    url: '/aminosee/aminosee/example-fa.txt',
-    type: 'text/plain'
-  });
-  // downloader.postMessage({
+  // downloaderDisabled.postMessage({
+  //   aTopic: 'do_LoadURL',
+  //   filename: './example-fa.txt',
+  //   url: '/aminosee/aminosee/example-fa.txt',
+  //   type: 'text/plain'
+  // });
+  // downloaderDisabled.postMessage({
   //   aTopic: 'do_LoadURL',
   //   filename: './example-sequence.txt',
   //   url: '/aminosee/aminosee/example-sequence.txt',
   //   type: 'text/plain'
   // });
-  // downloader.postMessage({
+  // downloaderDisabled.postMessage({
   //   aTopic: 'do_LoadURL',
   //   filename: './Gorilla-C2AB-9595_ref_gorGor4_chr2A.mfa',
   //   url: '/aminosee/aminosee/Gorilla-C2AB-9595_ref_gorGor4_chr2A.mfa',
@@ -623,19 +626,19 @@ function handleFileSelect(evt) {
 
   let choosefiles = evt.target.files;
   console.log("file loading is being sent to background web worker... " + choosefiles.length + " files.");
-  // downloader.postMessage(choosefiles);
+  // downloaderDisabled.postMessage(choosefiles);
   // Ensure that the progress bar displays 100% at the end.
   progress.style.width = '100%';
   progress.textContent = '100%';
   setTimeout("document.getElementById('progress_bar').className='';", 100);
 
   for (i=0; i<choosefiles.length; i++) {
-    downloader.postMessage({
-      aTopic: 'do_LoadURL',
-      filename: choosefiles[i],
-      url: choosefiles[i],
-      type: 'text/plain'
-    });
+    // downloaderDisabled.postMessage({
+    //   aTopic: 'do_LoadURL',
+    //   filename: choosefiles[i],
+    //   url: choosefiles[i],
+    //   type: 'text/plain'
+    // });
   }
 
 
@@ -643,7 +646,7 @@ function handleFileSelect(evt) {
 
 function cancel() {
   // worker.terminate();
-  downloader.terminate();
+  downloaderDisabled.terminate();
 }
 
 function testColour() {
