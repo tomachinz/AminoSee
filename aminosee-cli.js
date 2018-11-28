@@ -7,7 +7,7 @@
 //       by Tom Atkinson            aminosee.funk.co.nz
 //        ah-mee no-see       "I See It Now - I AminoSee it!"
 
-let defaultMagnitude = 7; //  = 4.194304 megapixels
+let defaultMagnitude = 6; //  = 4.194304 megapixels
 let darkenFactor = 0.75;
 let highlightFactor = 2;
 const defaultC = 1; // back when it could not handle 3+GB files.
@@ -55,7 +55,7 @@ let status = "load";
 console.log("Amino\x1b[40mSee\x1b[37mNoEvil");
 let interactiveKeysGuide = "";
 let filenameTouch, maxpix, cppfl, estimatedPixels, args, filenamePNG, extension, reader, hilbertPoints, herbs, levels, progress, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, textFile, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, fileUploadShowing, testColors, chunksMax, chunksize, chunksizeBytes, baseChars, cpu, subdivisions, contextBitmap, aminoacid, colClock, start, updateClock, percentComplete, kbPerSec, pixelStacking, isHighlightCodon, justNameOfDNA, justNameOfPNG, justNameOfHILBERT, sliceDNA, filenameHTML, howMany, timeRemain, runningDuration, kbRemain, width, triplet, updatesTimer, pngImageFlags;
-let codonsPerPixel, CRASH, cyclesPerUpdate, red, green, blue, alpha, charClock, errorClock, breakClock, streamLineNr, genomeSize, filesDone, spewClock, opacity, codonRGBA, geneRGBA;
+let codonsPerPixel, CRASH, cyclesPerUpdate, red, green, blue, alpha, charClock, errorClock, breakClock, streamLineNr, genomeSize, filesDone, spewClock, opacity, codonRGBA, geneRGBA, currentCodon;
 
 
 
@@ -424,103 +424,79 @@ function pollForStream() {
     return true;
   } else {
     current = args._.pop();
-    // if (current == undefined) {
-    //   log("current maybe im done " + args)
-    //   willStart = false;
-    //   pollAgainFlag = true;
-    //   // return true;
   }
   howMany = args._.length;
   filename = path.resolve(current);
   log("current: " + filename)
-
-
-
-
   let pollAgainFlag = false;
   let willStart = true;
-
-
-
-
-  //
-
   log( " current is " + current   + args)
 
-
-
-
-
-
-  // if (howMany < 0) {
-  //   status ="bye"
-  //   output("howMany   ${howMany}")
-  //   willStart = false;
-  // }
-
-
-
-  //
   if (!checkFileExtension(getFileExtension(current))) {
     log("checkFileExtension: " + current)
-    willStart = false;
-    pollAgainFlag = true;
-
+    theSwitcher(false);
+    return false;
   }
   if (filename == defaultFilename) {
     log("skipping default: " + defaultFilename);
     log("checkFileExtension: " + filename)
-    // willStart = false;
-    pollAgainFlag = true;
+    theSwitcher(false);
+    return false;
   }
   if (!checkFileExtension(getFileExtension(filename))) {
     log("getFileExtension(current): " + getFileExtension(filename));
     log("checkFileExtension(getFileExtension(current)): " + checkFileExtension(getFileExtension(filename)))
-    willStart = false;
-    pollAgainFlag = true;
-
+    theSwitcher(false);
+    return false;
   } else {
+
     baseChars = getFilesizeInBytes(filename);
     autoconfCodonsPerPixel();
     setupFNames();
 
-    if (checkIfPNGExists(filenamePNG) && !force) {
-      log("checkIfPNGExists(filenamePNG) == true && !force: " + checkIfPNGExists(filenamePNG));
+    if (!okToOverwritePNG(filenamePNG)) {
+      log("okToOverwritePNG(filenamePNG) == true && !force: " + okToOverwritePNG(filenamePNG));
       log(filenamePNG + " not exist, continuing.");
-      // willStart = false;
+      theSwitcher(false);
+      return false;
+    } else {
+      if (!checkLocks(filenameTouch)) {
+        log("!checkLocks(filenameTouch) " + !checkLocks(filenameTouch));
+        theSwitcher(false);
+        return false;
+      } else {
+        log(`filenameTouch ${filenameTouch}`);
+        theSwitcher(true); // <--- GOOD
+        return true;
+      }
     }
   }
 
-  if (!checkLocks(filenameTouch)) {
-    log("!checkLocks(filenameTouch) " + !checkLocks(filenameTouch));
-    willStart = false;
-  }
-  log(`willStart   ${willStart}  pollAgainFlag ${pollAgainFlag}  defaultFilename  ${defaultFilename}  ${filename}  howMany   ${howMany}   status ${status}`)
-  if (!pollAgainFlag) {
+
+  log(`willStart   ${willStart}  pollAgainFlag ${pollAgainFlag}  defaultFilename  ${defaultFilename}  ${filename}  howMany   ${howMany}   status ${status}`);
+
+}
+function theSwitcher(bool) {
+  if (bool) {
     printRadMessage();
+
     setTimeout(() => {
-      status = "paint"
+      status = "paint";
       touchLock(filenameTouch); // <--- THIS IS WHERE RENDER STARTS
+
       // return true;
-    }, 2000);
-    pollAgainFlag = false;
-  } else if (pollAgainFlag) {
-
-    // setImmediate(() => {
-    status = "polling"
-
-
-    pollForStream();
-
+    }, 3000);
     return true;
-    // });
-
-  } else {
-    log(`pollAgainFlag  ${pollAgainFlag}`)
-    // quit();
+  } else  {
+    status = "polling"
+    output(howMany);
+    if (howMany > 0 ) {
+      pollForStream();
+    } else {
+      output("none");
+    }
+    return false;
   }
-
-
 }
 async function initStream(f) {
   status = "init";
@@ -552,8 +528,6 @@ async function initStream(f) {
 
 
 
-
-
   // filename = f;
   // filename = path.resolve(f); // set a global. i know. god i gotta stop using those.
   autoconfCodonsPerPixel();
@@ -561,6 +535,17 @@ async function initStream(f) {
   output(` [ func parm: ${f} ]`);
   output(` [ cli parameter: ${filename} ]`);
   output(` [ canonical:     ${justNameOfDNA} ]`);
+
+  if (getFilesizeInBytes(f) == -1) {
+    log("Problem with file.");
+    return false;
+  } else {
+    baseChars = getFilesizeInBytes(f);
+  }
+  extension = getFileExtension(f);
+  log("[FILESIZE] " + baseChars.toLocaleString() + " extension: " + extension);
+
+
 
 
   percentComplete = 0;
@@ -745,7 +730,8 @@ function setupFNames() {
 
   ext += ".m" + magnitude;
 
-  let pngAmino = "_c" + (Math.round(codonsPerPixel*10)/10);
+  // let pngAmino = "_c" + (Math.round(codonsPerPixel*10)/10);
+  let pngAmino = "_c";
   if (args.ratio || args.r) {
     pngAmino += `_${ratio}`;
   }
@@ -757,11 +743,11 @@ function setupFNames() {
 
   ( artistic ? pngAmino += "_artistic" : pngAmino += "_sci")
 
-  justNameOfPNG =     justNameOfDNA + "_aminosee" + ext  + pngAmino + ".png";
-  justNameOfHILBERT = justNameOfDNA + "_aminosee" + "_hilbert" + ext + ".png";
-  justNameOfHTML =    justNameOfDNA + "_aminosee" + ext + ".html";
+  justNameOfPNG =     `${justNameOfDNA}${ext}_aminosee${pngAmino}.png`;
+  justNameOfHILBERT =     `${justNameOfDNA}${ext}_aminohilbert.png`;
+  justNameOfHTML =     `${justNameOfDNA}${ext}_aminosee.html`;
 
-  filenameTouch =   filePath + "/" + justNameOfDNA + "." + pngAmino + ".aminoseetouch";
+  filenameTouch =   filePath + "/" + justNameOfDNA + ext + pngAmino + ".aminosee.touch";
   filenamePNG =     filePath + "/" + justNameOfPNG;
   filenameHTML =    filePath + "/" + justNameOfHTML;
   filenameHILBERT = filePath + "/" + justNameOfHILBERT;
@@ -950,8 +936,8 @@ function removeLocks() {
     // }, 1000);
 
 
-  } catch (e) {
-    log("removeLocks err: " + e);
+  } catch (err) {
+    log("removeLocks err: " + err);
 
     // setTimeout(() => {
     status = "highland";
@@ -992,46 +978,6 @@ function checkFileExtension(f) {
     return true;
   }
 }
-// return TRUE if we should start to render
-function parseFileForStream(f) {
-  // var extensions = ["jpg", "jpeg", "txt", "png"];  // Globally defined
-  // Get extension and make it lowercase
-  // This uses a regex replace to remove everything up to
-  // and including the last dot
-
-  if (getFilesizeInBytes(f) == -1) {
-    log("Problem with file.");
-    return false;
-  } else {
-    baseChars = getFilesizeInBytes(f);
-  }
-  extension = getFileExtension(f);
-  log("[FILESIZE] " + baseChars.toLocaleString() + " extension: " + extension);
-
-  // checkFileExtension
-
-
-  if (checkFileExtension(extension)) {
-
-    log("Check if png already exist")
-    // if there is a png, dont render just quit
-    if (checkIfPNGExists(f) && !force) {
-      log("Image already rendered, use --force to overwrite. Files left: " + howMany);
-      return false;
-    } else {
-      log("Saving to: " + justNameOfPNG);
-    }
-
-  } else {
-    log("WRONG FILE EXTENSION: " + extension);
-    return false;
-
-
-  }
-
-  return true;
-
-}
 
 function quit() {
   process.exitCode = 1;
@@ -1053,6 +999,7 @@ function processLine(l) {
   var cleanDNA = "";
   let lineLength = l.length; // replaces baseChars
   let codon = "";
+  currentCodon = "";
   isHighlightCodon = false;
   CRASH = false;
   for (column=0; column<lineLength; column++) {
@@ -1063,7 +1010,7 @@ function processLine(l) {
     // IMPLMENTED AFTER ENABLEDING "N" TO AFFECT THE IMAGE
     // ITS AT THE STAGE WHERE IT CAN EAT ANY FILE WITH DNA
     // BUT IF ANY META DATA CONTAINS THE WORD "CAT", "TAG" etc these are taken as coding (its a bug)
-    while ( c == ".") { // biff it and get another
+    while ( c == "." && c != "N") { // biff it and get another
       // log(c);
       codon =  ""; // we wipe it because... codons should not cross line break boundaries.
       column++;
@@ -1083,7 +1030,11 @@ function processLine(l) {
     // if (c==".") { c = ""}
     codon += c; // add the base
     // log(c);
-    if (codon == "...") {
+    if (codon == "..." || codon == "NNN") {
+      currentCodon = codon;
+      if (codon == "NNN" ) {
+        pepTable.find(isNoncoding).Histocount++;
+      }
       codon="";
       log(red+green+blue);
       if (red+green+blue>0) { // this is a fade out to show headers.
@@ -1101,8 +1052,9 @@ function processLine(l) {
       }
       errorClock++;
 
-    } else if (codon.length ==  3) {
 
+    } else if (codon.length ==  3) {
+      currentCodon = codon;
       pixelStacking++;
       genomeSize++;
       codonRGBA = codonToRGBA(codon); // this will report alpha info
@@ -1410,7 +1362,7 @@ function helpCmd(args) {
 
 
 }
-function checkLocks(ffffff) {
+function checkLocks(ffffff) { // return false if locked.
   log("checkLocks RUNNING");
   if (force == true) {
     log("Not checking locks - force mode enabled.");
@@ -1423,35 +1375,35 @@ function checkLocks(ffffff) {
     log("[lstatSync result]" + result);
     output("A lock file exists for this DNA: " + ffffff)
     output("This may happen if you interupt a render.")
+    output("If you render with multiple threads this could be another thread working on the file.")
     output("use -f to overwrite, or just delete the touch file above.");
-    unlocked = false;
+    return false;
   } catch(e){
     log("No lockfile found - proceeding to render" );
-    unlocked = true;
+    return true;
   }
   return unlocked;
 }
 
 
-function checkIfPNGExists(f) {
-  log("checkIfPNGExists RUNNING");
+function okToOverwritePNG(f) { // true to continue, false to abort
+  log("okToOverwritePNG RUNNING");
   if (force == true) {
     log("Not checking - force mode enabled.");
-    return false;
+    return true;
   }
-  let imageExists, result;
-  imageExists = false;
+
   try {
     result = fs.lstatSync(f).isDirectory;
     log("[lstatSync result]" + result);
     output("An png image has already been generated for this DNA: " + f)
     output("use -f to overwrite");
-    return true;
+    return false;
   } catch(e){
     output("Output png will be saved to: " + f );
-    return false;
+    return true;
   }
-  return imageExists;
+  return true;
 }
 
 function stat(txt) {
@@ -1868,7 +1820,7 @@ function arrayToPNG() {
       let kbPerSec = Math.round(charClock+1 / runningDuration+1)/1024;
 
 
-      let text = lineBreak;
+      let text = " ";
       let aacdata = [];
       let abc = pepTable.map(getHistoCount).entries();
 
@@ -1883,7 +1835,7 @@ function arrayToPNG() {
         aacdata[pepTable[h].Codon] = pepTable[h].Histocount ;
       }
       // aacdata = abc;
-      text += ` @i ${charClock.toLocaleString()} File: ${chalk.rgb(255, 255, 255).inverse(justNameOfDNA.toUpperCase())}.${extension}  Line breaks: ${breakClock} Files: ${howMany} Base Chars: ${baseChars} `;
+      text += ` @i ${charClock.toLocaleString()} File: ${chalk.rgb(255, 255, 255).inverse(justNameOfDNA.toUpperCase())}.${extension}  Line breaks: ${breakClock} Files: ${howMany} DNA Filesize: ${Math.round(baseChars/1000)/1000} MB `;
       text += lineBreak;
       text += chalk.rgb(128, 255, 128).inverse(`[ ${percentComplete}% done Time remain: ${timeRemain.toLocaleString()} sec Elapsed: ${Math.round(runningDuration/1000)} sec KB remain: ${kbRemain}`);
         text += chalk.rgb(128, 255, 128).inverse(`[ ${status.toUpperCase()} ]`);
@@ -1898,16 +1850,16 @@ function arrayToPNG() {
         text += lineBreak;
         text += `[ Codons: ${genomeSize.toLocaleString()}]  Last Acid: `;
         text += terminalRGB(aminoacid, red, green, blue);
-        text += lineBreak + `[ CPU ${bytes(kbPerSec)}/s Codons per sec: ${Math.round(kCodonsPerSecond).toLocaleString()} ] `;
+        text += lineBreak + `[ CPU: ${bytes(kbPerSec)}/s Codons per sec: ${Math.round(kCodonsPerSecond).toLocaleString()} ] `;
         // text += lineBreak;
         text += `[ Mb Codons per pixel: ${codonsPerPixel} Pixels painted: ${colClock.toLocaleString()} ] `;
-        text += `[ DNA Filesize: ${Math.round(baseChars/1000)/1000} MB Codon Opacity: ${Math.round(opacity*10000)/100}%] `;
+        text += `[ Codon Opacity: ${Math.round(opacity*10000)/100}%] `;
         text += lineBreak;
         text += lineBreak;
         text += histogram(aacdata, { bar: '/', width: 40, sort: true, map:  aacdata.Histocount} );
         text += lineBreak;
         text += `[ raw:   ${ removeLineBreaks(rawDNA)} ]  [ clean: ${ cleanString(rawDNA)} ] `;
-        // text += lineBreak;
+        text += lineBreak;
         text += `Output png: ${justNameOfPNG}]`;
         text += interactiveKeysGuide;
 
@@ -1926,11 +1878,20 @@ function arrayToPNG() {
         return text;
       }
 
-      function isCodon(cdn) {
-        return cdn == this.Codon;
+      function isCodon(p) {
+        return p == this.Codon;
       }
       function isTriplet(p) {
         return p.DNA == triplet;
+      }
+      function isStartCodon(p) {
+        return p.Codon == "Methionine";
+      }
+      function isStopCodon(p) {
+        return (p.Codon == "Amber" || p.Codon == "Ochre" || p.Codon == "Opal" );
+      }
+      function isNoncoding(p) {
+        return p.Codon == "Non-coding NNN";
       }
       function isPeptide(p) {
         return p.Codon == peptide;
@@ -1941,7 +1902,6 @@ function arrayToPNG() {
       }
       function tripletToHue(cod) {
         return dnaTriplets.find(isTriplet).Hue;
-
       }
       function peptideToHue(cod) {
         return pepTable.find(isPeptide).Hue;
@@ -1962,10 +1922,9 @@ function arrayToPNG() {
                 pepTable[h].Histocount++;
 
                 if (aminoacid == "Amber" || aminoacid == "Ochre" || aminoacid == "Opal" ) {
-                  pepTable.indexOf("STOP Codon").Histocount++;
+                  pepTable.find(isStopCodon).Histocount++;
                 } else if (aminoacid == "Methione") {
-                  pepTable[pepTable.indexOf("START Codon")].Histocount++;
-
+                  pepTable[pepTable.find(isStartCodon)].Histocount++;
                 }
                 break
               }
@@ -2878,7 +2837,7 @@ function arrayToPNG() {
             ╩ ╩┴ ┴┴┘└┘└─┘╚═╝└─┘└─┘  ═╩╝╝╚╝╩ ╩   ╚╝ ┴└─┘└┴┘└─┘┴└─
             by Tom Atkinson          aminosee.funk.co.nz
             ah-mee no-see         "I See It Now - I AminoSee it!"
-            `, 96, 64, 245);
+`, 96, 64, 245);
 
             const lineBreak = `
-            `;
+`;
