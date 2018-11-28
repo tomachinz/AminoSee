@@ -429,10 +429,10 @@ function pollForStream() {
     //   willStart = false;
     //   pollAgainFlag = true;
     //   // return true;
-    }
-    howMany = args._.length;
-    filename = path.resolve(current);
-    log("current: " + filename)
+  }
+  howMany = args._.length;
+  filename = path.resolve(current);
+  log("current: " + filename)
 
 
 
@@ -498,27 +498,27 @@ function pollForStream() {
   log(`willStart   ${willStart}  pollAgainFlag ${pollAgainFlag}  defaultFilename  ${defaultFilename}  ${filename}  howMany   ${howMany}   status ${status}`)
   if (!pollAgainFlag) {
     printRadMessage();
-    // setTimeout(() => {
+    setTimeout(() => {
       status = "paint"
       touchLock(filenameTouch); // <--- THIS IS WHERE RENDER STARTS
       // return true;
-    // }, 1000);
+    }, 2000);
     pollAgainFlag = false;
   } else if (pollAgainFlag) {
 
     // setImmediate(() => {
-      status = "polling"
+    status = "polling"
 
 
-      pollForStream();
+    pollForStream();
 
-      return true;
+    return true;
     // });
 
-    } else {
-      log(`pollAgainFlag  ${pollAgainFlag}`)
-      // quit();
-    }
+  } else {
+    log(`pollAgainFlag  ${pollAgainFlag}`)
+    // quit();
+  }
 
 
 }
@@ -945,8 +945,8 @@ function removeLocks() {
     fs.unlinkSync(filenameTouch);
 
     // setTimeout(() => {
-      status = "highland";
-      pollForStream();
+    status = "highland";
+    pollForStream();
     // }, 1000);
 
 
@@ -954,8 +954,8 @@ function removeLocks() {
     log("removeLocks err: " + e);
 
     // setTimeout(() => {
-      status = "highland";
-      pollForStream();
+    status = "highland";
+    pollForStream();
     // }, 1000);
   }
 
@@ -1805,10 +1805,10 @@ function arrayToPNG() {
       pixelStacking = 0;
       colClock++;
     }
-function out(t) {
-  process.stdout.write(t); // CURSOR TO TOP LEFT????
+    function out(t) {
+      process.stdout.write(t); // CURSOR TO TOP LEFT????
 
-}
+    }
     function clearPrint(t) {
       if (clear) {
         process.stdout.write('\x1B[2J\x1B[0f'); // CURSOR TO TOP LEFT????
@@ -1852,6 +1852,9 @@ function out(t) {
       kbRemain = (Math.round((baseChars - charClock)/1000)).toLocaleString();
 
     }
+    function getHistoCount(item, index) {
+      return [ item.Codon, item.Histocount];
+    }
     function drawHistogram() {
       if (updates == false) {
         // status = "Stats display disabled ";
@@ -1867,6 +1870,9 @@ function out(t) {
 
       let text = lineBreak;
       let aacdata = [];
+      let abc = pepTable.map(getHistoCount).entries();
+
+
       if (msPerUpdate < maxMsPerUpdate) {
         msPerUpdate += 50; // begin to not update screen so much over time
       }
@@ -1876,6 +1882,7 @@ function out(t) {
       for (h=0;h<pepTable.length;h++) {
         aacdata[pepTable[h].Codon] = pepTable[h].Histocount ;
       }
+      // aacdata = abc;
       text += ` @i ${charClock.toLocaleString()} File: ${chalk.rgb(255, 255, 255).inverse(justNameOfDNA.toUpperCase())}.${extension}  Line breaks: ${breakClock} Files: ${howMany} Base Chars: ${baseChars} `;
       text += lineBreak;
       text += chalk.rgb(128, 255, 128).inverse(`[ ${percentComplete}% done Time remain: ${timeRemain.toLocaleString()} sec Elapsed: ${Math.round(runningDuration/1000)} sec KB remain: ${kbRemain}`);
@@ -2871,7 +2878,7 @@ function out(t) {
             ╩ ╩┴ ┴┴┘└┘└─┘╚═╝└─┘└─┘  ═╩╝╝╚╝╩ ╩   ╚╝ ┴└─┘└┴┘└─┘┴└─
             by Tom Atkinson          aminosee.funk.co.nz
             ah-mee no-see         "I See It Now - I AminoSee it!"
-`, 96, 64, 245);
+            `, 96, 64, 245);
 
             const lineBreak = `
-`;
+            `;
