@@ -721,8 +721,8 @@ function removeFileExtension(f) {
 function setupFNames() {
   extension = getFileExtension(filename);
   justNameOfDNA = removeSpacesForFilename(removeFileExtension(replaceFilepathFileName(filename)));
-  if (justNameOfDNA.length > 20 ) {
-    justNameOfDNA = justNameOfDNA.substring(0,10) + justNameOfDNA.substring(justNameOfDNA.length-10,justNameOfDNA.length);
+  if (justNameOfDNA.length > 22 ) {
+    justNameOfDNA = justNameOfDNA.substring(0,11) + justNameOfDNA.substring(justNameOfDNA.length-11,justNameOfDNA.length);
   }
   log("CWD:")
   let filePath = path.resolve(path.dirname(filename)) ;
