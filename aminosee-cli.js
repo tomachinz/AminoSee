@@ -7,7 +7,7 @@
 //       by Tom Atkinson            aminosee.funk.co.nz
 //        ah-mee no-see       "I See It Now - I AminoSee it!"
 
-let defaultMagnitude = 6; //  = 4.194304 megapixels
+let defaultMagnitude = 7; //  = 4.194304 megapixels
 let darkenFactor = 0.75;
 let highlightFactor = 2;
 const defaultC = 1; // back when it could not handle 3+GB files.
@@ -190,12 +190,14 @@ module.exports = () => {
       magnitude = Math.round(args.magnitude || args.m);
       if (magnitude < 1 || magnitude > 12) {
         magnitude = defaultMagnitude;
-        output("Magnitude must be between 1 and 10, ignoring.");
+        output("Magnitude must be an odd number between 1 and 9.");
       } else if (magnitude > 7) {
         output(`Magnitude 8 requires 700 mb ram and takes a while`);
       } else if (magnitude > 8) {
         output(`This will give your machine quite a hernia. It's in the name of science but.`);
         output(`On my machine, magnitude 8 requires 1.8 GB of ram and 9+ crashes nodes heap and 10+ crashes the max call stack, so perhaps this will run OK in the 2020 AD`);
+      } else if (magnitude == 2 || magnitude == 4 || magnitude ==6 || magnitude == 8 ||magnitude == 10) {
+        magnitude--;
       }
     } else {
       output("Can't set magnitude and codons per pixel at the same time. Remove your -c option to set magnitude")
@@ -309,7 +311,7 @@ module.exports = () => {
     force = true;
   }
   if (args.help || args.h) {
-    output("Hello! Thanks for checking this. I've not made a help file yet.");
+    output(siteDescription);
     output("Author:         tom@funk.co.nz or +64212576422");
     output("calls only between 2pm and 8pm NZT (GMT+11hrs)");
   }
@@ -718,7 +720,7 @@ function removeFileExtension(f) {
 
 function setupFNames() {
   extension = getFileExtension(filename);
-  justNameOfDNA = removeFileExtension(replaceFilepathFileName(filename));
+  justNameOfDNA = removeSpacesForFilename(removeFileExtension(replaceFilepathFileName(filename)));
   if (justNameOfDNA.length > 20 ) {
     justNameOfDNA = justNameOfDNA.substring(0,10) + justNameOfDNA.substring(justNameOfDNA.length-10,justNameOfDNA.length);
   }
@@ -736,9 +738,9 @@ function setupFNames() {
     pngAmino += `_${ratio}`;
   }
   if ( triplet != "none" ) {
-    pngAmino += `_${removeSpacesForFilename(triplet)}`;
+    pngAmino += `_${removeSpacesForFilename(triplet).toUpperCase()}`;
   } else if (peptide != "none") {
-    pngAmino += `_${removeSpacesForFilename(peptide)}`;
+    pngAmino += `_${removeSpacesForFilename(peptide).toUpperCase()}`;
   }
 
   ( artistic ? pngAmino += "_artistic" : pngAmino += "_sci")
@@ -760,23 +762,42 @@ function setupFNames() {
 }
 
 function launchNonBlockingServer() {
+  serverPath = appPath.substring(0, appPath.length-15);// + "public";
 
-  const server = require('node-http-server');
-  serverPath = appPath.substring(0, appPath.length-15) + "public";
-  log("appPath " + appPath + " server path: " + serverPath);
 
-  server.deploy(
-    {
-      port: 3210,
-      root: serverPath
-    }
-  )
+
+  const LocalWebServer = require('local-web-server')
+  const localWebServer = new LocalWebServer()
+  const server = localWebServer.listen({
+    port: 3210,
+    // https: true,
+    directory: serverPath,
+    // spa: 'index.html',
+    // websocket: 'src/websocket-server.js'
+  })
+  // secure, SPA server with listening websocket now ready on port 8050
+
+  // Stop listening when/if server is no longer needed
+  // server.close()
+
   openMiniWebsite();
 
 
-  // const server = require('http-server');
+}
+
+  // const server = require('node-http-server');
+  // log("appPath " + appPath + " server path: " + serverPath);
+  // server.deploy(
+  //   {
+  //     port: 3210,
+  //     root: serverPath
+  //   }
+  // )
+  // openMiniWebsite();
+
+
+  // const httpServer = require('http-server');
   // const { get, post } = server.router;
-  // Launch server
   // server({ port: 3210 }, [
   //   get('/', ctx => 'Hello world!')
   // ]);
@@ -785,15 +806,16 @@ function launchNonBlockingServer() {
   // const handleReq = function (req) {
   //   console.log("listening", req);
   // }
-  //  server = httpServer.createServer({
+  //
+  //  let server = httpServer.createServer({
   //   port: 3210,
-  //   root: '../',
+  //   root: "public",
   //   robots: true,
   //   headers: {
   //     'Access-Control-Allow-Origin': '*',
   //     'Access-Control-Allow-Credentials': 'true'
   //   },
-  // }, [get('/', ctx => 'Hello world!')]);
+  // });
 
 
   // });
@@ -804,8 +826,6 @@ function launchNonBlockingServer() {
   //   console.warn(e);
   // }
 
-
-}
 
 function openMiniWebsite() {
   // opn(`http://127.0.0.1:3210/${justNameOfHTML}`);
@@ -845,8 +865,8 @@ function welcomeMessage() {
   output(terminalRGB('if you need some DNA try:', 255,255,200));
   output('wget https://www.funk.co.nz/aminosee/dna/megabase.fa');
   output(' ');
-  output('usage: ');
-  output('     aminosee [human-genome-DNA.txt]      (render file to image)');
+  output('examples:    ');
+  output('     aminosee human-genome-DNA.txt     (render one file to image)');
   // output('     aminosee serve               (run viewer micro web server)');
   output('     aminosee chr1.fa  chrX.fa  chrY.fa         (render 3 files)');
   output('     aminosee * -m 8                       (render at 2048x2048)');
@@ -1538,11 +1558,14 @@ function arrayToPNG() {
   }
   function generateTestPatterns() {
     output("TEST PATTERNS GENERATION");
-    // output("use -m to try different dimensions, 1-11 correspond to: ");
+    output("use -m to try different dimensions 8 is biggest or maybe 9 fresh after a reboot ");
+    output("use -a to remove registration marks it looks a little cleaner without them ");
     log(hilbPixels);
     for (test = 1; test <= magnitude; test++) {
       let filePath = path.resolve(__dirname) ;
-      filenameHILBERT = filePath + "/AminoSee_Calibration_" + test + ".png";
+      let regmarks;
+      ( artistic ?  regmarks = "_noregmarks" :  regmarks = "_reg")
+      filenameHILBERT = filePath + "/AminoSee_Calibration_" + test + regmarks + ".png";
       output(`Magnitude ${test} curve generation. ${hilbPixels[test]} pixels`);
       dimension = test;
       actuallySaveThatHilbert(); // call with no array for test
@@ -1607,17 +1630,17 @@ function arrayToPNG() {
       let cursorLinear  = 4 * i ;
       let hilbertLinear = 4 * ((hilbX % width) + (hilbY * width));
       let perc = i / hilpix;
-      let thinWhite = 100;
+      let thinWhite = 250;
       if (test == true) {
         let thinWhiteSlice = Math.round(perc * 1000 ) % thinWhite;
-        if (thinWhiteSlice < 1) {
+        if (thinWhiteSlice < 1 && !artistic) {
           hilbertImage[hilbertLinear] =   255*perc;
           hilbertImage[hilbertLinear+1] = ( i % Math.round( perc *32) ) / (perc *32) *  255;
           hilbertImage[hilbertLinear+2] = (perc *2550)%255;
           hilbertImage[hilbertLinear+3] = 255 - ((i%2)*24);
 
 
-          hilbertImage[hilbertLinear+0] = 255 - hilbertImage[hilbertLinear+0];
+          hilbertImage[hilbertLinear+0] = 255;
           hilbertImage[hilbertLinear+1] = 255 - hilbertImage[hilbertLinear+1];
           hilbertImage[hilbertLinear+2] = 255 - hilbertImage[hilbertLinear+2];
           hilbertImage[hilbertLinear+3] = 255;
@@ -1670,7 +1693,7 @@ function arrayToPNG() {
     }
 
     function removeSpacesForFilename(string) {
-      return string.replace(/ /, '').toUpperCase();
+      return string.replace(' ', '');
     }
 
     function replaceFilepathFileName(f) {
