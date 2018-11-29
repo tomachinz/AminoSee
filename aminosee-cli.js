@@ -2006,7 +2006,7 @@ function arrayToPNG() {
           return array.find(isHighlightTriplet).Hue;
         }
         function peptideToHue(pep) {
-          return pep.find(isPeptide).Hue;
+          return pepTable.find(isHighlightPeptide).Hue;
         }
         function getCodonIndex(str) {
           return pepTable.indexOf(str);
