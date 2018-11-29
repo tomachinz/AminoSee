@@ -71,17 +71,18 @@ aminosee_do_foreground $1 $2 0 $3 $4 --peptide=Histidine &
 
 # aminosee * -d &
 
-parallel_peptides megabase.fa 1
-aminosee_do Gorilla-C2AB-9595_ref_gorGor4_chr2B.mfa 5
-aminosee_do Gorilla-C2AB-9595_ref_gorGor4_chr2A.gbk 5
-aminosee_do Gorilla-C2AB-9595_ref_gorGor4_chr2A.fa 5
 
+parallel_peptides z_Brown-Kiwi-aptMan1.fa 20
 parallel_peptides "Cannabis sativa subsp. indica cultivar LA Confidential.fa" 60
 parallel_peptides "Eucalyptus grandis cultivar BRASUZ1.gbk" 60
 parallel_peptides "Octopus_bimaculoides_37653_chrUn.fa" 60
 parallel_peptides "chrY Pan troglodytes C0471 Clint.gbk" 60
 parallel_peptides "homo-sapien-hs_ref_GRCh38.p12_chr2.fa" 60
 
+parallel_peptides megabase.fa 1
+aminosee_do Gorilla-C2AB-9595_ref_gorGor4_chr2B.mfa 5
+aminosee_do Gorilla-C2AB-9595_ref_gorGor4_chr2A.gbk 5
+aminosee_do Gorilla-C2AB-9595_ref_gorGor4_chr2A.fa 5
 
 
 
