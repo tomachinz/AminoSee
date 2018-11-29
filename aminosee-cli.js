@@ -7,7 +7,7 @@
 //       by Tom Atkinson            aminosee.funk.co.nz
 //        ah-mee no-see       "I See It Now - I AminoSee it!"
 
-let defaultMagnitude = 7; //  = 4.194304 megapixels
+let defaultMagnitude = 6; //  = 4.194304 megapixels
 let darkenFactor = 0.75;
 let highlightFactor = 2;
 const defaultC = 1; // back when it could not handle 3+GB files.
@@ -1684,14 +1684,13 @@ function arrayToPNG() {
         rgbArray[sum+0] = rgbArray[clk+0]*shrinkFactor;
         rgbArray[sum+1] = rgbArray[clk+1]*shrinkFactor;
         rgbArray[sum+2] = rgbArray[clk+2]*shrinkFactor;
-        rgbArray[sum+3] = rgbArray[clk+3]*shrinkFactor;
+        rgbArray[sum+3] = 255;
         while(z+1/shrinkFactor < sampleClock) {
           sampleClock++;
           clk = sampleClock*4;
           rgbArray[sum+0] += rgbArray[clk+0]*shrinkFactor;
           rgbArray[sum+1] += rgbArray[clk+1]*shrinkFactor;
           rgbArray[sum+2] += rgbArray[clk+2]*shrinkFactor;
-          rgbArray[sum+3] += rgbArray[clk+3]*shrinkFactor;
         }
       }
     }
