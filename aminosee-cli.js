@@ -218,7 +218,7 @@ module.exports = () => {
     pngImageFlags += ratio;
   } else {
     log(`No custom ratio chosen. (default)`);
-    ratio = "square";
+    ratio = "sqr";
   }
   log("using ${ratio} aspect ratio");
 
@@ -372,7 +372,7 @@ module.exports = () => {
       // launchNonBlockingServer();
       return true;
     } else {
-      status = "highland";
+      // status = "highland";
       pollForStream();
       return true;
     }
@@ -405,19 +405,27 @@ function pepToColor(pep) {
   }
 }
 function pollForStream() {
-  log(` [ howMany  ${howMany} ]`)
+  current = args._[0];
+
+  log(` [ howMany  ${howMany} ${status} ${filename} ${current}]`)
   out(".");
-  if (howMany > 1) {
+  if (howMany < 1) {
     quit();
   }
-  if (status == "paint") {
-    return true;
-  } else {
+  // if (status != "bye" || status != "cmd" || status != "exports" || status != "polling") {
+  //   if (status != "bye" || status != "cmd" || status != "exports" || status != "polling") {
+  //   output("THIS IS NOT RIGHT")
+  //   return true;
+  // }
+  if (status == "removelocks" || status == "polling") {
     current = args._.pop();
-    if (current == undefined) {
-      return false;
-    }
+
   }
+  if (current == undefined) {
+    quit()
+    return false;
+  }
+  status = "polling";
   howMany = args._.length;
   filename = path.resolve(current);
   log("current: " + filename)
@@ -455,7 +463,7 @@ function pollForStream() {
     } else {
       if (!checkLocks(filenameTouch)) {
         log("!checkLocks(filenameTouch) " + !checkLocks(filenameTouch));
-        theSwitcher(false);
+        theSwitcher(false); // <---- FAIL
         return false;
       } else {
         log(`filenameTouch ${filenameTouch}`);
@@ -474,10 +482,10 @@ function theSwitcher(bool) {
     printRadMessage();
 
     // setTimeout(() => {
-      status = "paint";
-      touchLock(filenameTouch); // <--- THIS IS WHERE RENDER STARTS
+    status = "paint";
+    touchLock(filenameTouch); // <--- THIS IS WHERE RENDER STARTS
 
-      // return true;
+    // return true;
     // }, 3000);
     return true;
   } else  {
@@ -539,8 +547,6 @@ async function initStream(f) {
   log("[FILESIZE] " + baseChars.toLocaleString() + " extension: " + extension);
 
 
-
-
   percentComplete = 0;
   genomeSize = 0; // number of codons.
   pixelStacking = 0; // how we fit more than one codon on each pixel
@@ -548,8 +554,6 @@ async function initStream(f) {
   timeRemain = 0;
   log("STARTING MAIN LOOP");
   // touchLock();
-
-
 
   if (updatesTimer) {
     clearTimeout(updatesTimer);
@@ -559,7 +563,7 @@ async function initStream(f) {
   if (updates) {
     drawHistogram();
   } else {
-    // let progato = whack_a_progress_on();
+    let progato = whack_a_progress_on();
   }
 
   var s = fs.createReadStream(filename).pipe(es.split()).pipe(es.mapSync(function(line){
@@ -657,7 +661,7 @@ function autoconfCodonsPerPixel() { // requires baseChars maxpix defaultC
     codonsPerPixel = estimatedPixels / maxpix*overSampleFactor;
     if (userCPP != -1) {
       if (userCPP < codonsPerPixel) {
-                output(terminalRGB(`WARNING: Your target Codons Per Pixel setting ${userCPP} will make an estiamted ${Math.round(estimatedPixels / userCPP).toLocaleString()} is likely to exceed the max image size of ${maxpix.toLocaleString()}, sometimes this causes an out of memory error. My machine spit the dummy at 1.7 GB of virtual memory use by node, lets try yours. We reckon ${codonsPerPixel} would be better but will give it a try...`))
+        output(terminalRGB(`WARNING: Your target Codons Per Pixel setting ${userCPP} will make an estiamted ${Math.round(estimatedPixels / userCPP).toLocaleString()} is likely to exceed the max image size of ${maxpix.toLocaleString()}, sometimes this causes an out of memory error. My machine spit the dummy at 1.7 GB of virtual memory use by node, lets try yours. We reckon ${codonsPerPixel} would be better but will give it a try...`))
       } else {
         codonsPerPixel = userCPP; // they picked a smaller size than me. therefore their computer less likely to melt.
       }
@@ -715,12 +719,9 @@ function setupFNames() {
 
   ext += ".m" + magnitude;
 
-  let pngAmino = "";
-  if (userCPP ==-1) {
-    // no cpp in filenames when its auto
-  } else {
-    pngAmino += `c${userCPP}`
-  }
+
+  let pngAmino = `_c${Math.round(codonsPerPixel*10)/10}`
+
   if (args.ratio || args.r) {
     pngAmino += `_${ratio}`;
   }
@@ -864,7 +865,7 @@ function welcomeMessage() {
 function saveDocuments(callback) {
   status = "save"; // <-- this is the true end point of the program!
   percentComplete = 100;
-  if (updates) { updates = false }
+  clearTimeout(updatesTimer);
   calcUpdate();
   output(`Saving documents...`);
   log(renderSummary());
@@ -879,18 +880,15 @@ function saveDocuments(callback) {
   // status = "saving html report";
   log("SAVING")
   if (!devmode) {
-  saveHTML();
+    saveHTML();
   }
-  openOutputs();
+  // openOutputs();
   // updates = true;
-
-  // setImmediate(() => {
+  status = "removelocks";
+  setImmediate(() => {
     removeLocks();
-    if (!updates) { updates = true }
+  });
 
-  // });
-
-  // pollForStream(); // the callback.
 
 }
 function saveHTML() {
@@ -916,34 +914,18 @@ function touchLock(f) {
     initStream(filename);
   });
 
-
-
-
-
-
-  // setImmediate(() => {
-  //   log("touchLock done");
-  // });
 }
 function removeLocks() {
-
-
   try {
-    fs.unlinkSync(filenameTouch);
-
-    // setTimeout(() => {
-    status = "highland";
-    pollForStream();
-    // }, 1000);
-
+    // fs.unlinkSync(filenameTouch);
+    fs.unlinkSync(filenameTouch, (err) => {
+      if (err) { log (err) }
+      pollForStream();
+    });
 
   } catch (err) {
     log("removeLocks err: " + err);
-
-    // setTimeout(() => {
-    status = "highland";
     pollForStream();
-    // }, 1000);
   }
 
   // try {
@@ -982,13 +964,15 @@ function checkFileExtension(f) {
 
 function quit() {
   process.exitCode = 1;
-  // updates = false;
+  status = "bye";
+  updates = false;
   // msPerUpdate = 0;
   // removeLocks();
 
-  clearTimeout();
+  clearTimeout(updatesTimer);
+
+  // clearTimeout();
   // output("press Control-C again to quit; or.... try T to output test patterns");
-  status = "bye";
   // process.stdin.setRawMode(false);
   // process.stdin.resume();
   printRadMessage();
@@ -1392,7 +1376,7 @@ function helpCmd(args) {
 }
 function checkLocks(ffffff) { // return false if locked.
   log("checkLocks RUNNING");
-  if (force == true) {
+  if (force == true && devmode == false) {
     log("Not checking locks - force mode enabled.");
     return true;
   }
@@ -1530,7 +1514,10 @@ function arrayToPNG() {
   new Promise(resolve =>
     img_png.pack()
     .pipe(wstream)
-    .on('finish', resolve));
+    .on('finish', () => {
+      output("wow")
+      pollForStream();
+    }));
 
   }
   function openOutputs() {
@@ -1858,8 +1845,8 @@ function arrayToPNG() {
           // process.stdout.write('\x1B[2J\x1B[0f');
           process.stdout.write("\033[<0>;<0>H");
           process.stdout.write("\033[<0>;<0>f");
-        // put cursor to L,C:  \033[<L>;<C>H
-        // put cursor to L,C:  \033[<L>;<C>f
+          // put cursor to L,C:  \033[<L>;<C>H
+          // put cursor to L,C:  \033[<L>;<C>f
 
 
         } else {
@@ -1961,7 +1948,7 @@ function arrayToPNG() {
           text += lineBreak;
           text += `[ Codons: ${genomeSize.toLocaleString()}]  Last Acid: `;
           text += terminalRGB(aminoacid, red, green, blue);
-          text += lineBreak + `[ CPU: ${bytes(kbPerSec)}/s Codons per sec: ${Math.round(kCodonsPerSecond).toLocaleString()} ] `;
+          text += lineBreak + `[ CPU: ${bytes(kbPerSec)}/s Codons per sec: ${Math.round(kCodonsPerSecond).toLocaleString()} ${runningDuration}] `;
           // text += lineBreak;
           text += `[ Mb Codons per pixel: ${twosigbitsTolocale(codonsPerPixel)} Pixels painted: ${colClock.toLocaleString()} ] `;
           text += `[ Codon Opacity: ${twosigbitsTolocale(opacity*100)}%] `;
@@ -2702,268 +2689,268 @@ function arrayToPNG() {
         * @param   Number  v       The value
         * @return  Array           The RGB representation
         */
-        function hsvToRgb(h, s, v) {
-          var r, g, b;
+  function hsvToRgb(h, s, v) {
+    var r, g, b;
 
-          var i = Math.floor(h * 6);
-          var f = h * 6 - i;
-          var p = v * (1 - s);
-          var q = v * (1 - f * s);
-          var t = v * (1 - (1 - f) * s);
+    var i = Math.floor(h * 6);
+    var f = h * 6 - i;
+    var p = v * (1 - s);
+    var q = v * (1 - f * s);
+    var t = v * (1 - (1 - f) * s);
 
-          switch (i % 6) {
-            case 0: r = v, g = t, b = p; break;
-            case 1: r = q, g = v, b = p; break;
-            case 2: r = p, g = v, b = t; break;
-            case 3: r = p, g = q, b = v; break;
-            case 4: r = t, g = p, b = v; break;
-            case 5: r = v, g = p, b = q; break;
-          }
+    switch (i % 6) {
+      case 0: r = v, g = t, b = p; break;
+      case 1: r = q, g = v, b = p; break;
+      case 2: r = p, g = v, b = t; break;
+      case 3: r = p, g = q, b = v; break;
+      case 4: r = t, g = p, b = v; break;
+      case 5: r = v, g = p, b = q; break;
+    }
 
-          return [ Math.round(r * 255), Math.round(g * 255), Math.round(b * 255) ];
+    return [ Math.round(r * 255), Math.round(g * 255), Math.round(b * 255) ];
+  }
+
+  // source: https://github.com/oliver-moran/jimp/blob/master/packages/core/src/index.js#L117
+  function isRawRGBAData(obj) {
+    return (
+      obj &&
+      typeof obj === 'object' &&
+      typeof obj.width === 'number' &&
+      typeof obj.height === 'number' &&
+      (Buffer.isBuffer(obj.data) ||
+      obj.data instanceof Uint8Array ||
+      (typeof Uint8ClampedArray === 'function' &&
+      obj.data instanceof Uint8ClampedArray)) &&
+      (obj.data.length === obj.width * obj.height * 4 ||
+        obj.data.length === obj.width * obj.height * 3)
+      );
+    }
+
+
+    //PARSE SOURCE CODE
+    // https://www.npmjs.com/package/parse-apache-directory-index
+
+    function testParse() {
+      console.log(parse(`
+        <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+        <html>
+        <head>
+        <title>Index of /foo/bar</title>
+        </head>
+        <body>
+        <h1>Index of /foo/bar</h1>
+        <table><tr><th><img src="/icons/blank.gif" alt="[ICO]"></th><th><a href="?C=N;O=D">Name</a></th><th><a href="?C=M;O=A">Last modified</a></th><th><a href="?C=S;O=A">Size</a></th><th><a href="?C=D;O=A">Description</a></th></tr><tr><th colspan="5"><hr></th></tr>
+        <tr><td valign="top"><img src="/icons/folder.gif" alt="[DIR]"></td><td><a href="beep/">beep/</a>           </td><td align="right">25-May-2016 11:53  </td><td align="right">  - </td><td>&nbsp;</td></tr>
+        <tr><td valign="top"><img src="/icons/folder.gif" alt="[DIR]"></td><td><a href="boop20160518/">boop20160518/</a>        </td><td align="right">19-May-2016 17:57  </td><td align="right">  - </td><td>&nbsp;</td></tr>
+        <tr><td valign="top"><img src="/icons/folder.gif" alt="[DIR]"></td><td><a href="jazz20160518/">jazz20160518/</a>         </td><td align="right">19-May-2016 19:04  </td><td align="right">  - </td><td>&nbsp;</td></tr>
+        <tr><td valign="top"><img src="/icons/folder.gif" alt="[DIR]"></td><td><a href="punk20160518/">punk20160518/</a>    </td><td align="right">19-May-2016 17:47  </td><td align="right">  - </td><td>&nbsp;</td></tr>
+        <tr><td valign="top"><img src="/icons/folder.gif" alt="[DIR]"></td><td><a href="space20160518/">space20160518/</a>       </td><td align="right">19-May-2016 19:03  </td><td align="right">  - </td><td>&nbsp;</td></tr>
+        <tr><th colspan="5"><hr></th></tr>
+        </table>
+        </body></html>`));
+
+      }
+
+
+
+
+
+
+      let pepTable   = [
+        {
+          "Codon": "Non-coding NNN",
+          "Description": "Expressed as NNN Codon",
+          "Hue": 120,
+          "Alpha": 0,
+          "Histocount": 0,
+        },
+        {
+          "Codon": "Ochre",
+          "Description": "STOP Codon",
+          "Hue": 0,
+          "Alpha": 1,
+          "Histocount": 0,
+        },
+        {
+          "Codon": "Glutamic acid",
+          "Description": "Group III: Acidic amino acids",
+          "Hue": 16,
+          "Alpha": 0.1,
+          "Histocount": 0,
+        },
+        {
+          "Codon": "Aspartic acid",
+          "Description": "Group III: Acidic amino acids",
+          "Hue": 31,
+          "Alpha": 0.1,
+          "Histocount": 0,
+        },
+        {
+          "Codon": "Amber",
+          "Description": "STOP Codon",
+          "Hue": 47,
+          "Alpha": 1,
+          "Histocount": 0,
+        },
+        {
+          "Codon": "Cysteine",
+          "Description": "Group II: Polar, uncharged amino acids",
+          "Hue": 63,
+          "Alpha": 0.1,
+          "Histocount": 0,
+        },
+        {
+          "Codon": "Glycine",
+          "Description": "Group I: Nonpolar amino acids",
+          "Hue": 78,
+          "Alpha": 0.1,
+          "Histocount": 0,
+        },
+        {
+          "Codon": "Alanine",
+          "Description": "Group I: Nonpolar amino acids",
+          "Hue": 94,
+          "Alpha": 0.1,
+          "Histocount": 0,
+        },
+        {
+          "Codon": "Methionine",
+          "Description": "START Codon",
+          "Hue": 110,
+          "Alpha": 1,
+          "Histocount": 0,
+        },
+        {
+          "Codon": "Valine",
+          "Description": "Group I: Nonpolar amino acids",
+          "Hue": 125,
+          "Alpha": 0.1,
+          "Histocount": 0,
+        },
+        {
+          "Codon": "Leucine",
+          "Description": "Group I: Nonpolar amino acids",
+          "Hue": 141,
+          "Alpha": 0.1,
+          "Histocount": 0,
+        },
+        {
+          "Codon": "Isoleucine",
+          "Description": "Group I: Nonpolar amino acids",
+          "Hue": 157,
+          "Alpha": 0.1,
+          "Histocount": 0,
+        },
+        {
+          "Codon": "Phenylalanine",
+          "Description": "Group I: Nonpolar amino acids",
+          "Hue": 172,
+          "Alpha": 0.1,
+          "Histocount": 0,
+        },
+        {
+          "Codon": "Tryptophan",
+          "Description": "Group I: Nonpolar amino acids",
+          "Hue": 188,
+          "Alpha": 0.1,
+          "Histocount": 0,
+        },
+        {
+          "Codon": "Serine",
+          "Description": "Group II: Polar, uncharged amino acids",
+          "Hue": 203,
+          "Alpha": 0.1,
+          "Histocount": 0,
+        },
+        {
+          "Codon": "Threonine",
+          "Description": "Group II: Polar, uncharged amino acids",
+          "Hue": 219,
+          "Alpha": 0.1,
+          "Histocount": 0,
+        },
+        {
+          "Codon": "Opal",
+          "Description": "STOP Codon",
+          "Hue": 240,
+          "Alpha": 1,
+          "Histocount": 0,
+        },
+        {
+          "Codon": "Glutamine",
+          "Description": "Group II: Polar, uncharged amino acids",
+          "Hue": 250,
+          "Alpha": 0.1,
+          "Histocount": 0,
+        },
+        {
+          "Codon": "Asparagine",
+          "Description": "Group II: Polar, uncharged amino acids",
+          "Hue": 266,
+          "Alpha": 0.1,
+          "Histocount": 0,
+        },
+        {
+          "Codon": "Tyrosine",
+          "Description": "Group II: Polar, uncharged amino acids",
+          "Hue": 282,
+          "Alpha": 0.1,
+          "Histocount": 0,
+        },
+        {
+          "Codon": "Arginine",
+          "Description": "Group IV: Basic amino acids",
+          "Hue": 297,
+          "Alpha": 0.1,
+          "Histocount": 0,
+        },
+        {
+          "Codon": "Lysine",
+          "Description": "Group IV: Basic amino acids",
+          "Hue": 313,
+          "Alpha": 0.1,
+          "Histocount": 0,
+        },
+        {
+          "Codon": "Histidine",
+          "Description": "Group IV: Basic amino acids",
+          "Hue": 329,
+          "Alpha": 0.1,
+          "Histocount": 0,
+        },
+        {
+          "Codon": "Start Codons",
+          "Description": "Count of Methionine",
+          "Hue": 120,
+          "Alpha": 0.0,
+          "Histocount": 0,
+        },
+        {
+          "Codon": "Stop Codons",
+          "Description": "One of Opal, Ochre, or Amber",
+          "Hue": 120,
+          "Alpha": 0.0,
+          "Histocount": 0,
+        },
+        {
+          "Codon": "Proline",
+          "Description": "Group I: Nonpolar amino acids",
+          "Hue": 344,
+          "Alpha": 0.1,
+          "Histocount": 0,
         }
+      ]
+      ;
+      const siteDescription = `A unique visualisation of DNA or RNA residing in text files, AminoSee is a way to render huge genomics files into a PNG image using an infinite space filling curve from 18th century! Computation is done locally, and the files do not leave your machine. A back-end terminal daemon cli command that can be scripted is combined with a front-end GUI in Electron, AminoSee features asynchronous streaming processing enabling arbitrary size files to be processed. It has been tested with files in excess of 4 GB and does not need the whole file in memory at any time. Due to issues with the 'aminosee *' command, a batch script is provided for bulk rendering in the dna/ folder. Alertively use the GUI to Drag and drop files to render a unique colour view of RNA or DNA stored in text files, output to PNG graphics file, then launches an WebGL browser that projects the image onto a 3D Hilbert curve for immersive viewing, using THREEjs. Command line options alow one to filter by peptide.`;
 
-        // source: https://github.com/oliver-moran/jimp/blob/master/packages/core/src/index.js#L117
-        function isRawRGBAData(obj) {
-          return (
-            obj &&
-            typeof obj === 'object' &&
-            typeof obj.width === 'number' &&
-            typeof obj.height === 'number' &&
-            (Buffer.isBuffer(obj.data) ||
-            obj.data instanceof Uint8Array ||
-            (typeof Uint8ClampedArray === 'function' &&
-            obj.data instanceof Uint8ClampedArray)) &&
-            (obj.data.length === obj.width * obj.height * 4 ||
-              obj.data.length === obj.width * obj.height * 3)
-            );
-          }
+      const radMessage =
+      terminalRGB(`
+        ╔═╗┌┬┐┬┌┐┌┌─┐╔═╗┌─┐┌─┐  ╔╦╗╔╗╔╔═╗  ╦  ╦┬┌─┐┬ ┬┌─┐┬─┐
+        ╠═╣││││││││ │╚═╗├┤ ├┤    ║║║║║╠═╣  ╚╗╔╝│├┤ │││├┤ ├┬┘
+        ╩ ╩┴ ┴┴┘└┘└─┘╚═╝└─┘└─┘  ═╩╝╝╚╝╩ ╩   ╚╝ ┴└─┘└┴┘└─┘┴└─
+        by Tom Atkinson          aminosee.funk.co.nz
+        ah-mee no-see         "I See It Now - I AminoSee it!"
+`, 96, 64, 245);
 
-
-          //PARSE SOURCE CODE
-          // https://www.npmjs.com/package/parse-apache-directory-index
-
-          function testParse() {
-            console.log(parse(`
-              <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
-              <html>
-              <head>
-              <title>Index of /foo/bar</title>
-              </head>
-              <body>
-              <h1>Index of /foo/bar</h1>
-              <table><tr><th><img src="/icons/blank.gif" alt="[ICO]"></th><th><a href="?C=N;O=D">Name</a></th><th><a href="?C=M;O=A">Last modified</a></th><th><a href="?C=S;O=A">Size</a></th><th><a href="?C=D;O=A">Description</a></th></tr><tr><th colspan="5"><hr></th></tr>
-              <tr><td valign="top"><img src="/icons/folder.gif" alt="[DIR]"></td><td><a href="beep/">beep/</a>           </td><td align="right">25-May-2016 11:53  </td><td align="right">  - </td><td>&nbsp;</td></tr>
-              <tr><td valign="top"><img src="/icons/folder.gif" alt="[DIR]"></td><td><a href="boop20160518/">boop20160518/</a>        </td><td align="right">19-May-2016 17:57  </td><td align="right">  - </td><td>&nbsp;</td></tr>
-              <tr><td valign="top"><img src="/icons/folder.gif" alt="[DIR]"></td><td><a href="jazz20160518/">jazz20160518/</a>         </td><td align="right">19-May-2016 19:04  </td><td align="right">  - </td><td>&nbsp;</td></tr>
-              <tr><td valign="top"><img src="/icons/folder.gif" alt="[DIR]"></td><td><a href="punk20160518/">punk20160518/</a>    </td><td align="right">19-May-2016 17:47  </td><td align="right">  - </td><td>&nbsp;</td></tr>
-              <tr><td valign="top"><img src="/icons/folder.gif" alt="[DIR]"></td><td><a href="space20160518/">space20160518/</a>       </td><td align="right">19-May-2016 19:03  </td><td align="right">  - </td><td>&nbsp;</td></tr>
-              <tr><th colspan="5"><hr></th></tr>
-              </table>
-              </body></html>`));
-
-            }
-
-
-
-
-
-
-            let pepTable   = [
-              {
-                "Codon": "Non-coding NNN",
-                "Description": "Expressed as NNN Codon",
-                "Hue": 120,
-                "Alpha": 0,
-                "Histocount": 0,
-              },
-              {
-                "Codon": "Ochre",
-                "Description": "STOP Codon",
-                "Hue": 0,
-                "Alpha": 1,
-                "Histocount": 0,
-              },
-              {
-                "Codon": "Glutamic acid",
-                "Description": "Group III: Acidic amino acids",
-                "Hue": 16,
-                "Alpha": 0.1,
-                "Histocount": 0,
-              },
-              {
-                "Codon": "Aspartic acid",
-                "Description": "Group III: Acidic amino acids",
-                "Hue": 31,
-                "Alpha": 0.1,
-                "Histocount": 0,
-              },
-              {
-                "Codon": "Amber",
-                "Description": "STOP Codon",
-                "Hue": 47,
-                "Alpha": 1,
-                "Histocount": 0,
-              },
-              {
-                "Codon": "Cysteine",
-                "Description": "Group II: Polar, uncharged amino acids",
-                "Hue": 63,
-                "Alpha": 0.1,
-                "Histocount": 0,
-              },
-              {
-                "Codon": "Glycine",
-                "Description": "Group I: Nonpolar amino acids",
-                "Hue": 78,
-                "Alpha": 0.1,
-                "Histocount": 0,
-              },
-              {
-                "Codon": "Alanine",
-                "Description": "Group I: Nonpolar amino acids",
-                "Hue": 94,
-                "Alpha": 0.1,
-                "Histocount": 0,
-              },
-              {
-                "Codon": "Methionine",
-                "Description": "START Codon",
-                "Hue": 110,
-                "Alpha": 1,
-                "Histocount": 0,
-              },
-              {
-                "Codon": "Valine",
-                "Description": "Group I: Nonpolar amino acids",
-                "Hue": 125,
-                "Alpha": 0.1,
-                "Histocount": 0,
-              },
-              {
-                "Codon": "Leucine",
-                "Description": "Group I: Nonpolar amino acids",
-                "Hue": 141,
-                "Alpha": 0.1,
-                "Histocount": 0,
-              },
-              {
-                "Codon": "Isoleucine",
-                "Description": "Group I: Nonpolar amino acids",
-                "Hue": 157,
-                "Alpha": 0.1,
-                "Histocount": 0,
-              },
-              {
-                "Codon": "Phenylalanine",
-                "Description": "Group I: Nonpolar amino acids",
-                "Hue": 172,
-                "Alpha": 0.1,
-                "Histocount": 0,
-              },
-              {
-                "Codon": "Tryptophan",
-                "Description": "Group I: Nonpolar amino acids",
-                "Hue": 188,
-                "Alpha": 0.1,
-                "Histocount": 0,
-              },
-              {
-                "Codon": "Serine",
-                "Description": "Group II: Polar, uncharged amino acids",
-                "Hue": 203,
-                "Alpha": 0.1,
-                "Histocount": 0,
-              },
-              {
-                "Codon": "Threonine",
-                "Description": "Group II: Polar, uncharged amino acids",
-                "Hue": 219,
-                "Alpha": 0.1,
-                "Histocount": 0,
-              },
-              {
-                "Codon": "Opal",
-                "Description": "STOP Codon",
-                "Hue": 240,
-                "Alpha": 1,
-                "Histocount": 0,
-              },
-              {
-                "Codon": "Glutamine",
-                "Description": "Group II: Polar, uncharged amino acids",
-                "Hue": 250,
-                "Alpha": 0.1,
-                "Histocount": 0,
-              },
-              {
-                "Codon": "Asparagine",
-                "Description": "Group II: Polar, uncharged amino acids",
-                "Hue": 266,
-                "Alpha": 0.1,
-                "Histocount": 0,
-              },
-              {
-                "Codon": "Tyrosine",
-                "Description": "Group II: Polar, uncharged amino acids",
-                "Hue": 282,
-                "Alpha": 0.1,
-                "Histocount": 0,
-              },
-              {
-                "Codon": "Arginine",
-                "Description": "Group IV: Basic amino acids",
-                "Hue": 297,
-                "Alpha": 0.1,
-                "Histocount": 0,
-              },
-              {
-                "Codon": "Lysine",
-                "Description": "Group IV: Basic amino acids",
-                "Hue": 313,
-                "Alpha": 0.1,
-                "Histocount": 0,
-              },
-              {
-                "Codon": "Histidine",
-                "Description": "Group IV: Basic amino acids",
-                "Hue": 329,
-                "Alpha": 0.1,
-                "Histocount": 0,
-              },
-              {
-                "Codon": "Start Codons",
-                "Description": "Count of Methionine",
-                "Hue": 120,
-                "Alpha": 0.0,
-                "Histocount": 0,
-              },
-              {
-                "Codon": "Stop Codons",
-                "Description": "One of Opal, Ochre, or Amber",
-                "Hue": 120,
-                "Alpha": 0.0,
-                "Histocount": 0,
-              },
-              {
-                "Codon": "Proline",
-                "Description": "Group I: Nonpolar amino acids",
-                "Hue": 344,
-                "Alpha": 0.1,
-                "Histocount": 0,
-              }
-            ]
-            ;
-            const siteDescription = `A unique visualisation of DNA or RNA residing in text files, AminoSee is a way to render huge genomics files into a PNG image using an infinite space filling curve from 18th century! Computation is done locally, and the files do not leave your machine. A back-end terminal daemon cli command that can be scripted is combined with a front-end GUI in Electron, AminoSee features asynchronous streaming processing enabling arbitrary size files to be processed. It has been tested with files in excess of 4 GB and does not need the whole file in memory at any time. Due to issues with the 'aminosee *' command, a batch script is provided for bulk rendering in the dna/ folder. Alertively use the GUI to Drag and drop files to render a unique colour view of RNA or DNA stored in text files, output to PNG graphics file, then launches an WebGL browser that projects the image onto a 3D Hilbert curve for immersive viewing, using THREEjs. Command line options alow one to filter by peptide.`;
-
-            const radMessage =
-            terminalRGB(`
-              ╔═╗┌┬┐┬┌┐┌┌─┐╔═╗┌─┐┌─┐  ╔╦╗╔╗╔╔═╗  ╦  ╦┬┌─┐┬ ┬┌─┐┬─┐
-              ╠═╣││││││││ │╚═╗├┤ ├┤    ║║║║║╠═╣  ╚╗╔╝│├┤ │││├┤ ├┬┘
-              ╩ ╩┴ ┴┴┘└┘└─┘╚═╝└─┘└─┘  ═╩╝╝╚╝╩ ╩   ╚╝ ┴└─┘└┴┘└─┘┴└─
-              by Tom Atkinson          aminosee.funk.co.nz
-              ah-mee no-see         "I See It Now - I AminoSee it!"
-              `, 96, 64, 245);
-
-              const lineBreak = `
-              `;
+        const lineBreak = `
+`;
