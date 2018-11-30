@@ -53,7 +53,7 @@ let status = "load";
 console.log("Amino\x1b[40mSee\x1b[37mNoEvil");
 let interactiveKeysGuide = "";
 let filenameTouch, maxpix, cppfl, estimatedPixels, args, filenamePNG, extension, reader, hilbertPoints, herbs, levels, progress, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, textFile, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, fileUploadShowing, testColors, chunksMax, chunksize, chunksizeBytes, baseChars, cpu, subdivisions, contextBitmap, aminoacid, colClock, start, updateClock, percentComplete, bytesPerSec, pixelStacking, isHighlightCodon, justNameOfDNA, justNameOfPNG, justNameOfHILBERT, sliceDNA, filenameHTML, howMany, timeRemain, runningDuration, kbRemain, width, triplet, updatesTimer, pngImageFlags;
-let codonsPerPixel, CRASH, cyclesPerUpdate, red, green, blue, alpha, charClock, errorClock, breakClock, streamLineNr, genomeSize, filesDone, spewClock, opacity, codonRGBA, geneRGBA, currentTriplet;
+let codonsPerPixel, CRASH, cyclesPerUpdate, red, green, blue, alpha, charClock, errorClock, breakClock, streamLineNr, genomeSize, filesDone, spewClock, opacity, codonRGBA, geneRGBA, currentTriplet, progato, dimension;
 
 
 
@@ -94,7 +94,6 @@ F      (Overwrite png)  W        (wipe screen)  U       (stats update on/off)`;
       // updates = false;
       args = [];
       howMany = 0;
-      // quit();
     }
     if (key && key.name == 's') {
       toggleSpew();
@@ -165,7 +164,7 @@ try {
 }
   process.stdin.resume();
 }
-setupKeyboardUI()
+// setupKeyboardUI()
 
 
 module.exports = () => {
@@ -225,7 +224,7 @@ module.exports = () => {
   } else {
     magnitude = defaultMagnitude;
   }
-  maxpix = hilbPixels[magnitude]*2; // times two is for anti-alias effect.
+  maxpix = hilbPixels[magnitude]; // times two is for anti-alias effect.
 
   log(`using magnitude ${magnitude}: or  ${maxpix} px max`);
 
@@ -434,6 +433,7 @@ function pollForStream() {
 
   out(".");
   if (howMany < 1) {
+    output("");
     quit();
   }
   try {
@@ -597,7 +597,7 @@ async function initStream(f) {
   if (updates) {
     drawHistogram();
   } else {
-    let progato = whack_a_progress_on();
+    progato = whack_a_progress_on();
   }
 
   var s = fs.createReadStream(filename).pipe(es.split()).pipe(es.mapSync(function(line){
@@ -660,8 +660,8 @@ function renderSummary() {
   Amino acid blend opacity: ${Math.round(opacity*10000)/100}%
   Error Clock: ${errorClock.toLocaleString()}
   CharClock: ${charClock.toLocaleString()}
-  Hilbert Magnitude: ${magnitude} / 10
-  Hilbert Curve Pixels: ${maxpix.toLocaleString()}
+  Max magnitude: ${magnitude} / 10 Max pix:${maxpix.toLocaleString()}
+  Hilbert Magnitude: ${dimension} / 10 Hilbert Curve Pixels: ${hilbPixels[dimension]}
   Darken Factor ${twosigbitsTolocale(darkenFactor)}
   Highlight Factor ${twosigbitsTolocale(highlightFactor)}
   Time used: ${runningDuration.toLocaleString()} miliseconds`;
@@ -671,7 +671,7 @@ function renderSummary() {
 function autoconfCodonsPerPixel() { // requires baseChars maxpix defaultC
   let existing = userCPP;
   estimatedPixels = baseChars / 3; // divide by 4 times 3
-  let overSampleFactor = 1;
+  let overSampleFactor = 2;
 
 
   if (codonsPerPixel < defaultC) {
@@ -682,17 +682,23 @@ function autoconfCodonsPerPixel() { // requires baseChars maxpix defaultC
     codonsPerPixel = defaultC;
   }
 
-
-
-  if (estimatedPixels < (maxpix*2) ) { // for sequence smaller than the screen
+  if (args.magnitude || args.m) {
+    output(`Your --magnitude maybe wrong at ${magnitude} maybe try ${pixelsToHilMagnitude(estimatedPixels * overSampleFactor)}`)
+  } else {
+    magnitude = pixelsToHilMagnitude(estimatedPixels * overSampleFactor);
+    maxpix = hilbPixels[ magnitude ];
+  }
+  log(`magnitude is ${magnitude} new maxpix: ${maxpix} `)
+  if (estimatedPixels < (maxpix) ) { // for sequence smaller than the screen
 
     if (userCPP != -1)  {
       output("its not recommended to use anything other than --codons 1 for small genomes, better to reduce the --magnitude")
     } else {
       codonsPerPixel = defaultC; // normally we want 1:1 for smalls
+
     }
-  } else if (estimatedPixels > maxpix * overSampleFactor ){ // for seq bigger than screen        codonsPerPixel = estimatedPixels / maxpix*overSampleFactor;
-    codonsPerPixel = estimatedPixels / maxpix*overSampleFactor;
+  } else if (estimatedPixels > maxpix ){ // for seq bigger than screen        codonsPerPixel = estimatedPixels / maxpix*overSampleFactor;
+    codonsPerPixel = estimatedPixels / maxpix;
     if (userCPP != -1) {
       if (userCPP < codonsPerPixel) {
         output(terminalRGB(`WARNING: Your target Codons Per Pixel setting ${userCPP} will make an estiamted ${Math.round(estimatedPixels / userCPP).toLocaleString()} is likely to exceed the max image size of ${maxpix.toLocaleString()}, sometimes this causes an out of memory error. My machine spit the dummy at 1.7 GB of virtual memory use by node, lets try yours. We reckon ${codonsPerPixel} would be better but will give it a try...`))
@@ -898,11 +904,10 @@ function welcomeMessage() {
 }
 function saveDocuments(callback) {
   status = "save"; // <-- this is the true end point of the program!
-  percentComplete = 100;
+  percentComplete = 1;
   clearTimeout(updatesTimer);
   calcUpdate();
   output(`Saving documents...`);
-  log(renderSummary());
   arrayToPNG();
   if (isHilbertPossible) {
     output("projecting linear array to 2D hilbert curve")
@@ -918,7 +923,9 @@ function saveDocuments(callback) {
   } else {
     output("No HTML report output.")
   }
-  // openOutputs();
+  openOutputs();
+  log(renderSummary());
+
   // updates = true;
   status = "removelocks";
   setImmediate(() => {
@@ -931,17 +938,15 @@ function saveHTML() {
 
 
   fs.writeFileSync(filenameHTML, htmlTemplate(), function (err) {
-    if (err) throw err;
+    if (err) { output(`Error saving HTML: ${err}`) }
     output('Saved report to: ' + filenameHTML);
   });
-
 
   // setImmediate(() => {
   //   log("saveHTML done");
   // });
 }
 function touchLock(f) {
-
 
   fs.writeFile(f, "aminosee.funk.co.nz temp lock file. safe to erase.", function (err) {
     if (err) { console.dir(err); console.warning("Touch file error") }
@@ -1011,7 +1016,7 @@ function quit(n) {
   // output("press Control-C again to quit; or.... try T to output test patterns");
   // process.stdin.setRawMode(false);
   // process.stdin.resume();
-  printRadMessage();
+  // printRadMessage();
   if (n=1) {
     process.exit;
   }
@@ -1553,7 +1558,6 @@ function arrayToPNG() {
     img_png.pack()
     .pipe(wstream)
     .on('finish', () => {
-      output("wow")
       pollForStream();
     }));
 
@@ -1608,29 +1612,12 @@ function arrayToPNG() {
       filenamePNG = filePath + "/AminoSee_Linear_" + test + regmarks + ".png";
       arrayToPNG();
     }
-
-
   }
-  function saveHilbert(array) {
-    status = "getting in touch with my man... hilbert";
-    log("test of 64 bit vars: [ 64, 256, 1024, 4096, 16384, 65536, 262144, 1048576, 4194304, 16777216, 67108864 ] should be the same twice");
-    log(hilbPixels);
 
-    let height, width, pixels;
-    pixels = array.length/16; // safety margin of 69 pixels back at the end.
-    dimension = 0; // array index
-    while (pixels > hilbPixels[dimension]) {
-      // status = "set hilbert dimension";
-      log(`image size ${pixels} too large for ${hilbPixels[dimension]} `);
-      dimension++;
-    }
-    log(`image size ${pixels} will use dimension ${dimension} yielding ${hilbPixels[dimension]} pixels `);
-    actuallySaveThatHilbert(array);
-  }
   function patternsToPngAndMainArray() {
     let perc = 0;
 
-    log("Generating hilbert curve. ")
+    log(`Generating hilbert curve, dimension: ${dimension}`);
 
 
     const h = require('hilbert-2d');
@@ -1652,35 +1639,28 @@ function arrayToPNG() {
       [hilbX, hilbY] = h.decode(16,i); // <-- THIS IS WHERE THE MAGIC HILBERT HAPPENS
       let cursorLinear  = 4 * i ;
       let hilbertLinear = 4 * ((hilbX % linearWidth) + (hilbY * linearWidth));
-      // log(`@i ${i}   hilbX, hilbY `);
 
       let perc = i / hilpix;
       let thinWhite = 250;
       let thinWhiteSlice = Math.round(perc * 1000 ) % thinWhite;
-      if (thinWhiteSlice < 1 && devmode) {
 
-        hilbertImage[hilbertLinear] =   255*perc;
-        hilbertImage[hilbertLinear+1] = ( i % Math.round( perc *32) ) / (perc *32) *  255;
-        hilbertImage[hilbertLinear+2] = (perc *2550)%255;
-        hilbertImage[hilbertLinear+3] = 255 - ((i%2)*24);
+      hilbertImage[hilbertLinear] =   255*perc; // slow ramp of red
+      hilbertImage[hilbertLinear+1] = ( i % Math.round( perc *32) ) / (perc *32) *  255; // SNAKES! crazy bio snakes.
+      hilbertImage[hilbertLinear+2] = (perc *2550)%255; // creates 10 segments to show each 10% mark in blue
+      hilbertImage[hilbertLinear+3] = 255; // slight edge in alpha
 
+      if (thinWhiteSlice < 5 && devmode) { // 5 one out of 10,000
+        log(`@i ${i}   hilbX, hilbY `);
         hilbertImage[hilbertLinear+0] = 255 ;
         hilbertImage[hilbertLinear+1] = 255 - (hilbertImage[hilbertLinear+1]/8);
         hilbertImage[hilbertLinear+2] = 255;
         hilbertImage[hilbertLinear+3] = 255;
-      } else { // awesome patterns
-        hilbertImage[hilbertLinear] =   255*perc; // slow ramp of red
-        hilbertImage[hilbertLinear+1] = ( i % Math.round( perc *32) ) / (perc *32) *  255; // SNAKES! crazy bio snakes.
-        hilbertImage[hilbertLinear+2] = (perc *2550)%255; // creates 10 segments to show each 10% mark in blue
-        // hilbertImage[hilbertLinear+3] = (i % Math.round( i*8/hilpix) )*32;
-        hilbertImage[hilbertLinear+3] = 255 - ((i%2)*24);
-        hilbertImage[hilbertLinear+3] = 255; // slight edge in alpha
       }
+
       rgbArray[cursorLinear+0] = hilbertImage[hilbertLinear+0];
       rgbArray[cursorLinear+1] = hilbertImage[hilbertLinear+1];
       rgbArray[cursorLinear+2] = hilbertImage[hilbertLinear+2];
       rgbArray[cursorLinear+3] = hilbertImage[hilbertLinear+3];
-
     }
 
     var hilbert_img_data = Uint8ClampedArray.from(hilbertImage);
@@ -1723,26 +1703,39 @@ function arrayToPNG() {
         }
       }
     }
-    function actuallySaveThatHilbert(array) {  // call with no array for test
+    function pixelsToHilMagnitude(p) { // give it pix it returns magnitude
+      dim = 0;
+      while (p > hilbPixels[dim]) {
+        // status = "set hilbert dim";
+        log(`image size ${p} too large for ${hilbPixels[dim]} `);
+        dim++;
+      }
+      return dim;
+    }
+    function saveHilbert(array) {
+      status = "getting in touch with my man... hilbert";
       let perc = 0;
+      let height, width, pixels;
+      pixels = array.length/4; // safety margin of 69 pixels back at the end.
+      dimension = pixelsToHilMagnitude(pixels)-1;
+      // magnitude = dimension; // mag is the users choice, dimnension is the value we use
+      log(`image size ${pixels} will use dimension ${dimension} yielding ${hilbPixels[dimension]} pixels `);
+
+
 
       const h = require('hilbert-2d');
       let hilpix = hilbPixels[dimension];
       let hilbertImage = [hilpix*4];
       let linearpix = rgbArray.length /4;
       let shrinkFactor = hilpix / linearpix;
-      log(`shrinkFactor ${shrinkFactor}`);
-      // resampleByFactor(shrinkFactor);
+      log(`shrinkFactor pre ${shrinkFactor} = hilpix ${hilpix} / linearpix ${linearpix }`);
+      resampleByFactor(shrinkFactor);
       log(filenameHILBERT);
-      log(`shrinkFactor ${shrinkFactor}`);
+      log(`shrinkFactor post ${shrinkFactor}`);
 
       width = Math.sqrt(hilpix);
       height = width;
       hilbertImage = [hilpix*4]; //  x = x, y % 960
-
-
-
-
 
       for (i = 0; i < hilpix; i++) {
         // log(i);
@@ -1953,13 +1946,13 @@ function arrayToPNG() {
       function whack_a_progress_on() {
         var bar = new ProgressBar({
           schema: ':bar',
-          total : 1
+          total : 100
         });
 
         var iv = setInterval(function () {
           calcUpdate();
           // bar.tick();
-          bar.update(percentComplete);
+          bar.update(percentComplete*100);
           if (bar.completed) {
             clearInterval(iv);
           }
