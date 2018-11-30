@@ -10,12 +10,13 @@ let darkenFactor = 0.75;
 let highlightFactor = 2;
 const defaultC = 1; // back when it could not handle 3+GB files.
 const artisticHighlightLength = 18; // px only use in artistic mode. must be 6 or 12 currently
-let spewThresh = 2000;
+let spewThresh = 1000;
 let devmode = false; // kills the auto opening of reports etc
 let verbose = false; // not recommended. will slow down due to console.
 let force = false; // force overwrite existing PNG and HTML reports
 let artistic = false; // for Charlie
 let spew = false; // firehose your screen with DNA
+let report = true; // html reports
 let clear, updates;
 const maxMsPerUpdate = 12000; // milliseconds per update
 const hilbPixels = [ 64, 256, 1024, 4096, 16384, 65536, 262144, 1048576, 4194304, 16777216, 67108864 ]; // 67 Megapixel hilbert curve!! the last two are breaking nodes heap and call stack both.
@@ -51,95 +52,115 @@ const extensions = [ "txt", "fa", "mfa", "gbk", "dna"];
 let status = "load";
 console.log("Amino\x1b[40mSee\x1b[37mNoEvil");
 let interactiveKeysGuide = "";
-let filenameTouch, maxpix, cppfl, estimatedPixels, args, filenamePNG, extension, reader, hilbertPoints, herbs, levels, progress, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, textFile, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, fileUploadShowing, testColors, chunksMax, chunksize, chunksizeBytes, baseChars, cpu, subdivisions, contextBitmap, aminoacid, colClock, start, updateClock, percentComplete, kbPerSec, pixelStacking, isHighlightCodon, justNameOfDNA, justNameOfPNG, justNameOfHILBERT, sliceDNA, filenameHTML, howMany, timeRemain, runningDuration, kbRemain, width, triplet, updatesTimer, pngImageFlags;
+let filenameTouch, maxpix, cppfl, estimatedPixels, args, filenamePNG, extension, reader, hilbertPoints, herbs, levels, progress, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, textFile, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, fileUploadShowing, testColors, chunksMax, chunksize, chunksizeBytes, baseChars, cpu, subdivisions, contextBitmap, aminoacid, colClock, start, updateClock, percentComplete, bytesPerSec, pixelStacking, isHighlightCodon, justNameOfDNA, justNameOfPNG, justNameOfHILBERT, sliceDNA, filenameHTML, howMany, timeRemain, runningDuration, kbRemain, width, triplet, updatesTimer, pngImageFlags;
 let codonsPerPixel, CRASH, cyclesPerUpdate, red, green, blue, alpha, charClock, errorClock, breakClock, streamLineNr, genomeSize, filesDone, spewClock, opacity, codonRGBA, geneRGBA, currentTriplet;
 
 
 
-//
-// var keypress = require('keypress');
-// function setupKeyboardUI() {
+
+var keypress = require('keypress');
+function setupKeyboardUI() {
+interactiveKeysGuide += `
+Interactive control:    D            (devmode)  Q   (graceful quit next save)
+V       (verbose mode)  S (spew DNA to screen)  Control-C      (instant quit)
+F      (Overwrite png)  W        (wipe screen)  U       (stats update on/off)`;
+
+  // make `process.stdin` begin emitting "keypress" events
+  keypress(process.stdin);
+
+  // listen for the "keypress" event
+  process.stdin.on('keypress', function (ch, key) {
+    log('got "keypress"', key);
+
+    if (key && key.ctrl && key.name == 'c') {
+      process.stdin.pause();
+      status = "TERMINATED WITH CONTROL-C";
+      console.log(status);
+      // printRadMessage();
+      updates = false;
+      quit();
+      args = [];
+      if (devmode) {
+        output("Because you are using --devmode, the lock file is not deleted. This is useful during development because I can quickly test new code by starting then interupting the render with Control-c. Then, when I use 'aminosee * -f -d' I can have new versions rendered but skip super large genomes that would take 5 mins or more to render. I like to see that they begin to render then break and retry.")
+      } else {
+        removeLocks();
+      }
+      process.exit()
+    }
+    if (key && key.name == 'q') {
+      status = "GRACEFUL QUIT";
+      output(status);
+      // printRadMessage();
+      // updates = false;
+      args = [];
+      howMany = 0;
+      // quit();
+    }
+    if (key && key.name == 's') {
+      toggleSpew();
+    }
+    if (key && key.name == 'f') {
+      toggleForce();
+    }
+    if (key && key.name == 'd') {
+      toggleDevmode();
+    }
+    if (key && key.name == 'v') {
+      toggleVerbose();
+    }
+    if (key && key.name == 'w') {
+      toggleClearScreen();
+    }
+    if (key && key.name == 't') {
+      saveHilbert();
+    }
+    if (key && key.name == 'Space' ||  key.name == 'Enter') {
+      msPerUpdate = 200;
+    }
+    if (key && key.name == 'u') {
+      msPerUpdate = 200;
+
+      if (updates) {
+        updates = false;
+        clearTimeout(updatesTimer);
+      } else {
+        updates = true;
+        drawHistogram();
+      }
+    }
 
 
-//
-// interactiveKeysGuide += `[Output file: ${filenamePNG}]
-// V       (verbose mode)
-// F      (Overwrite png)
-// D            (devmode)
-// S (spew DNA to screen)
-// W        (wipe screen)
-// `;
+    function toggleVerbose() {
+      verbose = !verbose;
+      output(`verbose mode ${verbose}`);
+    }
+    function toggleSpew() {
+      spew = !spew;
+      output(`spew mode ${spew}`);
+    }
+    function toggleDevmode() {
+      devmode = !devmode;
+      output(`devmode ${devmode}`);
+    }
+    function toggleForce() {
+      force = !force;
+      output(`force overwrite ${force}`);
+    }
+    function showHelp() {
+      output("Hello! Thanks for checking this. I've not made a help file yet.");
+      output("Author:         tom@funk.co.nz or +64212576422");
+      output("calls only between 2pm and 8pm NZT (GMT+11hrs)");
+    }
+    function toggleClearScreen() {
+      clear = !clear;
+      output("clear screen toggled.");
+    }
+  });
 
-//   // make `process.stdin` begin emitting "keypress" events
-//   keypress(process.stdin);
-//
-//   // listen for the "keypress" event
-//   process.stdin.on('keypress', function (ch, key) {
-//     log('got "keypress"', key);
-//
-//     if (key && key.ctrl && key.name == 'c') {
-//       // process.stdin.pause();
-//       status = "TERMINATED WITH CONTROL-C";
-//       console.log(status);
-//       printRadMessage();
-//     }
-//     if (key && key.name == 's') {
-//       toggleSpew();
-//     }
-//     if (key && key.name == 'f') {
-//       toggleForce();
-//     }
-//     if (key && key.name == 'd') {
-//       toggleDevmode();
-//     }
-//     if (key && key.name == 'v') {
-//       toggleVerbose();
-//     }
-//     if (key && key.name == 'w') {
-//       toggleClearScreen();
-//     }
-//     if (key && key.name == 't') {
-//       saveHilbert();
-//     }
-//     if (key && key.name == 'Space' ||  key.name == 'Enter') {
-//       msPerUpdate = 200;
-//     }
-//     if (key && key.name == 'u') {
-//       msPerUpdate = 10000;
-//     }
-//
-//
-//     function toggleVerbose() {
-//       verbose = !verbose;
-//       output('verbose mode ${verbose}');
-//     }
-//     function toggleSpew() {
-//       spew = !spew;
-//       output('spew mode ${spew}');
-//     }
-//     function toggleDevmode() {
-//       devmode = !devmode;
-//       output('devmode ${devmode}');
-//     }
-//     function toggleForce() {
-//       force = !force;
-//       output('force overwrite ${force}');
-//     }
-//     function showHelp() {
-//       output("Hello! Thanks for checking this. I've not made a help file yet.");
-//       output("Author:         tom@funk.co.nz or +64212576422");
-//       output("calls only between 2pm and 8pm NZT (GMT+11hrs)");
-//     }
-//     function toggleClearScreen() {
-//       clear = !clear;
-//       output("clear screen toggled.");
-//     }
-//   });
-//
-//   process.stdin.setRawMode(true);
-//   process.stdin.resume();
-// }
-// setupKeyboardUI()
+  process.stdin.setRawMode(true);
+  process.stdin.resume();
+}
+setupKeyboardUI()
 
 
 module.exports = () => {
@@ -405,13 +426,21 @@ function pepToColor(pep) {
   }
 }
 function pollForStream() {
-  current = args._[0];
 
-  log(` [ howMany  ${howMany} ${status} ${filename} ${current}]`)
   out(".");
   if (howMany < 1) {
     quit();
   }
+  try {
+    current = args._[0];
+
+  } catch(e) {
+    output("Finished processing.")
+    quit(1);
+    return true;
+  }
+  log(` [ howMany  ${howMany} ${status} ${filename} ${current}]`)
+
   // if (status != "bye" || status != "cmd" || status != "exports" || status != "polling") {
   //   if (status != "bye" || status != "cmd" || status != "exports" || status != "polling") {
   //   output("THIS IS NOT RIGHT")
@@ -620,16 +649,16 @@ function renderSummary() {
   Estimated Codons by file size: ${Math.round(estimatedPixels).toLocaleString()}
   Actual Codons matched: ${genomeSize.toLocaleString()}
   Estimate accuracy: ${Math.round(((estimatedPixels / genomeSize)-1)*100)}%
-  Codons per pixel: ${codonsPerPixel.toLocaleString()} integer
-  Codons scaled for hilbert: ${cppfl} float
+  Codons per pixel: ${twosigbitsTolocale(codonsPerPixel)} integer
+  Codons scaled for hilbert: ${twosigbitsTolocale(cppfl)} float
   Pixels: ${colClock.toLocaleString()} (colClock)
   Amino acid blend opacity: ${Math.round(opacity*10000)/100}%
   Error Clock: ${errorClock.toLocaleString()}
   CharClock: ${charClock.toLocaleString()}
   Hilbert Magnitude: ${magnitude} / 10
   Hilbert Curve Pixels: ${maxpix.toLocaleString()}
-  Darken Factor ${darkenFactor}
-  Highlight Factor ${highlightFactor}
+  Darken Factor ${twosigbitsTolocale(darkenFactor)}
+  Highlight Factor ${twosigbitsTolocale(highlightFactor)}
   Time used: ${runningDuration.toLocaleString()} miliseconds`;
 }
 
@@ -637,7 +666,7 @@ function renderSummary() {
 function autoconfCodonsPerPixel() { // requires baseChars maxpix defaultC
   let existing = userCPP;
   estimatedPixels = baseChars / 3; // divide by 4 times 3
-  let overSampleFactor = 3;
+  let overSampleFactor = 1;
 
 
   if (codonsPerPixel < defaultC) {
@@ -734,7 +763,7 @@ function setupFNames() {
   ( artistic ? pngAmino += "_artistic" : pngAmino += "_sci")
 
   justNameOfPNG =     `${justNameOfDNA}${ext}_aminosee${pngAmino}.png`;
-  justNameOfHILBERT =     `${justNameOfDNA}${ext}_aminohilbert.png`;
+  justNameOfHILBERT =     `${justNameOfDNA}${ext}_hilbert.png`;
   justNameOfHTML =     `${justNameOfDNA}${ext}_aminosee.html`;
 
   filenameTouch =   filePath + "/" + justNameOfDNA + ext + pngAmino + ".aminosee.touch";
@@ -879,8 +908,10 @@ function saveDocuments(callback) {
 
   // status = "saving html report";
   log("SAVING")
-  if (!devmode) {
+  if (report) {
     saveHTML();
+  } else {
+    output("No HTML report output.")
   }
   // openOutputs();
   // updates = true;
@@ -962,7 +993,7 @@ function checkFileExtension(f) {
   }
 }
 
-function quit() {
+function quit(n) {
   process.exitCode = 1;
   status = "bye";
   updates = false;
@@ -976,7 +1007,9 @@ function quit() {
   // process.stdin.setRawMode(false);
   // process.stdin.resume();
   printRadMessage();
-  // process.exit;
+  if (n=1) {
+    process.exit;
+  }
 }
 function processLine(l) {
 
@@ -1867,10 +1900,10 @@ function arrayToPNG() {
           // console.log('\033c');
           // process.stdout.write("\x1B[2J"); // CLEAR TERMINAL SCREEN????
           // console.log('\x1Bc');
-          // process.stdout.write('\033c');
           // process.stdout.write('\x1B[2J\x1B[0f');
-          process.stdout.write("\033[<0>;<0>H");
-          process.stdout.write("\033[<0>;<0>f");
+          // process.stdout.write("\033[<0>;<0>H"); // pretty good
+          // process.stdout.write("\033[<0>;<0>f"); // cursor to 0,0
+          process.stdout.write('\033c'); // <-- this is really the best one
           // put cursor to L,C:  \033[<L>;<C>H
           // put cursor to L,C:  \033[<L>;<C>f
 
@@ -1940,8 +1973,8 @@ function arrayToPNG() {
 
         calcUpdate();
 
-        let kCodonsPerSecond = Math.round(genomeSize+1 / runningDuration+1);
-        let kbPerSec = Math.round(charClock+1 / runningDuration+1)/1024;
+        let kCodonsPerSecond = Math.round((genomeSize+1) / (runningDuration+1));
+        let bytesPerSec = Math.round((charClock+1) / (runningDuration+1));
 
 
         let text = " ";
@@ -1959,7 +1992,7 @@ function arrayToPNG() {
           aacdata[pepTable[h].Codon] = pepTable[h].Histocount ;
         }
         // aacdata = abc;
-        text += ` @i ${charClock.toLocaleString()} File: ${chalk.rgb(255, 255, 255).inverse(justNameOfDNA.toUpperCase())}.${extension}  Line breaks: ${breakClock} Files: ${howMany} DNA Filesize: ${Math.round(baseChars/1000)/1000} MB `;
+        text += ` @i ${charClock.toLocaleString()} File: ${chalk.rgb(255, 255, 255).inverse(justNameOfDNA.toUpperCase())}.${extension}  Line breaks: ${breakClock.toLocaleString()} Files: ${howMany} DNA Filesize: ${Math.round(baseChars/1000)/1000} MB `;
         text += lineBreak;
         text += chalk.rgb(128, 255, 128).inverse(`[ ${twosigbitsTolocale(percentComplete*100)}% done Time remain: ${twosigbitsTolocale(timeRemain)} sec Elapsed: ${Math.round(runningDuration/1000)} sec KB remain: ${kbRemain}`);
           text += chalk.rgb(128, 255, 128).inverse(`[ ${status.toUpperCase()} ]`);
@@ -1971,10 +2004,10 @@ function arrayToPNG() {
           // ( peptide != "none" ? text += ` Highlight peptide: ${peptide}° ` :  )
           // ( triplet != "none" ? text += ` Highlight triplet: ${triplet}° ` :  )
 
-          text += lineBreak;
-          text += `[ Codons: ${genomeSize.toLocaleString()}]  Last Acid: `;
+          // text += lineBreak;
+          text += `[ Codons: ${genomeSize.toLocaleString()} ]  Last Acid: `;
           text += terminalRGB(aminoacid, red, green, blue);
-          text += lineBreak + `[ CPU: ${bytes(kbPerSec)}/s Codons per sec: ${Math.round(kCodonsPerSecond).toLocaleString()} ${runningDuration}] `;
+          text += lineBreak + `[ CPU: ${bytes(bytesPerSec)}/s Codons per sec: ${Math.round(kCodonsPerSecond).toLocaleString()} ] `;
           // text += lineBreak;
           text += `[ Mb Codons per pixel: ${twosigbitsTolocale(codonsPerPixel)} Pixels painted: ${colClock.toLocaleString()} ] `;
           text += `[ Codon Opacity: ${twosigbitsTolocale(opacity*100)}%] `;
@@ -2093,10 +2126,10 @@ function arrayToPNG() {
 
               spewClock++;
               if (spew && spewClock > spewThresh) {
-                log(terminalRGB(aminoacid.charAt(0), red, green, blue));
+                out(terminalRGB(aminoacid.charAt(0), red, green, blue));
                 if(colClock % 10 ==0 ){
-                  output(` [ ${colClock} ] `);
-                  log(terminalRGB(rawDNA + " ", 64, 128, 64));
+                  out(` [ ${colClock} ] `);
+                  out(terminalRGB(rawDNA + " ", 64, 128, 64));
                 }
                 spewClock = 0;
               }
