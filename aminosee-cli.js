@@ -157,7 +157,12 @@ F      (Overwrite png)  W        (wipe screen)  U       (stats update on/off)`;
     }
   });
 
+try {
   process.stdin.setRawMode(true);
+
+} catch(err) {
+  output(`Could not use interactive keyboard due to: ${err}`)
+}
   process.stdin.resume();
 }
 setupKeyboardUI()
