@@ -1619,7 +1619,7 @@ function arrayToPNG() {
       let perc = i / hilpix;
       let thinWhite = 250;
       let thinWhiteSlice = Math.round(perc * 1000 ) % thinWhite;
-      if (thinWhiteSlice < 1 && !artistic) {
+      if (thinWhiteSlice < 1 && devmode) {
 
         hilbertImage[hilbertLinear] =   255*perc;
         hilbertImage[hilbertLinear+1] = ( i % Math.round( perc *32) ) / (perc *32) *  255;
@@ -1703,19 +1703,45 @@ function arrayToPNG() {
       hilbertImage = [hilpix*4]; //  x = x, y % 960
 
 
+
+
+
       for (i = 0; i < hilpix; i++) {
         // log(i);
         let hilbX, hilbY;
         [hilbX, hilbY] = h.decode(16,i); // <-- THIS IS WHERE THE MAGIC HILBERT HAPPENS
         let cursorLinear  = 4 * i ;
         let hilbertLinear = 4 * ((hilbX % width) + (hilbY * width));
+
+
+
         let perc = i / hilpix;
         let thinWhite = 250;
+        let thinWhiteSlice = Math.round(perc * 1000 ) % thinWhite;
+        if (thinWhiteSlice < 1 && devmode) {
 
-        hilbertImage[hilbertLinear] =   rgbArray[cursorLinear];
-        hilbertImage[hilbertLinear+1] = rgbArray[cursorLinear+1];
-        hilbertImage[hilbertLinear+2] = rgbArray[cursorLinear+2];
-        hilbertImage[hilbertLinear+3] = 255;//rgbArray[cursorLinear+3];
+          hilbertImage[hilbertLinear] =   255*perc;
+          hilbertImage[hilbertLinear+1] = ( i % Math.round( perc *32) ) / (perc *32) *  255;
+          hilbertImage[hilbertLinear+2] = (perc *2550)%255;
+          hilbertImage[hilbertLinear+3] = 255 - ((i%2)*24);
+
+          hilbertImage[hilbertLinear+0] = 255 ;
+          hilbertImage[hilbertLinear+1] = 255 - (hilbertImage[hilbertLinear+1]/8);
+          hilbertImage[hilbertLinear+2] = 255;
+          hilbertImage[hilbertLinear+3] = 255;
+        } else {
+
+          hilbertImage[hilbertLinear] =   rgbArray[cursorLinear];
+          hilbertImage[hilbertLinear+1] = rgbArray[cursorLinear+1];
+          hilbertImage[hilbertLinear+2] = rgbArray[cursorLinear+2];
+          hilbertImage[hilbertLinear+3] = 255;//rgbArray[cursorLinear+3];
+
+        }
+
+
+
+
+
         if (i-4 > rgbArray.length) {
           log("BREAKING at positon ${i} due to ran out of source image. rgbArray.length  = ${rgbArray.length}");
           log(` @i ${i} `);
