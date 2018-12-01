@@ -10,9 +10,9 @@ div, span {
 	border: 1px dotted white;
 }
 #supercontainer {
-/* background-color: grey; */
 padding: 0;
 margin: 0 0 0 0;
+/* background-color: teal; */
 }
 form, input, textarea {
 	height: 36px;
@@ -30,12 +30,11 @@ margin: 1px 1px 1px 1px;
 	bottom: 0;
 	left: 0;
 	color: #eeeeee;
-	font-size: 7px;
+	font-size: 8px;
 	font-family: "Old-School-Adventures", "04B", "Yanone Kaffeesatz";
 	/* font-weight: bold; */
 	background-color: rgb(0, 0, 0);
 	background-color: rgba(0, 0, 0, 0.4);
-
 	width: 100%;
 	/* max-width: 400px; */
 	z-index: 5;
@@ -62,6 +61,7 @@ margin: 1px 1px 1px 1px;
 	background-color: #000000;
 	margin: 0;
 	overflow: hidden;
+	/* background-color: yellow; */
 }
 
 input[type=button], input[type=submit], input[type=reset] {
@@ -82,7 +82,13 @@ padding: 8px 8px;
 input[type=number] {
 	font-size: 26px;
 }
+#bgCanvFixed {
+	position: fixed;
+	z-index: -1
+	margin: 0 0 0 0;
+	padding: 0;
 
+}
 /* ********** USE FOR DEFAULT POS ******** */
 .headingStatus {
 	font-size: 16px;
@@ -91,6 +97,7 @@ input[type=number] {
 /* ********** USE TO GET ATTENTION ******** */
 .modalCentered, #colorPicker  {
 	font-size: 26px;
+	position: relative;
 	/* position: fixed; */
 	/* z-index: 11; */
 	top: 50%;
@@ -169,12 +176,15 @@ input[type=number] {
 .stats {
 	grid-column: span 8;
 }
+#controls {
+	position: fixed;
+	z-index: 10;
+
+}
 #controls, input.controls {
 	grid-column: span 8;
 	height: 16px;
-	position: fixed;
 	top: 32px;
-	z-index: 10;
 }
 
 #monkeys img {
@@ -251,7 +261,7 @@ input[type=number] {
 	}
 	#monkeys {
 		padding: 1px;
-		background: teal;
+		/* background: teal; */
 	}
 	#monkeys img {
 		width: 50px;

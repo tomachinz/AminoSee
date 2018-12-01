@@ -121,7 +121,7 @@ function init3D() {
   hammerIt(document.getElementById('canvas'));
   filename = "64-codons-test-pattern.fa";
   fileUploadShowing = false;
-  devmode = false;
+  devmode = true;
   perspective = false;
   paused = false;
   spinning = true;
@@ -613,11 +613,14 @@ function workReceived(e) {
 
 function statModal(txt, callback) {
   document.getElementById('modalBox').innerHTML = `
-  <div id="modalBox" class="modalCentered">
   ${txt}
-  <input type="button" id="modalBoxButton" value="OK [ENTER]" onclick="togglePause()">
-  </div>
-  `;
+  <input type="button" id="modalBoxButton" value="OK [ENTER]" onclick="togglePause()">`;
+  // document.getElementById('modalBox').innerHTML = `
+  // <div id="modalBox" class="modalCentered">
+  // ${txt}
+  // <input type="button" id="modalBoxButton" value="OK [ENTER]" onclick="togglePause()">
+  // </div>
+  // `;
 }
 function statModalOkCallback() {
 }
@@ -760,33 +763,27 @@ function toggleControls() {
     document.getElementById('hide').value = 'Show Controls [H]';
     document.getElementById('stats').style.visibility = 'hidden';
     document.getElementById('stats').style.display = 'none';
-    document.getElementById('nav').style.visibility = 'hidden';
     document.getElementById('controls').style.visibility = 'hidden';
-    // document.getElementById('description').style.visibility = 'hidden';
-    // document.getElementById('description').style.display = 'none';
-
-    // document.getElementById('description').classList.remove('hidable');
     document.getElementById('description').classList.add('hidden');
-
-    // document.getElementById('description').classList.remove('hidable');
     document.getElementById('description').classList.add('hidden');
     document.getElementById('monkeys').classList.add('tiny');
-
-
+    // document.getElementById('nav').style.visibility = 'hidden';
+    // document.getElementById('description').style.visibility = 'hidden';
+    // document.getElementById('description').style.display = 'none';
+    // document.getElementById('description').classList.remove('hidable');    // document.getElementById('description').classList.remove('hidable');
   } else {
     stat('Controls Showing [H]');
     document.getElementById('hide').value = 'Hide Controls [H]';
     document.getElementById('stats').style.visibility = 'visible';
     document.getElementById('stats').style.display = 'block';
-    document.getElementById('nav').style.visibility = 'visible';
     document.getElementById('controls').style.visibility = 'visible';
-    // document.getElementById('description').style.visibility = 'visible';
-    // document.getElementById('description').style.display = 'block';
     document.getElementById('description').classList.remove('hidden');
     document.getElementById('description').classList.add('hidable');
     document.getElementById('h2').classList.remove('hidden');
     document.getElementById('monkeys').classList.remove('tiny');
-
+    // document.getElementById('description').style.display = 'block';
+    // document.getElementById('description').style.visibility = 'visible';
+    // document.getElementById('nav').style.visibility = 'visible';
   }
   let value_for_Event_Label =
   dataLayer.push({

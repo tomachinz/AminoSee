@@ -5,7 +5,7 @@
 //       ╩ ╩┴ ┴┴┘└┘└─┘╚═╝└─┘└─┘  ═╩╝╝╚╝╩ ╩   ╚╝ ┴└─┘└┴┘└─┘┴└─
 //       by Tom Atkinson            aminosee.funk.co.nz
 //        ah-mee no-see       "I See It Now - I AminoSee it!"
-const defaultMagnitude = 6; //  = 4.194304 megapixels
+const defaultMagnitude = 7; //  = 4.194304 megapixels
 const maxMagnitude = 8; // max for auto setting
 let darkenFactor = 0.75;
 let highlightFactor = 2;
@@ -56,7 +56,7 @@ let status = "load";
 console.log("Amino\x1b[40mSee\x1b[37mNoEvil");
 let interactiveKeysGuide = "";
 let filenameTouch, maxpix, estimatedPixels, args, filenamePNG, extension, reader, hilbertPoints, herbs, levels, progress, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, textFile, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, fileUploadShowing, testColors, chunksMax, chunksize, chunksizeBytes, baseChars, cpu, subdivisions, contextBitmap, aminoacid, colClock, start, updateClock, percentComplete, bytesPerSec, pixelStacking, isHighlightCodon, justNameOfDNA, justNameOfPNG, justNameOfHILBERT, sliceDNA, filenameHTML, howMany, timeRemain, runningDuration, kbRemain, width, triplet, updatesTimer, pngImageFlags;
-let codonsPerPixel, CRASH, cyclesPerUpdate, red, green, blue, alpha, charClock, errorClock, breakClock, streamLineNr, genomeSize, filesDone, spewClock, opacity, codonRGBA, geneRGBA, currentTriplet, progato, dimension, shrinkFactor;
+let codonsPerPixel, CRASH, cyclesPerUpdate, red, green, blue, alpha, charClock, errorClock, breakClock, streamLineNr, genomeSize, filesDone, spewClock, opacity, codonRGBA, geneRGBA, currentTriplet, progato, dimension, shrinkFactor, reg;
 
 
 
@@ -183,6 +183,7 @@ module.exports = () => {
     boolean: [ 'spew' ],
     boolean: [ 'test' ],
     boolean: [ 'verbose' ],
+    boolean: [ 'reg' ],
     string: [ 'codons'],
     string: [ 'magnitude'],
     string: [ 'triplet'],
@@ -233,7 +234,9 @@ module.exports = () => {
 
   if (args.ratio || args.r) {
     ratio = args.ratio || args.r;
-    ratio = ratio.toLowerCase();
+    if (ratio && ratio != true ) { // this is for: aminosee --test -r
+      ratio = ratio.toLowerCase();
+    }
     if (ratio == "fixed" || ratio == "fix") {
       ratio = "fix";
     } else if (ratio == "square" || ratio == "sqr") {
@@ -249,7 +252,10 @@ module.exports = () => {
     ratio = "sqr";
   }
   log("using ${ratio} aspect ratio");
-
+  if (args.reg) {
+    reg = true;
+    output(`using regmarks`)
+  }
   if (args.triplet || args.t) {
     triplet = args.triplet || args.t;
     triplet = triplet.toUpperCase();
@@ -892,9 +898,9 @@ function welcomeMessage() {
   output(' ');
   output('flags:');
 
-  output('     --ratio -r square|golden|fixed|hilbert (image proportions)');
+  output('     --ratio -r square|golden|fixed       (image proportions)');
   output('     --width -w   1-20          (only works with fixed ratio)');
-  output('     --magnitude -m      (debug setting to limit memory use)');
+  output('     --magnitude -m       (debug setting to limit memory use)');
   output('     --triplet -t        (highlight triplet eg --triplet GGC)');
   output('     --verbose -v                              (verbose mode)');
   output('     --help -h                                          Help)');
@@ -905,7 +911,9 @@ function welcomeMessage() {
   output('        setting codons per pixel disables hilbert mode export');
   output('     --spew -s          (spew DNA bases to the screen during)');
   output('     --no-clear              (dont clear the terminal during)');
-  output('     --no-update                         (dont provide updates)');
+  output('     --no-update                       (dont provide updates)');
+  output('     --reg    (put registration marks @ 25% 50% 75% and 100%)');
+  output('     --test                (create calibration test patterns)');
   output(' ');
   output('use * to process all files in current directory');
   output('use serve to run the web server');
@@ -1623,12 +1631,13 @@ function arrayToPNG() {
     for (test = 1; test <= magnitude; test++) {
       let filePath = path.resolve(__dirname) ;
       let regmarks;
-      ( artistic ?  regmarks = "_noregmarks" :  regmarks = "_reg")
-      filenameHILBERT = filePath + "/AminoSee_Calibration_" + test + regmarks + ".png";
-      output(`Magnitude ${test} curve generation. ${hilbPixels[test]} pixels`);
+      ( ratio == true || reg == true  ?  regmarks = "" :  regmarks = "_reg" )
+      filenameHILBERT = filePath + "/dna/AminoSee_Calibration_" + test + regmarks + ".png";
+      output("@");
+      out(`Magnitude ${test} curve generation. ${hilbPixels[test]} pixels `);
       dimension = test;
       patternsToPngAndMainArray(); // call with no array for test
-      filenamePNG = filePath + "/AminoSee_Linear_" + test + regmarks + ".png";
+      filenamePNG = filePath + "/dna/AminoSee_Linear_" + test + regmarks + ".png";
       arrayToPNG();
     }
   }
@@ -1654,6 +1663,7 @@ function arrayToPNG() {
     linearHeight = linearWidth;
 
     for (i = 0; i < hilpix; i++) {
+      dot(i, 30000);
       let hilbX, hilbY;
       [hilbX, hilbY] = h.decode(16,i); // <-- THIS IS WHERE THE MAGIC HILBERT HAPPENS
       let cursorLinear  = 4 * i ;
@@ -1734,6 +1744,11 @@ function arrayToPNG() {
       }
       return dim;
     }
+    function dot(i, x) {
+      if (i % x == 0 ) {
+        out('.');
+      }
+    }
     function saveHilbert(array) {
       status = "getting in touch with my man... hilbert";
       let perc = 0;
@@ -1760,14 +1775,11 @@ function arrayToPNG() {
       hilbertImage = [hilpix*4]; //  x = x, y % 960
 
       for (i = 0; i < hilpix; i++) {
-        // log(i);
+        dot(i, 64000);
         let hilbX, hilbY;
         [hilbX, hilbY] = h.decode(16,i); // <-- THIS IS WHERE THE MAGIC HILBERT HAPPENS
         let cursorLinear  = 4 * i ;
         let hilbertLinear = 4 * ((hilbX % width) + (hilbY * width));
-
-
-
         let perc = i / hilpix;
         let thinWhite = 250;
         let thinWhiteSlice = Math.round(perc * 1000 ) % thinWhite;
