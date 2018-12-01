@@ -5,7 +5,7 @@
 //       ╩ ╩┴ ┴┴┘└┘└─┘╚═╝└─┘└─┘  ═╩╝╝╚╝╩ ╩   ╚╝ ┴└─┘└┴┘└─┘┴└─
 //       by Tom Atkinson            aminosee.funk.co.nz
 //        ah-mee no-see       "I See It Now - I AminoSee it!"
-let defaultMagnitude = 7; //  = 4.194304 megapixels
+let defaultMagnitude = 6; //  = 4.194304 megapixels
 let darkenFactor = 0.75;
 let highlightFactor = 2;
 const defaultC = 1; // back when it could not handle 3+GB files.
@@ -671,7 +671,7 @@ function renderSummary() {
 function autoconfCodonsPerPixel() { // requires baseChars maxpix defaultC
   let existing = userCPP;
   estimatedPixels = baseChars / 3; // divide by 4 times 3
-  let overSampleFactor = 2;
+  let overSampleFactor = 1.2;
 
 
   if (codonsPerPixel < defaultC) {
