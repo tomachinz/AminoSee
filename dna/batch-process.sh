@@ -70,6 +70,48 @@ aminosee_do $1 $2  --peptide=Histidine
   echo "                                         =///"
 }
 
+
+
+other_way_peptides () {
+  echo "                                         =///"
+  echo "-------------------------------------------"
+  echo STARTING PARALLEL DECODE FOR $1 $2 $3
+  echo "-------------------------------------------"
+  echo "                                         =///"
+
+
+find -f *.fa *.mfa *.gbk *.txt -exec  aminosee {}      $1 $2  $3 $4 $5 $6  \;
+find -f *.fa *.mfa *.gbk *.txt -exec  aminosee {}      $1 $2   --peptide=Ochre $3 $4 $5 $6  \;
+find -f *.fa *.mfa *.gbk *.txt -exec  aminosee {}      $1 $2   --peptide=Glutamic $3 $4 $5 $6  \;
+find -f *.fa *.mfa *.gbk *.txt -exec  aminosee {}      $1 $2   --peptide=Aspartic $3 $4 $5 $6  \;
+find -f *.fa *.mfa *.gbk *.txt -exec  aminosee {}      $1 $2   --peptide=Amber $3 $4 $5 $6  \;
+find -f *.fa *.mfa *.gbk *.txt -exec  aminosee {}      $1 $2   --peptide=Cysteine $3 $4 $5 $6  \;
+find -f *.fa *.mfa *.gbk *.txt -exec  aminosee {}      $1 $2   --peptide=Glycine $3 $4 $5 $6  \;
+find -f *.fa *.mfa *.gbk *.txt -exec  aminosee {}      $1 $2   --peptide=Alanine $3 $4 $5 $6  \;
+find -f *.fa *.mfa *.gbk *.txt -exec  aminosee {}      $1 $2   --peptide=Methionine $3 $4 $5 $6  \;
+find -f *.fa *.mfa *.gbk *.txt -exec  aminosee {}      $1 $2   --peptide=Valine $3 $4 $5 $6  \;
+find -f *.fa *.mfa *.gbk *.txt -exec  aminosee {}      $1 $2   --peptide=Leucine $3 $4 $5 $6  \;
+find -f *.fa *.mfa *.gbk *.txt -exec  aminosee {}      $1 $2   --peptide=Isoleucine $3 $4 $5 $6  \;
+find -f *.fa *.mfa *.gbk *.txt -exec  aminosee {}      $1 $2   --peptide=Phenylalanine $3 $4 $5 $6  \;
+find -f *.fa *.mfa *.gbk *.txt -exec  aminosee {}      $1 $2   --peptide=Tryptophan $3 $4 $5 $6  \;
+find -f *.fa *.mfa *.gbk *.txt -exec  aminosee {}      $1 $2   --peptide=Serine $3 $4 $5 $6  \;
+find -f *.fa *.mfa *.gbk *.txt -exec  aminosee {}      $1 $2   --peptide=Threonine $3 $4 $5 $6  \;
+find -f *.fa *.mfa *.gbk *.txt -exec  aminosee {}      $1 $2   --peptide=Opal $3 $4 $5 $6  \;
+find -f *.fa *.mfa *.gbk *.txt -exec  aminosee {}      $1 $2   --peptide=Glutamine $3 $4 $5 $6  \;
+find -f *.fa *.mfa *.gbk *.txt -exec  aminosee {}      $1 $2   --peptide=Asparagine $3 $4 $5 $6  \;
+find -f *.fa *.mfa *.gbk *.txt -exec  aminosee {}      $1 $2   --peptide=Tyrosine $3 $4 $5 $6  \;
+find -f *.fa *.mfa *.gbk *.txt -exec  aminosee {}      $1 $2   --peptide=Arginine $3 $4 $5 $6  \;
+find -f *.fa *.mfa *.gbk *.txt -exec  aminosee {}      $1 $2   --peptide=Lysine $3 $4 $5 $6  \;
+find -f *.fa *.mfa *.gbk *.txt -exec  aminosee {}      $1 $2   --peptide=Histidine $3 $4 $5 $6  \;
+
+  echo "                                         =///"
+  echo "-------------------------------------------"
+  echo FINISHED PARALLEL DECODE FOR $1
+  echo "-------------------------------------------"
+  echo "                                         =///"
+}
+
+other_way_peptides $1 $2 $3 $4 $5 $6
 # aminosee * -d &
 #
 #
@@ -90,28 +132,29 @@ aminosee_do $1 $2  --peptide=Histidine
 # many_size_hilbert homo-sapien-hs_ref_GRCh38.p12_chr2.fa 10
   # find -f *.fa *.mfa *.gbk *.txt | xargs -0 | aminosee -d
 
-if [ $(uname)=Darwin ]; then
-  echo macos
-  # find -f *.fa *.mfa *.gbk *.txt
-  # sleep 2
-  # find -f *.fa *.mfa *.gbk *.txt -exec parallel_peptides {}   \;
-  find -f *.fa *.mfa *.gbk *.txt -exec  aminosee {}           $1 -f -d $2 $3 $4 $5 $6  \;
-  find -f *.fa *.mfa *.gbk *.txt -exec  parallel_peptides {}  $1 -f -d $2 $3 $4 $5 $6  \;
-fi
-
-if [ $(uname)=Linux ]; then
-  echo linux
-  find *.fa *.mfa *.gbk *.txt
-  sleep 2
-  find *.fa *.mfa *.gbk *.txt -exec aminosee {}          $1 -f -d $2 $3 $4 $5 $6    \;
-  find *.fa *.mfa *.gbk *.txt -exec parallel_peptides {} $1 -f -d $2 $3 $4 $5 $6    \;
-fi
+# if [ $(uname)=Darwin ]; then
+#   echo macos
+#   # find -f *.fa *.mfa *.gbk *.txt
+#   # sleep 2
+#   # find -f *.fa *.mfa *.gbk *.txt -exec parallel_peptides {}   \;
+#   find -f *.fa *.mfa *.gbk *.txt -exec  parallel_peptides {}  $1 -f -d $2  $3 $4 $5 $6  \;
+#   find -f *.fa *.mfa *.gbk *.txt -exec  aminosee {}           $1 -f -d $2  $3 $4 $5 $6  \;
+# fi
+#
+# if [ $(uname)=Linux ]; then
+#   echo linux
+#   find *.fa *.mfa *.gbk *.txt
+#   sleep 2
+#   find *.fa *.mfa *.gbk *.txt -exec parallel_peptides {} $1 -f -d $2 $3 $4 $5 $6    \;
+#   find *.fa *.mfa *.gbk *.txt -exec aminosee {}          $1 -f -d $2 $3 $4 $5 $6    \;
+# fi
 
 # many_size_hilbert megabase.fa 1
 # many_size_hilbert Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa 2
 
 aminosee * -f -d -m 8
 aminosee * -f -d --ratio=golden
+aminosee * -f -d --ratio=fix
 aminosee --test -r
 
 many_size_hilbert megabase.fa

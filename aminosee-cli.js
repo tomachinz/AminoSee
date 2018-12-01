@@ -56,17 +56,17 @@ let status = "load";
 console.log("Amino\x1b[40mSee\x1b[37mNoEvil");
 let interactiveKeysGuide = "";
 let filenameTouch, maxpix, estimatedPixels, args, filenamePNG, extension, reader, hilbertPoints, herbs, levels, progress, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, textFile, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, fileUploadShowing, testColors, chunksMax, chunksize, chunksizeBytes, baseChars, cpu, subdivisions, contextBitmap, aminoacid, colClock, start, updateClock, percentComplete, bytesPerSec, pixelStacking, isHighlightCodon, justNameOfDNA, justNameOfPNG, justNameOfHILBERT, sliceDNA, filenameHTML, howMany, timeRemain, runningDuration, kbRemain, width, triplet, updatesTimer, pngImageFlags;
-let codonsPerPixel, CRASH, cyclesPerUpdate, red, green, blue, alpha, charClock, errorClock, breakClock, streamLineNr, genomeSize, filesDone, spewClock, opacity, codonRGBA, geneRGBA, currentTriplet, progato, dimension, shrinkFactor, reg;
+let codonsPerPixel, CRASH, cyclesPerUpdate, red, green, blue, alpha, charClock, errorClock, breakClock, streamLineNr, genomeSize, filesDone, spewClock, opacity, codonRGBA, geneRGBA, currentTriplet, progato, dimension, shrinkFactor, reg, png;
 
 const { Transform } = require('stream');
 
 // class AminoSeeFloatToPNG extends Transform {
-  // const options = {[
-  //   highWaterMark: 4096,
-  //   objectMode: true,
-  //   transform: _transform,
-  //   destroy: _final,
-  // ]}
+// const options = {[
+//   highWaterMark: 4096,
+//   objectMode: true,
+//   transform: _transform,
+//   destroy: _final,
+// ]}
 //   constructor(options) {
 //     super(options);
 //
@@ -210,6 +210,7 @@ module.exports = () => {
     boolean: [ 'test' ],
     boolean: [ 'verbose' ],
     boolean: [ 'reg' ],
+    boolean: [ 'png' ],
     string: [ 'codons'],
     string: [ 'magnitude'],
     string: [ 'triplet'],
@@ -870,7 +871,7 @@ function setupFNames() {
 
   ( artistic ? pngAmino += "_artistic" : pngAmino += "_sci")
 
-  justNameOfPNG =     `${justNameOfDNA}${ext}_aminosee${pngAmino}.png`;
+  justNameOfPNG =     `${justNameOfDNA}${ext}_linear${pngAmino}.png`;
   justNameOfHILBERT =     `${justNameOfDNA}${ext}_hilbert.png`;
   justNameOfHTML =     `${justNameOfDNA}${ext}_aminosee.html`;
 
@@ -1585,15 +1586,112 @@ function toBuffer(ab) {
 function coordsToLinear(x, y) {
   return (x % width) + (y * width)
 }
+function saveHilbert(array) {
+  status = "getting in touch with my man... hilbert";
+  let perc = 0;
+  let height, width, pixels;
 
+
+
+
+
+  const h = require('hilbert-2d');
+  let hilpix = hilbPixels[dimension];
+  let hilbertImage = [hilpix*4];
+  let linearpix = rgbArray.length /4;
+  shrinkFactor = hilpix / linearpix;
+  log(`shrinkFactor pre ${shrinkFactor} = hilpix ${hilpix} / linearpix ${linearpix }`);
+  resampleByFactor(shrinkFactor);
+  log(filenameHILBERT);
+  log(`shrinkFactor post ${shrinkFactor}`);
+
+  width = Math.sqrt(hilpix);
+  height = width;
+  hilbertImage = [hilpix*4]; //  x = x, y % 960
+
+  for (i = 0; i < hilpix; i++) {
+    dot(i, 64000);
+    let hilbX, hilbY;
+    [hilbX, hilbY] = h.decode(16,i); // <-- THIS IS WHERE THE MAGIC HILBERT HAPPENS
+    let cursorLinear  = 4 * i ;
+    let hilbertLinear = 4 * ((hilbX % width) + (hilbY * width));
+    let perc = i / hilpix;
+    let thinWhite = 250;
+    let thinWhiteSlice = Math.round(perc * 1000 ) % thinWhite;
+    if (thinWhiteSlice < 1 && devmode) {
+
+      hilbertImage[hilbertLinear] =   255*perc;
+      hilbertImage[hilbertLinear+1] = ( i % Math.round( perc *32) ) / (perc *32) *  255;
+      hilbertImage[hilbertLinear+2] = (perc *2550)%255;
+      hilbertImage[hilbertLinear+3] = 255 - ((i%2)*24);
+
+      hilbertImage[hilbertLinear+0] = 255 ;
+      hilbertImage[hilbertLinear+1] = 255 - (hilbertImage[hilbertLinear+1]/8);
+      hilbertImage[hilbertLinear+2] = 255;
+      hilbertImage[hilbertLinear+3] = 255;
+    } else {
+
+      hilbertImage[hilbertLinear] =   rgbArray[cursorLinear];
+      hilbertImage[hilbertLinear+1] = rgbArray[cursorLinear+1];
+      hilbertImage[hilbertLinear+2] = rgbArray[cursorLinear+2];
+      hilbertImage[hilbertLinear+3] = 255;//rgbArray[cursorLinear+3];
+
+    }
+
+
+
+
+
+    if (i-4 > rgbArray.length) {
+      log("BREAKING at positon ${i} due to ran out of source image. rgbArray.length  = ${rgbArray.length}");
+      log(` @i ${i} `);
+      break;
+    }
+  }
+
+  var hilbert_img_data = Uint8ClampedArray.from(hilbertImage);
+  var hilbert_img_png = new PNG({
+    width: width,
+    height: height,
+    colorType: 6,
+    bgColor: {
+      red: 0,
+      green: 0,
+      blue: 0
+    }
+  })
+  hilbert_img_png.data = Buffer.from(hilbert_img_data);
+  let wstream = fs.createWriteStream(filenameHILBERT);
+  new Promise(resolve =>
+    hilbert_img_png.pack()
+    .pipe(wstream)
+    .on('finish', resolve));
+
+  }
 function arrayToPNG() {
-
-  // clearTimeout();
   let pixels, height, width = 0;
-  pixels = (rgbArray.length / 4) + 1 ;// to avoid the dreaded "off by one error"... one exra pixel wont bother nobody
-  log(`pixels ${pixels}`);
-  if (colClock==0) {
-    output("No DNA or RNA in this file sorry?! You sure you gave a file with sequences? " + filename);
+  pixels = (rgbArray.length / 4) + 1 ; // to avoid the dreaded "off by one error"... one exra pixel wont bother nobody
+  let computerWants = pixelsToHilMagnitude(pixels)-1;
+
+  if ( computerWants > maxMagnitude ) {
+    if (args.magnitude || args.m && magnitude > maxMagnitude) {
+      output(`I'm not sure that trying to render ${hilbPixels[magnitude]} is going to work out. Maybe try a lower magnitue like ${computerWants}`)
+    } else {
+      output(`I'd like to do that ${hilbPixels[computerWants]} for you dave, but I can't. I let some other humans render at magnitue ${computerWants} and I core dumped.`)
+      dimension = maxMagnitude;
+    }
+  } else if (computerWants < 0) {
+    dimension = 0; // its an array index
+  }
+  magnitude = dimension;
+  setupFNames()
+  // magnitude = dimension; // mag is the users choice, dimnension is the value we use
+  log(`image size ${pixels} will use dimension ${dimension} yielding ${hilbPixels[dimension]} pixels `);
+
+
+
+  if (colClock == 0) {
+    output("No DNA or RNA in this file sorry?! You sure you gave a file with sequences? Like: GCCTCTATGACTGACGTA" + filename);
     return;
   }
 
@@ -1601,7 +1699,7 @@ function arrayToPNG() {
     width = Math.round(Math.sqrt(pixels));
     height = width;
     while ( pixels > width*height) {
-      log(`width ${width} height ${height}`)
+      out(` [w: ${width} h: ${height}] `)
       width++;
       height++;
     }
@@ -1682,25 +1780,25 @@ function arrayToPNG() {
 
     log(renderSummary());
 
-    if (!devmode) {
+    // if (!devmode) {
       output("Opening your image. If process blocked either quit browser AND image viewer or [ CONTROL-C ]");
 
       if (openHtml) {
         opn(filenameHTML).then(() => {
           log("browser closed");
         }).catch();
-      } else if (isHilbertPossible) {
+      } else if (isHilbertPossible && png) {
         opn(filenameHILBERT).then(() => {
           log("hilbert image closed");
         }).catch();
-      } else {
+      } else if (png) {
         opn(filenamePNG).then(() => {
           log("regular png image closed");
         }).catch();
       }
-    } else {
-      log("devmode: open outputs completed without opening images, due to your -d flag: " + filenamePNG)
-    }
+    // } else {
+      // log("devmode: open outputs completed without opening images, due to your -d flag: " + filenamePNG)
+    // }
     log("Thats us cousin");
 
   }
@@ -1834,90 +1932,7 @@ function arrayToPNG() {
         out('.');
       }
     }
-    function saveHilbert(array) {
-      status = "getting in touch with my man... hilbert";
-      let perc = 0;
-      let height, width, pixels;
-      pixels = array.length/4; // safety margin of 69 pixels back at the end.
-      dimension = pixelsToHilMagnitude(pixels)-1;
-      // magnitude = dimension; // mag is the users choice, dimnension is the value we use
-      log(`image size ${pixels} will use dimension ${dimension} yielding ${hilbPixels[dimension]} pixels `);
 
-
-
-      const h = require('hilbert-2d');
-      let hilpix = hilbPixels[dimension];
-      let hilbertImage = [hilpix*4];
-      let linearpix = rgbArray.length /4;
-      shrinkFactor = hilpix / linearpix;
-      log(`shrinkFactor pre ${shrinkFactor} = hilpix ${hilpix} / linearpix ${linearpix }`);
-      resampleByFactor(shrinkFactor);
-      log(filenameHILBERT);
-      log(`shrinkFactor post ${shrinkFactor}`);
-
-      width = Math.sqrt(hilpix);
-      height = width;
-      hilbertImage = [hilpix*4]; //  x = x, y % 960
-
-      for (i = 0; i < hilpix; i++) {
-        dot(i, 64000);
-        let hilbX, hilbY;
-        [hilbX, hilbY] = h.decode(16,i); // <-- THIS IS WHERE THE MAGIC HILBERT HAPPENS
-        let cursorLinear  = 4 * i ;
-        let hilbertLinear = 4 * ((hilbX % width) + (hilbY * width));
-        let perc = i / hilpix;
-        let thinWhite = 250;
-        let thinWhiteSlice = Math.round(perc * 1000 ) % thinWhite;
-        if (thinWhiteSlice < 1 && devmode) {
-
-          hilbertImage[hilbertLinear] =   255*perc;
-          hilbertImage[hilbertLinear+1] = ( i % Math.round( perc *32) ) / (perc *32) *  255;
-          hilbertImage[hilbertLinear+2] = (perc *2550)%255;
-          hilbertImage[hilbertLinear+3] = 255 - ((i%2)*24);
-
-          hilbertImage[hilbertLinear+0] = 255 ;
-          hilbertImage[hilbertLinear+1] = 255 - (hilbertImage[hilbertLinear+1]/8);
-          hilbertImage[hilbertLinear+2] = 255;
-          hilbertImage[hilbertLinear+3] = 255;
-        } else {
-
-          hilbertImage[hilbertLinear] =   rgbArray[cursorLinear];
-          hilbertImage[hilbertLinear+1] = rgbArray[cursorLinear+1];
-          hilbertImage[hilbertLinear+2] = rgbArray[cursorLinear+2];
-          hilbertImage[hilbertLinear+3] = 255;//rgbArray[cursorLinear+3];
-
-        }
-
-
-
-
-
-        if (i-4 > rgbArray.length) {
-          log("BREAKING at positon ${i} due to ran out of source image. rgbArray.length  = ${rgbArray.length}");
-          log(` @i ${i} `);
-          break;
-        }
-      }
-
-      var hilbert_img_data = Uint8ClampedArray.from(hilbertImage);
-      var hilbert_img_png = new PNG({
-        width: width,
-        height: height,
-        colorType: 6,
-        bgColor: {
-          red: 0,
-          green: 0,
-          blue: 0
-        }
-      })
-      hilbert_img_png.data = Buffer.from(hilbert_img_data);
-      let wstream = fs.createWriteStream(filenameHILBERT);
-      new Promise(resolve =>
-        hilbert_img_png.pack()
-        .pipe(wstream)
-        .on('finish', resolve));
-
-      }
 
       function removeSpacesForFilename(string) {
         return string.replace(' ', '');
