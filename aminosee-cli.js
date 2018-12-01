@@ -456,8 +456,13 @@ function pollForStream() {
     quit();
   }
   try {
-    current = args._[0];
-
+    if (args._) {
+      current = args._[0];
+    } else {
+      output("Finished processing.")
+      quit(1);
+      return true;
+    }
   } catch(e) {
     output("Finished processing.")
     quit(1);
