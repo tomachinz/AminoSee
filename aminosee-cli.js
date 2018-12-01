@@ -475,9 +475,13 @@ function pollForStream() {
   //   output("THIS IS NOT RIGHT")
   //   return true;
   // }
+  if (current == undefined) {
+    quit()
+    return false;
+  }
+
   if (status == "removelocks" || status == "polling") {
     current = args._.pop();
-
   }
   if (current == undefined) {
     quit()
@@ -490,6 +494,32 @@ function pollForStream() {
   let pollAgainFlag = false;
   let willStart = true;
   log( " current is " + current   + args)
+
+
+  //  var fileExist = fs.open('current', 'r', (err, fd) => {
+  //   if (err) {
+  //     if (err.code === 'ENOENT') {
+  //       console.error('myfile does not exist');
+  //       return;
+  //     }
+  //
+  //     throw err;
+  //   }
+  //
+  //   readMyData(fd);
+  // });
+try {
+  if (!fs.statSync(filename).isFile) {
+    output("statSync: false " + filename)
+    theSwitcher(false);
+    return false;
+  }
+} catch(err) {
+  console.warn(err);
+  output("statSync: false " + filename)
+  theSwitcher(false);
+  return false;
+}
 
   if (!checkFileExtension(getFileExtension(current))) {
     log("checkFileExtension: " + current)
@@ -1023,7 +1053,12 @@ function removeLocks() {
 }
 function getFilesizeInBytes(f) {
   try {
-    return baseChars = fs.statSync(f).size;
+    if (fs.statSync(f) == true) {
+      return baseChars = fs.statsSync(f).size;
+    } else {
+      output("No File Found at: " + f);
+      return -1;
+    }
   } catch(e) {
     output("File error: " + e);
     return -1;
