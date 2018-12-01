@@ -18,6 +18,8 @@ let force = false; // force overwrite existing PNG and HTML reports
 let artistic = false; // for Charlie
 let spew = false; // firehose your screen with DNA
 let report = true; // html reports
+const overSampleFactor = 0.8;
+
 let clear, updates;
 const maxMsPerUpdate = 12000; // milliseconds per update
 const hilbPixels = [ 64, 256, 1024, 4096, 16384, 65536, 262144, 1048576, 4194304, 16777216, 67108864 ]; // 67 Megapixel hilbert curve!! the last two are breaking nodes heap and call stack both.
@@ -53,8 +55,8 @@ const extensions = [ "txt", "fa", "mfa", "gbk", "dna"];
 let status = "load";
 console.log("Amino\x1b[40mSee\x1b[37mNoEvil");
 let interactiveKeysGuide = "";
-let filenameTouch, maxpix, cppfl, estimatedPixels, args, filenamePNG, extension, reader, hilbertPoints, herbs, levels, progress, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, textFile, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, fileUploadShowing, testColors, chunksMax, chunksize, chunksizeBytes, baseChars, cpu, subdivisions, contextBitmap, aminoacid, colClock, start, updateClock, percentComplete, bytesPerSec, pixelStacking, isHighlightCodon, justNameOfDNA, justNameOfPNG, justNameOfHILBERT, sliceDNA, filenameHTML, howMany, timeRemain, runningDuration, kbRemain, width, triplet, updatesTimer, pngImageFlags;
-let codonsPerPixel, CRASH, cyclesPerUpdate, red, green, blue, alpha, charClock, errorClock, breakClock, streamLineNr, genomeSize, filesDone, spewClock, opacity, codonRGBA, geneRGBA, currentTriplet, progato, dimension;
+let filenameTouch, maxpix, estimatedPixels, args, filenamePNG, extension, reader, hilbertPoints, herbs, levels, progress, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, textFile, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, fileUploadShowing, testColors, chunksMax, chunksize, chunksizeBytes, baseChars, cpu, subdivisions, contextBitmap, aminoacid, colClock, start, updateClock, percentComplete, bytesPerSec, pixelStacking, isHighlightCodon, justNameOfDNA, justNameOfPNG, justNameOfHILBERT, sliceDNA, filenameHTML, howMany, timeRemain, runningDuration, kbRemain, width, triplet, updatesTimer, pngImageFlags;
+let codonsPerPixel, CRASH, cyclesPerUpdate, red, green, blue, alpha, charClock, errorClock, breakClock, streamLineNr, genomeSize, filesDone, spewClock, opacity, codonRGBA, geneRGBA, currentTriplet, progato, dimension, shrinkFactor;
 
 
 
@@ -655,14 +657,17 @@ function renderSummary() {
   Estimated Codons by file size: ${Math.round(estimatedPixels).toLocaleString()}
   Actual Codons matched: ${genomeSize.toLocaleString()}
   Estimate accuracy: ${Math.round(((estimatedPixels / genomeSize)-1)*100)}%
-  Codons per pixel: ${twosigbitsTolocale(codonsPerPixel)} integer
-  Codons scaled for hilbert: ${twosigbitsTolocale(cppfl)} float
-  Pixels: ${colClock.toLocaleString()} (colClock)
-  Amino acid blend opacity: ${Math.round(opacity*10000)/100}%
   Error Clock: ${errorClock.toLocaleString()}
   CharClock: ${charClock.toLocaleString()}
+  Codons per pixel: ${twosigbitsTolocale(codonsPerPixel)} integer
+  Pixels: ${colClock.toLocaleString()} (colClock)
+  Linear scale down:  ${twosigbitsTolocale(shrinkFactor)}
+  overSampleFactor: ${overSampleFactor}
+  Amino acid blend opacity: ${Math.round(opacity*10000)/100}%
+
   Max magnitude: ${magnitude} / 10 Max pix:${maxpix.toLocaleString()}
-  Hilbert Magnitude: ${dimension} / 10 Hilbert Curve Pixels: ${hilbPixels[dimension]}
+  Hilbert Magnitude: ${dimension} / ${maxMagnitude}
+  Hilbert Curve Pixels: ${hilbPixels[dimension]}
   Darken Factor ${twosigbitsTolocale(darkenFactor)}
   Highlight Factor ${twosigbitsTolocale(highlightFactor)}
   Time used: ${runningDuration.toLocaleString()} miliseconds`;
@@ -672,8 +677,7 @@ function renderSummary() {
 function autoconfCodonsPerPixel() { // requires baseChars maxpix defaultC
   let existing = userCPP;
   estimatedPixels = baseChars / 3; // divide by 4 times 3
-  let overSampleFactor = 1.2;
-  let computersGuess = pixelsToHilMagnitude(estimatedPixels * overSampleFactor);
+  let computersGuess = pixelsToHilMagnitude(estimatedPixels);
 
   if (codonsPerPixel < defaultC) {
     codonsPerPixel = defaultC;
@@ -692,8 +696,9 @@ function autoconfCodonsPerPixel() { // requires baseChars maxpix defaultC
   } else {
     if ( magnitude < computersGuess) {
       output(`It mite be possible to get higher resolution with --magnitude ${computersGuess}`)
+      // default of 6
     } else {
-      if ( computersGuess <= maxMagnitude) {
+      if ( computersGuess < maxMagnitude) {
         output(`Image is not super large, fitting output to --magnitude ${computersGuess}`)
         magnitude = computersGuess;
       } else {
@@ -713,7 +718,7 @@ function autoconfCodonsPerPixel() { // requires baseChars maxpix defaultC
       codonsPerPixel = defaultC; // normally we want 1:1 for smalls
     }
   } else if (estimatedPixels > maxpix ){ // for seq bigger than screen        codonsPerPixel = estimatedPixels / maxpix*overSampleFactor;
-    codonsPerPixel = estimatedPixels / maxpix;
+    codonsPerPixel = (estimatedPixels * overSampleFactor) / maxpix;
     if (userCPP != -1) {
       if (userCPP < codonsPerPixel) {
         output(terminalRGB(`WARNING: Your target Codons Per Pixel setting ${userCPP} will make an estiamted ${Math.round(estimatedPixels / userCPP).toLocaleString()} is likely to exceed the max image size of ${maxpix.toLocaleString()}, sometimes this causes an out of memory error. My machine spit the dummy at 1.7 GB of virtual memory use by node, lets try yours. We reckon ${codonsPerPixel} would be better but will give it a try...`))
@@ -751,7 +756,6 @@ function autoconfCodonsPerPixel() { // requires baseChars maxpix defaultC
     highlightFactor = 16 + ( 255 / codonsPerPixel) ;
   }
 
-  cppfl = codonsPerPixel; // store floating point value for summary.
   // codonsPerPixel = Math.round(codonsPerPixel);
   return codonsPerPixel;
 }
@@ -1745,7 +1749,7 @@ function arrayToPNG() {
       let hilpix = hilbPixels[dimension];
       let hilbertImage = [hilpix*4];
       let linearpix = rgbArray.length /4;
-      let shrinkFactor = hilpix / linearpix;
+      shrinkFactor = hilpix / linearpix;
       log(`shrinkFactor pre ${shrinkFactor} = hilpix ${hilpix} / linearpix ${linearpix }`);
       resampleByFactor(shrinkFactor);
       log(filenameHILBERT);
@@ -1974,7 +1978,7 @@ function arrayToPNG() {
           if (bar.completed) {
             clearInterval(iv);
           }
-        }, 200);
+        }, 400);
         return bar;
       }
       function twosigbitsTolocale(num){

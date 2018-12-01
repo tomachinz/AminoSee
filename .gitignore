@@ -14,7 +14,8 @@ dna/*.gbk
 dna/*.txt
 dna/*.png
 dna/*.html
-
+dna/*.touch
+AminoSee_*.png
 
 
 # Logs
