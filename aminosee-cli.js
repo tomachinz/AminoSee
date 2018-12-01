@@ -484,7 +484,7 @@ function pollForStream() {
     current = args._.pop();
   }
   if (current == undefined) {
-    quit()
+    quit(1)
     return false;
   }
   status = "polling";
@@ -521,8 +521,8 @@ try {
   return false;
 }
 
-  if (!checkFileExtension(getFileExtension(current))) {
-    log("checkFileExtension: " + current)
+  if (!checkFileExtension(getFileExtension(filename))) {
+    log("checkFileExtension: " + filename)
     theSwitcher(false);
     return false;
   }
@@ -533,8 +533,8 @@ try {
     return false;
   }
   if (!checkFileExtension(getFileExtension(filename))) {
-    log("getFileExtension(current): " + getFileExtension(filename));
-    log("checkFileExtension(getFileExtension(current)): " + checkFileExtension(getFileExtension(filename)))
+    log("getFileExtension(filename): " + getFileExtension(filename));
+    log("checkFileExtension(getFileExtension(filename)): " + checkFileExtension(getFileExtension(filename)))
     theSwitcher(false);
     return false;
   } else {
@@ -1054,10 +1054,12 @@ function removeLocks() {
 function getFilesizeInBytes(f) {
   try {
     if (fs.statSync(f) == true) {
-      return baseChars = fs.statsSync(f).size;
+      return baseChars = fs.statSync(f).size;
     } else {
-      output("No File Found at: " + f);
-      return -1;
+      output("MAYBE No File Found at: " + f);
+      return baseChars = fs.statSync(f).size;
+
+      // return -1;
     }
   } catch(e) {
     output("File error: " + e);
@@ -1093,8 +1095,10 @@ function quit(n) {
   // output("press Control-C again to quit; or.... try T to output test patterns");
   // process.stdin.setRawMode(false);
   // process.stdin.resume();
-  // printRadMessage();
+  out(status);
   if (n=1) {
+    log('really bye now');
+    printRadMessage();
     process.exit;
   }
 }
