@@ -5,7 +5,8 @@
 //       ╩ ╩┴ ┴┴┘└┘└─┘╚═╝└─┘└─┘  ═╩╝╝╚╝╩ ╩   ╚╝ ┴└─┘└┴┘└─┘┴└─
 //       by Tom Atkinson            aminosee.funk.co.nz
 //        ah-mee no-see       "I See It Now - I AminoSee it!"
-let defaultMagnitude = 6; //  = 4.194304 megapixels
+const defaultMagnitude = 6; //  = 4.194304 megapixels
+const maxMagnitude = 8; // max for auto setting
 let darkenFactor = 0.75;
 let highlightFactor = 2;
 const defaultC = 1; // back when it could not handle 3+GB files.
@@ -672,7 +673,7 @@ function autoconfCodonsPerPixel() { // requires baseChars maxpix defaultC
   let existing = userCPP;
   estimatedPixels = baseChars / 3; // divide by 4 times 3
   let overSampleFactor = 1.2;
-
+  let computersGuess = pixelsToHilMagnitude(estimatedPixels * overSampleFactor);
 
   if (codonsPerPixel < defaultC) {
     codonsPerPixel = defaultC;
@@ -683,19 +684,33 @@ function autoconfCodonsPerPixel() { // requires baseChars maxpix defaultC
   }
 
   if (args.magnitude || args.m) {
-    output(`Your --magnitude maybe wrong at ${magnitude} maybe try ${pixelsToHilMagnitude(estimatedPixels * overSampleFactor)}`)
+    if ( magnitude < computersGuess) {
+      output(`It mite be possible to get higher resolution with --magnitude ${computersGuess}`)
+    } else if ( magnitude < computersGuess ) {
+      output(`Your --magnitude of ${magnitude} is larger than my default of ${computersGuess}`)
+    }
   } else {
-    magnitude = pixelsToHilMagnitude(estimatedPixels * overSampleFactor);
-    maxpix = hilbPixels[ magnitude ];
+    if ( magnitude < computersGuess) {
+      output(`It mite be possible to get higher resolution with --magnitude ${computersGuess}`)
+    } else {
+      if ( computersGuess <= maxMagnitude) {
+        output(`Image is not super large, fitting output to --magnitude ${computersGuess}`)
+        magnitude = computersGuess;
+      } else {
+        output(`Image is big. Limiting size to --magnitude ${maxMagnitude}`)
+        magnitude = maxMagnitude;
+      }
+    }
   }
+
+  maxpix = hilbPixels[ magnitude ];
+
   log(`magnitude is ${magnitude} new maxpix: ${maxpix} `)
   if (estimatedPixels < (maxpix) ) { // for sequence smaller than the screen
-
     if (userCPP != -1)  {
       output("its not recommended to use anything other than --codons 1 for small genomes, better to reduce the --magnitude")
     } else {
       codonsPerPixel = defaultC; // normally we want 1:1 for smalls
-
     }
   } else if (estimatedPixels > maxpix ){ // for seq bigger than screen        codonsPerPixel = estimatedPixels / maxpix*overSampleFactor;
     codonsPerPixel = estimatedPixels / maxpix;
@@ -1709,6 +1724,9 @@ function arrayToPNG() {
         // status = "set hilbert dim";
         log(`image size ${p} too large for ${hilbPixels[dim]} `);
         dim++;
+        if (dim >= maxMagnitude) {
+          output("WARNING: This will exceed nodes heap memory and/or call stack.")
+        }
       }
       return dim;
     }
