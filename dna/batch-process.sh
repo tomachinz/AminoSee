@@ -8,12 +8,12 @@ aminosee_do () {
 
   if [ $(uname)=Darwin ]; then
     echo macos
-    nice -n $1 aminosee $1 -d $4 $5 $6
+    nice -n $1 aminosee $2 -d $3 $4 $5 $6
   fi
 
   if [ $(uname)=Linux ]; then
     echo linux
-    nice $1 aminosee $1 -d $4 $5 $6
+    nice $1 aminosee $2 -d $3 $4 $5 $6
   fi
 
 }
@@ -25,21 +25,21 @@ many_size_hilbert() {
   echo "-------------------------------------------"
   echo "                                         =///"
 
-  aminosee_do 1 -m 1 --no-updates
+  aminosee_do 1 $1 -m 1 --no-updates
   sleep 4
-  aminosee_do 2 -m 2 --no-updates &
+  aminosee_do 2 $1 -m 2 --no-updates &
   sleep 4
-  aminosee_do 3 -m 3  --no-updates &
+  aminosee_do 3 $1 -m 3  --no-updates &
   sleep 4
-  aminosee_do 4 -m 4 --no-updates &
+  aminosee_do 4 $1 -m 4 --no-updates &
   sleep 4
-  aminosee_do 5 -m 5 --no-updates &
+  aminosee_do 5 $1 -m 5 --no-updates &
   sleep 4
-  aminosee_do 6 -m 6 --no-updates &
+  aminosee_do 6 $1 -m 6 --no-updates &
   sleep 4
-  aminosee_do 7 -m 7 --no-updates
+  aminosee_do 7 $1 -m 7 --no-updates
   sleep 4
-  aminosee_do 8 -m  --no-updates
+  aminosee_do 8 $1 -m 8 --no-updates
 }
 
 parallel_peptides () {
