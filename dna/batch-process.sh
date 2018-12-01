@@ -95,14 +95,16 @@ if [ $(uname)=Darwin ]; then
   # find -f *.fa *.mfa *.gbk *.txt
   # sleep 2
   # find -f *.fa *.mfa *.gbk *.txt -exec parallel_peptides {}   \;
-  find -f *.fa *.mfa *.gbk *.txt -exec  aminosee {} \;
+  find -f *.fa *.mfa *.gbk *.txt -exec  aminosee {}           $1 -f -d $2 $3 $4 $5 $6  \;
+  find -f *.fa *.mfa *.gbk *.txt -exec  parallel_peptides {}  $1 -f -d $2 $3 $4 $5 $6  \;
 fi
 
 if [ $(uname)=Linux ]; then
   echo linux
   find *.fa *.mfa *.gbk *.txt
   sleep 2
-  find *.fa *.mfa *.gbk *.txt -exec parallel_peptides {}    \;
+  find *.fa *.mfa *.gbk *.txt -exec aminosee {}          $1 -f -d $2 $3 $4 $5 $6    \;
+  find *.fa *.mfa *.gbk *.txt -exec parallel_peptides {} $1 -f -d $2 $3 $4 $5 $6    \;
 fi
 
 # many_size_hilbert megabase.fa 1
