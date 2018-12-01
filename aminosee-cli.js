@@ -398,6 +398,10 @@ module.exports = () => {
     createTick();
     break
 
+    case 'list':
+    listDNA();
+    break
+
     default:
     if (cmd == undefined) {
       status = "no command";
@@ -415,6 +419,12 @@ module.exports = () => {
   }
   status = "global";
   log(status)
+}
+function listDNA() {
+
+testParse();
+
+  // output( parse( "dna" ))
 }
 function aPeptideCodon(a) {
   // console.log(a);
