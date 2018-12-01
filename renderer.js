@@ -4,6 +4,7 @@
 
 // for the Electron Desktop App
 
+const { ipcRenderer } = require('electron')
 
 
 
@@ -15,10 +16,17 @@ if (window.addEventListener) {
 
 function pageLoaded() {
   let supercontainer = document.getElementById('supercontainer');
+  let dragitem = document.getElementById('dragitem')
 
-  supercontainer.ondragstart = (e) => {
-    e.preventDefault()
-    ipcRenderer.send('ondragstart', '/path/to/item')
+   dragitem.addEventListener('dragstart', (evt) => {
+     evt.dataTransfer.effectAllowed = 'copy'
+     evt.preventDefault()
+     ipcRenderer.send('ondragstart', `${__dirname}/abc.txt`)
+   })
+
+  supercontainer.ondragstart = (evt) => {
+    evt.preventDefault()
+    ipcRenderer.send('ondragstart', 'favicon.ico')
     supercontainer.classList.add('showdropzone')
   }
 
@@ -38,11 +46,11 @@ function pageLoaded() {
     return false;
   };
 
-  supercontainer.ondrop = (e) => {
+  supercontainer.ondrop = (evt) => {
     supercontainer.classList.remove('showdropzone')
-    e.preventDefault();
+    evt.preventDefault();
 
-    for (let f of e.dataTransfer.files) {
+    for (let f of evt.dataTransfer.files) {
       console.log('File(s) you dragged here: ', f.path)
     }
     return false;

@@ -12,7 +12,7 @@
 	<script src="public/WebGL.js"></script>
 	<script src="node_modules/hammerjs/hammer.min.js"></script>
 	<script src="public/AminoSee.js"></script>
-	<script src="renderer.js"></script>
+	<!-- <script src="renderer.js"></script> -->
 
 	<link rel="stylesheet" type="text/css" href="public/AminoSee.css">
 	<link href='https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz:700,400,200,100' rel='stylesheet' type='text/css'>
@@ -21,81 +21,35 @@
 	<!-- Funk.nz menubar include -->
 	<!-- Google Tag Manager -->
 	<noscript><!--iframe src="//www.googletagmanager.com/ns.html?id=GTM-P8JX"
-	height="0" width="0" style="display:none;visibility:hidden"></iframe--></noscript>
-	<!--script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-	new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-	j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-	'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-})(window,document,'script','dataLayer','GTM-P8JX');</script-->
+		height="0" width="0" style="display:none;visibility:hidden"></iframe--></noscript>
+		<!--script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+		new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+		j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+		'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+	})(window,document,'script','dataLayer','GTM-P8JX');</script-->
 	<!-- End Google Tag Manager -->
-	<style>
-	    /* #drag-file {
-	        background-color: blue;
-	        color:white;
-	        text-align: center;
-	        width:300px;
-	        height:300px;
-	    }
-			.showdropzone {
-				border: 5px dashed white;
-				padding: 64px;
-			} */
-	</style>
-
 
 </head>
 <body id="webgl" class="black nocse">
 	<div id="supercontainer">
-		<div id="colorPicker" class="hidden">
+		<canvas id="canvas" width="512" height="512" style="width: 512px; height: 512px;"></canvas>
+		<div id="viewPortSize" class="bottom_right" style="display: none; background-color: rgb(0, 0, 0); color: rgb(255, 255, 255); font-size: 12px;"></div>
+		<!-- <div id="colorPicker" class="hidden">
 			<canvas id="rhinoCanv" width="578" height="200"></canvas>
 			<canvas id="cloudCanvas" width="578" height="200" style="display:none;"></canvas>
 			<a href="#" download="aminosee-dna-viewer.png">download png</a>
 			<div id="color" style="width:200px;height:50px;float:left"></div>
-		</div>
+		</div> -->
 		<!-- <div id="info"> -->
 
 
 
-		<nav id="nav">
-			<ul>
-		    	<li><a target="_blank" onclick="opn('https://www.funk.co.nz/')" href="https://www.funk.co.nz/" style="width: 100px;" title="Return to FUNK Homepage"><img src="https://www.funk.co.nz/images/nav/funk-logo-140px.png" width="140" height="70" alt="Home" style="position: absolute; top: -2px; left: 26px;"/>Home</a></li>
-				<li><a href="https://www.funk.co.nz/auckland-music-update/" title="Upcoming Gigs">Upcoming Gigs</a></li>
-		        <li><a href="https://www.funk.co.nz/blog/" title="The Funk Blog - Some Stuff That Some People Wrote">Blog</a></li>
-
-		      <li><a href="https://www.funk.co.nz/h/" title="Auckland NZ Handy Links">Handy Links</a></li>
-			  <li><a href="http://www.funk.co.nz/blog/business/the-tomachi-corporation-is-a-go">Web Consulting</a></li>
-			  <li><a href="https://www.funk.co.nz/menu/contact.php" title="Contact Us">Contact Us</a>
-			    <ul>
-			      <li><a href="https://www.funk.co.nz/amu/" title="Receive Email Updates">Subscribe to Updates</a></li>
-			      <!--li><a href="https://www.funk.co.nz/menu/about-author.html" title="About the author - Tom Atkinson">About</a></li-->
-			      <li><a href="https://www.funk.co.nz/cv/" title="Curriculum Vitae">CV / Resume</a></li>
-		        </ul>
-		      </li>
-			  <li><a href="#">Bands</a>
-
-			  <ul>
-			    <li><a href="https://www.funk.co.nz/tomachi/">Tomachi</a></li>
-			    <li><a href="http://www.triptonites.com/mexico-preview/" target="_blank">The Triptonites</a></li>
-			    <li><a href="https://www.funk.co.nz/tomachi/">Past Bands > ></a>
-			      <ul>
-			        <li><a href="https://www.funk.co.nz/damnative/">Dam Native</a></li>
-			        <li><a href="https://www.funk.co.nz/sjd/">SJD</a></li>
-			        <li><a href="https://www.funk.co.nz/blog/music/breaks-co-op-uk-tour-2006-tour-dates">Breaks Co-op</a></li>
-			        <li><a href="https://www.funk.co.nz/foghorn/">Foghorn</a></li>
-			        <li><a href="https://www.funk.co.nz/omd/">one million dollars</a></li>
-			        <li><a href="https://www.funk.co.nz/hmx/">HMX</a></li>
-			        <li><a href="https://www.funk.co.nz/roughness/">The Roughness</a></li>
-			      </ul>
-			    </li>
-			  </ul>
-			  </li>
-		  </ul>
-		</nav>
+				<a target="_blank" onclick="opn('https://www.funk.co.nz/')" href="https://www.funk.co.nz/" style="width: 100px;" title="Return to FUNK Homepage"><img src="https://www.funk.co.nz/images/nav/funk-logo-140px.png" width="140" height="70" alt="www.funk.co.nz" style="position: fixed; top: -2px; left: 26px;"/></a>
 
 		<div id="info">
 			<div id="modalBox" class="hidden">
-					im normally hidden
-					<input type="button" id="modalBoxButton" value="OK [ENTER]">
+				im normally hidden
+				<input type="button" id="modalBoxButton" value="OK [ENTER]">
 			</div>
 
 
@@ -105,7 +59,7 @@
 				<div>
 					<input type="button" id="hide" name="hide" value="Hide Controls [H]" onclick="toggleControls()"><br>
 					<a href="https://www.funk.co.nz/aminosee/" onclick="toggleControls(); return false;">
-						<img src="https://www.funk.co.nz/aminosee/public/seenoevilmonkeys.jpg">
+						<img src="https://www.funk.co.nz/aminosee/public/seenoevilmonkeys.jpg" id="dragitem">
 					</a>
 					<!-- <h1>AminoSeeNoEvil</h1> -->
 					<h1>Amino<span style="color: #888888;">See</span><span style="color: #dddddd;">NoEvil</span></h1>
@@ -143,6 +97,7 @@
 					<input type="button" id="cancel" class="fineprint small hidden" name="cancel" value="Cancel" onclick="cancel()">
 					<span class="fineprint whitetext">Any ASCII text file containing DNA or RNA sequences in first 1k</span>
 					<br />
+Hire Me: <a href="https://tomachi.co/about/hire-me">for recruiters</a>
 
 					<output id="list"></output>
 				</div>
@@ -183,11 +138,8 @@
 			<div id="progress_bar" class="">
 				<div class="percent">0%</div>
 			</div>
-HELLOW WORLD
-			<canvas id="canvas" width="512" height="512" style="width: 512px; height: 512px;"></canvas>
-			<div id="viewPortSize" class="bottom_right" style="display: none; background-color: rgb(0, 0, 0); color: rgb(255, 255, 255); font-size: 12px;"></div>
+
 			<div class="footer"></div>
 		</div>
 	</div>
-	I'm unemployed and seeking a job in web - <a href="https://tomachi.co/about/hire-me">here is my page for recruiters</a>
 </body></html>

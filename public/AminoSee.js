@@ -592,7 +592,8 @@ function getStats() {
 // let groovyTerminal = ['.', '..', '...', '....', '.....'];
 
 function stat(txt) {
-  document.getElementById("status").innerHTML = "<div id='status'>" + txt + "</div>";
+  // document.getElementById("status").innerHTML = "<div id='status'>" + txt + "</div>";
+  document.getElementById("status").innerHTML = txt;
   document.getElementById("stats").innerHTML = getStats();
 
 

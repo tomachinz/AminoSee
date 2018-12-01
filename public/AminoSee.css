@@ -1,6 +1,19 @@
 html, body, form, input, textarea, a, p, h1, h2, h3, h4, h5, h6, div {
 	font-family: "Yanone Kaffeesatz";
 }
+body {
+	padding: 0;
+	margin: 0 0 0 0;
+}
+/* DEBUG */
+div, span {
+	border: 1px dotted white;
+}
+#supercontainer {
+/* background-color: grey; */
+padding: 0;
+margin: 0 0 0 0;
+}
 form, input, textarea {
 	height: 36px;
 }
@@ -11,7 +24,7 @@ margin: 1px 1px 1px 1px;
 #stats pre {
 
 }
-div.stats {
+#stats {
 	position: fixed;
 	/* position: absolute; */
 	bottom: 0;
@@ -48,7 +61,7 @@ div.stats {
 #webgl body {
 	background-color: #000000;
 	margin: 0;
-	/* overflow: hidden; */
+	overflow: hidden;
 }
 
 input[type=button], input[type=submit], input[type=reset] {
@@ -114,13 +127,14 @@ input[type=number] {
 	font-family: Monospace;
 	text-align: center;
 	z-index:10;
+	height: 40%
 }
 
 #supercontainer {
 	position: absolute;
 	margin-top: 0;
 	width: 100%;
-	height: 100%;
+	height: 90%;
 
 }
 #fileheader {
@@ -304,4 +318,15 @@ a:hover {
 	padding: 16px;
 	white-space: nowrap;
 	text-align: center;
+}
+#drag-file {
+background-color: blue;
+color:white;
+text-align: center;
+width:300px;
+height:300px;
+}
+.showdropzone {
+border: 5px dashed white;
+padding: 64px;
 }
