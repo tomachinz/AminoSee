@@ -3230,7 +3230,7 @@ function saveHilbert(array) {
               ╩ ╩┴ ┴┴┘└┘└─┘╚═╝└─┘└─┘  ═╩╝╝╚╝╩ ╩   ╚╝ ┴└─┘└┴┘└─┘┴└─
               by Tom Atkinson          aminosee.funk.nz
               ah-mee no-see         "I See It Now - I AminoSee it!"
-              `, 96, 64, 245);
+`, 96, 64, 245);
 
               const lineBreak = `
-              `;
+`;
