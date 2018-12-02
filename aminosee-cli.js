@@ -1628,6 +1628,17 @@ function toBuffer(ab) {
 function coordsToLinear(x, y) {
   return (x % width) + (y * width)
 }
+function makeWide(txt) {
+  let len = txt.length;
+  if (len > 14) {
+    txt = `[${txt.slice(14)}]`;
+  } else if (len > 13) {
+    txt = `[ ${txt.slice(13)}]`;
+  } else if (len < 13) {
+    txt = `[ ${txt.slice(12)} ]`;
+  }
+  return txt
+}
 function saveHilbert(array) {
   status = "getting in touch with my man... hilbert";
   let perc = 0;
