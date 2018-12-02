@@ -1122,14 +1122,12 @@ function getFilesizeInBytes(f) {
   try {
     if (fs.statSync(f) == true) {
       baseChars = fs.statSync(f).size;
+      output(`PROBABLY getFilesizeInBytes ${baseChars} File Found at: ${f}`);
       return baseChars;
     } else {
-      output("MAYBE No File Found at: " + f);
       baseChars = fs.statSync(f).size;
+      output(`MAYBE getFilesizeInBytes ${baseChars} File Found at: ${f}`);
       return baseChars;
-
-
-      // return -1;
     }
   } catch(e) {
     output("File error: " + e);
