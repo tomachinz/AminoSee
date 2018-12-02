@@ -195,7 +195,7 @@ function setupKeyboardUI() {
   }
   process.stdin.resume();
 }
-// setupKeyboardUI()
+setupKeyboardUI()
 
 
 module.exports = () => {
