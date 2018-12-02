@@ -19,7 +19,7 @@ let artistic = false; // for Charlie
 let spew = false; // firehose your screen with DNA
 let report = true; // html reports
 let test = false;
-const overSampleFactor = 0.8;
+const overSampleFactor = 1.2;
 
 let clear, updates;
 const maxMsPerUpdate = 12000; // milliseconds per update
@@ -107,7 +107,7 @@ function setupKeyboardUI() {
       process.stdin.pause();
       status = "TERMINATED WITH CONTROL-C";
       console.log(status);
-      // printRadMessage();
+      printRadMessage(["_@__", "____", "____", "____", "____", "____", "____"]);
       updates = false;
       quit();
       args = [];
@@ -121,10 +121,12 @@ function setupKeyboardUI() {
     if (key && key.name == 'q') {
       status = "GRACEFUL QUIT";
       output(status);
-      // printRadMessage();
+      printRadMessage();
       // updates = false;
       args = [];
       howMany = 0;
+      calcUpdate();
+      // whack_a_progress_on();
     }
     if (key && key.name == 's') {
       toggleSpew();
@@ -195,7 +197,8 @@ function setupKeyboardUI() {
   }
   process.stdin.resume();
 }
-setupKeyboardUI()
+
+
 
 
 module.exports = () => {
@@ -223,7 +226,16 @@ module.exports = () => {
     default: { clear: true, updates: true },
     '--': true
   });
-
+  if (args.keyboard || args.k) {
+    keyboard = true;
+    output(`interactive keyboard mode enabled`)
+    if (keyboard) {
+      setupKeyboardUI()
+    }
+  } else {
+    log(`interactive keyboard mode not enabled`)
+    keyboard = false;
+  }
 
   if (args.image || args.i) {
     image = true;
@@ -402,7 +414,7 @@ module.exports = () => {
   log(args);
   let cmd = args._[0];
   log(args._);
-  howMany = args._.length ;
+  // howMany = args._.length ;
   filename = path.resolve(cmd);
 
   if (args.test) {
@@ -417,17 +429,17 @@ module.exports = () => {
 
 
 
-  log("howMany: " + howMany+ " cmd: " + cmd)
-  if (howMany > 0) {
-    filename = path.resolve(args._[0]);
-  } else {
-    log("try using aminosee * in a directory with DNA")
-    // quit();
-    setTimeout(() => {
-      // printRadMessage();
-      quit();
-    }, 69);
-  }
+  // log("howMany: " + howMany+ " cmd: " + cmd)
+  // if (howMany > 0) {
+  //   filename = path.resolve(args._[0]);
+  // } else {
+  //   log("try using aminosee * in a directory with DNA")
+  //   // quit();
+  //   setTimeout(() => {
+  //     // printRadMessage();
+  //     quit();
+  //   }, 69);
+  // }
   switch (cmd) {
     case 'unknown':
     output(` [unknown argument] ${cmd}`);
@@ -452,12 +464,14 @@ module.exports = () => {
     default:
     if (cmd == undefined) {
       status = "no command";
-      // output(radMessage);
-      // launchBlockingServer();
-      // launchNonBlockingServer();
+      log("try using aminosee * in a directory with DNA")
+      setTimeout(() => {
+        output("try using aminosee * in a directory with DNA")
+
+        quit(1);
+      }, 20000);
       return true;
     } else {
-      // status = "highland";
       pollForStream();
       return true;
     }
@@ -618,8 +632,8 @@ function pollForStream() {
 }
 function theSwitcher(bool) {
   if (bool) {
-    printRadMessage();
-
+    // printRadMessage("one", "two", "three");
+    printRadMessage( ["____", "____", "____", "____", "____", "____"] );
     // setTimeout(() => {
     status = "paint";
     touchLockAndStartStream(filenameTouch); // <--- THIS IS WHERE RENDER STARTS
@@ -678,12 +692,12 @@ async function initStream(f) {
   log(` [ cli parameter: ${filename} ]`);
   log(` [ canonical:     ${justNameOfDNA} ]`);
 
-  if (getFilesizeInBytes(f) == -1) {
-    log("Problem with file.");
-    return false;
-  } else {
-    baseChars = getFilesizeInBytes(f);
-  }
+  // if (getFilesizeInBytes(f) == -1) {
+  //   log("Problem with file.");
+  //   return false;
+  // } else {
+  //   baseChars = getFilesizeInBytes(f);
+  // }
   extension = getFileExtension(f);
   log("[FILESIZE] " + baseChars.toLocaleString() + " extension: " + extension);
 
@@ -704,7 +718,7 @@ async function initStream(f) {
   if (updates) {
     drawHistogram();
   } else {
-    progato = whack_a_progress_on();
+    // progato = whack_a_progress_on();
   }
 
   var s = fs.createReadStream(filename).pipe(es.split()).pipe(es.mapSync(function(line){
@@ -1161,7 +1175,7 @@ function quit(n) {
 
   // output("press Control-C again to quit; or.... try T to output test patterns");
   // process.stdin.setRawMode(false);
-  // process.stdin.resume();
+  process.stdin.resume();
   log(status);
   if (n=1) {
     log('really bye. like process.exit type bye.');
@@ -1842,13 +1856,14 @@ function saveHilbert(array) {
     function openOutputs() {
       status ="open outputs";
 
-      output("Input DNA: " + filename)
+      output("Input DNA: " + justNameOfDNA + "." + extension)
       output("Saved Linear projection: " + filenamePNG);
       if ( ratio=="hil" ) {
         output("Saved Hilbert projection: " + filenameHILBERT);
       }
+      output("Saved HTML Report projection: " + filenameHTML);
 
-      // log(renderSummary());
+      log(renderSummary());
 
       if (devmode == false) {
 
@@ -2141,14 +2156,14 @@ function saveHilbert(array) {
       function printRadMessage(array) {
         if (true) {
           if (array == undefined) {
-            array = [" ", " ", " ", " ", " ", " "]
+            array = ["____", "____", "____", "____", "____", "____", "____"]
           }
-          console.log(terminalRGB(`╔═╗┌┬┐┬┌┐┌┌─┐╔═╗┌─┐┌─┐  ╔╦╗╔╗╔╔═╗  ╦  ╦┬┌─┐┬ ┬┌─┐┬─┐\r`, 255, 60, 250) );
-          console.log(terminalRGB(`╠═╣││││││││ │╚═╗├┤ ├┤    ║║║║║╠═╣  ╚╗╔╝│├┤ │││├┤ ├┬┘\r`, 128, 128, 255) );
-          console.log(terminalRGB(`╩ ╩┴ ┴┴┘└┘└─┘╚═╝└─┘└─┘  ═╩╝╝╚╝╩ ╩   ╚╝ ┴└─┘└┴┘└─┘┴└─\r`, 128, 240, 240) );
-          console.log(terminalRGB(` by Tom Atkinson          aminosee.funk.nz      \r`, 225, 225, 130) );
-          console.log(terminalRGB(`  ah-mee-no-see     'I See It Now - I AminoSee it!' \r`, 255, 180, 90) );
-          console.log(`       ` + prettyDate());
+          console.log(terminalRGB(`╔═╗┌┬┐┬┌┐┌┌─┐╔═╗┌─┐┌─┐  ╔╦╗╔╗╔╔═╗  ╦  ╦┬┌─┐┬ ┬┌─┐┬─┐  ${array[0]}\r`, 255, 60, 250) );          console.log(terminalRGB(`╠═╣││││││││ │╚═╗├┤ ├┤    ║║║║║╠═╣  ╚╗╔╝│├┤ │││├┤ ├┬┘  ${array[1]}\r`, 128, 128, 255) );
+          console.log(terminalRGB(`╩ ╩┴ ┴┴┘└┘└─┘╚═╝└─┘└─┘  ═╩╝╝╚╝╩ ╩   ╚╝ ┴└─┘└┴┘└─┘┴└─  ${array[2]}\r`, 128, 240, 240) );
+          console.log(terminalRGB(` by Tom Atkinson          aminosee.funk.nz            ${array[3]}\r`, 225, 225, 130) );
+          console.log(terminalRGB(`  ah-mee-no-see     'I See It Now - I AminoSee it!'   ${array[4]}\r`, 255, 180, 90) );
+          console.log(terminalRGB(`   ${prettyDate()}                   ${array[5]}'\r`, 220, 120, 70) );
+          console.log(terminalRGB(`                                                      ${array[6]}\r`, 180, 90, 50) );
         }
       }
 
@@ -3230,7 +3245,7 @@ function saveHilbert(array) {
               ╩ ╩┴ ┴┴┘└┘└─┘╚═╝└─┘└─┘  ═╩╝╝╚╝╩ ╩   ╚╝ ┴└─┘└┴┘└─┘┴└─
               by Tom Atkinson          aminosee.funk.nz
               ah-mee no-see         "I See It Now - I AminoSee it!"
-`, 96, 64, 245);
+              `, 96, 64, 245);
 
               const lineBreak = `
-`;
+              `;
