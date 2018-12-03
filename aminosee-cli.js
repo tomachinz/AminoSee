@@ -2144,7 +2144,7 @@ function saveHilbert(array) {
         process.stdout.write(t); // CURSOR TO TOP LEFT????
 
       }
-      function clearPrint(t, array) {
+      function clearScreen() {
         if (clear) {
           // process.stdout.write('\x1B[2J\x1B[0f'); // CURSOR TO TOP LEFT????
           // console.log('\033c');
@@ -2156,14 +2156,10 @@ function saveHilbert(array) {
           process.stdout.write('\033c'); // <-- this is really the best one
           // put cursor to L,C:  \033[<L>;<C>H
           // put cursor to L,C:  \033[<L>;<C>f
-
-
         } else {
           log("noclear");
         }
-        printRadMessage(array);
-
-        console.log(t)
+        // printRadMessage(array);
       }
 
       function prettyDate() {
@@ -2178,12 +2174,12 @@ function saveHilbert(array) {
         } else if ( array.length < 7 ) {
           array.push("__1__", "__2__", "__3__", "__4__", "__5__", "__6__", "");
         }
-        console.log(terminalRGB(`╔═╗┌┬┐┬┌┐┌┌─┐╔═╗┌─┐┌─┐  ╔╦╗╔╗╔╔═╗  ╦  ╦┬┌─┐┬ ┬┌─┐┬─┐  ${array[0]}\r`, 255, 60,  250) );          console.log(terminalRGB(`╠═╣││││││││ │╚═╗├┤ ├┤    ║║║║║╠═╣  ╚╗╔╝│├┤ │││├┤ ├┬┘  ${array[1]}\r`, 128, 128, 255) );
-        console.log(terminalRGB(`╩ ╩┴ ┴┴┘└┘└─┘╚═╝└─┘└─┘  ═╩╝╝╚╝╩ ╩   ╚╝ ┴└─┘└┴┘└─┘┴└─  ${array[2]}\r`, 128, 240, 240) );
-        console.log(terminalRGB(` by Tom Atkinson          aminosee.funk.nz            ${array[3]}\r`, 225, 225, 130) );
-        console.log(terminalRGB(`  ah-mee-no-see     'I See It Now - I AminoSee it!'   ${array[4]}\r`, 255, 180,  90) );
-        console.log(terminalRGB(`   ${prettyDate()}                   ${array[5]}\r`                 , 220, 120,  70) );
-        console.log(terminalRGB(`                                                      ${array[6]}\r`, 180, 90,   50) );
+        console.log(terminalRGB(`╔═╗┌┬┐┬┌┐┌┌─┐╔═╗┌─┐┌─┐  ╔╦╗╔╗╔╔═╗  ╦  ╦┬┌─┐┬ ┬┌─┐┬─┐  ${array[0]}`, 255, 60,  250) );          console.log(terminalRGB(`╠═╣││││││││ │╚═╗├┤ ├┤    ║║║║║╠═╣  ╚╗╔╝│├┤ │││├┤ ├┬┘  ${array[1]}`, 128, 128, 255) );
+        console.log(terminalRGB(`╩ ╩┴ ┴┴┘└┘└─┘╚═╝└─┘└─┘  ═╩╝╝╚╝╩ ╩   ╚╝ ┴└─┘└┴┘└─┘┴└─  ${array[2]}`, 128, 240, 240) );
+        console.log(terminalRGB(` by Tom Atkinson          aminosee.funk.nz            ${array[3]}`, 225, 225, 130) );
+        console.log(terminalRGB(`  ah-mee-no-see     'I See It Now - I AminoSee it!'   ${array[4]}`, 255, 180,  90) );
+        console.log(terminalRGB(`   ${prettyDate()}                   ${array[5]}`                 , 220, 120,  70) );
+        console.log(terminalRGB(`                                                      ${array[6]}`, 180, 90,   50) );
       }
 
       function crashReport() {
@@ -2221,8 +2217,7 @@ function saveHilbert(array) {
       }
       function drawHistogram() {
         if (updates == false) {
-          // status = "Stats display disabled ";
-          // status += args._;
+          status = "Stats display disabled ";
           return status;
         }
 
@@ -2230,8 +2225,6 @@ function saveHilbert(array) {
 
         let kCodonsPerSecond = Math.round((genomeSize+1) / (runningDuration+1));
         let bytesPerSec = Math.round((charClock+1) / (runningDuration+1));
-
-
         let text = " ";
         let aacdata = [];
         let abc = pepTable.map(getHistoCount).entries();
@@ -2247,40 +2240,33 @@ function saveHilbert(array) {
           aacdata[pepTable[h].Codon] = pepTable[h].Histocount ;
         }
         // aacdata = abc;
-        text += `   `;
-        text += lineBreak;
-        // text += chalk.rgb(128, 255, 128).inverse(`[ ${twosigbitsTolocale(percentComplete*100)}% done Time remain: ${twosigbitsTolocale(timeRemain)} sec Elapsed: ${Math.round(runningDuration/1000)} sec KB remain: ${kbRemain}`);
 
 
-        text += `[ Codon Opacity: ${twosigbitsTolocale(opacity*100)}%] `;
-        text += lineBreak;
-        text += lineBreak;
-        text += histogram(aacdata, { bar: '/', width: 40, sort: true, map:  aacdata.Histocount} );
-        text += lineBreak;
+        let array = [
+          `@i ${charClock.toLocaleString()} File: ${chalk.rgb(255, 255, 255).inverse(justNameOfDNA.toUpperCase())}.${extension} `,
+          `Lines: ${breakClock.toLocaleString()} Files: ${howMany} Filesize: ${Math.round(baseChars/1000)/1000} MB`,
+          `Done: ${chalk.rgb(128, 255, 128).inverse( twosigbitsTolocale(percentComplete*100))} % Time remain: ${ twosigbitsTolocale(timeRemain) } sec Elapsed: ${Math.round(runningDuration/1000)} sec KB remain: ${kbRemain} ${chalk.rgb(128, 255, 128).inverse(status.toUpperCase())} ` + ( artistic ? text += `[ Artistic Mode 1:${artisticHighlightLength}] ` : text += " [ Science Mode 1:1] " ),
+          `[ clean: ${ cleanString(rawDNA)} ] Output png: ${justNameOfPNG}]`,
+          `Next update: ${msPerUpdate.toLocaleString()}ms  Codon Opacity: ${twosigbitsTolocale(opacity*100)}% `,
+          `CPU: ${bytes(bytesPerSec)}/s Codons per sec: ${Math.round(kCodonsPerSecond).toLocaleString()} Mb Codons per pixel: ${twosigbitsTolocale(codonsPerPixel)} Pixels painted: ${colClock.toLocaleString()}`,
+          `[ Codons: ${genomeSize.toLocaleString()} ]  Last Acid: ${terminalRGB(aminoacid, red, green, blue)}`];
 
-        text += lineBreak;
-        text += `Output png: ${justNameOfPNG}]`;
-        text += interactiveKeysGuide;
+
+        clearScreen();
+        printRadMessage(array);
+        output();
+        output();
+        console.log(histogram(aacdata, { bar: '/', width: 40, sort: true, map:  aacdata.Histocount} ));
+        output(interactiveKeysGuide);
 
 
         if (status == "paint" || updates) {
-          let array = [
-            `@i ${charClock.toLocaleString()} File: ${chalk.rgb(255, 255, 255).inverse(justNameOfDNA.toUpperCase())}.${extension} `,
-            `Lines: ${breakClock.toLocaleString()} Files: ${howMany} Filesize: ${Math.round(baseChars/1000)/1000} MB`,
-            `Done: ${chalk.rgb(128, 255, 128).inverse( twosigbitsTolocale(percentComplete*100))} % Time remain: ${ twosigbitsTolocale(timeRemain) } sec Elapsed: ${Math.round(runningDuration/1000)} sec KB remain: ${kbRemain}`,
-            `${chalk.rgb(128, 255, 128).inverse(status.toUpperCase())} ` + ( artistic ? text += `[ Artistic Mode 1:${artisticHighlightLength}] ` : text += " [ Science Mode 1:1] " ),
-            `[ clean: ${ cleanString(rawDNA)} ] `,
-            `Next update: ${msPerUpdate.toLocaleString()}ms `,
-            `CPU: ${bytes(bytesPerSec)}/s Codons per sec: ${Math.round(kCodonsPerSecond).toLocaleString()} Mb Codons per pixel: ${twosigbitsTolocale(codonsPerPixel)} Pixels painted: ${colClock.toLocaleString()}`,
-            `[ Codons: ${genomeSize.toLocaleString()} ]  Last Acid: ${terminalRGB(aminoacid, red, green, blue)}`];
-
             updatesTimer = setTimeout(() => {
-              clearPrint(drawHistogram(), array); // MAKE THE HISTOGRAM AGAIN LATER
+              drawHistogram(); // MAKE THE HISTOGRAM AGAIN LATER
             }, msPerUpdate);
           } else {
             clearTimeout(updatesTimer);
           }
-
           return text;
         }
 
