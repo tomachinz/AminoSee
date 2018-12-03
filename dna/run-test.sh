@@ -44,7 +44,7 @@ aminosee_test AAA-to-TTT-50k.txt megabase.fa  --peptide=Aspartic --no-updates
 aminosee_test Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa AAA-to-TTT-50k.txt --peptide=Amber --no-updates
 aminosee_test megabase.fa Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa AAA-to-TTT-50k.txt --peptide=Tryptophan --no-clear
 aminosee_test * --no-updates -v
-
+batch-process.sh 
 aminosee_test             --peptide=Ochre
 # aminosee_test            $1 $2 2 $3 $4 --peptide=Glutamic &
 # aminosee_test            $1 $2 3 $3 $4 --peptide=Aspartic &

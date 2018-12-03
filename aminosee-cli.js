@@ -22,8 +22,8 @@ let spew = false; // firehose your screen with DNA
 let report = true; // html reports
 let test = false;
 const overSampleFactor = 1.2;
-
-let clear, updates;
+let updates = false;
+let clear;
 const maxMsPerUpdate = 12000; // milliseconds per update
 let msPerUpdate = 200; // milliseconds per update
 const hilbPixels = [ 64, 256, 1024, 4096, 16384, 65536, 262144, 1048576, 4194304, 16777216, 67108864 ]; // 67 Megapixel hilbert curve!! the last two are breaking nodes heap and call stack both.
@@ -328,17 +328,17 @@ module.exports = () => {
     triplet = "none";
   }
   if (args.peptide || args.p) {
-    peptide = args.peptide || args.p;
-    output(` tidyPeptideName(peptide) ${tidyPeptideName(peptide)} codons`);
-    peptide = tidyPeptideName();
+    users = args.peptide || args.p;
+    //
+    // output(` users: ${users} tidyPeptideName(peptide) ${tidyPeptideName(users)} codons`);
 
-    if (peptide != "none") { // this colour is a flag for error
-      output("Found ${peptide} with colour: "  + pepToColor(peptide));
-    } else {
-      output("Error could not lookup peptide: ${peptide}");
-      // output(`Will highlight Start/Stop codons instead (default)`);
-      peptide = "none";
-    }
+    peptide = tidyPeptideName(users)
+    //
+    // if (peptide != "none") { // this colour is a flag for error
+    //   output(`Found ${users} with colour: ${pepToColor(users)}`);
+    // } else {
+    //   output(`Error could not lookup peptide: ${users}`);
+    // }
 
     // output(`Custom peptide ${peptide} set. Will highlight these codons, they are Hue ${peptideToHue(peptide)}° in colour`);
   } else {
@@ -437,10 +437,10 @@ module.exports = () => {
   // } else {
   //   log("try using aminosee * in a directory with DNA")
   //   // quit();
-  //   setTimeout(() => {
-  //     // printRadMessage();
-  //     // quit();
-  //   }, 69);
+    // setTimeout(() => {
+    //   // printRadMessage();
+    //   // quit();
+    // }, 69);
   // }
   switch (cmd) {
     case 'unknown':
@@ -467,11 +467,11 @@ module.exports = () => {
     if (cmd == undefined) {
       status = "no command";
       log("try using aminosee * in a directory with DNA")
-      setTimeout(() => {
-        output("try using aminosee * in a directory with DNA")
-
-        quit(1);
-      }, 20000);
+      // setTimeout(() => {
+      //   output("try using aminosee * in a directory with DNA")
+      //
+      //   quit(1);
+      // }, 20000);
       return true;
     } else {
       pollForStream();
@@ -495,6 +495,7 @@ function aPeptideCodon(a) {
 }
 function tidyPeptideName(str) {
   let clean = pepTable.find((pep) => { pep == str } );
+  log(clean);
   if (clean) {
     return clean.Codon;
   } else {
@@ -594,11 +595,6 @@ function pollForStream() {
     return false;
   }
 
-  if (!checkFileExtension(getFileExtension(filename))) {
-    log("checkFileExtension: " + filename)
-    theSwitcher(false);
-    return false;
-  }
   if (filename == defaultFilename) {
     log("skipping default: " + defaultFilename);
     log("checkFileExtension: " + filename)
@@ -618,8 +614,8 @@ function pollForStream() {
     setupFNames();
 
     if (!okToOverwritePNG(filenamePNG)) {
-      log("okToOverwritePNG(filenamePNG) == true && !force: " + okToOverwritePNG(filenamePNG));
-      log(filenamePNG + " not exist, continuing.");
+      log("Failed check: OK to overwrite existing image?  " + okToOverwritePNG(filenamePNG));
+      log(filenamePNG + " exist, skipping.");
       theSwitcher(false);
       return false;
     } else {
@@ -640,19 +636,18 @@ function pollForStream() {
 
 }
 function theSwitcher(bool) {
+  log(`cpu has entered The Switcher!`)
   if (bool) {
-    // printRadMessage("one", "two", "three");
+    let delay = 6666;
     printRadMessage( ["____", "____", "____", "____", "____", "____"] );
-    // setTimeout(() => {
     status = "paint";
     output("Starting render");
-    if (!updates) {
-      // whack_a_progress_on();
-    }
-    touchLockAndStartStream(filenameTouch); // <--- THIS IS WHERE RENDER STARTS
+    printRadMessage(["Starting", "Render", filename, "In", delay, "milliseconds"]);
+    setTimeout(() => {
+      printRadMessage(["Starting", "Render", filename, "Now", ".", "."]);
+      touchLockAndStartStream(filenameTouch); // <--- THIS IS WHERE RENDER STARTS
+    }, delay);
 
-    // return true;
-    // }, 3000);
     return true;
   } else  {
     status = "polling"
@@ -662,7 +657,7 @@ function theSwitcher(bool) {
       return true;
     } else {
       output("polling none");
-      quit(1);
+      // quit();
       return false;
     }
   }
@@ -1117,7 +1112,7 @@ function touchLockAndStartStream(fTouch) {
   fs.writeFile(fTouch, "aminosee.funk.nz temp lock file. safe to erase.", function (err) {
     if (err) { console.dir(err); console.warn("Touch file error " + fTouch) }
     log('Touched lockfile OK: ' + fTouch);
-    log('Starting init for ' + filename)
+    log('Starting init for ' + filename);
     initStream(filename);
   });
 
@@ -1561,8 +1556,8 @@ for (i=0; i<pepTable.length; i++) {
   <tr style="background-color: hsl(${theHue}, 50%, 100%);">
   <td style="background-color: white;">${pepTable[i].Codon}</td>
   <td style="background-color: hsl(${theHue}, 50%, 100%);">${theHue}°</td>
-  <td>${c[0]},${c[1]},${c[2]}  #NOTWORK</td>
-  <td>${pepTable[i].Histocount}</td>
+  <td>${c}  #NOTWORK</td>
+  <td>${pepTable[i].Histocount.toLocaleString()}</td>
   <td>${pepTable[i].Description}</td>
   </tr>
   `
@@ -1641,11 +1636,6 @@ function okToOverwritePNG(f) { // true to continue, false to abort
     log("[lstatSync result]" + result);
     output("An png image has already been generated for this DNA: " + f)
     output("use -f to overwrite");
-    if (howMany == 0) {
-      quit(1)
-    } else {
-      // pollForStream();
-    }
     return false;
   } catch(e){
     output("Output png will be saved to: " + f );
@@ -1880,6 +1870,9 @@ function saveHilbert(array) {
       .pipe(wstream)
       .on('finish', () => {
         console.log(`png saved.   isHilbertPossible ${isHilbertPossible}`);
+        printRadMessage(["i think we're done", isHilbertPossible, justNameOfDNA ,howMany, updates]);
+
+
       }));
 
     }
@@ -2190,7 +2183,7 @@ function saveHilbert(array) {
         console.log(terminalRGB(` by Tom Atkinson          aminosee.funk.nz            ${array[3]}`, 225, 225, 130) );
         console.log(terminalRGB(`  ah-mee-no-see     'I See It Now - I AminoSee it!'   ${array[4]}`, 255, 180,  90) );
         console.log(terminalRGB(`   ${prettyDate()}                   ${array[5]}`                 , 220, 120,  70) );
-        console.log(terminalRGB(array[6]}, 180, 90,   50) );
+        console.log(terminalRGB(array[6], 180, 90,   50) );
       }
 
       function crashReport() {
