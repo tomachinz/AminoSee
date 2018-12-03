@@ -36,6 +36,7 @@ aminosee_test () {
   # nice aminosee megabase.fa megabase.fa Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa  -f --no-updates -d $1 $2 $3
   # nice aminosee Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa megabase.fa  -f --no-updates -d $1 $2 $3
   # nice aminosee Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa megabase.fa megabase.fa   -f --no-updates -d $1 $2 $3
+aminosee megabase.fa AAA-to-TTT-50k.txt Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa megabase.fa 37653_ref_Octopus_bimaculoides_v2_0_chrUn.fa -f --peptide=Proline -k
 
 aminosee_test $1 $2 $3 $4 $5 --no-updates --peptide=Glutamic
 aminosee_test $1 --no-updates --peptide=Glutamic

@@ -515,6 +515,7 @@ function pollForStream() {
   if (!args.updates) {
     updates = true;
     // drawHistogram();
+
   }
   out(".");
   if (howMany < 1) {
@@ -525,8 +526,14 @@ function pollForStream() {
     if (args._) {
       current = args._[0];
     } else {
-      output("Finished processing.")
-      quit(1);
+
+
+      setImmediate(() => {
+        output("Finished processing.")
+        quit(1);
+      });
+
+
       return true;
     }
   } catch(e) {
@@ -721,7 +728,7 @@ async function initStream(f) {
   }
 
 
-  if (updates) {
+  if (updates == true) {
     drawHistogram();
   } else {
     // progato = whack_a_progress_on();
@@ -1130,7 +1137,11 @@ function removeLocks() {
     pollForStream();
   }
   console.log("end of removeLocks function");
-  pollForStream();
+  if (howMany>0) {
+    pollForStream();
+  } else {
+    quit(1)
+  }
 
   // try {
   //   fs.unlink(filenameTouch, function (err) {
@@ -2174,7 +2185,7 @@ function saveHilbert(array) {
         } else if ( array.length < 7 ) {
           array.push("__1__", "__2__", "__3__", "__4__", "__5__", "__6__", "");
         }
-        console.log(terminalRGB(`╔═╗┌┬┐┬┌┐┌┌─┐╔═╗┌─┐┌─┐  ╔╦╗╔╗╔╔═╗  ╦  ╦┬┌─┐┬ ┬┌─┐┬─┐  ${array[0]}`, 255, 60,  250) );          console.log(terminalRGB(`╠═╣││││││││ │╚═╗├┤ ├┤    ║║║║║╠═╣  ╚╗╔╝│├┤ │││├┤ ├┬┘  ${array[1]}`, 128, 128, 255) );
+        console.log(terminalRGB(`╔═╗┌┬┐┬┌┐┌┌─┐╔═╗┌─┐┌─┐  ╔╦╗╔╗╔╔═╗  ╦  ╦┬┌─┐┬ ┬┌─┐┬─┐  ${array[0]}`, 255, 60,  250) );          console.log(terminalRGB(`╠═╣││││││││ │╚═╗├┤ ├┤    ║║║║║╠═╣  ╚╗╔╝│├┤ │││├┤ ├┬┘  ${array[1]}`, 170, 150, 255) );
         console.log(terminalRGB(`╩ ╩┴ ┴┴┘└┘└─┘╚═╝└─┘└─┘  ═╩╝╝╚╝╩ ╩   ╚╝ ┴└─┘└┴┘└─┘┴└─  ${array[2]}`, 128, 240, 240) );
         console.log(terminalRGB(` by Tom Atkinson          aminosee.funk.nz            ${array[3]}`, 225, 225, 130) );
         console.log(terminalRGB(`  ah-mee-no-see     'I See It Now - I AminoSee it!'   ${array[4]}`, 255, 180,  90) );
@@ -2243,22 +2254,20 @@ function saveHilbert(array) {
 
 
         let array = [
-          `@i ${charClock.toLocaleString()} File: ${chalk.rgb(255, 255, 255).inverse(justNameOfDNA.toUpperCase())}.${extension} `,
-          `Lines: ${breakClock.toLocaleString()} Files: ${howMany} Filesize: ${Math.round(baseChars/1000)/1000} MB`,
-          `Done: ${chalk.rgb(128, 255, 128).inverse( twosigbitsTolocale(percentComplete*100))} % Time remain: ${ twosigbitsTolocale(timeRemain) } sec Elapsed: ${Math.round(runningDuration/1000)} sec KB remain: ${kbRemain} ${chalk.rgb(128, 255, 128).inverse(status.toUpperCase())} ` + ( artistic ? text += `[ Artistic Mode 1:${artisticHighlightLength}] ` : text += " [ Science Mode 1:1] " ),
-          `[ clean: ${ cleanString(rawDNA)} ] Output png: ${justNameOfPNG}]`,
+          `File: ${chalk.rgb(255, 255, 255).inverse(justNameOfDNA.toUpperCase())}.${extension} `,
+          `Done: ${chalk.rgb(128, 255, 128).inverse( twosigbitsTolocale(percentComplete*100))} % Time remain: ${ twosigbitsTolocale(timeRemain) } sec Elapsed: ${Math.round(runningDuration/1000)} sec KB remain: ${kbRemain} ${chalk.rgb(128, 255, 128).inverse(status.toUpperCase())} `,
+          `@i ${charClock.toLocaleString()} Lines: ${breakClock.toLocaleString()} Files: ${howMany} Filesize: ${Math.round(baseChars/1000)/1000} MB`,
+           + ( artistic ? text += `[ Artistic Mode 1:${artisticHighlightLength}] ` : text += " [ Science Mode 1:1] " ),
           `Next update: ${msPerUpdate.toLocaleString()}ms  Codon Opacity: ${twosigbitsTolocale(opacity*100)}% `,
           `CPU: ${bytes(kBytesPerSec*1024)}/s Codons per sec: ${Math.round(kCodonsPerSecond).toLocaleString()} Mb Codons per pixel: ${twosigbitsTolocale(codonsPerPixel)} Pixels painted: ${colClock.toLocaleString()}`,
-          `[ Codons: ${genomeSize.toLocaleString()} ]  Last Acid: ${terminalRGB(aminoacid, red, green, blue)}`];
+          `[ Codons: ${genomeSize.toLocaleString()} ]  Last Acid: ${terminalRGB(aminoacid, red, green, blue)}`,
+          `[ clean: ${ cleanString(rawDNA)} ] Output png: ${justNameOfPNG}]`];
 
 
         clearScreen();
         printRadMessage(array);
-        output();
-        output();
         console.log(histogram(aacdata, { bar: '/', width: 40, sort: true, map:  aacdata.Histocount} ));
         output(interactiveKeysGuide);
-
 
         if (status == "paint" || updates) {
             updatesTimer = setTimeout(() => {
