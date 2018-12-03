@@ -59,6 +59,7 @@ const extensions = [ "txt", "fa", "mfa", "gbk", "dna"];
 let status = "load";
 console.log("Amino\x1b[40mSee\x1b[37mNoEvil");
 let interactiveKeysGuide = "";
+let renderLock = false;
 let filenameTouch, maxpix, estimatedPixels, args, filenamePNG, extension, reader, hilbertPoints, herbs, levels, progress, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, textFile, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, fileUploadShowing, testColors, chunksMax, chunksize, chunksizeBytes, baseChars, cpu, subdivisions, contextBitmap, aminoacid, colClock, start, updateClock, percentComplete, kBytesPerSec, pixelStacking, isHighlightCodon, justNameOfDNA, justNameOfPNG, justNameOfHILBERT, sliceDNA, filenameHTML, howMany, timeRemain, runningDuration, kbRemain, width, triplet, updatesTimer, pngImageFlags;
 let codonsPerPixel, CRASH, cyclesPerUpdate, red, green, blue, alpha, charClock, errorClock, breakClock, streamLineNr, genomeSize, filesDone, spewClock, opacity, codonRGBA, geneRGBA, currentTriplet, progato, shrinkFactor, reg, image;
 
@@ -513,6 +514,16 @@ function pepToColor(pep) {
   }
 }
 function pollForStream() {
+  if (renderLock) {
+    setTimeout(() => {
+      calcUpdate();
+      printRadMessage(["POLLING", "Render", filename, "Now", "RENDER", "LOCKED", percentComplete]);
+      pollForStream();
+
+    }, 6666);
+
+    return true;
+  }
   if (!args.updates) {
     updates = false;
   } else {
@@ -544,11 +555,7 @@ function pollForStream() {
   }
   log(` [ howMany  ${howMany} ${status} ${filename} ${current}]`)
 
-  // if (status != "bye" || status != "cmd" || status != "exports" || status != "polling") {
-  //   if (status != "bye" || status != "cmd" || status != "exports" || status != "polling") {
-  //   output("THIS IS NOT RIGHT")
-  //   return true;
-  // }
+
   if (current == undefined) {
     // quit()
     return false;
@@ -638,16 +645,7 @@ function pollForStream() {
 function theSwitcher(bool) {
   log(`cpu has entered The Switcher!`)
   if (bool) {
-    let delay = 6666;
-    printRadMessage( ["____", "____", "____", "____", "____", "____"] );
-    status = "paint";
-    output("Starting render");
-    printRadMessage(["Starting", "Render", filename, "In", delay, "milliseconds"]);
-    setTimeout(() => {
-      printRadMessage(["Starting", "Render", filename, "Now", ".", "."]);
-      touchLockAndStartStream(filenameTouch); // <--- THIS IS WHERE RENDER STARTS
-    }, delay);
-
+    touchLockAndStartStream(filenameTouch); // <--- THIS IS WHERE RENDER STARTS
     return true;
   } else  {
     status = "polling"
@@ -1108,19 +1106,35 @@ function saveHTML() {
   // });
 }
 function touchLockAndStartStream(fTouch) {
-
+  renderLock = true;
   fs.writeFile(fTouch, "aminosee.funk.nz temp lock file. safe to erase.", function (err) {
     if (err) { console.dir(err); console.warn("Touch file error " + fTouch) }
     log('Touched lockfile OK: ' + fTouch);
     log('Starting init for ' + filename);
-    initStream(filename);
+
+
+    let delay = 6666;
+    printRadMessage( ["____", "____", "____", "____", "____", "____"] );
+    status = "paint";
+    output("Starting render");
+    printRadMessage(["Starting", "Render", filename, "In", delay, "milliseconds"]);
+    setTimeout(() => {
+      printRadMessage(["Starting", "Render", filename, "Now", ".", "."]);
+      initStream(filename);
+
+    }, delay);
+
+
   });
 
 }
 function removeLocks() {
   console.warn("Removing locks")
+  renderLock = false;
+
   try {
     // fs.unlinkSync(filenameTouch);
+
     fs.unlinkSync(filenameTouch, (err) => {
       if (err) { console.warn(err) }
       console.warn("file locks removed")
@@ -1198,8 +1212,13 @@ function quit(n) {
     output(" ");
     printRadMessage(["bye","bye","bye","bye","bye","bye"]);
     setImmediate(() => {
-      log(`process.exit (disabled)`)
-      // process.exit;
+      log(`process.exit (6 seconds)`)
+
+      updatesTimer = setTimeout(() => {
+        log(`process.exit`)
+        process.exit;
+      }, 6666);
+
     });
   }
 }
@@ -1710,7 +1729,7 @@ function saveHilbert(array) {
   let linearpix = rgbArray.length /4;
   shrinkFactor = linearpix / hilpix;
   log(`shrinkFactor pre ${shrinkFactor} = hilpix ${hilpix} / linearpix ${linearpix }`);
-  // resampleByFactor(shrinkFactor);
+  resampleByFactor(shrinkFactor);
   log(filenameHILBERT);
   log(`shrinkFactor post ${shrinkFactor}`);
 
@@ -1871,7 +1890,12 @@ function saveHilbert(array) {
       .on('finish', () => {
         console.log(`png saved.   isHilbertPossible ${isHilbertPossible}`);
         printRadMessage(["i think we're done", isHilbertPossible, justNameOfDNA ,howMany, updates]);
-
+        if (howMany == 0 ) {
+          setImmediate(() => {
+            output("Finished processing.")
+            quit(1);
+          });
+        }
 
       }));
 
@@ -2076,7 +2100,7 @@ function saveHilbert(array) {
       }
       function output(txt) {
         if (verbose) {
-          console.log(` [ ${howMany}_${status} ] ${txt}`);
+          console.log(` [ ${howMany}_${status}_lock:${renderLock} ] ${txt}`);
         } else {
           // BgBlack = "\x1b[40m"
 
@@ -2086,8 +2110,8 @@ function saveHilbert(array) {
       function log(txt) {
         if (verbose && devmode) {
           let d = new Date().getTime();
-          console.log(status + " [ " + d.toLocaleString() + " ] " + txt + " ");
-        } else if (verbose){
+          console.log(`[ ${status} ${d.toLocaleDateString()} ] [ ${howMany}_${status}_lock:${renderLock} ] + ${txt}`);
+        } else if (verbose) {
           console.log(txt)
         }
       }
@@ -2344,7 +2368,7 @@ function saveHilbert(array) {
                   pepTable[h].Histocount++;
 
                   if (aminoacid == "Amber" || aminoacid == "Ochre" || aminoacid == "Opal" ) {
-                    // pepTable[pepTable.find(isStopTOTAL)].Histocount++;
+                    // pepTable[ pepTable.indexOf("Stop Codons")].Histocount++;
 
                   } else if (aminoacid == "Methionine") {
 
