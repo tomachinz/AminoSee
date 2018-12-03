@@ -2190,7 +2190,7 @@ function saveHilbert(array) {
         console.log(terminalRGB(` by Tom Atkinson          aminosee.funk.nz            ${array[3]}`, 225, 225, 130) );
         console.log(terminalRGB(`  ah-mee-no-see     'I See It Now - I AminoSee it!'   ${array[4]}`, 255, 180,  90) );
         console.log(terminalRGB(`   ${prettyDate()}                   ${array[5]}`                 , 220, 120,  70) );
-        console.log(terminalRGB(`                                                      ${array[6]}`, 180, 90,   50) );
+        console.log(terminalRGB(array[6]}, 180, 90,   50) );
       }
 
       function crashReport() {
