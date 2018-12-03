@@ -513,9 +513,9 @@ function pepToColor(pep) {
 }
 function pollForStream() {
   if (!args.updates) {
-    updates = true;
+    updates = false;
+  } else {
     // drawHistogram();
-
   }
   out(".");
   if (howMany < 1) {
@@ -1203,8 +1203,8 @@ function quit(n) {
     output(" ");
     printRadMessage(["bye","bye","bye","bye","bye","bye"]);
     setImmediate(() => {
-      log(`process.exit`)
-      process.exit;
+      log(`process.exit (disabled)`)
+      // process.exit;
     });
   }
 }
@@ -2226,6 +2226,9 @@ function saveHilbert(array) {
       function twosigbitsTolocale(num){
         return (Math.round(num*100)/100).toLocaleString();
       }
+      function drawHUD() {
+
+      }
       function drawHistogram() {
         if (updates == false) {
           status = "Stats display disabled ";
@@ -2255,9 +2258,8 @@ function saveHilbert(array) {
 
         let array = [
           `File: ${chalk.rgb(255, 255, 255).inverse(justNameOfDNA.toUpperCase())}.${extension} `,
-          `Done: ${chalk.rgb(128, 255, 128).inverse( twosigbitsTolocale(percentComplete*100))} % Time remain: ${ twosigbitsTolocale(timeRemain) } sec Elapsed: ${Math.round(runningDuration/1000)} sec KB remain: ${kbRemain} ${chalk.rgb(128, 255, 128).inverse(status.toUpperCase())} `,
-          `@i ${charClock.toLocaleString()} Lines: ${breakClock.toLocaleString()} Files: ${howMany} Filesize: ${Math.round(baseChars/1000)/1000} MB`,
-           + ( artistic ? text += `[ Artistic Mode 1:${artisticHighlightLength}] ` : text += " [ Science Mode 1:1] " ),
+          `Done: ${chalk.rgb(128, 255, 128).inverse( twosigbitsTolocale(percentComplete*100))} % Remain: ${ twosigbitsTolocale(timeRemain) } sec `,
+          `@i ${charClock.toLocaleString()} Lines: ${breakClock.toLocaleString()} Files: ${howMany} Filesize: ${Math.round(baseChars/1000)/1000} MB Elapsed: ${Math.round(runningDuration/1000)} sec KB remain: ${kbRemain}`,
           `Next update: ${msPerUpdate.toLocaleString()}ms  Codon Opacity: ${twosigbitsTolocale(opacity*100)}% `,
           `CPU: ${bytes(kBytesPerSec*1024)}/s Codons per sec: ${Math.round(kCodonsPerSecond).toLocaleString()} Mb Codons per pixel: ${twosigbitsTolocale(codonsPerPixel)} Pixels painted: ${colClock.toLocaleString()}`,
           `[ Codons: ${genomeSize.toLocaleString()} ]  Last Acid: ${terminalRGB(aminoacid, red, green, blue)}`,
@@ -2266,8 +2268,12 @@ function saveHilbert(array) {
 
         clearScreen();
         printRadMessage(array);
-        console.log(histogram(aacdata, { bar: '/', width: 40, sort: true, map:  aacdata.Histocount} ));
-        output(interactiveKeysGuide);
+        if (status == "save") {
+          output("saving");
+        } else {
+          console.log(histogram(aacdata, { bar: '/', width: 40, sort: true, map:  aacdata.Histocount} ));
+          output(interactiveKeysGuide);
+        }
 
         if (status == "paint" || updates) {
             updatesTimer = setTimeout(() => {
