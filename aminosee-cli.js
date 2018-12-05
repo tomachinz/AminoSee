@@ -112,13 +112,14 @@ function setupKeyboardUI() {
       console.log(status);
       printRadMessage(["_@__", "____", "____", "____", "____", "____", "____"]);
       updates = false;
-      // quit();
       args = [];
       if (devmode) {
         output("Because you are using --devmode, the lock file is not deleted. This is useful during development because I can quickly test new code by starting then interupting the render with Control-c. Then, when I use 'aminosee * -f -d' I can have new versions rendered but skip super large genomes that would take 5 mins or more to render. I like to see that they begin to render then break and retry.")
       } else {
         removeLocks();
       }
+      // quit();
+
       process.exit()
     }
     if (key && key.name == 'q') {
@@ -769,7 +770,7 @@ async function initStream(f) {
   log("FINISHED INIT");
 }
 function showFlags() {
-  return `${(  force ? "F" : "-"    )}${(  args.updates || args.u ? `U` : "-"    )}${(  userCPP != -1 ? `C${userCPP}` : "--"    )}${(  args.keyboard || args.k ? `K` : "-"    )}${(  args.spew || spew ? `K` : "-"    )}${(  devmode ? "D" : "-"    )}${(  args.ratio || args.r ? `${ratio}` : "---"    )}${(  args.magnitude || args.m ? `M${magnitude}` : "--"    )}`;
+  return `${(  force ? "F" : "-"    )}${(  args.updates || args.u ? `U` : "-"    )}${(  userCPP != -1 ? `C${userCPP}` : "--"    )}${(  args.keyboard || args.k ? `K` : "-"    )}${(  args.spew || spew ? `K` : "-"    )}${( verbose ? "V" : "-"  )}${(  artistic ? "A" : "-"    )}${(  args.ratio || args.r ? `${ratio}` : "---"    )}${(  args.magnitude || args.m ? `M${magnitude}` : "--"    )}`;
 // chalk.rgb(255, 255, 255).inverse(justNameOfDNA.toUpperCase())
 }
 function testSummary() {
@@ -1228,7 +1229,7 @@ function quit(n) {
     });
 
   } else {
-    log("still rendering")
+    log("half bye but still rendering")
   }
 }
 function processLine(l) {
@@ -1721,7 +1722,7 @@ function saveHilbert(array) {
   } else if (computerWants < 0) {
     dimension = 0; // its an array index
   }
-  // dimension = magnitude;
+  dimension = computerWants -1;
   log(`image size ${pixels} will use dimension ${dimension} yielding ${hilbPixels[dimension]} pixels `);
 
 
