@@ -438,10 +438,10 @@ module.exports = () => {
   // } else {
   //   log("try using aminosee * in a directory with DNA")
   //   // quit();
-    // setTimeout(() => {
-    //   // printRadMessage();
-    //   // quit();
-    // }, 69);
+  // setTimeout(() => {
+  //   // printRadMessage();
+  //   // quit();
+  // }, 69);
   // }
   switch (cmd) {
     case 'unknown':
@@ -520,7 +520,7 @@ function pollForStream() {
       printRadMessage(["POLLING", "Render", filename, "Now", "RENDER", "LOCKED", percentComplete]);
       pollForStream();
 
-    }, 6666);
+    }, 100);
 
     return true;
   }
@@ -767,6 +767,10 @@ async function initStream(f) {
 
 
   log("FINISHED INIT");
+}
+function showFlags() {
+  return `${(  force ? "F" : "-"    )}${(  args.updates || args.u ? `U` : "-"    )}${(  userCPP != -1 ? `C${userCPP}` : "--"    )}${(  args.keyboard || args.k ? `K` : "-"    )}${(  args.spew || spew ? `K` : "-"    )}${(  devmode ? "D" : "-"    )}${(  args.ratio || args.r ? `${ratio}` : "---"    )}${(  args.magnitude || args.m ? `M${magnitude}` : "--"    )}`;
+// chalk.rgb(255, 255, 255).inverse(justNameOfDNA.toUpperCase())
 }
 function testSummary() {
   return `TEST
@@ -1113,7 +1117,7 @@ function touchLockAndStartStream(fTouch) {
     log('Starting init for ' + filename);
 
 
-    let delay = 6666;
+    let delay = 100;
     printRadMessage( ["____", "____", "____", "____", "____", "____"] );
     status = "paint";
     output("Starting render");
@@ -1196,30 +1200,32 @@ function checkFileExtension(f) {
 
 function quit(n) {
   process.exitCode = 1;
-  status = "bye";
-  // msPerUpdate = 0;
-  // removeLocks();
+  if ( renderLock == false ) {
+    status = "bye";
+    // msPerUpdate = 0;
+    // removeLocks();
+    // output("press Control-C again to quit; or.... try T to output test patterns");
+    if (keyboard) {
+    process.stdin.setRawMode(false);
+    }
 
-
-  // output("press Control-C again to quit; or.... try T to output test patterns");
-  // process.stdin.setRawMode(false);
-  log(status);
-  if (n==1) {
+    log(status);
     // updates = false;
     process.stdin.resume();
     clearTimeout(updatesTimer);
     log('really bye. like process.exit type bye.');
     output(" ");
-    printRadMessage(["bye","bye","bye","bye","bye","bye"]);
-    setImmediate(() => {
-      log(`process.exit (6 seconds)`)
+    printRadMessage([`last file: ${filename}`,"bye","bye","bye","bye","bye"]);
+    // setImmediate(() => {
+    log(`process.exit (disabled)`)
+    // updatesTimer = setTimeout(() => {
+    // log(`process.exit`)
+    // process.exit;
+    // }, 6666);
+    // });
 
-      updatesTimer = setTimeout(() => {
-        log(`process.exit`)
-        process.exit;
-      }, 6666);
-
-    });
+  } else {
+    log("still rendering")
   }
 }
 function processLine(l) {
@@ -1699,21 +1705,21 @@ function saveHilbert(array) {
 
 
 
-  // pixels = array.length/4;
-  // let computerWants = pixToMagnitude(pixels);
-  //
-  // if ( computerWants > maxMagnitude ) {
-  //   if (args.magnitude || args.m && magnitude > maxMagnitude) {
-  //     output(`I'm not sure that trying to render ${hilbPixels[magnitude]} is going to work out. Maybe try a lower magnitue like ${computerWants}`)
-  //   } else {
-  //     output(`I'd like to do that ${hilbPixels[computerWants]} for you dave, but I can't. I let some other humans render at magnitue ${computerWants} and I core dumped.`)
-  //     dimension = maxMagnitude;
-  //   }
-  // } else if (computerWants < 0) {
-  //   dimension = 0; // its an array index
-  // }
+  pixels = array.length/4;
+  let computerWants = pixToMagnitude(pixels);
+
+  if ( computerWants > maxMagnitude ) {
+    if (args.magnitude || args.m && magnitude > maxMagnitude) {
+      output(`I'm not sure that trying to render ${hilbPixels[magnitude]} is going to work out. Maybe try a lower magnitue like ${computerWants}`)
+    } else {
+      output(`I'd like to do that ${hilbPixels[computerWants]} for you dave, but I can't. I let some other humans render at magnitue ${computerWants} and I core dumped.`)
+      dimension = maxMagnitude;
+    }
+  } else if (computerWants < 0) {
+    dimension = 0; // its an array index
+  }
   // dimension = magnitude;
-  // log(`image size ${pixels} will use dimension ${dimension} yielding ${hilbPixels[dimension]} pixels `);
+  log(`image size ${pixels} will use dimension ${dimension} yielding ${hilbPixels[dimension]} pixels `);
 
 
 
@@ -2039,7 +2045,8 @@ function saveHilbert(array) {
       function resampleByFactor(shrinkFactor) {
         let sampleClock = 0;
         let fac = 1/shrinkFactor;
-        for (z = 0; z<hilbPixels[dimension]; z++) {
+        for (z = 1; z<hilbPixels[dimension]; z++) {
+          // out(` ${z} ${shrinkFactor} ${fac} ${hilbPixels[dimension]} ${sampleClock}`);
           let sum = z*4;
           let clk = sampleClock*4;
           sampleClock++;
@@ -2047,7 +2054,11 @@ function saveHilbert(array) {
           rgbArray[sum+1] = rgbArray[clk+1]*shrinkFactor;
           rgbArray[sum+2] = rgbArray[clk+2]*shrinkFactor;
           rgbArray[sum+3] = 255;
-          while(z*fac < sampleClock) {
+          dot(z, 160000);
+          while(z*fac > sampleClock) {
+            dot(z, 160000);
+            // dot(z, 1000000, ` ${z} ${shrinkFactor} ${fac} ${hilbPixels[dimension]} ${sampleClock}`)
+            // log(` ${z} ${shrinkFactor} ${fac} ${hilbPixels[dimension]} ${sampleClock}`);
             sampleClock++;
             clk = sampleClock*4;
             rgbArray[sum+0] += rgbArray[clk+0]*shrinkFactor;
@@ -2073,7 +2084,10 @@ function saveHilbert(array) {
         }
         return dim;
       }
-      function dot(i, x) {
+      function dot(i, x, t) {
+        if (!t) {
+          t = '1';
+        }
         if (i % x == 0 ) {
           out('.');
         }
@@ -2280,19 +2294,19 @@ function saveHilbert(array) {
           `Next update: ${msPerUpdate.toLocaleString()}ms  Codon Opacity: ${twosigbitsTolocale(opacity*100)}% `,
           `CPU: ${bytes(kBytesPerSec*1024)}/s Codons per sec: ${Math.round(kCodonsPerSecond).toLocaleString()} Mb Codons per pixel: ${twosigbitsTolocale(codonsPerPixel)} Pixels painted: ${colClock.toLocaleString()}`,
           `[ Codons: ${genomeSize.toLocaleString()} ]  Last Acid: ${terminalRGB(aminoacid, red, green, blue)}`,
-          `[ clean: ${ cleanString(rawDNA)} ] Output png: ${justNameOfPNG}]`];
+          `[ clean: ${ cleanString(rawDNA)} ] Output png: ${justNameOfPNG}] ${showFlags()}`];
 
 
-        clearScreen();
-        printRadMessage(array);
-        if (status == "save") {
-          output("saving");
-        } else {
-          console.log(histogram(aacdata, { bar: '/', width: 40, sort: true, map:  aacdata.Histocount} ));
-          output(interactiveKeysGuide);
-        }
+          clearScreen();
+          printRadMessage(array);
+          if (status == "save") {
+            output("saving");
+          } else {
+            console.log(histogram(aacdata, { bar: '/', width: 40, sort: true, map:  aacdata.Histocount} ));
+            output(interactiveKeysGuide);
+          }
 
-        if (status == "paint" || updates) {
+          if (status == "paint" || updates) {
             updatesTimer = setTimeout(() => {
               drawHistogram(); // MAKE THE HISTOGRAM AGAIN LATER
             }, msPerUpdate);
@@ -3285,7 +3299,7 @@ function saveHilbert(array) {
               ╩ ╩┴ ┴┴┘└┘└─┘╚═╝└─┘└─┘  ═╩╝╝╚╝╩ ╩   ╚╝ ┴└─┘└┴┘└─┘┴└─
               by Tom Atkinson          aminosee.funk.nz
               ah-mee no-see         "I See It Now - I AminoSee it!"
-`, 96, 64, 245);
+              `, 96, 64, 245);
 
               const lineBreak = `
-`;
+              `;

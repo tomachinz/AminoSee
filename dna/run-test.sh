@@ -36,7 +36,13 @@ aminosee_test () {
   # nice aminosee megabase.fa megabase.fa Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa  -f --no-updates -d $1 $2 $3
   # nice aminosee Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa megabase.fa  -f --no-updates -d $1 $2 $3
   # nice aminosee Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa megabase.fa megabase.fa   -f --no-updates -d $1 $2 $3
-aminosee megabase.fa AAA-to-TTT-50k.txt Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa megabase.fa 37653_ref_Octopus_bimaculoides_v2_0_chrUn.fa -f --peptide=Proline -k
+  aminosee megabase.fa AAA-to-TTT-50k.txtmegabase.fa AAA-to-TTT-50k.txtmegabase.fa AAA-to-TTT-50k.txt megabase.fa 37653_ref_Octopus_bimaculoides_v2_0_chrUn.fa -f --peptide=Proline -k -v
+
+  aminosee megabase.fa AAA-to-TTT-50k.txtmegabase.fa AAA-to-TTT-50k.txtmegabase.fa AAA-to-TTT-50k.txt megabase.fa 37653_ref_Octopus_bimaculoides_v2_0_chrUn.fa -f --peptide=Proline -v
+
+  aminosee megabase.fa AAA-to-TTT-50k.txtmegabase.fa AAA-to-TTT-50k.txtmegabase.fa AAA-to-TTT-50k.txt megabase.fa 37653_ref_Octopus_bimaculoides_v2_0_chrUn.fa -f --peptide=Proline -v
+
+aminosee megabase.fa AAA-to-TTT-50k.txt Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa megabase.fa 37653_ref_Octopus_bimaculoides_v2_0_chrUn.fa -f --peptide=Proline -v --html
 
 aminosee_test $1 $2 $3 $4 $5 --no-updates --peptide=Glutamic
 aminosee_test $1 --no-updates --peptide=Glutamic
@@ -44,7 +50,7 @@ aminosee_test AAA-to-TTT-50k.txt megabase.fa  --peptide=Aspartic --no-updates
 aminosee_test Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa AAA-to-TTT-50k.txt --peptide=Amber --no-updates
 aminosee_test megabase.fa Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa AAA-to-TTT-50k.txt --peptide=Tryptophan --no-clear
 aminosee_test * --no-updates -v
-batch-process.sh 
+batch-process.sh
 aminosee_test             --peptide=Ochre
 # aminosee_test            $1 $2 2 $3 $4 --peptide=Glutamic &
 # aminosee_test            $1 $2 3 $3 $4 --peptide=Aspartic &
