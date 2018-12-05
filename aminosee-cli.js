@@ -1216,13 +1216,16 @@ function quit(n) {
     log('really bye. like process.exit type bye.');
     output(" ");
     printRadMessage([`last file: ${filename}`,"bye","bye","bye","bye","bye"]);
-    // setImmediate(() => {
-    log(`process.exit (disabled)`)
-    // updatesTimer = setTimeout(() => {
-    // log(`process.exit`)
-    // process.exit;
-    // }, 6666);
-    // });
+    setImmediate(() => {
+      log(`process.exit (disabled)`)
+      log(`process.exit`)
+      process.exit;
+      // updatesTimer = setTimeout(() => {
+      //   log(`process.exit`)
+      //   process.exit;
+      // }, 6666);
+
+    });
 
   } else {
     log("still rendering")
