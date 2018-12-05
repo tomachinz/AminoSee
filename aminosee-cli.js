@@ -5,6 +5,7 @@
 //       ╩ ╩┴ ┴┴┘└┘└─┘╚═╝└─┘└─┘  ═╩╝╝╚╝╩ ╩   ╚╝ ┴└─┘└┴┘└─┘┴└─
 //       by Tom Atkinson            aminosee.funk.nz
 //        ah-mee no-see       "I See It Now - I AminoSee it!"
+let raceDelay = 666;
 let linearMagnitudeMax = 7; // magnitude is the size of upper limit for linear render to come *under*
 let dimension = 6; // dimension is the -1 size the hilbert projection is be downsampled to
 const maxMagnitude = 7; // max for auto setting
@@ -283,9 +284,13 @@ module.exports = () => {
     } else {
       output("Can't set magnitude and codons per pixel at the same time. Remove your -c option to set magnitude")
     }
+    linearMagnitudeMax = magnitude;
   } else {
     magnitude = false;
+    linearMagnitudeMax = maxMagnitude;
   }
+
+  log(`linearMagnitudeMax: ${linearMagnitudeMax}`);
   maxpix = hilbPixels[ linearMagnitudeMax ];
 
 
@@ -315,7 +320,7 @@ module.exports = () => {
   if (args.triplet || args.t) {
     triplet = args.triplet || args.t;
     triplet = triplet.toUpperCase();
-    // let tempColor = codonToRGBA(triplet);
+    let tempColor = codonToRGBA(triplet);
     let tempHue = tripletToHue(triplet);
     if (tempColor != [13, 255, 13, 255]){ // this colour is a flag for error
       output(`Found ${triplet} with colour: ${tempHue}`);
@@ -517,11 +522,12 @@ function pepToColor(pep) {
 function pollForStream() {
   if (renderLock) {
     setTimeout(() => {
+      log(`raceDelay inside pollForStream`)
       calcUpdate();
       printRadMessage(["POLLING", "Render", filename, "Now", "RENDER", "LOCKED", percentComplete]);
       pollForStream();
 
-    }, 100);
+    }, raceDelay);
 
     return true;
   }
@@ -538,6 +544,8 @@ function pollForStream() {
   try {
     if (args._) {
       current = args._[0];
+      current = args._.pop();
+
     } else {
 
 
@@ -563,7 +571,6 @@ function pollForStream() {
   }
 
   if (status == "removelocks" || status == "polling") {
-    current = args._.pop();
   }
   if (current == undefined) {
     // quit()
@@ -609,17 +616,17 @@ function pollForStream() {
     theSwitcher(false);
     return false;
   }
-  if (!checkFileExtension(getFileExtension(filename))) {
-    log("getFileExtension(filename): " + getFileExtension(filename));
-    log("checkFileExtension(getFileExtension(filename)): " + checkFileExtension(getFileExtension(filename)))
+  if (!checkFileExtension(getLast5Chars(filename))) {
+    log("getLast5Chars(filename): " + getLast5Chars(filename));
+    log("checkFileExtension(getLast5Chars(filename)): " + checkFileExtension(getLast5Chars(filename)))
     theSwitcher(false);
     return false;
   } else {
 
-    baseChars = getFilesizeInBytes(filename);
-    autoconfCodonsPerPixel();
-    status ="polling";
-    setupFNames();
+    // baseChars = getFilesizeInBytes(filename);
+    // autoconfCodonsPerPixel();
+    // status ="polling";
+    // setupFNames();
 
     if (!okToOverwritePNG(filenamePNG)) {
       log("Failed check: OK to overwrite existing image?  " + okToOverwritePNG(filenamePNG));
@@ -646,6 +653,12 @@ function pollForStream() {
 function theSwitcher(bool) {
   log(`cpu has entered The Switcher!`)
   if (bool) {
+
+    baseChars = getFilesizeInBytes(filename);
+    autoconfCodonsPerPixel();
+    status ="polling";
+    setupFNames();
+
     touchLockAndStartStream(filenameTouch); // <--- THIS IS WHERE RENDER STARTS
     return true;
   } else  {
@@ -706,7 +719,7 @@ async function initStream(f) {
   // } else {
   //   baseChars = getFilesizeInBytes(f);
   // }
-  extension = getFileExtension(f);
+  extension = getLast5Chars(f);
   log("[FILESIZE] " + baseChars.toLocaleString() + " extension: " + extension);
 
 
@@ -801,9 +814,10 @@ function renderSummary() {
   Codons per pixel: ${twosigbitsTolocale(codonsPerPixel)} integer
   Pixels: ${colClock.toLocaleString()} (colClock)
   Linear scale down:  ${twosigbitsTolocale(shrinkFactor)}
-  overSampleFactor: ${overSampleFactor}
+  overSampleFactor: ${twosigbitsTolocale(overSampleFactor)}
+  Shrink Factor: ${twosigbitsTolocale(shrinkFactor)}
   Amino acid blend opacity: ${Math.round(opacity*10000)/100}%
-  Users Max magnitude: ${ ( magnitude ? `${magnitude}/ 10 ` : "Not Set" ) } Max pix:${maxpix.toLocaleString()}
+  Users Max magnitude: ${ ( magnitude != false ? `${magnitude}/ 10 ` : "Not Set" ) } Max pix:${maxpix.toLocaleString()}
   Hilbert Magnitude: ${magnitude} / ${maxMagnitude}
   Hilbert Curve Pixels: ${hilbPixels[dimension]}
   Darken Factor ${twosigbitsTolocale(darkenFactor)}
@@ -849,7 +863,7 @@ function autoconfCodonsPerPixel() { // requires baseChars maxpix defaultC
       }
     }
   }
-
+  log(`linearMagnitudeMax: ${linearMagnitudeMax}`);
   maxpix = hilbPixels[ linearMagnitudeMax ];
 
   log(`magnitude is ${magnitude} new maxpix: ${maxpix} `)
@@ -903,11 +917,11 @@ function autoconfCodonsPerPixel() { // requires baseChars maxpix defaultC
 }
 
 function removeFileExtension(f) {
-  return f.substring(0, f.length - (getFileExtension(f).length+1));
+  return f.substring(0, f.length - (getLast5Chars(f).length+1));
 }
 
 function setupFNames() {
-  extension = getFileExtension(filename);
+  extension = getLast5Chars(filename);
   justNameOfDNA = removeSpacesForFilename(removeFileExtension(replaceFilepathFileName(filename)));
   if (justNameOfDNA.length > 22 ) {
     justNameOfDNA = justNameOfDNA.substring(0,11) + justNameOfDNA.substring(justNameOfDNA.length-11,justNameOfDNA.length);
@@ -917,10 +931,13 @@ function setupFNames() {
   // filePath += "" ;
   log("filePath in setupFname: " + filePath);
 
+
   let ext = "." + extension;
-
-  ext += ".m" + magnitude;
-
+  if (magnitude != false) {
+    ext += ".m" + magnitude;
+  } else {
+    console.warn(`magnitude: ${magnitude}`)
+  }
 
   let pngAmino = `_c${Math.round(codonsPerPixel*10)/10}`
 
@@ -943,12 +960,13 @@ function setupFNames() {
   filenamePNG =     filePath + "/" + justNameOfPNG;
   filenameHTML =    filePath + "/" + justNameOfHTML;
   filenameHILBERT = filePath + "/" + justNameOfHILBERT;
+
   log(status);
-  output("FILENAMES SETUP AS: ");
-  output(justNameOfDNA + "." + extension);
-  output(justNameOfPNG);
-  output(justNameOfHTML);
-  output(filenameTouch);
+  output(chalk.rgb(255, 255, 255).inverse(`FILENAMES SETUP AS:
+  justNameOfDNA.extension ${justNameOfDNA + "." + extension}
+  justNameOfPNG: ${justNameOfPNG}
+  justNameOfHTML ${justNameOfHTML}
+  filenameTouch: ${filenameTouch}`));
 }
 
 function launchNonBlockingServer() {
@@ -1081,7 +1099,7 @@ function saveDocuments(callback) {
   }
 
   // status = "saving html report";
-  log("SAVING")
+  log("SAVING HTML")
   if (report) {
     saveHTML();
   } else {
@@ -1100,12 +1118,10 @@ function saveDocuments(callback) {
 }
 function saveHTML() {
 
-
   fs.writeFileSync(filenameHTML, htmlTemplate(), function (err) {
     if (err) { output(`Error saving HTML: ${err}`) }
-    output('Saved report to: ' + filenameHTML);
+    output('Saved html report to: ' + filenameHTML);
   });
-
   // setImmediate(() => {
   //   log("saveHTML done");
   // });
@@ -1118,16 +1134,15 @@ function touchLockAndStartStream(fTouch) {
     log('Starting init for ' + filename);
 
 
-    let delay = 2000;
     printRadMessage( ["____", "____", "____", "____", "____", "____"] );
     status = "paint";
     output("Starting render");
-    printRadMessage(["Starting", "Render", filename, "In", delay, "milliseconds"]);
+    printRadMessage(["Starting", "Render", filename, "In", raceDelay, "milliseconds"]);
     setTimeout(() => {
       printRadMessage(["Starting", "Render", filename, "Now", ".", "."]);
       initStream(filename);
 
-    }, delay);
+    }, raceDelay);
 
 
   });
@@ -1183,13 +1198,13 @@ function getFilesizeInBytes(f) {
     return -1;
   }
 }
-function getFileExtension(f) {
+function getLast5Chars(f) {
   let lastFive = f.slice(-5);
   log(`lastFive ${lastFive}`)
   return lastFive.replace(/.*\./, '').toLowerCase();
 }
 function checkFileExtension(f) {
-  let value = extensions.indexOf(getFileExtension(f));
+  let value = extensions.indexOf(getLast5Chars(f));
   if ( value < 0) {
     log(`checkFileExtension FAIL: ${extension}  ${value} `);
     return false;
@@ -1221,10 +1236,10 @@ function quit(n) {
       log(`process.exit (disabled)`)
       log(`process.exit`)
       process.exit;
-      // updatesTimer = setTimeout(() => {
-      //   log(`process.exit`)
-      //   process.exit;
-      // }, 6666);
+      updatesTimer = setTimeout(() => {
+        log(`process.exit`)
+        process.exit;
+      }, raceDelay);
 
     });
 
@@ -1705,16 +1720,14 @@ function saveHilbert(array) {
   let perc = 0;
   let height, width, pixels;
 
-
-
-
-
   pixels = array.length/4;
   let computerWants = pixToMagnitude(pixels);
+  log(`computerWants ${computerWants} pixToMagnitude(pixels) ${pixToMagnitude(pixels)}  `);
 
   if ( computerWants > maxMagnitude ) {
     if (args.magnitude || args.m && magnitude > maxMagnitude) {
       output(`I'm not sure that trying to render ${hilbPixels[magnitude]} is going to work out. Maybe try a lower magnitue like ${computerWants}`)
+      dimension = magnitude;
     } else {
       output(`I'd like to do that ${hilbPixels[computerWants]} for you dave, but I can't. I let some other humans render at magnitue ${computerWants} and I core dumped.`)
       dimension = maxMagnitude;
@@ -1723,6 +1736,7 @@ function saveHilbert(array) {
     dimension = 0; // its an array index
   }
   dimension = computerWants -1;
+  maxpix = hilbPixels[dimension];
   log(`image size ${pixels} will use dimension ${dimension} yielding ${hilbPixels[dimension]} pixels `);
 
 
@@ -1736,7 +1750,7 @@ function saveHilbert(array) {
   const h = require('hilbert-2d');
   let hilpix = hilbPixels[ dimension ];
   let hilbertImage = [hilpix*4];
-  let linearpix = rgbArray.length /4;
+  let linearpix = rgbArray.length / 4;
   shrinkFactor = linearpix / hilpix;
   log(`shrinkFactor pre ${shrinkFactor} = hilpix ${hilpix} / linearpix ${linearpix }`);
   resampleByFactor(shrinkFactor);
@@ -1748,7 +1762,7 @@ function saveHilbert(array) {
   hilbertImage = [hilpix*4]; //  x = x, y % 960
 
   for (i = 0; i < hilpix; i++) {
-    dot(i, 32768);
+    // dot(i, 32768);
     let hilbX, hilbY;
     [hilbX, hilbY] = h.decode(16,i); // <-- THIS IS WHERE THE MAGIC HILBERT HAPPENS
     let cursorLinear  = 4 * i ;
@@ -1775,10 +1789,6 @@ function saveHilbert(array) {
       hilbertImage[hilbertLinear+3] = 255;//rgbArray[cursorLinear+3];
 
     }
-
-
-
-
 
     if (i-4 > rgbArray.length) {
       log("BREAKING at positon ${i} due to ran out of source image. rgbArray.length  = ${rgbArray.length}");
@@ -1898,13 +1908,13 @@ function saveHilbert(array) {
       img_png.pack()
       .pipe(wstream)
       .on('finish', () => {
-        console.log(`png saved.   isHilbertPossible ${isHilbertPossible}`);
-        printRadMessage(["i think we're done", isHilbertPossible, justNameOfDNA ,howMany, updates]);
+        console.log(`linear png saved.   isHilbertPossible ${isHilbertPossible}`);
+        // printRadMessage(["i think we're done", isHilbertPossible, justNameOfDNA ,howMany, updates]);
         if (howMany == 0 ) {
-          setImmediate(() => {
-            output("Finished processing.")
-            quit(1);
-          });
+          // setImmediate(() => {
+            output("Finished linear png save.")
+            // quit(1);
+          // });
         }
 
       }));
@@ -2008,7 +2018,7 @@ function saveHilbert(array) {
         let thinWhiteSlice = Math.round(perc * 1000 ) % thinWhite;
 
         hilbertImage[hilbertLinear] =   255*perc; // slow ramp of red
-        hilbertImage[hilbertLinear+1] = ( i % Math.round( perc *32) ) / (perc *32) *  255; // SNAKES! crazy bio snakes.
+        hilbertImage[hilbertLinear+1] = ( i % Math.round( perc * 32) ) / (perc *32) *  255; // SNAKES! crazy bio snakes.
         hilbertImage[hilbertLinear+2] = (perc *2550)%255; // creates 10 segments to show each 10% mark in blue
         hilbertImage[hilbertLinear+3] = 255; // slight edge in alpha
 
@@ -2043,14 +2053,14 @@ function saveHilbert(array) {
         hilbert_img_png.pack()
         .pipe(wstream)
         .on('finish', resolve));
-
+        log("hilbert png saved");
       }
 
       function resampleByFactor(shrinkFactor) {
         let sampleClock = 0;
-        let fac = 1/shrinkFactor;
+        let fac = shrinkFactor;
         for (z = 1; z<hilbPixels[dimension]; z++) {
-          // out(` ${z} ${shrinkFactor} ${fac} ${hilbPixels[dimension]} ${sampleClock}`);
+          log(` ${z}  ${sampleClock}  ${shrinkFactor} ${fac} ${hilbPixels[dimension]} `);
           let sum = z*4;
           let clk = sampleClock*4;
           sampleClock++;
@@ -2058,9 +2068,9 @@ function saveHilbert(array) {
           rgbArray[sum+1] = rgbArray[clk+1]*shrinkFactor;
           rgbArray[sum+2] = rgbArray[clk+2]*shrinkFactor;
           rgbArray[sum+3] = 255;
-          dot(z, 160000);
+          // dot(z, 160000);
           while(z*fac > sampleClock) {
-            dot(z, 160000);
+            // dot(z, 160000);
             // dot(z, 1000000, ` ${z} ${shrinkFactor} ${fac} ${hilbPixels[dimension]} ${sampleClock}`)
             // log(` ${z} ${shrinkFactor} ${fac} ${hilbPixels[dimension]} ${sampleClock}`);
             sampleClock++;
@@ -2197,9 +2207,9 @@ function saveHilbert(array) {
           // process.stdout.write("\x1B[2J"); // CLEAR TERMINAL SCREEN????
           // console.log('\x1Bc');
           // process.stdout.write('\x1B[2J\x1B[0f');
-          // process.stdout.write("\033[<0>;<0>H"); // pretty good
-          // process.stdout.write("\033[<0>;<0>f"); // cursor to 0,0
-          process.stdout.write('\033c'); // <-- this is really the best one
+          process.stdout.write("\033[<0>;<0>H"); // pretty good
+          process.stdout.write("\033[<0>;<0>f"); // cursor to 0,0
+          // process.stdout.write('\033c'); // <-- this is really the best one
           // put cursor to L,C:  \033[<L>;<C>H
           // put cursor to L,C:  \033[<L>;<C>f
         } else {
@@ -2224,7 +2234,7 @@ function saveHilbert(array) {
         console.log(terminalRGB(`╩ ╩┴ ┴┴┘└┘└─┘╚═╝└─┘└─┘  ═╩╝╝╚╝╩ ╩   ╚╝ ┴└─┘└┴┘└─┘┴└─  ${array[2]}`, 128, 240, 240) );
         console.log(terminalRGB(` by Tom Atkinson          aminosee.funk.nz            ${array[3]}`, 225, 225, 130) );
         console.log(terminalRGB(`  ah-mee-no-see     'I See It Now - I AminoSee it!'   ${array[4]}`, 255, 180,  90) );
-        console.log(terminalRGB(`   ${prettyDate()}                   ${array[5]}`                 , 220, 120,  70) );
+        console.log(terminalRGB(`   ${prettyDate()}   ${array[5]}`                 , 220, 120,  70) );
         console.log(terminalRGB(array[6], 180, 90,   50) );
       }
 
@@ -2350,7 +2360,10 @@ function saveHilbert(array) {
           return pep.Codon == peptide
         }
         function tripletToHue(str) {
-          let hue = dnaTriplets.find(  (dna) => {dna.DNA == str}).Hue;
+          console.warn(str);
+          currentTriplet = str;
+          // let hue = dnaTriplets.find(  (dna, str) => {dna.DNA == str}).Hue;
+          let hue = dnaTriplets.find(isTriplet).Hue;
           if (hue) {
             return hue
           } else {
