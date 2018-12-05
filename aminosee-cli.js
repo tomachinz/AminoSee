@@ -1118,7 +1118,7 @@ function touchLockAndStartStream(fTouch) {
     log('Starting init for ' + filename);
 
 
-    let delay = 100;
+    let delay = 2000;
     printRadMessage( ["____", "____", "____", "____", "____", "____"] );
     status = "paint";
     output("Starting render");
@@ -2008,14 +2008,14 @@ function saveHilbert(array) {
         let thinWhiteSlice = Math.round(perc * 1000 ) % thinWhite;
 
         hilbertImage[hilbertLinear] =   255*perc; // slow ramp of red
-        // hilbertImage[hilbertLinear+1] = ( i % Math.round( perc *32) ) / (perc *32) *  255; // SNAKES! crazy bio snakes.
+        hilbertImage[hilbertLinear+1] = ( i % Math.round( perc *32) ) / (perc *32) *  255; // SNAKES! crazy bio snakes.
         hilbertImage[hilbertLinear+2] = (perc *2550)%255; // creates 10 segments to show each 10% mark in blue
         hilbertImage[hilbertLinear+3] = 255; // slight edge in alpha
 
         if (thinWhiteSlice < 5 && reg) { // 5 one out of 10,000
           log(`@i ${i}   hilbX, hilbY `);
           hilbertImage[hilbertLinear+0] = 255 ;
-          // hilbertImage[hilbertLinear+1] = 255 - (hilbertImage[hilbertLinear+1]/8);
+          hilbertImage[hilbertLinear+1] = 255 - (hilbertImage[hilbertLinear+1]/8);
           hilbertImage[hilbertLinear+2] = 255;
           hilbertImage[hilbertLinear+3] = 255;
         }
