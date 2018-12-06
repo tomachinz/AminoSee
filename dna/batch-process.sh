@@ -2,7 +2,6 @@
 echo List files without ./ in front
 find . | awk '{sub(/.\//," ")}1'
 
-
 aminosee_do () {
     nice aminosee $1 $2 $3 $4 $5 $6
 }
