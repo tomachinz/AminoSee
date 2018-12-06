@@ -520,6 +520,8 @@ function pepToColor(pep) {
   }
 }
 function pollForStream() {
+  out(".polling.");
+
   if (renderLock) {
     setTimeout(() => {
       log(`raceDelay inside pollForStream`)
@@ -536,7 +538,6 @@ function pollForStream() {
   } else {
     // drawHistogram();
   }
-  out(".");
   if (howMany < 1) {
     output("");
     // quit();
@@ -623,10 +624,10 @@ function pollForStream() {
     return false;
   } else {
 
-    // baseChars = getFilesizeInBytes(filename);
-    // autoconfCodonsPerPixel();
-    // status ="polling";
-    // setupFNames();
+    baseChars = getFilesizeInBytes(filename);
+    autoconfCodonsPerPixel();
+    status ="polling";
+    setupFNames();
 
     if (!okToOverwritePNG(filenamePNG)) {
       log("Failed check: OK to overwrite existing image?  " + okToOverwritePNG(filenamePNG));
@@ -1678,7 +1679,7 @@ function okToOverwritePNG(f) { // true to continue, false to abort
   try {
     result = fs.lstatSync(f).isDirectory;
     log("[lstatSync result]" + result);
-    output("An png image has already been generated for this DNA: " + f)
+    output("A png image has already been generated for this DNA: " + f)
     output("use -f to overwrite");
     return false;
   } catch(e){
