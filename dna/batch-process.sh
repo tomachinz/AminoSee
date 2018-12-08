@@ -146,9 +146,9 @@ many_size_hilbert Brown-Kiwi-aptMan1.fa 10
 # many_size_hilbert megabase.fa 1
 # many_size_hilbert Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa 2
 
-aminosee * -f -d -m 8
-aminosee * -f -d --ratio=golden
-aminosee * -f -d --ratio=fix
+aminosee * -d -m 8
+aminosee * -d --ratio=golden
+aminosee * -d --ratio=fix
 aminosee --test -r
 
 many_size_hilbert megabase.fa
