@@ -36,35 +36,35 @@ parallel_peptides () {
   echo STARTING PARALLEL DECODE FOR $1 $2 $3
   echo "-------------------------------------------"
   echo "                                         =///"
-aminosee_do $1 $2
-aminosee_do $1 $2  --peptide=Ochre
-aminosee_do $1 $2  --peptide=Glutamic
-aminosee_do $1 $2  --peptide=Aspartic
-aminosee_do $1 $2  --peptide=Amber
-aminosee_do $1 $2  --peptide=Cysteine
-aminosee_do $1 $2  --peptide=Glycine
-aminosee_do $1 $2  --peptide=Alanine
+aminosee_do $1 $2 $3
+aminosee_do $1 $2 $3   --peptide=Ochre
+aminosee_do $1 $2 $3   --peptide=Glutamic
+aminosee_do $1 $2 $3   --peptide=Aspartic
+aminosee_do $1 $2 $3   --peptide=Amber
+aminosee_do $1 $2 $3   --peptide=Cysteine
+aminosee_do $1 $2 $3   --peptide=Glycine
+aminosee_do $1 $2 $3   --peptide=Alanine
 
-aminosee_do $1 $2  --peptide=Methionine
-aminosee_do $1 $2  --peptide=Valine
-aminosee_do $1 $2  --peptide=Leucine
-aminosee_do $1 $2  --peptide=Isoleucine
-aminosee_do $1 $2  --peptide=Phenylalanine
-aminosee_do $1 $2  --peptide=Tryptophan
-aminosee_do $1 $2  --peptide=Serine
-aminosee_do $1 $2  --peptide=Threonine
+aminosee_do $1 $2 $3   --peptide=Methionine
+aminosee_do $1 $2 $3   --peptide=Valine
+aminosee_do $1 $2 $3   --peptide=Leucine
+aminosee_do $1 $2 $3   --peptide=Isoleucine
+aminosee_do $1 $2 $3   --peptide=Phenylalanine
+aminosee_do $1 $2 $3   --peptide=Tryptophan
+aminosee_do $1 $2 $3   --peptide=Serine
+aminosee_do $1 $2 $3   --peptide=Threonine
 
-aminosee_do $1 $2  --peptide=Opal
-aminosee_do $1 $2  --peptide=Glutamine
-aminosee_do $1 $2  --peptide=Asparagine
-aminosee_do $1 $2  --peptide=Tyrosine
-aminosee_do $1 $2  --peptide=Arginine
-aminosee_do $1 $2  --peptide=Lysine
-aminosee_do $1 $2  --peptide=Histidine
+aminosee_do $1 $2 $3   --peptide=Opal
+aminosee_do $1 $2 $3   --peptide=Glutamine
+aminosee_do $1 $2 $3   --peptide=Asparagine
+aminosee_do $1 $2 $3   --peptide=Tyrosine
+aminosee_do $1 $2 $3   --peptide=Arginine
+aminosee_do $1 $2 $3   --peptide=Lysine
+aminosee_do $1 $2 $3   --peptide=Histidine
 
   echo "                                         =///"
   echo "-------------------------------------------"
-  echo FINISHED PARALLEL DECODE FOR $1
+  echo FINISHED PARALLEL DECODE FOR $1 $2 $3
   echo "-------------------------------------------"
   echo "                                         =///"
 }

@@ -23,7 +23,7 @@ let artistic = false; // for Charlie
 let spew = false; // firehose your screen with DNA
 let report = true; // html reports
 let test = false;
-const overSampleFactor = 3.0;
+const overSampleFactor = 4.0;
 let updates = false;
 let clear;
 const maxMsPerUpdate = 12000; // milliseconds per update
@@ -633,7 +633,7 @@ function pollForStream() {
     if (!okToOverwritePNG(filenamePNG)) {
       log("Failed check: OK to overwrite existing image?  " + okToOverwritePNG(filenamePNG));
       log(filenamePNG + " exist, skipping.");
-      theSwitcher(false);
+      // theSwitcher(false);
       return false;
     } else {
       if (!checkLocks(filenameTouch)) {
