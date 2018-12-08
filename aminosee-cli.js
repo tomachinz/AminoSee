@@ -947,10 +947,10 @@ function highlightFilename() {
   if ( triplet == "none" && peptide == "none") {
     return ret;
   } else if ( triplet != "none" ) {
-    ret += `_${removeSpacesForFilename(triplet + " ").toUpperCase()}`
+    ret += `_${removeSpacesForFilename(triplet).toUpperCase()}`
   }
   if (peptide != "none") {
-    ret += `_${removeSpacesForFilename(peptide + " ").toUpperCase()}`;
+    ret += `_${removeSpacesForFilename(peptide).toUpperCase()}`;
   }
   log(`triplet ${triplet}  peptitde ${peptide} highlightFilename returns ${ret}`)
 
@@ -2164,7 +2164,11 @@ function patternsToPngAndMainArray() {
 
 
   function removeSpacesForFilename(str) {
-    return str.replace(' ', '');
+    if (str == undefined) {
+      return "";
+    } else {
+      return str.replace(' ', '');
+    }
   }
 
   function replaceFilepathFileName(f) {
