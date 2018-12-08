@@ -23,7 +23,7 @@ let artistic = false; // for Charlie
 let spew = false; // firehose your screen with DNA
 let report = true; // html reports
 let test = false;
-const overSampleFactor = 1.2;
+const overSampleFactor = 3.0;
 let updates = false;
 let clear;
 const maxMsPerUpdate = 12000; // milliseconds per update
@@ -2064,7 +2064,7 @@ function saveHilbert(array) {
         let sampleClock = 0;
         let brightness = 1/shrinkFactor;
         for (z = 1; z<hilbPixels[dimension]; z++) {
-          log(` ${z}  ${sampleClock}  ${shrinkFactor} ${brightness} ${hilbPixels[dimension]} `);
+          // log(` ${z}  ${sampleClock}  ${shrinkFactor} ${brightness} ${hilbPixels[dimension]} `);
           let sum = z*4;
           let clk = sampleClock*4;
           sampleClock++;
