@@ -1180,21 +1180,11 @@ function removeLocks() {
     pollForStream();
   }
   console.log("end of removeLocks function");
-  if (howMany>0) {
-    pollForStream();
-  } else {
-    quit(1)
-  }
-
-  // try {
-  //   fs.unlink(filenameTouch, function (err) {
-  //     if (err) { console.dir(err); console.warn("Touch file error") }
-  //     log('Removed touch file: ' + filenameTouch);
-  //   });
-  // } catch (e) {
-  //   log("removeLocks err: " + e);
+  // if (howMany>0) {
+  //   pollForStream();
+  // } else {
+  //   quit(1)
   // }
-
 }
 function getFilesizeInBytes(f) {
   try {
@@ -1235,15 +1225,18 @@ function quit(n) {
   if ( renderLock == false ) {
     status = "bye";
     // msPerUpdate = 0;
-    // removeLocks();
+    removeLocks();
     // output("press Control-C again to quit; or.... try T to output test patterns");
     if (keyboard) {
-    process.stdin.setRawMode(false);
+      try {
+        process.stdin.setRawMode(false);
+        process.stdin.resume();
+
+      } catch(e) { log( e ) }
     }
 
     log(status);
     // updates = false;
-    process.stdin.resume();
     log('really bye. like process.exit type bye.');
     output(" ");
     // printRadMessage([`last file: ${filename}`,"bye","bye","bye","bye","bye"]);
@@ -1930,7 +1923,8 @@ function saveHilbert(array) {
       .on('finish', () => {
         console.log(`linear png saved.   isHilbertPossible ${isHilbertPossible}`);
         // printRadMessage(["i think we're done", isHilbertPossible, justNameOfDNA ,howMany, updates]);
-        output("Finished linear png save.")
+        output("Finished linear png save.");
+        quit();
       }));
     }
     function openOutputs() {
