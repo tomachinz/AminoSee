@@ -33,13 +33,10 @@ aminosee_test () {
   echo "                                         =///"
 
 
-  nice aminosee megabase.fa megabase.fa Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa  -f --no-updates -d $1 $2 $3 &
-  sleep 1
-  nice aminosee Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa megabase.fa  -f --no-updates -d $1 $2 $3 &
-  sleep 1
-  nice aminosee Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa megabase.fa megabase.fa   -f --no-updates -d --peptide=Amber $1 $2 $3 &
-  sleep 1
-  nice aminosee Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa megabase.fa megabase.fa   -f --no-updates -d --peptide=Ochre $1 $2 $3 &
+nice aminosee megabase.fa megabase.fa Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa  -f --no-updates -d $1 $2 $3 &
+nice aminosee Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa megabase.fa  -f --no-updates -d $1 $2 $3 &
+nice aminosee Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa megabase.fa megabase.fa   -f --no-updates -d --peptide=Amber $1 $2 $3 &
+nice aminosee Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa megabase.fa megabase.fa   -f --no-updates -d --peptide=Ochre $1 $2 $3 &
 
 aminosee megabase.fa AAA-to-TTT-50k.txtmegabase.fa AAA-to-TTT-50k.txtmegabase.fa AAA-to-TTT-50k.txt megabase.fa -f --peptide=Proline --no-updates -v
 aminosee megabase.fa AAA-to-TTT-50k.txtmegabase.fa AAA-to-TTT-50k.txtmegabase.fa AAA-to-TTT-50k.txt megabase.fa 37653_ref_Octopus_bimaculoides_v2_0_chrUn.fa -f --peptide=Proline -k -v

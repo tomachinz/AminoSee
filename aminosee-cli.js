@@ -62,7 +62,7 @@ let status = "load";
 console.log("Amino\x1b[40mSee\x1b[37mNoEvil");
 let interactiveKeysGuide = "";
 let renderLock = false;
-let filenameTouch, maxpix, estimatedPixels, args, filenamePNG, extension, reader, hilbertPoints, herbs, levels, progress, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, textFile, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, fileUploadShowing, testColors, chunksMax, chunksize, chunksizeBytes, baseChars, cpu, subdivisions, contextBitmap, aminoacid, colClock, start, updateClock, percentComplete, kBytesPerSec, pixelStacking, isHighlightCodon, justNameOfDNA, justNameOfPNG, justNameOfHILBERT, sliceDNA, filenameHTML, howMany, timeRemain, runningDuration, kbRemain, width, triplet, updatesTimer, pngImageFlags;
+let keyboard, filenameTouch, maxpix, estimatedPixels, args, filenamePNG, extension, reader, hilbertPoints, herbs, levels, progress, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, textFile, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, fileUploadShowing, testColors, chunksMax, chunksize, chunksizeBytes, baseChars, cpu, subdivisions, contextBitmap, aminoacid, colClock, start, updateClock, percentComplete, kBytesPerSec, pixelStacking, isHighlightCodon, justNameOfDNA, justNameOfPNG, justNameOfHILBERT, sliceDNA, filenameHTML, howMany, timeRemain, runningDuration, kbRemain, width, triplet, updatesTimer, pngImageFlags;
 let codonsPerPixel, CRASH, cyclesPerUpdate, red, green, blue, alpha, charClock, errorClock, breakClock, streamLineNr, genomeSize, filesDone, spewClock, opacity, codonRGBA, geneRGBA, currentTriplet, progato, shrinkFactor, reg, image;
 
 // const { Transform } = require('stream');
@@ -103,7 +103,7 @@ function setupKeyboardUI() {
 
   // make `process.stdin` begin emitting "keypress" events
   keypress(process.stdin);
-
+//
   // listen for the "keypress" event
   process.stdin.on('keypress', function (ch, key) {
     log('got "keypress"', key);
@@ -120,8 +120,7 @@ function setupKeyboardUI() {
       } else {
         removeLocks();
       }
-      // quit();
-
+      quit(1);
       process.exit()
     }
     if (key && key.name == 'q') {
@@ -192,6 +191,10 @@ function setupKeyboardUI() {
     function toggleClearScreen() {
       clear = !clear;
       output("clear screen toggled.");
+    }
+    function toggleUpdates() {
+      updates = !updates;
+      output(`stats updates toggled to: ${updates}`);
     }
   });
 
@@ -1109,7 +1112,7 @@ function saveDocuments(callback) {
     output("No HTML report output.")
   }
   openOutputs();
-  // log(renderSummary());
+  log(renderSummary());
 
   // updates = true;
   status = "removelocks";
@@ -1219,38 +1222,33 @@ function checkFileExtension(f) {
 }
 
 function quit(n) {
-  process.exitCode = 1;
-  clearTimeout(updatesTimer);
+
 
   if ( renderLock == false ) {
+    process.exitCode = 1;
+    clearTimeout(updatesTimer);
     status = "bye";
     // msPerUpdate = 0;
-    removeLocks();
     // output("press Control-C again to quit; or.... try T to output test patterns");
     if (keyboard) {
       try {
         process.stdin.setRawMode(false);
         process.stdin.resume();
-
+        // removeLocks();
       } catch(e) { log( e ) }
     }
 
     log(status);
     // updates = false;
-    log('really bye. like process.exit type bye.');
-    output(" ");
-    // printRadMessage([`last file: ${filename}`,"bye","bye","bye","bye","bye"]);
-    // setImmediate(() => {
-    //   log(`process.exit (disabled)`)
-    //   log(`process.exit`)
-    //   process.exit;
-    //   updatesTimer = setTimeout(() => {
-    //     log(`process.exit`)
-    //     process.exit;
-    //   }, raceDelay);
-    //
-    // });
 
+    if ( howMany > 0 ) {
+        output("Continuing...");
+        pollForStream();
+    } else {
+      log('really bye. like process.exit type bye.');
+      output(" ");
+      printRadMessage([`last file: ${filename}`,"bye","bye","bye","bye","bye"]);
+    }
   } else {
     log("half bye but still rendering")
   }
@@ -1937,7 +1935,7 @@ function saveHilbert(array) {
       }
       output("Saved HTML Report projection: " + filenameHTML);
 
-      log(renderSummary());
+      // log(renderSummary());
 
       if (openHtml) {
         output("Opening your RENDER SUMMARY HTML report. If process blocked either quit browser AND image viewer or [ CONTROL-C ]");
@@ -1995,7 +1993,7 @@ function saveHilbert(array) {
       log(`done with generateTestPatterns()`);
 
       saveHTML();
-      openOutputs();
+      // openOutputs();
     }
 
     function patternsToPngAndMainArray() {
