@@ -346,18 +346,20 @@ module.exports = () => {
   }
   if (args.peptide || args.p) {
     users = args.peptide || args.p;
-    //
-    // output(` users: ${users} tidyPeptideName(peptide) ${tidyPeptideName(users)} codons`);
+
+    output(` users peptide: ${users} tidyPeptideName(peptide) ${tidyPeptideName(users)}`);
 
     peptide = tidyPeptideName(users)
-    //
-    // if (peptide != "none") { // this colour is a flag for error
-    //   output(`Found ${users} with colour: ${pepToColor(users)}`);
-    // } else {
-    //   output(`Error could not lookup peptide: ${users}`);
-    // }
 
-    // output(`Custom peptide ${peptide} set. Will highlight these codons, they are Hue ${peptideToHue(peptide)}° in colour`);
+    if (peptide != "none") { // this colour is a flag for error
+      output(`Found:${users} SUCCESS`);
+    } else {
+      output(`ERROR could not lookup peptide: ${users}`);
+        peptide = users;
+        output(`using ${peptide}`);
+    }
+
+    output(`Custom peptide ${peptide} set. Will highlight these codons`);
   } else {
     log(`No custom peptide chosen. (default)`);
     peptide = "none";
@@ -511,10 +513,10 @@ function aPeptideCodon(a) {
   return a.Codon.toUpperCase().substring(0, 4) == peptide.toUpperCase().substring(0, 4);
 }
 function tidyPeptideName(str) {
-  let clean = pepTable.find((pep) => { pep == str } );
+  let clean = pepTable.find((pep) => { pep.Codon.toUpperCase() == str.toUpperCase() } );
   log(clean);
   if (clean) {
-    return clean.Codon;
+    return clean;
   } else {
     return "none";
   }
@@ -2164,7 +2166,7 @@ function patternsToPngAndMainArray() {
   }
   function output(txt) {
     if (verbose) {
-      console.log(` [ ${howMany}_${status}_lock:${renderLock} ] ${txt}`);
+      console.log(` [ p_${peptide} ${howMany}_${status}_lock:${renderLock} ] ${txt}`);
     } else {
       // BgBlack = "\x1b[40m"
 
@@ -2174,7 +2176,7 @@ function patternsToPngAndMainArray() {
   function log(txt) {
     if (verbose && devmode) {
       let d = new Date().getTime();
-      console.log(`[ ${status} ${d.toLocaleDateString()} ] [ ${howMany}_${status}_lock:${renderLock} ] + ${txt}`);
+      console.log(`[ ${status} ${d.toLocaleString()} ] [ ${howMany}_${status}_lock:${renderLock} ] + ${txt}`);
     } else if (verbose) {
       console.log(txt)
     }
@@ -2407,8 +2409,11 @@ function tripletToHue(str) {
   }
   return 120
 }
-function peptideToHue(pep) {
-  return pepTable.find( (pep) => { pep.Codon == pep }).Hue;
+function peptideToHue(str) {
+  console.warn(`str ${str}`);
+  let r = pepTable.find( (pep) => { pep.Codon == str });
+  console.warn(r);
+  return r.Hue;
 }
 function getCodonIndex(str) {
   return pepTable.indexOf(str)
