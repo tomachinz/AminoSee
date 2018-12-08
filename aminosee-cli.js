@@ -1119,15 +1119,26 @@ function saveDocuments(callback) {
 
 
 }
+function compareHistocount(a,b) {
+  if (a.Histocount < b.Histocount)
+    return -1;
+  if (a.Histocount > b.Histocount)
+    return 1;
+  return 0;
+}
+
 function saveHTML() {
+
+  log( pepTable.sort( compareHistocount ) );
 
   fs.writeFileSync(filenameHTML, htmlTemplate(), function (err) {
     if (err) { output(`Error saving HTML: ${err}`) }
     output('Saved html report to: ' + filenameHTML);
+    // setImmediate(() => {
+    //   log("saveHTML done");
+    // });
   });
-  // setImmediate(() => {
-  //   log("saveHTML done");
-  // });
+
 }
 function touchLockAndStartStream(fTouch) {
   renderLock = true;
@@ -1219,6 +1230,8 @@ function checkFileExtension(f) {
 
 function quit(n) {
   process.exitCode = 1;
+  clearTimeout(updatesTimer);
+
   if ( renderLock == false ) {
     status = "bye";
     // msPerUpdate = 0;
@@ -1231,20 +1244,19 @@ function quit(n) {
     log(status);
     // updates = false;
     process.stdin.resume();
-    clearTimeout(updatesTimer);
     log('really bye. like process.exit type bye.');
     output(" ");
-    printRadMessage([`last file: ${filename}`,"bye","bye","bye","bye","bye"]);
-    setImmediate(() => {
-      log(`process.exit (disabled)`)
-      log(`process.exit`)
-      process.exit;
-      updatesTimer = setTimeout(() => {
-        log(`process.exit`)
-        process.exit;
-      }, raceDelay);
-
-    });
+    // printRadMessage([`last file: ${filename}`,"bye","bye","bye","bye","bye"]);
+    // setImmediate(() => {
+    //   log(`process.exit (disabled)`)
+    //   log(`process.exit`)
+    //   process.exit;
+    //   updatesTimer = setTimeout(() => {
+    //     log(`process.exit`)
+    //     process.exit;
+    //   }, raceDelay);
+    //
+    // });
 
   } else {
     log("half bye but still rendering")
@@ -1770,7 +1782,7 @@ function saveHilbert(array) {
   hilbertImage = [hilpix*4]; //  x = x, y % 960
 
   for (i = 0; i < hilpix; i++) {
-    // dot(i, 32768);
+    dot(i, 32768);
     let hilbX, hilbY;
     [hilbX, hilbY] = h.decode(16,i); // <-- THIS IS WHERE THE MAGIC HILBERT HAPPENS
     let cursorLinear  = 4 * i ;
@@ -1919,14 +1931,7 @@ function saveHilbert(array) {
         console.log(`linear png saved.   isHilbertPossible ${isHilbertPossible}`);
         // printRadMessage(["i think we're done", isHilbertPossible, justNameOfDNA ,howMany, updates]);
         output("Finished linear png save.")
-        if (howMany == 0 ) {
-          setImmediate(() => {
-            quit(1);
-          });
-        }
-
       }));
-
     }
     function openOutputs() {
       status ="open outputs";
@@ -1984,18 +1989,19 @@ function saveHilbert(array) {
 
         // ( artistic ?  regmarks = "_noregmarks" :  regmarks = "_reg")
 
-        filenameHILBERT = filePath + "/AminoSee_Calibration_" + test + regmarks + ".png";
+        filenameHILBERT = filePath + "/calibration/AminoSee_Calibration_" + test + regmarks + ".png";
         // output("@");
         // out(`Magnitude ${test} curve generation. ${hilbPixels[test]} pixels `);
         dimension = test;
         patternsToPngAndMainArray(); // call with no array for test
-        filenamePNG = filePath + "/AminoSee_Linear_" + test + regmarks + ".png";
+        filenamePNG = filePath + "/calibration/AminoSee_Linear_" + test + regmarks + ".png";
+        filenameHTML = filePath + "/calibration/AminoSee_Linear_" + test + regmarks + ".html";
         arrayToPNG();
       }
       log(`done with generateTestPatterns()`);
 
-      // saveHTML();
-      // openOutputs();
+      saveHTML();
+      openOutputs();
     }
 
     function patternsToPngAndMainArray() {

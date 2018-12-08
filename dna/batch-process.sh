@@ -9,25 +9,25 @@ aminosee_do () {
 many_size_hilbert() {
   echo "                                         =///"
   echo "-------------------------------------------"
-  echo STARTING PARALLEL DECODE FOR $1
+  echo STARTING PARALLEL DECODE FOR $1 $2 $3
   echo "-------------------------------------------"
   echo "                                         =///"
 
-  aminosee_do 1 $1 -m 1 --no-updates
+  aminosee_do $1 -m 1 --no-updates
   sleep 4
-  aminosee_do 2 $1 -m 2 --no-updates &
+  aminosee_do $1 -m 2 --no-updates &
   sleep 4
-  aminosee_do 3 $1 -m 3  --no-updates &
+  aminosee_do $1 -m 3  --no-updates &
   sleep 4
-  aminosee_do 4 $1 -m 4 --no-updates &
+  aminosee_do $1 -m 4 --no-updates &
   sleep 4
-  aminosee_do 5 $1 -m 5 --no-updates &
+  aminosee_do $1 -m 5 --no-updates &
   sleep 4
-  aminosee_do 6 $1 -m 6 --no-updates &
+  aminosee_do $1 -m 6 --no-updates &
   sleep 4
-  aminosee_do 7 $1 -m 7 --no-updates
+  aminosee_do $1 -m 7 --no-updates
   sleep 4
-  aminosee_do 8 $1 -m 8 --no-updates
+  aminosee_do $1 -m 8 --no-updates
 }
 
 parallel_peptides () {
@@ -110,6 +110,12 @@ find -f *.fa *.mfa *.gbk *.txt -exec  aminosee {}      $1 $2   --peptide=Histidi
   echo "                                         =///"
 }
 
+
+many_size_hilbert megabase.fa -f
+many_size_hilbert $1 $2 $3 $4 $5 $6
+
+parallel_peptides $1 $2 $3 $4 $5 $6
+
 other_way_peptides $1 $2 $3 $4 $5 $6
 # aminosee * -d &
 #
@@ -127,7 +133,7 @@ parallel_peptides Brown-Kiwi-aptMan1.fa
 parallel_peptides "Cannabis sativa subsp. indica cultivar LA Confidential.fa"
 parallel_peptides "Eucalyptus grandis cultivar BRASUZ1.gbk"
 
-# many_size_hilbert Brown-Kiwi-aptMan1.fa 10
+many_size_hilbert Brown-Kiwi-aptMan1.fa 10
 # many_size_hilbert homo-sapien-hs_ref_GRCh38.p12_chr2.fa 10
   # find -f *.fa *.mfa *.gbk *.txt | xargs -0 | aminosee -d
 
