@@ -347,9 +347,9 @@ module.exports = () => {
   if (args.peptide || args.p) {
     users = args.peptide || args.p;
 
-    output(` users peptide: ${users} tidyPeptideName(peptide) ${tidyPeptideName(users)}`);
+    output(` users peptide: ${users}`);
 
-    peptide = tidyPeptideName(users)
+    peptide = tidyPeptideName(users).Codon;
 
     if (peptide != "none") { // this colour is a flag for error
       output(`Found:${users} SUCCESS`);
@@ -363,6 +363,7 @@ module.exports = () => {
   } else {
     log(`No custom peptide chosen. (default)`);
     peptide = "none";
+    triplet = "none";
     log(tidyPeptideName());
   }
   if ( peptide == "none" && triplet == "none") {
@@ -513,7 +514,11 @@ function aPeptideCodon(a) {
   return a.Codon.toUpperCase().substring(0, 4) == peptide.toUpperCase().substring(0, 4);
 }
 function tidyPeptideName(str) {
-  let clean = pepTable.find((pep) => { pep.Codon.toUpperCase() == str.toUpperCase() } );
+  // let clean = pepTable.find((pep) => { pep.Codon.toUpperCase() == str.toUpperCase() } );
+
+  peptide = str;
+  let clean = dnaTriplets.find(isCurrentPeptide);
+
   log(clean);
   if (clean) {
     return clean;
@@ -935,7 +940,22 @@ function autoconfCodonsPerPixel() { // requires baseChars maxpix defaultC
 function removeFileExtension(f) {
   return f.substring(0, f.length - (getLast5Chars(f).length+1));
 }
+function highlightFilename() {
+  let ret = "";
+  log(`triplet ${triplet}  peptitde ${peptide}`)
 
+  if ( triplet == "none" && peptide == "none") {
+    return ret;
+  } else if ( triplet != "none" ) {
+    ret += `_${removeSpacesForFilename(triplet).toUpperCase()}`
+  }
+  if (peptide != "none") {
+    ret += `_${removeSpacesForFilename(peptide).toUpperCase()}`;
+  }
+  log(`triplet ${triplet}  peptitde ${peptide} highlightFilename returns ${ret}`)
+
+  return ret;
+}
 function setupFNames() {
   extension = getLast5Chars(filename);
   justNameOfDNA = removeSpacesForFilename(removeFileExtension(replaceFilepathFileName(filename)));
@@ -967,11 +987,8 @@ function setupFNames() {
   if (args.ratio || args.r) {
     pngAmino += `_${ratio}`;
   }
-  if ( triplet != "none" ) {
-    pngAmino += `_${removeSpacesForFilename(triplet).toUpperCase()}`;
-  } else if (peptide != "none") {
-    pngAmino += `_${removeSpacesForFilename(peptide).toUpperCase()}`;
-  }
+
+  pngAmino += highlightFilename();
 
   ( artistic ? pngAmino += "_artistic" : pngAmino += "_sci")
 
@@ -2016,9 +2033,9 @@ function fakeReportInit(magnitude) {
   justNameOfPNG = `${justNameOfDNA}_linear.png`;
   justNameOfHILBERT = `${justNameOfDNA}_hilbert.png`;
 
-  filenameHILBERT = filePath + "/" + justNameOfHILBERT;
-  filenamePNG     = filePath + "/" + justNameOfPNG;
-  filenameHTML    = filePath + "/" + justNameOfDNA + ".html";
+  filenameHILBERT = filePath + "/calibration/" + justNameOfHILBERT;
+  filenamePNG     = filePath + "/calibration/" + justNameOfPNG;
+  filenameHTML    = filePath + "/calibration/" + justNameOfDNA + ".html";
 
   baseChars = hilbPixels[ test ];
   genomeSize = baseChars;
@@ -2375,7 +2392,7 @@ function isTriplet(array) {
 function isHighlightTriplet(array) {
   return array.DNA == triplet;
 }
-function isHighlightPeptide(pep) {
+function isCurrentPeptide(pep) {
   // return p.Codon == peptide || p.Codon == triplet;
   return pep.Codon == peptide;
 }

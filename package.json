@@ -40,6 +40,7 @@
     "test": "vows --spec --isolate",
     "start": "node bin/aminosee",
     "build": "browserify AminoSee.js -o bundle.js",
+    "build2": "browserify bin/bundler.js -o bundle.js",
     "gui": "electron ."
   },
   "keywords": [
