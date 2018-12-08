@@ -993,7 +993,7 @@ function setupFNames() {
   ( artistic ? pngAmino += "_artistic" : pngAmino += "_sci")
 
   justNameOfPNG =     `${justNameOfDNA}${ext}_linear${pngAmino}.png`;
-  justNameOfHILBERT =     `${justNameOfDNA}${ext}_hilbert.png`;
+  justNameOfHILBERT =     `${justNameOfDNA}${ext}_hilbert${pngAmino}.png`;
   justNameOfHTML =     `${justNameOfDNA}${ext}_aminosee.html`;
 
   filenameTouch =   filePath + "/" + justNameOfDNA + ext + pngAmino + ".aminosee.touch";
@@ -1087,7 +1087,6 @@ function setupFNames() {
 
   }
   function welcomeMessage() {
-    // printRadMessage();
     output('Welcome to the AminoSeeNoEvil DNA Viewer!');
     output(`This CLI is to convert sequence found in ASCII/RTF-8 text files - tested with .mfa .fa .gbk up to  into .png graphics. works with .mfa .fa .gbk DNA text files. It's been tested with files up to 3 GB, and uses asynchronous streaming architecture!`);
     output(' ');
@@ -1122,7 +1121,7 @@ function setupFNames() {
     output('     aminosee * --golden --peptide=phenyl (Phenylalanine codons)');
     output('     aminosee * --fixed  --triplet=GGT   (higlighted GGT codons)');
     output('     aminosee serve                         (fire up the demo!!)');
-
+    printRadMessage();
   }
   function saveDocuments(callback) {
     status = "save"; // <-- this is the true end point of the program!
