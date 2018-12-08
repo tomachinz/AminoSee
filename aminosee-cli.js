@@ -6,6 +6,7 @@
 //       by Tom Atkinson            aminosee.funk.nz
 //        ah-mee no-see       "I See It Now - I AminoSee it!"
 let raceDelay = 666;
+let raceTimer = false;
 let linearMagnitudeMax = 7; // magnitude is the size of upper limit for linear render to come *under*
 let dimension = 6; // dimension is the -1 size the hilbert projection is be downsampled to
 const maxMagnitude = 7; // max for auto setting
@@ -151,7 +152,7 @@ function setupKeyboardUI() {
     if (key && key.name == 't') {
       saveHilbert();
     }
-    if (key && key.name == 'Space' ||  key.name == 'Enter') {
+    if (key && key.name == 'Space' || key.name == 'Enter') {
       msPerUpdate = 200;
     }
     if (key && key.name == 'u') {
@@ -523,7 +524,7 @@ function pollForStream() {
   out(".polling.");
 
   if (renderLock) {
-    setTimeout(() => {
+    raceTimer = setTimeout(() => {
       log(`raceDelay inside pollForStream`)
       calcUpdate();
       printRadMessage(["POLLING", "Render", filename, "Now", "RENDER", "LOCKED", percentComplete]);
@@ -669,8 +670,9 @@ function theSwitcher(bool) {
       pollForStream();
       return true;
     } else {
-      output("polling none");
-      // quit();
+      output(`polling none renderLock: ${renderLock}`);
+      clearTimeout(raceTimer);
+      quit();
       return false;
     }
   }
@@ -2059,26 +2061,22 @@ function saveHilbert(array) {
 
       function resampleByFactor(shrinkFactor) {
         let sampleClock = 0;
-        let fac = shrinkFactor;
+        let brightness = 1/shrinkFactor;
         for (z = 1; z<hilbPixels[dimension]; z++) {
-          log(` ${z}  ${sampleClock}  ${shrinkFactor} ${fac} ${hilbPixels[dimension]} `);
+          log(` ${z}  ${sampleClock}  ${shrinkFactor} ${brightness} ${hilbPixels[dimension]} `);
           let sum = z*4;
           let clk = sampleClock*4;
           sampleClock++;
-          rgbArray[sum+0] = rgbArray[clk+0]*shrinkFactor;
-          rgbArray[sum+1] = rgbArray[clk+1]*shrinkFactor;
-          rgbArray[sum+2] = rgbArray[clk+2]*shrinkFactor;
+          rgbArray[sum+0] = rgbArray[clk+0]*brightness;
+          rgbArray[sum+1] = rgbArray[clk+1]*brightness;
+          rgbArray[sum+2] = rgbArray[clk+2]*brightness;
           rgbArray[sum+3] = 255;
-          // dot(z, 160000);
-          while(z*fac > sampleClock) {
-            // dot(z, 160000);
-            // dot(z, 1000000, ` ${z} ${shrinkFactor} ${fac} ${hilbPixels[dimension]} ${sampleClock}`)
-            // log(` ${z} ${shrinkFactor} ${fac} ${hilbPixels[dimension]} ${sampleClock}`);
+          while(z*shrinkFactor > sampleClock) {
             sampleClock++;
             clk = sampleClock*4;
-            rgbArray[sum+0] += rgbArray[clk+0]*shrinkFactor;
-            rgbArray[sum+1] += rgbArray[clk+1]*shrinkFactor;
-            rgbArray[sum+2] += rgbArray[clk+2]*shrinkFactor;
+            rgbArray[sum+0] += rgbArray[clk+0]*brightness;
+            rgbArray[sum+1] += rgbArray[clk+1]*brightness;
+            rgbArray[sum+2] += rgbArray[clk+2]*brightness;
           }
         }
       }
