@@ -15,15 +15,15 @@ many_size_hilbert() {
 
   aminosee_do $1 -m 1 --no-updates $2 $3
   # sleep 4
-  aminosee_do $1 -m 2 --no-updates $2 $3 &
+  aminosee_do $1 -m 2 --no-updates $2 $3
   # sleep 4
-  aminosee_do $1 -m 3  --no-updates $2 $3 &
+  aminosee_do $1 -m 3  --no-updates $2 $3
   # sleep 4
-  aminosee_do $1 -m 4 --no-updates $2 $3 &
+  aminosee_do $1 -m 4 --no-updates $2 $3
   # sleep 4
-  aminosee_do $1 -m 5 --no-updates $2 $3 &
+  aminosee_do $1 -m 5 --no-updates $2 $3
   # sleep 4
-  aminosee_do $1 -m 6 --no-updates $2 $3 &
+  aminosee_do $1 -m 6 --no-updates $2 $3
   # sleep 4
   aminosee_do $1 -m 7 --no-updates $2 $3
   # sleep 4
@@ -102,23 +102,23 @@ find_way_peptides () {
   echo "                                         =///"
 }
 
-parallel_peptides megabase.fa -f
-parallel_peptides $1 $2 $3 $4 $5 $6
+parallel_peptides megabase.fa -f &
+parallel_peptides $1 $2 $3 $4 $5 $6 &
 
-aminosee_do * --reg
+aminosee_do * --reg &
 many_size_hilbert megabase.fa
 many_size_hilbert $1 $2 $3 $4 $5 $6
 find_way_peptides $1 $2 $3 $4 $5 $6
 
-parallel_peptides streptococcus_virus_2972_uid15254-NC_007019.gbk
-parallel_peptides streptococcus_phage_5093_uid38299-NC_012753.gbk
-parallel_peptides "Octopus_bimaculoides_37653_chrUn.fa"
+parallel_peptides streptococcus_virus_2972_uid15254-NC_007019.gbk &
+parallel_peptides streptococcus_phage_5093_uid38299-NC_012753.gbk &
+parallel_peptides "Octopus_bimaculoides_37653_chrUn.fa" &
 parallel_peptides "chrY Pan troglodytes C0471 Clint.gbk"
-parallel_peptides "homo-sapien-hs_ref_GRCh38.p12_chr2.fa"
+parallel_peptides "homo-sapien-hs_ref_GRCh38.p12_chr2.fa" &
 parallel_peptides Gorilla-C2AB-9595_ref_gorGor4_chr2B.mfa
-parallel_peptides Gorilla-C2AB-9595_ref_gorGor4_chr2A.gbk
+parallel_peptides Gorilla-C2AB-9595_ref_gorGor4_chr2A.gbk &
 parallel_peptides Gorilla-C2AB-9595_ref_gorGor4_chr2A.fa
-parallel_peptides Brown-Kiwi-aptMan1.fa
+parallel_peptides Brown-Kiwi-aptMan1.fa &
 parallel_peptides "Cannabis sativa subsp. indica cultivar LA Confidential.fa"
 parallel_peptides "Eucalyptus grandis cultivar BRASUZ1.gbk"
 
