@@ -7,7 +7,7 @@ body {
 }
 /* DEBUG */
 div, span {
-	border: 1px dotted white;
+	/* border: 1px dotted white; */
 }
 #supercontainer {
 padding: 0;

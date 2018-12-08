@@ -13,16 +13,16 @@ aminosee_test () {
   nice aminosee $1 -f --no-updates -m 1  $2 $3 $4 $5
   echo "doing  $1 $2 $3 $4 $5"
   sleep 1
-  nice aminosee $1 megabase.fa --no-updates -m 5 $1 $2 $3 $4 $5
+  nice aminosee $1 megabase.fa --no-updates -m 5 $1 $2 $3 $4 $5 &
   echo "doing  $1 $2 $3 $4 $5"
   sleep 1
-  nice aminosee megabase.fa $1 --no-updates -m 9 $1 $2 $3 $4 $5
+  nice aminosee megabase.fa $1 --no-updates -m 9 $1 $2 $3 $4 $5 &
   echo "doing  $1 $2 $3 $4 $5"
   sleep 1
-  nice aminosee $1 megabase.fa  $1 -f --no-updates -c 500 $1 $2 $3 $4 $5
+  nice aminosee $1 megabase.fa  $1 -f --no-updates -c 500 $1 $2 $3 $4 $5 &
   echo "doing  $1 $2 $3 $4 $5"
   echo "backgrounded... sleeping for 2 seconds"
-  sleep 2
+  sleep 1
   echo "resuming..."
 }
 

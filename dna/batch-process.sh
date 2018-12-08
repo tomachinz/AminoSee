@@ -14,19 +14,19 @@ many_size_hilbert() {
   echo "                                         =///"
 
   aminosee_do $1 -m 1 --no-updates
-  sleep 4
+  # sleep 4
   aminosee_do $1 -m 2 --no-updates &
-  sleep 4
+  # sleep 4
   aminosee_do $1 -m 3  --no-updates &
-  sleep 4
+  # sleep 4
   aminosee_do $1 -m 4 --no-updates &
-  sleep 4
+  # sleep 4
   aminosee_do $1 -m 5 --no-updates &
-  sleep 4
+  # sleep 4
   aminosee_do $1 -m 6 --no-updates &
-  sleep 4
+  # sleep 4
   aminosee_do $1 -m 7 --no-updates
-  sleep 4
+  # sleep 4
   aminosee_do $1 -m 8 --no-updates
 }
 
@@ -71,7 +71,7 @@ aminosee_do $1 $2 $3   --peptide=Histidine
 
 
 
-other_way_peptides () {
+find_way_peptides () {
   echo "                                         =///"
   echo "-------------------------------------------"
   echo STARTING PARALLEL DECODE FOR $1 $2 $3
@@ -110,16 +110,12 @@ find -f *.fa *.mfa *.gbk *.txt -exec  aminosee {}      $1 $2   --peptide=Histidi
   echo "                                         =///"
 }
 
-
-many_size_hilbert megabase.fa -f
+aminosee_do * --reg
+many_size_hilbert megabase.fa
 many_size_hilbert $1 $2 $3 $4 $5 $6
-
 parallel_peptides $1 $2 $3 $4 $5 $6
+find_way_peptides $1 $2 $3 $4 $5 $6
 
-other_way_peptides $1 $2 $3 $4 $5 $6
-# aminosee * -d &
-#
-#
 parallel_peptides megabase.fa
 parallel_peptides streptococcus_virus_2972_uid15254-NC_007019.gbk
 parallel_peptides streptococcus_phage_5093_uid38299-NC_012753.gbk

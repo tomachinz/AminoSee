@@ -1,35 +1,149 @@
 <!DOCTYPE html>
-<!-- saved from url=(0052)https://threejs.org/examples/webgl_lines_colors.html -->
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-	<title>AminoSee 3D DNA Visualisation w/ 32,768 Point Hilbert Curve</title>
+	<title>AminoSeeNoEvil :: WebGL 3D DNA Visualisation Pseudo-Hilbert Curve Projection :: Funk NZ</title>
+	<meta name="description" content="A new way to view DNA that attributes a colour hue to each Amino acid codon triplet">
+
 	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+	<meta http-equiv="Content-Security-Policy" content="default-src https://dev.funk.co.nz https://www.funk.co.nz * data: blob: 'unsafe-inline' 'unsafe-eval' ws: wss:;">
+	<script src="node_modules/three/build/three.min.js"></script>
+	<script src="node_modules/jquery/dist/jquery.min.js"></script>
+	<script src="public/hilbert3D.js"></script>
+	<script src="public/hilbert2D.js"></script>
+	<script src="public/WebGL.js"></script>
+	<script src="node_modules/hammerjs/hammer.min.js"></script>
+	<!-- <script src="public/AminoSee.js"></script> -->
+	<script src="bundle.js"></script>
 
-	<script src="./hilbert-curve_files/three.js"></script>
-	<script src="./hilbert-curve_files/hilbert3D.js"></script>
-	<script src="./hilbert-curve_files/WebGL.js"></script>
-	<script src="./hilbert-curve_files/hammer.min.js"></script>
-	<script src="./hilbert-curve_files/AminoSee.js"></script>
-	<link rel="stylesheet" type="text/css" href="./hilbert-curve_files/style.css">
+	<link rel="stylesheet" type="text/css" href="public/AminoSee.css">
+	<link href='https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz:700,400,200,100' rel='stylesheet' type='text/css'>
+	<link href="https://www.funk.co.nz/css/menu.css" rel="stylesheet">
+	<link href="https://www.funk.co.nz/css/funk2014.css" rel="stylesheet">
+	<!-- Funk.nz menubar include -->
+	<!-- Google Tag Manager -->
+	<noscript><iframe src="//www.googletagmanager.com/ns.html?id=GTM-P8JX"
+		height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+		<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+		new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+		j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+		'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+	})(window,document,'script','dataLayer','GTM-P8JX');</script>
+	<!-- End Google Tag Manager -->
+
 </head>
-<body onload="pageLoaded()">
-	<div id="info">
-		<h1>AminoSee</h1>
-		<h2>DNA viewer. Drop an text file with DNA below.</h2>
+<body id="webgl" class="black nocse">
+	<div id="bgCanvFixed">
+		<canvas id="canvas" width="512" height="512" style="width: 512px; height: 512px;"></canvas>
+	</div>
 
-		<p id="status">Running</p>
-		<input type="button" id="pause" name="reset" value="Pause" onclick="togglePause()">
-		<input type="button" id="spin" name="spin" value="Still" onclick="toggleSpin()">
-		<input type="file" id="files" name="file" value="example-sequnce.txt" />
-		<output id="list"></output>
 
-		<!-- <button onclick="abortRead();">Cancel read</button> -->
-		<label><input id="levels" type="number" name="quantity" value="2" min="1" max="6"> Number of fractal levels</label>
-		<div id="progress_bar">
-			<div class="percent">0%</div>
-		</div>
-
-		<!-- <canvas width="1560" height="618" style="width: 1560px; height: 718px;"></canvas> -->
-		<canvas width="800" height="600" style="width: 800px; height: 600px;"></canvas>
+	<div id="supercontainer">
 		<div id="viewPortSize" class="bottom_right" style="display: none; background-color: rgb(0, 0, 0); color: rgb(255, 255, 255); font-size: 12px;"></div>
+		<!-- <div id="colorPicker" class="hidden">
+			<canvas id="rhinoCanv" width="578" height="200"></canvas>
+			<canvas id="cloudCanvas" width="578" height="200" style="display:none;"></canvas>
+			<a href="#" download="aminosee-dna-viewer.png">download png</a>
+			<div id="color" style="width:200px;height:50px;float:left"></div>
+		</div> -->
+		<!-- <div id="info"> -->
+
+
+
+				<a target="_blank" onclick="opn('https://www.funk.co.nz/')" href="https://www.funk.co.nz/" style="width: 100px;" title="Return to FUNK Homepage"><img src="https://www.funk.co.nz/images/nav/funk-logo-140px.png" width="140" height="70" alt="www.funk.co.nz" style="position: fixed; top: -2px; left: 26px;"/></a>
+
+		<div id="info">
+			<div id="modalBox" class="hidden">
+				im normally hidden
+				<input type="button" id="modalBoxButton" value="OK [ENTER]">
+			</div>
+
+
+
+
+			<div id="monkeys">
+				<div>
+					<input type="button" id="hide" name="hide" value="Hide Controls [H]" onclick="toggleControls()"><br>
+					<a href="https://www.funk.co.nz/aminosee/" onclick="toggleControls(); return false;">
+						<img src="https://www.funk.co.nz/aminosee/public/seenoevilmonkeys.jpg" id="dragitem">
+					</a>
+					<!-- <h1>AminoSeeNoEvil</h1> -->
+					<h1>Amino<span style="color: #888888;">See</span><span style="color: #dddddd;">NoEvil</span></h1>
+					<div class="hidable">
+						<h2 id="h2">DNA/RNA Chromosome Viewer</h2>
+						<p id="description" class="fineprint hidable">A new way to view DNA that attributes a colour hue to each Amino acid codon triplet</p>
+
+
+
+					</div>
+				</div>
+			</div>
+
+			<!-- <div class=" header" style="color: white;"> -->
+
+			<div id="status" class="headingStatus  header">
+				...loading...
+			</div>
+			<div id="stats" class="stats whitetext">
+				<h6>loading</h6>
+				<pre>
+					...loading...
+				</pre>
+			</div>
+
+			<!-- </div>
+			class="gridcontainer"
+		-->
+		<div id="controls">
+
+			<div id="fileheader">
+				<label class="custom-file-upload">
+					Custom Upload
+					<input type="file" id="choosefiles" name="file" value="example-sequence.fa" multiple /></label>
+					<input type="button" id="cancel" class="fineprint small hidden" name="cancel" value="Cancel" onclick="cancel()">
+					<span class="fineprint whitetext">Any ASCII text file containing DNA or RNA sequences in first 1k</span>
+					<br />
+Hire Me: <a href="https://tomachi.co/about/hire-me">for recruiters</a>
+
+					<output id="list"></output>
+				</div>
+				<br>
+				<!-- <div class=" gadgets"> -->
+				<input type="button" name="lessdetail" value="Less Detail [-]" onclick="lessdetail()" title="Less detail">
+				<!-- </div> -->
+				<!-- <div class=" gadgets"> -->
+				<input type="button" name="moredetail" value="More Detail [+]" onclick="moredetail()" title="More detail">
+				<!-- </div> -->
+				<!-- <div class=" gadgets"> -->
+				<input type="button" id="pause" name="pause" value="Pause [P]" onclick="togglePause()">
+				<!-- </div> -->
+				<!-- <div class=" gadgets"> -->
+				<input type="button" id="spin" name="spin" value="Stop Rotate [R]" onclick="toggleSpin()">
+				<!-- </div> -->
+				<!-- <div class=" gadgets" style="color: #880000; font-weight: bold;"> -->
+				<input type="button" name="amongst" value="Get Amoungst It [G]" onclick="getAmongstIt()" title="Put the camera wang in the middle o dere">
+				<!-- </div> -->
+				<!-- <div class=" gadgets"> -->
+				<input type="button" id="perspective" name="perspective" value="Perspective [V]iew" onclick="toggleView()">
+				<!-- </div> -->
+
+				<!-- <div class=" gadgets"> -->
+				<input type="button" id="reset" name="reset" value="Reset [U]" onclick="reset()">
+				<!-- </div> -->
+
+				<input type="button" id="testcolour" name="testcolour" value="Test Colours [T]" onclick="testColour()">
+
+
+				<input type="button" id="fileupload" name="fileupload" value="Upload DNA Text [F]ile" onclick="toggleFileUpload()">
+				<br>
+				<label class="fineprint whitetext"><input type="checkbox" id="autostop" name="autostop" value="pause after running for 5 minutes" onchange="autostopChanged()" checked>pause after running for 5 minutes</label>
+
+			</div>
+
+
+			<div id="progress_bar" class="">
+				<div class="percent">0%</div>
+			</div>
+
+			<div class="footer"></div>
+		</div>
 	</div>
 </body></html>
