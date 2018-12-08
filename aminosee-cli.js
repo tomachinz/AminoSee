@@ -1970,15 +1970,15 @@ function saveHilbert(array) {
       // filenameHILBERT = filePath + "/" + justNameOfHILBERT;
 
       for (test = 0; test <= magnitude; test++) {
-        dot(test, 32768);
+        // dot(test, 32768);
         let filePath = path.resolve(__dirname);// + "/calibration/" ;
         let regmarks;
         ( ratio == true || reg == true ? regmarks = "_reg" : regmarks = "" )
         // ( artistic ?  regmarks = "_noregmarks" :  regmarks = "_reg")
 
         filenameHILBERT = filePath + "/AminoSee_Calibration_" + test + regmarks + ".png";
-        output("@");
-        out(`Magnitude ${test} curve generation. ${hilbPixels[test]} pixels `);
+        // output("@");
+        // out(`Magnitude ${test} curve generation. ${hilbPixels[test]} pixels `);
         dimension = test;
         patternsToPngAndMainArray(); // call with no array for test
         filenamePNG = filePath + "/AminoSee_Linear_" + test + regmarks + ".png";
