@@ -1957,16 +1957,17 @@ function saveHilbert(array) {
       log("Thats us cousin");
     }
     function generateTestPatterns() {
+      magnitude = maxMagnitude;
       output("TEST PATTERNS GENERATION");
       output("use -m to try different dimensions 8 is biggest or maybe 9 fresh after a reboot ");
       output("use -a to remove registration marks it looks a little cleaner without them ");
       log(`hilbPixels      ${magnitude} `);
       log(`hilbPixels      ${magnitude} `);
-      log(`hilbPixels      ${magnitude} `);
-      log(`hilbPixels      ${magnitude} `);
+      log(`hilbPixels      ${hilbPixels[magnitude]} `);
+      log(`magnitude      ${magnitude} `);
+      log(`maxMagnitude      ${maxMagnitude} `);
 
       // filenameHILBERT = filePath + "/" + justNameOfHILBERT;
-
 
       for (test = 0; test <= magnitude; test++) {
         dot(test, 32768);
@@ -1981,7 +1982,7 @@ function saveHilbert(array) {
         dimension = test;
         patternsToPngAndMainArray(); // call with no array for test
         filenamePNG = filePath + "/AminoSee_Linear_" + test + regmarks + ".png";
-        // arrayToPNG();
+        arrayToPNG();
       }
       log(`done with generateTestPatterns()`);
 
