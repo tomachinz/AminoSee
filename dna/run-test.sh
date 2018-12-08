@@ -7,23 +7,31 @@
 
 aminosee_test () {
   echo "doing  $1 $2 $3 $4 $5"
-  nice aminosee megabase.fa --no-updates -m 5 --ratio=gol  $2 $3 $4 $5
+  nice aminosee $1 $2 $3 $4 $5 --no-updates -m 5 --ratio=gol      --peptide=Ochre
 
   echo "doing  $1 $2 $3 $4 $5"
-  nice aminosee $1 -f --no-updates -m 1  $2 $3 $4 $5
+  nice aminosee $1 $2 $3 $4 $5 -f --no-updates -m 1 --ratio=sqr    --peptide=Cysteine
+
+  echo "doing  $1 $2 $3 $4 $5"
+  nice aminosee $1 $2 $3 $4 $5 --no-updates -m 5 $1 $2 $3 $4 $5    --peptide=Methionine &
   echo "doing  $1 $2 $3 $4 $5"
   sleep 1
-  nice aminosee $1 megabase.fa --no-updates -m 5 $1 $2 $3 $4 $5 &
+
+  nice aminosee $1 $2 $3 $4 $5 --no-updates -m 10 $1 $2 $3 $4 $5 --peptide=Phenylalanine &
   echo "doing  $1 $2 $3 $4 $5"
   sleep 1
-  nice aminosee megabase.fa $1 --no-updates -m 9 $1 $2 $3 $4 $5 &
+
+  nice aminosee $1 $2 $3 $4 $5 --no-updates -c 500 $1 $2 $3 $4 $5  --peptide=Opal &
   echo "doing  $1 $2 $3 $4 $5"
+  echo "backgrounded... sleeping for 2 seconds"
   sleep 1
-  nice aminosee $1 megabase.fa  $1 -f --no-updates -c 500 $1 $2 $3 $4 $5 &
+
+  nice aminosee $1 $2 $3 $4 $5 --no-updates --ratio=fix $1 $2 $3 $4 $5 --peptide=Arginine
   echo "doing  $1 $2 $3 $4 $5"
   echo "backgrounded... sleeping for 2 seconds"
   sleep 1
   echo "resuming..."
+
 }
 
   echo "                                         =///"
@@ -38,10 +46,10 @@ nice aminosee Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa megabase.fa  -
 nice aminosee Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa megabase.fa megabase.fa   -f --no-updates -d --peptide=Amber $1 $2 $3 &
 nice aminosee Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa megabase.fa megabase.fa   -f --no-updates -d --peptide=Ochre $1 $2 $3 &
 
-aminosee megabase.fa AAA-to-TTT-50k.txtmegabase.fa AAA-to-TTT-50k.txtmegabase.fa AAA-to-TTT-50k.txt megabase.fa -f --peptide=Proline --no-updates -v
-aminosee megabase.fa AAA-to-TTT-50k.txtmegabase.fa AAA-to-TTT-50k.txtmegabase.fa AAA-to-TTT-50k.txt megabase.fa 37653_ref_Octopus_bimaculoides_v2_0_chrUn.fa -f --peptide=Proline -k -v
-aminosee megabase.fa AAA-to-TTT-50k.txtmegabase.fa AAA-to-TTT-50k.txtmegabase.fa AAA-to-TTT-50k.txt megabase.fa 37653_ref_Octopus_bimaculoides_v2_0_chrUn.fa -f --peptide=Proline -v
-aminosee megabase.fa AAA-to-TTT-50k.txtmegabase.fa AAA-to-TTT-50k.txtmegabase.fa AAA-to-TTT-50k.txt megabase.fa 37653_ref_Octopus_bimaculoides_v2_0_chrUn.fa -f --peptide=Proline -v
+aminosee megabase.fa AAA-to-TTT-50k.txt megabase.fa AAA-to-TTT-50k.txt megabase.fa AAA-to-TTT-50k.txt megabase.fa -f --peptide=Proline --no-updates -v
+aminosee megabase.fa AAA-to-TTT-50k.txt megabase.fa AAA-to-TTT-50k.txt megabase.fa AAA-to-TTT-50k.txt megabase.fa 37653_ref_Octopus_bimaculoides_v2_0_chrUn.fa -f --peptide=Proline -k -v
+aminosee megabase.fa AAA-to-TTT-50k.txt megabase.fa AAA-to-TTT-50k.txt megabase.fa AAA-to-TTT-50k.txt megabase.fa 37653_ref_Octopus_bimaculoides_v2_0_chrUn.fa -f --peptide=Proline -v
+aminosee megabase.fa AAA-to-TTT-50k.txt megabase.fa AAA-to-TTT-50k.txt megabase.fa AAA-to-TTT-50k.txt megabase.fa 37653_ref_Octopus_bimaculoides_v2_0_chrUn.fa -f --peptide=Proline -v
 aminosee megabase.fa AAA-to-TTT-50k.txt Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa megabase.fa 37653_ref_Octopus_bimaculoides_v2_0_chrUn.fa -f --peptide=Proline -v
 
 aminosee_test $1 $2 $3 $4 $5 --no-updates --peptide=Glutamic
@@ -50,7 +58,8 @@ aminosee_test AAA-to-TTT-50k.txt megabase.fa  --peptide=Aspartic --no-updates
 aminosee_test Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa AAA-to-TTT-50k.txt --peptide=Amber --no-updates
 aminosee_test megabase.fa Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa AAA-to-TTT-50k.txt --peptide=Tryptophan --no-clear
 aminosee_test * --no-updates -v
-batch-process.sh
+
+
 aminosee_test             --peptide=Ochre
 # aminosee_test            $1 $2 2 $3 $4 --peptide=Glutamic &
 # aminosee_test            $1 $2 3 $3 $4 --peptide=Aspartic &
@@ -81,3 +90,6 @@ aminosee_test             --peptide=Arginine
   echo FINISHED PARALLEL DECODE FOR $1
   echo "-------------------------------------------"
   echo "                                         =///"
+
+  sleep 12
+  batch-process.sh
