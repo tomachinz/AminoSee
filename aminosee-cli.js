@@ -23,7 +23,7 @@ let artistic = false; // for Charlie
 let spew = false; // firehose your screen with DNA
 let report = true; // html reports
 let test = false;
-const overSampleFactor = 4.0;
+const overSampleFactor = 2.0;
 let updates = false;
 let clear;
 const maxMsPerUpdate = 12000; // milliseconds per update
@@ -1558,7 +1558,7 @@ ${renderSummary()}
 </div>
 <a href="#scrollDownToSeeImage" class="button" title"Click To Scroll Down To See Image"><br />
 <img width="128" height="128" style="border: 4px black;" src="${justNameOfHILBERT}">
-Scroll To Hilbert 2D Map  Image
+ScrHilbert 2D Map  Image
 </a>
 <a href="#scrollLINEAR" class="button" title"Click To Scroll Down To See LINEAR"><br />
 <img width="128" height="128" style="border: 4px black;" src="${justNameOfPNG}">
@@ -1601,13 +1601,13 @@ Scroll To Linear 1D Map Image
 for (i=0; i<pepTable.length; i++) {
   let thePep = pepTable[i];
   let theHue = thePep.Hue;
-  let c = hsvToRgb( theHue, 0.5, 1.0 );
+  let c = hsvToRgb( theHue/360, 0.5, 1.0 );
   log(thePep, theHue, c);
   html += `
-  <tr style="background-color: hsl(${theHue}, 50%, 100%);">
-  <td style="background-color: white;">${pepTable[i].Codon}</td>
-  <td style="background-color: hsl(${theHue}, 50%, 100%);">${theHue}°</td>
-  <td>${c}  #NOTWORK</td>
+  <tr style="background-color: hsl( ${theHue} , 50%, 100%);">
+  <td style="background-color: white;"> ${pepTable[i].Codon} </td>
+  <td style="background-color: hsl(${theHue}, 50%, 100%);"> ${theHue}°</td>
+  <td style="background-color: rgb(${c}); color: white; font-weight: bold; "> <p class="fineprint" style="background-color: black; background-color: rgba(0,0,0,0.5); color: white;">${c}</p> </td>
   <td>${pepTable[i].Histocount.toLocaleString()}</td>
   <td>${pepTable[i].Description}</td>
   </tr>
