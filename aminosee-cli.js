@@ -935,7 +935,7 @@ function setupFNames() {
   log("filePath in setupFname: " + filePath);
 
 
-  let ext = "." + extension;
+  let ext = getRegmark() + "." + extension;
   if (magnitude != false) {
     ext += ".m" + magnitude;
   } else {
@@ -1558,7 +1558,11 @@ ${renderSummary()}
 </div>
 <a href="#scrollDownToSeeImage" class="button" title"Click To Scroll Down To See Image"><br />
 <img width="128" height="128" style="border: 4px black;" src="${justNameOfHILBERT}">
-Scroll To Image
+Scroll To Hilbert 2D Map  Image
+</a>
+<a href="#scrollLINEAR" class="button" title"Click To Scroll Down To See LINEAR"><br />
+<img width="128" height="128" style="border: 4px black;" src="${justNameOfPNG}">
+Scroll To Linear 1D Map Image
 </a>
 
 
@@ -1634,6 +1638,7 @@ Non-AUG START codons are rarely found in eukaryotic genomes. Apart from the usua
 In prokaryotes, E. coli is found to use AUG 83%, GUG 14%, and UUG 3% as START codons. The lacA and lacI coding regions in the E coli lac operon don’t have AUG START codon and instead use UUG and GUG as initiation codons respectively.</p>
 <h2>Linear Projection</h2>
 The following image is in raster order, top left to bottom right:
+<a name="scrollLINEAR" ></a>
 <a href="${justNameOfPNG}" ><img src="${justNameOfPNG}"></a>
 
 `;
@@ -1913,11 +1918,11 @@ function saveHilbert(array) {
       .on('finish', () => {
         console.log(`linear png saved.   isHilbertPossible ${isHilbertPossible}`);
         // printRadMessage(["i think we're done", isHilbertPossible, justNameOfDNA ,howMany, updates]);
+        output("Finished linear png save.")
         if (howMany == 0 ) {
-          // setImmediate(() => {
-            output("Finished linear png save.")
-            // quit(1);
-          // });
+          setImmediate(() => {
+            quit(1);
+          });
         }
 
       }));
@@ -1956,6 +1961,9 @@ function saveHilbert(array) {
       }
       log("Thats us cousin");
     }
+    function getRegmark() {
+      return ( ratio == true || reg == true ? "_reg" : "" )
+    }
     function generateTestPatterns() {
       magnitude = maxMagnitude;
       output("TEST PATTERNS GENERATION");
@@ -1972,8 +1980,8 @@ function saveHilbert(array) {
       for (test = 0; test <= magnitude; test++) {
         // dot(test, 32768);
         let filePath = path.resolve(__dirname);// + "/calibration/" ;
-        let regmarks;
-        ( ratio == true || reg == true ? regmarks = "_reg" : regmarks = "" )
+        let regmarks = getRegmark();
+
         // ( artistic ?  regmarks = "_noregmarks" :  regmarks = "_reg")
 
         filenameHILBERT = filePath + "/AminoSee_Calibration_" + test + regmarks + ".png";
