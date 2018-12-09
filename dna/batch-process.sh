@@ -14,20 +14,20 @@ many_size_hilbert() {
   echo "                                         =///"
 
   aminosee_do $1 -m 1 --no-updates $2 $3
-  # sleep 4
-  aminosee_do $1 -m 2 --no-updates $2 $3
-  # sleep 4
-  aminosee_do $1 -m 3  --no-updates $2 $3
-  # sleep 4
-  aminosee_do $1 -m 4 --no-updates $2 $3
-  # sleep 4
-  aminosee_do $1 -m 5 --no-updates $2 $3
-  # sleep 4
-  aminosee_do $1 -m 6 --no-updates $2 $3
-  # sleep 4
-  aminosee_do $1 -m 7 --no-updates $2 $3
-  # sleep 4
-  aminosee_do $1 -m 8 --no-updates $2 $3
+
+  aminosee_do $1 -m 2 --no-updates $2 $3 &
+  sleep 2
+  aminosee_do $1 -m 3  --no-updates $2 $3 &
+  sleep 3
+  aminosee_do $1 -m 4 --no-updates $2 $3 &
+  sleep 4
+  aminosee_do $1 -m 5 --no-updates $2 $3 &
+  sleep 4
+  aminosee_do $1 -m 6 --no-updates $2 $3 &
+  sleep 4
+  aminosee_do $1 -m 7 --no-updates $2 $3 &
+  sleep 4
+  aminosee_do $1 -m 8 --no-updates $2 $3 &
 }
 
 parallel_peptides () {
@@ -37,27 +37,27 @@ parallel_peptides () {
   echo "-------------------------------------------"
   echo "                                         =///"
   aminosee_do $1 $2 $3
-  aminosee_do $1 $2 $3   --peptide=Ochre
+  aminosee_do $1 $2 $3   --peptide=Ochre &
   aminosee_do $1 $2 $3   --peptide=Glutamic
-  aminosee_do $1 $2 $3   --peptide=Aspartic
+  aminosee_do $1 $2 $3   --peptide=Aspartic &
   aminosee_do $1 $2 $3   --peptide=Amber
-  aminosee_do $1 $2 $3   --peptide=Cysteine
+  aminosee_do $1 $2 $3   --peptide=Cysteine &
   aminosee_do $1 $2 $3   --peptide=Glycine
-  aminosee_do $1 $2 $3   --peptide=Alanine
+  aminosee_do $1 $2 $3   --peptide=Alanine &
   aminosee_do $1 $2 $3   --peptide=Methionine
-  aminosee_do $1 $2 $3   --peptide=Valine
+  aminosee_do $1 $2 $3   --peptide=Valine &
   aminosee_do $1 $2 $3   --peptide=Leucine
-  aminosee_do $1 $2 $3   --peptide=Isoleucine
+  aminosee_do $1 $2 $3   --peptide=Isoleucine &
   aminosee_do $1 $2 $3   --peptide=Phenylalanine
-  aminosee_do $1 $2 $3   --peptide=Tryptophan
+  aminosee_do $1 $2 $3   --peptide=Tryptophan &
   aminosee_do $1 $2 $3   --peptide=Serine
-  aminosee_do $1 $2 $3   --peptide=Threonine
+  aminosee_do $1 $2 $3   --peptide=Threonine &
   aminosee_do $1 $2 $3   --peptide=Opal
-  aminosee_do $1 $2 $3   --peptide=Glutamine
+  aminosee_do $1 $2 $3   --peptide=Glutamine &
   aminosee_do $1 $2 $3   --peptide=Asparagine
-  aminosee_do $1 $2 $3   --peptide=Tyrosine
+  aminosee_do $1 $2 $3   --peptide=Tyrosine &
   aminosee_do $1 $2 $3   --peptide=Arginine
-  aminosee_do $1 $2 $3   --peptide=Lysine
+  aminosee_do $1 $2 $3   --peptide=Lysine &
   aminosee_do $1 $2 $3   --peptide=Histidine
   echo "                                         =///"
   echo "-------------------------------------------"
@@ -103,12 +103,12 @@ find_way_peptides () {
 }
 
 parallel_peptides megabase.fa -f &
-parallel_peptides $1 $2 $3 $4 $5 $6 &
-
-aminosee_do * --reg &
 many_size_hilbert megabase.fa
+parallel_peptides $1 $2 $3 $4 $5 $6
 many_size_hilbert $1 $2 $3 $4 $5 $6
 find_way_peptides $1 $2 $3 $4 $5 $6
+
+aminosee_do * --reg &
 
 parallel_peptides streptococcus_virus_2972_uid15254-NC_007019.gbk &
 parallel_peptides streptococcus_phage_5093_uid38299-NC_012753.gbk &
@@ -121,10 +121,6 @@ parallel_peptides Gorilla-C2AB-9595_ref_gorGor4_chr2A.fa
 parallel_peptides Brown-Kiwi-aptMan1.fa &
 parallel_peptides "Cannabis sativa subsp. indica cultivar LA Confidential.fa"
 parallel_peptides "Eucalyptus grandis cultivar BRASUZ1.gbk"
-
-many_size_hilbert Brown-Kiwi-aptMan1.fa 10
-# many_size_hilbert homo-sapien-hs_ref_GRCh38.p12_chr2.fa 10
-  # find -f *.fa *.mfa *.gbk *.txt | xargs -0 | aminosee -d
 
 # if [ $(uname)=Darwin ]; then
 #   echo macos
@@ -142,9 +138,6 @@ many_size_hilbert Brown-Kiwi-aptMan1.fa 10
 #   find *.fa *.mfa *.gbk *.txt -exec parallel_peptides {} $1 -f -d $2 $3 $4 $5 $6    \;
 #   find *.fa *.mfa *.gbk *.txt -exec aminosee {}          $1 -f -d $2 $3 $4 $5 $6    \;
 # fi
-
-# many_size_hilbert megabase.fa 1
-# many_size_hilbert Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa 2
 
 aminosee * -d -m 8
 aminosee * -d --ratio=golden
