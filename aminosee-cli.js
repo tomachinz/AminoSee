@@ -972,19 +972,14 @@ function setupFNames() {
     justNameOfDNA = justNameOfDNA.substring(0,11) + justNameOfDNA.substring(justNameOfDNA.length-11,justNameOfDNA.length);
   }
   log("CWD:")
-  let filePath = path.resolve(path.dirname(filename)) ;
-  // filePath += "" ;
+  let filePath = path.dirname(path.resolve(path.dirname(filename))) ;
+  filePath += "/output" ;
   log("filePath in setupFname: " + filePath);
 
 
   let ext = getRegmarks() + "." + extension;
   log(`FILE EXTENSIONS: ${ext}`);
-  log(`FILE EXTENSIONS: ${ext}`);
-  log(`FILE EXTENSIONS: ${ext}`);
-  log(`FILE EXTENSIONS: ${ext}`);
-  log(`FILE EXTENSIONS: ${ext}`);
-  log(`FILE EXTENSIONS: ${ext}`);
-  log(`FILE EXTENSIONS: ${ext}`);
+
   if (magnitude != false) {
     ext += ".m" + magnitude;
   } else {
