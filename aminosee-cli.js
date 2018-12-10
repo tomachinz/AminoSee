@@ -235,6 +235,8 @@ module.exports = () => {
     default: { clear: true, updates: true },
     '--': true
   });
+
+
   if (args.keyboard || args.k) {
     keyboard = true;
     output(`interactive keyboard mode enabled`)
@@ -434,6 +436,9 @@ module.exports = () => {
     updates = false;
   }
 
+  mkdir('calibration');
+  mkdir('output');
+
   log(args);
   let cmd = args._[0];
   log(args._);
@@ -444,7 +449,10 @@ module.exports = () => {
     output("output test patterns");
     updates = true;
     pngImageFlags = "_test_pattern";
-    generateTestPatterns();
+    setTimeout(() => {
+      // printRadMessage();
+      generateTestPatterns();
+    }, raceDelay);
   } else {
     test = false;
   }
@@ -1826,10 +1834,11 @@ function saveHilbert(array) {
       hilbertImage[hilbertLinear+2] = (perc *2550)%255;
       hilbertImage[hilbertLinear+3] = 255 - ((i%2)*24);
 
-      hilbertImage[hilbertLinear+0] = 255 ;
-      hilbertImage[hilbertLinear+1] = 255 - (hilbertImage[hilbertLinear+1]/8);
-      hilbertImage[hilbertLinear+2] = 255;
-      hilbertImage[hilbertLinear+3] = 255;
+
+      hilbertImage[hilbertLinear+0] = 255 - (hilbertImage[hilbertLinear+0]);
+      hilbertImage[hilbertLinear+1] = 255 - (hilbertImage[hilbertLinear+1]);
+      hilbertImage[hilbertLinear+2] = 255 - (hilbertImage[hilbertLinear+2]);
+      hilbertImage[hilbertLinear+3] = 200;
     } else {
 
       hilbertImage[hilbertLinear] =   rgbArray[cursorLinear];
@@ -1993,6 +2002,19 @@ function saveHilbert(array) {
 function getRegmarks() {
   return ( ratio == true || reg == true ? "_reg" : "" )
 }
+function mkdir(d) {
+  log(`mkdir ${d} `)
+
+  let filePath = path.resolve(__dirname);// + "/calibration/" ; filePath + "/calibration/"
+  d = filePath + "/" + d;
+
+  if (!fs.existsSync(d)){
+    log(`mkdir GREAT SUCCESS ${d}`)
+      fs.mkdirSync(d);
+  } else {
+    log(`mkdir ALREADY GREAT ${d}`)
+  }
+}
 function generateTestPatterns() {
   magnitude = maxMagnitude;
   output("TEST PATTERNS GENERATION");
@@ -2003,6 +2025,7 @@ function generateTestPatterns() {
   log(`hilbPixels      ${hilbPixels[magnitude]} `);
   log(`magnitude      ${magnitude} `);
   log(`maxMagnitude      ${maxMagnitude} `);
+
 
   // filenameHILBERT = filePath + "/" + justNameOfHILBERT;
 
@@ -2028,7 +2051,6 @@ function fakeReportInit(magnitude) {
 
   let filePath = path.resolve(__dirname);// + "/calibration/" ;
   let regmarks = getRegmarks();
-
   justNameOfDNA = `AminoSee_Calibration_${ test }${ regmarks }`;
   justNameOfPNG = `${justNameOfDNA}_linear.png`;
   justNameOfHILBERT = `${justNameOfDNA}_hilbert.png`;
@@ -2082,11 +2104,11 @@ function patternsToPngAndMainArray() {
     hilbertImage[hilbertLinear+3] = 255; // slight edge in alpha
 
     if (thinWhiteSlice < 5 && reg) { // 5 one out of 10,000
-      log(`@i ${i}   hilbX, hilbY `);
-      hilbertImage[hilbertLinear+0] = 255 ;
-      hilbertImage[hilbertLinear+1] = 255 - (hilbertImage[hilbertLinear+1]/8);
-      hilbertImage[hilbertLinear+2] = 255;
-      hilbertImage[hilbertLinear+3] = 255;
+      // log(`@i ${i}   hilbX, hilbY `);
+      hilbertImage[hilbertLinear+0] = 255 - (hilbertImage[hilbertLinear+0]);
+      hilbertImage[hilbertLinear+1] = 255 - (hilbertImage[hilbertLinear+1]);
+      hilbertImage[hilbertLinear+2] = 255 - (hilbertImage[hilbertLinear+2]);
+      hilbertImage[hilbertLinear+3] = 200;
     }
 
     rgbArray[cursorLinear+0] = hilbertImage[hilbertLinear+0];
