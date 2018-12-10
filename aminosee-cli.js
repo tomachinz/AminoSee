@@ -655,8 +655,9 @@ function pollForStream() {
       // theSwitcher(false);
       return false;
     } else {
-      if (!checkLocks(filenameTouch)) {
-        log("!checkLocks(filenameTouch) " + !checkLocks(filenameTouch));
+      let temp = !checkLocks(filenameTouch);
+      if (temp) {
+        log("!checkLocks(filenameTouch) " + temp);
         theSwitcher(false); // <---- FAIL
         return false;
       } else {
