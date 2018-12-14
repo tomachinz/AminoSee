@@ -23,7 +23,7 @@ let artistic = false; // for Charlie
 let spew = false; // firehose your screen with DNA
 let report = true; // html reports
 let test = false;
-const overSampleFactor = 3.0;
+const overSampleFactor = 4.0;
 let updates = false;
 let clear;
 const maxMsPerUpdate = 12000; // milliseconds per update
@@ -693,12 +693,12 @@ function theSwitcher(bool) {
     return true;
   } else  {
     status = "polling"
-    output(howMany);
+    log(howMany);
     if (howMany > 0 ) {
       pollForStream();
       return true;
     } else {
-      output(`polling none renderLock: ${renderLock}`);
+      log(`polling none renderLock: ${renderLock}`);
       clearTimeout(raceTimer);
       quit();
       return false;
@@ -795,7 +795,7 @@ async function initStream(f) {
   .on('error', function(err){
     status = "stream error";
 
-    output('Error while reading file: ' + filename, err.reason);
+    log('Error while reading file: ' + filename, err.reason);
     console.dir(err)
     log(status)
   })
@@ -880,20 +880,20 @@ function autoconfCodonsPerPixel() { // requires baseChars maxpix defaultC
 
   if (magnitude != undefined) {
     if ( magnitude < computersGuess) {
-      output(`It mite be possible to get higher resolution with --magnitude ${computersGuess}`)
+      log(`It mite be possible to get higher resolution with --magnitude ${computersGuess}`)
     } else if ( magnitude < computersGuess ) {
-      output(`Your --magnitude of ${magnitude} is larger than my default of ${computersGuess}`)
+      log(`Your --magnitude of ${magnitude} is larger than my default of ${computersGuess}`)
     }
   } else {
     if ( magnitude < computersGuess) {
-      output(`It mite be possible to get higher resolution with --magnitude ${computersGuess}`)
+      log(`It mite be possible to get higher resolution with --magnitude ${computersGuess}`)
       // default of 6
     } else {
       if ( computersGuess < maxMagnitude) {
-        output(`Image is not super large, fitting output to --magnitude ${computersGuess}`)
+        log(`Image is not super large, fitting output to --magnitude ${computersGuess}`)
         magnitude = computersGuess;
       } else {
-        output(`Image is big. Limiting size to --magnitude ${maxMagnitude}`)
+        log(`Image is big. Limiting size to --magnitude ${maxMagnitude}`)
         magnitude = maxMagnitude;
       }
     }
@@ -904,7 +904,7 @@ function autoconfCodonsPerPixel() { // requires baseChars maxpix defaultC
   log(`magnitude is ${magnitude} new maxpix: ${maxpix} `)
   if (estimatedPixels < (maxpix) ) { // for sequence smaller than the screen
     if (userCPP != -1)  {
-      output("its not recommended to use anything other than --codons 1 for small genomes, better to reduce the --magnitude")
+      log("its not recommended to use anything other than --codons 1 for small genomes, better to reduce the --magnitude")
     } else {
       codonsPerPixel = defaultC; // normally we want 1:1 for smalls
     }
@@ -912,7 +912,7 @@ function autoconfCodonsPerPixel() { // requires baseChars maxpix defaultC
     codonsPerPixel = (estimatedPixels * overSampleFactor) / maxpix;
     if (userCPP != -1) {
       if (userCPP < codonsPerPixel) {
-        output(terminalRGB(`WARNING: Your target Codons Per Pixel setting ${userCPP} will make an estiamted ${Math.round(estimatedPixels / userCPP).toLocaleString()} is likely to exceed the max image size of ${maxpix.toLocaleString()}, sometimes this causes an out of memory error. My machine spit the dummy at 1.7 GB of virtual memory use by node, lets try yours. We reckon ${codonsPerPixel} would be better but will give it a try...`))
+        log(terminalRGB(`WARNING: Your target Codons Per Pixel setting ${userCPP} will make an estiamted ${Math.round(estimatedPixels / userCPP).toLocaleString()} is likely to exceed the max image size of ${maxpix.toLocaleString()}, sometimes this causes an out of memory error. My machine spit the dummy at 1.7 GB of virtual memory use by node, lets try yours. We reckon ${codonsPerPixel} would be better but will give it a try...`))
       } else {
         codonsPerPixel = userCPP; // they picked a smaller size than me. therefore their computer less likely to melt.
       }
@@ -920,7 +920,7 @@ function autoconfCodonsPerPixel() { // requires baseChars maxpix defaultC
   }
 
   if (userCPP != -1 && userCPP != codonsPerPixel) {
-    output(terminalRGB(`Your selected codons per pixel setting was alterered from ${existing} to ${codonsPerPixel} `, 255, 255, 255));
+    log(terminalRGB(`Your selected codons per pixel setting was alterered from ${existing} to ${codonsPerPixel} `, 255, 255, 255));
   } else {
     log(`no change to your chosen cpp ${userCPP}`);
   }
@@ -1235,15 +1235,15 @@ function setupFNames() {
     try {
       if (fs.statSync(f) == true) {
         baseChars = fs.statSync(f).size;
-        output(`PROBABLY getFilesizeInBytes ${baseChars} File Found at: ${f}`);
+        log(`PROBABLY getFilesizeInBytes ${baseChars} File Found at: ${f}`);
         return baseChars;
       } else {
         baseChars = fs.statSync(f).size;
-        output(`MAYBE getFilesizeInBytes ${baseChars} File Found at: ${f}`);
+        log(`MAYBE getFilesizeInBytes ${baseChars} File Found at: ${f}`);
         return baseChars;
       }
     } catch(e) {
-      output("File error: " + e);
+      log("File error: " + e);
       return -1;
     }
   }
@@ -1271,7 +1271,7 @@ function setupFNames() {
       clearTimeout(updatesTimer);
       status = "bye";
       // msPerUpdate = 0;
-      // output("press Control-C again to quit; or.... try T to output test patterns");
+      // log("press Control-C again to quit; or.... try T to output test patterns");
       if (keyboard) {
         try {
           process.stdin.setRawMode(false);
@@ -1284,11 +1284,11 @@ function setupFNames() {
       // updates = false;
 
       if ( howMany > 0 ) {
-        output("Continuing...");
+        log("Continuing...");
         pollForStream();
       } else {
         log('really bye. like process.exit type bye.');
-        output(" ");
+        log(" ");
         printRadMessage([`last file: ${filename}`,"bye","bye","bye","bye","bye"]);
       }
     } else {
@@ -1809,7 +1809,7 @@ function saveHilbert(array) {
   let hilbertImage = [hilpix*4];
   let linearpix = rgbArray.length / 4;
   shrinkFactor = linearpix / hilpix;
-  log(`shrinkFactor pre ${shrinkFactor} = hilpix ${hilpix} / linearpix ${linearpix }`);
+  log(`shrinkFactor pre ${shrinkFactor} = linearpix ${linearpix } /  hilpix ${hilpix}  `);
   resampleByFactor(shrinkFactor);
   log(filenameHILBERT);
   log(`shrinkFactor post ${shrinkFactor}`);
@@ -2140,23 +2140,52 @@ function patternsToPngAndMainArray() {
   function resampleByFactor(shrinkFactor) {
     let sampleClock = 0;
     let brightness = 1/shrinkFactor;
-    for (z = 1; z<hilbPixels[dimension]; z++) {
+    let antiAliasArray = [ hilbPixels[dimension] * 2 * 4 ]; // 1 dimensional data only needs 2 x aa
+
+    // BLOW IT UP DOUBLE SIZE:
+    for (z = 0; z<hilbPixels[dimension]*2; z++) { // 2x AA
       // log(` ${z}  ${sampleClock}  ${shrinkFactor} ${brightness} ${hilbPixels[dimension]} `);
       let sum = z*4;
       let clk = sampleClock*4;
       sampleClock++;
-      rgbArray[sum+0] = rgbArray[clk+0]*brightness;
-      rgbArray[sum+1] = rgbArray[clk+1]*brightness;
-      rgbArray[sum+2] = rgbArray[clk+2]*brightness;
-      rgbArray[sum+3] = 255;
-      while(z*shrinkFactor > sampleClock) {
+
+      antiAliasArray[sum+0] = rgbArray[clk+0]*brightness;
+      antiAliasArray[sum+1] = rgbArray[clk+1]*brightness;
+      antiAliasArray[sum+2] = rgbArray[clk+2]*brightness;
+      antiAliasArray[sum+3] = rgbArray[clk+3]*brightness;
+
+      while(z*shrinkFactor > sampleClock * 2) {
         sampleClock++;
         clk = sampleClock*4;
-        rgbArray[sum+0] += rgbArray[clk+0]*brightness;
-        rgbArray[sum+1] += rgbArray[clk+1]*brightness;
-        rgbArray[sum+2] += rgbArray[clk+2]*brightness;
+
+        antiAliasArray[sum+0] += rgbArray[clk+0]*brightness;
+        antiAliasArray[sum+1] += rgbArray[clk+1]*brightness;
+        antiAliasArray[sum+2] += rgbArray[clk+2]*brightness;
+        antiAliasArray[sum+3] += rgbArray[clk+3]*brightness;
       }
     }
+
+    // SHRINK IT BY HALF:
+    sampleClock = 0;
+    for (aa = 0; aa<hilbPixels[dimension]; aa++) { // 2x AA
+      let sum = z*4;
+      let clk = sampleClock*4*2; // 2 X AA
+
+      rgbArray[sum+0] = antiAliasArray[clk+0]*brightness;
+      rgbArray[sum+1] = antiAliasArray[clk+1]*brightness;
+      rgbArray[sum+2] = antiAliasArray[clk+2]*brightness;
+      rgbArray[sum+3] = antiAliasArray[clk+3]*brightness;
+
+      // anti-alias
+      rgbArray[sum+0] += antiAliasArray[clk+4]*brightness;
+      rgbArray[sum+1] += antiAliasArray[clk+5]*brightness;
+      rgbArray[sum+2] += antiAliasArray[clk+6]*brightness;
+      rgbArray[sum+3] += antiAliasArray[clk+7]*brightness;
+
+
+      sampleClock++;
+    }
+
   }
   function pixToMagnitude(pix) { // give it pix it returns a magnitude that is bigger
     let dim = 0;
@@ -2395,7 +2424,7 @@ function patternsToPngAndMainArray() {
       clearScreen();
       printRadMessage(array);
       if (status == "save") {
-        output("saving");
+        log("saving");
       } else {
         console.log(histogram(aacdata, { bar: '/', width: 40, sort: true, map:  aacdata.Histocount} ));
         output(interactiveKeysGuide);
