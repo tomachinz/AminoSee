@@ -23,7 +23,7 @@ let artistic = false; // for Charlie
 let spew = false; // firehose your screen with DNA
 let report = true; // html reports
 let test = false;
-const overSampleFactor = 2.0;
+const overSampleFactor = 3.0;
 let updates = false;
 let clear;
 const maxMsPerUpdate = 12000; // milliseconds per update
@@ -731,7 +731,12 @@ async function initStream(f) {
   spewClock = 0;
   opacity = 1 / codonsPerPixel; // 0.9 is used to make it brighter, also due to line breaks
 
-
+  for (h=0; h<pepTable.length; h++) {
+    pepTable[h].Histocount = 0;
+  }
+  for (h=0; h<dnaTriplets.length; h++) {
+    dnaTriplets[h].Histocount = 0;
+  }
 
 
   filename = path.resolve(f); // set a global. i know. god i gotta stop using those.
