@@ -1576,9 +1576,8 @@ function setupFNames() {
     } // END OF line LOOP! thats one line but mixRGBA can survive lines
   } // end processLine
 
-function aminoFilenameIndex() {
-
-  return `justNameOfH`;
+function aminoFilenameIndex(index) {
+  return `${justNameOfDNA}_${removeSpacesForFilename(pepTable[index].Codon).toUpperCase()}.png`;
 }
 // megabase_c1_aminosee.html
 // megabase_c1_hilbert__sci.png
@@ -1663,15 +1662,17 @@ function aminoFilenameIndex() {
     let thePep = pepTable[i];
     let theHue = thePep.Hue;
     let c =      hsvToRgb( theHue/360, 0.5, 1.0 );
-    let lightC = hsvToRgb( theHue/360, 0.90, 0.5 );
+    let lightC = hsvToRgb( theHue/360, 0.95, 0.25 );
     log(thePep, theHue, c);
     html += `
     <tr style="background-color: hsl( ${theHue} , 50%, 100%);">
       <td style="background-color: white;"> ${pepTable[i].Codon} </td>
       <td style="background-color: black;">
-        <a href="#${removeSpacesForFilename(pepTable[i].Codon)}" class="button" title"Amino filter: ${removeSpacesForFilename(pepTable[i].Codon)}"><img width="16" height="16" style="border: 1px black;" src="${justNameOfHILBERT}"></a>
+        <a href="#${removeSpacesForFilename(pepTable[i].Codon)}" class="button" title"Amino filter: ${removeSpacesForFilename(pepTable[i].Codon)}"><img width="16" height="16" style="border: 1px black;" src="${aminoFilenameIndex(i)}"></a>
       </td>
-      <td style="background-color: rgb(${lightC});"> ${theHue}°</td>
+      <td style="background-color: rgb(${lightC});">
+        <p class="fineprint" style="background-color: white; background-color: rgba(255,255,255,0.5); color: black;">${theHue}°</p>
+      </td>
       <td style="background-color: rgb(${c}); color: white; font-weight: bold; "> <p class="fineprint" style="background-color: black; background-color: rgba(0,0,0,0.5); color: white;">${c}</p> </td>
       <td>${pepTable[i].Histocount.toLocaleString()}</td>
       <td>${pepTable[i].Description}</td>
