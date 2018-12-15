@@ -23,7 +23,7 @@ let artistic = false; // for Charlie
 let spew = false; // firehose your screen with DNA
 let report = true; // html reports
 let test = false;
-const overSampleFactor = 4.0;
+const overSampleFactor = 1.0;
 let updates = false;
 let clear;
 const maxMsPerUpdate = 12000; // milliseconds per update
