@@ -357,7 +357,7 @@ module.exports = () => {
       output(`Found:${users} SUCCESS`);
     } else {
       output(`ERROR could not lookup peptide: ${users}`);
-        peptide = users;
+        // peptide = users;
         output(`using ${peptide}`);
     }
 
@@ -976,23 +976,18 @@ function setupFNames() {
   if (justNameOfDNA.length > 22 ) {
     justNameOfDNA = justNameOfDNA.substring(0,11) + justNameOfDNA.substring(justNameOfDNA.length-11,justNameOfDNA.length);
   }
-  log("CWD:")
   let filePath = path.dirname(path.resolve(path.dirname(filename))) ;
   filePath += "/output" ;
-  log("filePath in setupFname: " + filePath);
 
-
-  let ext = highlightFilename() + getRegmarks() + "." + extension;
-
-  log(`FILE EXTENSIONS: ${ext} `);
+  let ext = highlightFilename() + getRegmarks();
 
   if (magnitude != false) {
     ext += ".m" + magnitude;
   } else {
-    console.warn(`magnitude: ${magnitude}`)
+    console.warn(`no magnitude setting: ${magnitude}`)
   }
 
-  ext = `_c${Math.round(codonsPerPixel*10)/10}`
+  ext += `_c${Math.round(codonsPerPixel*10)/10}`
 
   if (args.ratio || args.r) {
     ext += `_${ratio}`;
@@ -1001,17 +996,17 @@ function setupFNames() {
 
   ( artistic ? ext += "_artistic" : ext += "_sci")
 
-  justNameOfPNG =     `${justNameOfDNA}_linear${ext}.png`;
-  justNameOfHILBERT =     `${justNameOfDNA}_HILBERT${ext}.png`;
-  justNameOfHTML =     `${justNameOfDNA}${ext}_aminosee.html`;
+  justNameOfPNG =     `${justNameOfDNA}.${extension}_linear${ext}.png`;
+  justNameOfHILBERT =     `${justNameOfDNA}.${extension}_HILBERT${ext}.png`;
+  justNameOfHTML =     `${justNameOfDNA}.${extension}_AMINOSEE-REPORT${ext}.html`;
 
-  filenameTouch =   filePath + "/" + justNameOfDNA + ext + ".aminosee.touch";
+  filenameTouch =   `${filePath}/${justNameOfDNA}.${extension}_LOCK${ext}.aminosee.touch`;
   filenamePNG =     filePath + "/" + justNameOfPNG;
   filenameHTML =    filePath + "/" + justNameOfHTML;
   filenameHILBERT = filePath + "/" + justNameOfHILBERT;
 
-  log(status);
-  output(chalk.rgb(255, 255, 255).inverse(`FILENAMES SETUP AS:
+  log(`ext: ${ext} pep ${peptide} status ${status} filePath ${filePath}`);
+  output(chalk.rgb(255, 255, 255).inverse(`FILENAMES SETUP AS:  highlightFilename() ${highlightFilename()} pep
     justNameOfDNA.extension ${justNameOfDNA + "." + extension}
     justNameOfPNG: ${justNameOfPNG}
     justNameOfHTML ${justNameOfHTML}
