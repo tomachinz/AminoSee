@@ -961,10 +961,10 @@ function highlightFilename() {
   if ( triplet == "none" && peptide == "none") {
     return ret;
   } else if ( triplet != "none" ) {
-    ret += `_${removeSpacesForFilename(triplet).toUpperCase()}`
+    ret += `_${removeSpacesForFilename(triplet).toLowerCase()}`
   }
   if (peptide != "none") {
-    ret += `_${removeSpacesForFilename(peptide).toUpperCase()}`;
+    ret += `_${removeSpacesForFilename(peptide).toLowerCase()}`;
   }
   log(`triplet ${triplet}  peptitde ${peptide} highlightFilename returns ${ret}`)
 
@@ -982,8 +982,7 @@ function setupFNames() {
   log("filePath in setupFname: " + filePath);
 
 
-  let ext = getRegmarks() + "." + extension;
-  ext += highlightFilename();
+  let ext = highlightFilename() + getRegmarks() + "." + extension;
 
   log(`FILE EXTENSIONS: ${ext} `);
 
@@ -1002,8 +1001,8 @@ function setupFNames() {
 
   ( artistic ? ext += "_artistic" : ext += "_sci")
 
-  justNameOfPNG =     `${justNameOfDNA}${ext}_linear.png`;
-  justNameOfHILBERT =     `${justNameOfDNA}${ext}_hilbert.png`;
+  justNameOfPNG =     `${justNameOfDNA}_linear${ext}.png`;
+  justNameOfHILBERT =     `${justNameOfDNA}_HILBERT${ext}.png`;
   justNameOfHTML =     `${justNameOfDNA}${ext}_aminosee.html`;
 
   filenameTouch =   filePath + "/" + justNameOfDNA + ext + ".aminosee.touch";
@@ -1577,7 +1576,7 @@ function setupFNames() {
   } // end processLine
 
 function aminoFilenameIndex(index) {
-  return `${justNameOfDNA}_${removeSpacesForFilename(pepTable[index].Codon).toUpperCase()}.png`;
+  return `${justNameOfDNA}_${removeSpacesForFilename(pepTable[index].Codon).toLowerCase()}.png`;
 }
 // megabase_c1_aminosee.html
 // megabase_c1_hilbert__sci.png
