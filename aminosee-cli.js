@@ -983,7 +983,9 @@ function setupFNames() {
 
 
   let ext = getRegmarks() + "." + extension;
-  log(`FILE EXTENSIONS: ${ext}`);
+  ext += highlightFilename();
+
+  log(`FILE EXTENSIONS: ${ext} `);
 
   if (magnitude != false) {
     ext += ".m" + magnitude;
@@ -991,21 +993,20 @@ function setupFNames() {
     console.warn(`magnitude: ${magnitude}`)
   }
 
-  let pngAmino = `_c${Math.round(codonsPerPixel*10)/10}`
+  ext = `_c${Math.round(codonsPerPixel*10)/10}`
 
   if (args.ratio || args.r) {
-    pngAmino += `_${ratio}`;
+    ext += `_${ratio}`;
   }
 
-  pngAmino += highlightFilename();
 
-  ( artistic ? pngAmino += "_artistic" : pngAmino += "_sci")
+  ( artistic ? ext += "_artistic" : ext += "_sci")
 
-  justNameOfPNG =     `${justNameOfDNA}${ext}_linear${pngAmino}.png`;
-  justNameOfHILBERT =     `${justNameOfDNA}${ext}_hilbert${pngAmino}.png`;
+  justNameOfPNG =     `${justNameOfDNA}${ext}_linear.png`;
+  justNameOfHILBERT =     `${justNameOfDNA}${ext}_hilbert.png`;
   justNameOfHTML =     `${justNameOfDNA}${ext}_aminosee.html`;
 
-  filenameTouch =   filePath + "/" + justNameOfDNA + ext + pngAmino + ".aminosee.touch";
+  filenameTouch =   filePath + "/" + justNameOfDNA + ext + ".aminosee.touch";
   filenamePNG =     filePath + "/" + justNameOfPNG;
   filenameHTML =    filePath + "/" + justNameOfHTML;
   filenameHILBERT = filePath + "/" + justNameOfHILBERT;
@@ -1574,6 +1575,16 @@ function setupFNames() {
       } // end codon.length ==  3
     } // END OF line LOOP! thats one line but mixRGBA can survive lines
   } // end processLine
+
+function aminoFilenameIndex() {
+
+  return `justNameOfH`;
+}
+// megabase_c1_aminosee.html
+// megabase_c1_hilbert__sci.png
+// megabase_c1_linear__sci.png
+
+
   function htmlTemplate() {
     var html = `<html>
     <head>
@@ -1638,6 +1649,7 @@ function setupFNames() {
   <thead>
   <tr>
   <th>Amino Acid</th>
+  <th>Hilbert PNG</th>
   <th>Hue</th>
   <th>RGB</th>
   <th>Count</th>
@@ -1650,15 +1662,19 @@ function setupFNames() {
   for (i=0; i<pepTable.length; i++) {
     let thePep = pepTable[i];
     let theHue = thePep.Hue;
-    let c = hsvToRgb( theHue/360, 0.5, 1.0 );
+    let c =      hsvToRgb( theHue/360, 0.5, 1.0 );
+    let lightC = hsvToRgb( theHue/360, 0.90, 0.5 );
     log(thePep, theHue, c);
     html += `
     <tr style="background-color: hsl( ${theHue} , 50%, 100%);">
-    <td style="background-color: white;"> ${pepTable[i].Codon} </td>
-    <td style="background-color: hsl(${theHue}, 50%, 100%);"> ${theHue}°</td>
-    <td style="background-color: rgb(${c}); color: white; font-weight: bold; "> <p class="fineprint" style="background-color: black; background-color: rgba(0,0,0,0.5); color: white;">${c}</p> </td>
-    <td>${pepTable[i].Histocount.toLocaleString()}</td>
-    <td>${pepTable[i].Description}</td>
+      <td style="background-color: white;"> ${pepTable[i].Codon} </td>
+      <td style="background-color: black;">
+        <a href="#${removeSpacesForFilename(pepTable[i].Codon)}" class="button" title"Amino filter: ${removeSpacesForFilename(pepTable[i].Codon)}"><img width="16" height="16" style="border: 1px black;" src="${justNameOfHILBERT}"></a>
+      </td>
+      <td style="background-color: rgb(${lightC});"> ${theHue}°</td>
+      <td style="background-color: rgb(${c}); color: white; font-weight: bold; "> <p class="fineprint" style="background-color: black; background-color: rgba(0,0,0,0.5); color: white;">${c}</p> </td>
+      <td>${pepTable[i].Histocount.toLocaleString()}</td>
+      <td>${pepTable[i].Description}</td>
     </tr>
     `
   }
