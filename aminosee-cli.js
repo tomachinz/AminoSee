@@ -11,8 +11,8 @@ let linearMagnitudeMax = 7; // magnitude is the size of upper limit for linear r
 let dimension = 6; // dimension is the -1 size the hilbert projection is be downsampled to
 const maxMagnitude = 7; // max for auto setting
 const theActualMaxMagnitude = 12; // max for auto setting
-let darkenFactor = 0.75;
-let highlightFactor = 2;
+let darkenFactor = 0.70;
+let highlightFactor = 2.5;
 const defaultC = 1; // back when it could not handle 3+GB files.
 const artisticHighlightLength = 18; // px only use in artistic mode. must be 6 or 12 currently
 let spewThresh = 1000;
@@ -1574,6 +1574,18 @@ function aminoFilenameIndex(index) {
   justNameOfHILBERT =     `${justNameOfDNA}.${extension}_HILBERT${getFileExtension()}.png`;
   return `${justNameOfHILBERT}`;
 }
+
+function imageStack() {
+  let hhh = " ";
+  for (i=0; i<pepTable.length; i++) {
+    let thePep = pepTable[i];
+    let theHue = thePep.Hue;
+    let c =      hsvToRgb( theHue/360, 0.5, 1.0 );
+    hhh += `<a href="${aminoFilenameIndex(i)}"><img width="512" height="512" style="border: 1px black; z-index: ${i}; position: absolute; top: ${i}px; left: ${i}px;" src="${aminoFilenameIndex(i)}" alt="${pepTable[i].Codon}" title="${pepTable[i].Codon}"></a>`;
+  }
+  return hhh;
+}
+
 function htmlTemplate() {
   var html = `<html>
   <head>
@@ -1596,6 +1608,7 @@ function htmlTemplate() {
 <!-- End Google Tag Manager -->
 
 <h1>AminoSee DNA Render Summary for ${justNameOfDNA}</h1>
+${imageStack()}
 <div class="fineprint" style="text-align: right; float: right;">
 <pre>
 ${renderSummary()}
@@ -1636,12 +1649,7 @@ ${renderSummary()}
 
 <div>`;
 
-for (i=0; i<pepTable.length; i++) {
-  let thePep = pepTable[i];
-  let theHue = thePep.Hue;
-  let c =      hsvToRgb( theHue/360, 0.5, 1.0 );
-  html += `<a href="${aminoFilenameIndex(i)}"><img width="16" height="16" style="border: 1px black; z-index: ${i}; position: relative; top: ${i}px; left: ${i}px;" src="${aminoFilenameIndex(i)}" alt="${pepTable[i].Codon}" title="${pepTable[i].Codon}"></a>`;
-}
+
 
 html += `</div>
 
@@ -1852,19 +1860,18 @@ function saveHilbert(array) {
       hilbertImage[hilbertLinear] =   255*perc;
       hilbertImage[hilbertLinear+1] = ( i % Math.round( perc *32) ) / (perc *32) *  255;
       hilbertImage[hilbertLinear+2] = (perc *2550)%255;
-      hilbertImage[hilbertLinear+3] = 255 - ((i%2)*24);
-
+      hilbertImage[hilbertLinear+3] = 255 ; //- ((i%2)*24)
 
       hilbertImage[hilbertLinear+0] = 255 - (hilbertImage[hilbertLinear+0]);
       hilbertImage[hilbertLinear+1] = 255 - (hilbertImage[hilbertLinear+1]);
       hilbertImage[hilbertLinear+2] = 255 - (hilbertImage[hilbertLinear+2]);
-      hilbertImage[hilbertLinear+3] = 200;
+      hilbertImage[hilbertLinear+3] = 128;
     } else {
 
       hilbertImage[hilbertLinear] =   rgbArray[cursorLinear];
       hilbertImage[hilbertLinear+1] = rgbArray[cursorLinear+1];
       hilbertImage[hilbertLinear+2] = rgbArray[cursorLinear+2];
-      hilbertImage[hilbertLinear+3] = 255;//rgbArray[cursorLinear+3];
+      hilbertImage[hilbertLinear+3] = rgbArray[cursorLinear+3];
 
     }
 
@@ -1886,6 +1893,11 @@ function saveHilbert(array) {
       blue: 0
     }
   })
+  // var hilbert_img_png = new PNG({
+  //   width: width,
+  //   height: height,
+  //   colorType: 6,
+  // })
   hilbert_img_png.data = Buffer.from(hilbert_img_data);
   let wstream = fs.createWriteStream(filenameHILBERT);
   new Promise(resolve =>
@@ -3452,4 +3464,4 @@ function saveHilbert(array) {
               `, 96, 64, 245);
 
               const lineBreak = `
-`;
+              `;
