@@ -660,7 +660,7 @@ function pollForStream() {
       if (openHtml || openImage) {
         openOutputs();
       }
-      // theSwitcher(false);
+      theSwitcher(false);
       return false;
     } else {
       let temp = !checkLocks(filenameTouch);
@@ -1634,6 +1634,19 @@ ${renderSummary()}
 </div>
 </div>
 
+<div>`;
+
+for (i=0; i<pepTable.length; i++) {
+  let thePep = pepTable[i];
+  let theHue = thePep.Hue;
+  let c =      hsvToRgb( theHue/360, 0.5, 1.0 );
+  html += `<a href="${aminoFilenameIndex(i)}"><img width="16" height="16" style="border: 1px black; z-index: ${i}; position: relative; top: ${i}px; left: ${i}px;" src="${aminoFilenameIndex(i)}" alt="${pepTable[i].Codon}" title="${pepTable[i].Codon}"></a>`;
+}
+
+html += `</div>
+
+
+
 <table>
 <thead>
 <tr>
@@ -1658,7 +1671,7 @@ for (i=0; i<pepTable.length; i++) {
   <tr style="background-color: hsl( ${theHue} , 50%, 100%);">
   <td style="background-color: white;"> ${pepTable[i].Codon} </td>
   <td style="background-color: black;">
-  <a href="#${removeSpacesForFilename(pepTable[i].Codon)}" class="button" title"Amino filter: ${removeSpacesForFilename(pepTable[i].Codon)}"><img width="16" height="16" style="border: 1px black;" src="${aminoFilenameIndex(i)}"></a>
+  <a href="#${removeSpacesForFilename(pepTable[i].Codon)}" class="button" title"Amino filter: ${removeSpacesForFilename(pepTable[i].Codon)}"><img width="48" height="16" style="border: 1px black;" src="${aminoFilenameIndex(i)}"></a>
   </td>
   <td style="background-color: rgb(${lightC});">
   <p class="fineprint" style="background-color: white; background-color: rgba(255,255,255,0.5); color: black;">${theHue}°</p>
