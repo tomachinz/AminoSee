@@ -340,3 +340,6 @@ height:300px;
 border: 5px dashed white;
 padding: 64px;
 }
+.frontmost {
+	z-index: 696969;
+}

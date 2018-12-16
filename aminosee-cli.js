@@ -1582,7 +1582,7 @@ function imageStack() {
     let thePep = pepTable[i];
     let theHue = thePep.Hue;
     let c =      hsvToRgb( theHue/360, 0.5, 1.0 );
-    hhh += `<a href="${aminoFilenameIndex(i)}"><img width="512" height="512" style="z-index: ${i}; position: absolute; top: ${i}px; left: ${i}px;" src="${aminoFilenameIndex(i)}" alt="${pepTable[i].Codon}" title="${pepTable[i].Codon}"></a>`;
+    hhh += `<a href="${aminoFilenameIndex(i)}" onmouseover="mover(${i})" onmouseout="mout(${i})"><img id="stack_${i}" width="512" height="512" style="z-index: ${i}; position: absolute; top: ${i}px; left: ${i}px;" src="${aminoFilenameIndex(i)}" alt="${pepTable[i].Codon}" title="${pepTable[i].Codon}"></a>`;
   }
   return hhh;
 }
