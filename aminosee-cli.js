@@ -1261,7 +1261,6 @@ function quit(n) {
 
 
   if ( renderLock == false ) {
-    process.exitCode = 1;
     clearTimeout(updatesTimer);
     status = "bye";
     // msPerUpdate = 0;
@@ -1281,6 +1280,8 @@ function quit(n) {
       log("Continuing...");
       pollForStream();
     } else {
+      process.exitCode = 1;
+
       log('really bye. like process.exit type bye.');
       log(" ");
       printRadMessage([`last file: ${filename}`,"bye","bye","bye","bye","bye"]);
@@ -2448,7 +2449,7 @@ function saveHilbert(array) {
           `Done: ${chalk.rgb(128, 255, 128).inverse( twosigbitsTolocale(percentComplete*100))} % Remain: ${ twosigbitsTolocale(timeRemain) } sec `,
           `@i ${charClock.toLocaleString()} Lines: ${breakClock.toLocaleString()} Files: ${howMany} Filesize: ${Math.round(baseChars/1000)/1000} MB Elapsed: ${Math.round(runningDuration/1000)} sec KB remain: ${kbRemain}`,
           `Next update: ${msPerUpdate.toLocaleString()}ms  Codon Opacity: ${twosigbitsTolocale(opacity*100)}% `,
-          `CPU: ${bytes(kBytesPerSec*1024)}/s Codons per sec: ${Math.round(kCodonsPerSecond).toLocaleString()} Mb Codons per pixel: ${twosigbitsTolocale(codonsPerPixel)} Pixels painted: ${colClock.toLocaleString()}`,
+          `CPU: ${bytes(kBytesPerSec*1024)}/s Codons per sec: ${Math.round(kCodonsPerSecond).toLocaleString()} Acids/pixel: ${twosigbitsTolocale(codonsPerPixel)} Pixels painted: ${colClock.toLocaleString()}`,
           `[ Codons: ${genomeSize.toLocaleString()} ]  Last Acid: ${terminalRGB(aminoacid, red, green, blue)}`,
           `[ clean: ${ cleanString(rawDNA)} ] Output png: ${justNameOfPNG}] ${showFlags()}`];
 
