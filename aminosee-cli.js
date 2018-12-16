@@ -241,8 +241,8 @@ module.exports = () => {
     keyboard = true;
     output(`interactive keyboard mode enabled`)
     if (keyboard) {
-      output("skipped setupKeyboardUI() ");
-      // setupKeyboardUI()
+      // output("skipped setupKeyboardUI() ");
+      setupKeyboardUI()
     }
   } else {
     log(`interactive keyboard mode not enabled`)
@@ -2579,7 +2579,7 @@ function saveHilbert(array) {
 
               spewClock++;
               if (spew && spewClock > spewThresh) {
-                out(terminalRGB(aminoacid.charAt(0), red, green, blue));
+                log(terminalRGB(aminoacid.charAt(0), red, green, blue));
                 if(colClock % 10 ==0 ){
                   out(` [ ${colClock} ] `);
                   out(terminalRGB(rawDNA + " ", 64, 128, 64));

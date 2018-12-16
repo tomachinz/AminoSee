@@ -1,4 +1,4 @@
-
+w
 
 # nice aminosee Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa megabase.fa  -f --no-updates -d
 # nice aminosee Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa megabase.fa  -f --no-updates -d
@@ -88,3 +88,4 @@ aminosee_test             --peptide=Arginine
 
   sleep 12
   batch-process.sh
+w
