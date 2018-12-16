@@ -1581,7 +1581,7 @@ function imageStack() {
     let thePep = pepTable[i];
     let theHue = thePep.Hue;
     let c =      hsvToRgb( theHue/360, 0.5, 1.0 );
-    hhh += `<a href="${aminoFilenameIndex(i)}"><img width="512" height="512" style="border: 1px black; z-index: ${i}; position: absolute; top: ${i}px; left: ${i}px;" src="${aminoFilenameIndex(i)}" alt="${pepTable[i].Codon}" title="${pepTable[i].Codon}"></a>`;
+    hhh += `<a href="${aminoFilenameIndex(i)}"><img width="512" height="512" style="z-index: ${i}; position: absolute; top: ${i}px; left: ${i}px;" src="${aminoFilenameIndex(i)}" alt="${pepTable[i].Codon}" title="${pepTable[i].Codon}"></a>`;
   }
   return hhh;
 }
@@ -2351,7 +2351,7 @@ function saveHilbert(array) {
           // process.stdout.write('\x1B[2J\x1B[0f');
           process.stdout.write("\033[<0>;<0>H"); // pretty good
           process.stdout.write("\033[<0>;<0>f"); // cursor to 0,0
-          // process.stdout.write('\033c'); // <-- this is really the best one
+          process.stdout.write('\033c'); // <-- this is really the best one
           // put cursor to L,C:  \033[<L>;<C>H
           // put cursor to L,C:  \033[<L>;<C>f
         } else {
