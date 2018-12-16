@@ -11,7 +11,7 @@ let linearMagnitudeMax = 7; // magnitude is the size of upper limit for linear r
 let dimension = 6; // dimension is the -1 size the hilbert projection is be downsampled to
 const maxMagnitude = 7; // max for auto setting
 const theActualMaxMagnitude = 12; // max for auto setting
-let darkenFactor = 0.75;
+let darkenFactor = 0.65;
 let highlightFactor = 4.5;
 const defaultC = 1; // back when it could not handle 3+GB files.
 const artisticHighlightLength = 18; // px only use in artistic mode. must be 6 or 12 currently
@@ -1584,7 +1584,7 @@ function imageStack() {
     let c =      hsvToRgb( theHue/360, 0.5, 1.0 );
 
     if (thePep != "non-coding nnn"  && thePep != "start codons" && thePep != "stop codons") {
-      hhh += `<a href="${aminoFilenameIndex(i)}" onmouseover="mover(${i})" onmouseout="mout(${i})"><img id="stack_${i}" width="512" height="512" style="z-index: ${6969-i}; position: absolute; top: ${i}px; left: ${i}px;" src="${aminoFilenameIndex(i)}" alt="${pepTable[i].Codon}" title="${pepTable[i].Codon}"></a>`;
+      hhh += `<a href="${aminoFilenameIndex(i)}" onmouseover="mover(${i})" onmouseout="mout(${i})"><img id="stack_${i}" width="512" height="512" style="z-index: ${6969-i}; position: absolute; top: ${i}px; left: ${i*2}px;" src="${aminoFilenameIndex(i)}" alt="${pepTable[i].Codon}" title="${pepTable[i].Codon}"></a>`;
     } else {
       log("non-coding nnn image not output");
     }
@@ -1592,6 +1592,8 @@ function imageStack() {
   }
   return hhh;
 }
+//  <a href="megabase.fa_HILBERT_amber_c1_sci.png" onmouseover="mover(3)" onmouseout="mout(3)"><img id="stack_3" width="512" height="512" style="z-index: 6966; position: absolute; top: 3px; left: 6px;" src="megabase.fa_HILBERT_amber_c1_sci.png" alt="Amber" title="Amber"></a><a href="megabase.fa_HILBERT_ochre_c1_sci.png" onmouseover="mover(4)" onmouseout="mout(4)"><img id="stack_4" width="512" height="512" style="z-index: 6965; position: absolute; top: 4px; left: 8px;" src="megabase.fa_HILBERT_ochre_c1_sci.png" alt="Ochre" title="Ochre"></a><a href="megabase.fa_HILBERT_methionine_c1_sci.png" onmouseover="mover(5)" onmouseout="mout(5)"><img id="stack_5" width="512" height="512" style="z-index: 6964; position: absolute; top: 5px; left: 10px;" src="megabase.fa_HILBERT_methionine_c1_sci.png" alt="Methionine" title="Methionine"></a><a href="megabase.fa_HILBERT_tryptophan_c1_sci.png" onmouseover="mover(6)" onmouseout="mout(6)"><img id="stack_6" width="512" height="512" style="z-index: 6963; position: absolute; top: 6px; left: 12px;" src="megabase.fa_HILBERT_tryptophan_c1_sci.png" alt="Tryptophan" title="Tryptophan"></a><a href="megabase.fa_HILBERT_opal_c1_sci.png" onmouseover="mover(7)" onmouseout="mout(7)"><img id="stack_7" width="512" height="512" style="z-index: 6962; position: absolute; top: 7px; left: 14px;" src="megabase.fa_HILBERT_opal_c1_sci.png" alt="Opal" title="Opal"></a><a href="megabase.fa_HILBERT_asparticacid_c1_sci.png" onmouseover="mover(8)" onmouseout="mout(8)"><img id="stack_8" width="512" height="512" style="z-index: 6961; position: absolute; top: 8px; left: 16px;" src="megabase.fa_HILBERT_asparticacid_c1_sci.png" alt="Aspartic acid" title="Aspartic acid"></a><a href="megabase.fa_HILBERT_tyrosine_c1_sci.png" onmouseover="mover(9)" onmouseout="mout(9)"><img id="stack_9" width="512" height="512" style="z-index: 6960; position: absolute; top: 9px; left: 18px;" src="megabase.fa_HILBERT_tyrosine_c1_sci.png" alt="Tyrosine" title="Tyrosine"></a><a href="megabase.fa_HILBERT_asparagine_c1_sci.png" onmouseover="mover(10)" onmouseout="mout(10)"><img id="stack_10" width="512" height="512" style="z-index: 6959; position: absolute; top: 10px; left: 20px;" src="megabase.fa_HILBERT_asparagine_c1_sci.png" alt="Asparagine" title="Asparagine"></a><a href="megabase.fa_HILBERT_histidine_c1_sci.png" onmouseover="mover(11)" onmouseout="mout(11)"><img id="stack_11" width="512" height="512" style="z-index: 6958; position: absolute; top: 11px; left: 22px;" src="megabase.fa_HILBERT_histidine_c1_sci.png" alt="Histidine" title="Histidine"></a><a href="megabase.fa_HILBERT_glutamicacid_c1_sci.png" onmouseover="mover(12)" onmouseout="mout(12)"><img id="stack_12" width="512" height="512" style="z-index: 6957; position: absolute; top: 12px; left: 24px;" src="megabase.fa_HILBERT_glutamicacid_c1_sci.png" alt="Glutamic acid" title="Glutamic acid"></a><a href="megabase.fa_HILBERT_cysteine_c1_sci.png" onmouseover="mover(13)" onmouseout="mout(13)"><img id="stack_13" width="512" height="512" style="z-index: 6956; position: absolute; top: 13px; left: 26px;" src="megabase.fa_HILBERT_cysteine_c1_sci.png" alt="Cysteine" title="Cysteine"></a><a href="megabase.fa_HILBERT_glutamine_c1_sci.png" onmouseover="mover(14)" onmouseout="mout(14)"><img id="stack_14" width="512" height="512" style="z-index: 6955; position: absolute; top: 14px; left: 28px;" src="megabase.fa_HILBERT_glutamine_c1_sci.png" alt="Glutamine" title="Glutamine"></a><a href="megabase.fa_HILBERT_alanine_c1_sci.png" onmouseover="mover(15)" onmouseout="mout(15)"><img id="stack_15" width="512" height="512" style="z-index: 6954; position: absolute; top: 15px; left: 30px;" src="megabase.fa_HILBERT_alanine_c1_sci.png" alt="Alanine" title="Alanine"></a><a href="megabase.fa_HILBERT_isoleucine_c1_sci.png" onmouseover="mover(16)" onmouseout="mout(16)"><img id="stack_16" width="512" height="512" style="z-index: 6953; position: absolute; top: 16px; left: 32px;" src="megabase.fa_HILBERT_isoleucine_c1_sci.png" alt="Isoleucine" title="Isoleucine"></a><a href="megabase.fa_HILBERT_phenylalanine_c1_sci.png" onmouseover="mover(17)" onmouseout="mout(17)"><img id="stack_17" width="512" height="512" style="z-index: 6952; position: absolute; top: 17px; left: 34px;" src="megabase.fa_HILBERT_phenylalanine_c1_sci.png" alt="Phenylalanine" title="Phenylalanine"></a><a href="megabase.fa_HILBERT_lysine_c1_sci.png" onmouseover="mover(18)" onmouseout="mout(18)"><img id="stack_18" width="512" height="512" style="z-index: 6951; position: absolute; top: 18px; left: 36px;" src="megabase.fa_HILBERT_lysine_c1_sci.png" alt="Lysine" title="Lysine"></a><a href="megabase.fa_HILBERT_valine_c1_sci.png" onmouseover="mover(19)" onmouseout="mout(19)"><img id="stack_19" width="512" height="512" style="z-index: 6950; position: absolute; top: 19px; left: 38px;" src="megabase.fa_HILBERT_valine_c1_sci.png" alt="Valine" title="Valine"></a><a href="megabase.fa_HILBERT_threonine_c1_sci.png" onmouseover="mover(20)" onmouseout="mout(20)"><img id="stack_20" width="512" height="512" style="z-index: 6949; position: absolute; top: 20px; left: 40px;" src="megabase.fa_HILBERT_threonine_c1_sci.png" alt="Threonine" title="Threonine"></a><a href="megabase.fa_HILBERT_arginine_c1_sci.png" onmouseover="mover(21)" onmouseout="mout(21)"><img id="stack_21" width="512" height="512" style="z-index: 6948; position: absolute; top: 21px; left: 42px;" src="megabase.fa_HILBERT_arginine_c1_sci.png" alt="Arginine" title="Arginine"></a><a href="megabase.fa_HILBERT_proline_c1_sci.png" onmouseover="mover(22)" onmouseout="mout(22)"><img id="stack_22" width="512" height="512" style="z-index: 6947; position: absolute; top: 22px; left: 44px;" src="megabase.fa_HILBERT_proline_c1_sci.png" alt="Proline" title="Proline"></a><a href="megabase.fa_HILBERT_glycine_c1_sci.png" onmouseover="mover(23)" onmouseout="mout(23)"><img id="stack_23" width="512" height="512" style="z-index: 6946; position: absolute; top: 23px; left: 46px;" src="megabase.fa_HILBERT_glycine_c1_sci.png" alt="Glycine" title="Glycine"></a><a href="megabase.fa_HILBERT_serine_c1_sci.png" onmouseover="mover(24)" onmouseout="mout(24)"><img id="stack_24" width="512" height="512" style="z-index: 6945; position: absolute; top: 24px; left: 48px;" src="megabase.fa_HILBERT_serine_c1_sci.png" alt="Serine" title="Serine"></a><a href="megabase.fa_HILBERT_leucine_c1_sci.png" onmouseover="mover(25)" onmouseout="mout(25)"><img id="stack_25" width="512" height="512" style="z-index: 6944; position: absolute; top: 25px; left: 50px;" src="megabase.fa_HILBERT_leucine_c1_sci.png" alt="Leucine" title="Leucine"></a>
+
 // megabase.fa_HILBERT_alanine_c1_sci.png
 // megabase.fa_HILBERT_alanine_c1_sci.png
 // megabase.fa_HILBERT_non-codingnnn_c1_sci.png
@@ -1605,7 +1607,19 @@ function htmlTemplate() {
   <link href='https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz:700,400,200,100' rel='stylesheet' type='text/css'>
   <link href="https://www.funk.co.nz/css/menu.css" rel="stylesheet">
   <link href="https://www.funk.co.nz/css/funk2014.css" rel="stylesheet">
+
+
+  <script src="https://www.funk.co.nz/aminosee/node_modules/three/build/three.min.js"></script>
+	<script src="https://www.funk.co.nz/aminosee/node_modules/jquery/dist/jquery.min.js"></script>
+	<script src="https://www.funk.co.nz/aminosee/public/hilbert3D.js"></script>
+	<script src="https://www.funk.co.nz/aminosee/public/hilbert2D.js"></script>
+	<script src="https://www.funk.co.nz/aminosee/public/WebGL.js"></script>
+	<script src="https://www.funk.co.nz/aminosee/node_modules/hammerjs/hammer.min.js"></script>
+	<script src="https://www.funk.co.nz/aminosee/bundle.js"></script>
+
   <script src="https://www.funk.co.nz/aminosee/aminosee-gui-web.js">
+
+
   </head>
   <body>
   <!-- Google Tag Manager -->
