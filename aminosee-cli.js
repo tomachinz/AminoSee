@@ -11,8 +11,8 @@ let linearMagnitudeMax = 7; // magnitude is the size of upper limit for linear r
 let dimension = 6; // dimension is the -1 size the hilbert projection is be downsampled to
 const maxMagnitude = 7; // max for auto setting
 const theActualMaxMagnitude = 12; // max for auto setting
-let darkenFactor = 0.70;
-let highlightFactor = 2.5;
+let darkenFactor = 0.75;
+let highlightFactor = 4.5;
 const defaultC = 1; // back when it could not handle 3+GB files.
 const artisticHighlightLength = 18; // px only use in artistic mode. must be 6 or 12 currently
 let spewThresh = 1000;
@@ -1579,23 +1579,33 @@ function aminoFilenameIndex(index) {
 function imageStack() {
   let hhh = " ";
   for (i=0; i<pepTable.length; i++) {
-    let thePep = pepTable[i];
-    let theHue = thePep.Hue;
+    let thePep = pepTable[i].Codon.toLowerCase();
+    let theHue = pepTable[i].Hue;
     let c =      hsvToRgb( theHue/360, 0.5, 1.0 );
-    hhh += `<a href="${aminoFilenameIndex(i)}" onmouseover="mover(${i})" onmouseout="mout(${i})"><img id="stack_${i}" width="512" height="512" style="z-index: ${i}; position: absolute; top: ${i}px; left: ${i}px;" src="${aminoFilenameIndex(i)}" alt="${pepTable[i].Codon}" title="${pepTable[i].Codon}"></a>`;
+
+    if (thePep != "non-coding nnn"  && thePep != "start codons" && thePep != "stop codons") {
+      hhh += `<a href="${aminoFilenameIndex(i)}" onmouseover="mover(${i})" onmouseout="mout(${i})"><img id="stack_${i}" width="512" height="512" style="z-index: ${6969-i}; position: absolute; top: ${i}px; left: ${i}px;" src="${aminoFilenameIndex(i)}" alt="${pepTable[i].Codon}" title="${pepTable[i].Codon}"></a>`;
+    } else {
+      log("non-coding nnn image not output");
+    }
+
   }
   return hhh;
 }
+// megabase.fa_HILBERT_alanine_c1_sci.png
+// megabase.fa_HILBERT_alanine_c1_sci.png
+// megabase.fa_HILBERT_non-codingnnn_c1_sci.png
 
 function htmlTemplate() {
   var html = `<html>
   <head>
   <title>${justNameOfDNA} :: AminoSee HTML Report :: DNA Viewer by Tom Atkinson</title>
-  <meta name="description" content="V${siteDescription}">
+  <meta name="description" content="${siteDescription}">
   <link rel="stylesheet" type="text/css" href="https://www.funk.co.nz/aminosee/public/AminoSee.css">
   <link href='https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz:700,400,200,100' rel='stylesheet' type='text/css'>
   <link href="https://www.funk.co.nz/css/menu.css" rel="stylesheet">
   <link href="https://www.funk.co.nz/css/funk2014.css" rel="stylesheet">
+  <script src="https://www.funk.co.nz/aminosee/aminosee-gui-web.js">
   </head>
   <body>
   <!-- Google Tag Manager -->
@@ -2580,9 +2590,10 @@ function saveHilbert(array) {
               spewClock++;
               if (spew && spewClock > spewThresh) {
                 log(terminalRGB(aminoacid.charAt(0), red, green, blue));
-                if(colClock % 10 ==0 ){
+                if(colClock % 20 ==0 ){
                   out(` [ ${colClock} ] `);
                   out(terminalRGB(rawDNA + " ", 64, 128, 64));
+                  out();
                 }
                 spewClock = 0;
               }
