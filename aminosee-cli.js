@@ -2141,7 +2141,7 @@ function saveHilbert(array) {
           hilbertImage[hilbertLinear+0] = 255 - (hilbertImage[hilbertLinear+0]);
           hilbertImage[hilbertLinear+1] = 255 - (hilbertImage[hilbertLinear+1]);
           hilbertImage[hilbertLinear+2] = 255 - (hilbertImage[hilbertLinear+2]);
-          hilbertImage[hilbertLinear+3] = 200;
+          hilbertImage[hilbertLinear+3] = 128;
         }
 
         rgbArray[cursorLinear+0] = hilbertImage[hilbertLinear+0];
