@@ -7,9 +7,8 @@ by Tom Atkinson
 
 ## 2D Demo
 See some real life DNA rendered... you really have to see the image at the link below to get this.
-https://www.funk.co.nz/aminosee/output/chrYPan%20troC0471%20Clint.gbk_HILBERT__reg_c10.3_fix_sci.png
-### Clint the Chimp Y Chromosome
-10.3 codons per pixel means about 31 DNA base pairs in each pixel below:
+![Clint the Chimp Y Chromosome](https://www.funk.co.nz/aminosee/output/chrYPan%20troC0471%20Clint.gbk_HILBERT__reg_c10.3_fix_sci.png)
+Meta data about the image above can be found at the report URL below, it shows 7,625,504 DNA base pairs over 262144 pixels. An intermediate linear image is generated as a side effect and packs about 10 codons per pixel of information by blending the colours at 10% opacity each in this case:
 https://www.funk.co.nz/aminosee/output/chrYPan%20troC0471%20Clint.gbk_AMINOSEE-REPORT__reg_c10.3_fix_sci.html
 - Features histogram to count frequency of each Amino Acid
 - Features filtered image where each Amino Acid is bright and solid, others dim and translucent
