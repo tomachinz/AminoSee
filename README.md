@@ -17,6 +17,9 @@ It will output an html histogram to frame the image. See: https://www.funk.co.nz
 Eventually, I'm hoping to have some prebuilt binaries for Mac, Windows and Linux using Electron. Today, the only way to get the DNA converter on your machine is via source code:
 
 ## Install from Source Code
+Currently the only way to run it yourself is to run it from source code. This requires the previous install of:
+- https://nodejs.org/en/download/
+
 Download this repo to your machine:
 ```
 git clone https://github.com/tomachinz/AminoSee
