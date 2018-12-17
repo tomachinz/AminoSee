@@ -20,6 +20,7 @@ Eventually, I'm hoping to have some prebuilt binaries for Mac, Windows and Linux
 Currently the only way to run it yourself is to run it from source code. This requires the previous install of:
 - https://nodejs.org/en/download/
 - https://git-scm.com/ 
+- https://electronjs.org/
 
 Download this repo to your machine:
 ```
