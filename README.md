@@ -19,6 +19,7 @@ Eventually, I'm hoping to have some prebuilt binaries for Mac, Windows and Linux
 ## Install from Source Code
 Currently the only way to run it yourself is to run it from source code. This requires the previous install of:
 - https://nodejs.org/en/download/
+- https://git-scm.com/ 
 
 Download this repo to your machine:
 ```
@@ -28,6 +29,11 @@ npm install
 echo Use sudo npm link to enable command "aminosee" for all users
 npm link
 sudo npm link aminosee
+```
+## Updates
+From the source code folder:
+```
+git pull
 ```
 
 ## Link so you can run 'aminosee' anywhere
