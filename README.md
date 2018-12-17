@@ -6,7 +6,8 @@ by Tom Atkinson
 *A terminal command in node renders a unique colour view of RNA or DNA stored in text files, output to PNG graphics file, then launches an WebGL browser that projects the image onto a 3D Hilbert curve for immersive viewing, using THREEjs.*
 
 ## 2D Demo
-See some real life DNA rendered...
+See some real life DNA rendered... you really have to see the image at the link below to get this.
+https://www.funk.co.nz/aminosee/output/chrYPan%20troC0471%20Clint.gbk_HILBERT__reg_c10.3_fix_sci.png
 ### Clint the Chimp Y Chromosome
 10.3 codons per pixel means about 31 DNA base pairs in each pixel below:
 https://www.funk.co.nz/aminosee/output/chrYPan%20troC0471%20Clint.gbk_AMINOSEE-REPORT__reg_c10.3_fix_sci.html
