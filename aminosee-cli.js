@@ -8,9 +8,9 @@
 //        ah-mee no-see       "I See It Now - I AminoSee it!"
 let raceDelay = 66;
 let raceTimer = false;
-let linearMagnitudeMax = 7; // magnitude is the size of upper limit for linear render to come *under*
-let dimension = 6; // dimension is the -1 size the hilbert projection is be downsampled to
-const maxMagnitude = 7; // max for auto setting
+let linearMagnitudeMax = 9; // magnitude is the size of upper limit for linear render to come *under*
+let dimension = 7; // dimension is the -1 size the hilbert projection is be downsampled to
+const maxMagnitude = 8; // max for auto setting
 const theActualMaxMagnitude = 12; // max for auto setting
 let darkenFactor = 0.65;
 let highlightFactor = 4.5;
@@ -864,75 +864,77 @@ function renderSummary() {
 
 // CODONS PER PIXEL
 function autoconfCodonsPerPixel() { // requires baseChars maxpix defaultC
-  baseChars = getFilesizeInBytes(filename);
-  let existing = userCPP;
-  estimatedPixels = baseChars / 3; // divide by 4 times 3
-  let computersGuess = pixToMagnitude(estimatedPixels); // give it pixels it gives magnitude
-  log(`image estimatedPixels ${estimatedPixels}   computersGuess ${computersGuess}  linearMagnitudeMax ${linearMagnitudeMax}`)
-
-  if (codonsPerPixel < defaultC) {
-    codonsPerPixel = defaultC;
-  } else if (codonsPerPixel > 6000) {
-    codonsPerPixel = 6000;
-  } else if (codonsPerPixel == NaN || codonsPerPixel == undefined) {
-    codonsPerPixel = defaultC;
-  }
-
-  if (magnitude != undefined) {
-    if ( magnitude < computersGuess) {
-      log(`It mite be possible to get higher resolution with --magnitude ${computersGuess}`)
-    } else if ( magnitude < computersGuess ) {
-      log(`Your --magnitude of ${magnitude} is larger than my default of ${computersGuess}`)
-    }
+  if ( userCPP != -1) {
+    output(`Manual zoom level override enabled at: ${userCPP} codons per pixel.`);
+    codonsPerPixel = userCPP;
   } else {
-    if ( magnitude < computersGuess) {
-      log(`It mite be possible to get higher resolution with --magnitude ${computersGuess}`)
-      // default of 6
+    log("Automatic codons per pixel setting")
+
+    baseChars = getFilesizeInBytes(filename);
+    let existing = userCPP;
+    estimatedPixels = baseChars / 3; // divide by 4 times 3
+    let computersGuess = pixToMagnitude(estimatedPixels); // give it pixels it gives magnitude
+    log(`image estimatedPixels ${estimatedPixels}   computersGuess ${computersGuess}  linearMagnitudeMax ${linearMagnitudeMax}`)
+
+    if (codonsPerPixel < defaultC) {
+      codonsPerPixel = defaultC;
+    } else if (codonsPerPixel > 6000) {
+      codonsPerPixel = 6000;
+    } else if (codonsPerPixel == NaN || codonsPerPixel == undefined) {
+      codonsPerPixel = defaultC;
+    }
+
+    if (magnitude != undefined) {
+      if ( magnitude < computersGuess) {
+        log(`It mite be possible to get higher resolution with --magnitude ${computersGuess}`)
+      } else if ( magnitude < computersGuess ) {
+        log(`Your --magnitude of ${magnitude} is larger than my default of ${computersGuess}`)
+      }
     } else {
-      if ( computersGuess < maxMagnitude) {
-        log(`Image is not super large, fitting output to --magnitude ${computersGuess}`)
-        magnitude = computersGuess;
+      if ( magnitude < computersGuess) {
+        log(`It mite be possible to get higher resolution with --magnitude ${computersGuess}`)
+        // default of 6
       } else {
-        log(`Image is big. Limiting size to --magnitude ${maxMagnitude}`)
-        magnitude = maxMagnitude;
+        if ( computersGuess < maxMagnitude) {
+          log(`Image is not super large, fitting output to --magnitude ${computersGuess}`)
+          magnitude = computersGuess;
+        } else {
+          log(`Image is big. Limiting size to --magnitude ${maxMagnitude}`)
+          magnitude = maxMagnitude;
+        }
+      }
+    }
+
+    log(`linearMagnitudeMax: ${linearMagnitudeMax}`);
+    maxpix = hilbPixels[ linearMagnitudeMax ];
+
+    log(`magnitude is ${magnitude} new maxpix: ${maxpix} `)
+    if (estimatedPixels < (maxpix) ) { // for sequence smaller than the screen
+      if (userCPP != -1)  {
+        log("its not recommended to use anything other than --codons 1 for small genomes, better to reduce the --magnitude")
+      } else {
+        codonsPerPixel = defaultC; // normally we want 1:1 for smalls
+      }
+    } else if (estimatedPixels > maxpix ){ // for seq bigger than screen        codonsPerPixel = estimatedPixels / maxpix*overSampleFactor;
+      codonsPerPixel = (estimatedPixels * overSampleFactor) / maxpix;
+      if (userCPP != -1) {
+        if (userCPP < codonsPerPixel) {
+          log(terminalRGB(`WARNING: Your target Codons Per Pixel setting ${userCPP} will make an estiamted ${Math.round(estimatedPixels / userCPP).toLocaleString()} is likely to exceed the max image size of ${maxpix.toLocaleString()}, sometimes this causes an out of memory error. My machine spit the dummy at 1.7 GB of virtual memory use by node, lets try yours. We reckon ${codonsPerPixel} would be better but will give it a try...`))
+        } else {
+          codonsPerPixel = userCPP; // they picked a smaller size than me. therefore their computer less likely to melt.
+        }
       }
     }
   }
-  log(`linearMagnitudeMax: ${linearMagnitudeMax}`);
-  maxpix = hilbPixels[ linearMagnitudeMax ];
 
-  log(`magnitude is ${magnitude} new maxpix: ${maxpix} `)
-  if (estimatedPixels < (maxpix) ) { // for sequence smaller than the screen
-    if (userCPP != -1)  {
-      log("its not recommended to use anything other than --codons 1 for small genomes, better to reduce the --magnitude")
-    } else {
-      codonsPerPixel = defaultC; // normally we want 1:1 for smalls
-    }
-  } else if (estimatedPixels > maxpix ){ // for seq bigger than screen        codonsPerPixel = estimatedPixels / maxpix*overSampleFactor;
-    codonsPerPixel = (estimatedPixels * overSampleFactor) / maxpix;
-    if (userCPP != -1) {
-      if (userCPP < codonsPerPixel) {
-        log(terminalRGB(`WARNING: Your target Codons Per Pixel setting ${userCPP} will make an estiamted ${Math.round(estimatedPixels / userCPP).toLocaleString()} is likely to exceed the max image size of ${maxpix.toLocaleString()}, sometimes this causes an out of memory error. My machine spit the dummy at 1.7 GB of virtual memory use by node, lets try yours. We reckon ${codonsPerPixel} would be better but will give it a try...`))
-      } else {
-        codonsPerPixel = userCPP; // they picked a smaller size than me. therefore their computer less likely to melt.
-      }
-    }
-  }
-
-  if (userCPP != -1 && userCPP != codonsPerPixel) {
-    log(terminalRGB(`Your selected codons per pixel setting was alterered from ${existing} to ${codonsPerPixel} `, 255, 255, 255));
-  } else {
-    log(`no change to your chosen cpp ${userCPP}`);
-  }
   if (artistic == true) {
     codonsPerPixel = codonsPerPixel / artisticHighlightLength; // to pack it into same image size
   }
 
-  // codonsPerPixel = Math.round(codonsPerPixel);
-  if (codonsPerPixel < defaultC) {
+  if (codonsPerPixel < defaultC) { // less than 1
     codonsPerPixel = defaultC;
   }
-  opacity = 0.969 / codonsPerPixel;
+  opacity = 1 / codonsPerPixel;
   // set highlight factor such  that:
   // if cpp is 1 it is 1
   // if cpp is 2 it is 1.5
@@ -947,7 +949,6 @@ function autoconfCodonsPerPixel() { // requires baseChars maxpix defaultC
     highlightFactor = 16 + ( 255 / codonsPerPixel) ;
   }
 
-  // codonsPerPixel = Math.round(codonsPerPixel);
   return codonsPerPixel;
 }
 
@@ -1605,12 +1606,12 @@ function htmlTemplate() {
 
 
   <script src="https://www.funk.co.nz/aminosee/node_modules/three/build/three.min.js"></script>
-	<script src="https://www.funk.co.nz/aminosee/node_modules/jquery/dist/jquery.min.js"></script>
-	<script src="https://www.funk.co.nz/aminosee/public/hilbert3D.js"></script>
-	<script src="https://www.funk.co.nz/aminosee/public/hilbert2D.js"></script>
-	<script src="https://www.funk.co.nz/aminosee/public/WebGL.js"></script>
-	<script src="https://www.funk.co.nz/aminosee/node_modules/hammerjs/hammer.min.js"></script>
-	<script src="https://www.funk.co.nz/aminosee/bundle.js"></script>
+  <script src="https://www.funk.co.nz/aminosee/node_modules/jquery/dist/jquery.min.js"></script>
+  <script src="https://www.funk.co.nz/aminosee/public/hilbert3D.js"></script>
+  <script src="https://www.funk.co.nz/aminosee/public/hilbert2D.js"></script>
+  <script src="https://www.funk.co.nz/aminosee/public/WebGL.js"></script>
+  <script src="https://www.funk.co.nz/aminosee/node_modules/hammerjs/hammer.min.js"></script>
+  <script src="https://www.funk.co.nz/aminosee/bundle.js"></script>
 
   <script src="https://www.funk.co.nz/aminosee/aminosee-gui-web.js">
 
@@ -1678,12 +1679,12 @@ html += `</div>
 <table>
 <thead>
 <tr>
-  <th>Amino Acid</th>
-  <th>Hue</th>
-  <th>RGB</th>
-  <th>Hilbert PNG</th>
-  <th>Count</th>
-  <th>Description</th>
+<th>Amino Acid</th>
+<th>Hue</th>
+<th>RGB</th>
+<th>Hilbert PNG</th>
+<th>Count</th>
+<th>Description</th>
 </tr>
 </thead>
 <tbody>
@@ -1697,17 +1698,17 @@ for (i=0; i<pepTable.length; i++) {
   log(thePep, theHue, c);
   html += `
   <tr style="background-color: hsl( ${theHue} , 50%, 100%);">
-    <td style="background-color: white;"> ${pepTable[i].Codon} </td>
+  <td style="background-color: white;"> ${pepTable[i].Codon} </td>
 
-    <td style="background-color: rgb(${lightC});">
-      <p class="fineprint" style="background-color: white; background-color: rgba(255,255,255,0.5); color: black;">${theHue}°</p>
-    </td>
-    <td style="background-color: rgb(${c}); color: white; font-weight: bold; "> <p class="fineprint" style="background-color: black; background-color: rgba(0,0,0,0.5); color: white;">${c}</p> </td>
-    <td style="background-color: white;">
-      <a href="${aminoFilenameIndex(i)}" class="button" title="Amino filter: ${removeSpacesForFilename(pepTable[i].Codon)}"><img width="48" height="16" style="border: 1px black;" src="${aminoFilenameIndex(i)}" alt="${removeSpacesForFilename(pepTable[i].Codon)}"></a>
-    </td>
-    <td>${pepTable[i].Histocount.toLocaleString()}</td>
-    <td>${pepTable[i].Description}</td>
+  <td style="background-color: rgb(${lightC});">
+  <p class="fineprint" style="background-color: white; background-color: rgba(255,255,255,0.5); color: black;">${theHue}°</p>
+  </td>
+  <td style="background-color: rgb(${c}); color: white; font-weight: bold; "> <p class="fineprint" style="background-color: black; background-color: rgba(0,0,0,0.5); color: white;">${c}</p> </td>
+  <td style="background-color: white;">
+  <a href="${aminoFilenameIndex(i)}" class="button" title="Amino filter: ${removeSpacesForFilename(pepTable[i].Codon)}"><img width="48" height="16" style="border: 1px black;" src="${aminoFilenameIndex(i)}" alt="${removeSpacesForFilename(pepTable[i].Codon)}"></a>
+  </td>
+  <td>${pepTable[i].Histocount.toLocaleString()}</td>
+  <td>${pepTable[i].Description}</td>
   </tr>
   `
 }
