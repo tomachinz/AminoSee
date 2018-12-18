@@ -1,3 +1,4 @@
+
 // "use strict";
 //       MADE IN NEW ZEALAND
 //       ╔═╗┌┬┐┬┌┐┌┌─┐╔═╗┌─┐┌─┐  ╔╦╗╔╗╔╔═╗  ╦  ╦┬┌─┐┬ ┬┌─┐┬─┐
@@ -57,7 +58,7 @@ process.title = "aminosee.funk.nz";
 const defaultFilename = "AminoSeeTestPatterns"; // for some reason this needs to be here. hopefully the open source community can come to rescue and fix this Kludge.
 let filename = defaultFilename;
 let rawDNA ="@"; // debug
-const extensions = [ "txt", "fa", "mfa", "gbk", "dna"];
+const extensions = [ "txt", "fa", "mfa", "gbk", "dna", "fasta", "fna", "fsa", "mpfa", "gb"];
 let status = "load";
 console.log("Amino\x1b[40mSee\x1b[37mNoEvil");
 let interactiveKeysGuide = "";
@@ -270,7 +271,6 @@ module.exports = () => {
   if (args.codons || args.c) {
     userCPP = Math.round(args.codons || args.c); // javascript is amazing
     output(`shrink the image by blending ${userCPP} codons per pixel.`);
-    // isHilbertPossible = false;
     codonsPerPixel = userCPP;
 
   } else {
@@ -545,7 +545,7 @@ function pepToColor(pep) {
   }
 }
 function pollForStream() {
-  out(".polling.");
+  log(".polling.");
 
   if (renderLock) {
     raceTimer = setTimeout(() => {
@@ -975,7 +975,7 @@ function getFileExtension() {
   if (magnitude != false) {
     t += ".m" + magnitude;
   } else {
-    console.warn(`no magnitude setting: ${magnitude}`)
+    log(`no magnitude setting: ${magnitude}`)
   }
   t += `_c${Math.round(codonsPerPixel*10)/10}`;
   if (args.ratio || args.r) {
@@ -1142,7 +1142,7 @@ function saveDocuments(callback) {
 
   // status = "saving html report";
   log("SAVING HTML")
-  if (report) {
+  if (report && !isHighlightSet) { // report when highlight set
     saveHTML();
   } else {
     output("No HTML report output.")
@@ -1679,9 +1679,9 @@ html += `</div>
 <thead>
 <tr>
   <th>Amino Acid</th>
-  <th>Hilbert PNG</th>
   <th>Hue</th>
   <th>RGB</th>
+  <th>Hilbert PNG</th>
   <th>Count</th>
   <th>Description</th>
 </tr>
@@ -1698,13 +1698,14 @@ for (i=0; i<pepTable.length; i++) {
   html += `
   <tr style="background-color: hsl( ${theHue} , 50%, 100%);">
     <td style="background-color: white;"> ${pepTable[i].Codon} </td>
-    <td style="background-color: white;">
-      <a href="${aminoFilenameIndex(i)}" class="button" title="Amino filter: ${removeSpacesForFilename(pepTable[i].Codon)}"><img width="48" height="16" style="border: 1px black;" src="${aminoFilenameIndex(i)}" alt="${removeSpacesForFilename(pepTable[i].Codon)}"></a>
-    </td>
+
     <td style="background-color: rgb(${lightC});">
       <p class="fineprint" style="background-color: white; background-color: rgba(255,255,255,0.5); color: black;">${theHue}°</p>
     </td>
     <td style="background-color: rgb(${c}); color: white; font-weight: bold; "> <p class="fineprint" style="background-color: black; background-color: rgba(0,0,0,0.5); color: white;">${c}</p> </td>
+    <td style="background-color: white;">
+      <a href="${aminoFilenameIndex(i)}" class="button" title="Amino filter: ${removeSpacesForFilename(pepTable[i].Codon)}"><img width="48" height="16" style="border: 1px black;" src="${aminoFilenameIndex(i)}" alt="${removeSpacesForFilename(pepTable[i].Codon)}"></a>
+    </td>
     <td>${pepTable[i].Histocount.toLocaleString()}</td>
     <td>${pepTable[i].Description}</td>
   </tr>
@@ -1785,6 +1786,9 @@ function okToOverwritePNG(f) { // true to continue, false to abort
     log("[lstatSync result]" + result);
     output("A png image has already been generated for this DNA: " + f)
     output("use -f to overwrite");
+    if (openHtml || openImage) {
+      openOutputs();
+    }
     return false;
   } catch(e){
     output("Output png will be saved to: " + f );
@@ -2004,7 +2008,6 @@ function saveHilbert(array) {
       img_png.pack()
       .pipe(wstream)
       .on('finish', () => {
-        console.log(`linear png saved.   isHilbertPossible ${isHilbertPossible}`);
         // printRadMessage(["i think we're done", isHilbertPossible, justNameOfDNA ,howMany, updates]);
         output("Finished linear png save.");
         openOutputs();
@@ -2014,12 +2017,12 @@ function saveHilbert(array) {
     function openOutputs() {
       status ="open outputs";
 
-      output("Input DNA: " + justNameOfDNA + "." + extension)
-      output("Saved Linear projection: " + filenamePNG);
+      log("Input DNA: " + justNameOfDNA + "." + extension)
+      log("Saved Linear projection: " + filenamePNG);
       if ( isHilbertPossible ) {
-        output("Saved Hilbert projection: " + filenameHILBERT);
+        log("Saved Hilbert projection: " + filenameHILBERT);
       }
-      output("Saved HTML Report projection: " + filenameHTML);
+      log("Saved HTML Report projection: " + filenameHTML);
       if (devmode)  { log(renderSummary()); }
 
       updatesTimer = setTimeout(() => {
@@ -2241,9 +2244,10 @@ function saveHilbert(array) {
       }
       function pixToMagnitude(pix) { // give it pix it returns a magnitude that is bigger
         let dim = 0;
+        out(`Finding best fit for image size ${twosigbitsTolocale(pix)} Hilbert curve: `);
         while (pix > hilbPixels[dim]) {
           // status = "set hilbert dim";
-          log(`image size ${pix} too large for ${hilbPixels[dim]} `);
+          out(` [${hilbPixels[dim]}] `);
           dim++;
           if (dim > maxMagnitude) {
             if (magnitude && dim > theActualMaxMagnitude ) {
@@ -2254,6 +2258,7 @@ function saveHilbert(array) {
             }
           }
         }
+        out(" ");
         return dim;
       }
       function dot(i, x, t) {

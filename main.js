@@ -2,24 +2,67 @@
 // require('./aminosee.js')()
 
 // Modules to control application life and create native browser window
-const {app, BrowserWindow, Menu} = require('electron')
+const { app, BrowserWindow, Menu, dialog } = require('electron')
+const extensions = [ "txt", "fa", "mfa", "gbk", "dna"];
+
 const path = require('path')
-// Keep a global reference of the window object, if you don't, the window will
-// be closed automatically when the JavaScript object is garbage collected.
 let mainWindow
 
+let devmode = false;
+// Keep a global reference of the window object, if you don't, the window will
+// be closed automatically when the JavaScript object is garbage collected.
+// app.commandLine.appendSwitch('remote-debugging-port', '8315')
+// app.commandLine.appendSwitch('host-rules', 'MAP * 127.0.0.1')
+// app.commandLine.appendSwitch('devmode', 'true')
+// require('electron').remote.process.argv;
+function toggleDevmode() {
+  if (devmode) {
+    devmode = false;
+    mainWindow.webContents.toggleDevTools();
+  } else {
+    devmode = true;
+    mainWindow.webContents.toggleDevTools();
+  }
+  // togglePause();
+}
+function log(txt) {
+  let d = new Date().getTime();
+  let a = 'a';// app.remote.process.argv;
+  console.log(process.argv)
+
+  console.log(` [${d}] txt: ${txt} argv: ${a} `);
+}
 
 
 
+function showOpenDialog() {
+  // defaultPath: '~',
+
+  const options = {
+    title: 'Open multiple DNA files',
+    buttonLabel: 'AminoSeeIt',
+    filters: [
+      { name: 'TXT', extensions: ['txt'] },
+      { name: 'FA',  extensions: ['fa']  },
+      { name: 'FNA', extensions: ['fna']  },
+      { name: 'FSA', extensions: ['fsa']  },
+      { name: 'MFA', extensions: ['mfa'] },
+      { name: 'GBK', extensions: ['gbk'] },
+      { name: 'GB',  extensions: ['gb'] },
+      { name: 'DNA', extensions: ['dna'] }
+    ],
+    properties: ['openFile', 'openDirectory', 'multiSelections'],
+    message: 'Any text file containing base pairs should work'
+  };
+  const selectedPaths = dialog.showOpenDialog();
+  console.log(selectedPaths);
+}
 function createWindow () {
   // Create the browser window.
-  mainWindow = new BrowserWindow({width: 800, height: 600})
+  mainWindow = new BrowserWindow({width: 1280, height: 1024})
 
   // and load the index.html of the app.
   mainWindow.loadFile('electron.html')
-
-  // Open the DevTools.
-  // mainWindow.webContents.openDevTools()
 
   // Emitted when the window is closed.
   mainWindow.on('closed', function () {
@@ -32,31 +75,136 @@ function createWindow () {
 }
 function aminosee() {
   // const theMenu = BrowserWindow.menu
+  toggleDevmode();
 
-  let template = [{
-    label: 'File',
-    submenu: [{
-      label: 'Open DNA or RNA...',
-      accelerator: 'CmdOrCtrl+o',
-      role: 'open'
-    }],
-    submenu: [{
-      label: 'Settings',
-      accelerator: 'CmdOrCtrl+,',
-      role: 'options'
-    }]
-  }]
-    const menu = Menu.buildFromTemplate(template)
-    Menu.setApplicationMenu(menu)
-    // createWindow()
-    const { ipcMain } = require('electron')
+  const template = [
+    {
+      label: 'File',
+      submenu: [
+        {
+          label: 'Open DNA or RNA...',
+          accelerator: 'CmdOrCtrl+o',
+          role: 'open',
+          click() {
+            showOpenDialog();
+          }
+        },
 
-    ipcMain.on('ondragstart', (event, filePath) => {
-      event.sender.startDrag({
-        file: filePath,
-        icon: '/path/to/icon.png'
-      })
+        {
+          label: 'Settings',
+          accelerator: 'CmdOrCtrl+,',
+          role: 'options'
+        }
+      ]
+    },
+    {
+      label: 'Edit',
+      submenu: [
+        // {role: 'undo'},
+        // {role: 'redo'},
+        // {type: 'separator'},
+        {role: 'cut'},
+        {role: 'copy'},
+        {role: 'paste'},
+        {role: 'pasteandmatchstyle'},
+        {role: 'delete'},
+        {role: 'selectall'}
+      ]
+    },
+    {
+      label: 'View',
+      submenu: [
+        {role: 'reload'},
+        {role: 'forcereload'},
+        {role: 'toggledevtools'},
+        {type: 'separator'},
+        {role: 'resetzoom'},
+        {role: 'zoomin'},
+        {role: 'zoomout'},
+        {type: 'separator'},
+        {role: 'togglefullscreen'}
+      ]
+    },
+    {
+      role: 'window',
+      submenu: [
+        {role: 'minimize'},
+        {role: 'close'}
+      ]
+    },
+    {
+      role: 'help',
+      submenu: [
+        {
+          label: 'Visit Official Site',
+          click () { require('electron').shell.openExternal('http://aminosee.funk.nz') }
+        }
+      ]
+    },
+    {
+      label: 'Developer',
+      submenu: [
+        {
+          label: 'Toggle Developer Tools',
+          accelerator:
+            process.platform == 'darwin' ? 'Alt+Command+I' : 'Ctrl+Shift+I',
+          click() {
+            toggleDevmode();
+          }
+        }
+      ]
+    }
+  ]
+
+  if (process.platform === 'darwin') {
+    template.unshift({
+      label: app.getName(),
+      submenu: [
+        {role: 'about'},
+        {type: 'separator'},
+        {role: 'services'},
+        {type: 'separator'},
+        {role: 'hide'},
+        {role: 'hideothers'},
+        {role: 'unhide'},
+        {type: 'separator'},
+        {role: 'quit'}
+      ]
     })
+
+    // Edit menu
+    template[2].submenu.push(
+      {type: 'separator'},
+      {
+        label: 'Speech',
+        submenu: [
+          {role: 'startspeaking'},
+          {role: 'stopspeaking'}
+        ]
+      }
+    )
+
+    // Window menu
+    template[4].submenu = [
+      {role: 'close'},
+      {role: 'minimize'},
+      {role: 'zoom'},
+      {type: 'separator'},
+      {role: 'front'}
+    ]
+  }
+
+  const menu = Menu.buildFromTemplate(template)
+  Menu.setApplicationMenu(menu)
+  // createWindow()
+  const { ipcMain } = require('electron')
+
+  ipcMain.on('ondragstart', (event, filePath) => {
+    event.sender.startDrag({
+      file: filePath,
+      icon: 'favicon.ico'
+    })
+  })
 }
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
