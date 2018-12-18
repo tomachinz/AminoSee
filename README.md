@@ -5,13 +5,19 @@ by Tom Atkinson
 
 *A terminal command in node renders a unique colour view of RNA or DNA stored in text files, output to PNG graphics file, then launches an WebGL browser that projects the image onto a 3D Hilbert curve for immersive viewing, using THREEjs.*
 
-## Live Demo
+## 2D Demo
+See some real life DNA rendered... you really have to see the image at the link below to get this.
+![Clint the Chimp Y Chromosome](https://www.funk.co.nz/aminosee/output/chrYPan%20troC0471%20Clint.gbk_HILBERT__reg_c10.3_fix_sci.png)
+Meta data about the image above can be found at the report URL below, it shows 7,625,504 DNA base pairs over 262144 pixels. An intermediate linear image is generated as a side effect and packs about 10 codons per pixel of information by blending the colours at 10% opacity each in this case:
+https://www.funk.co.nz/aminosee/output/chrYPan%20troC0471%20Clint.gbk_AMINOSEE-REPORT__reg_c10.3_fix_sci.html
+- Features histogram to count frequency of each Amino Acid
+- Features filtered image where each Amino Acid is bright and solid, others dim and translucent
+
+## 3D Demo (only showing test patterns presently)
 Head over to https://www.funk.co.nz/aminosee for the 3D Hilbert Curve projection (that is planned- currently only showing colour spectrum test patterns).
 
 Soon the demo page will host many images I've generated while developing the software. It can take my machine about 3 minutes to process an entire human chromosome.
 
-## HTML Amino acid histogram
-It will output an html histogram to frame the image. See: https://www.funk.co.nz/aminosee/dna/megabase.fa_aminosee_240.html
 
 ## Easy Install
 Eventually, I'm hoping to have some prebuilt binaries for Mac, Windows and Linux using Electron. Today, the only way to get the DNA converter on your machine is via source code:
@@ -19,6 +25,8 @@ Eventually, I'm hoping to have some prebuilt binaries for Mac, Windows and Linux
 ## Install from Source Code
 Currently the only way to run it yourself is to run it from source code. This requires the previous install of:
 - https://nodejs.org/en/download/
+- https://git-scm.com/ 
+- https://electronjs.org/
 
 Download this repo to your machine:
 ```
@@ -28,6 +36,11 @@ npm install
 echo Use sudo npm link to enable command "aminosee" for all users
 npm link
 sudo npm link aminosee
+```
+## Updates
+From the source code folder:
+```
+git pull
 ```
 
 ## Link so you can run 'aminosee' anywhere
