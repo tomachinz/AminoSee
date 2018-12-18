@@ -58,11 +58,24 @@ function showOpenDialog() {
   console.log(selectedPaths);
 }
 function createWindow () {
+  const electron = require('electron');
+  const {width, height} = electron.screen.getPrimaryDisplay().workAreaSize
   // Create the browser window.
-  mainWindow = new BrowserWindow({width: 1280, height: 1024})
+  mainWindow = new BrowserWindow({show: false, width: width-256, height: height, title: "AminoSee", backgroundColor: '#011224', x: 0, y:0, icon: 'favicon.ico' })
+
+  // mainWindow.setSize(dispWidth-256, dispHeight);
+// , type: 'desktop' , vibrancy: 'light' , titleBarStyle: 'default', fullscreenWindowTitle: false
+  let consoleWindow = new BrowserWindow({parent: mainWindow, width: 256, height: height, title: "Console Output",  backgroundColor: '#011224', frame: false, icon: 'favicon.ico', x: width-256, y: 0})
+  // , type: 'toolbar'
+// , type: 'toolbar'
+
+  mainWindow.once('ready-to-show', () => {
+    mainWindow.show()
+  })
 
   // and load the index.html of the app.
   mainWindow.loadFile('electron.html')
+  // consoleWindow.loadFile('console.html')
 
   // Emitted when the window is closed.
   mainWindow.on('closed', function () {
@@ -75,7 +88,7 @@ function createWindow () {
 }
 function aminosee() {
   // const theMenu = BrowserWindow.menu
-  toggleDevmode();
+  // toggleDevmode();
 
   const template = [
     {
