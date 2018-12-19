@@ -8,7 +8,7 @@
 //        ah-mee no-see       "I See It Now - I AminoSee it!"
 let raceDelay = 66;
 let raceTimer = false;
-let linearMagnitudeMax = 9; // magnitude is the size of upper limit for linear render to come *under*
+let linearMagnitudeMax = 10; // magnitude is the size of upper limit for linear render to come *under*
 let dimension = 7; // dimension is the -1 size the hilbert projection is be downsampled to
 const maxMagnitude = 8; // max for auto setting
 const theActualMaxMagnitude = 12; // max for auto setting
@@ -300,6 +300,7 @@ module.exports = () => {
   } else {
     magnitude = false;
     linearMagnitudeMax = maxMagnitude;
+    log(`mag is false`)
   }
 
   log(`linearMagnitudeMax: ${linearMagnitudeMax}`);
@@ -1674,7 +1675,7 @@ ${renderSummary()}
 
 html += `</div>
 
-
+<br /><br />
 
 <table>
 <thead>
@@ -1682,9 +1683,9 @@ html += `</div>
 <th>Amino Acid</th>
 <th>Hue</th>
 <th>RGB</th>
-<th>Hilbert PNG</th>
 <th>Count</th>
 <th>Description</th>
+<th>Hilbert PNG</th>
 </tr>
 </thead>
 <tbody>
@@ -1699,16 +1700,15 @@ for (i=0; i<pepTable.length; i++) {
   html += `
   <tr style="background-color: hsl( ${theHue} , 50%, 100%);">
   <td style="background-color: white;"> ${pepTable[i].Codon} </td>
-
   <td style="background-color: rgb(${lightC});">
   <p class="fineprint" style="background-color: white; background-color: rgba(255,255,255,0.5); color: black;">${theHue}°</p>
   </td>
   <td style="background-color: rgb(${c}); color: white; font-weight: bold; "> <p class="fineprint" style="background-color: black; background-color: rgba(0,0,0,0.5); color: white;">${c}</p> </td>
+  <td>${pepTable[i].Histocount.toLocaleString()}</td>
+  <td>${pepTable[i].Description}</td>
   <td style="background-color: white;">
   <a href="${aminoFilenameIndex(i)}" class="button" title="Amino filter: ${removeSpacesForFilename(pepTable[i].Codon)}"><img width="48" height="16" style="border: 1px black;" src="${aminoFilenameIndex(i)}" alt="${removeSpacesForFilename(pepTable[i].Codon)}"></a>
   </td>
-  <td>${pepTable[i].Histocount.toLocaleString()}</td>
-  <td>${pepTable[i].Description}</td>
   </tr>
   `
 }
@@ -1849,12 +1849,6 @@ function saveHilbert(array) {
   maxpix = hilbPixels[dimension];
   log(`image size ${pixels} will use dimension ${dimension} yielding ${hilbPixels[dimension]} pixels `);
 
-
-
-
-
-
-
   output(`DIMENSION: ${dimension}`)
 
   const h = require('hilbert-2d');
@@ -1872,28 +1866,36 @@ function saveHilbert(array) {
   hilbertImage = [hilpix*4]; //  x = x, y % 960
 
   for (i = 0; i < hilpix; i++) {
-    dot(i, 32768);
+    dot(i, 20000);
     let hilbX, hilbY;
     [hilbX, hilbY] = h.decode(16,i); // <-- THIS IS WHERE THE MAGIC HILBERT HAPPENS
     let cursorLinear  = 4 * i ;
     let hilbertLinear = 4 * ((hilbX % width) + (hilbY * width));
     let perc = i / hilpix;
-    let thinWhite = 250;
-    let thinWhiteSlice = Math.round(perc * 1000 ) % thinWhite;
-    if (thinWhiteSlice < 1 && devmode) {
+    let thinWhite = 249;
+    let thinWhiteSlice = (Math.round(perc * 1000 )-5) % thinWhite; // -5 is to hit 0% to 0.5% instead of 0% to 1% as previously. this is to enlarge the 99.5% to 100% thinWhite
+    if (thinWhiteSlice < 4 && reg) {
 
-      hilbertImage[hilbertLinear] =   255*perc;
-      hilbertImage[hilbertLinear+1] = ( i % Math.round( perc *32) ) / (perc *32) *  255;
-      hilbertImage[hilbertLinear+2] = (perc *2550)%255;
-      hilbertImage[hilbertLinear+3] = 255 ; //- ((i%2)*24)
+      // hilbertImage[hilbertLinear] =   255*perc;
+      // hilbertImage[hilbertLinear+1] = ( i % Math.round( perc *32) ) / (perc *32) *  255;
+      // hilbertImage[hilbertLinear+2] = (perc *2550)%255;
+      // hilbertImage[hilbertLinear+3] = 255 ;
+
+      hilbertImage[hilbertLinear+0] = rgbArray[cursorLinear+0];
+      hilbertImage[hilbertLinear+1] = rgbArray[cursorLinear+1];
+      hilbertImage[hilbertLinear+2] = rgbArray[cursorLinear+2];
+      // hilbertImage[hilbertLinear+3] = rgbArray[cursorLinear+3];
+
 
       hilbertImage[hilbertLinear+0] = 255 - (hilbertImage[hilbertLinear+0]);
       hilbertImage[hilbertLinear+1] = 255 - (hilbertImage[hilbertLinear+1]);
       hilbertImage[hilbertLinear+2] = 255 - (hilbertImage[hilbertLinear+2]);
-      hilbertImage[hilbertLinear+3] = 128;
+      // hilbertImage[hilbertLinear+3] = 128;
+      hilbertImage[hilbertLinear+3] = (i%4)*63;
+
     } else {
 
-      hilbertImage[hilbertLinear] =   rgbArray[cursorLinear];
+      hilbertImage[hilbertLinear+0] = rgbArray[cursorLinear+0];
       hilbertImage[hilbertLinear+1] = rgbArray[cursorLinear+1];
       hilbertImage[hilbertLinear+2] = rgbArray[cursorLinear+2];
       hilbertImage[hilbertLinear+3] = rgbArray[cursorLinear+3];
@@ -2072,9 +2074,13 @@ function saveHilbert(array) {
       }
     }
     function generateTestPatterns() {
-      magnitude = maxMagnitude;
-      output("TEST PATTERNS GENERATION");
-      output("use -m to try different dimensions 8 is biggest or maybe 9 fresh after a reboot ");
+      if ( !magnitude ) {
+        magnitude = maxMagnitude;
+      } else {
+        log("um");
+      }
+      output(`TEST PATTERNS GENERATION    m ${magnitude} c ${codonsPerPixel}`);
+      output("use -m to try different dimensions. -m 9 requires 1.8 GB RAM");
       output("use -a to remove registration marks it looks a little cleaner without them ");
       log(`hilbPixels      ${magnitude} `);
       log(`hilbPixels      ${magnitude} `);
@@ -2123,11 +2129,14 @@ function saveHilbert(array) {
 
       return true;
     }
+    function rotateNinetyDegrees(x, y) {
+      out(width);
+      return y;
+    }
     function patternsToPngAndMainArray() {
       let perc = 0;
 
       log(`Generating hilbert curve, dimension: ${dimension}`);
-
 
       const h = require('hilbert-2d');
       let hilpix = hilbPixels[dimension];
@@ -2135,14 +2144,13 @@ function saveHilbert(array) {
       let hilbertImage = [hilpix*4];
       rgbArray = [linearpix*4];
 
-
       log(filenameHILBERT);
 
       width = Math.round(Math.sqrt(hilpix));
       height = width;
       linearWidth = Math.round(Math.sqrt(hilpix));
       linearHeight = linearWidth;
-
+      rotateNinetyDegrees();
       for (i = 0; i < hilpix; i++) {
         dot(i, 20000);
         let hilbX, hilbY;
@@ -2151,8 +2159,8 @@ function saveHilbert(array) {
         let hilbertLinear = 4 * ((hilbX % linearWidth) + (hilbY * linearWidth));
 
         let perc = i / hilpix;
-        let thinWhite = 250;
-        let thinWhiteSlice = Math.round(perc * 1000 ) % thinWhite;
+        let thinWhite = 249;
+        let thinWhiteSlice = (Math.round(perc * 1000 )-5) % thinWhite;
 
         hilbertImage[hilbertLinear] =   255*perc; // slow ramp of red
         hilbertImage[hilbertLinear+1] = ( i % Math.round( perc * 32) ) / (perc *32) *  255; // SNAKES! crazy bio snakes.
