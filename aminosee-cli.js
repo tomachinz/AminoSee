@@ -893,7 +893,7 @@ function autoconfCodonsPerPixel() { // requires baseChars maxpix defaultC
       }
     } else {
       if ( magnitude < computersGuess) {
-        log(`It mite be possible to get higher resolution with --magnitude ${computersGuess}`)
+        log(`It mite be possible to get higher resolution with --magnitude ${computersGuess} your choice was ${magnitude}`)
         // default of 6
       } else {
         if ( computersGuess < maxMagnitude) {
@@ -1873,13 +1873,8 @@ function saveHilbert(array) {
     let hilbertLinear = 4 * ((hilbX % width) + (hilbY * width));
     let perc = i / hilpix;
     let thinWhite = 249;
-    let thinWhiteSlice = (Math.round(perc * 1000 )-5) % thinWhite; // -5 is to hit 0% to 0.5% instead of 0% to 1% as previously. this is to enlarge the 99.5% to 100% thinWhite
-    if (thinWhiteSlice < 4 && reg) {
-
-      // hilbertImage[hilbertLinear] =   255*perc;
-      // hilbertImage[hilbertLinear+1] = ( i % Math.round( perc *32) ) / (perc *32) *  255;
-      // hilbertImage[hilbertLinear+2] = (perc *2550)%255;
-      // hilbertImage[hilbertLinear+3] = 255 ;
+    let thinWhiteSlice = (Math.round(perc * 1000 )-50) % thinWhite; // -5 is to hit 0% to 0.5% instead of 0% to 1% as previously. this is to enlarge the 99.5% to 100% thinWhite
+    if (thinWhiteSlice < 1 && reg) {
 
       hilbertImage[hilbertLinear+0] = rgbArray[cursorLinear+0];
       hilbertImage[hilbertLinear+1] = rgbArray[cursorLinear+1];
@@ -2160,15 +2155,14 @@ function saveHilbert(array) {
 
         let perc = i / hilpix;
         let thinWhite = 249;
-        let thinWhiteSlice = (Math.round(perc * 1000 )-5) % thinWhite;
+        let thinWhiteSlice = (Math.round(perc * 1000 )-50) % thinWhite;
 
         hilbertImage[hilbertLinear] =   255*perc; // slow ramp of red
         hilbertImage[hilbertLinear+1] = ( i % Math.round( perc * 32) ) / (perc *32) *  255; // SNAKES! crazy bio snakes.
         hilbertImage[hilbertLinear+2] = (perc *2550)%255; // creates 10 segments to show each 10% mark in blue
         hilbertImage[hilbertLinear+3] = 255; // slight edge in alpha
 
-        if (thinWhiteSlice < 5 && reg) { // 5 one out of 10,000
-          // log(`@i ${i}   hilbX, hilbY `);
+        if (thinWhiteSlice < 1 && reg) { // 5 one out of 10,000
           hilbertImage[hilbertLinear+0] = 255 - (hilbertImage[hilbertLinear+0]);
           hilbertImage[hilbertLinear+1] = 255 - (hilbertImage[hilbertLinear+1]);
           hilbertImage[hilbertLinear+2] = 255 - (hilbertImage[hilbertLinear+2]);
