@@ -63,7 +63,7 @@ let status = "load";
 console.log("Amino\x1b[40mSee\x1b[37mNoEvil");
 let interactiveKeysGuide = "";
 let renderLock = false;
-let keyboard, filenameTouch, maxpix, estimatedPixels, args, filenamePNG, extension, reader, hilbertPoints, herbs, levels, progress, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, textFile, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, fileUploadShowing, testColors, chunksMax, chunksize, chunksizeBytes, baseChars, cpu, subdivisions, contextBitmap, aminoacid, colClock, start, updateClock, percentComplete, kBytesPerSec, pixelStacking, isHighlightCodon, justNameOfDNA, justNameOfPNG, justNameOfHILBERT, sliceDNA, filenameHTML, howMany, timeRemain, runningDuration, kbRemain, width, triplet, updatesTimer, pngImageFlags;
+let hilbertImage, keyboard, filenameTouch, maxpix, estimatedPixels, args, filenamePNG, extension, reader, hilbertPoints, herbs, levels, progress, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, textFile, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, fileUploadShowing, testColors, chunksMax, chunksize, chunksizeBytes, baseChars, cpu, subdivisions, contextBitmap, aminoacid, colClock, start, updateClock, percentComplete, kBytesPerSec, pixelStacking, isHighlightCodon, justNameOfDNA, justNameOfPNG, justNameOfHILBERT, sliceDNA, filenameHTML, howMany, timeRemain, runningDuration, kbRemain, width, triplet, updatesTimer, pngImageFlags;
 let codonsPerPixel, CRASH, cyclesPerUpdate, red, green, blue, alpha, charClock, errorClock, breakClock, streamLineNr, genomeSize, filesDone, spewClock, opacity, codonRGBA, geneRGBA, currentTriplet, progato, shrinkFactor, reg, image;
 
 // const { Transform } = require('stream');
@@ -1848,12 +1848,10 @@ function saveHilbert(array) {
   dimension = computerWants -1;
   maxpix = hilbPixels[dimension];
   log(`image size ${pixels} will use dimension ${dimension} yielding ${hilbPixels[dimension]} pixels `);
-
   output(`DIMENSION: ${dimension}`)
-
   const h = require('hilbert-2d');
   let hilpix = hilbPixels[ dimension ];
-  let hilbertImage = [hilpix*4];
+  hilbertImage = [hilpix*4];
   let linearpix = rgbArray.length / 4;
   shrinkFactor = linearpix / hilpix;
   log(`shrinkFactor pre ${shrinkFactor} = linearpix ${linearpix } /  hilpix ${hilpix}  `);
@@ -1863,7 +1861,6 @@ function saveHilbert(array) {
 
   width = Math.sqrt(hilpix);
   height = width;
-  hilbertImage = [hilpix*4]; //  x = x, y % 960
 
   for (i = 0; i < hilpix; i++) {
     dot(i, 20000);
@@ -1880,7 +1877,6 @@ function saveHilbert(array) {
       hilbertImage[hilbertLinear+1] = rgbArray[cursorLinear+1];
       hilbertImage[hilbertLinear+2] = rgbArray[cursorLinear+2];
       // hilbertImage[hilbertLinear+3] = rgbArray[cursorLinear+3];
-
 
       hilbertImage[hilbertLinear+0] = 255 - (hilbertImage[hilbertLinear+0]);
       hilbertImage[hilbertLinear+1] = 255 - (hilbertImage[hilbertLinear+1]);
@@ -2072,9 +2068,9 @@ function saveHilbert(array) {
       if ( !magnitude ) {
         magnitude = maxMagnitude;
       } else {
-        log("um");
+        log("um ok then");
       }
-      output(`TEST PATTERNS GENERATION    m ${magnitude} c ${codonsPerPixel}`);
+      output(`TEST PATTERNS GENERATION    m${magnitude} c${codonsPerPixel}`);
       output("use -m to try different dimensions. -m 9 requires 1.8 GB RAM");
       output("use -a to remove registration marks it looks a little cleaner without them ");
       log(`hilbPixels      ${magnitude} `);
@@ -2108,9 +2104,9 @@ function saveHilbert(array) {
 
       let filePath = path.resolve(__dirname);// + "/calibration/" ;
       let regmarks = getRegmarks();
-      justNameOfDNA = `AminoSee_Calibration_${ test }${ regmarks }`;
-      justNameOfPNG = `${justNameOfDNA}_linear.png`;
-      justNameOfHILBERT = `${justNameOfDNA}_hilbert.png`;
+      justNameOfDNA = `AminoSee_Calibration${ regmarks }`;
+      justNameOfPNG = `${justNameOfDNA}_linear_${ test }.png`;
+      justNameOfHILBERT = `${justNameOfDNA}_HILBERT_${ test }.png`;
 
       filenameHILBERT = filePath + "/calibration/" + justNameOfHILBERT;
       filenamePNG     = filePath + "/calibration/" + justNameOfPNG;

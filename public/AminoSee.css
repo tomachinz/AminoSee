@@ -99,7 +99,7 @@ input[type=number] {
 	font-size: 26px;
 	position: relative;
 	/* position: fixed; */
-	/* z-index: 11; */
+	z-index: 11;
 	top: 50%;
 	bottom: 50%;
 	left: 50%;
@@ -112,7 +112,7 @@ input[type=number] {
 	font-weight: bold;
 	padding: 64px;
 	border: dotted black 1px;
-	/* transform: translateX(-50%); */
+	transform: translate(-128px, -64px);
 }
 #colorPicker {
 	/* z-index: 999; */

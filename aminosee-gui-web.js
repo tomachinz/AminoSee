@@ -21,7 +21,7 @@ if(window.addEventListener) {
 
 
 function addSpriteToScene() {
-  var spriteMap = new THREE.TextureLoader().load( "https://www.funk.co.nz/aminosee/favicon.ico" );
+  var spriteMap = new THREE.TextureLoader().load( "/aminosee/favicon.ico" );
   var spriteMaterial = new THREE.SpriteMaterial( { map: spriteMap, color: 0xffffff } );
   var sprite = new THREE.Sprite( spriteMaterial );
   scene.add( sprite );
@@ -156,7 +156,7 @@ function testParse() {
       devmode = true;
       alert(`devmode: ${devmode}`);
     } else {
-      devmode = true;
+      devmode = false;
     }
   }
   function init3D() {
