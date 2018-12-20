@@ -2044,7 +2044,7 @@ function saveHilbert(array) {
     }
     function generateTestPatterns() {
       if ( !magnitude ) {
-        magnitude = maxMagnitude;
+        magnitude = maxMagnitude-1;
       } else {
         log("um ok then");
       }
