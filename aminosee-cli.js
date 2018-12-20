@@ -352,22 +352,20 @@ module.exports = () => {
 
     output(` users peptide: ${users}`);
 
-    peptide = tidyPeptideName(users).Codon;
+    peptide = tidyPeptideName(users);
 
     if (peptide != "none") { // this colour is a flag for error
-      output(`Found:${users} SUCCESS`);
+      output(`Custom peptide ${peptide} set. Will highlight these codons. users: ${users}`);
     } else {
       output(`ERROR could not lookup peptide: ${users}`);
       // peptide = users;
       output(`using ${peptide}`);
     }
 
-    output(`Custom peptide ${peptide} set. Will highlight these codons`);
   } else {
     log(`No custom peptide chosen. (default)`);
     peptide = "none";
     triplet = "none";
-    log(tidyPeptideName());
   }
   if ( peptide == "none" && triplet == "none") {
     // DISABLE HIGHLIGHTS
@@ -375,7 +373,9 @@ module.exports = () => {
     highlightFactor = 1.0; // set to zero to i notice any bugs
     isHighlightSet = false;
   } else {
+    output(`peptide  ${peptide}   triplet  ${triplet}`);
     isHighlightSet = true;
+    report = false; // disable html report
   }
 
   if (args.artistic || args.art || args.a) {
@@ -521,19 +521,6 @@ function listDNA() {
 function aPeptideCodon(a) {
   // console.log(a);
   return a.Codon.toUpperCase().substring(0, 4) == peptide.toUpperCase().substring(0, 4);
-}
-function tidyPeptideName(str) {
-  // let clean = pepTable.find((pep) => { pep.Codon.toUpperCase() == str.toUpperCase() } );
-
-  peptide = str;
-  let clean = dnaTriplets.find(isCurrentPeptide);
-
-  log(clean);
-  if (clean) {
-    return clean;
-  } else {
-    return "none";
-  }
 }
 function pepToColor(pep) {
   let temp = peptide;
@@ -1144,10 +1131,10 @@ function saveDocuments(callback) {
 
   // status = "saving html report";
   log("SAVING HTML")
-  if (report && !isHighlightSet) { // report when highlight set
+  if (report == true ) { // report when highlight set
     saveHTML();
   } else {
-    output("No HTML report output.")
+    output("No HTML report output. Due to peptide filter.")
   }
   openOutputs();
   log(renderSummary());
@@ -1871,26 +1858,17 @@ function saveHilbert(array) {
     let perc = i / hilpix;
     let thinWhite = 249;
     let thinWhiteSlice = (Math.round(perc * 1000 )-50) % thinWhite; // -5 is to hit 0% to 0.5% instead of 0% to 1% as previously. this is to enlarge the 99.5% to 100% thinWhite
+
+    hilbertImage[hilbertLinear+0] = rgbArray[cursorLinear+0];
+    hilbertImage[hilbertLinear+1] = rgbArray[cursorLinear+1];
+    hilbertImage[hilbertLinear+2] = rgbArray[cursorLinear+2];
+    hilbertImage[hilbertLinear+3] = rgbArray[cursorLinear+3];
+
     if (thinWhiteSlice < 1 && reg) {
-
-      hilbertImage[hilbertLinear+0] = rgbArray[cursorLinear+0];
-      hilbertImage[hilbertLinear+1] = rgbArray[cursorLinear+1];
-      hilbertImage[hilbertLinear+2] = rgbArray[cursorLinear+2];
-      // hilbertImage[hilbertLinear+3] = rgbArray[cursorLinear+3];
-
       hilbertImage[hilbertLinear+0] = 255 - (hilbertImage[hilbertLinear+0]);
       hilbertImage[hilbertLinear+1] = 255 - (hilbertImage[hilbertLinear+1]);
       hilbertImage[hilbertLinear+2] = 255 - (hilbertImage[hilbertLinear+2]);
-      // hilbertImage[hilbertLinear+3] = 128;
       hilbertImage[hilbertLinear+3] = (i%4)*63;
-
-    } else {
-
-      hilbertImage[hilbertLinear+0] = rgbArray[cursorLinear+0];
-      hilbertImage[hilbertLinear+1] = rgbArray[cursorLinear+1];
-      hilbertImage[hilbertLinear+2] = rgbArray[cursorLinear+2];
-      hilbertImage[hilbertLinear+3] = rgbArray[cursorLinear+3];
-
     }
 
     if (i-4 > rgbArray.length) {
@@ -2073,9 +2051,7 @@ function saveHilbert(array) {
       output(`TEST PATTERNS GENERATION    m${magnitude} c${codonsPerPixel}`);
       output("use -m to try different dimensions. -m 9 requires 1.8 GB RAM");
       output("use -a to remove registration marks it looks a little cleaner without them ");
-      log(`hilbPixels      ${magnitude} `);
-      log(`hilbPixels      ${magnitude} `);
-      log(`hilbPixels      ${hilbPixels[magnitude]} `);
+      log(`pix      ${hilbPixels[magnitude]} `);
       log(`magnitude      ${magnitude} `);
       log(`maxMagnitude      ${maxMagnitude} `);
 
@@ -2124,10 +2100,20 @@ function saveHilbert(array) {
       out(width);
       return y;
     }
+    function paintRegMarks(hilbertLinear) {
+
+
+thinWhiteSlice
+// regmarks will go red orange yellow green cyan blue purple red orange yellow [1-10]
+
+      hilbertImage[hilbertLinear+0] = 255 - (hilbertImage[hilbertLinear+0]);
+      hilbertImage[hilbertLinear+1] = 255 - (hilbertImage[hilbertLinear+1]);
+      hilbertImage[hilbertLinear+2] = 255 - (hilbertImage[hilbertLinear+2]);
+      hilbertImage[hilbertLinear+3] = 128;
+    }
     function patternsToPngAndMainArray() {
       let perc = 0;
 
-      log(`Generating hilbert curve, dimension: ${dimension}`);
 
       const h = require('hilbert-2d');
       let hilpix = hilbPixels[dimension];
@@ -2135,13 +2121,14 @@ function saveHilbert(array) {
       let hilbertImage = [hilpix*4];
       rgbArray = [linearpix*4];
 
-      log(filenameHILBERT);
 
       width = Math.round(Math.sqrt(hilpix));
       height = width;
       linearWidth = Math.round(Math.sqrt(hilpix));
       linearHeight = linearWidth;
       rotateNinetyDegrees();
+      output(`Generating hilbert curve, dimension: ${dimension}`);
+      log(filenameHILBERT);
       for (i = 0; i < hilpix; i++) {
         dot(i, 20000);
         let hilbX, hilbY;
@@ -2150,8 +2137,8 @@ function saveHilbert(array) {
         let hilbertLinear = 4 * ((hilbX % linearWidth) + (hilbY * linearWidth));
 
         let perc = i / hilpix;
-        let thinWhite = 249;
-        let thinWhiteSlice = (Math.round(perc * 1000 )-50) % thinWhite;
+        let thinWhite = 125;
+        let thinWhiteSlice = (Math.round(perc * 1000 )) % thinWhite;
 
         hilbertImage[hilbertLinear] =   255*perc; // slow ramp of red
         hilbertImage[hilbertLinear+1] = ( i % Math.round( perc * 32) ) / (perc *32) *  255; // SNAKES! crazy bio snakes.
@@ -2159,10 +2146,11 @@ function saveHilbert(array) {
         hilbertImage[hilbertLinear+3] = 255; // slight edge in alpha
 
         if (thinWhiteSlice < 1 && reg) { // 5 one out of 10,000
-          hilbertImage[hilbertLinear+0] = 255 - (hilbertImage[hilbertLinear+0]);
-          hilbertImage[hilbertLinear+1] = 255 - (hilbertImage[hilbertLinear+1]);
-          hilbertImage[hilbertLinear+2] = 255 - (hilbertImage[hilbertLinear+2]);
-          hilbertImage[hilbertLinear+3] = 128;
+          paintRegMarks(hilbertLinear, thinWhiteSlice);
+          // hilbertImage[hilbertLinear+0] = 255 - (hilbertImage[hilbertLinear+0]);
+          // hilbertImage[hilbertLinear+1] = 255 - (hilbertImage[hilbertLinear+1]);
+          // hilbertImage[hilbertLinear+2] = 255 - (hilbertImage[hilbertLinear+2]);
+          // hilbertImage[hilbertLinear+3] = 128;
         }
 
         rgbArray[cursorLinear+0] = hilbertImage[hilbertLinear+0];
@@ -2505,7 +2493,7 @@ function saveHilbert(array) {
         }
         function isCurrentPeptide(pep) {
           // return p.Codon == peptide || p.Codon == triplet;
-          return pep.Codon == peptide;
+          return pep.Codon.toLowerCase() == peptide.toLowerCase();
         }
         function isStartCodon(pep) {
           return pep.Codon == "Methionine";
@@ -2524,6 +2512,19 @@ function saveHilbert(array) {
         }
         function isPeptide(pep) {
           return pep.Codon == peptide
+        }
+        function tidyPeptideName(str) {
+          // let clean = pepTable.find((pep) => { pep.Codon.toUpperCase() == str.toUpperCase() } );
+
+          peptide = str;
+          let clean = dnaTriplets.find(isCurrentPeptide);
+
+          log(clean);
+          if (clean) {
+            return clean;
+          } else {
+            return "none";
+          }
         }
         function tripletToHue(str) {
           console.warn(str);

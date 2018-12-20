@@ -39,7 +39,7 @@
   "scripts": {
     "test": "vows --spec --isolate",
     "start": "node bin/aminosee",
-    "build": "browserify AminoSee.js -o bundle.js",
+    "build": "browserify aminosee-gui-web.js -o bundle.js",
     "build2": "browserify bin/bundler.js -o bundle.js",
     "gui": "electron .",
     "guidev": "electron . --devmode --remote-debugging-port 8315 --host-rules='MAP * 127.0.0.1'"

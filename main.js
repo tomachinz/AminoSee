@@ -8,7 +8,7 @@ const extensions = [ "txt", "fa", "mfa", "gbk", "dna"];
 const path = require('path')
 let mainWindow
 
-let devmode = false;
+let devmode = true;
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 // app.commandLine.appendSwitch('remote-debugging-port', '8315')
