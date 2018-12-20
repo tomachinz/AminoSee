@@ -2048,6 +2048,7 @@ function saveHilbert(array) {
       } else {
         log("um ok then");
       }
+      // if (magnitue > 8) { magnitude = 8}
       output(`TEST PATTERNS GENERATION    m${magnitude} c${codonsPerPixel}`);
       output("use -m to try different dimensions. -m 9 requires 1.8 GB RAM");
       output("use -a to remove registration marks it looks a little cleaner without them ");
@@ -2101,10 +2102,8 @@ function saveHilbert(array) {
       return y;
     }
     function paintRegMarks(hilbertLinear) {
-
-
-thinWhiteSlice
-// regmarks will go red orange yellow green cyan blue purple red orange yellow [1-10]
+      // thinWhiteSlice
+      // regmarks will go red orange yellow green cyan blue purple red orange yellow [1-10]
 
       hilbertImage[hilbertLinear+0] = 255 - (hilbertImage[hilbertLinear+0]);
       hilbertImage[hilbertLinear+1] = 255 - (hilbertImage[hilbertLinear+1]);
