@@ -852,11 +852,7 @@ function renderSummary() {
 
 // CODONS PER PIXEL
 function autoconfCodonsPerPixel() { // requires baseChars maxpix defaultC
-  if ( userCPP != -1) {
-    output(`Manual zoom level override enabled at: ${userCPP} codons per pixel.`);
-    codonsPerPixel = userCPP;
-  } else {
-    log("Automatic codons per pixel setting")
+
 
     baseChars = getFilesizeInBytes(filename);
     let existing = userCPP;
@@ -913,7 +909,13 @@ function autoconfCodonsPerPixel() { // requires baseChars maxpix defaultC
         }
       }
     }
-  }
+
+    if ( userCPP != -1) {
+      output(`Manual zoom level override enabled at: ${userCPP} codons per pixel.`);
+      codonsPerPixel = userCPP;
+    } else {
+      log("Automatic codons per pixel setting")
+    }
 
   if (artistic == true) {
     codonsPerPixel = codonsPerPixel / artisticHighlightLength; // to pack it into same image size
@@ -947,7 +949,7 @@ function highlightFilename() {
   let ret = "";
   log(`triplet ${triplet}  peptitde ${peptide}`)
 
-  if ( triplet == "none" && peptide == "none") {
+  if ( triplet == "none" && peptide == "none" || triplet == undefined) {
     return ret;
   } else if ( triplet != "none" ) {
     ret += `_${removeSpacesForFilename(triplet).toLowerCase()}`
@@ -2532,7 +2534,7 @@ function saveHilbert(array) {
           // let clean = pepTable.find((pep) => { pep.Codon.toUpperCase() == str.toUpperCase() } );
 
           peptide = str;
-          let clean = dnaTriplets.find(isCurrentPeptide);
+          let clean = dnaTriplets.find(isCurrentPeptide).Codon;
 
           log(clean);
           if (clean) {
