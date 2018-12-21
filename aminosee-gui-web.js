@@ -5,13 +5,13 @@ let spline, point, vertices, colorsReady, canvas, material, colorArray, playback
 
 let chunksMax, chunksize, chunksizeBytes, codonsPerPixel, basepairs, cpu, subdivisions, userFeedback, contextBitmap;
 const maxcolorpix = 262144 * 1  ; // for large genomes
-const linewidth = 32;
+const linewidth = 4;
 let autostopdelay = 300; // seconds
 colormapsize = maxcolorpix; // custom fit.
 let downloaderDisabled;
 const resHD = 1920*1080;
 const res4K = 1920*1080*4;
-let vLevels = 1; // 1 gives just the row of three at bottom. 2 gives two rows for 6 boxes.
+let vLevels = 2; // 1 gives just the row of three at bottom. 2 gives two rows for 6 boxes.
 
 if(window.addEventListener) {
   window.addEventListener('load',pageLoaded,false); //W3C
@@ -145,7 +145,7 @@ function testParse() {
     genericSceneSetup();
 
     setScene();
-    stat("New value: " + levels);
+    stat("New detail level: " + levels);
 
     // paused = false;
     animate();
@@ -665,13 +665,10 @@ function testParse() {
 
   function stat(txt) {
     // document.getElementById("status").innerHTML = "<div id='status'>" + txt + "</div>";
+    console.log(" [stat] "+ txt);
     document.getElementById("status").innerHTML = txt;
     document.getElementById("stats").innerHTML = getStats();
 
-
-
-
-    console.log(" [stat] "+ txt);
     // groovyTerminal.push(txt);
     // groovyTerminal.pop();
     // groovyTerminal.shift();

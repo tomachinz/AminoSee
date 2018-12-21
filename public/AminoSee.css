@@ -25,23 +25,23 @@ margin: 1px 1px 1px 1px;
 #stats pre {
 
 }
+.small, a.small {
+	font-size: 16px;
+
+}
 #stats {
 	position: fixed;
-	/* position: absolute; */
 	bottom: 0;
 	left: 0;
 	color: #eeeeee;
 	font-size: 8px;
 	font-family: "Old-School-Adventures", "04B", "Yanone Kaffeesatz", fixed;
-	/* font-weight: bold; */
 	background-color: rgb(0, 0, 0);
 	background-color: rgba(0, 0, 0, 0.4);
 	width: 100%;
-	/* max-width: 400px; */
 	z-index: 5;
 	padding: 16px;
 	height: 256px;
-	/* white-space: nowrap; */
 	text-align: left;
 }
 @font-face {
@@ -55,8 +55,8 @@ margin: 1px 1px 1px 1px;
 #monkeys h1, #monkeys  h1.a {
 	font-size: 23.4px;
 }
-#monkeys  h2,#monkeys  h2.a {
-	font-size: 14.4px;
+#monkeys  h2, #monkeys  h2.a {
+	font-size: 18px;
 }
 #webgl body {
 	background-color: #000000;
@@ -69,12 +69,8 @@ input[type=button], input[type=submit], input[type=reset] {
 	min-width: 140px;
 	padding: 8px 8px;
 }
-/* #hide input[type=button], input[type=submit], input[type=reset] {
-background-color: blue;
-padding: 8px 8px;
-} */
+
 #hide {
-	/* background-color: #ffffaa; */
 	font-size: 20px;
 	pading: 8px;
 	font-weight: bold;
@@ -91,9 +87,12 @@ input[type=number] {
 
 }
 /* ********** USE FOR DEFAULT POS ******** */
-.headingStatus {
-	font-size: 16px;
-	display: block;
+#status {
+	font-size: 18px;
+	position: fixed;
+	bottom: 32px;
+	z-index: 6969;
+	left: 32px;
 }
 /* ********** USE TO GET ATTENTION ******** */
 .modalCentered, #colorPicker, div.modalCentered  {
@@ -324,7 +323,7 @@ input[type=number] {
 	}
 }
 a {
-	color: black;
+	color: #006;
 	text-decoration: none;
 }
 a:hover {
