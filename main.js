@@ -65,7 +65,7 @@ function createWindow () {
 
   // mainWindow.setSize(dispWidth-256, dispHeight);
 // , type: 'desktop' , vibrancy: 'light' , titleBarStyle: 'default', fullscreenWindowTitle: false
-  let consoleWindow = new BrowserWindow({parent: mainWindow, width: 256, height: height, title: "Console Output",  backgroundColor: '#011224', frame: false, icon: 'favicon.ico', x: width-256, y: 0})
+  let consoleWindow = new BrowserWindow({parent: mainWindow, width: 256, height: height, title: "Console Output",  backgroundColor: '#011224', frame: true, icon: 'favicon.ico', x: width-256, y: 0})
   // , type: 'toolbar'
 // , type: 'toolbar'
 

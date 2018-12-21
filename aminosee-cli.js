@@ -2101,18 +2101,34 @@ function saveHilbert(array) {
       out(width);
       return y;
     }
-    function paintRegMarks(hilbertLinear) {
-      // thinWhiteSlice
-      // regmarks will go red orange yellow green cyan blue purple red orange yellow [1-10]
+    function paintRegMarks(hilbertLinear, hilbertImage) {
 
-      hilbertImage[hilbertLinear+0] = 255 - (hilbertImage[hilbertLinear+0]);
-      hilbertImage[hilbertLinear+1] = 255 - (hilbertImage[hilbertLinear+1]);
-      hilbertImage[hilbertLinear+2] = 255 - (hilbertImage[hilbertLinear+2]);
-      hilbertImage[hilbertLinear+3] = 128;
-    }
+         hilbertImage[hilbertLinear+0] = 255 - (hilbertImage[hilbertLinear+0]);
+         hilbertImage[hilbertLinear+1] = 255 - (hilbertImage[hilbertLinear+1]);
+         hilbertImage[hilbertLinear+2] = 255 - (hilbertImage[hilbertLinear+2]);
+         hilbertImage[hilbertLinear+3] = 128;
+         if (i%2) {
+           hilbertImage[hilbertLinear+0] = 255;
+           hilbertImage[hilbertLinear+1] = 255;
+           hilbertImage[hilbertLinear+2] = 255;
+           hilbertImage[hilbertLinear+3] = 255;
+         }
+     }
     function patternsToPngAndMainArray() {
       let perc = 0;
-
+      // let paintRegMarks =      function (hilbertLinear) {
+      //
+      //       hilbertImage[hilbertLinear+0] = 255 - (hilbertImage[hilbertLinear+0]);
+      //       hilbertImage[hilbertLinear+1] = 255 - (hilbertImage[hilbertLinear+1]);
+      //       hilbertImage[hilbertLinear+2] = 255 - (hilbertImage[hilbertLinear+2]);
+      //       hilbertImage[hilbertLinear+3] = 128;
+      //       if (i%2) {
+      //         hilbertImage[hilbertLinear+0] = 255;
+      //         hilbertImage[hilbertLinear+1] = 255;
+      //         hilbertImage[hilbertLinear+2] = 255;
+      //         hilbertImage[hilbertLinear+3] = 255;
+      //       }
+      //     }
 
       const h = require('hilbert-2d');
       let hilpix = hilbPixels[dimension];
@@ -2145,7 +2161,7 @@ function saveHilbert(array) {
         hilbertImage[hilbertLinear+3] = 255; // slight edge in alpha
 
         if (thinWhiteSlice < 1 && reg) { // 5 one out of 10,000
-          paintRegMarks(hilbertLinear, thinWhiteSlice);
+          paintRegMarks(hilbertLinear, hilbertImage);
           // hilbertImage[hilbertLinear+0] = 255 - (hilbertImage[hilbertLinear+0]);
           // hilbertImage[hilbertLinear+1] = 255 - (hilbertImage[hilbertLinear+1]);
           // hilbertImage[hilbertLinear+2] = 255 - (hilbertImage[hilbertLinear+2]);

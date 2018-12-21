@@ -154,11 +154,12 @@ function testParse() {
     let url = window.location.href;
     if (url.indexOf("devmode") > 0) {
       devmode = true;
-      alert(`devmode: ${devmode}`);
     } else {
       devmode = false;
     }
   }
+  devmodeURLParam();
+
   function init3D() {
 
 
@@ -168,7 +169,6 @@ function testParse() {
     hammerIt(document.getElementById('canvas'));
     filename = "64-codons-test-pattern.fa";
     fileUploadShowing = false;
-    devmodeURLParam();
     perspective = false;
     paused = false;
     spinning = true;
@@ -685,8 +685,8 @@ function testParse() {
 
   function statModal(txt, callback) {
     document.getElementById('modalBox').innerHTML = `
-    ${txt}
-    <input type="button" id="modalBoxButton" value="OK [ENTER]" onclick="togglePause()">`;
+    ${txt} <br /> <br />
+    <input type="button" id="modalBoxButton" value="Resume [ENTER]" onclick="togglePause()">`;
     // document.getElementById('modalBox').innerHTML = `
     // <div id="modalBox" class="modalCentered">
     // ${txt}
@@ -791,7 +791,7 @@ function testParse() {
   function getPixY(i) {
     var y = Math.round(( colormapsize / 1920 ) -0.5) ; // i use rounding to count the first "1" as 1920 / 1920, but not 1919/1920
     if (y<0) {
-      alert("oops");
+      alert("nek minute");
       y=0;
     }
   }
@@ -912,7 +912,7 @@ function testParse() {
   function togglePause() {
     paused = !paused;
     if (paused == true) {
-      let txt = "Paused - Press [P] to start";
+      let txt = "[P]aused";
       stat(txt);
       statModal(txt, togglePause);
       document.getElementById('pause').value = "Play [P]";
@@ -1230,7 +1230,6 @@ function testParse() {
   }
   function autostopChanged() {
     tickobox = document.getElementById('autostop').checked;
-    // alert(tickobox);
     if (!tickobox) { // RUN FOR AGES
       autostopdelay = 36000; // 10 hours
       paused = true;
