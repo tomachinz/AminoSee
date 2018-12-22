@@ -31,7 +31,6 @@ const maxMsPerUpdate = 12000; // milliseconds per update
 let msPerUpdate = 200; // milliseconds per update
 const hilbPixels = [ 64, 256, 1024, 4096, 16384, 65536, 262144, 1048576, 4194304, 16777216, 67108864 ]; // 67 Megapixel hilbert curve!! the last two are breaking nodes heap and call stack both.
 let widthMax = 960;
-let h = require('hilbert-2d');
 let es = require('event-stream');
 const minimist = require('minimist')
 const highland = require('highland')
@@ -1812,19 +1811,20 @@ function makeWide(txt) {
   }
   return txt
 }
-function hilDecode(i, dimension) {
-
-  let hilbX, hilbY;
-  [hilbX, hilbY] = h.decode(16,i); // <-- THIS IS WHERE THE MAGIC HILBERT HAPPENS
+function hilDecode(i, dimension, h) {
+  // output(`i, dimension  ${i} ${dimension}`)
+  let x, y;
+  [x, y] = h.decode(16,i); // <-- THIS IS WHERE THE MAGIC HILBERT HAPPENS
   // ROTATE IMAGE CLOCKWISE 90 DEGREES IF DIMENSION IS EVEN NUMBER FRAMES
   if ( dimension % 2 == 0 ) { // if even number
-    let newY = hilbX;
-    hilbX = hilbY
-    hilbY = newY;
+    let newY = x;
+    x = y
+    y = newY;
   }
-  return [ hilbX, hilbY ];
+  return [ x, y ];
 }
 function saveHilbert(array) {
+  const h = require('hilbert-2d');
   status = "getting in touch with my man... hilbert";
   let perc = 0;
   let height, width, pixels;
@@ -1848,7 +1848,6 @@ function saveHilbert(array) {
   maxpix = hilbPixels[dimension];
   log(`image size ${pixels} will use dimension ${dimension} yielding ${hilbPixels[dimension]} pixels `);
   output(`DIMENSION: ${dimension}`)
-  const h = require('hilbert-2d');
   let hilpix = hilbPixels[ dimension ];
   hilbertImage = [hilpix*4];
   let linearpix = rgbArray.length / 4;
@@ -1864,7 +1863,7 @@ function saveHilbert(array) {
   for (i = 0; i < hilpix; i++) {
     dot(i, 20000);
     let hilbX, hilbY;
-    [hilbX, hilbY] = hilDecode(i, dimension);
+    [hilbX, hilbY] = hilDecode(i, dimension, h);
     let cursorLinear  = 4 * i ;
     let hilbertLinear = 4 * ((hilbX % width) + (hilbY * width));
     let perc = i / hilpix;
@@ -2127,6 +2126,7 @@ function saveHilbert(array) {
     }
 
     function patternsToPngAndMainArray() {
+      let h = require('hilbert-2d');
       let perc = 0;
 
       let hilpix = hilbPixels[dimension];
@@ -2147,7 +2147,7 @@ function saveHilbert(array) {
         let hilbX, hilbY;
         // [hilbX, hilbY] = h.decode(16,i); // <-- THIS IS WHERE THE MAGIC HILBERT HAPPENS
 
-        [hilbX, hilbY] = hilDecode(i, dimension);
+        [hilbX, hilbY] = hilDecode(i, dimension, h);
 
 
 
