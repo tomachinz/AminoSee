@@ -31,6 +31,7 @@ const maxMsPerUpdate = 12000; // milliseconds per update
 let msPerUpdate = 200; // milliseconds per update
 const hilbPixels = [ 64, 256, 1024, 4096, 16384, 65536, 262144, 1048576, 4194304, 16777216, 67108864 ]; // 67 Megapixel hilbert curve!! the last two are breaking nodes heap and call stack both.
 let widthMax = 960;
+let h = require('hilbert-2d');
 let es = require('event-stream');
 const minimist = require('minimist')
 const highland = require('highland')
@@ -283,15 +284,12 @@ module.exports = () => {
       magnitude = Math.round(args.magnitude || args.m);
       if (magnitude < 1 || magnitude > theActualMaxMagnitude) {
         linearMagnitudeMax = magnitude;
-        output("Magnitude must be an odd number between 1 and 9.");
+        output("Magnitude must be an integer number between 1 and 9.");
       } else if (magnitude > 7) {
         output(`Magnitude 8 requires 700 mb ram and takes a while`);
       } else if (magnitude > 8) {
         output(`This will give your machine quite a hernia. It's in the name of science but.`);
         output(`On my machine, magnitude 8 requires 1.8 GB of ram and 9+ crashes nodes heap and 10+ crashes the max call stack, so perhaps this will run OK in the 2020 AD`);
-      } else if (magnitude == 2 || magnitude == 4 || magnitude ==6 || magnitude == 8 ||magnitude == 10) {
-        magnitude--;
-        output(`Until I implement rotation for the hilbert it's odd numbered dimensions only`)
       }
     } else {
       output("Can't set magnitude and codons per pixel at the same time. Remove your -c option to set magnitude")
@@ -854,68 +852,68 @@ function renderSummary() {
 function autoconfCodonsPerPixel() { // requires baseChars maxpix defaultC
 
 
-    baseChars = getFilesizeInBytes(filename);
-    let existing = userCPP;
-    estimatedPixels = baseChars / 3; // divide by 4 times 3
-    let computersGuess = pixToMagnitude(estimatedPixels); // give it pixels it gives magnitude
-    log(`image estimatedPixels ${estimatedPixels}   computersGuess ${computersGuess}  linearMagnitudeMax ${linearMagnitudeMax}`)
+  baseChars = getFilesizeInBytes(filename);
+  let existing = userCPP;
+  estimatedPixels = baseChars / 3; // divide by 4 times 3
+  let computersGuess = pixToMagnitude(estimatedPixels); // give it pixels it gives magnitude
+  log(`image estimatedPixels ${estimatedPixels}   computersGuess ${computersGuess}  linearMagnitudeMax ${linearMagnitudeMax}`)
 
-    if (codonsPerPixel < defaultC) {
-      codonsPerPixel = defaultC;
-    } else if (codonsPerPixel > 6000) {
-      codonsPerPixel = 6000;
-    } else if (codonsPerPixel == NaN || codonsPerPixel == undefined) {
-      codonsPerPixel = defaultC;
+  if (codonsPerPixel < defaultC) {
+    codonsPerPixel = defaultC;
+  } else if (codonsPerPixel > 6000) {
+    codonsPerPixel = 6000;
+  } else if (codonsPerPixel == NaN || codonsPerPixel == undefined) {
+    codonsPerPixel = defaultC;
+  }
+
+  if (magnitude != undefined) {
+    if ( magnitude < computersGuess) {
+      log(`It mite be possible to get higher resolution with --magnitude ${computersGuess}`)
+    } else if ( magnitude < computersGuess ) {
+      log(`Your --magnitude of ${magnitude} is larger than my default of ${computersGuess}`)
     }
-
-    if (magnitude != undefined) {
-      if ( magnitude < computersGuess) {
-        log(`It mite be possible to get higher resolution with --magnitude ${computersGuess}`)
-      } else if ( magnitude < computersGuess ) {
-        log(`Your --magnitude of ${magnitude} is larger than my default of ${computersGuess}`)
-      }
+  } else {
+    if ( magnitude < computersGuess) {
+      log(`It mite be possible to get higher resolution with --magnitude ${computersGuess} your choice was ${magnitude}`)
+      // default of 6
     } else {
-      if ( magnitude < computersGuess) {
-        log(`It mite be possible to get higher resolution with --magnitude ${computersGuess} your choice was ${magnitude}`)
-        // default of 6
+      if ( computersGuess < maxMagnitude) {
+        log(`Image is not super large, fitting output to --magnitude ${computersGuess}`)
+        magnitude = computersGuess;
       } else {
-        if ( computersGuess < maxMagnitude) {
-          log(`Image is not super large, fitting output to --magnitude ${computersGuess}`)
-          magnitude = computersGuess;
-        } else {
-          log(`Image is big. Limiting size to --magnitude ${maxMagnitude}`)
-          magnitude = maxMagnitude;
-        }
+        log(`Image is big. Limiting size to --magnitude ${maxMagnitude}`)
+        magnitude = maxMagnitude;
       }
     }
+  }
 
-    log(`linearMagnitudeMax: ${linearMagnitudeMax}`);
-    maxpix = hilbPixels[ linearMagnitudeMax ];
+  log(`linearMagnitudeMax: ${linearMagnitudeMax}`);
+  maxpix = hilbPixels[ linearMagnitudeMax ];
 
-    log(`magnitude is ${magnitude} new maxpix: ${maxpix} `)
-    if (estimatedPixels < (maxpix) ) { // for sequence smaller than the screen
-      if (userCPP != -1)  {
-        log("its not recommended to use anything other than --codons 1 for small genomes, better to reduce the --magnitude")
-      } else {
-        codonsPerPixel = defaultC; // normally we want 1:1 for smalls
-      }
-    } else if (estimatedPixels > maxpix ){ // for seq bigger than screen        codonsPerPixel = estimatedPixels / maxpix*overSampleFactor;
-      codonsPerPixel = (estimatedPixels * overSampleFactor) / maxpix;
-      if (userCPP != -1) {
-        if (userCPP < codonsPerPixel) {
-          log(terminalRGB(`WARNING: Your target Codons Per Pixel setting ${userCPP} will make an estiamted ${Math.round(estimatedPixels / userCPP).toLocaleString()} is likely to exceed the max image size of ${maxpix.toLocaleString()}, sometimes this causes an out of memory error. My machine spit the dummy at 1.7 GB of virtual memory use by node, lets try yours. We reckon ${codonsPerPixel} would be better but will give it a try...`))
-        } else {
-          codonsPerPixel = userCPP; // they picked a smaller size than me. therefore their computer less likely to melt.
-        }
-      }
-    }
-
-    if ( userCPP != -1) {
-      output(`Manual zoom level override enabled at: ${userCPP} codons per pixel.`);
-      codonsPerPixel = userCPP;
+  log(`magnitude is ${magnitude} new maxpix: ${maxpix} `)
+  if (estimatedPixels < (maxpix) ) { // for sequence smaller than the screen
+    if (userCPP != -1)  {
+      log("its not recommended to use anything other than --codons 1 for small genomes, better to reduce the --magnitude")
     } else {
-      log("Automatic codons per pixel setting")
+      codonsPerPixel = defaultC; // normally we want 1:1 for smalls
     }
+  } else if (estimatedPixels > maxpix ){ // for seq bigger than screen        codonsPerPixel = estimatedPixels / maxpix*overSampleFactor;
+    codonsPerPixel = (estimatedPixels * overSampleFactor) / maxpix;
+    if (userCPP != -1) {
+      if (userCPP < codonsPerPixel) {
+        log(terminalRGB(`WARNING: Your target Codons Per Pixel setting ${userCPP} will make an estiamted ${Math.round(estimatedPixels / userCPP).toLocaleString()} is likely to exceed the max image size of ${maxpix.toLocaleString()}, sometimes this causes an out of memory error. My machine spit the dummy at 1.7 GB of virtual memory use by node, lets try yours. We reckon ${codonsPerPixel} would be better but will give it a try...`))
+      } else {
+        codonsPerPixel = userCPP; // they picked a smaller size than me. therefore their computer less likely to melt.
+      }
+    }
+  }
+
+  if ( userCPP != -1) {
+    output(`Manual zoom level override enabled at: ${userCPP} codons per pixel.`);
+    codonsPerPixel = userCPP;
+  } else {
+    log("Automatic codons per pixel setting")
+  }
 
   if (artistic == true) {
     codonsPerPixel = codonsPerPixel / artisticHighlightLength; // to pack it into same image size
@@ -1814,6 +1812,18 @@ function makeWide(txt) {
   }
   return txt
 }
+function hilDecode(i, dimension) {
+
+  let hilbX, hilbY;
+  [hilbX, hilbY] = h.decode(16,i); // <-- THIS IS WHERE THE MAGIC HILBERT HAPPENS
+  // ROTATE IMAGE CLOCKWISE 90 DEGREES IF DIMENSION IS EVEN NUMBER FRAMES
+  if ( dimension % 2 == 0 ) { // if even number
+    let newY = hilbX;
+    hilbX = hilbY
+    hilbY = newY;
+  }
+  return [ hilbX, hilbY ];
+}
 function saveHilbert(array) {
   status = "getting in touch with my man... hilbert";
   let perc = 0;
@@ -1854,7 +1864,7 @@ function saveHilbert(array) {
   for (i = 0; i < hilpix; i++) {
     dot(i, 20000);
     let hilbX, hilbY;
-    [hilbX, hilbY] = h.decode(16,i); // <-- THIS IS WHERE THE MAGIC HILBERT HAPPENS
+    [hilbX, hilbY] = hilDecode(i, dimension);
     let cursorLinear  = 4 * i ;
     let hilbertLinear = 4 * ((hilbX % width) + (hilbY * width));
     let perc = i / hilpix;
@@ -1867,10 +1877,11 @@ function saveHilbert(array) {
     hilbertImage[hilbertLinear+3] = rgbArray[cursorLinear+3];
 
     if (thinWhiteSlice < 1 && reg) {
-      hilbertImage[hilbertLinear+0] = 255 - (hilbertImage[hilbertLinear+0]);
-      hilbertImage[hilbertLinear+1] = 255 - (hilbertImage[hilbertLinear+1]);
-      hilbertImage[hilbertLinear+2] = 255 - (hilbertImage[hilbertLinear+2]);
-      hilbertImage[hilbertLinear+3] = (i%4)*63;
+      paintRegMarks(hilbertLinear, hilbertImage);
+      // hilbertImage[hilbertLinear+0] = 255 - (hilbertImage[hilbertLinear+0]);
+      // hilbertImage[hilbertLinear+1] = 255 - (hilbertImage[hilbertLinear+1]);
+      // hilbertImage[hilbertLinear+2] = 255 - (hilbertImage[hilbertLinear+2]);
+      // hilbertImage[hilbertLinear+3] = (i%4)*63;
     }
 
     if (i-4 > rgbArray.length) {
@@ -1879,6 +1890,9 @@ function saveHilbert(array) {
       break;
     }
   }
+
+  // the M number was coming out wrong - it was the users choice without auto-correct
+  setupFNames();
 
   var hilbert_img_data = Uint8ClampedArray.from(hilbertImage);
   var hilbert_img_png = new PNG({
@@ -2047,8 +2061,6 @@ function saveHilbert(array) {
     function generateTestPatterns() {
       if ( !magnitude ) {
         magnitude = maxMagnitude-1;
-      } else {
-        log("um ok then");
       }
       // if (magnitue > 8) { magnitude = 8}
       output(`TEST PATTERNS GENERATION    m${magnitude} c${codonsPerPixel}`);
@@ -2099,40 +2111,24 @@ function saveHilbert(array) {
 
       return true;
     }
-    function rotateNinetyDegrees(x, y) {
-      out(width);
-      return y;
-    }
+
     function paintRegMarks(hilbertLinear, hilbertImage) {
 
-         hilbertImage[hilbertLinear+0] = 255 - (hilbertImage[hilbertLinear+0]);
-         hilbertImage[hilbertLinear+1] = 255 - (hilbertImage[hilbertLinear+1]);
-         hilbertImage[hilbertLinear+2] = 255 - (hilbertImage[hilbertLinear+2]);
-         hilbertImage[hilbertLinear+3] = 128;
-         if (i%2) {
-           hilbertImage[hilbertLinear+0] = 255;
-           hilbertImage[hilbertLinear+1] = 255;
-           hilbertImage[hilbertLinear+2] = 255;
-           hilbertImage[hilbertLinear+3] = 255;
-         }
-     }
+      hilbertImage[hilbertLinear+0] = 255 - (hilbertImage[hilbertLinear+0]);
+      hilbertImage[hilbertLinear+1] = 255 - (hilbertImage[hilbertLinear+1]);
+      hilbertImage[hilbertLinear+2] = 255 - (hilbertImage[hilbertLinear+2]);
+      hilbertImage[hilbertLinear+3] = 128;
+      if (i%2) {
+        hilbertImage[hilbertLinear+0] = 255;
+        hilbertImage[hilbertLinear+1] = 255;
+        hilbertImage[hilbertLinear+2] = 255;
+        hilbertImage[hilbertLinear+3] = 255;
+      }
+    }
+
     function patternsToPngAndMainArray() {
       let perc = 0;
-      // let paintRegMarks =      function (hilbertLinear) {
-      //
-      //       hilbertImage[hilbertLinear+0] = 255 - (hilbertImage[hilbertLinear+0]);
-      //       hilbertImage[hilbertLinear+1] = 255 - (hilbertImage[hilbertLinear+1]);
-      //       hilbertImage[hilbertLinear+2] = 255 - (hilbertImage[hilbertLinear+2]);
-      //       hilbertImage[hilbertLinear+3] = 128;
-      //       if (i%2) {
-      //         hilbertImage[hilbertLinear+0] = 255;
-      //         hilbertImage[hilbertLinear+1] = 255;
-      //         hilbertImage[hilbertLinear+2] = 255;
-      //         hilbertImage[hilbertLinear+3] = 255;
-      //       }
-      //     }
 
-      const h = require('hilbert-2d');
       let hilpix = hilbPixels[dimension];
       let linearpix = hilpix;// * 4;
       let hilbertImage = [hilpix*4];
@@ -2143,18 +2139,23 @@ function saveHilbert(array) {
       height = width;
       linearWidth = Math.round(Math.sqrt(hilpix));
       linearHeight = linearWidth;
-      rotateNinetyDegrees();
+
       output(`Generating hilbert curve, dimension: ${dimension}`);
       log(filenameHILBERT);
       for (i = 0; i < hilpix; i++) {
         dot(i, 20000);
         let hilbX, hilbY;
-        [hilbX, hilbY] = h.decode(16,i); // <-- THIS IS WHERE THE MAGIC HILBERT HAPPENS
+        // [hilbX, hilbY] = h.decode(16,i); // <-- THIS IS WHERE THE MAGIC HILBERT HAPPENS
+
+        [hilbX, hilbY] = hilDecode(i, dimension);
+
+
+
         let cursorLinear  = 4 * i ;
         let hilbertLinear = 4 * ((hilbX % linearWidth) + (hilbY * linearWidth));
 
         let perc = i / hilpix;
-        let thinWhite = 125;
+        let thinWhite = 250;
         let thinWhiteSlice = (Math.round(perc * 1000 )) % thinWhite;
 
         hilbertImage[hilbertLinear] =   255*perc; // slow ramp of red
@@ -2164,10 +2165,6 @@ function saveHilbert(array) {
 
         if (thinWhiteSlice < 1 && reg) { // 5 one out of 10,000
           paintRegMarks(hilbertLinear, hilbertImage);
-          // hilbertImage[hilbertLinear+0] = 255 - (hilbertImage[hilbertLinear+0]);
-          // hilbertImage[hilbertLinear+1] = 255 - (hilbertImage[hilbertLinear+1]);
-          // hilbertImage[hilbertLinear+2] = 255 - (hilbertImage[hilbertLinear+2]);
-          // hilbertImage[hilbertLinear+3] = 128;
         }
 
         rgbArray[cursorLinear+0] = hilbertImage[hilbertLinear+0];
