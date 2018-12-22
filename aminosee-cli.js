@@ -806,7 +806,7 @@ async function initStream(f) {
   log("FINISHED INIT");
 }
 function showFlags() {
-  return `${(  force ? "F" : "-"    )}${(  args.updates || args.u ? `U` : "-"    )}${(  userCPP != -1 ? `C${userCPP}` : "--"    )}${(  args.keyboard || args.k ? `K` : "-"    )}${(  args.spew || spew ? `K` : "-"    )}${( verbose ? "V" : "-"  )}${(  artistic ? "A" : "-"    )}${(  args.ratio || args.r ? `${ratio}` : "---"    )}${(  args.magnitude || args.m ? `M${magnitude}` : "--"    )}`;
+  return `${(  force ? "F" : "-"    )}${(  args.updates || args.u ? `U` : "-"    )}${(  userCPP != -1 ? `C${userCPP}` : "--"    )}${(  args.keyboard || args.k ? `K` : "-"    )}${(  args.spew || spew ? `K` : "-"    )}${( verbose ? "V" : "-"  )}${(  artistic ? "A" : "-"    )}${(  args.ratio || args.r ? `${ratio}` : "---"    )}M${magnitude}C${codonsPerPixel}`;
   // chalk.rgb(255, 255, 255).inverse(justNameOfDNA.toUpperCase())
 }
 function testSummary() {
@@ -2476,9 +2476,9 @@ function saveHilbert(array) {
           `File: ${chalk.rgb(255, 255, 255).inverse(justNameOfDNA.toUpperCase())}.${extension} `,
           `Done: ${chalk.rgb(128, 255, 128).inverse( twosigbitsTolocale(percentComplete*100))} % Remain: ${ twosigbitsTolocale(timeRemain) } sec `,
           `@i ${charClock.toLocaleString()} Lines: ${breakClock.toLocaleString()} Files: ${howMany} Filesize: ${Math.round(baseChars/1000)/1000} MB Elapsed: ${Math.round(runningDuration/1000)} sec KB remain: ${kbRemain}`,
-          `Next update: ${msPerUpdate.toLocaleString()}ms  Codon Opacity: ${twosigbitsTolocale(opacity*100)}% `,
+          `Next update: ${msPerUpdate.toLocaleString()}ms Codon Opacity: ${twosigbitsTolocale(opacity*100)}% `,
           `CPU: ${bytes(kBytesPerSec*1024)}/s Codons per sec: ${Math.round(kCodonsPerSecond).toLocaleString()} Acids/pixel: ${twosigbitsTolocale(codonsPerPixel)} Pixels painted: ${colClock.toLocaleString()}`,
-          `[ Codons: ${genomeSize.toLocaleString()} ]  Last Acid: ${terminalRGB(aminoacid, red, green, blue)}`,
+          `[ Codons: ${genomeSize.toLocaleString()} ]  Last Acid: ${terminalRGB(aminoacid, red, green, blue)} ${ (isHighlightSet ? peptide : '')  }`,
           `[ clean: ${ cleanString(rawDNA)} ] Output png: ${justNameOfPNG}] ${showFlags()}`];
 
 
