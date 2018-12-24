@@ -25,19 +25,19 @@ Soon the demo page will host many images I've generated while developing the sof
 Eventually, I'm hoping to have some prebuilt binaries for Mac, Windows and Linux using Electron. Today, the only way to get the DNA converter on your machine is via source code:
 
 ## Install from Source Code
-Currently the only way to run it yourself is to run it from source code. This requires the previous install of:
+Currently the only way to run it yourself is to run it from source code.
+### Install from source requires the previous install of:
 - https://nodejs.org/en/download/
 - https://git-scm.com/ 
 - https://electronjs.org/
 - https://www.python.org/downloads/
 - on windows:  npm install -g windows-build-tools (as admin)
 
-Download this repo to your machine:
+Paste this into a terminal on to your machine, link makes it so you can just type aminosee * in any directory to render those files.
 ```
 git clone https://github.com/tomachinz/AminoSee
 cd AminoSee
 npm install
-echo Use sudo npm link to enable command "aminosee" for all users
 npm link
 sudo npm link aminosee
 ```
