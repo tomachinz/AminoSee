@@ -7,6 +7,8 @@ by Tom Atkinson
 
 https://youtu.be/QerMTQs2bDs
 
+[![Youtube Vid](https://www.funk.co.nz/blog/wp-content/uploads/2018/12/terminal-shot.png)](https://www.youtube.com/watch?v=QerMTQs2bDs&feature=youtu.be "Tom explains his AminoSee DNA Viewer App")
+
 ## 2D Demo
 See some real life DNA rendered... you really have to see the image at the link below to get this.
 ![Clint the Chimp Y Chromosome](https://www.funk.co.nz/aminosee/output/chrYPan%20troC0471%20Clint.gbk_HILBERT__reg_c10.3_fix_sci.png)
