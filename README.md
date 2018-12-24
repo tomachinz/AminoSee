@@ -27,7 +27,7 @@ Currently the only way to run it yourself is to run it from source code. This re
 - https://nodejs.org/en/download/
 - https://git-scm.com/ 
 - https://electronjs.org/
-
+- https://www.python.org/downloads/
 Download this repo to your machine:
 ```
 git clone https://github.com/tomachinz/AminoSee
