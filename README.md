@@ -3,7 +3,9 @@
 # AminoSee DNA Viewer
 by Tom Atkinson
 
-*A terminal command in node renders a unique colour view of RNA or DNA stored in text files, output to PNG graphics file, then launches an WebGL browser that projects the image onto a 3D Hilbert curve for immersive viewing, using THREEjs.*
+*A terminal command in node renders a unique colour view of RNA or DNA stored in text files, output to PNG graphics file, then launches a WebGL browser that projects the image onto a 3D Hilbert curve for immersive viewing, using THREEjs.*
+
+https://youtu.be/QerMTQs2bDs
 
 ## 2D Demo
 See some real life DNA rendered... you really have to see the image at the link below to get this.
