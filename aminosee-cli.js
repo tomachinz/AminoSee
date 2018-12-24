@@ -1563,7 +1563,7 @@ function imageStack() {
     let c =      hsvToRgb( theHue/360, 0.5, 1.0 );
 
     if (thePep != "non-coding nnn"  && thePep != "start codons" && thePep != "stop codons") {
-      hhh += `<a href="${aminoFilenameIndex(i)}" onmouseover="mover(${i})" onmouseout="mout(${i})"><img  src="${aminoFilenameIndex(i)}" id="stack_${i}" width="256" height="256" style="z-index: ${6969+i}; position: absolute; top: ${i}px; left: ${i*3}px;" alt="${pepTable[i].Codon}" title="${pepTable[i].Codon}"></a>`;
+      hhh += `<a href="${aminoFilenameIndex(i)}" onmouseover="mover(${i})" onmouseout="mout(${i})"><img  src="${aminoFilenameIndex(i)}" id="stack_${i}" width="256" height="256" style="z-index: ${6969+i}; position: absolute; top: ${i}px; left: ${i*32}px;" alt="${pepTable[i].Codon}" title="${pepTable[i].Codon}"></a>`;
     } else {
       log("non-coding nnn image not output");
     }

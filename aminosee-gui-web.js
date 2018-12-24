@@ -21,7 +21,7 @@ if(window.addEventListener) {
 
 
 function addSpriteToScene() {
-  var spriteMap = new THREE.TextureLoader().load( "/aminosee/favicon.ico" );
+  var spriteMap = new THREE.TextureLoader().load( "output/" );
   var spriteMaterial = new THREE.SpriteMaterial( { map: spriteMap, color: 0xffffff } );
   var sprite = new THREE.Sprite( spriteMaterial );
   scene.add( sprite );
