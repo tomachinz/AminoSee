@@ -30,6 +30,8 @@ Currently the only way to run it yourself is to run it from source code. This re
 - https://git-scm.com/ 
 - https://electronjs.org/
 - https://www.python.org/downloads/
+- on windows:  npm install -g windows-build-tools (as admin)
+
 Download this repo to your machine:
 ```
 git clone https://github.com/tomachinz/AminoSee
@@ -39,6 +41,12 @@ echo Use sudo npm link to enable command "aminosee" for all users
 npm link
 sudo npm link aminosee
 ```
+### Windows
+If you see an error like  get-cursor-position@1.0.3 install: `node-gyp rebuild` then you need to click the Start button, type in cmd.exe but right click and "Run as Administrator": 
+```
+sudo npm install -g windows-build-tools
+```
+
 ## Updates
 From the source code folder:
 ```
