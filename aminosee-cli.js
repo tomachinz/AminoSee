@@ -16,7 +16,7 @@ let darkenFactor = 0.65;
 let highlightFactor = 4.5;
 const defaultC = 1; // back when it could not handle 3+GB files.
 const artisticHighlightLength = 18; // px only use in artistic mode. must be 6 or 12 currently
-let spewThresh = 1000;
+let spewThresh = 1000; // spew mode creates matrix style terminal filling each thresh cycles
 let devmode = false; // kills the auto opening of reports etc
 let verbose = false; // not recommended. will slow down due to console.
 let force = false; // force overwrite existing PNG and HTML reports
@@ -40,7 +40,7 @@ const opn = require('opn');
 const parse = require('parse-apache-directory-index');
 let fs = require("fs");
 let request = require('request');
-let histogram = require('ascii-histogram');
+const histogram = require('ascii-histogram');
 let bytes = require('bytes');
 let Jimp = require('jimp');
 let PNG = require('pngjs').PNG;
@@ -241,10 +241,7 @@ module.exports = () => {
   if (args.keyboard || args.k) {
     keyboard = true;
     output(`interactive keyboard mode enabled`)
-    if (keyboard) {
-      // output("skipped setupKeyboardUI() ");
-      setupKeyboardUI()
-    }
+    setupKeyboardUI()
   } else {
     log(`interactive keyboard mode not enabled`)
     keyboard = false;
@@ -272,7 +269,6 @@ module.exports = () => {
     userCPP = Math.round(args.codons || args.c); // javascript is amazing
     output(`shrink the image by blending ${userCPP} codons per pixel.`);
     codonsPerPixel = userCPP;
-
   } else {
     codonsPerPixel = defaultC;
     userCPP = -1;
@@ -1161,9 +1157,6 @@ function saveHTML() {
   fs.writeFileSync(filenameHTML, htmlTemplate(), function (err) {
     if (err) { output(`Error saving HTML: ${err}`) }
     output('Saved html report to: ' + filenameHTML);
-    // setImmediate(() => {
-    //   log("saveHTML done");
-    // });
   });
 
 }
@@ -1194,8 +1187,6 @@ function removeLocks() {
   renderLock = false;
 
   try {
-    // fs.unlinkSync(filenameTouch);
-
     fs.unlinkSync(filenameTouch, (err) => {
       if (err) { console.warn(err) }
       console.warn("file locks removed")
@@ -1726,6 +1717,16 @@ The following image is in raster order, top left to bottom right:
 <a name="scrollLINEAR" ></a>
 <a href="${justNameOfPNG}" ><img src="${justNameOfPNG}"></a>
 
+
+<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- AminoSee (white bg) -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:970px;height:250px"
+     data-ad-client="ca-pub-0729228399056705"
+     data-ad-slot="3381775843"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script>
 `;
 return html;
 }

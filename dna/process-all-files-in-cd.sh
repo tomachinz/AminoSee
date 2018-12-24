@@ -20,8 +20,6 @@ many_size_hilbert() {
   echo "-------------------------------------------"
   echo "                                         =///"
 
-  aminosee_do            $1 $2 1 -m 1
-  aminosee_do            $1 $2 2 -m 2
   aminosee_do            $1 $2 3 -m 3
   aminosee_do            $1 $2 4 -m 4
   aminosee_do            $1 $2 5 -m 5
