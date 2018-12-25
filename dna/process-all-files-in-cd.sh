@@ -5,7 +5,7 @@ find . | awk '{sub(/.\//," ")}1'
 
 aminosee_do () {
   nice -n $1 aminosee $2 $3 $4 $5 $6 $7 &
-  sleep 5
+  sleep 1
 }
 aminosee_do_foreground() {
   nice -n $1 aminosee $2 $3 $4 $5 $6 $7
@@ -32,31 +32,31 @@ parallel_peptides () {
   echo STARTING PARALLEL DECODE FOR $1 $2 $3
   echo "-------------------------------------------"
   echo "                                         =///"
-aminosee_do            $1 $2 0 $3 $4 &
-aminosee_do            $1 $2 1 $3 $4 --peptide=Ochre
-aminosee_do            $1 $2 2 $3 $4 --peptide=Glutamic
-aminosee_do_foreground            $1 $2 3 $3 $4 --peptide=Aspartic
-aminosee_do            $1 $2 4 $3 $4 --peptide=Amber
-aminosee_do            $1 $2 5 $3 $4 --peptide=Cysteine
-aminosee_do            $1 $2 6 $3 $4 --peptide=Glycine
-aminosee_do_foreground $1 $2 0 $3 $4 --peptide=Alanine
+aminosee_do            1 $1 $2 0 $1 $2 $3 $4 &
+aminosee_do            1 $1 $2 $3 $4 --peptide=Ochre
+aminosee_do            2 $1 $2 $3 $4 --peptide=Glutamic
+aminosee_do_foreground 3 $1 $2 $3 $4 --peptide=Aspartic
+aminosee_do            4 $1 $2 $3 $4 --peptide=Amber
+aminosee_do            5 $1 $2 $3 $4 --peptide=Cysteine
+aminosee_do            6 $1 $2 $3 $4 --peptide=Glycine
+aminosee_do_foreground 7 $1 $2 $3 $4 --peptide=Alanine
 
-aminosee_do            $1 $2 1 $3 $4 --peptide=Methionine
-aminosee_do            $1 $2 2 $3 $4 --peptide=Valine
-aminosee_do_foreground $1 $2 3 $3 $4 --peptide=Leucine
-aminosee_do            $1 $2 4 $3 $4 --peptide=Isoleucine
-aminosee_do            $1 $2 5 $3 $4 --peptide=Phenylalanine
-aminosee_do            $1 $2 6 $3 $4 --peptide=Tryptophan
-aminosee_do            $1 $2 7 $3 $4 --peptide=Serine
-aminosee_do_foreground $1 $2 0 $3 $4 --peptide=Threonine
+aminosee_do            1 $1 $2 $3 $4 --peptide=Methionine
+aminosee_do            2 $1 $2 $3 $4 --peptide=Valine
+aminosee_do_foreground 3 $1 $2 $3 $4 --peptide=Leucine
+aminosee_do            4 $1 $2 $3 $4 --peptide=Isoleucine
+aminosee_do            5 $1 $2 $3 $4 --peptide=Phenylalanine
+aminosee_do            6 $1 $2 $3 $4 --peptide=Tryptophan
+aminosee_do            7 $1 $2 $3 $4 --peptide=Serine
+aminosee_do_foreground 8 $1 $2 $3 $4 --peptide=Threonine
 
-aminosee_do            $1 $2 1 $3 $4 --peptide=Opal
-aminosee_do            $1 $2 2 $3 $4 --peptide=Glutamine
-aminosee_do            $1 $2 3 $3 $4 --peptide=Asparagine
-aminosee_do_foreground $1 $2 0 $3 $4 --peptide=Tyrosine
-aminosee_do            $1 $2 5 $3 $4 --peptide=Arginine
-aminosee_do_foreground $1 $2 6 $3 $4 --peptide=Lysine
-aminosee_do_foreground $1 $2 0 $3 $4 --peptide=Histidine
+aminosee_do            1 $1 $2 $3 $4 --peptide=Opal
+aminosee_do            2 $1 $2 $3 $4 --peptide=Glutamine
+aminosee_do            3 $1 $2 $3 $4 --peptide=Asparagine
+aminosee_do_foreground 4 $1 $2 $3 $4 --peptide=Tyrosine
+aminosee_do            5 $1 $2 $3 $4 --peptide=Arginine
+aminosee_do_foreground 6 $1 $2 $3 $4 --peptide=Lysine
+aminosee_do_foreground 7 $1 $2 $3 $4 --peptide=Histidine
 
   echo "                                         =///"
   echo "-------------------------------------------"
@@ -77,7 +77,7 @@ parallel_peptides Octopus_Bimaculoides_v2_0_chrUn.fa $1 $2 $3
 parallel_peptides chrY Pan troglodytes C0471 Clint.gbk $1 $2 $3
 parallel_peptides homo-sapien-hs_ref_GRCh38.p12_chr2.fa $1 $2 $3
 
-sleep 60
+sleep 1
 
 
 if [ $(uname)=Darwin ]; then
@@ -98,3 +98,4 @@ fi
 aminosee * -d -m 7
 aminosee * -d -m 8
 aminosee * -d -m 9
+echo "FINISHED ALL OF PROCESSS SCRIPT - FAROUT"
