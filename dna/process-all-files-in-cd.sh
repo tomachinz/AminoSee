@@ -65,20 +65,17 @@ aminosee_do_foreground $1 $2 0 $3 $4 --peptide=Histidine
   echo "                                         =///"
 }
 
-# aminosee * -d &
-
-
-parallel_peptides Brown_Kiwi_NW_013982187v1.fa
-parallel_peptides Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa
-parallel_peptides Human-GRCh38.p12_chr2.gbk
-parallel_peptides Human-GRCh38.p12_chr2.fa
-many_size_hilbert Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa
-many_size_hilbert Human-GRCh38.p12_chr2.gbk
-parallel_peptides Caenorhabditis_elegans.WBcel235.dna_sm.toplevel.fa
-parallel_peptides Chimp_Clint_chrY.gb
-parallel_peptides Octopus_Bimaculoides_v2_0_chrUn.fa
-parallel_peptides chrY Pan troglodytes C0471 Clint.gbk
-parallel_peptides homo-sapien-hs_ref_GRCh38.p12_chr2.fa
+parallel_peptides Brown_Kiwi_NW_013982187v1.fa $1 $2 $3
+parallel_peptides Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa $1 $2 $3
+parallel_peptides Human-GRCh38.p12_chr2.gbk $1 $2 $3
+parallel_peptides Human-GRCh38.p12_chr2.fa $1 $2 $3
+many_size_hilbert Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa $1 $2 $3
+many_size_hilbert Human-GRCh38.p12_chr2.gbk $1 $2 $3
+parallel_peptides Caenorhabditis_elegans.WBcel235.dna_sm.toplevel.fa $1 $2 $3
+parallel_peptides Chimp_Clint_chrY.gb $1 $2 $3
+parallel_peptides Octopus_Bimaculoides_v2_0_chrUn.fa $1 $2 $3
+parallel_peptides chrY Pan troglodytes C0471 Clint.gbk $1 $2 $3
+parallel_peptides homo-sapien-hs_ref_GRCh38.p12_chr2.fa $1 $2 $3
 
 sleep 60
 
@@ -87,18 +84,16 @@ if [ $(uname)=Darwin ]; then
   echo macos
   find -f *.fa *.mfa *.gbk *.txt
   sleep 2
-  find -f *.fa *.mfa *.gbk *.txt -exec parallel_peptides {} 10  \;
+  find -f *.fa *.mfa *.gbk *.txt -exec parallel_peptides {}  $1 $2 $3  \;
 fi
 
 if [ $(uname)=Linux ]; then
   echo linux
   find *.fa *.mfa *.gbk *.txt
   sleep 2
-  find *.fa *.mfa *.gbk *.txt -exec parallel_peptides {} 10   \;
+  find *.fa *.mfa *.gbk *.txt -exec parallel_peptides {}  $1 $2 $3   \;
 fi
-#
-# many_size_hilbert megabase.fa 1
-# many_size_hilbert Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa 2
+
 
 aminosee * -d -m 7
 aminosee * -d -m 8
