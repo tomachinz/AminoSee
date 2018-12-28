@@ -43,7 +43,7 @@
     "build": "electron-packager ./ --platform=darwin,win32 --arch=x64 --prune --overwrite",
     "gui": "electron .",
     "guidev": "electron . --devmode --remote-debugging-port 8315 --host-rules='MAP * 127.0.0.1'",
-    "package": "cp -r ./node_modules/opn/xdg-open ./libs/xdg-open && cp -r ./node_modules/get-cursor-position/build/Release/pos.node ./libs/pos.node && pkg bin/aminosee.js --out-path dist --assets index.html,public/* --targets linux,win-x86,win-x64,macos"
+    "package": "pkg bin/aminosee.js --out-path dist --assets index.html,public/* --targets linux,win-x86,win-x64,macos"
   },
   "keywords": [
     "dna",
@@ -77,9 +77,7 @@
       "dna/*.txt",
       "dna/*.txt",
       "dna/*.sh",
-      "libs/*",
-      "node_modules/opn/*",
-      "node_modules/get-cursor-position/*"
+      "libs/*"
     ]
   }
 }
