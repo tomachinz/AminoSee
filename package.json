@@ -32,7 +32,8 @@
     "stream-file": "^0.2.3",
     "three": "^0.98.0",
     "uniq": "^1.0.1",
-    "vows": "^0.8.2"
+    "vows": "^0.8.2",
+    "xmlhttprequest": "^1.8.0"
   },
   "devDependencies": {},
   "scripts": {
@@ -60,6 +61,7 @@
     "url": "git://github.com/tomachinz/AminoSee.git"
   },
   "pkg": {
+    "out-path": "dist",
     "targets": [
       "linux-x64",
       "macos-x64",
@@ -67,8 +69,6 @@
       "win-x86"
     ],
     "assets": [
-      "calibration/",
-      "output/",
       "dna/*.txt",
       "dna/*.txt",
       "dna/*.sh",

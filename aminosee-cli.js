@@ -6,7 +6,7 @@
 //       ╩ ╩┴ ┴┴┘└┘└─┘╚═╝└─┘└─┘  ═╩╝╝╚╝╩ ╩   ╚╝ ┴└─┘└┴┘└─┘┴└─
 //       by Tom Atkinson            aminosee.funk.nz
 //        ah-mee no-see       "I See It Now - I AminoSee it!"
-let raceDelay = 66;
+let raceDelay = 666;
 let raceTimer = false;
 let linearMagnitudeMax = 10; // magnitude is the size of upper limit for linear render to come *under*
 let dimension = 7; // dimension is the -1 size the hilbert projection is be downsampled to
@@ -16,7 +16,7 @@ let darkenFactor = 0.65;
 let highlightFactor = 4.5;
 const defaultC = 1; // back when it could not handle 3+GB files.
 const artisticHighlightLength = 18; // px only use in artistic mode. must be 6 or 12 currently
-let spewThresh = 1000; // spew mode creates matrix style terminal filling each thresh cycles
+let spewThresh = 10000; // spew mode creates matrix style terminal filling each thresh cycles
 let devmode = false; // kills the auto opening of reports etc
 let verbose = false; // not recommended. will slow down due to console.
 let force = false; // force overwrite existing PNG and HTML reports
@@ -105,7 +105,7 @@ function setupKeyboardUI() {
   interactiveKeysGuide += `
   Interactive control:    D            (devmode)  Q   (graceful quit next save)
   V       (verbose mode)  S (spew DNA to screen)  Control-C      (instant quit)
-  F      (Overwrite png)  W        (wipe screen)  U       (stats update on/off)`;
+  F      (overwrite png)  W (toggle scr clear)    U       (stats update on/off)`;
 
   // make `process.stdin` begin emitting "keypress" events
   keypress(process.stdin);
@@ -154,15 +154,14 @@ function setupKeyboardUI() {
     if (key && key.name == 'w') {
       toggleClearScreen();
     }
-    if (key && key.name == 't') {
-      saveHilbert();
-    }
+    // if (key && key.name == 't') {
+    //   saveHilbert();
+    // }
     if (key && key.name == 'Space' || key.name == 'Enter') {
       msPerUpdate = 200;
     }
     if (key && key.name == 'u') {
       msPerUpdate = 200;
-
       if (updates) {
         updates = false;
         clearTimeout(updatesTimer);
@@ -238,19 +237,23 @@ module.exports = () => {
     string: [ 'ratio'],
     string: [ 'width'],
     alias: { a: 'artistic', c: 'codons', d: 'devmode', f: 'force', m: 'magnitude', p: 'peptide', i: 'image', t: 'triplet', r: 'ratio', s: 'spew', w: 'width', v: 'verbose' },
-    default: { clear: true, updates: true },
+    default: { clear: true, updates: true, keyboard: false },
     '--': true
   });
 
-
+  keyboard = true;
   if (args.keyboard || args.k) {
     keyboard = true;
-    output(`interactive keyboard mode enabled`)
-    setupKeyboardUI()
   } else {
-    log(`interactive keyboard mode not enabled`)
     keyboard = false;
   }
+  if (keyboard) {
+    log(`interactive keyboard mode enabled`)
+    setupKeyboardUI()
+  } else {
+    output(`interactive keyboard mode disabled`)
+  }
+
 
   if (args.image || args.i || args.png) {
     openImage = true;
@@ -403,6 +406,8 @@ module.exports = () => {
   if (args.spew || args.s) {
     output("spew mode enabled.");
     spew = true;
+  } else {
+    spew = false;
   }
   if (args.devmode || args.debug || args.d) {
     output("devmode enabled.");
@@ -447,29 +452,20 @@ module.exports = () => {
     updates = true;
     pngImageFlags = "_test_pattern";
     setTimeout(() => {
-      // printRadMessage();
       generateTestPatterns();
     }, raceDelay);
   } else {
     test = false;
   }
 
-
-  //
-  // log("howMany: " + howMany+ " cmd: " + cmd)
-  // if (howMany > 0) {
-  //   filename = path.resolve(args._[0]);
-  // } else {
-  //   log("try using aminosee * in a directory with DNA")
-  //   // quit();
-  // setTimeout(() => {
-  //   // printRadMessage();
-  //   // quit();
-  // }, 69);
-  // }
   switch (cmd) {
     case 'unknown':
     output(` [unknown argument] ${cmd}`);
+    break;
+
+
+    case 'demo':
+    launchNonBlockingServer();
     break;
 
     case 'serve':
@@ -480,10 +476,6 @@ module.exports = () => {
     helpCmd(args);
     break;
 
-    case 'tick':
-    createTick();
-    break
-
     case 'list':
     listDNA();
     break
@@ -491,12 +483,11 @@ module.exports = () => {
     default:
     if (cmd == undefined) {
       status = "no command";
+      filename = "no file";
       log("try using aminosee * in a directory with DNA")
-      // setTimeout(() => {
-      //   output("try using aminosee * in a directory with DNA")
-      //
-      //   quit(1);
-      // }, 20000);
+      setTimeout(() => {
+        quit(1);
+      }, 5000);
       return true;
     } else {
       pollForStream();
@@ -509,9 +500,14 @@ module.exports = () => {
   log(status)
 }
 function listDNA() {
+  // var XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
+  // var xhr = new XMLHttpRequest('https://www.funk.co.nz/aminosee/output/');
+  // let txt = xhr.responseText;
 
-  testParse();
-
+  // testParse();
+  // parse("https://www.funk.co.nz/aminosee/output/")
+  output(txt)
+  parse(txt)
   // output( parse( "dna" ))
 }
 function aPeptideCodon(a) {
@@ -536,7 +532,7 @@ function pollForStream() {
       log(`raceDelay inside pollForStream`)
       calcUpdate();
       printRadMessage(["POLLING", "Render", filename, "Now", "RENDER", "LOCKED", percentComplete]);
-      pollForStream();
+      // pollForStream();
 
     }, raceDelay);
 
@@ -975,13 +971,11 @@ function getFileExtension() {
 function setupFNames() {
   extension = getLast5Chars(filename);
   justNameOfDNA = spaceTo_(removeFileExtension(replaceFilepathFileName(filename)));
-  output("YOWZA: " +justNameOfDNA);
-  output("EXTENSINO: " +extension);
 
   if (justNameOfDNA.length > 22 ) {
     justNameOfDNA = justNameOfDNA.substring(0,11) + justNameOfDNA.substring(justNameOfDNA.length-11,justNameOfDNA.length);
   }
-  // let filePath = path.dirname(path.resolve(path.dirname(filename))) ;
+  // let filePath = path.dirname(path.resolve(path.dirname(filename))); // parent
   let filePath = path.resolve(path.dirname(filename)) ;
   filePath += "/output" ;
   mkdir("output");
@@ -1194,23 +1188,24 @@ function removeLocks() {
   console.warn("Removing locks")
   renderLock = false;
 
+  if (keyboard == true) {
+    try {
+      process.stdin.setRawMode(false);
+      process.stdin.resume();
+    } catch(e) { log( e ) }
+  }
+
   try {
     fs.unlinkSync(filenameTouch, (err) => {
       if (err) { console.warn(err) }
-      console.warn("file locks removed")
+      console.log("OK")
       pollForStream();
     });
 
   } catch (err) {
-    console.warn("removeLocks err: " + err);
+    // console.warn("removeLocks err: " + err);
     pollForStream();
   }
-  console.log("end of removeLocks function");
-  // if (howMany>0) {
-  //   pollForStream();
-  // } else {
-  //   quit(1)
-  // }
 }
 function getFilesizeInBytes(f) {
   try {
@@ -1247,35 +1242,28 @@ function checkFileExtension(f) {
 function quit(n) {
 
 
-  if ( renderLock == false ) {
-    clearTimeout(updatesTimer);
-    status = "bye";
-    // msPerUpdate = 0;
-    // log("press Control-C again to quit; or.... try T to output test patterns");
-    if (keyboard) {
-      try {
-        process.stdin.setRawMode(false);
-        process.stdin.resume();
-        // removeLocks();
-      } catch(e) { log( e ) }
-    }
-
-    log(status);
-    // updates = false;
-
-    if ( howMany > 0 ) {
-      log("Continuing...");
-      pollForStream();
-    } else {
-      process.exitCode = 1;
-
-      log('really bye. like process.exit type bye.');
-      log(" ");
-      printRadMessage([`last file: ${filename}`,"bye","bye","bye","bye","bye"]);
-    }
-  } else {
-    log("half bye but still rendering")
+  if ( renderLock == true ) {
+    log("still rendering")
+    return true;
   }
+
+  clearTimeout(updatesTimer);
+  status = "bye";
+  // msPerUpdate = 0;
+  // log("press Control-C again to quit; or.... try T to output test patterns");
+
+
+  log(status);
+
+  if ( howMany > 0 ) {
+    log("Continuing...");
+    pollForStream();
+  } else {
+    process.exitCode = 1;
+    log(`process.exit type bye. last file: ${filename}`);
+    log(" ");
+  }
+
 }
 function processLine(l) {
 
@@ -1729,9 +1717,9 @@ The following image is in raster order, top left to bottom right:
 <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
 <!-- AminoSee (white bg) -->
 <ins class="adsbygoogle"
-     style="display:inline-block;width:970px;height:250px"
-     data-ad-client="ca-pub-0729228399056705"
-     data-ad-slot="3381775843"></ins>
+style="display:inline-block;width:970px;height:250px"
+data-ad-client="ca-pub-0729228399056705"
+data-ad-slot="3381775843"></ins>
 <script>
 (adsbygoogle = window.adsbygoogle || []).push({});
 </script>
@@ -2383,8 +2371,8 @@ function saveHilbert(array) {
         colClock++;
       }
       function out(t) {
+        process.stdout.write("\033[<0>;<0>f"); // cursor to 0,0
         process.stdout.write(t); // CURSOR TO TOP LEFT????
-
       }
       function clearScreen() {
         if (clear) {
@@ -2493,7 +2481,7 @@ function saveHilbert(array) {
           `@i ${charClock.toLocaleString()} Lines: ${breakClock.toLocaleString()} Files: ${howMany} Filesize: ${Math.round(baseChars/1000)/1000} MB Elapsed: ${Math.round(runningDuration/1000)} sec KB remain: ${kbRemain}`,
           `Next update: ${msPerUpdate.toLocaleString()}ms Codon Opacity: ${twosigbitsTolocale(opacity*100)}% `,
           `CPU: ${bytes(kBytesPerSec*1024)}/s Codons per sec: ${Math.round(kCodonsPerSecond).toLocaleString()} Acids/pixel: ${twosigbitsTolocale(codonsPerPixel)} Pixels painted: ${colClock.toLocaleString()}`,
-          `[ Codons: ${genomeSize.toLocaleString()} ]  Last Acid: ${terminalRGB(aminoacid, red, green, blue)} ${ (isHighlightSet ? peptide : '')  }`,
+          `[ Codons: ${genomeSize.toLocaleString()} ]  Last Acid: ${terminalRGB(aminoacid, red, green, blue)} ${ (isHighlightSet ? peptide : '')  } Files to go: ${howMany}`,
           `[ clean: ${ cleanString(rawDNA)} ] Output png: ${justNameOfPNG}] ${showFlags()}`];
 
 
@@ -2635,11 +2623,12 @@ function saveHilbert(array) {
 
               spewClock++;
               if (spew && spewClock > spewThresh) {
-                log(terminalRGB(aminoacid.charAt(0), red, green, blue));
+                let c = aminoacid.charAt(0) | ".";
+                // log(terminalRGB(c, red, green, blue));
                 if(colClock % 20 ==0 ){
                   out(` [ ${colClock} ] `);
-                  out(terminalRGB(rawDNA + " ", 64, 128, 64));
-                  out();
+                  output(terminalRGB(rawDNA + " ", 64, 128, 64));
+                  out(" ");
                 }
                 spewClock = 0;
               }
