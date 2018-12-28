@@ -36,7 +36,9 @@ const minimist = require('minimist')
 const highland = require('highland')
 const fetch = require("node-fetch");
 const path = require('path');
-const opn = require('opn');
+// const opn = require('opn'); //path-to-executable/xdg-open
+const opn = require('./node_modules/opn');
+// const opn = require('./libs/opn');
 const parse = require('parse-apache-directory-index');
 let fs = require("fs");
 let request = require('request');
@@ -51,6 +53,9 @@ var os = require("os");
 const hostname = os.hostname();
 const util = require('util');
 const appPath = require.main.filename;
+// const public = path.join(__dirname, 'public'); // include the webserver files in exe
+// const xdg = path.join(__dirname, 'libs/xdg-open'); // include the webserver files in exe
+// ./node_modules/get-cursor-position/build/Release/pos.node
 let highlightTriplets = [];
 let isHighlightSet = false;
 let isHilbertPossible = true; // set false if -c flags used.
@@ -430,8 +435,6 @@ module.exports = () => {
     updates = false;
   }
 
-  mkdir('calibration');
-  mkdir('output');
 
   log(args);
   let cmd = args._[0];
@@ -688,6 +691,7 @@ function theSwitcher(bool) {
 }
 async function initStream(f) {
   status = "init";
+  mkdir('output');
   log(status.toUpperCase());
   start = new Date().getTime();
   timeRemain, runningDuration, charClock, percentComplete, genomeSize, colClock, opacity = 0;
@@ -945,10 +949,10 @@ function highlightFilename() {
   if ( triplet == "none" && peptide == "none" || triplet == undefined) {
     return ret;
   } else if ( triplet != "none" ) {
-    ret += `_${removeSpacesForFilename(triplet).toLowerCase()}`
+    ret += `_${spaceTo_(triplet).toLowerCase()}`
   }
   if (peptide != "none") {
-    ret += `_${removeSpacesForFilename(peptide).toLowerCase()}`;
+    ret += `_${spaceTo_(peptide).toLowerCase()}`;
   }
   log(`triplet ${triplet}  peptitde ${peptide} highlightFilename returns ${ret}`)
 
@@ -970,13 +974,17 @@ function getFileExtension() {
 }
 function setupFNames() {
   extension = getLast5Chars(filename);
-  justNameOfDNA = removeSpacesForFilename(removeFileExtension(replaceFilepathFileName(filename)));
+  justNameOfDNA = spaceTo_(removeFileExtension(replaceFilepathFileName(filename)));
+  output("YOWZA: " +justNameOfDNA);
+  output("EXTENSINO: " +extension);
+
   if (justNameOfDNA.length > 22 ) {
     justNameOfDNA = justNameOfDNA.substring(0,11) + justNameOfDNA.substring(justNameOfDNA.length-11,justNameOfDNA.length);
   }
-  let filePath = path.dirname(path.resolve(path.dirname(filename))) ;
+  // let filePath = path.dirname(path.resolve(path.dirname(filename))) ;
+  let filePath = path.resolve(path.dirname(filename)) ;
   filePath += "/output" ;
-
+  mkdir("output");
   let ext = getFileExtension();
 
   justNameOfPNG =     `${justNameOfDNA}.${extension}_linear${ext}.png`;
@@ -990,7 +998,7 @@ function setupFNames() {
 
   log(`ext: ${ext} pep ${peptide} status ${status} filePath ${filePath}`);
   output(chalk.rgb(255, 255, 255).inverse(`FILENAMES SETUP AS:  highlightFilename() ${highlightFilename()} pep
-  justNameOfDNA.extension ${justNameOfDNA + "." + extension}
+  justNameOfDNA: ${justNameOfDNA}.${extension}
   justNameOfPNG: ${justNameOfPNG}
   justNameOfHTML ${justNameOfHTML}
   filenameTouch: ${filenameTouch}`));
@@ -1631,7 +1639,7 @@ ${renderSummary()}
 <div><a href="http://aminosee.funk.nz/">
 <input type="button" value="VISIT WEBSITE" onclick="window.location = '#scrollHILBERT'"><br>
 
-<img src="https://www.funk.co.nz/aminosee/aminosee/seenoevilmonkeys.jpg">
+<img src="https://www.funk.co.nz/aminosee/public/seenoevilmonkeys.jpg">
 
 <!-- <h1>AminoSeeNoEvil</h1> -->
 <h1>Amino<span style="color: #888888;">See</span><span style="color: #dddddd;">NoEvil</span></h1>
@@ -1684,7 +1692,7 @@ for (i=0; i<pepTable.length; i++) {
   <td>${pepTable[i].Histocount.toLocaleString()}</td>
   <td>${pepTable[i].Description}</td>
   <td style="background-color: white;">
-  <a href="${aminoFilenameIndex(i)}" class="button" title="Amino filter: ${removeSpacesForFilename(pepTable[i].Codon)}"><img width="48" height="16" style="border: 1px black;" src="${aminoFilenameIndex(i)}" alt="${removeSpacesForFilename(pepTable[i].Codon)}"></a>
+  <a href="${aminoFilenameIndex(i)}" class="button" title="Amino filter: ${spaceTo_(pepTable[i].Codon)}"><img width="48" height="16" style="border: 1px black;" src="${aminoFilenameIndex(i)}" alt="${spaceTo_(pepTable[i].Codon)}"></a>
   </td>
   </tr>
   `
@@ -2046,10 +2054,16 @@ function saveHilbert(array) {
       return ( ratio == true || reg == true ? "_reg" : "" )
     }
     function mkdir(d) {
+      output("Creating directory: " + d)
       log(`mkdir ${d} `)
 
-      let filePath = path.resolve(__dirname);// + "/calibration/" ; filePath + "/calibration/"
-      d = filePath + "/" + d;
+      // let filePath = path.resolve(__dirname);// __dirname not work with pkg
+      // let filePath = path.resolve(process.cwd());// + "/calibration/" ; filePath + "/calibration/"
+      // process.cwd() works with pkg better
+
+
+
+      // d = filePath + "/" + d;
 
       if (!fs.existsSync(d)){
         log(`mkdir GREAT SUCCESS ${d}`)
@@ -2059,6 +2073,8 @@ function saveHilbert(array) {
       }
     }
     function generateTestPatterns() {
+      mkdir('calibration');
+
       if ( !magnitude ) {
         magnitude = maxMagnitude-1;
       }
@@ -2093,7 +2109,8 @@ function saveHilbert(array) {
       start = new Date().getTime();
       test, dimension = magnitude; // mags for the test
 
-      let filePath = path.resolve(__dirname);// + "/calibration/" ;
+      // let filePath = path.resolve(__dirname); // OLD WAY not compatible with pkg
+      let filePath = path.resolve(process.cwd()); //
       let regmarks = getRegmarks();
       justNameOfDNA = `AminoSee_Calibration${ regmarks }`;
       justNameOfPNG = `${justNameOfDNA}_linear_${ test }.png`;
@@ -2273,11 +2290,11 @@ function saveHilbert(array) {
       }
 
 
-      function removeSpacesForFilename(str) {
+      function spaceTo_(str) {
         if (str == undefined) {
           return "";
         } else {
-          return str.replace(' ', '');
+          return str.replace(' ', '_');
         }
       }
 

@@ -21,7 +21,7 @@ if(window.addEventListener) {
 
 
 function addSpriteToScene() {
-  var spriteMap = new THREE.TextureLoader().load( "output/" );
+  var spriteMap = new THREE.TextureLoader().load( "output/Brown_Kiwi_013982187v1.fa_HILBERT_c123.6_sci.png" );
   var spriteMaterial = new THREE.SpriteMaterial( { map: spriteMap, color: 0xffffff } );
   var sprite = new THREE.Sprite( spriteMaterial );
   scene.add( sprite );
@@ -140,15 +140,14 @@ function testParse() {
   }
 
   function changeLevels() {
-    // paused = true;
-    // levels = document.getElementById('levels').value;
+    statModal("Increasing detail level to " + levels)
+
     genericSceneSetup();
 
     setScene();
     stat("New detail level: " + levels);
-
-    // paused = false;
     animate();
+
   }
   function devmodeURLParam() {
     let url = window.location.href;
@@ -679,20 +678,34 @@ function testParse() {
   function workReceived(e) {
     stat("[workReceived] " + e.data.result);
   }
+  function returnVariableName(whatsmyname) {
+    let nameObject = {whatsmyname};
+    let getVarNameFromObject = (nameObject) => {
+      for(let varName in nameObject) {
+        return varName;
+      }
+    }
+    let varName = getVarNameFromObject(nameObject);
+    console.log(`THE VARIABLES NAME IS ${varName}`)
+    return varName;
+  }
 
-  function statModal(txt, callback) {
+
+  function statModal(txt, onclickFunction) { // onclickFunction is string
+    if (onclickFunction == undefined) {
+      onclickFunction = clearModal + "()";
+      resume = `OK`;
+    } else {
+      onclickFunction = onclickFunction + "()";
+      resume = `Resume [ENTER]`;
+    }
+    document.getElementById('modalBox').classList.replace('hidden', 'modalCentered');
+    console.log(statModal, txt, onclickFunction);
     document.getElementById('modalBox').innerHTML = `
     ${txt} <br /> <br />
-    <input type="button" id="modalBoxButton" value="Resume [ENTER]" onclick="togglePause()">`;
-    // document.getElementById('modalBox').innerHTML = `
-    // <div id="modalBox" class="modalCentered">
-    // ${txt}
-    // <input type="button" id="modalBoxButton" value="OK [ENTER]" onclick="togglePause()">
-    // </div>
-    // `;
+    <input type="button" id="modalBoxButton" value="${resume}" onclick="${onclickFunction}">`;
   }
-  function statModalOkCallback() {
-  }
+
 
   function handleFileSelect(evt) {
     document.getElementById('cancel').classList.remove('hidden');
@@ -911,10 +924,9 @@ function testParse() {
     if (paused == true) {
       let txt = "[P]aused";
       stat(txt);
-      statModal(txt, togglePause);
+      statModal(txt, "togglePause");
       document.getElementById('pause').value = "Play [P]";
       // document.getElementById('status').classList.replace('headingStatus', 'hidden');
-      document.getElementById('modalBox').classList.replace('hidden', 'modalCentered');
       if (timeout) {
         clearTimeout(timeout);
       }
@@ -924,7 +936,7 @@ function testParse() {
       stat(txt);
       document.getElementById('pause').value = "Pause [P]";
       // document.getElementById('status').classList.replace('hidden', 'headingStatus');
-      document.getElementById('modalBox').classList.replace('modalCentered', 'hidden');
+      clearModal();
       if (timeout) {
         clearTimeout(timeout);
       }
@@ -932,8 +944,10 @@ function testParse() {
         setTimeoutPause();
       }
     }
-
     animate();
+  }
+  function clearModal() {
+    document.getElementById('modalBox').classList.replace('modalCentered', 'hidden');
   }
   function toggleSpin() {
     spinning = !spinning;
