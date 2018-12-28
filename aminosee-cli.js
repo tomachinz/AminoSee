@@ -241,17 +241,17 @@ module.exports = () => {
     '--': true
   });
 
-  keyboard = true;
+  keyboard = false;
   if (args.keyboard || args.k) {
     keyboard = true;
   } else {
     keyboard = false;
   }
   if (keyboard) {
-    log(`interactive keyboard mode enabled`)
+    output(`interactive keyboard mode enabled`)
     setupKeyboardUI()
   } else {
-    output(`interactive keyboard mode disabled`)
+    log(`interactive keyboard mode disabled`)
   }
 
 
@@ -484,10 +484,10 @@ module.exports = () => {
     if (cmd == undefined) {
       status = "no command";
       filename = "no file";
-      log("try using aminosee * in a directory with DNA")
+      output("Try running aminosee * in a directory with DNA. Closing in 2 seconds.")
       setTimeout(() => {
         quit(1);
-      }, 5000);
+      }, 2000);
       return true;
     } else {
       pollForStream();
@@ -999,9 +999,10 @@ function setupFNames() {
 }
 
 function launchNonBlockingServer() {
+  // serverPath = appPath.substring(0, appPath.length-15);// + "public";
   serverPath = appPath.substring(0, appPath.length-15);// + "public";
 
-
+console.log(serverPath)
 
   const LocalWebServer = require('local-web-server')
   const localWebServer = new LocalWebServer()
@@ -1009,7 +1010,7 @@ function launchNonBlockingServer() {
     port: 3210,
     // https: true,
     directory: serverPath,
-    // spa: 'index.html',
+    spa: 'index.html',
     // websocket: 'src/websocket-server.js'
   })
   // secure, SPA server with listening websocket now ready on port 8050
@@ -1018,8 +1019,6 @@ function launchNonBlockingServer() {
   // server.close()
 
   openMiniWebsite();
-
-
 }
 
 // const server = require('node-http-server');

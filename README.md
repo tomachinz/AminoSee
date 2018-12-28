@@ -28,7 +28,7 @@ Eventually, I'm hoping to have some prebuilt binaries for Mac, Windows and Linux
 Currently the only way to run it yourself is to run it from source code.
 ### Install from source requires the previous install of:
 - https://nodejs.org/en/download/
-- https://git-scm.com/ 
+- https://git-scm.com/
 - https://electronjs.org/
 - https://www.python.org/downloads/
 - on windows:  npm install -g windows-build-tools (as admin)
@@ -42,7 +42,7 @@ npm link
 sudo npm link aminosee
 ```
 ### Windows
-If you see an error like  get-cursor-position@1.0.3 install: `node-gyp rebuild` then you need to click the Start button, type in cmd.exe but right click and "Run as Administrator": 
+If you see an error like  get-cursor-position@1.0.3 install: `node-gyp rebuild` then you need to click the Start button, type in cmd.exe but right click and "Run as Administrator":
 ```
 sudo npm install -g windows-build-tools
 ```

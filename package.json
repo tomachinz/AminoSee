@@ -3,7 +3,7 @@
   "productName": "AminoSee DNA Viewer",
   "version": "1.3.2",
   "description": "A unique visualisation of DNA or RNA residing in text files, AminoSee is a way to render huge genomics files into a PNG image using an infinite space filling curve from 18th century! Computation is done locally, and the files do not leave your machine. A back-end terminal daemon cli command that can be scripted is combined with a front-end GUI in Electron, AminoSee features asynchronous streaming processing enabling arbitrary size files to be processed. It has been tested with files in excess of 4 GB and does not need the whole file in memory at any time. Due to issues with the 'aminosee *' command, a batch script is provided for bulk rendering in the dna/ folder. Alertively use the GUI to Drag and drop files to render a unique colour view of RNA or DNA stored in text files, output to PNG graphics file, then launches an WebGL browser that projects the image onto a 3D Hilbert curve for immersive viewing, using THREEjs. Command line options alow one to filter by peptide.",
-  "main": "./aminosee-cli.js",
+  "main": "./bin/aminosee.js",
   "dependencies": {
     "ascii-histogram": "^1.2.1",
     "ascii-progress": "^1.0.5",
@@ -43,7 +43,7 @@
     "build": "electron-packager ./ --platform=darwin,win32 --arch=x64 --prune --overwrite",
     "gui": "electron .",
     "guidev": "electron . --devmode --remote-debugging-port 8315 --host-rules='MAP * 127.0.0.1'",
-    "package": "cp -r ./node_modules/opn/xdg-open ./libs/xdg-open && cp -r ./node_modules/get-cursor-position/build/Release/pos.node ./libs/pos.node && pkg aminosee-cli.js --out-path dist"
+    "package": "cp -r ./node_modules/opn/xdg-open ./libs/xdg-open && cp -r ./node_modules/get-cursor-position/build/Release/pos.node ./libs/pos.node && pkg bin/aminosee.js --out-path dist --assets index.html,public/* --targets linux,win-x86,win-x64,macos"
   },
   "keywords": [
     "dna",
@@ -63,12 +63,17 @@
   "pkg": {
     "out-path": "dist",
     "targets": [
-      "linux-x64",
-      "macos-x64",
+      "linux",
+      "macos",
       "win-x64",
       "win-x86"
     ],
     "assets": [
+      "public/*",
+      "index.html",
+      "index.php",
+      "favicon.ico",
+      "aminosee-gui-web.js",
       "dna/*.txt",
       "dna/*.txt",
       "dna/*.sh",
