@@ -43,9 +43,11 @@
     "build": "electron-packager ./ --platform=darwin,win32 --arch=x64 --prune --overwrite",
     "gui": "electron .",
     "guidev": "electron . --devmode --remote-debugging-port 8315 --host-rules='MAP * 127.0.0.1'",
-    "package": "pkg bin/aminosee.js --out-path dist --assets index.html,public/* --targets linux,win-x86,win-x64,macos",
-    "packagelibs": "cp -r ./node_modules/opn/xdg-open ./libs/xdg-open && cp -r ./node_modules/get-cursor-position/build/Release/pos.node ./libs/pos.node && pkg bin/aminosee.js --out-path dist --assets index.html,public/* --targets linux,win-x86,win-x64,macos",
-    "packagedirs": "cp -r ./node_modules/opn/ ./libs/opn && cp -r ./node_modules/get-cursor-position/ ./libs/get-cursor-position && pkg bin/aminosee.js --out-path dist --assets index.html,public/*,libs/* --targets linux,win-x86,win-x64,macos"
+    "packagesimple": "pkg bin/aminosee.js --out-path dist --assets index.html,public/* --targets linux,win,macos",
+    "package": "cp ./node_modules/opn/xdg-open ./xdg-open && cp ./node_modules/get-cursor-position/build/Release/pos.node ./pos.node && pkg bin/aminosee.js --out-path dist --assets index.html,public/* --targets linux,win,macos",
+    "packagelibs": "cp ./node_modules/opn/xdg-open ./dist/xdg-open && cp ./node_modules/get-cursor-position/build/Release/pos.node ./dist/pos.node && pkg bin/aminosee.js --out-path dist --assets index.html,public/* --targets linux,win-x86,win-x64,macos",
+    "packagedirs": "cp -r ./node_modules/opn/ ./dist/opn && cp -r ./node_modules/get-cursor-position/ ./dist/get-cursor-position && pkg bin/aminosee.js --out-path dist --assets index.html,public/*,libs/* --targets linux,win,macos",
+    "package32": "cp -r ./node_modules/opn/ ./dist/opn && cp -r ./node_modules/get-cursor-position/ ./dist/get-cursor-position && pkg bin/aminosee.js --out-path dist --assets index.html,public/*,libs/* --targets win-x86"
 
   },
   "keywords": [
@@ -68,19 +70,17 @@
     "targets": [
       "linux",
       "macos",
-      "win-x64",
-      "win-x86"
+      "win"
     ],
     "assets": [
-      "public/*",
+      "public/*.*",
       "index.html",
       "index.php",
       "favicon.ico",
       "aminosee-gui-web.js",
-      "dna/*.txt",
-      "dna/*.txt",
-      "dna/*.sh",
-      "libs/*"
+      "libs/*.*",
+      "xdg-open",
+      "pos.node"
     ]
   }
 }
