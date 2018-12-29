@@ -41,17 +41,12 @@
     "start": "node bin/aminosee",
     "build-browserify": "browserify aminosee-gui-web.js -o bundle.js",
     "build": "electron-packager ./ --platform=darwin,win32 --arch=x64 --prune --overwrite",
+    "build-pkg": "cp ./node_modules/opn/xdg-open ./xdg-open && cp ./node_modules/get-cursor-position/build/Release/pos.node ./pos.node ",
     "gui": "electron .",
     "guidev": "electron . --devmode --remote-debugging-port 8315 --host-rules='MAP * 127.0.0.1'",
-    "packagesimple": "pkg bin/aminosee.js --out-path dist --assets index.html,public/* --targets linux,win,macos",
-    "package": "cp ./node_modules/opn/xdg-open ./xdg-open && cp ./node_modules/get-cursor-position/build/Release/pos.node ./pos.node && pkg bin/aminosee.js --out-path dist --assets index.html,public/* --targets linux,win,macos",
-    "mac": "cp ./node_modules/opn/xdg-open ./xdg-open && cp ./node_modules/get-cursor-position/build/Release/pos.node ./pos.node && pkg bin/aminosee.js --out-path dist --assets index.html,public/* --targets macos",
-    "linux": "cp ./node_modules/opn/xdg-open ./xdg-open && cp ./node_modules/get-cursor-position/build/Release/pos.node ./pos.node && pkg bin/aminosee.js --out-path dist --assets index.html,public/* --targets linux",
-
-    "packagelibs": "cp ./node_modules/opn/xdg-open ./dist/xdg-open && cp ./node_modules/get-cursor-position/build/Release/pos.node ./dist/pos.node && pkg bin/aminosee.js --out-path dist --assets index.html,public/* --targets linux,win-x86,win-x64,macos",
-    "packagedirs": "cp -r ./node_modules/opn/ ./dist/opn && cp -r ./node_modules/get-cursor-position/ ./dist/get-cursor-position && pkg bin/aminosee.js --out-path dist --assets index.html,public/*,libs/* --targets linux,win,macos",
-    "package32": "cp -r ./node_modules/opn/ ./dist/opn && cp -r ./node_modules/get-cursor-position/ ./dist/get-cursor-position && pkg bin/aminosee.js --out-path dist --assets index.html,public/*,libs/* --targets win-x86"
-
+    "package": "pkg . --out-path dist",
+    "mac": "pkg . --out-path dist --targets macos",
+    "linux": "cp ./node_modules/opn/xdg-open ./xdg-open && cp ./node_modules/get-cursor-position/build/Release/pos.node ./pos.node && pkg bin/aminosee.js --out-path dist --assets index.html,public/**,libs/** --targets linux"
   },
   "keywords": [
     "dna",
@@ -69,7 +64,6 @@
     "url": "git://github.com/tomachinz/AminoSee.git"
   },
   "pkg": {
-    "out-path": "dist",
     "targets": [
       "linux",
       "macos",
