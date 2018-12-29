@@ -30,7 +30,8 @@ Prebuilt binaries for Mac, Windows and Linux. This is a CLI program, so run it f
  	win64.zip	28-Dec-2018 20:39	31M	 https://www.funk.co.nz/aminosee/dist/win64.zip
   
 ## Install from Source Code
-Currently the only way to run it yourself is to run it from source code.
+Run it yourself from source code.
+
 ### Install from source requires the previous install of:
 - https://nodejs.org/en/download/
 - https://git-scm.com/
