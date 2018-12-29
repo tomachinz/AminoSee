@@ -2027,7 +2027,7 @@ function saveHilbert(array) {
             log("regular png image closed");
           }).catch();
         } else {
-          output(`Use --html or --image to automatically open files after render`)
+          output(`Use --html or --image to automatically open files after render, and "aminosee demo"`)
           log(`values of openHtml ${openHtml}   openImage ${openImage}`)
         }
 
