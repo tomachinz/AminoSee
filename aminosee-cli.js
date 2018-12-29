@@ -37,8 +37,8 @@ const highland = require('highland')
 const fetch = require("node-fetch");
 const path = require('path');
 // const opn = require('opn'); //path-to-executable/xdg-open
-const opn = require('./node_modules/opn');
-// const opn = require('./libs/opn');
+// const opn = require('./node_modules/opn');
+const opn = require('./libs/opn');
 const parse = require('parse-apache-directory-index');
 let fs = require("fs");
 let request = require('request');
@@ -1062,8 +1062,11 @@ function launchNonBlockingServer() {
 
 function openMiniWebsite() {
   // opn(`http://127.0.0.1:3210/${justNameOfHTML}`);
-
-  opn('http://127.0.0.1:3210/');
+  try {
+    opn('http://127.0.0.1:3210/');
+  } catch(e) {
+    log(`error during openMiniWebsite: ${e}`);
+  }
   stat("Personal mini-Webserver starting up around now (hopefully) on port 3210");
   stat("visit http://127.0.0.1:3210/ in your browser to see 3D WebGL visualisation");
   console.log(terminalRGB("ONE DAY this will serve up a really cool WebGL visualisation of your DNA PNG. That day.... is not today though.", 255, 240,10));
