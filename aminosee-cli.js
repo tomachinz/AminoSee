@@ -999,11 +999,8 @@ function setupFNames() {
 }
 
 function launchNonBlockingServer() {
-  // serverPath = appPath.substring(0, appPath.length-15);// + "public";
   serverPath = appPath.substring(0, appPath.length-15);// + "public";
-
-console.log(serverPath)
-
+  console.log(`serverPath ${serverPath}`)
   const LocalWebServer = require('local-web-server')
   const localWebServer = new LocalWebServer()
   const server = localWebServer.listen({
