@@ -6,7 +6,6 @@
   "main": "./bin/aminosee.js",
   "dependencies": {
     "ascii-histogram": "^1.2.1",
-    "ascii-progress": "^1.0.5",
     "bmp-js": "^0.1.0",
     "browserify": "^16.2.3",
     "bytes": "^3.0.0",
@@ -24,6 +23,7 @@
     "minimist": "^1.2.0",
     "nexe": "^2.0.0-rc.34",
     "node-fetch": "^2.3.0",
+    "node-gyp": "^3.8.0",
     "opn": "^5.4.0",
     "parse-apache-directory-index": "^1.2.1",
     "pngjs": "^3.3.3",
@@ -46,7 +46,9 @@
     "guidev": "electron . --devmode --remote-debugging-port 8315 --host-rules='MAP * 127.0.0.1'",
     "package": "pkg . --out-path dist",
     "mac": "pkg . --out-path dist --targets macos",
-    "linux": "cp ./node_modules/opn/xdg-open ./xdg-open && cp ./node_modules/get-cursor-position/build/Release/pos.node ./pos.node && pkg bin/aminosee.js --out-path dist --assets index.html,public/**,libs/** --targets linux"
+    "x86": "pkg . --out-path dist --targets win-x86",
+    "linux": "cp ./node_modules/opn/xdg-open ./xdg-open && cp ./node_modules/get-cursor-position/build/Release/pos.node ./pos.node && pkg bin/aminosee.js --out-path dist --assets index.html,public/**,libs/** --targets linux",
+    "gui": "electron ."
   },
   "keywords": [
     "dna",

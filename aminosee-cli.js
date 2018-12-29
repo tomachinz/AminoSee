@@ -46,7 +46,7 @@ const histogram = require('ascii-histogram');
 let bytes = require('bytes');
 let Jimp = require('jimp');
 let PNG = require('pngjs').PNG;
-let ProgressBar = require('ascii-progress');
+// let ProgressBar = require('ascii-progress');
 const chalk = require('chalk');
 const clog = console.log;
 var os = require("os");
@@ -1245,6 +1245,7 @@ function quit(n) {
     log("still rendering")
     return true;
   }
+  process.exitCode = 0;
 
   clearTimeout(updatesTimer);
   status = "bye";
@@ -1258,7 +1259,6 @@ function quit(n) {
     log("Continuing...");
     pollForStream();
   } else {
-    process.exitCode = 1;
     log(`process.exit type bye. last file: ${filename}`);
     log(" ");
   }
@@ -2426,19 +2426,19 @@ function saveHilbert(array) {
         return [ item.Codon, item.Histocount];
       }
       function whack_a_progress_on() {
-        var bar = new ProgressBar({
-          schema: ':bar',
-          total : 1000
-        });
+        // var bar = new ProgressBar({
+        //   schema: ':bar',
+        //   total : 1000
+        // });
 
-        var iv = setInterval(function () {
-          calcUpdate();
-          // bar.tick();
-          bar.update(percentComplete*1000);
-          if (bar.completed) {
-            clearInterval(iv);
-          }
-        }, 200);
+        // var iv = setInterval(function () {
+        //   calcUpdate();
+        //   bar.update(percentComplete*1000);           // bar.tick();
+        //
+        //   if (bar.completed) {
+        //     clearInterval(iv);
+        //   }
+        // }, 200);
         return bar;
       }
       function twosigbitsTolocale(num){
