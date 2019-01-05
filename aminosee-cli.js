@@ -2531,16 +2531,22 @@ function saveHilbert(array) {
           return pep.Codon == peptide
         }
         function isDirtyPep(dirtyString) {
-          output(`your dirty string: ${dirtyString.substring(0,4).toUpperCase()}`)
+          // output(`your dirty string: ${dirtyString.substring(0,4).toUpperCase()}`);
           return pepTable => pepTable.Codon.substring(0,4).toUpperCase() === dirtyString.substring(0,4).toUpperCase();
+        }
+        function isNormalPep(normalpep) {
+          // output(`your normalpep ${normalpep.toUpperCase()}`);
+          return pepTable => pepTable.Codon.toUpperCase() === normalpep.toUpperCase();
         }
 
         function tidyPeptideName(str) {
           str = str + " ";
           output(`isDirtyPep(${str}) ${isDirtyPep(str)}`)
-          let clean = pepTable.find(isDirtyPep(str)).Codon;
-
-          peptide = str + " ";
+          let clean = pepTable.find(isNormalPep(str));
+          if ( clean == undefined ) {
+            clean = pepTable.find(isDirtyPep(str));
+          }
+          clean = spaceTo_( clean.Codon );
           // let clean = dnaTriplets.find(isCurrentPeptide);
 
           output(clean);
