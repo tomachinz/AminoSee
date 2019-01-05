@@ -84,5 +84,6 @@ find_way_peptides () {
   echo "                                         =///"
 }
 parallel_peptides $1 $2 $3 $4 $5 $6
-parallel_peptides megabase.fa
-find_way_peptides --ratio=fix
+parallel_peptides $1 $2 $3 $4 $5 $6 --reg
+find_way_peptides
+find_way_peptides --reg

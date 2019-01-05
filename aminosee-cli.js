@@ -1130,7 +1130,9 @@ function saveDocuments(callback) {
   if (report == true ) { // report when highlight set
     saveHTML();
   } else {
-    output("No HTML report output. Due to peptide filter.")
+    output("No HTML report output. Due to peptide filter.");
+    output("HACK: running output");
+    saveHTML();
   }
   openOutputs();
   log(renderSummary());
@@ -2533,10 +2535,10 @@ function saveHilbert(array) {
           return pep.Codon == peptide
         }
         function tidyPeptideName(str) {
-          // let clean = pepTable.find((pep) => { pep.Codon.toUpperCase() == str.toUpperCase() } );
+          let clean = pepTable.find((pep) => { pep.Codon.toUpperCase() == str.toUpperCase() } );
 
-          peptide = str;
-          let clean = dnaTriplets.find(isCurrentPeptide).Codon;
+          peptide = str + " ";
+          // let clean = dnaTriplets.find(isCurrentPeptide);
 
           log(clean);
           if (clean) {

@@ -1,7 +1,7 @@
 // "use strict";
 
-let reader, hilbertPoints, herbs, levels, zoom, progress, status, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, textFile, dna, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, filename, justNameOfFile, filenamePNG;
-let spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, devmode, fileUploadShowing, colormapsize, testColors;
+let reader, hilbertPoints, herbs, levels, zoom, progress, status, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, textFile, dna, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, filename, justNameOfFile, filenamePNG, verbose;
+let spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, devmode, fileUploadShowing, colormapsize, testColors, selectedGenome;
 
 let chunksMax, chunksize, chunksizeBytes, codonsPerPixel, basepairs, cpu, subdivisions, userFeedback, contextBitmap;
 const maxcolorpix = 262144 * 1  ; // for large genomes
@@ -12,7 +12,7 @@ let downloaderDisabled;
 const resHD = 1920*1080;
 const res4K = 1920*1080*4;
 let vLevels = 2; // 1 gives just the row of three at bottom. 2 gives two rows for 6 boxes.
-
+verbose = false;
 if(window.addEventListener) {
   window.addEventListener('load',pageLoaded,false); //W3C
 } else {
@@ -24,11 +24,23 @@ function addSpriteToScene() {
   var spriteMap = new THREE.TextureLoader().load( "output/Brown_Kiwi_013982187v1.fa_HILBERT_c123.6_sci.png" );
   var spriteMaterial = new THREE.SpriteMaterial( { map: spriteMap, color: 0xffffff } );
   var sprite = new THREE.Sprite( spriteMaterial );
+  sprite.scale.set(400,400, -200.000);
   scene.add( sprite );
 }
-
+function init2D() {
+  // genericSceneSetup();
+  addSpriteToScene();
+}
+function initVariables() {
+  filename = getParameterFromURL('selectedGenome');
+}
 function pageLoaded() {
+  filename = getParameterFromURL('selectedGenome');
+  out(`FILENAME: ${filename}`);
+  initVariables();
+
   init3D();
+  init2D();
   setScene();
   setupFNames();
 
@@ -42,6 +54,29 @@ function pageLoaded() {
     togglePause(); // done twice to re-trigger the autopause
   }
   parseApache()
+}
+function getParameterFromURL() {
+  let href = window.location.href;
+  let index = href.indexOf('selectedGenome');
+  console.log(href, index);
+  if ( index != -1 ) {
+    href = href.substring(index);
+    index = href.indexOf('&');
+    if ( index != -1) {
+      href = href.substring(0, index);
+    }
+    index = href.indexOf('=');
+    if ( index != -1 ) {
+      href = href.substring(index+1); //CHOP OFF THE =
+    }
+    // index = href.indexOf('&');
+    // if ( index != -1 ) {
+    //   href = href.substring(0, index); //CHOP OFF THE &
+    // }
+    return href;
+  } else {
+    return `output/Brown_Kiwi_013982187v1.fa_HILBERT_c123.6_sci.png`;
+  }
 }
 function parseApache() {
   // testParse();
@@ -166,7 +201,6 @@ function testParse() {
     // create a simple instance
     // by default, it only adds horizontal recognizers
     hammerIt(document.getElementById('canvas'));
-    filename = "64-codons-test-pattern.fa";
     fileUploadShowing = false;
     perspective = false;
     paused = false;
@@ -182,7 +216,6 @@ function testParse() {
     mouseX = 0;
     mouseY = 0;
     progress = document.querySelector('.percent');
-    renderer = new THREE.WebGLRenderer( { antialias: true } );
     color = new THREE.Color();
     userFeedback = "";
 
@@ -377,7 +410,6 @@ function testParse() {
       geometry5 = new THREE.BufferGeometry(); // top row with straight lines
       geometry6 = new THREE.BufferGeometry(); // 2D HAXORED
     }
-    addSpriteToScene();
     buildColours();
     buildHilbert();
     // buildColours();
@@ -424,6 +456,7 @@ function testParse() {
   }
   function genericSceneSetup() {
     scene = new THREE.Scene();
+    renderer = new THREE.WebGLRenderer( { antialias: true } );
 
     // ******* COLOR ARRAYS
     testTones = [];
@@ -700,7 +733,7 @@ function testParse() {
       resume = `Resume [ENTER]`;
     }
     document.getElementById('modalBox').classList.replace('hidden', 'modalCentered');
-    console.log(statModal, txt, onclickFunction);
+    log(statModal, txt, onclickFunction);
     document.getElementById('modalBox').innerHTML = `
     ${txt} <br /> <br />
     <input type="button" id="modalBoxButton" value="${resume}" onclick="${onclickFunction}">`;
@@ -1054,7 +1087,7 @@ function testParse() {
     let isValidKey = true;
     let value_for_Event_Label = "";
     let value_for_Event_Value = "";
-    stat("onKeyDown " + event);
+    stat("key: " + event);
     if (event.keyCode === 37) {
       cursorLeft();
       value_for_Event_Label = "ArrowLeft"
@@ -1208,10 +1241,8 @@ function testParse() {
   function animate() {
     if (paused != true) {
       requestAnimationFrame( animate );
-
     }
     render();
-
   }
 
   function render() {
@@ -1418,7 +1449,10 @@ function testParse() {
     return [ r * 255, g * 255, b * 255 ];
   }
   function log(txt) {
-    if (devmode) {
-      console.log(txt);
+    if (verbose) {
+      out(txt);
     }
   }
+function out(txt) {
+  console.log(txt)
+}
