@@ -27,6 +27,7 @@
     "opn": "^5.4.0",
     "parse-apache-directory-index": "^1.2.1",
     "pngjs": "^3.3.3",
+    "remove": "^0.1.5",
     "request": "^2.88.0",
     "save": "^2.3.3",
     "stream-file": "^0.2.3",

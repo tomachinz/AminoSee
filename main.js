@@ -61,11 +61,11 @@ function createWindow () {
   const electron = require('electron');
   const {width, height} = electron.screen.getPrimaryDisplay().workAreaSize
   // Create the browser window.
-  mainWindow = new BrowserWindow({show: false, width: width-256, height: height, title: "AminoSee", backgroundColor: '#011224', x: 0, y:0, icon: 'favicon.ico' })
+  mainWindow = new BrowserWindow({show: false, width: width-256, height: height, title: "AminoSee", backgroundColor: '#011224', x: 0, y:0, icon: 'favicon.png' })
 
   // mainWindow.setSize(dispWidth-256, dispHeight);
 // , type: 'desktop' , vibrancy: 'light' , titleBarStyle: 'default', fullscreenWindowTitle: false
-  let consoleWindow = new BrowserWindow({parent: mainWindow, width: 256, height: height, title: "Console Output",  backgroundColor: '#011224', frame: true, icon: 'favicon.ico', x: width-256, y: 0})
+  let consoleWindow = new BrowserWindow({parent: mainWindow, width: 256, height: height, title: "Console Output",  backgroundColor: '#011224', frame: true, icon: 'favicon.png', x: width-256, y: 0})
   // , type: 'toolbar'
 // , type: 'toolbar'
 
@@ -215,7 +215,7 @@ function aminosee() {
   ipcMain.on('ondragstart', (event, filePath) => {
     event.sender.startDrag({
       file: filePath,
-      icon: 'favicon.ico'
+      icon: 'favicon.png'
     })
   })
 }

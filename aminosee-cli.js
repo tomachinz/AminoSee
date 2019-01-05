@@ -46,7 +46,7 @@ const histogram = require('ascii-histogram');
 let bytes = require('bytes');
 let Jimp = require('jimp');
 let PNG = require('pngjs').PNG;
-let ProgressBar = require('ascii-progress');
+// let ProgressBar = require('ascii-progress');
 const chalk = require('chalk');
 const clog = console.log;
 var os = require("os");
@@ -334,6 +334,7 @@ module.exports = () => {
   if (args.triplet || args.t) {
     triplet = args.triplet || args.t;
     triplet = triplet.toUpperCase();
+    isHighlightSet = true;
     let tempColor = codonToRGBA(triplet);
     let tempHue = tripletToHue(triplet);
     if (tempColor != [13, 255, 13, 255]){ // this colour is a flag for error
@@ -351,19 +352,15 @@ module.exports = () => {
   if (args.peptide || args.p) {
     users = args.peptide || args.p;
 
-    output(` users peptide: ${users}`);
-
     peptide = tidyPeptideName(users);
-    output(` peptide: ${peptide}`);
-
+    output(` users peptide: ${users}  peptide: ${peptide}`);
     if (peptide != "none") { // this colour is a flag for error
       output(`Custom peptide ${peptide} set. Will highlight these codons. users: ${users}`);
+      isHighlightSet = true;
     } else {
       output(`ERROR could not lookup peptide: ${users}`);
-      // peptide = users;
       output(`using ${peptide}`);
     }
-
   } else {
     log(`No custom peptide chosen. (default)`);
     peptide = "none";
@@ -755,7 +752,7 @@ async function initStream(f) {
   if (updates == true) {
     drawHistogram();
   } else {
-    progato = whack_a_progress_on();
+    // progato = whack_a_progress_on();
   }
 
   var s = fs.createReadStream(filename).pipe(es.split()).pipe(es.mapSync(function(line){
@@ -956,7 +953,7 @@ function highlightFilename() {
   return ret;
 }
 function getFileExtension() {
-  let t = highlightFilename() + getRegmarks();
+  let t = getRegmarks();
   if (magnitude != false) {
     t += ".m" + magnitude;
   } else {
@@ -980,18 +977,18 @@ function setupFNames() {
   let filePath = path.resolve(path.dirname(filename)) ;
   filePath += "/output" ;
   mkdir("output");
-  let ext = getFileExtension();
+  let ext = spaceTo_(getFileExtension());
 
-  justNameOfPNG =     `${justNameOfDNA}.${extension}_linear${ext}.png`;
-  justNameOfHILBERT =     `${justNameOfDNA}.${extension}_HILBERT${ext}.png`;
+  justNameOfPNG =     `${justNameOfDNA}.${extension}_linear${highlightFilename() + ext}.png`;
+  justNameOfHILBERT =     `${justNameOfDNA}.${extension}_HILBERT${highlightFilename() + ext}.png`;
   justNameOfHTML =     `${justNameOfDNA}.${extension}_AMINOSEE-REPORT${ext}.html`;
 
-  filenameTouch =   `${filePath}/${justNameOfDNA}.${extension}_LOCK${ext}.aminosee.touch`;
+  filenameTouch =   `${filePath}/${justNameOfDNA}.${extension}_LOCK${highlightFilename() + ext}.aminosee.touch`;
   filenamePNG =     filePath + "/" + justNameOfPNG;
   filenameHTML =    filePath + "/" + justNameOfHTML;
   filenameHILBERT = filePath + "/" + justNameOfHILBERT;
 
-  log(`ext: ${ext} pep ${peptide} status ${status} filePath ${filePath}`);
+  log(`ext: ${highlightFilename() + ext} pep ${peptide} status ${status} filePath ${filePath}`);
   output(chalk.rgb(255, 255, 255).inverse(`FILENAMES SETUP AS:  highlightFilename() ${highlightFilename()} pep
   justNameOfDNA: ${justNameOfDNA}.${extension}
   justNameOfPNG: ${justNameOfPNG}
@@ -1549,7 +1546,7 @@ function processLine(l) {
 
 function aminoFilenameIndex(index) {
   peptide = pepTable[index].Codon; // bad use of globals
-  justNameOfHILBERT =     `${justNameOfDNA}.${extension}_HILBERT${getFileExtension()}.png`;
+  justNameOfHILBERT =     `${justNameOfDNA}.${extension}_HILBERT${highlightFilename() + getFileExtension()}.png`;
   return `${justNameOfHILBERT}`;
 }
 
@@ -2281,9 +2278,11 @@ function saveHilbert(array) {
 
 
       function spaceTo_(str) {
+        log(str);
         if (str == undefined) {
           return "";
         } else {
+          str += "";
           return str.replace(' ', '_');
         }
       }
@@ -2539,7 +2538,7 @@ function saveHilbert(array) {
         function tidyPeptideName(str) {
           str = str + " ";
           output(`isDirtyPep(${str}) ${isDirtyPep(str)}`)
-          let clean = pepTable.find(isDirtyPep(str));
+          let clean = pepTable.find(isDirtyPep(str)).Codon;
 
           peptide = str + " ";
           // let clean = dnaTriplets.find(isCurrentPeptide);

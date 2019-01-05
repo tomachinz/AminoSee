@@ -85,5 +85,5 @@ find_way_peptides () {
 }
 parallel_peptides $1 $2 $3 $4 $5 $6
 parallel_peptides $1 $2 $3 $4 $5 $6 --reg
-find_way_peptides
-find_way_peptides --reg
+# find_way_peptides
+# find_way_peptides --reg
