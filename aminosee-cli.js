@@ -46,7 +46,7 @@ const histogram = require('ascii-histogram');
 let bytes = require('bytes');
 let Jimp = require('jimp');
 let PNG = require('pngjs').PNG;
-// let ProgressBar = require('ascii-progress');
+let ProgressBar = require('ascii-progress');
 const chalk = require('chalk');
 const clog = console.log;
 var os = require("os");
@@ -354,6 +354,7 @@ module.exports = () => {
     output(` users peptide: ${users}`);
 
     peptide = tidyPeptideName(users);
+    output(` peptide: ${peptide}`);
 
     if (peptide != "none") { // this colour is a flag for error
       output(`Custom peptide ${peptide} set. Will highlight these codons. users: ${users}`);
@@ -754,7 +755,7 @@ async function initStream(f) {
   if (updates == true) {
     drawHistogram();
   } else {
-    // progato = whack_a_progress_on();
+    progato = whack_a_progress_on();
   }
 
   var s = fs.createReadStream(filename).pipe(es.split()).pipe(es.mapSync(function(line){
@@ -2428,26 +2429,23 @@ function saveHilbert(array) {
         return [ item.Codon, item.Histocount];
       }
       function whack_a_progress_on() {
-        // var bar = new ProgressBar({
-        //   schema: ':bar',
-        //   total : 1000
-        // });
+        var bar = new ProgressBar({
+          schema: ':bar',
+          total : 1000
+        });
 
-        // var iv = setInterval(function () {
-        //   calcUpdate();
-        //   bar.update(percentComplete*1000);           // bar.tick();
-        //
-        //   if (bar.completed) {
-        //     clearInterval(iv);
-        //   }
-        // }, 200);
+        var iv = setInterval(function () {
+          calcUpdate();
+          bar.update(percentComplete*1000);           // bar.tick();
+
+          if (bar.completed) {
+            clearInterval(iv);
+          }
+        }, 200);
         return bar;
       }
       function twosigbitsTolocale(num){
         return (Math.round(num*100)/100).toLocaleString();
-      }
-      function drawHUD() {
-
       }
       function drawHistogram() {
         if (updates == false) {
@@ -2462,7 +2460,6 @@ function saveHilbert(array) {
         let text = " ";
         let aacdata = [];
         let abc = pepTable.map(getHistoCount).entries();
-
 
         if (msPerUpdate < maxMsPerUpdate) {
           msPerUpdate += 50; // begin to not update screen so much over time
@@ -2482,7 +2479,7 @@ function saveHilbert(array) {
           `@i ${charClock.toLocaleString()} Lines: ${breakClock.toLocaleString()} Files: ${howMany} Filesize: ${Math.round(baseChars/1000)/1000} MB Elapsed: ${Math.round(runningDuration/1000)} sec KB remain: ${kbRemain}`,
           `Next update: ${msPerUpdate.toLocaleString()}ms Codon Opacity: ${twosigbitsTolocale(opacity*100)}% `,
           `CPU: ${bytes(kBytesPerSec*1024)}/s Codons per sec: ${Math.round(kCodonsPerSecond).toLocaleString()} Acids/pixel: ${twosigbitsTolocale(codonsPerPixel)} Pixels painted: ${colClock.toLocaleString()}`,
-          `[ Codons: ${genomeSize.toLocaleString()} ]  Last Acid: ${terminalRGB(aminoacid, red, green, blue)} ${ (isHighlightSet ? peptide : '')  } Files to go: ${howMany}`,
+          `[ Codons: ${genomeSize.toLocaleString()} ]  Last Acid: ${terminalRGB(aminoacid, red, green, blue)} ${ peptide } Files to go: ${howMany}`,
           `[ clean: ${ cleanString(rawDNA)} ] Output png: ${justNameOfPNG}] ${showFlags()}`];
 
 
@@ -2534,13 +2531,20 @@ function saveHilbert(array) {
         function isPeptide(pep) {
           return pep.Codon == peptide
         }
+        function isDirtyPep(dirtyString) {
+          output(`your dirty string: ${dirtyString.substring(0,4).toUpperCase()}`)
+          return pepTable => pepTable.Codon.substring(0,4).toUpperCase() === dirtyString.substring(0,4).toUpperCase();
+        }
+
         function tidyPeptideName(str) {
-          let clean = pepTable.find((pep) => { pep.Codon.toUpperCase() == str.toUpperCase() } );
+          str = str + " ";
+          output(`isDirtyPep(${str}) ${isDirtyPep(str)}`)
+          let clean = pepTable.find(isDirtyPep(str));
 
           peptide = str + " ";
           // let clean = dnaTriplets.find(isCurrentPeptide);
 
-          log(clean);
+          output(clean);
           if (clean) {
             return clean;
           } else {
