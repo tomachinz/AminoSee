@@ -40,7 +40,7 @@ function pageLoaded() {
   initVariables();
 
   init3D();
-  init2D();
+  // init2D();
   setScene();
   setupFNames();
 
@@ -175,14 +175,12 @@ function testParse() {
   }
 
   function changeLevels() {
-    statModal("Increasing detail level to " + levels)
+    // statModal("Increasing detail level to " + levels)
+    stat("New detail level: " + levels);
 
     genericSceneSetup();
-
     setScene();
-    stat("New detail level: " + levels);
     animate();
-
   }
   function devmodeURLParam() {
     let url = window.location.href;
@@ -666,6 +664,14 @@ function testParse() {
   function getStats() {
     var t = `
     <h6>${justNameOfFile}</h6>
+    <form action="../">
+    <select name="selectedGenome">
+      <option value="output/Brown_Kiwi_013982187v1.fa_HILBERT_c123.6_sci.png">Brown_Kiwi_013982187v1.fa</option>
+      <option value="calibration/AminoSee_Calibration_reg_HILBERT_8.png">AminoSee_Calibration</option>
+      <option value="Brown_Kiwi_013982187v1.fa">Brown_Kiwi_013982187v1.fa</option>
+      <option value="Brown_Kiwi_013982187v1.fa">Brown_Kiwi_013982187v1.fa</option>
+    </select>
+    </form>
     <pre>
     Polygons: ${herbs * subdivisions} `;
     if (perspective) {
