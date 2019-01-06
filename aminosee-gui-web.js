@@ -668,7 +668,7 @@ function testParse() {
     <select name="selectedGenome">
       <option value="output/Brown_Kiwi_013982187v1.fa_HILBERT_c123.6_sci.png">Brown_Kiwi_013982187v1.fa</option>
       <option value="calibration/AminoSee_Calibration_reg_HILBERT_8.png">AminoSee_Calibration</option>
-      <option value="Brown_Kiwi_013982187v1.fa">Brown_Kiwi_013982187v1.fa</option>
+      <option value="output/Caenorhabdihromosome-V.fa_AMINOSEE-REPORT_reg_c1.7_fix_sci.html">Brown_Kiwi_013982187v1.fa</option>
       <option value="Brown_Kiwi_013982187v1.fa">Brown_Kiwi_013982187v1.fa</option>
     </select>
     </form>
