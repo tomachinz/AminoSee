@@ -1,4 +1,4 @@
-
+#!/bin/sh
 aminosee_do () {
   nice -n $1 aminosee $2 $3 $4 $5 $6 &
   echo "done $2 $3 $4 $5 $6"

@@ -1,3 +1,5 @@
+#!/bin/sh
+
 w
 
 aminosee_test () {

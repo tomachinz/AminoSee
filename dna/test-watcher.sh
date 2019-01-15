@@ -1,3 +1,4 @@
+#!/bin/sh
 
 echo Test watcher
 echo Test watcher $1 $2 $3

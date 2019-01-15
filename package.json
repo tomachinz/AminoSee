@@ -40,6 +40,7 @@
   "scripts": {
     "test": "vows --spec --isolate",
     "start": "node bin/aminosee",
+    "demo": "node bin/aminosee demo",
     "build-browserify": "browserify aminosee-gui-web.js -o bundle.js",
     "build": "electron-packager ./ --platform=darwin,win32 --arch=x64 --prune --overwrite",
     "build-pkg": "cp ./node_modules/opn/xdg-open ./xdg-open && cp ./node_modules/get-cursor-position/build/Release/pos.node ./pos.node ",

@@ -1,4 +1,4 @@
-
+#!/bin/sh
 echo Starting 8 parallel processes...
 
 nice -n 1 ./batch-peptides.sh --no-updates $1 $2 $3 $4 $5 $6 &

@@ -1,3 +1,4 @@
+#!/bin/sh
 
 echo SPEED TEST!!!!
 

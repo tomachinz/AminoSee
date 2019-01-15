@@ -1,4 +1,4 @@
-
+#!/bin/sh
 echo List files without ./ in front
 find . | awk '{sub(/.\//," ")}1'
 
