@@ -24,12 +24,10 @@ Soon the demo page will host many images I've generated while developing the sof
 ## Easy Install
 Prebuilt binaries for Mac, Windows and Linux. This is a CLI program, so run it from a terminal:
 
-(https://www.funk.co.nz/aminosee/dist/linux.zip "linux") linux.zip	28-Dec-2018 20:40	35M	 https://www.funk.co.nz/aminosee/dist/linux.zip
-(https://www.funk.co.nz/aminosee/dist/macos.zip "macos") macos.zip	28-Dec-2018 20:42	33M	 
-https://www.funk.co.nz/aminosee/dist/macos.zip
-(https://www.funk.co.nz/aminosee/dist/win32.zip "win32") win32.zip	28-Dec-2018 20:38	30M	 https://www.funk.co.nz/aminosee/dist/win32.zip
-(https://www.funk.co.nz/aminosee/dist/win64.zip "win64") win64.zip	28-Dec-2018 20:39	31M	 
-https://www.funk.co.nz/aminosee/dist/win64.zip
+https://www.funk.co.nz/aminosee/dist/linux.zip linux.zip	28-Dec-2018 20:40	35M	 
+https://www.funk.co.nz/aminosee/dist/macos.zip macos.zip	28-Dec-2018 20:42	33M	 
+https://www.funk.co.nz/aminosee/dist/win32.zip win32.zip	28-Dec-2018 20:38	30M
+
 ## Install from Source Code
 Run it yourself from source code.
 
