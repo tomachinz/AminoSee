@@ -69,6 +69,10 @@ input[type=button], input[type=submit], input[type=reset] {
 	min-width: 140px;
 	padding: 8px 8px;
 }
+/* .tinyButton input[type=button], tinyButton input[type=submit], tinyButton input[type=reset] {
+	min-width: 64px;
+	padding: 4px 4px;
+} */
 
 #hide {
 	font-size: 20px;
@@ -182,19 +186,7 @@ input[type=number] {
 .stats {
 	grid-column: span 8;
 }
-.flex-item {
-  /* background: tomato;
-  padding: 5px;
-  width: 100px;
-  height: 100px;
-  margin: 10px;
 
-  line-height: 100px;
-  color: white;
-  font-weight: bold;
-  font-size: 2em;
-  text-align: center; */
-}
 #butbar {
 	text-align: left;
 	flex-direction: row; /* | row-reverse | column | column-reverse; */
@@ -212,6 +204,10 @@ input[type=number] {
   display: -webkit-flex;
   display: flex;
 }
+/* .tinyButton , , input.tinyButton {
+	font-size: 0.8rem;
+	max-width: 32px;
+} */
 #controls {
 	position: fixed;
 	z-index: 10;

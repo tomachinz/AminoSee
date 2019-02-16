@@ -19,31 +19,16 @@ if(window.addEventListener) {
   window.attachEvent('onload',pageLoaded); //IE
 }
 
-
-function addSpriteToScene() {
-  var spriteMap = new THREE.TextureLoader().load( "output/Brown_Kiwi_013982187v1.fa_HILBERT_c123.6_sci.png" );
-  var spriteMaterial = new THREE.SpriteMaterial( { map: spriteMap, color: 0xffffff } );
-  var sprite = new THREE.Sprite( spriteMaterial );
-  sprite.scale.set(400,400, -200.000);
-  scene.add( sprite );
-}
-function init2D() {
-  // genericSceneSetup();
-  addSpriteToScene();
-}
-function initVariables() {
-  filename = getParameterFromURL('selectedGenome');
-}
 function pageLoaded() {
   filename = getParameterFromURL('selectedGenome');
-  out(`FILENAME: ${filename}`);
   initVariables();
-
   init3D();
-  // init2D();
-  setScene();
-  setupFNames();
 
+  sceneCameraSetup();
+  setScene();
+  // init2D(); // has to run after scene created
+
+  setupFNames();
   animate();
   // setupColorPicker();
   stat("[pageLoaded] Welcome to the Amino See DNA viewer");
@@ -53,8 +38,24 @@ function pageLoaded() {
     toggleSpin();
     togglePause(); // done twice to re-trigger the autopause
   }
-  parseApache()
+  // parseApache()
 }
+function addSpriteToScene() {
+  // var spriteMap = new THREE.TextureLoader().load( "output/Brown_Kiwi_013982187v1.fa_HILBERT_c123.6_sci.png" );
+  var spriteMap = new THREE.TextureLoader().load( "calibration/AminoSee_Calibration_reg_HILBERT_8.png" );
+  var spriteMaterial = new THREE.SpriteMaterial( { map: spriteMap, color: 0xffffff } );
+  var sprite = new THREE.Sprite( spriteMaterial );
+  sprite.scale.set(400,400, -200.000);
+  scene.add( sprite );
+}
+function init2D() {
+  // sceneCameraSetup();
+  addSpriteToScene();
+}
+function initVariables() {
+  filename = getParameterFromURL('selectedGenome');
+}
+
 function getParameterFromURL() {
   let href = window.location.href;
   let index = href.indexOf('selectedGenome');
@@ -167,21 +168,22 @@ function testParse() {
   }
 
   function reset() {
-    // clearScene();
+    // if (perspective) {
+      camera.position.z = distance; // go about 1200 units away.
+    // }
+    // initVariables();
     // init3D();
-    genericSceneSetup();
     setScene();
-    animate();
+    // animate();
+
+  }
+  function camReset() {
+
+  }
+  function camAmongst() {
+    camera.position.z = 0; // go to the center "get amongst it"
   }
 
-  function changeLevels() {
-    // statModal("Increasing detail level to " + levels)
-    stat("New detail level: " + levels);
-
-    genericSceneSetup();
-    setScene();
-    animate();
-  }
   function devmodeURLParam() {
     let url = window.location.href;
     if (url.indexOf("devmode") > 0) {
@@ -192,22 +194,23 @@ function testParse() {
   }
   devmodeURLParam();
 
+
   function init3D() {
-
-
 
     // create a simple instance
     // by default, it only adds horizontal recognizers
     hammerIt(document.getElementById('canvas'));
     fileUploadShowing = false;
-    perspective = false;
+    perspective = true;
     paused = false;
     spinning = true;
     colorsReady = false;
     basepairs = 3;
     zoom = 2; //  defalt 2
-    levels = 2;
-    distance = 900;
+    levels = 3; // default 2
+    distance = 900; // default 900
+
+
     colorArray = []; // an array of color maps
     windowHalfX = window.innerWidth / 2;
     windowHalfY = window.innerHeight / 2;
@@ -361,9 +364,9 @@ function testParse() {
     // });
   }
   function updateColorMapSize() {
+    // init3D();
 
   }
-  // init3D();
   function ab2str(buf) {
     // return "out of depth";
     return String.fromCharCode.apply(null, new Uint16Array(buf));
@@ -379,13 +382,7 @@ function testParse() {
   }
 
 
-  function letsdothis() {
-    colorsReady = true; // flag to switch palettes
-    // paused = true;
-    stat("Your file has been mapped!");
-    reset();
-    animate();
-  }
+
   function destroyScene() {
     geometry1 = new THREE.BufferGeometry(); // bottom row with curves
     geometry2 = new THREE.BufferGeometry(); // bottom row with curves
@@ -399,7 +396,7 @@ function testParse() {
   }
   function setScene() {
 
-    genericSceneSetup();
+    // sceneCameraSetup();
     geometry1 = new THREE.BufferGeometry(); // bottom row with curves
     geometry2 = new THREE.BufferGeometry(); // bottom row with curves
     geometry3 = new THREE.BufferGeometry(); // bottom row with curves
@@ -452,7 +449,7 @@ function testParse() {
 
     }
   }
-  function genericSceneSetup() {
+  function sceneCameraSetup() {
     scene = new THREE.Scene();
     renderer = new THREE.WebGLRenderer( { antialias: true } );
 
@@ -461,7 +458,7 @@ function testParse() {
     spectrumLines = [];
     spectrumCurves = [];
     // testColors = [];
-    // this genericSceneSetup gets called during reset
+    // this sceneCameraSetup gets called during reset
     // if (colorsReady != true) {
     //   usersColors = [];
     // } else {
@@ -477,8 +474,8 @@ function testParse() {
     } else {
       camera = cameraOrthographic;
     }
-
     camera.position.z = distance;
+
 
     canvas = document.getElementById("canvas");
     renderer.setPixelRatio( window.devicePixelRatio );
@@ -499,7 +496,8 @@ function testParse() {
 
     // 262144 polygons
     //  32768 polygons
-
+    target = new THREE.Vector2(scene.position.x , scene.position.y);
+    log( target );
   }
   function removeEntity(object) {
     var selectedObject = scene.getObjectByName(object.name);
@@ -595,12 +593,10 @@ function testParse() {
   }
 
   function buildColours() {
-    stat("colour map pixels: "+ maxcolorpix);
-    stat("herbs*subdivisions "+ herbs*subdivisions);
+    stat("colour map pixels: "+ maxcolorpix + ' testTones.length: '+testTones.length);
 
     testTones = []; // wipe it
     spectrumCurves = [];
-    stat('herbs*subdivisions '+herbs*subdivisions);
     // HIGH RES COLOUR BANDS
     for ( var i = 0; i < herbs*subdivisions ; i++ ) {
       // alternative black and white
@@ -610,7 +606,6 @@ function testParse() {
       color.setHSL( i / colormapsize, 0.5, 0.5 );
       spectrumCurves.push( color.r, color.g, color.b );
     }
-    stat('testTones.length '+testTones.length);
 
     // LOWER RESOLUTION COLOURS FOR STRAIGHT LINES
     for ( var i = 0; i < herbs; i++ ) {
@@ -666,10 +661,10 @@ function testParse() {
     <h6>${justNameOfFile}</h6>
     <form action="../">
     <select name="selectedGenome">
-      <option value="output/Brown_Kiwi_013982187v1.fa_HILBERT_c123.6_sci.png">Brown_Kiwi_013982187v1.fa</option>
-      <option value="calibration/AminoSee_Calibration_reg_HILBERT_8.png">AminoSee_Calibration</option>
-      <option value="output/Caenorhabdihromosome-V.fa_AMINOSEE-REPORT_reg_c1.7_fix_sci.html">Brown_Kiwi_013982187v1.fa</option>
-      <option value="Brown_Kiwi_013982187v1.fa">Brown_Kiwi_013982187v1.fa</option>
+    <option value="output/Brown_Kiwi_013982187v1.fa_HILBERT_c123.6_sci.png">Brown_Kiwi_013982187v1.fa</option>
+    <option value="calibration/AminoSee_Calibration_reg_HILBERT_8.png">AminoSee_Calibration</option>
+    <option value="output/Caenorhabdihromosome-V.fa_AMINOSEE-REPORT_reg_c1.7_fix_sci.html">Brown_Kiwi_013982187v1.fa</option>
+    <option value="Brown_Kiwi_013982187v1.fa">Brown_Kiwi_013982187v1.fa</option>
     </select>
     </form>
     <pre>
@@ -730,19 +725,13 @@ function testParse() {
   }
 
 
-  function statModal(txt, onclickFunction) { // onclickFunction is string
-    if (onclickFunction == undefined) {
-      onclickFunction = clearModal + "()";
-      resume = `OK`;
-    } else {
-      onclickFunction = onclickFunction + "()";
-      resume = `Resume [ENTER]`;
-    }
+  function statModal(txt) { // onclickFunction is string
+    resume = `Resume [ENTER]`;
     document.getElementById('modalBox').classList.replace('hidden', 'modalCentered');
-    log(statModal, txt, onclickFunction);
     document.getElementById('modalBox').innerHTML = `
     ${txt} <br /> <br />
-    <input type="button" id="modalBoxButton" value="${resume}" onclick="${onclickFunction}">`;
+    <input type="button" id="modalBoxButton" value="${resume}" onclick="togglePause()">`;
+    // togglePause();
   }
 
 
@@ -758,6 +747,9 @@ function testParse() {
     setTimeout("document.getElementById('progress_bar').className='';", 100);
 
     for (i=0; i<choosefiles.length; i++) {
+      console.log(`choosefiles[i] ${choosefiles[i]}`);
+
+      // alert(choosefiles[i].filename);
       // downloaderDisabled.postMessage({
       //   aTopic: 'do_LoadURL',
       //   filename: choosefiles[i],
@@ -780,7 +772,7 @@ function testParse() {
     // render();
 
     stat("testColour to " + colormapsize);
-    // wipe them red and reset:
+    // wipe them red:
     testColors = [];
 
     // HIGH RES COLOUR BANDS
@@ -790,12 +782,13 @@ function testParse() {
       testColors.push( color.r, color.g, color.b );
     }
     colorsReady = true;
-    // isPaused = false;
+    // paused = false;
     // render();
-    // reset();
+    reset();
     // destroyScene();
-    genericSceneSetup();
-    changeLevels();
+    // sceneCameraSetup();
+    // setScene();
+    // changeLevels();
   }
   function applyColorsArray(buffer) {
     stat("[received colors] " + buffer.byteLength/4);
@@ -826,7 +819,11 @@ function testParse() {
     contextBitmap.fill();
     contextBitmap.strokeStyle = '#0000ff';
     contextBitmap.stroke();
-    letsdothis();
+
+    colorsReady = true; // flag to switch palettes
+    paused = false;
+    stat("Your file has been mapped!");
+    reset();
   }
 
   // if less than resHD basepairs (about 2M), the number of pixels is the same as the codons
@@ -914,10 +911,13 @@ function testParse() {
       'eventLabel' : controlsShowing
       // 'eventValue' : value_for_Event_Value
     });
-    console.log("tracked bool: " + controlsShowing);
+    // console.log("tracked bool: " + controlsShowing);
   }
   // ONE DAY I FOUND OUT IT LOOKS COOL TO NOT RESET CAMERA AFTER SWITCH
   // I FORGOT TO PUT A RESET IN THE
+  // up close is z = 0
+  // far away is z = 1200
+
   function getAmongstIt() {
     perspective = !perspective;
     if (perspective) {
@@ -926,50 +926,59 @@ function testParse() {
       // camera = cameraOrthographic;
       // reset();
       camera = cameraPerspective;
+      ( perspective ? camera.position.z = 0 : zoom = 2  )
+
+      zoom = 2; //  defalt 2
+      // distance = 900; // amongst
     } else {
       stat('Back to regular');
       document.getElementById('perspective').value = "Perspective [V]iew";
       camera = cameraOrthographic;
+      ( perspective ? camera.position.z = distance : zoom = 2  )
+
       // reset();
       // camera = cameraPerspective;
     }
   }
   function toggleView() {
-    perspective = !perspective;
-    if (perspective) {
+    if (!perspective) {
       stat('Switched to perspective mode');
       document.getElementById('perspective').value = "Orthographic [V]iew";
       camera = cameraPerspective;
+      camera.position.z = distance;
       reset();
+      perspective = true;
     } else {
       stat('Switched to Orthographic mode');
       document.getElementById('perspective').value = "Perspective [V]iew";
       camera = cameraOrthographic;
       reset();
+      perspective = false;
     }
+
   }
   let timeout;
   function setTimeoutPause() {
 
 
     if (devmode) {
-      timeout = setTimeout(togglePause, autostopdelay*10); // pause after 5 minutes
+      timeout = setTimeout(togglePause, autostopdelay*16); // pause after 5 seconds
     } else {
       timeout = setTimeout(togglePause, autostopdelay*1000); // pause after 5 minutes
     }
   }
   function togglePause() {
-    paused = !paused;
-    if (paused == true) {
+    if (paused != true) {
       let txt = "[P]aused";
-      stat(txt);
-      statModal(txt, "togglePause");
+      // stat(txt);
+      statModal(txt);
       document.getElementById('pause').value = "Play [P]";
       // document.getElementById('status').classList.replace('headingStatus', 'hidden');
       if (timeout) {
         clearTimeout(timeout);
       }
       // paused is whack in the middle of the screen
+      paused = true;
     } else {
       let txt = "Resumed - Press [P] to pause";
       stat(txt);
@@ -982,6 +991,7 @@ function testParse() {
       if (document.getElementById('autostop').checked) {
         setTimeoutPause();
       }
+      paused = false;
     }
     animate();
   }
@@ -997,7 +1007,6 @@ function testParse() {
       stat('Model not rotating');
       document.getElementById('spin').value = "Rotate [R]";
     }
-    // animate();
   }
 
   function hammerIt(elm) {
@@ -1085,117 +1094,39 @@ function testParse() {
     renderer.setSize( window.innerWidth, window.innerHeight );
 
   }
-  // left = 37
-  // up = 38
-  // right = 39
-  // down = 40
-  function onKeyDown( event ) {
-    let isValidKey = true;
-    let value_for_Event_Label = "";
-    let value_for_Event_Value = "";
-    stat("key: " + event);
-    if (event.keyCode === 37) {
-      cursorLeft();
-      value_for_Event_Label = "ArrowLeft"
-    }
-    else if (event.keyCode === 38) {
-      cursorUp();
-      value_for_Event_Label = "ArrowLeft"
-
-    } else if (event.keyCode === 39) {
-      cursorRight();
-      value_for_Event_Label = "ArrowLeft"
-    } else if (event.keyCode === 40) {
-      cursorDown();
-      value_for_Event_Label = "ArrowLeft"
-    } else {
-      isValidKey = false;
-    }
-
-    if (isValidKey == true) {
-      dataLayer.push({
-        'event' : 'AminoSee',
-        'eventCategory' : 'AminoSee_keypress',
-        'eventAction' : event.key,
-        'eventLabel' : value_for_Event_Label,
-        'eventValue' : value_for_Event_Value
-      });
-      console.log("tracked key: " + value_for_Event_Label);
-    } else {
-      console.log("Invalid key");
-    }
-  }
   function triggerFileClick() {
     console.log("triggerFileClick");
     // document.getElementById('file').trigger('click');
     $("file").trigger("click");
   }
-  function onKeyPress( event ) {
+  // left = 37
+  // up = 38
+  // right = 39
+  // down = 40
+  function onKeyDown( event ) {
+    let theKey = event.key.toUpperCase();
     let isValidKey = true;
     let value_for_Event_Label = "";
     let value_for_Event_Value = "";
-
-    if (event.key.toUpperCase() === "P") {
-      togglePause();
-      value_for_Event_Label = "Pause"
-    }
-    else if (event.key === "Enter") {
-      togglePause();
-      value_for_Event_Label = "Enter Key"
-    }
-    else if (event.key.toUpperCase() === "T") {
-      testColour();
-      value_for_Event_Label = "Test Colours"
-    }
-    else if (event.key.toUpperCase() === "F") {
-      toggleFileUpload();
-      document.getElementById('choosefiles')
-      value_for_Event_Label = "File Chooser"
-    }
-    else if (event.key.toUpperCase() === "R") {
-      toggleSpin();
-      value_for_Event_Label = "Rotate"
-    }
-    else if (event.key.toUpperCase() === "G") {
-      getAmongstIt();
-      value_for_Event_Label = "GetAmongstIt"
-    }
-    else if (event.key.toUpperCase() === "V") {
-      toggleView();
-      value_for_Event_Label = "View"
-    }
-    else if (event.key.toUpperCase() === "U") {
-      reset();
-      value_for_Event_Label = "Reset"
-    }
-    else if (event.key.toUpperCase() === "H") {
-      toggleControls();
-      value_for_Event_Label = "Hide"
-    }
-    else if (event.key.toUpperCase() === "W") {
-      camera.position.z -= 10;
-      value_for_Event_Label = "Forwards"
-    }
-    else if (event.key.toUpperCase() === "S") {
-      camera.position.x += 10;
-      value_for_Event_Label = "Backwards"
-    }
-    else if (event.key.toUpperCase() === "A") {
-      camera.position.x -= 10;
-      value_for_Event_Label = "Left"
-    }
-    else if (event.key.toUpperCase() === "D") {
-      camera.position.z -= 10;
-      value_for_Event_Label = "Right"
-    } else if (event.key === "+") {
-      moredetail();
-      value_for_Event_Label = "Increase Detail"
-    }
-    else if (event.key === "-") {
-      lessdetail();
-      value_for_Event_Label = "Decrease Detail"
+    // stat("key: " + event);
+    if (event.keyCode === 37) {
+      cursorLeft();
+      value_for_Event_Label = "ArrowLeft"
+    } else if (event.keyCode === 38) {
+      cursorUp();
+      value_for_Event_Label = "ArrowUp"
+    } else if (event.keyCode === 39) {
+      cursorRight();
+      value_for_Event_Label = "ArrowLeft"
+    } else if (event.keyCode === 40) {
+      cursorDown();
+      value_for_Event_Label = "ArrowDown"
     } else {
       isValidKey = false;
+      if (paused && theKey !== "P") {
+        togglePause();
+        value_for_Event_Label = theKey;
+      }
     }
     if (isValidKey == true) {
       dataLayer.push({
@@ -1205,23 +1136,117 @@ function testParse() {
         'eventLabel' : value_for_Event_Label,
         'eventValue' : value_for_Event_Value
       });
-      console.log("tracked key: " + value_for_Event_Label);
+      // console.log("Valid key: " + value_for_Event_Label);
+    } else {
+      // console.log("Invalid key, not tracked.");
+    }
+  }
+  function onKeyPress( event ) {
+    let isValidKey = true;
+    let value_for_Event_Label = "";
+    let value_for_Event_Value = "";
+    let theKey = event.key.toUpperCase();
+    if (theKey === "P") {
+      togglePause();
+      value_for_Event_Label = "Pause"
+    } else {
+      if (paused) {
+        togglePause() // auto unpause
+      }
+    }
+    if (event.key === "Enter") {
+      if (paused) {
+        togglePause() // auto unpause
+      }
+      value_for_Event_Label = "Enter Key"
+    } else if (theKey === "T") {
+      testColour();
+      value_for_Event_Label = "Test Colours"
+    } else if (theKey === "F") {
+      toggleFileUpload();
+      document.getElementById('choosefiles')
+      value_for_Event_Label = "File Chooser"
+    } else if (theKey === "R") {
+      toggleSpin();
+      value_for_Event_Label = "Rotate"
+    } else if (theKey === "G") {
+      getAmongstIt();
+      value_for_Event_Label = "GetAmongstIt"
+    } else if (theKey === "V") {
+      toggleView();
+      value_for_Event_Label = "View"
+    } else if (theKey === "U") {
+      reset();
+      value_for_Event_Label = "Reset"
+    } else if (theKey === "H") {
+      toggleControls();
+      value_for_Event_Label = "Hide"
+    } else if (theKey === "W") {
+      value_for_Event_Label = "Up"
+      cursorUp();
+    } else if (theKey === "S") {
+      value_for_Event_Label = "Down"
+      cursorDown();
+    } else if (theKey === "A") {
+      value_for_Event_Label = "Left"
+      cursorLeft();
+    } else if (theKey === "D") {
+      value_for_Event_Label = "Right"
+      cursorRight();
+    } else if (event.key === "+") {
+      moredetail();
+      value_for_Event_Label = "Increase Detail"
+    } else if (theKey === "-" | event.key === "-") {
+      lessdetail();
+      value_for_Event_Label = "Decrease Detail"
+    } else {
+      isValidKey = false;
+    }
+
+    if (isValidKey == true) {
+      dataLayer.push({
+        'event' : 'AminoSee',
+        'eventCategory' : 'AminoSee_keypress',
+        'eventAction' : event.key,
+        'eventLabel' : value_for_Event_Label,
+        'eventValue' : value_for_Event_Value
+      });
+      // console.log(theKey +  " tracked key: " + value_for_Event_Label + " paused: " + paused);
+      if (paused == true && theKey != "P") {
+        togglePause();
+      }
+
     } else {
       console.log("Invalid key");
     }
 
   }
-  function cursorLeft() {
-    camera.rotation.y += 5;
+  function formClick() {
+    if (paused) {
+      togglePause();
+    }
+
   }
+  function cursorLeft() {
+    // camera.rotation.y += 5;
+    camera.position.x -= 20;
+
+  }
+
   function cursorRight() {
-    camera.rotation.y -= 5;
+    // camera.rotation.y -= 5;
+    camera.position.x += 20;
+
   }
   function cursorUp() {
-    camera.rotation.x += 5;
+    // camera.rotation.x += 5;
+    camera.position.z -= 10;
   }
+
   function cursorDown() {
-    camera.rotation.x -= 5;
+    // camera.rotation.x -= 5;
+    camera.position.z += 10;
+
   }
   function onDocumentMouseMove( event ) {
     mouseX = event.clientX - windowHalfX;
@@ -1252,6 +1277,9 @@ function testParse() {
   }
 
   function render() {
+    if (perspective) {
+
+    }
     camera.position.x += ( mouseX - camera.position.x ) * 0.05;
     camera.position.y += ( - mouseY + 200 - camera.position.y ) * 0.05;
     camera.lookAt( scene.position );
@@ -1271,10 +1299,9 @@ function testParse() {
   }
   function changeZoom() {
     paused = true;
+    // sceneCameraSetup();
     setScene();
     paused = false;
-    animate();
-
   }
   function autostopChanged() {
     tickobox = document.getElementById('autostop').checked;
@@ -1290,6 +1317,17 @@ function testParse() {
       togglePause();
       // togglePause();
     }
+  }
+  function changeLevels() {
+    stat("New detail level: " + levels);
+    // clearScene();
+    // destroyScene();
+    init3D();
+    sceneCameraSetup();
+    setScene();
+    animate();
+    togglePause();
+    toggleSpin();
   }
   function moredetail() {
     levels++;
@@ -1459,6 +1497,6 @@ function testParse() {
       out(txt);
     }
   }
-function out(txt) {
-  console.log(txt)
-}
+  function out(txt) {
+    console.log(txt)
+  }

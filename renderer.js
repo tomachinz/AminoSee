@@ -1,11 +1,19 @@
-// This file is required by the index.html file and will
+filesIpc// This file is required by the index.html file and will
 // be executed in the renderer process for that window.
 // All of the Node.js APIs are available in this process.
 
 // for the Electron Desktop App
 
 const { ipcRenderer } = require('electron')
+const { dialog } = require('electron').remote;
+dialog.showOpenDialog((filenames) => {
+  if (filesNames === undefined ) {
+  console.log("no files were selected");
+  return;
+}
 
+} )
+document.getElementById('choosefiles').addEventListener('change', filesIpc, false);
 
 
 if (window.addEventListener) {
@@ -122,23 +130,24 @@ function statModal(txt, callback) {
 }
 
 
-function handleFileSelect(evt) {
+function filesIpc(evt) {
   document.getElementById('cancel').classList.remove('hidden');
+  alert(evt.toString());
   let choosefiles = evt.target.files;
-  console.log("file loading is being sent to background web worker... " + choosefiles.length + " files.");
-  // downloader.postMessage(choosefiles);
-  // Ensure that the progress bar displays 100% at the end.
-  progress.style.width = '100%';
-  progress.textContent = '100%';
-  setTimeout("document.getElementById('progress_bar').className='';", 100);
-
   for (i=0; i<choosefiles.length; i++) {
-    downloader.postMessage({
-      aTopic: 'do_LoadURL',
-      filename: choosefiles[i],
-      url: choosefiles[i],
-      type: 'text/plain'
-    });
+      // alert(choosefiles[i].toString());
+      ipcRenderer.send('do_LoadFile', {
+        aTopic: 'do_LoadURL',
+        filename: choosefiles[i].toString(),
+        url: choosefiles[i],
+        type: 'text/plain'
+      })
+    // downloader.postMessage({
+    //   aTopic: 'do_LoadURL',
+    //   filename: choosefiles[i],
+    //   url: choosefiles[i],
+    //   type: 'text/plain'
+    // });
   }
 };
 function cancel() {

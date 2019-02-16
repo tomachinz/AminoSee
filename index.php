@@ -39,6 +39,7 @@
 </head>
 
 <body id="webgl" class="black nocse">
+	<?php include '../includes/menu-only.php';?>
 
 	<div id="bgCanvFixed">
 		<canvas id="canvas" width="512" height="512" style="width: 512px; height: 512px;"></canvas>

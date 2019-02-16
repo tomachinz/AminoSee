@@ -95,7 +95,7 @@
 			<div id="fileheader">
 				<label class="custom-file-upload">
 					Custom Upload
-					<input type="file" id="choosefiles" name="file" value="example-sequence.fa" multiple /></label>
+					<input type="file" id="choosefiles" name="file" value="example-sequence.fa" multiple onchange="handleFileSelect()" /></label>
 					<input type="button" id="cancel" class="fineprint small hidden" name="cancel" value="Cancel" onclick="cancel()">
 					<span class="fineprint whitetext">Any ASCII text file containing DNA or RNA sequences in first 1k</span>
 					<br />
