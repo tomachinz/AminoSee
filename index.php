@@ -5,7 +5,6 @@
 	<meta name="description" content="A new way to view DNA that attributes a colour hue to each Amino acid codon triplet">
 	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 	<meta http-equiv="Content-Security-Policy" content="default-src http://127.0.0.1:8888 https://dev.funk.co.nz https://www.funk.co.nz  http://www.funk.co.nz * data: blob: 'unsafe-inline' 'unsafe-eval' ws: wss:;">
-	<base href="http://www.funk.co.nz/aminosee/" target="_blank">
 	<!-- <script src="node_modules/three/build/three.min.js"></script> -->
 	<script src="public/three.min.js"></script>
 	<!-- <script src="node_modules/jquery/dist/jquery.min.js"></script> -->
@@ -98,6 +97,7 @@
 		</div>
 
 		<div id="controls"  onclick="formClick()">
+			<center>
 			<div id="fileheader">
 				<label class="custom-file-upload">
 					Custom Upload
@@ -120,14 +120,14 @@
 					<input type="button" id="reset" name="reset" value="Reset [U]" onclick="reset()" class="flex-item">
 					<input type="button" id="testcolour" name="testcolour" value="Test Colours [T]" onclick="testColour()" class="flex-item">
 					<!-- <input disabled type="button" id="fileupload" name="fileupload" value="Upload DNA (soon)" onclick="//toggleFileUpload()" class="flex-item"> -->
-					<br>
-					<label class="fineprint whitetext"><input type="checkbox" id="autostop" name="autostop" value="pause after running for 5 minutes" onchange="autostopChanged()" checked>pause after running for 5 minutes</label>
+
 					<br>
 					<input type="button" class="tinyButton flex-item" name="A" value="Left [A]" onclick="cursorLeft()">
 					<input type="button" class="tinyButton flex-item" name="W" value="Fwd  [W]" onclick="cursorUp()">
 					<input type="button" class="tinyButton flex-item" name="S" value="Back [S]" onclick="cursorDown()">
 					<input type="button" class="tinyButton flex-item" name="D" value="Right[D]" onclick="cursorRight()">
-
+					<br>
+					<label class="fineprint whitetext"><input type="checkbox" id="autostop" name="autostop" value="pause after running for 5 minutes" onchange="autostopChanged()" checked>pause after running for 5 minutes</label>
 					<br>
 					<h1>Welcome, try the <a href="output/Brown_Kiwi_013982187v1.fa_AMINOSEE-REPORT_c123.6_sci.html" style="color: white;">Brown Kiwi</a> or <a href="output/Caenorhabdihromosome-V.fa_AMINOSEE-REPORT_reg_c1.7_fix_sci.html" style="color: white;">C.elegans</a></h1>
 					* 3D mode is only showing test patterns at this time. Try using WASD keys to move about.
@@ -139,6 +139,7 @@
 				</div>
 
 				<div class="footer"></div>
+				</center>
 			</div>
 		</div>
 	</body>

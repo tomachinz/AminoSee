@@ -211,10 +211,11 @@ input[type=number] {
 #controls {
 	position: fixed;
 	z-index: 10;
-
-}
-#controls, input.controls {
 	grid-column: span 8;
+	margin-left: 50%;
+	transform: translateX(-50%)
+}
+input.controls {
 	height: 16px;
 	top: 32px;
 }
