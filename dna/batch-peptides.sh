@@ -85,6 +85,6 @@ find_way_peptides () {
   echo "                                         =///"
 }
 parallel_peptides $1 $2 $3 $4 $5 $6
-parallel_peptides $1 $2 $3 $4 $5 $6 --reg
+parallel_peptides $1 $2 $3 $4 $5 $6 --reg --fix
 # find_way_peptides
 # find_way_peptides --reg
