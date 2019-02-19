@@ -327,7 +327,7 @@ module.exports = () => {
     pngImageFlags += ratio;
   } else {
     log(`No custom ratio chosen. (default)`);
-    ratio = "sqr";
+    ratio = "fix";
   }
   log("using ${ratio} aspect ratio");
 

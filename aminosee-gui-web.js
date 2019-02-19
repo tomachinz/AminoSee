@@ -19,13 +19,18 @@ colorsReady = false;
 basepairs = 3;
 zoom = 2; //  defalt 2
 distance = 900; // default 900
+let offscreen_image = document.getElementById('offscreen_image');
 
 if(window.addEventListener) {
   window.addEventListener('load',pageLoaded,false); //W3C
 } else {
   window.attachEvent('onload',pageLoaded); //IE
 }
-
+function fileChanged(f) {
+  // filename = getParameterFromURL('selectedGenome');
+  filename = f;//document.getElementById('selectedGenome').value;
+  offscreen_image.src = filename;
+}
 function pageLoaded() {
   initVariables();
   sceneCameraSetup();
@@ -545,7 +550,7 @@ function testParse() {
     var t = `
     <h6>${justNameOfFile}</h6>
     <form action="../">
-    <select name="selectedGenome">
+    <select name="selectedGenome" onchange="fileChanged(this.options[this.selectedIndex].value)">
     <option value="output/Brown_Kiwi_013982187v1.fa_HILBERT_c123.6_sci.png">Brown_Kiwi_013982187v1.fa</option>
     <option value="calibration/AminoSee_Calibration_reg_HILBERT_8.png">AminoSee_Calibration</option>
     <option value="output/Caenorhabdihromosome-V.fa_AMINOSEE-REPORT_reg_c1.7_fix_sci.html">Brown_Kiwi_013982187v1.fa</option>
