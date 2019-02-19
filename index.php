@@ -43,16 +43,15 @@
 	<div id="bgCanvFixed">
 		<canvas id="canvas" width="512" height="512" style="width: 512px; height: 512px;"></canvas>
 	</div>
+	<!-- <img id="offscreen_image" src="/aminosee/calibration/AminoSee_Calibration_linear_8.png" class="hidden"> -->
+	<img id="offscreen_image" src="/images/nav/funk-logo-140px.png" class="hidden">
 
 	<div id="supercontainer">
-		<div id="modalBox" class="hidden">
-			im normally hidden
-			<input type="button" id="modalBoxButton" value="OK [ENTER]">
-		</div>
+
 
 		<div id="viewPortSize" class="bottom_right" style="display: none; background-color: rgb(0, 0, 0); color: rgb(255, 255, 255); font-size: 12px;"></div>
 
-		<a href="https://www.funk.co.nz/" style="width: 100px;" title="Return to FUNK Homepage"><img src="https://www.funk.co.nz/images/nav/funk-logo-140px.png" width="140" height="70" alt="www.funk.co.nz" style="position: fixed; top: -2px; left: 26px;"/></a>
+		<!-- <a href="https://www.funk.co.nz/" style="width: 100px;" title="Return to FUNK Homepage"><img src="https://www.funk.co.nz/images/nav/funk-logo-140px.png" width="140" height="70" alt="www.funk.co.nz" style="position: fixed; top: -2px; left: 26px;"/></a> -->
 
 
 
@@ -78,12 +77,9 @@
 							<a href="https://github.com/tomachinz/AminoSee" class="small hidable" title="Github Source Code Repo">SOURCE</a>
 							<br />
 						</p>
-
 					</div>
 				</div>
 			</div>
-
-			<!-- <div class=" header" style="color: white;"> -->
 
 			<div id="status" class="headingStatus">
 				...loading...
@@ -96,8 +92,7 @@
 			</div>
 		</div>
 
-		<div id="controls"  onclick="formClick()">
-			<center>
+		<div id="controls" onclick="resume()" style="text-align: center;">
 			<div id="fileheader">
 				<label class="custom-file-upload">
 					Custom Upload
@@ -111,16 +106,16 @@
 
 				<br>
 				<div id="#butbar">
-					<!-- <input type="button" name="lessdetail" value="Less Detail [-]" onclick="lessdetail()" title="Less detail" class="flex-item">
-					<input type="button" name="moredetail" value="More Detail [+]" onclick="moredetail()" title="More detail" class="flex-item"> -->
+					<input type="button" name="lessdetail" value="Less Detail [-]" onclick="lessdetail()" title="Less detail" class="flex-item">
+					<input type="button" name="moredetail" value="More Detail [+]" onclick="moredetail()" title="More detail" class="flex-item">
 					<input type="button" id="pause" name="pause" value="Pause [P]" onclick="togglePause()" class="flex-item">
 					<input type="button" id="spin" name="spin" value="Stop Rotate [R]" onclick="toggleSpin()" class="flex-item">
 					<input type="button" id="amongst" name="amongst" value="Get Amoungst It [G]" onclick="getAmongstIt()" title="Put the camera wang in the middle o dat dere" class="flex-item">
 					<input type="button" id="perspective" name="perspective" value="Perspective [V]iew" onclick="toggleView()" class="flex-item">
 					<input type="button" id="reset" name="reset" value="Reset [U]" onclick="reset()" class="flex-item">
 					<input type="button" id="testcolour" name="testcolour" value="Test Colours [T]" onclick="testColour()" class="flex-item">
+					<input type="button" id="loadImage" name="loadImage" value="Load Image [L]" onclick="loadImage()" class="flex-item">
 					<!-- <input disabled type="button" id="fileupload" name="fileupload" value="Upload DNA (soon)" onclick="//toggleFileUpload()" class="flex-item"> -->
-
 					<br>
 					<input type="button" class="tinyButton flex-item" name="A" value="Left [A]" onclick="cursorLeft()">
 					<input type="button" class="tinyButton flex-item" name="W" value="Fwd  [W]" onclick="cursorUp()">
@@ -137,9 +132,11 @@
 				<div id="progress_bar" class="">
 					<div class="percent">0%</div>
 				</div>
-
+				<div id="modalBox" class="hidden">
+					im normally hidden
+					<input type="button" id="modalBoxButton" value="OK [ENTER]">
+				</div>
 				<div class="footer"></div>
-				</center>
 			</div>
 		</div>
 	</body>

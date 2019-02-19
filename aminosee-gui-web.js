@@ -1,18 +1,25 @@
 // "use strict";
 
-let reader, hilbertPoints, herbs, levels, zoom, progress, status, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, textFile, dna, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, filename, justNameOfFile, filenamePNG, verbose;
-let spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, devmode, fileUploadShowing, colormapsize, testColors, selectedGenome;
-
-let chunksMax, chunksize, chunksizeBytes, codonsPerPixel, basepairs, cpu, subdivisions, userFeedback, contextBitmap;
-const maxcolorpix = 262144 * 1  ; // for large genomes
-const linewidth = 4;
+let reader, hilbertPoints, herbs, zoom, progress, status, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, textFile, dna, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, justNameOfFile, filename, filenamePNG, verbose, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, devmode, fileUploadShowing, colormapsize, testColors, selectedGenom, chunksMax, chunksize, chunksizeBytes, codonsPerPixel, basepairs, cpu, subdivisions, userFeedback, contextBitmap, pauseIntent, maxcolorpix, linewidth;
+pauseIntent = false;
+maxcolorpix = 262144 * 1  ; // for large genomes
+linewidth = 4;
 let autostopdelay = 300; // seconds
 colormapsize = maxcolorpix; // custom fit.
 let downloaderDisabled;
-const resHD = 1920*1080;
-const res4K = 1920*1080*4;
+let levels = 2; // default 2
 let vLevels = 2; // 1 gives just the row of three at bottom. 2 gives two rows for 6 boxes.
 verbose = false;
+filename = getParameterFromURL('selectedGenome');
+fileUploadShowing = false;
+perspective = true;
+paused = false;
+spinning = true;
+colorsReady = false;
+basepairs = 3;
+zoom = 2; //  defalt 2
+distance = 900; // default 900
+
 if(window.addEventListener) {
   window.addEventListener('load',pageLoaded,false); //W3C
 } else {
@@ -20,14 +27,10 @@ if(window.addEventListener) {
 }
 
 function pageLoaded() {
-  filename = getParameterFromURL('selectedGenome');
   initVariables();
-  init3D();
-
   sceneCameraSetup();
   setScene();
-  // init2D(); // has to run after scene created
-
+  init2D(); // has to run after scene created
   setupFNames();
   animate();
   // setupColorPicker();
@@ -40,6 +43,53 @@ function pageLoaded() {
   }
   // parseApache()
 }
+function initVariables() {
+  // DO THIS ONCE!
+  filename = getParameterFromURL('selectedGenome');
+  // create a simple instance
+  // by default, it only adds horizontal recognizers
+  hammerIt(document.getElementById('canvas'));
+
+
+  colorArray = []; // an array of color maps
+  windowHalfX = window.innerWidth / 2;
+  windowHalfY = window.innerHeight / 2;
+  mouseX = 0;
+  mouseY = 0;
+  progress = document.querySelector('.percent');
+  color = new THREE.Color();
+  userFeedback = "";
+
+  // Check for the various File API support.
+  if (window.File && window.FileReader && window.FileList && window.Blob) {
+    console.log('File API support detected. Groovy.');
+  } else {
+    stat('The File APIs are not fully supported in this browser. They are needed for loading the super massive DNA text files.');
+  }
+
+  if ( WEBGL.isWebGLAvailable() === false ) {
+    document.body.appendChild( WEBGL.getWebGLErrorMessage() );
+    stat(WEBGL.getWebGLErrorMessage());
+  }
+
+  stat("initialisation: zoom levels distance subdivisions " +   zoom + ", " +  levels  + ", " + distance);
+
+  document.addEventListener( 'mousemove', onDocumentMouseMove, false );
+  document.addEventListener( 'touchstart', onDocumentTouchStart, false );
+  document.addEventListener( 'touchmove', onDocumentTouchMove, false );
+  document.addEventListener( 'keypress', onKeyPress, false );
+  document.addEventListener('keydown', onKeyDown, false);
+  document.getElementById('choosefiles').addEventListener('change', handleFileSelect, false);
+  window.addEventListener( 'resize', onWindowResize, false );
+
+  scene = new THREE.Scene();
+  renderer = new THREE.WebGLRenderer( { antialias: true } );
+  canvas = document.getElementById("canvas");
+  renderer.setPixelRatio( window.devicePixelRatio );
+  renderer.setSize( window.innerWidth, window.innerHeight );
+  document.body.appendChild( renderer.domElement );
+}
+
 function addSpriteToScene() {
   // var spriteMap = new THREE.TextureLoader().load( "output/Brown_Kiwi_013982187v1.fa_HILBERT_c123.6_sci.png" );
   var spriteMap = new THREE.TextureLoader().load( "calibration/AminoSee_Calibration_reg_HILBERT_8.png" );
@@ -48,13 +98,27 @@ function addSpriteToScene() {
   sprite.scale.set(400,400, -200.000);
   scene.add( sprite );
 }
+function addOffscreenImage() {
+  var img = document.getElementById('offscreen_image');
+  var ocanvas = document.createElement('canvas');
+  ocanvas.width = img.width;
+  ocanvas.height = img.height;
+  ocanvas.getContext('2d').drawImage(img, 0, 0, img.width, img.height);
+  var context = ocanvas.getContext('2d');
+  var imgd = context.getImageData(0, 0, img.width, img.height);
+  var pix = imgd.data;
+
+  // for (var i = 0, n = pix.length; i < n; i += 4) {
+  for (var i = 0, n = 100; i < n; i += 4) {
+    console.log(pix[i+0],pix[i+1],pix[i+2],pix[i+3]   );
+  }
+}
 function init2D() {
   // sceneCameraSetup();
-  addSpriteToScene();
+  // addSpriteToScene();
+  addOffscreenImage();
 }
-function initVariables() {
-  filename = getParameterFromURL('selectedGenome');
-}
+
 
 function getParameterFromURL() {
   let href = window.location.href;
@@ -168,11 +232,12 @@ function testParse() {
   }
 
   function reset() {
+    pauseIntent = false;
+    stat('reset');
     // if (perspective) {
-      camera.position.z = distance; // go about 1200 units away.
+    camera.position.z = distance; // go about 1200 units away.
     // }
     // initVariables();
-    // init3D();
     setScene();
     // animate();
 
@@ -195,178 +260,7 @@ function testParse() {
   devmodeURLParam();
 
 
-  function init3D() {
 
-    // create a simple instance
-    // by default, it only adds horizontal recognizers
-    hammerIt(document.getElementById('canvas'));
-    fileUploadShowing = false;
-    perspective = true;
-    paused = false;
-    spinning = true;
-    colorsReady = false;
-    basepairs = 3;
-    zoom = 2; //  defalt 2
-    levels = 3; // default 2
-    distance = 900; // default 900
-
-
-    colorArray = []; // an array of color maps
-    windowHalfX = window.innerWidth / 2;
-    windowHalfY = window.innerHeight / 2;
-    mouseX = 0;
-    mouseY = 0;
-    progress = document.querySelector('.percent');
-    color = new THREE.Color();
-    userFeedback = "";
-
-    // Check for the various File API support.
-    if (window.File && window.FileReader && window.FileList && window.Blob) {
-      console.log('File API support detected. Groovy.');
-    } else {
-      stat('The File APIs are not fully supported in this browser. They are needed for loading the super massive DNA text files.');
-    }
-
-    if ( WEBGL.isWebGLAvailable() === false ) {
-      document.body.appendChild( WEBGL.getWebGLErrorMessage() );
-      stat(WEBGL.getWebGLErrorMessage());
-    }
-
-    stat("initialisation: zoom levels distance subdivisions " +   zoom + ", " +  levels  + ", " + distance);
-
-    document.addEventListener( 'mousemove', onDocumentMouseMove, false );
-    document.addEventListener( 'touchstart', onDocumentTouchStart, false );
-    document.addEventListener( 'touchmove', onDocumentTouchMove, false );
-    document.addEventListener( 'keypress', onKeyPress, false );
-    document.addEventListener('keydown', onKeyDown, false);
-    document.getElementById('choosefiles').addEventListener('change', handleFileSelect, false);
-    window.addEventListener( 'resize', onWindowResize, false );
-
-    // downloaderDisabled.onmessage = function(e) {
-    //   console.log("DOWNLOADER DISABLED")
-    //   return true;
-    //
-    //   switch (e.data.aTopic) {
-    //
-    //     case 'do_IncreaseDetail':
-    //     // lessdetail();
-    //     break;
-    //
-    //     case 'do_ReduceDetail':
-    //     // moredetail();
-    //     break;
-    //
-    //     case 'do_WorkerSendColors':
-    //     // usersColors = e.data.colors;
-    //     paused = true;
-    //     togglePause();
-    //     toggleFileUpload(); // hide that sucka so we can look at shit
-    //     toggleControls();
-    //     break;
-    //
-    //     case 'do_NewColorsArray':
-    //     stat('do_NewColorsArray byteLength ' + e.data.colors.byteLength);
-    //     stat('do_NewColorsArray length ' + e.data.colors.length);
-    //     if (e.data.colors) {
-    //       // applyColorsArray(e.data.colors);
-    //       stat(`do_NewColorsArray was called, but I've disabled it. e.data.colors:  ${e.data.colors}`);
-    //     } else if (!e.data.colors) {
-    //       console.log("[error colors blah] " + e.data);
-    //     }
-    //     break;
-    //
-    //     case 'do_UpdateColorMapSize':
-    //     colormapsize = e.data.colormapsize;
-    //     basepairs = e.data.basepairs;
-    //     codonsPerPixel = e.data.codonsPerPixel;
-    //     codons = e.data.codons;
-    //     filename = e.data.filename;
-    //
-    //     opacity = 1 / codonsPerPixel;
-    //     stat('basepairs ' + basepairs);
-    //     stat('do_UpdateColorMapSize colormapsize '+colormapsize);
-    //     break;
-    //
-    //     case 'do_PercentUpdate':
-    //
-    //     colormapsize = e.data.colormapsize;
-    //     basepairs = e.data.basepairs;
-    //     codonsPerPixel = e.data.codonsPerPixel;
-    //     codons = e.data.codons;
-    //
-    //
-    //     filename  = "um ok lets fix that"
-    //     // filename = e.data.filename;
-    //     // let percentEvent = { loaded: e.data.loaded, total: e.data.total }
-    //     let percentLoaded = Math.round((e.data.loaded / e.data.total) * 100);
-    //     // stat('do_PercentUpdate'+e.data.percent);
-    //     // updateProgress(percentEvent);
-    //     updatePercent(e.data.percent);
-    //     cpu = e.data.cpu;
-    //     let txt = percentLoaded + "%";
-    //     stat(txt);
-    //     break;
-    //
-    //     case 'do_FileInfo':
-    //     userFeedback = e.data.userFeedback;
-    //     Math.round(cpu/1000) + " K iops "
-    //     stat("[userFeedback] " + userFeedback);
-    //     document.getElementById('cancel').classList.remove('hidden');
-    //     toggleFileUpload();
-    //     break;
-    //
-    //
-    //
-    //     default:
-    //     console.log("[downloader DEFAULT] " + e.data);
-    //   }
-    // };
-
-    // downloaderDisabled.postMessage({
-    //   aTopic: 'do_Wakeup'
-    // });
-
-    // downloaderDisabled.postMessage({
-    //   aTopic: 'do_LoadURL',
-    //   filename: './AAA-to-TTT-repeated-8-times.txts',
-    //   url: '/aminosee/aminosee/AAA-to-TTT-repeated-8-times.txt',
-    //   type: 'text/plain'
-    // });
-    // downloaderDisabled.postMessage({
-    //   aTopic: 'do_LoadURL',
-    //   filename: './64-codons-test-pattern.txt',
-    //   url: '/aminosee/aminosee/64-codons-test-pattern.txt',
-    //   type: 'text/plain'
-    // });
-    // downloaderDisabled.postMessage({
-    //   aTopic: 'do_LoadURL',
-    //   filename: './example-mfa.txt',
-    //   url: '/aminosee/aminosee/example-mfa.txt',
-    //   type: 'text/plain'
-    // });
-    // downloaderDisabled.postMessage({
-    //   aTopic: 'do_LoadURL',
-    //   filename: './example-fa.txt',
-    //   url: '/aminosee/aminosee/example-fa.txt',
-    //   type: 'text/plain'
-    // });
-    // downloaderDisabled.postMessage({
-    //   aTopic: 'do_LoadURL',
-    //   filename: './example-sequence.txt',
-    //   url: '/aminosee/aminosee/example-sequence.txt',
-    //   type: 'text/plain'
-    // });
-    // downloaderDisabled.postMessage({
-    //   aTopic: 'do_LoadURL',
-    //   filename: './Gorilla-C2AB-9595_ref_gorGor4_chr2A.mfa',
-    //   url: '/aminosee/aminosee/Gorilla-C2AB-9595_ref_gorGor4_chr2A.mfa',
-    //   type: 'text/plain'
-    // });
-  }
-  function updateColorMapSize() {
-    // init3D();
-
-  }
   function ab2str(buf) {
     // return "out of depth";
     return String.fromCharCode.apply(null, new Uint16Array(buf));
@@ -384,6 +278,17 @@ function testParse() {
 
 
   function destroyScene() {
+    for (let i = scene.children.length - 1; i >= 0; i--) {
+      const object = scene.children[i];
+      if (object.type === 'Mesh') {
+        removeEntity(object);
+        object.geometry.dispose();
+        object.material.dispose();
+        // scene.remove(object);
+      }
+    }
+    render();
+    // THIS WILL WIPE THE GEOMS:
     geometry1 = new THREE.BufferGeometry(); // bottom row with curves
     geometry2 = new THREE.BufferGeometry(); // bottom row with curves
     geometry3 = new THREE.BufferGeometry(); // bottom row with curves
@@ -392,11 +297,12 @@ function testParse() {
       geometry5 = new THREE.BufferGeometry(); // top row with straight lines
       geometry6 = new THREE.BufferGeometry(); // 2D HAXORED
     }
+    scene = new THREE.Scene();
 
   }
   function setScene() {
 
-    // sceneCameraSetup();
+
     geometry1 = new THREE.BufferGeometry(); // bottom row with curves
     geometry2 = new THREE.BufferGeometry(); // bottom row with curves
     geometry3 = new THREE.BufferGeometry(); // bottom row with curves
@@ -450,8 +356,7 @@ function testParse() {
     }
   }
   function sceneCameraSetup() {
-    scene = new THREE.Scene();
-    renderer = new THREE.WebGLRenderer( { antialias: true } );
+
 
     // ******* COLOR ARRAYS
     testTones = [];
@@ -465,7 +370,6 @@ function testParse() {
     //   stat("test")
     // }
 
-
     cameraPerspective = new THREE.PerspectiveCamera( 33, window.innerWidth / window.innerHeight, 1, 10000 );
     cameraOrthographic = new THREE.OrthographicCamera( window.innerWidth / - zoom, window.innerWidth / zoom, window.innerHeight / zoom, window.innerHeight / - zoom, 1, 10000 );
 
@@ -476,11 +380,6 @@ function testParse() {
     }
     camera.position.z = distance;
 
-
-    canvas = document.getElementById("canvas");
-    renderer.setPixelRatio( window.devicePixelRatio );
-    renderer.setSize( window.innerWidth, window.innerHeight );
-    document.body.appendChild( renderer.domElement );
 
     stat('Getting in touch with my man Hilbert')
     // var hilbertPoints = hilbert3D( new THREE.Vector3( 0,0,0 ), 200.0, 1, 0, 1, 2, 3, 4, 5, 6, 7 );
@@ -502,22 +401,8 @@ function testParse() {
   function removeEntity(object) {
     var selectedObject = scene.getObjectByName(object.name);
     selectedObject.parent.remove( selectedObject );
-
   }
-  function clearScene() {
-    for (let i = scene.children.length - 1; i >= 0; i--) {
-      const object = scene.children[i];
-      if (object.type === 'Mesh') {
-        removeEntity(object);
 
-        object.geometry.dispose();
-        object.material.dispose();
-        scene.remove(object);
-      }
-    }
-
-    render();
-  }
 
   function buildHilbert() {
     spline = new THREE.CatmullRomCurve3( hilbertPoints );
@@ -726,12 +611,12 @@ function testParse() {
 
 
   function statModal(txt) { // onclickFunction is string
-    resume = `Resume [ENTER]`;
+    actionText = `Resume [ENTER]`;
     document.getElementById('modalBox').classList.replace('hidden', 'modalCentered');
     document.getElementById('modalBox').innerHTML = `
     ${txt} <br /> <br />
-    <input type="button" id="modalBoxButton" value="${resume}" onclick="togglePause()">`;
-    // togglePause();
+    <input type="button" id="modalBoxButton" value="${actionText}" onclick="togglePause()">
+    `;
   }
 
 
@@ -765,8 +650,37 @@ function testParse() {
     // worker.terminate();
     downloaderDisabled.terminate();
   }
+  function loadImage() {
+    colorsReady = false;
+    testColors = [];
+    var img = document.getElementById('offscreen_image');
+    var ocanvas = document.createElement('canvas');
+    ocanvas.width = img.width;
+    ocanvas.height = img.height;
+    imgarea = img.width * img.height;
+    ocanvas.getContext('2d').drawImage(img, 0, 0, img.width, img.height);
+    var context = ocanvas.getContext('2d');
+    var imgd = context.getImageData(0, 0, img.width, img.height);
+    var pix = imgd.data;
+    stat(`mapping ${imgarea} image pixels to ${herbs*subdivisions} WebGL buffer geometeries` );
 
+    // for (var i = 0, n = pix.length; i < n; i += 4) {
+    for (var i = 0, n = 100; i < n; i += 4) {
+      console.log(pix[i+0],pix[i+1],pix[i+2],pix[i+3]   );
+    }
+
+    for ( var i = 0; i < herbs*subdivisions; i+= 4 ) {
+      color.setRGB( pix[i+0],pix[i+1],pix[i+2] );
+      testColors.push( color.r, color.g, color.b );
+
+      // testColors.push( pix[i+0],pix[i+1],pix[i+2],pix[i+3] );
+    }
+    colorsReady = true;
+
+    reset();
+  }
   function testColour() {
+    pauseIntent = false;
     colorsReady = false;
     // paused = true;
     // render();
@@ -785,10 +699,8 @@ function testParse() {
     // paused = false;
     // render();
     reset();
-    // destroyScene();
     // sceneCameraSetup();
     // setScene();
-    // changeLevels();
   }
   function applyColorsArray(buffer) {
     stat("[received colors] " + buffer.byteLength/4);
@@ -919,6 +831,7 @@ function testParse() {
   // far away is z = 1200
 
   function getAmongstIt() {
+    pauseIntent = false;
     perspective = !perspective;
     if (perspective) {
       stat('Getting Amongst It');
@@ -941,6 +854,7 @@ function testParse() {
     }
   }
   function toggleView() {
+    pauseIntent = false;
     if (!perspective) {
       stat('Switched to perspective mode');
       document.getElementById('perspective').value = "Orthographic [V]iew";
@@ -959,8 +873,6 @@ function testParse() {
   }
   let timeout;
   function setTimeoutPause() {
-
-
     if (devmode) {
       timeout = setTimeout(togglePause, autostopdelay*16); // pause after 5 seconds
     } else {
@@ -970,7 +882,6 @@ function testParse() {
   function togglePause() {
     if (paused != true) {
       let txt = "[P]aused";
-      // stat(txt);
       statModal(txt);
       document.getElementById('pause').value = "Play [P]";
       // document.getElementById('status').classList.replace('headingStatus', 'hidden');
@@ -979,6 +890,7 @@ function testParse() {
       }
       // paused is whack in the middle of the screen
       paused = true;
+      pauseIntent = true;
     } else {
       let txt = "Resumed - Press [P] to pause";
       stat(txt);
@@ -992,6 +904,7 @@ function testParse() {
         setTimeoutPause();
       }
       paused = false;
+      pauseIntent = false;
     }
     animate();
   }
@@ -999,6 +912,7 @@ function testParse() {
     document.getElementById('modalBox').classList.replace('modalCentered', 'hidden');
   }
   function toggleSpin() {
+    pauseIntent = false;
     spinning = !spinning;
     if (spinning) {
       stat('Model slowly rotates with time');
@@ -1123,10 +1037,6 @@ function testParse() {
       value_for_Event_Label = "ArrowDown"
     } else {
       isValidKey = false;
-      if (paused && theKey !== "P") {
-        togglePause();
-        value_for_Event_Label = theKey;
-      }
     }
     if (isValidKey == true) {
       dataLayer.push({
@@ -1136,9 +1046,10 @@ function testParse() {
         'eventLabel' : value_for_Event_Label,
         'eventValue' : value_for_Event_Value
       });
-      // console.log("Valid key: " + value_for_Event_Label);
+      console.log("Valid key: " + value_for_Event_Label);
+      resume();
     } else {
-      // console.log("Invalid key, not tracked.");
+      console.log("Invalid key, not tracked.");
     }
   }
   function onKeyPress( event ) {
@@ -1154,7 +1065,7 @@ function testParse() {
         togglePause() // auto unpause
       }
     }
-    if (event.key === "Enter") {
+    if (event.key === "Enter" || event.key === "P") {
       if (paused) {
         togglePause() // auto unpause
       }
@@ -1162,6 +1073,9 @@ function testParse() {
     } else if (theKey === "T") {
       testColour();
       value_for_Event_Label = "Test Colours"
+    } else if (theKey === "L") {
+      loadImage();
+      value_for_Event_Label = "Load Image"
     } else if (theKey === "F") {
       toggleFileUpload();
       document.getElementById('choosefiles')
@@ -1221,29 +1135,38 @@ function testParse() {
     }
 
   }
-  function formClick() {
-    if (paused) {
+  function resume() {
+    // its an autoresume when you click anything
+    // but it checks that the thing you clicked wasnt pause!
+    if (pauseIntent !== true && paused === true ) {
+      console.log(`pause. pauseIntent ${pauseIntent} paused ${paused}`)
       togglePause();
+    } else {
+      console.log(`remain paused. pauseIntent ${pauseIntent} paused ${paused}`)
     }
-
   }
+
   function cursorLeft() {
+    pauseIntent = false;
     // camera.rotation.y += 5;
     camera.position.x -= 20;
 
   }
 
   function cursorRight() {
+    pauseIntent = false;
     // camera.rotation.y -= 5;
     camera.position.x += 20;
 
   }
   function cursorUp() {
+    pauseIntent = false;
     // camera.rotation.x += 5;
     camera.position.z -= 10;
   }
 
   function cursorDown() {
+    pauseIntent = false;
     // camera.rotation.x -= 5;
     camera.position.z += 10;
 
@@ -1297,37 +1220,30 @@ function testParse() {
     }
     renderer.render( scene, camera );
   }
-  function changeZoom() {
-    paused = true;
-    // sceneCameraSetup();
-    setScene();
-    paused = false;
-  }
+
   function autostopChanged() {
     tickobox = document.getElementById('autostop').checked;
     if (!tickobox) { // RUN FOR AGES
       autostopdelay = 36000; // 10 hours
       paused = true;
+      pauseIntent = false;
       togglePause();
 
     } else { // STOP QUICK
       // togglePause();
       autostopdelay = 300;
+      paused = false;
+      pauseIntent = true;
       togglePause();
-      togglePause();
-      // togglePause();
     }
   }
   function changeLevels() {
+    pauseIntent = false;
     stat("New detail level: " + levels);
-    // clearScene();
-    // destroyScene();
-    init3D();
+    destroyScene();
     sceneCameraSetup();
     setScene();
-    animate();
-    togglePause();
-    toggleSpin();
+
   }
   function moredetail() {
     levels++;
