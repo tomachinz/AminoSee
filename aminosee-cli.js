@@ -497,6 +497,33 @@ module.exports = () => {
   status = "global";
   log(status)
 }
+function streamingZip(f) {
+  zipfile = path.resolve(f);
+
+  fs.createReadStream(zipfile)
+    .pipe(unzipper.Parse())
+    .pipe(stream.Transform({
+      objectMode: true,
+      transform: function(entry,e,cb) {
+        var filePath = entry.path;
+        var type = entry.type; // 'Directory' or 'File'
+        var size = entry.size;
+        var cb = function (byte) {
+          console.log(byte);
+        }
+        if (filePath === "this IS the file I'm looking for") {
+          entry.pipe(fs.createWriteStream('dna'))
+            .on('finish',cb);
+        } else {
+          entry.autodrain();
+          cb();
+        }
+      }
+    
+    }));
+
+}
+
 function listDNA() {
   // var XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
   // var xhr = new XMLHttpRequest('https://www.funk.co.nz/aminosee/output/');
