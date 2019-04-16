@@ -237,7 +237,7 @@ module.exports = () => {
     string: [ 'ratio'],
     string: [ 'width'],
     alias: { a: 'artistic', c: 'codons', d: 'devmode', f: 'force', m: 'magnitude', p: 'peptide', i: 'image', t: 'triplet', r: 'ratio', s: 'spew', w: 'width', v: 'verbose' },
-    default: { clear: true, updates: true, keyboard: false },
+    default: { clear: true, updates: true, keyboard: false, html: true },
     '--': true
   });
 
@@ -268,7 +268,10 @@ module.exports = () => {
   } else {
     if (args.test) {
       reg = true;
-      output(`using regmarks`)
+      output(`using regmarks for calibration`)
+    } else {
+      reg = false;
+      log(`not using regmarks for calibration`)
     }
     log(`no regmarks`)
     reg = false;
@@ -395,10 +398,11 @@ module.exports = () => {
     output("verbose enabled.");
     verbose = true;
   }
-  if (args.html) {
-    output("will open html");
+  if (args.html || html) {
+    log("will open html")
     openHtml = true;
   } else {
+    output("not opening html");
     openHtml = false;
   }
   if (args.spew || args.s) {
@@ -501,26 +505,26 @@ function streamingZip(f) {
   zipfile = path.resolve(f);
 
   fs.createReadStream(zipfile)
-    .pipe(unzipper.Parse())
-    .pipe(stream.Transform({
-      objectMode: true,
-      transform: function(entry,e,cb) {
-        var filePath = entry.path;
-        var type = entry.type; // 'Directory' or 'File'
-        var size = entry.size;
-        var cb = function (byte) {
-          console.log(byte);
-        }
-        if (filePath === "this IS the file I'm looking for") {
-          entry.pipe(fs.createWriteStream('dna'))
-            .on('finish',cb);
-        } else {
-          entry.autodrain();
-          cb();
-        }
+  .pipe(unzipper.Parse())
+  .pipe(stream.Transform({
+    objectMode: true,
+    transform: function(entry,e,cb) {
+      var filePath = entry.path;
+      var type = entry.type; // 'Directory' or 'File'
+      var size = entry.size;
+      var cb = function (byte) {
+        console.log(byte);
       }
-    
-    }));
+      if (filePath === "this IS the file I'm looking for") {
+        entry.pipe(fs.createWriteStream('dna'))
+        .on('finish',cb);
+      } else {
+        entry.autodrain();
+        cb();
+      }
+    }
+
+  }));
 
 }
 
@@ -1167,8 +1171,9 @@ function saveDocuments(callback) {
   setImmediate(() => {
     removeLocks();
   });
-
-
+  if (callback != undefined) {
+    callback();
+  }
 }
 function compareHistocount(a,b) {
   if (a.Histocount < b.Histocount)
@@ -1573,8 +1578,7 @@ function processLine(l) {
 
 function aminoFilenameIndex(index) {
   peptide = pepTable[index].Codon; // bad use of globals
-  justNameOfHILBERT =     `${justNameOfDNA}.${extension}_HILBERT${highlightFilename() + getFileExtension()}.png`;
-  return `${justNameOfHILBERT}`;
+  return `${justNameOfDNA}.${extension}_HILBERT${highlightFilename() + getFileExtension()}.png`;
 }
 
 function imageStack() {
@@ -1644,7 +1648,7 @@ ${renderSummary()}
 2D Hilbert Map Image
 </a>
 <a href="#scroll3D" class="button" title"Click To Scroll Down To See 3D Hilbert Map"><br />
-<img width="128" height="128" style="border: 4px black;" src="${justNameOfPNG}">
+<img width="128" height="128" style="border: 4px black;" src="https://www.funk.co.nz/aminosee/public/seenoevilmonkeys.jpg">
 3D Hilbert Map Image
 </a>
 
@@ -2015,8 +2019,12 @@ function saveHilbert(array) {
     // async version  uses promise
     // sync uses arrayToPNG
     img_png.data = Buffer.from(img_data);
-
     // img_png
+    asyncPNG(img_png);
+
+  }
+
+  function asyncPNG(img_png) {
     let wstream = fs.createWriteStream(filenamePNG);
     new Promise(resolve =>
       img_png.pack()
@@ -2027,17 +2035,10 @@ function saveHilbert(array) {
         openOutputs();
         quit();
       }));
-
-
+    }
+    function syncPNG(img_png, callback) {
 
     }
-
-function asyncPNG(img_png) {
-
-}
-function syncPNG(img_png, callback) {
-
-}
 
     function openOutputs() {
       status ="open outputs";
@@ -2053,6 +2054,7 @@ function syncPNG(img_png, callback) {
       updatesTimer = setTimeout(() => {
 
         if (openHtml) {
+          output("Opening: " + filenameHTML);
           output("Opening your RENDER SUMMARY HTML report. If process blocked either quit browser AND image viewer or [ CONTROL-C ]");
           opn(filenameHTML).then(() => {
             log("browser closed");
@@ -2119,24 +2121,24 @@ function syncPNG(img_png, callback) {
       // filenameHILBERT = filePath + "/" + justNameOfHILBERT;
 
       for (test = 0; test <= magnitude; test++) {
-          fakeReportInit(test);
-          patternsToPngAndMainArray(); // call with no array for test
-          fakeReportStop();
-          arrayToPNG();
-          var theCallback = function saveHTML2() {
-            log( pepTable.sort( compareHistocount ) );
-            fs.writeFileSync(filenameHTML, htmlTemplate(), function (err) {
-              if (err) { output(`Error saving HTML: ${err}`) }
-              output('Saved html report to: ' + filenameHTML);
-            });
-          }
-          // saveSync(theCallback);
-          saveHTML();
+        fakeReportInit(test);
+        patternsToPngAndMainArray(); // call with no array for test
+        fakeReportStop();
+        arrayToPNG();
+        var theCallback = function saveHTML2() {
+          log( pepTable.sort( compareHistocount ) );
+          fs.writeFileSync(filenameHTML, htmlTemplate(), function (err) {
+            if (err) { output(`Error saving HTML: ${err}`) }
+            output('Saved html report to: ' + filenameHTML);
+          });
+        }
+        // saveSync(theCallback);
+        saveHTML();
       }
 
       log(`done with generateTestPatterns()`);
 
-      // openOutputs();
+      openOutputs();
     }
     function fakeReportStop() {
       calcUpdate();
@@ -2149,9 +2151,10 @@ function syncPNG(img_png, callback) {
       // let filePath = path.resolve(__dirname); // OLD WAY not compatible with pkg
       let filePath = path.resolve(process.cwd()); //
       let regmarks = getRegmarks();
+      // FORMAT:  AminoSee_Calibration_reg.undefined_HILBERT_proline_reg.m7_c1_sci.png
       justNameOfDNA = `AminoSee_Calibration${ regmarks }`;
-      justNameOfPNG = `${justNameOfDNA}_linear_${ test }.png`;
-      justNameOfHILBERT = `${justNameOfDNA}_HILBERT_${ test }.png`;
+      justNameOfPNG = `${justNameOfDNA}_LINEAR_${ magnitude }.png`;
+      justNameOfHILBERT = `${justNameOfDNA}_HILBERT_${ magnitude }.png`;
 
       filenameHILBERT = filePath + "/calibration/" + justNameOfHILBERT;
       filenamePNG     = filePath + "/calibration/" + justNameOfPNG;
