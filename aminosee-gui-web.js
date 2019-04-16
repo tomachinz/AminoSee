@@ -1,14 +1,13 @@
 // "use strict";
 
-let reader, hilbertPoints, herbs, zoom, progress, status, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, textFile, dna, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, justNameOfFile, filename, filenamePNG, verbose, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, devmode, fileUploadShowing, colormapsize, testColors, selectedGenom, chunksMax, chunksize, chunksizeBytes, codonsPerPixel, basepairs, cpu, subdivisions, userFeedback, contextBitmap, pauseIntent, maxcolorpix, linewidth;
+let reader, hilbertPoints, herbs, zoom, progress, status, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, textFile, dna, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, justNameOfFile, filename, verbose, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, devmode, fileUploadShowing, maxcolorpix, nextColors, selectedGenom, chunksMax, chunksize, chunksizeBytes, codonsPerPixel, basepairs, cpu, subdivisions, userFeedback, contextBitmap, pauseIntent, linewidth, fileTones;
 pauseIntent = false;
-maxcolorpix = 262144 * 1  ; // for large genomes
-linewidth = 4;
+maxcolorpix = 262144; // for large genomes
+linewidth = 8;
 let autostopdelay = 300; // seconds
-colormapsize = maxcolorpix; // custom fit.
 let downloaderDisabled;
 let levels = 2; // default 2
-let vLevels = 2; // 1 gives just the row of three at bottom. 2 gives two rows for 6 boxes.
+let cubes = 0; // 1 gives just the row of three at bottom. 2 gives two rows for 6 boxes.
 verbose = false;
 filename = getParameterFromURL('selectedGenome');
 fileUploadShowing = false;
@@ -19,7 +18,9 @@ colorsReady = false;
 basepairs = 3;
 zoom = 2; //  defalt 2
 distance = 900; // default 900
-let offscreen_image = document.getElementById('offscreen_image');
+let stateObj = { foo: "bar" };
+
+let current_image = document.getElementById('current_image');
 
 if(window.addEventListener) {
   window.addEventListener('load',pageLoaded,false); //W3C
@@ -27,9 +28,14 @@ if(window.addEventListener) {
   window.attachEvent('onload',pageLoaded); //IE
 }
 function fileChanged(f) {
-  // filename = getParameterFromURL('selectedGenome');
-  filename = f;//document.getElementById('selectedGenome').value;
-  offscreen_image.src = filename;
+  filename = f;
+  let path = window.location.pathname;
+  let newURL = `${path}#?selectedGenome=${f}`;
+  history.pushState(stateObj, justNameOfFile, newURL);
+  document.getElementById('oi').innerHTML = `<img id="current_image" src="${f}" width="64px" height="64px">`;
+  setupFNames();
+  console.log(current_image);
+  loadImage();
 }
 function pageLoaded() {
   initVariables();
@@ -54,6 +60,12 @@ function initVariables() {
   // create a simple instance
   // by default, it only adds horizontal recognizers
   hammerIt(document.getElementById('canvas'));
+
+  // ******* COLOR ARRAYS
+  testTones = [];
+  spectrumLines = [];
+  spectrumCurves = [];
+  nextColors = [];
 
 
   colorArray = []; // an array of color maps
@@ -96,15 +108,14 @@ function initVariables() {
 }
 
 function addSpriteToScene() {
-  // var spriteMap = new THREE.TextureLoader().load( "output/Brown_Kiwi_013982187v1.fa_HILBERT_c123.6_sci.png" );
-  var spriteMap = new THREE.TextureLoader().load( "calibration/AminoSee_Calibration_reg_HILBERT_8.png" );
+  var spriteMap = new THREE.TextureLoader().load( "output/Caenorhabdihromosome-V.fa_linear_reg_c1.7_fix_sci.png" );
   var spriteMaterial = new THREE.SpriteMaterial( { map: spriteMap, color: 0xffffff } );
   var sprite = new THREE.Sprite( spriteMaterial );
   sprite.scale.set(400,400, -200.000);
   scene.add( sprite );
 }
 function addOffscreenImage() {
-  var img = document.getElementById('offscreen_image');
+  var img = document.getElementById('current_image');
   var ocanvas = document.createElement('canvas');
   ocanvas.width = img.width;
   ocanvas.height = img.height;
@@ -121,7 +132,7 @@ function addOffscreenImage() {
 function init2D() {
   // sceneCameraSetup();
   // addSpriteToScene();
-  addOffscreenImage();
+  // addOffscreenImage();
 }
 
 
@@ -143,9 +154,11 @@ function getParameterFromURL() {
     // if ( index != -1 ) {
     //   href = href.substring(0, index); //CHOP OFF THE &
     // }
+    // alert(href)
     return href;
   } else {
-    return `output/Brown_Kiwi_013982187v1.fa_HILBERT_c123.6_sci.png`;
+    // alert("output/Brown_Kiwi_013982187v1.fa_linear_leucine_c123.6_sci.png")
+    return `output/Brown_Kiwi_013982187v1.fa_linear_leucine_c123.6_sci.png`;
   }
 }
 function parseApache() {
@@ -238,11 +251,13 @@ function testParse() {
 
   function reset() {
     pauseIntent = false;
+    // colorsReady = false;
     stat('reset');
     // if (perspective) {
     camera.position.z = distance; // go about 1200 units away.
     // }
     // initVariables();
+    destroyScene();
     setScene();
     // animate();
 
@@ -283,6 +298,22 @@ function testParse() {
 
 
   function destroyScene() {
+    // THIS WILL WIPE THE GEOMS:
+    if ( cubes == 0 ) {
+      geometry2 = new THREE.BufferGeometry(); // bottom row with curves
+      geometry5 = new THREE.BufferGeometry(); // top row with straight lines
+    } else if ( cubes == 1 ) {
+      geometry1 = new THREE.BufferGeometry(); // bottom row with curves
+      geometry2 = new THREE.BufferGeometry(); // bottom row with curves
+      geometry3 = new THREE.BufferGeometry(); // bottom row with curves
+    } else if ( cubes == 2 ) {
+      geometry1 = new THREE.BufferGeometry(); // bottom row with curves
+      geometry2 = new THREE.BufferGeometry(); // bottom row with curves
+      geometry3 = new THREE.BufferGeometry(); // bottom row with curves
+      geometry4 = new THREE.BufferGeometry(); // top row with straight lines
+      geometry5 = new THREE.BufferGeometry(); // top row with straight lines
+      geometry6 = new THREE.BufferGeometry(); // top row with straight lines
+    }
     for (let i = scene.children.length - 1; i >= 0; i--) {
       const object = scene.children[i];
       if (object.type === 'Mesh') {
@@ -293,29 +324,29 @@ function testParse() {
       }
     }
     render();
-    // THIS WILL WIPE THE GEOMS:
-    geometry1 = new THREE.BufferGeometry(); // bottom row with curves
-    geometry2 = new THREE.BufferGeometry(); // bottom row with curves
-    geometry3 = new THREE.BufferGeometry(); // bottom row with curves
-    if (vLevels ==2) {
-      geometry4 = new THREE.BufferGeometry(); // top row with straight lines
-      geometry5 = new THREE.BufferGeometry(); // top row with straight lines
-      geometry6 = new THREE.BufferGeometry(); // 2D HAXORED
-    }
+
     scene = new THREE.Scene();
 
   }
   function setScene() {
 
-
-    geometry1 = new THREE.BufferGeometry(); // bottom row with curves
-    geometry2 = new THREE.BufferGeometry(); // bottom row with curves
-    geometry3 = new THREE.BufferGeometry(); // bottom row with curves
-    if (vLevels ==2) {
+    if ( cubes == 0 ) {
+      geometry2 = new THREE.BufferGeometry(); // bottom row with curves
+      geometry5 = new THREE.BufferGeometry(); // top row with straight lines
+    } else if ( cubes == 1 ) {
+      geometry1 = new THREE.BufferGeometry(); // bottom row with curves
+      geometry2 = new THREE.BufferGeometry(); // bottom row with curves
+      geometry3 = new THREE.BufferGeometry(); // bottom row with curves
+    } else if ( cubes == 2 ) {
+      geometry1 = new THREE.BufferGeometry(); // bottom row with curves
+      geometry2 = new THREE.BufferGeometry(); // bottom row with curves
+      geometry3 = new THREE.BufferGeometry(); // bottom row with curves
       geometry4 = new THREE.BufferGeometry(); // top row with straight lines
       geometry5 = new THREE.BufferGeometry(); // top row with straight lines
-      geometry6 = new THREE.BufferGeometry(); // 2D HAXORED
+      geometry6 = new THREE.BufferGeometry(); // top row with straight lines
     }
+
+
     buildColours();
     buildHilbert();
     // buildColours();
@@ -328,7 +359,7 @@ function testParse() {
     var scale = 0.45; //
     var d = 300; // distance is the inter object space
 
-    if (vLevels == 2) {
+    if (cubes == 2) {
       var parameters =  [
         [ material, scale * 1.5, [ - d, - d / 2, 0 ], geometry1 ],
         [ material, scale * 1.5, [   0, - d / 2, 0 ], geometry2 ],
@@ -338,18 +369,22 @@ function testParse() {
         [ material, scale * 1.5, [   0, d / 2, 0 ], geometry5 ],
         [ material, scale * 1.5, [   d, d / 2, 0 ], geometry6 ],
       ];
-    }    else {
+    } else if (cubes == 1) {
       var parameters =  [
         [ material, scale * 1.5, [ - d, - d / 2, 0 ], geometry1 ],
         [ material, scale * 1.5, [   0, - d / 2, 0 ], geometry2 ],
         [ material, scale * 1.5, [   d, - d / 2, 0 ], geometry3 ],
       ];
 
+    } else if (cubes == 0) {
+      var parameters =  [
+        [ material, scale * 1.5, [ 0, - d / 2, 0 ], geometry2 ],
+        [ material, scale * 1.5, [   0, d / 2, 0 ], geometry5 ],
+      ];
     }
 
 
     for ( var i = 0; i < parameters.length; i++ ) {
-
       p = parameters[ i ];
       line = new THREE.Line( p[ 3 ],  p[ 0 ] );
       line.scale.x = line.scale.y = line.scale.z =  p[ 1 ];
@@ -357,23 +392,11 @@ function testParse() {
       line.position.y = p[ 2 ][ 1 ];
       line.position.z = p[ 2 ][ 2 ];
       scene.add( line );
-
     }
   }
   function sceneCameraSetup() {
 
 
-    // ******* COLOR ARRAYS
-    testTones = [];
-    spectrumLines = [];
-    spectrumCurves = [];
-    // testColors = [];
-    // this sceneCameraSetup gets called during reset
-    // if (colorsReady != true) {
-    //   usersColors = [];
-    // } else {
-    //   stat("test")
-    // }
 
     cameraPerspective = new THREE.PerspectiveCamera( 33, window.innerWidth / window.innerHeight, 1, 10000 );
     cameraOrthographic = new THREE.OrthographicCamera( window.innerWidth / - zoom, window.innerWidth / zoom, window.innerHeight / zoom, window.innerHeight / - zoom, 1, 10000 );
@@ -395,8 +418,7 @@ function testParse() {
     herbs2D = hilbertPoints2D.length;
     subdivisions = maxcolorpix / herbs;
     // stat(subdivisions);
-    colormapsize = maxcolorpix;
-    stat('[subdivisions, colormapsize, maxcolorpix] ' , subdivisions, colormapsize, maxcolorpix);
+    stat('[subdivisions, maxcolorpix] ' , subdivisions, maxcolorpix);
 
     // 262144 polygons
     //  32768 polygons
@@ -413,87 +435,106 @@ function testParse() {
     spline = new THREE.CatmullRomCurve3( hilbertPoints );
     vertices = [];
     point = new THREE.Vector3();
-    stat(colormapsize);
     for ( var i = 0; i < herbs * subdivisions; i++ ) {
       var t = i / (herbs * subdivisions);
       spline.getPoint( t, point );
       vertices.push( point.x, point.y, point.z );
     }
-
-    // 2D VERSION FOR USE WITH GEO 6
-    let vertices2D = [];
-    for ( var i = 0; i < herbs2D; i++ ) {
-      point = hilbertPoints2D[ i ];
-      vertices2D.push( point.x, point.y, point.z );
+    //  STRAIGHT LINE VERSION
+    straightVertices = [];
+    for ( var i = 0; i < herbs; i++ ) {
+      point = hilbertPoints[ i ];
+      straightVertices.push( point.x, point.y, point.z );
     }
-
-    geometry1.addAttribute( 'position', new THREE.Float32BufferAttribute( vertices, 3 ) );
+    // 2D VERSION FOR USE WITH GEO 6
+    // let vertices2D = [];
+    // for ( var i = 0; i < herbs2D; i++ ) {
+    //   point = hilbertPoints2D[ i ];
+    //   vertices2D.push( point.x, point.y, point.z );
+    // }
     // geometry1.addAttribute( 'position', new THREE.Float32BufferAttribute( vertices2D, 3 ) ); // 2D
-    geometry2.addAttribute( 'position', new THREE.Float32BufferAttribute( vertices, 3 ) );
-    geometry3.addAttribute( 'position', new THREE.Float32BufferAttribute( vertices, 3 ) );
-    // geometry3.addAttribute( 'position', new THREE.Float32BufferAttribute( vertices2D, 3 ) );
+    // geometry3.addAttribute( 'position', new THREE.Float32BufferAttribute( vertices2D, 3 ) ); // 2D
+
+
 
     // colorsReady = false;
+    // if (colorsReady !== true) { // USER THE USERS COLORS
+    //   nextColors = testTones;
+    // }
+    // if (colorsReady == true) {// USER THE USERS COLORS
+    //   stat('colorsReady ' + colorsReady);
+    //   geometry1.addAttribute( 'color', new THREE.Float32BufferAttribute( nextColors, 3 ) );
+    //   geometry2.addAttribute( 'color', new THREE.Float32BufferAttribute( nextColors, 3 ) );
+    //   geometry3.addAttribute( 'color', new THREE.Float32BufferAttribute( nextColors, 3 ) );
+    // } else { // USER A TEST TONE
+    //   geometry1.addAttribute( 'color', new THREE.Float32BufferAttribute( spectrumCurves, 3 ) );
+    //   geometry2.addAttribute( 'color', new THREE.Float32BufferAttribute( nextColors, 3 ) );
+    //   geometry3.addAttribute( 'color', new THREE.Float32BufferAttribute( spectrumCurves, 3 ) );
+    // }
 
-    if (colorsReady == true) {// USER THE USERS COLORS
-      stat('colorsReady ' + colorsReady);
-      geometry1.addAttribute( 'color', new THREE.Float32BufferAttribute( testColors, 3 ) );
-      geometry2.addAttribute( 'color', new THREE.Float32BufferAttribute( testColors, 3 ) );
-      geometry3.addAttribute( 'color', new THREE.Float32BufferAttribute( testColors, 3 ) );
-    } else { // USER A TEST TONE
+
+    // 2D GUIDES:
+    // geometry4.addAttribute( 'position', new THREE.Float32BufferAttribute( vertices2D, 3 ) ); // 2D TEST
+    // geometry6.addAttribute( 'position', new THREE.Float32BufferAttribute( vertices2D, 3 ) ); // 2D TEST
+    if (colorsReady !== true) { // USER THE USERS COLORS
+      nextColors = spectrumLines;
+    } else {
+      // nextColors = testTones;
+    }
+
+    if ( cubes == 0 ) {
+      geometry2.addAttribute( 'position', new THREE.Float32BufferAttribute( vertices, 3 ) );
+      geometry5.addAttribute( 'position', new THREE.Float32BufferAttribute( straightVertices, 3 ) );
+
+      if (colorsReady !== true) { // USER THE USERS COLORS
+        nextColors = spectrumLines;
+        geometry2.addAttribute( 'color', new THREE.Float32BufferAttribute( spectrumCurves, 3 ) );
+        geometry5.addAttribute( 'color', new THREE.Float32BufferAttribute( spectrumLines, 3 ) );
+      } else {
+        geometry2.addAttribute( 'color', new THREE.Float32BufferAttribute( nextColors, 3 ) );
+        geometry5.addAttribute( 'color', new THREE.Float32BufferAttribute( spectrumLines, 3 ) );
+      }
+
+
+    } else if ( cubes == 1 ) {
+      geometry1.addAttribute( 'position', new THREE.Float32BufferAttribute( vertices, 3 ) );
+      geometry2.addAttribute( 'position', new THREE.Float32BufferAttribute( vertices, 3 ) );
+      geometry3.addAttribute( 'position', new THREE.Float32BufferAttribute( vertices, 3 ) );
+
+      geometry1.addAttribute( 'color', new THREE.Float32BufferAttribute( nextColors, 3 ) );
+      geometry2.addAttribute( 'color', new THREE.Float32BufferAttribute( nextColors, 3 ) );
+      geometry3.addAttribute( 'color', new THREE.Float32BufferAttribute( nextColors, 3 ) );
+
+      stat("Use cubes == 2 for 6 geometries");
+    } else if ( cubes == 2 ) {
+      geometry1.addAttribute( 'position', new THREE.Float32BufferAttribute( vertices, 3 ) );
+      geometry2.addAttribute( 'position', new THREE.Float32BufferAttribute( vertices, 3 ) );
+      geometry3.addAttribute( 'position', new THREE.Float32BufferAttribute( vertices, 3 ) );
+      geometry4.addAttribute( 'position', new THREE.Float32BufferAttribute( straightVertices, 3 ) );
+      geometry5.addAttribute( 'position', new THREE.Float32BufferAttribute( straightVertices, 3 ) );
+      geometry6.addAttribute( 'position', new THREE.Float32BufferAttribute( straightVertices, 3 ) );
+
       geometry1.addAttribute( 'color', new THREE.Float32BufferAttribute( spectrumCurves, 3 ) );
       geometry2.addAttribute( 'color', new THREE.Float32BufferAttribute( testTones, 3 ) );
       geometry3.addAttribute( 'color', new THREE.Float32BufferAttribute( spectrumCurves, 3 ) );
+      geometry4.addAttribute( 'color', new THREE.Float32BufferAttribute( spectrumLines, 3 ) );
+      geometry5.addAttribute( 'color', new THREE.Float32BufferAttribute( spectrumLines, 3 ) );
+      geometry6.addAttribute( 'color', new THREE.Float32BufferAttribute( spectrumLines, 3 ) );
     }
-
-    //  STRAIGHT LINE VERSION
-
-    if (vLevels == 2) {
-
-      vertices = [];
-      for ( var i = 0; i < herbs; i++ ) {
-        point = hilbertPoints[ i ];
-        vertices.push( point.x, point.y, point.z );
-      }
-
-
-      if (vLevels == 2) {
-        geometry4.addAttribute( 'position', new THREE.Float32BufferAttribute( vertices, 3 ) ); // 2D TEST
-        // geometry4.addAttribute( 'position', new THREE.Float32BufferAttribute( vertices2D, 3 ) ); // 2D TEST
-        geometry5.addAttribute( 'position', new THREE.Float32BufferAttribute( vertices, 3 ) );
-
-        geometry6.addAttribute( 'position', new THREE.Float32BufferAttribute( vertices, 3 ) ); // 2D TEST
-        // geometry6.addAttribute( 'position', new THREE.Float32BufferAttribute( vertices2D, 3 ) ); // 2D TEST
-
-        if (colorsReady) { // USER THE USERS COLORS
-          geometry4.addAttribute( 'color', new THREE.Float32BufferAttribute( testColors, 3 ) );
-          geometry6.addAttribute( 'color', new THREE.Float32BufferAttribute( testColors, 3 ) );
-        } else { // USER A TEST TONE
-          geometry4.addAttribute( 'color', new THREE.Float32BufferAttribute( spectrumLines, 3 ) );
-          geometry6.addAttribute( 'color', new THREE.Float32BufferAttribute( spectrumLines, 3 ) );
-        }
-        geometry5.addAttribute( 'color', new THREE.Float32BufferAttribute( spectrumLines, 3 ) );
-
-      }
-
-    } else {
-      stat("Use vLevels == 2 for 6 geometries");
-    }
-
   }
 
   function buildColours() {
-    stat("colour map pixels: "+ maxcolorpix + ' testTones.length: '+testTones.length);
-
+    // stat("colour map pixels: "+ maxcolorpix + ' testTones.length: '+ testTones.length);
     testTones = []; // wipe it
     spectrumCurves = [];
+    spectrumLines = [];
     // HIGH RES COLOUR BANDS
     for ( var i = 0; i < herbs*subdivisions ; i++ ) {
       // alternative black and white
       color.setHSL(i%8/8, i%4/4, i%2 );
       testTones.push( color.r, color.g, color.b );
       // slow high res colours
-      color.setHSL( i / colormapsize, 0.5, 0.5 );
+      color.setHSL( i / maxcolorpix, 0.5, 0.5 );
       spectrumCurves.push( color.r, color.g, color.b );
     }
 
@@ -542,21 +583,18 @@ function testParse() {
     return f.replace(/^.*[\\\/]/, '');
   }
   function setupFNames() {
-    filenamePNG = filename + "_" + codonsPerPixel + "_aminosee.png"; // for some reason this needs to be here. hopefully the open source community can come to rescue and fix this Kludge.  watch it break when you remove it.
     justNameOfFile = replaceFilepathFileName(filename);
   }
 
   function getStats() {
     var t = `
     <h6>${justNameOfFile}</h6>
-    <form action="../">
-    <select name="selectedGenome" onchange="fileChanged(this.options[this.selectedIndex].value)">
-    <option value="output/Brown_Kiwi_013982187v1.fa_HILBERT_c123.6_sci.png">Brown_Kiwi_013982187v1.fa</option>
-    <option value="calibration/AminoSee_Calibration_reg_HILBERT_8.png">AminoSee_Calibration</option>
-    <option value="output/Caenorhabdihromosome-V.fa_AMINOSEE-REPORT_reg_c1.7_fix_sci.html">Brown_Kiwi_013982187v1.fa</option>
-    <option value="Brown_Kiwi_013982187v1.fa">Brown_Kiwi_013982187v1.fa</option>
-    </select>
-    </form>
+
+    <div id="oi">
+    <img id="current_image" src="${filename}" width="64px" height="64px">
+    <img id="offscreen_image" src="${filename}" style="postion: fixed; transform: translateXY(+100%, -100%);">
+    </div>
+
     <pre>
     Polygons: ${herbs * subdivisions} `;
     if (perspective) {
@@ -573,7 +611,7 @@ function testParse() {
     }
     t+= `
     Pseudo Hilbert Curve fractal order: ${levels} points: ${herbs} spline segments per point: ${subdivisions}
-    Palette size: ${colormapsize} Line width ${linewidth} (requires Safari) ${userFeedback}`;
+    Palette size: ${maxcolorpix} Line width ${linewidth} (requires Safari) ${userFeedback}`;
     // <div id="stats" class="stats whitetext">
     // </div>
 
@@ -657,8 +695,12 @@ function testParse() {
   }
   function loadImage() {
     colorsReady = false;
-    testColors = [];
-    var img = document.getElementById('offscreen_image');
+    nextColors = [];
+    size = herbs*subdivisions;
+    // var img = document.getElementById('offscreen_image');
+    var img = document.createElement('img');
+    img.src = filename;
+
     var ocanvas = document.createElement('canvas');
     ocanvas.width = img.width;
     ocanvas.height = img.height;
@@ -667,50 +709,40 @@ function testParse() {
     var context = ocanvas.getContext('2d');
     var imgd = context.getImageData(0, 0, img.width, img.height);
     var pix = imgd.data;
-    stat(`mapping ${imgarea} image pixels to ${herbs*subdivisions} WebGL buffer geometeries` );
+    stat(`${img.width}x${img.height} mapping ${imgarea} image pixels to ${size} WebGL buffer geometeries` );
 
-    // for (var i = 0, n = pix.length; i < n; i += 4) {
-    for (var i = 0, n = 100; i < n; i += 4) {
-      console.log(pix[i+0],pix[i+1],pix[i+2],pix[i+3]   );
-    }
-
-    for ( var i = 0; i < herbs*subdivisions; i+= 4 ) {
-      color.setRGB( pix[i+0],pix[i+1],pix[i+2] );
-      testColors.push( color.r, color.g, color.b );
-
-      // testColors.push( pix[i+0],pix[i+1],pix[i+2],pix[i+3] );
+    // for (var i = 0, n = 50; i < n; i += 4) {
+    //   console.log(pix[i+0],pix[i+1],pix[i+2],pix[i+3]   );
+    // }
+    for ( var i = 0; i < size; i++ ) {
+      let p = i * 4; // RGBA
+      if (pix[p+2] == null) {
+        color.setRGB( 16,16,16 );
+      } else {
+        color.setRGB( pix[p+0],pix[p+1],pix[p+2] );
+      }
+      nextColors.push( color.r, color.g, color.b);
     }
     colorsReady = true;
-
     reset();
   }
   function testColour() {
     pauseIntent = false;
     colorsReady = false;
-    // paused = true;
-    // render();
-
-    stat("testColour to " + colormapsize);
-    // wipe them red:
-    testColors = [];
-
-    // HIGH RES COLOUR BANDS
-    // for ( var i = 0; i < colormapsize; i++ ) {
+    stat(`testColour to ${herbs*subdivisions}`);
+    nextColors = [];
     for ( var i = 0; i < herbs*subdivisions; i++ ) {
-      color.setHSL( i / herbs ,0.5, (i%4)/3 );
-      testColors.push( color.r, color.g, color.b );
+      // color.setHSL( i / herbs ,0.5, (i%4)/3 );
+      color.setHSL( i / herbs ,0.5, 0.5 );
+      nextColors.push( color.r, color.g, color.b );
     }
     colorsReady = true;
-    // paused = false;
-    // render();
     reset();
-    // sceneCameraSetup();
-    // setScene();
   }
   function applyColorsArray(buffer) {
     stat("[received colors] " + buffer.byteLength/4);
     cyclesPerUpdate = 0;
-    // const buffer = new ArrayBuffer(colormapsize*4);
+    // const buffer = new ArrayBuffer(maxcolorpix*4);
     const clampyColors = new Uint8ClampedArray(buffer);
 
     // buildColours();
@@ -749,10 +781,10 @@ function testParse() {
   // probably the 4k setting will be better.
   // UPDATE actully its' just passed in as "len" now
   function getPixX(i) {
-    var x = colormapsize % 1920;
+    var x = maxcolorpix % 1920;
   }
   function getPixY(i) {
-    var y = Math.round(( colormapsize / 1920 ) -0.5) ; // i use rounding to count the first "1" as 1920 / 1920, but not 1919/1920
+    var y = Math.round(( maxcolorpix / 1920 ) -0.5) ; // i use rounding to count the first "1" as 1920 / 1920, but not 1919/1920
     if (y<0) {
       alert("nek minute");
       y=0;

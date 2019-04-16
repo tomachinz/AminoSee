@@ -743,7 +743,7 @@ async function initStream(f) {
   colClock = 0; // which pixel are we painting?
   timeRemain = 0;
   output("STARTING RENDER");
-
+  clearScreen();
   if (updatesTimer) {
     clearTimeout(updatesTimer);
   }
@@ -1985,7 +1985,11 @@ function saveHilbert(array) {
     // img_png.data = Buffer.from(img_data);
     // img_png.pack().pipe(fs.createWriteStream(filenamePNG));
 
+    // async version  uses promise
+    // sync uses arrayToPNG
     img_png.data = Buffer.from(img_data);
+
+    // img_png
     let wstream = fs.createWriteStream(filenamePNG);
     new Promise(resolve =>
       img_png.pack()
@@ -1996,7 +2000,18 @@ function saveHilbert(array) {
         openOutputs();
         quit();
       }));
+
+
+
     }
+
+function asyncPNG(img_png) {
+
+}
+function syncPNG(img_png, callback) {
+
+}
+
     function openOutputs() {
       status ="open outputs";
 
@@ -2077,13 +2092,21 @@ function saveHilbert(array) {
       // filenameHILBERT = filePath + "/" + justNameOfHILBERT;
 
       for (test = 0; test <= magnitude; test++) {
-        fakeReportInit(test);
-        patternsToPngAndMainArray(); // call with no array for test
-        fakeReportStop();
-        arrayToPNG();
-        saveHTML();
-
+          fakeReportInit(test);
+          patternsToPngAndMainArray(); // call with no array for test
+          fakeReportStop();
+          arrayToPNG();
+          var theCallback = function saveHTML2() {
+            log( pepTable.sort( compareHistocount ) );
+            fs.writeFileSync(filenameHTML, htmlTemplate(), function (err) {
+              if (err) { output(`Error saving HTML: ${err}`) }
+              output('Saved html report to: ' + filenameHTML);
+            });
+          }
+          // saveSync(theCallback);
+          saveHTML();
       }
+
       log(`done with generateTestPatterns()`);
 
       // openOutputs();
@@ -2375,22 +2398,23 @@ function saveHilbert(array) {
         process.stdout.write("\033[<0>;<0>f"); // cursor to 0,0
         process.stdout.write(t); // CURSOR TO TOP LEFT????
       }
+      function cursorToTopLeft() {
+        if (clear) {
+          process.stdout.write('\x1B[0f'); // CURSOR TO TOP LEFT???? <-- best for macos
+        }
+      }
       function clearScreen() {
         if (clear) {
-          // process.stdout.write('\x1B[2J\x1B[0f'); // CURSOR TO TOP LEFT????
           // console.log('\033c');
+          console.log('\x1Bc');
+          process.stdout.write('\x1B[0f'); // CURSOR TO TOP LEFT???? <-- best for macos
           // process.stdout.write("\x1B[2J"); // CLEAR TERMINAL SCREEN????
-          // console.log('\x1Bc');
-          // process.stdout.write('\x1B[2J\x1B[0f');
-          process.stdout.write("\033[<0>;<0>H"); // pretty good
-          process.stdout.write("\033[<0>;<0>f"); // cursor to 0,0
-          process.stdout.write('\033c'); // <-- this is really the best one
+          // process.stdout.write("\033[<0>;<0>H"); // pretty good
+          // process.stdout.write("\033[<0>;<0>f"); // cursor to 0,0
+          process.stdout.write('\033c'); // <-- maybe best for linux? clears the screen
           // put cursor to L,C:  \033[<L>;<C>H
           // put cursor to L,C:  \033[<L>;<C>f
-        } else {
-          log("noclear");
         }
-        // printRadMessage(array);
       }
 
       function prettyDate() {
@@ -2482,7 +2506,7 @@ function saveHilbert(array) {
           `[ clean: ${ cleanString(rawDNA)} ] Output png: ${justNameOfPNG}] ${showFlags()}`];
 
 
-          clearScreen();
+          cursorToTopLeft();
           printRadMessage(array);
           if (status == "save") {
             log("saving");

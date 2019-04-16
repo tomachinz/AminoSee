@@ -38,13 +38,12 @@
 </head>
 
 <body id="webgl" class="black nocse">
-	<?php include '../includes/menu-only.php';?>
+	<?php include '../includes/menu.php';?>
 
 	<div id="bgCanvFixed">
 		<canvas id="canvas" width="512" height="512" style="width: 512px; height: 512px;"></canvas>
 	</div>
-	<!-- <img id="offscreen_image" src="/aminosee/calibration/AminoSee_Calibration_linear_8.png" class="hidden"> -->
-	<img id="offscreen_image" src="/images/nav/funk-logo-140px.png" class="hidden">
+
 
 	<div id="supercontainer">
 
@@ -68,6 +67,18 @@
 					<div class="hidable">
 						<h2 id="h2">DNA/RNA Chromosome Viewer</h2>
 						<p id="description" class="small hidable">A new way to view DNA that attributes a colour hue to each Amino acid codon triplet</p>
+
+						<form action="../">
+						<select name="selectedGenome" onchange="fileChanged(this.options[this.selectedIndex].value)">
+						<option value="output/Brown_Kiwi_013982187v1.fa_linear_leucine_c123.6_sci.png" selected>Brown Kiwi</option>
+						<option value="calibration/AminoSee_Calibration_reg_linear_8.png">AminoSee Calibration Large</option>
+						<option value="calibration/AminoSee_Calibration_reg_linear_2.png">AminoSee Calibration Small</option>
+						<option value="output/Caenorhabdihromosome-V.fa_linear_reg_c1.7_fix_sci.png">C.elegans</option>
+						<option value="public/seenoevilmonkeys.jpg">AminoSeeNoEvil Monkeys</option>
+						<option value="/images/nav/funk-logo-140px.png">Funk Logo 140px</option>
+						</select>
+						</form>
+
 						<p class="white small hidable">
 							<a href="/pdf/AminoSee_WhitePaper_09Jan2019.pdf" class="small hidable">WHITE PAPER PDF</a> |
 							<a href="/blog/news/aminosee-dna-visualisation" class="small hidable">2018 Press Release</a> |
@@ -83,6 +94,10 @@
 
 			<div id="status" class="headingStatus">
 				...loading...
+				<div id="oi">
+					<img id="current_image" src="output/Brown_Kiwi_013982187v1.fa_linear_leucine_c123.6_sci.png" width="64px" height="64px">
+					<img id="offscreen_image" src="output/Brown_Kiwi_013982187v1.fa_linear_leucine_c123.6_sci.png" class="hidden">
+				</div>
 			</div>
 			<div id="stats" class="stats whitetext">
 				<h6>loading</h6>
