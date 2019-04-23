@@ -64,18 +64,18 @@ aminosee_do_foreground 7 $1 $2 $3 $4 --peptide=Histidine
   echo "-------------------------------------------"
   echo "                                         =///"
 }
-
-parallel_peptides Brown_Kiwi_NW_013982187v1.fa $1 $2 $3
-parallel_peptides Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa $1 $2 $3
-parallel_peptides Human-GRCh38.p12_chr2.gbk $1 $2 $3
-parallel_peptides Human-GRCh38.p12_chr2.fa $1 $2 $3
-many_size_hilbert Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa $1 $2 $3
-many_size_hilbert Human-GRCh38.p12_chr2.gbk $1 $2 $3
-parallel_peptides Caenorhabditis_elegans.WBcel235.dna_sm.toplevel.fa $1 $2 $3
-parallel_peptides Chimp_Clint_chrY.gb $1 $2 $3
-parallel_peptides Octopus_Bimaculoides_v2_0_chrUn.fa $1 $2 $3
-parallel_peptides chrY Pan troglodytes C0471 Clint.gbk $1 $2 $3
-parallel_peptides homo-sapien-hs_ref_GRCh38.p12_chr2.fa $1 $2 $3
+# 
+# parallel_peptides Brown_Kiwi_NW_013982187v1.fa $1 $2 $3
+# parallel_peptides Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa $1 $2 $3
+# parallel_peptides Human-GRCh38.p12_chr2.gbk $1 $2 $3
+# parallel_peptides Human-GRCh38.p12_chr2.fa $1 $2 $3
+# many_size_hilbert Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa $1 $2 $3
+# many_size_hilbert Human-GRCh38.p12_chr2.gbk $1 $2 $3
+# parallel_peptides Caenorhabditis_elegans.WBcel235.dna_sm.toplevel.fa $1 $2 $3
+# parallel_peptides Chimp_Clint_chrY.gb $1 $2 $3
+# parallel_peptides Octopus_Bimaculoides_v2_0_chrUn.fa $1 $2 $3
+# parallel_peptides chrY Pan troglodytes C0471 Clint.gbk $1 $2 $3
+# parallel_peptides homo-sapien-hs_ref_GRCh38.p12_chr2.fa $1 $2 $3
 
 sleep 1
 

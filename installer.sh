@@ -8,3 +8,10 @@ npm link
 sudo npm link aminosee
 aminosee demo
 echo "If you don't see a demo try: npm run demo"
+
+
+# for the electron app part, try this:
+npm run gui
+
+# and also - to build the elecron app
+npm run build
