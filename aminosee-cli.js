@@ -241,7 +241,7 @@ module.exports = () => {
     string: [ 'ratio'],
     string: [ 'width'],
     alias: { a: 'artistic', c: 'codons', d: 'devmode', f: 'force', m: 'magnitude', p: 'peptide', i: 'image', t: 'triplet', r: 'ratio', s: 'spew', w: 'width', v: 'verbose' },
-    default: { updates: true, html: true },
+    default: { updates: true },
     '--': true
   });
 
