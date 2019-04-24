@@ -32,12 +32,15 @@ aminosee_test () {
   echo "-------------------------------------------"
   echo "                                         =///"
 
-nice ./batch-peptides.sh megabase.fa -f &
+nice ./batch-triplets.sh --no-updates  *
+nice ./batch-sizes.sh --no-updates  *
+nice ./batch-peptides.sh  --no-updates  *
 
-nice aminosee megabase.fa megabase.fa Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa --no-updates $1 $2 $3
-nice aminosee Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa megabase.fa --no-updates $1 $2 $3
-nice aminosee Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa megabase.fa megabase.fa  -f --no-updates -d --peptide=Amber $1 $2 $3
-nice aminosee Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa megabase.fa megabase.fa  -f --no-updates -d --peptide=Ochre $1 $2 $3
+
+# nice aminosee * --no-updates $1 $2 $3
+# nice aminosee * --no-updates $1 $2 $3
+# nice aminosee * -f --no-updates -d --peptide=Amber $1 $2 $3
+# nice aminosee * -f --no-updates -d --peptide=Ochre $1 $2 $3
 #
 # aminosee megabase.fa AAA-to-TTT-50k.txt megabase.fa AAA-to-TTT-50k.txt megabase.fa AAA-to-TTT-50k.txt megabase.fa -f --peptide=Proline --no-updates -v
 # aminosee megabase.fa AAA-to-TTT-50k.txt megabase.fa AAA-to-TTT-50k.txt megabase.fa AAA-to-TTT-50k.txt megabase.fa 37653_ref_Octopus_bimaculoides_v2_0_chrUn.fa -f --peptide=Proline -k -v

@@ -156,7 +156,7 @@ function setupKeyboardUI() {
       toggleClearScreen();
     }
     // if (key && key.name == 't') {
-    //   saveHilbert();
+    //   linearpixbert();
     // }
     if (key && key.name == 'Space' || key.name == 'Enter') {
       msPerUpdate = 200;
@@ -1163,7 +1163,9 @@ function saveDocuments(callback) {
 
  // status = "saving html report";
  if (report == true ) { // report when highlight set
-   out("Saving HTML")
+   out("Saving HTML");
+   shrinkFactor = rgbArray.length / hilbPixels[magnitude];//  array.length / 4;
+
    saveHTML();
  } else {
    out(`No HTML report output. Due to peptide filters: ${peptide} ${triplet}`);
@@ -1899,8 +1901,7 @@ function saveHilbert(array) {
   maxpix = hilbPixels[dimension];
   let hilpix = maxpix;
   hilbertImage = [hilpix*4];
-  // let linearpix = rgbArray.length / 4;
-  shrinkFactor = linearpix / hilpix;
+  shrinkFactor = linearpix / hilpix;//  array.length / 4;
   output(`Linear input image size ${linearpix.toLocaleString()} will be down saple by factor ${shrinkFactor} to achieve a dimension ${dimension} hilbert curve yielding ${maxpix.toLocaleString()} pixels`);
   log(`shrinkFactor pre ${shrinkFactor} = linearpix ${linearpix } /  hilpix ${hilpix}  `);
   magnitude = dimension;
