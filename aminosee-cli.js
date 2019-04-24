@@ -343,10 +343,13 @@ module.exports = () => {
     triplet = args.triplet || args.t;
     triplet = triplet.toUpperCase();
     isHighlightSet = true;
+
+    peptide = tripletToCodon( triplet );
+
     let tempColor = codonToRGBA(triplet);
     let tempHue = tripletToHue(triplet);
     if (tempColor != [13, 255, 13, 255]){ // this colour is a flag for error
-      output(`Found ${triplet} with colour: ${tempHue}`);
+      output(`Found triplet ${triplet} with colour: ${tempHue}`);
     } else {
       output(`Error could not lookup triplet: ${triplet}`);
       triplet = "none";
@@ -359,7 +362,6 @@ module.exports = () => {
   }
   if (args.peptide || args.p) {
     users = args.peptide || args.p;
-
     peptide = tidyPeptideName(users);
     output(` users peptide: ${users}  peptide: ${peptide}`);
     if (peptide != "none") { // this colour is a flag for error
@@ -2615,6 +2617,7 @@ function arrayToPNG(callBack) {
 
         function isTriplet(array) {
           return array.DNA == currentTriplet;
+          // return dnaTriplets.find(isTriplet).Hue;
         }
         function isHighlightTriplet(array) {
           return array.DNA == triplet;
@@ -2667,6 +2670,10 @@ function arrayToPNG(callBack) {
             return "none";
           }
         }
+        function tripletToCodon(str) {
+          currentTriplet = str;
+          return dnaTriplets.find(isTriplet).DNA;
+        }
         function tripletToHue(str) {
           console.warn(str);
           currentTriplet = str;
@@ -2697,8 +2704,8 @@ function arrayToPNG(callBack) {
           // log(cod);
           aminoacid = "ERROR";
 
-          let theMatch = dnaTriplets.find(isTriplet)
-
+          let theMatch = dnaTriplets.find(isTriplet).DNA
+          // out(theMatch);
           for (z=0; z<dnaTriplets.length; z++) {
             if (cod == dnaTriplets[z].DNA) { // SUCCESSFUL MATCH (convert to map)
               aminoacid = dnaTriplets[z].Codon;
@@ -2728,6 +2735,7 @@ function arrayToPNG(callBack) {
               blue  = tempcolor[2];
 
               if (isHighlightSet) {
+
                 if (aminoacid == peptide ) {
                   alpha = 255;
                   // log(`isHighlightSet    ${isHighlightSet}   aminoacid ${aminoacid}  peptide ${peptide}`)
