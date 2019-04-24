@@ -6,7 +6,7 @@
 //       ╩ ╩┴ ┴┴┘└┘└─┘╚═╝└─┘└─┘  ═╩╝╝╚╝╩ ╩   ╚╝ ┴└─┘└┴┘└─┘┴└─
 //       by Tom Atkinson            aminosee.funk.nz
 //        ah-mee no-see       "I See It Now - I AminoSee it!"
-let raceDelay = 999; // 666;
+let raceDelay = 1666; // 666;
 let raceTimer = false;
 let linearMagnitudeMax = 10; // magnitude is the size of upper limit for linear render to come *under*
 let dimension; // var that the hilbert projection is be downsampled to
@@ -36,6 +36,7 @@ const minimist = require('minimist')
 const highland = require('highland')
 const fetch = require("node-fetch");
 const path = require('path');
+const keypress = require('keypress');
 const opn = require('opn'); //path-to-executable/xdg-open
 // const opn = require('./node_modules/opn');
 // const opn = require('./libs/opn');
@@ -46,7 +47,9 @@ const histogram = require('ascii-histogram');
 let bytes = require('bytes');
 let Jimp = require('jimp');
 let PNG = require('pngjs').PNG;
-// let ProgressBar = require('ascii-progress');
+const ProgressBar = require('progress');
+// const opn = require('./node_modules/opn');
+
 const chalk = require('chalk');
 const clog = console.log;
 var os = require("os");
@@ -104,7 +107,7 @@ let loopCounter;
 // }
 
 
-var keypress = require('keypress');
+// var keypress = require('keypress');
 function setupKeyboardUI() {
   interactiveKeysGuide += `
   Interactive control:    D            (devmode)  Q   (graceful quit next save)
@@ -776,19 +779,18 @@ async function initStream(f) {
   pixelStacking = 0; // how we fit more than one codon on each pixel
   colClock = 0; // which pixel are we painting?
   timeRemain = 0;
+  if (updates) {
+    clearScreen(); // always clear if doing updates
+  }
+
   output("STARTING RENDER");
-  clearCheck();
-  // cursorToTopLeft();
+
   if (updatesTimer) {
     clearTimeout(updatesTimer);
   }
 
 
-  if (updates == true) {
-    drawHistogram();
-  } else {
-    // progato = whack_a_progress_on();
-  }
+
 
   var s = fs.createReadStream(filename).pipe(es.split()).pipe(es.mapSync(function(line){
     status = "stream";
@@ -827,7 +829,12 @@ async function initStream(f) {
   }));
 
 
-
+  if (updates == true) {
+    cursorToTopLeft();
+    drawHistogram();
+  } else {
+    progato = whack_a_progress_on();
+  }
 
   log("FINISHED INIT");
 }
@@ -2472,24 +2479,25 @@ function arrayToPNG(callBack) {
       }
       function cursorToTopLeft() {
           process.stdout.write('\x1B[0f'); // CURSOR TO TOP LEFT???? <-- best for macos
+          process.stdout.write("\033[<0>;<0>f"); // cursor to 0,0
+          process.stdout.write('\x1B[0f'); // CURSOR TO TOP LEFT???? <-- best for macos
+          process.stdout.write("\033[<0>;<0>H"); // pretty good
         clearCheck();
-      }
-      function clearScreen() {
-        // console.log('\033c');
-        console.log('\x1Bc');
-        process.stdout.write('\x1B[0f'); // CURSOR TO TOP LEFT???? <-- best for macos
-        process.stdout.write("\x1B[2J"); // CLEAR TERMINAL SCREEN????
-        process.stdout.write("\033[<0>;<0>H"); // pretty good
-        process.stdout.write("\033[<0>;<0>f"); // cursor to 0,0
-        process.stdout.write('\033c'); // <-- maybe best for linux? clears the screen
-        // put cursor to L,C:  \033[<L>;<C>H
-        // put cursor to L,C:  \033[<L>;<C>f
       }
       function clearCheck() {
         if (clear) {
           clearScreen();
         }
       }
+      function clearScreen() {
+        // console.log('\033c');
+        console.log('\x1Bc');
+        process.stdout.write("\x1B[2J"); // CLEAR TERMINAL SCREEN????
+        process.stdout.write('\033c'); // <-- maybe best for linux? clears the screen
+        // put cursor to L,C:  \033[<L>;<C>H
+        // put cursor to L,C:  \033[<L>;<C>f
+      }
+
 
       function prettyDate() {
         var options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
@@ -2526,20 +2534,25 @@ function arrayToPNG(callBack) {
         return [ item.Codon, item.Histocount];
       }
       function whack_a_progress_on() {
-        var bar = new ProgressBar({
-          schema: ':bar',
-          total : 1000
-        });
-
-        var iv = setInterval(function () {
+        setTimeout(() => {
           calcUpdate();
-          bar.update(percentComplete*1000);           // bar.tick();
+          out(twosigbitsTolocale(percentComplete*100) + '%' );
+            // var bar = new ProgressBar({
+            //   schema: ':bar',
+            //   total : 5000
+            // });
+            //
+            // var iv = setInterval(function () {
+            //   calcUpdate();
+            //   bar.update(percentComplete*1000);           // bar.tick();
+            //
+            //   if (bar.completed) {
+            //     clearInterval(iv);
+            //   }
+            // }, 200);
+            // return bar;
 
-          if (bar.completed) {
-            clearInterval(iv);
-          }
-        }, 200);
-        return bar;
+        }, 1000);
       }
       function twosigbitsTolocale(num){
         return (Math.round(num*100)/100).toLocaleString();
@@ -2580,7 +2593,7 @@ function arrayToPNG(callBack) {
           `[ clean: ${ cleanString(rawDNA)} ] Output png: ${justNameOfPNG}] ${showFlags()}`];
 
           clearCheck();
-          // cursorToTopLeft();
+          cursorToTopLeft();
           printRadMessage(array);
           if (status == "save") {
             log("saving");
