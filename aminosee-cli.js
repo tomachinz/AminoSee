@@ -31,6 +31,7 @@ const maxMsPerUpdate = 12000; // milliseconds per update
 let msPerUpdate = 200; // min milliseconds per update
 const hilbPixels = [ 64, 256, 1024, 4096, 16384, 65536, 262144, 1048576, 4194304, 16777216, 67108864 ]; // 67 Megapixel hilbert curve!! the last two are breaking nodes heap and call stack both.
 const widthMax = 960;
+const MyManHilbert = require('hilbert-2d');
 let es = require('event-stream');
 const minimist = require('minimist')
 const highland = require('highland')
@@ -1243,13 +1244,13 @@ function removeLocks() {
     fs.unlinkSync(filenameTouch, (err) => {
       if (err) { console.warn(err) }
       console.log("OK")
-      pollForStream();
     });
 
   } catch (err) {
-    // console.warn("removeLocks err: " + err);
-    pollForStream();
+    console.warn("removeLocks err: " + err);
   }
+  isDiskFinHTML = true;
+  pollForStream();
 }
 function getFilesizeInBytes(f) {
   try {
@@ -1862,10 +1863,10 @@ function makeWide(txt) {
   }
   return txt
 }
-function hilDecode(i, dimension, h) {
+function hilDecode(i, dimension) {
   // output(`i, dimension  ${i} ${dimension}`)
   let x, y;
-  [x, y] = h.decode(16,i); // <-- THIS IS WHERE THE MAGIC HILBERT HAPPENS
+  [x, y] = MyManHilbert.decode(16,i); // <-- THIS IS WHERE THE MAGIC HILBERT HAPPENS
   // ROTATE IMAGE CLOCKWISE 90 DEGREES IF DIMENSION IS EVEN NUMBER FRAMES
   if ( dimension % 2 == 0 ) { // if even number
     let newY = x;
@@ -1876,7 +1877,6 @@ function hilDecode(i, dimension, h) {
 }
 // resample the large 760px wide linear image into a smaller square hilbert curve
 function saveHilbert(array) {
-  const h = require('hilbert-2d');
   status = "getting in touch with my man... hilbert";
   let perc = 0;
   let height, width;
@@ -1916,7 +1916,7 @@ function saveHilbert(array) {
   for (i = 0; i < hilpix; i++) {
     dot(i, 20000);
     let hilbX, hilbY;
-    [hilbX, hilbY] = hilDecode(i, dimension, h);
+    [hilbX, hilbY] = hilDecode(i, dimension, MyManHilbert);
     let cursorLinear  = 4 * i ;
     let hilbertLinear = 4 * ((hilbX % width) + (hilbY * width));
     let perc = i / hilpix;
