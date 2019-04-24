@@ -6,11 +6,11 @@
 //       ╩ ╩┴ ┴┴┘└┘└─┘╚═╝└─┘└─┘  ═╩╝╝╚╝╩ ╩   ╚╝ ┴└─┘└┴┘└─┘┴└─
 //       by Tom Atkinson            aminosee.funk.nz
 //        ah-mee no-see       "I See It Now - I AminoSee it!"
-let raceDelay = 5; // 666;
+let raceDelay = 999; // 666;
 let raceTimer = false;
 let linearMagnitudeMax = 10; // magnitude is the size of upper limit for linear render to come *under*
-let dimension = 7; // dimension is the -1 size the hilbert projection is be downsampled to
-const maxMagnitude = 8; // max for auto setting
+let dimension; // var that the hilbert projection is be downsampled to
+const maxMagnitude = 7; // max for auto setting
 const theActualMaxMagnitude = 12; // max for auto setting
 let darkenFactor = 0.25; // if user has chosen to highlight an amino acid others are darkened
 let highlightFactor = 4.0; // highten brightening.
@@ -402,7 +402,7 @@ module.exports = () => {
     verbose = true;
   }
   if (args.html) {
-    log("will open html")
+    output("will open html")
     openHtml = true;
   } else {
     output("not opening html");
@@ -2468,8 +2468,7 @@ function arrayToPNG(callBack) {
         colClock++;
       }
       function out(t) {
-        process.stdout.write("\033[<0>;<0>f"); // cursor to 0,0
-        process.stdout.write(t); // CURSOR TO TOP LEFT????
+        process.stdout.write(` [ ${t} ] `); // CURSOR TO TOP LEFT????
       }
       function cursorToTopLeft() {
           process.stdout.write('\x1B[0f'); // CURSOR TO TOP LEFT???? <-- best for macos
