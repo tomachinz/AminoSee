@@ -8,7 +8,7 @@
 //        ah-mee no-see       "I See It Now - I AminoSee it!"
 const extensions = [ "txt", "fa", "mfa", "gbk", "dna", "fasta", "fna", "fsa", "mpfa", "gb"];
 const targetPixels = 8000000; // for big genomes use setting flag -c 1 to achieve highest resolution and bypass this taret max render size
-const raceDelay = 666;
+const raceDelay = 66;
 const defaultC = 1; // back when it could not handle 3+GB files.
 const artisticHighlightLength = 18; // px only use in artistic mode. must be 6 or 12 currently
 const maxMagnitude = 7; // max for auto setting
@@ -25,13 +25,13 @@ let artistic = false; // for Charlie
 let spew = false; // firehose your screen with DNA
 let report = true; // html reports
 let test = false;
-const overSampleFactor = 1.0;
+const overSampleFactor = 4.0;
 let updates = false;
 const maxMsPerUpdate = 12000; // milliseconds per update
 let msPerUpdate = 200; // min milliseconds per update
 const hilbPixels = [ 64, 256, 1024, 4096, 16384, 65536, 262144, 1048576, 4194304, 16777216, 67108864 ]; // 67 Megapixel hilbert curve!! the last two are breaking nodes heap and call stack both.
 const widthMax = 960;
-const MyManHilbert = require('hilbert-2d');
+let MyManHilbert = require('hilbert-2d');
 let es = require('event-stream');
 const minimist = require('minimist')
 const highland = require('highland')
@@ -66,7 +66,7 @@ let status = "load";
 console.log("Amino\x1b[4z0mSee\x1b[37mNoEvil");
 let interactiveKeysGuide = "";
 let renderLock = false;
-let hilbertImage, keyboard, filenameTouch, maxpix, estimatedPixels, args, filenamePNG, extension, reader, hilbertPoints, herbs, levels, progress, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, textFile, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, fileUploadShowing, testColors, chunksMax, chunksize, chunksizeBytes, baseChars, cpu, subdivisions, contextBitmap, aminoacid, colClock, start, updateClock, percentComplete, kBytesPerSec, pixelStacking, isHighlightCodon, justNameOfDNA, justNameOfPNG, justNameOfHILBERT, sliceDNA, filenameHTML, howMany, timeRemain, runningDuration, kbRemain, width, triplet, updatesTimer, pngImageFlags, codonsPerPixel, CRASH, cyclesPerUpdate, red, green, blue, alpha, charClock, errorClock, breakClock, streamLineNr, genomeSize, filesDone, spewClock, opacity, codonRGBA, geneRGBA, currentTriplet, progato, shrinkFactor, reg, image, loopCounter, clear;
+let hilbertImage, keyboard, filenameTouch, maxpix, estimatedPixels, args, filenamePNG, extension, reader, hilbertPoints, herbs, levels, progress, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, textFile, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, fileUploadShowing, testColors, chunksMax, chunksize, chunksizeBytes, baseChars, cpu, subdivisions, contextBitmap, aminoacid, colClock, start, updateClock, percentComplete, kBytesPerSec, pixelStacking, isHighlightCodon, justNameOfDNA, justNameOfPNG, justNameOfHILBERT, sliceDNA, filenameHTML, howMany, timeElapsed, runningDuration, kbRemain, width, triplet, updatesTimer, pngImageFlags, codonsPerPixel, codonsPerPixelHILBERT, CRASH, cyclesPerUpdate, red, green, blue, alpha, charClock, errorClock, breakClock, streamLineNr, genomeSize, filesDone, spewClock, opacity, codonRGBA, geneRGBA, currentTriplet, progato, shrinkFactor, reg, image, loopCounter, clear;
 process.title = "aminosee.funk.nz";
 // const public = path.join(__dirname, './public'); // include the webserver files in exe
 // const xdg = path.join(__dirname, './xdg-open'); // include the webserver files in exe
@@ -240,7 +240,7 @@ module.exports = () => {
     string: [ 'ratio'],
     string: [ 'width'],
     alias: { a: 'artistic', c: 'codons', d: 'devmode', f: 'force', m: 'magnitude', p: 'peptide', i: 'image', t: 'triplet', r: 'ratio', s: 'spew', w: 'width', v: 'verbose' },
-    default: { updates: true },
+    default: { updates: true, clear: true },
     '--': true
   });
 
@@ -724,7 +724,7 @@ async function initStream(f) {
   log(status.toUpperCase());
   start = new Date().getTime();
 
-  timeRemain, runningDuration, charClock, percentComplete, genomeSize, colClock, opacity = 0;
+  timeElapsed, runningDuration, charClock, percentComplete, genomeSize, colClock, opacity = 0;
   msPerUpdate = 200;
   codonRGBA, geneRGBA, mixRGBA = [0,0,0,0]; // codonRGBA is colour of last codon, geneRGBA is temporary pixel colour before painting.
   codonsPerPixel = defaultC; //  one codon per pixel maximum
@@ -777,7 +777,7 @@ async function initStream(f) {
   genomeSize = 0; // number of codons.
   pixelStacking = 0; // how we fit more than one codon on each pixel
   colClock = 0; // which pixel are we painting?
-  timeRemain = 0;
+  timeElapsed = 0;
   if (updates) {
     clearScreen(); // always clear if doing updates
   }
@@ -838,7 +838,7 @@ async function initStream(f) {
   log("FINISHED INIT");
 }
 function showFlags() {
-  return `${(  force ? "F" : "-"    )}${(  args.updates || args.u ? `U` : "-"    )}${(  userCPP != -1 ? `C${userCPP}` : "--"    )}${(  args.keyboard || args.k ? `K` : "-"    )}${(  args.spew || spew ? `K` : "-"    )}${( verbose ? "V" : "-"  )}${(  artistic ? "A" : "-"    )}${(  args.ratio || args.r ? `${ratio}` : "---"    )}M${magnitude}C${codonsPerPixel}`;
+  return `${(  force ? "F" : "-"    )}${(  args.updates || args.u ? `U` : "-"    )}${(  userCPP != -1 ? `C${userCPP}` : "--"    )}${(  args.keyboard || args.k ? `K` : "-"    )}${(  args.spew || spew ? `K` : "-"    )}${( verbose ? "V" : "-"  )}${(  artistic ? "A" : "-"    )}${(  args.ratio || args.r ? `${ratio}` : "---"    )}M${magnitude}C${codonsPerPixel}H${codonsPerPixelHILBERT}`;
   // chalk.rgb(255, 255, 255).inverse(justNameOfDNA.toUpperCase())
 }
 function testSummary() {
@@ -978,18 +978,16 @@ function removeFileExtension(f) {
 }
 function highlightFilename() {
   let ret = "";
-  out(`triplet ${triplet}  peptitde ${peptide}`)
-
-  if ( triplet == "none" && peptide == "none" || triplet == undefined || isHighlightSet == false) {
-    return ret;
+  if ( isHighlightSet == false) {
+    ret += `-reference`;
   } else if ( triplet != "none" ) {
-    ret += `_${spaceTo_(triplet).toLowerCase()}`
-  }
-  if (peptide != "none") {
+    ret += `_${spaceTo_(triplet).toLowerCase()}`;
+    if (peptide != "none") {
+      ret += `_${spaceTo_(peptide).toLowerCase()}`;
+    }
+  } else if (peptide != "none") {
     ret += `_${spaceTo_(peptide).toLowerCase()}`;
   }
-  log(`triplet ${triplet}  peptitde ${peptide} highlightFilename returns ${ret}`)
-
   return ret;
 }
 function getFileExtension() {
@@ -1019,16 +1017,16 @@ function setupFNames() {
   // } else {
   //   log(`no magnitude setting: ${magnitude}`)
   // }
-  justNameOfPNG =     `${justNameOfDNA}.${extension}_linear${highlightFilename()}${ext}.png`;
-  justNameOfHILBERT =     `${justNameOfDNA}.${extension}_HILBERT${highlightFilename()}_m${magnitude}${ext}.png`;
+  justNameOfPNG =     `${justNameOfDNA}.${extension}_linear${highlightFilename()}_c${codonsPerPixel}${ext}.png`;
+  justNameOfHILBERT =     `${justNameOfDNA}.${extension}_HILBERT${highlightFilename()}_m${dimension}_c${codonsPerPixelHILBERT}${ext}.png`;
   justNameOfHTML =     `${justNameOfDNA}.${extension}_AMINOSEE-REPORT${ext}.html`;
 
-  filenameTouch =   `${filePath}/${justNameOfDNA}.${extension}_LOCK${highlightFilename()}${ext}.aminosee.touch`;
+  filenameTouch =   `${filePath}/${justNameOfDNA}.${extension}_LOCK${highlightFilename()}_c${codonsPerPixel}${ext}.aminosee.touch`;
   filenamePNG =     filePath + "/" + justNameOfPNG;
   filenameHTML =    filePath + "/" + justNameOfHTML;
   filenameHILBERT = filePath + "/" + justNameOfHILBERT;
 
-  out(`ext: ${highlightFilename() + ext} pep ${peptide} status ${status} filePath ${filePath} isHighlightSet ${isHighlightSet}`);
+  log(`ext: ${highlightFilename() + ext} pep ${peptide} status ${status} filePath ${filePath} isHighlightSet ${isHighlightSet}`);
 }
 
 function launchNonBlockingServer() {
@@ -1147,18 +1145,22 @@ function welcomeMessage() {
 // function
 function saveDocuments(callback) {
   status = "save"; // <-- this is the true end point of the program!
-  percentComplete = 1;
   clearTimeout(updatesTimer);
   calcUpdate();
+  percentComplete = 1;
   output(`Saving documents... ` + chalk.rgb(255, 255, 255).inverse(`Input DNA: ${justNameOfDNA}.${extension} Linear PNG: ${justNameOfPNG} Hilbert PNG: ${justNameOfHILBERT} HTML ${justNameOfHTML} Lock: ${filenameTouch}`));
+
+
   arrayToPNG(function () {
     if (isHilbertPossible) {
-     log("projecting linear array to 2D hilbert curve")
+     log("projecting linear array to 2D hilbert curve");
+     calculateShrinkage();
      saveHilbert(rgbArray);
    } else {
      output("Cant output hilbert image when using artistic mode");
    }
   });
+  calculateShrinkage();
 
 
  // status = "saving html report";
@@ -1593,13 +1595,11 @@ function processLine(l) {
 } // end processLine
 
 function aminoFilenameIndex(index) {
-  if (isHighlightSet) {
-
-  } else {
-
-  }
+  let temp = peptide; // store it after unsafe usage in this function
   peptide = pepTable[index].Codon.toLowerCase(); // bad use of globals but highlightFilename use this global
-  return `${justNameOfDNA}.${extension}_HILBERT${highlightFilename() + getFileExtension()}.png`;
+  let ret = `${justNameOfDNA}.${extension}_HILBERT${highlightFilename()}_c${codonsPerPixelHILBERT}${getFileExtension()}.png`;
+  peptide = temp;
+  return ret;
 }
 
 function imageStack() {
@@ -1720,7 +1720,7 @@ for (i=0; i<pepTable.length; i++) {
   let theHue = thePep.Hue;
   let c =      hsvToRgb( theHue / 360, 0.5, 1.0 );
   let lightC = hsvToRgb( theHue / 360, 0.95, 0.75 );
-  log(thePep, theHue, c);
+  // log(thePep, theHue, c);
   html += `
   <tr style="background-color: hsl( ${theHue} , 50%, 100%);">
   <td style="background-color: white;"> ${pepTable[i].Codon} </td>
@@ -1877,13 +1877,9 @@ function hilDecode(i, dimension) {
   }
   return [ x, y ];
 }
-// resample the large 760px wide linear image into a smaller square hilbert curve
-function saveHilbert(array) {
-  status = "getting in touch with my man... hilbert";
-  let perc = 0;
-  let height, width;
-  let linearpix = array.length / 4;
-  let computerWants = pixToMagnitude(linearpix);
+function calculateShrinkage() {
+  let linearpix = rgbArray.length / 4;
+  let computerWants = pixToMagnitude(linearpix)-1;
   output(`Ideal magnitude: ${computerWants}`);
 
   if ( computerWants > maxMagnitude ) {
@@ -1898,21 +1894,26 @@ function saveHilbert(array) {
     dimension = 0; // its an array index
   }
   dimension = computerWants;
-  maxpix = hilbPixels[dimension];
-  let hilpix = maxpix;
+  let hilpix = hilbPixels[dimension];;
   hilbertImage = [hilpix*4];
   shrinkFactor = linearpix / hilpix;//  array.length / 4;
-  output(`Linear input image size ${linearpix.toLocaleString()} will be down saple by factor ${shrinkFactor} to achieve a dimension ${dimension} hilbert curve yielding ${maxpix.toLocaleString()} pixels`);
+  output(`Linear input image size ${linearpix.toLocaleString()} will be down saple by factor ${shrinkFactor} to achieve a dimension ${dimension} hilbert curve yielding ${hilpix.toLocaleString()} pixels`);
   log(`shrinkFactor pre ${shrinkFactor} = linearpix ${linearpix } /  hilpix ${hilpix}  `);
   magnitude = dimension;
-  codonsPerPixel = twosigbitsTolocale( codonsPerPixel*shrinkFactor );
-  resampleByFactor(shrinkFactor);
+  codonsPerPixelHILBERT = twosigbitsTolocale( codonsPerPixel*shrinkFactor );
   setupFNames();
-  log(`filenameHILBERT after shrinking: ${filenameHILBERT} magnitude: ${magnitude} `);//users: ${users}
-  log(`shrinkFactor post ${shrinkFactor}`);
+  log(`filenameHILBERT after shrinking: ${filenameHILBERT} magnitude: ${magnitude} shrinkFactor post ${shrinkFactor} codonsPerPixel ${codonsPerPixel} codonsPerPixelHILBERT ${codonsPerPixelHILBERT}`);
+}
+// resample the large 760px wide linear image into a smaller square hilbert curve
+function saveHilbert(array) {
+  status = "getting in touch with my man... hilbert";
 
+  let hilpix = hilbPixels[dimension];;
+  let height, width;
+  resampleByFactor(shrinkFactor);
   width = Math.sqrt(hilpix);
   height = width;
+  let perc = 0;
 
   for (i = 0; i < hilpix; i++) {
     dot(i, 20000);
@@ -1931,10 +1932,6 @@ function saveHilbert(array) {
 
     if (thinWhiteSlice < 1 && reg) {
       paintRegMarks(hilbertLinear, hilbertImage);
-      // hilbertImage[hilbertLinear+0] = 255 - (hilbertImage[hilbertLinear+0]);
-      // hilbertImage[hilbertLinear+1] = 255 - (hilbertImage[hilbertLinear+1]);
-      // hilbertImage[hilbertLinear+2] = 255 - (hilbertImage[hilbertLinear+2]);
-      // hilbertImage[hilbertLinear+3] = (i%4)*63;
     }
 
     if (i-4 > rgbArray.length) {
@@ -1943,9 +1940,6 @@ function saveHilbert(array) {
       break;
     }
   }
-
-  // the M number was coming out wrong - it was the users choice without auto-correct
-  setupFNames();
 
   var hilbert_img_data = Uint8ClampedArray.from(hilbertImage);
   var hilbert_img_png = new PNG({
@@ -2222,7 +2216,6 @@ function arrayToPNG(callBack) {
 
     function patternsToPngAndMainArray() {
       let h = require('hilbert-2d');
-      let perc = 0;
 
       let hilpix = hilbPixels[dimension];
       let linearpix = hilpix;// * 4;
@@ -2237,6 +2230,7 @@ function arrayToPNG(callBack) {
 
       output(`Generating hilbert curve, dimension: ${dimension}`);
       log(filenameHILBERT);
+      let perc = 0;
       for (i = 0; i < hilpix; i++) {
         dot(i, 20000);
         let hilbX, hilbY;
@@ -2509,12 +2503,13 @@ function arrayToPNG(callBack) {
         log(cleanDNA);
       }
       function calcUpdate() {
-        percentComplete = charClock / baseChars;
+        percentComplete = charClock / baseChars; // avoid div by zero below
         let now = new Date().getTime();
         runningDuration = now - start;
-        timeRemain = Math.round(runningDuration * ((baseChars-charClock)/charClock+1)/1000);
+        // timeElapsed = (Math.round(runningDuration * ((baseChars-charClock)/charClock + 0.001)/1000));
+        timeElapsed = Math.round((runningDuration + 1) / 1000);
+        timeRemain = Math.round(((timeElapsed + 0.001) / (percentComplete + 0.001)) - timeElapsed);
         kbRemain = (Math.round((baseChars - charClock)/1000)).toLocaleString();
-
       }
       function getHistoCount(item, index) {
         return [ item.Codon, item.Histocount];
@@ -2580,7 +2575,7 @@ function arrayToPNG(callBack) {
 
         let array = [
           `File: ${chalk.rgb(255, 255, 255).inverse(justNameOfDNA.toUpperCase())}.${extension} `,
-          `Done: ${chalk.rgb(128, 255, 128).inverse( twosigbitsTolocale(percentComplete*100))} % Remain: ${ twosigbitsTolocale(timeRemain) } sec `,
+          `Done: ${chalk.rgb(128, 255, 128).inverse( twosigbitsTolocale(percentComplete*100))} % Elapsed: ${ twosigbitsTolocale(timeElapsed) } Remain: ${ twosigbitsTolocale(timeRemain) } sec `,
           `@i ${charClock.toLocaleString()} Lines: ${breakClock.toLocaleString()} Files: ${howMany} Filesize: ${Math.round(baseChars/1000)/1000} MB Elapsed: ${Math.round(runningDuration/1000)} sec KB remain: ${kbRemain}`,
           `Next update: ${msPerUpdate.toLocaleString()}ms Codon Opacity: ${twosigbitsTolocale(opacity*100)}% `,
           `CPU: ${bytes(kBytesPerSec*1024)}/s Codons per sec: ${Math.round(kCodonsPerSecond).toLocaleString()} Acids/pixel: ${twosigbitsTolocale(codonsPerPixel)} Pixels painted: ${colClock.toLocaleString()}`,
