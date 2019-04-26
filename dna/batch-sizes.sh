@@ -50,6 +50,6 @@ many_size_hilbert() {
 
 
 many_size_hilbert $1 $2 $3 $4 $5 $6
-sleep 2
-many_size_hilbert $1 $2 $3 $4 $5 $6 *
+# sleep 2
+# many_size_hilbert $1 $2 $3 $4 $5 $6 *
 # many_size_hilbert megabase.fa
