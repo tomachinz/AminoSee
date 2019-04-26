@@ -1,37 +1,37 @@
 #!/bin/sh
 aminosee_do () {
-    nice aminosee $1 $2 $3 $4 $5 $6
+    nice aminosee $1 $2 $3 $4 $5 $6 $7
 }
 
 parallel_peptides () {
   echo "                                         =///"
   echo "-------------------------------------------"
-  echo STARTING PARALLEL DECODE FOR $1 $2 $3
+  echo STARTING PARALLEL DECODE FOR $1 $2 $3 $4 $5 $6 $7
   echo "-------------------------------------------"
   echo "                                         =///"
-  aminosee_do $1 $2 $3
-  aminosee_do $1 $2 $3   --peptide=Ochre &
-  aminosee_do $1 $2 $3   --peptide=Glutamic
-  aminosee_do $1 $2 $3   --peptide=Aspartic &
-  aminosee_do $1 $2 $3   --peptide=Amber &
-  aminosee_do $1 $2 $3   --peptide=Cysteine
-  aminosee_do $1 $2 $3   --peptide=Glycine &
-  aminosee_do $1 $2 $3   --peptide=Alanine &
-  aminosee_do $1 $2 $3   --peptide=Methionine &
-  aminosee_do $1 $2 $3   --peptide=Valine
-  aminosee_do $1 $2 $3   --peptide=Leucine &
-  aminosee_do $1 $2 $3   --peptide=Isoleucine &
-  aminosee_do $1 $2 $3   --peptide=Phenylalanine &
-  aminosee_do $1 $2 $3   --peptide=Tryptophan &
-  aminosee_do $1 $2 $3   --peptide=Serine
-  aminosee_do $1 $2 $3   --peptide=Threonine &
-  aminosee_do $1 $2 $3   --peptide=Opal &
-  aminosee_do $1 $2 $3   --peptide=Glutamine &
-  aminosee_do $1 $2 $3   --peptide=Asparagine &
-  aminosee_do $1 $2 $3   --peptide=Tyrosine &
-  aminosee_do $1 $2 $3   --peptide=Arginine
-  aminosee_do $1 $2 $3   --peptide=Lysine &
-  aminosee_do $1 $2 $3   --peptide=Histidine
+  aminosee_do $1 $2 $3 $4 $5 $6 $7
+  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Ochre &
+  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Glutamic
+  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Aspartic &
+  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Amber &
+  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Cysteine
+  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Glycine &
+  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Alanine &
+  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Methionine &
+  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Valine
+  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Leucine &
+  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Isoleucine &
+  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Phenylalanine &
+  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Tryptophan &
+  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Serine
+  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Threonine &
+  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Opal &
+  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Glutamine &
+  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Asparagine &
+  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Tyrosine &
+  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Arginine
+  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Lysine &
+  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Histidine
   echo "                                         =///"
   echo "-------------------------------------------"
   echo FINISHED PARALLEL DECODE FOR $1 $2 $3
@@ -85,6 +85,6 @@ find_way_peptides () {
   echo "                                         =///"
 }
 parallel_peptides $1 $2 $3 $4 $5 $6
-parallel_peptides $1 $2 $3 $4 $5 $6 --reg --fix
+parallel_peptides $1 $2 $3 $4 $5 $6 --reg
 # find_way_peptides
 # find_way_peptides --reg
