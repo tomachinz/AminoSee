@@ -64,7 +64,7 @@ aminosee_do_foreground 7 $1 $2 $3 $4 --peptide=Histidine
   echo "-------------------------------------------"
   echo "                                         =///"
 }
-# 
+#
 # parallel_peptides Brown_Kiwi_NW_013982187v1.fa $1 $2 $3
 # parallel_peptides Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa $1 $2 $3
 # parallel_peptides Human-GRCh38.p12_chr2.gbk $1 $2 $3
@@ -77,25 +77,19 @@ aminosee_do_foreground 7 $1 $2 $3 $4 --peptide=Histidine
 # parallel_peptides chrY Pan troglodytes C0471 Clint.gbk $1 $2 $3
 # parallel_peptides homo-sapien-hs_ref_GRCh38.p12_chr2.fa $1 $2 $3
 
-sleep 1
-
-
 if [ $(uname)=Darwin ]; then
   echo macos
   find -f *.fa *.mfa *.gbk *.txt
   sleep 2
-  find -f *.fa *.mfa *.gbk *.txt -exec parallel_peptides {}  $1 $2 $3  \;
+  find -f *.fa *.mfa *.gbk *.txt -exec parallel_peptides {} $1 $2 $3  \;
 fi
 
 if [ $(uname)=Linux ]; then
   echo linux
   find *.fa *.mfa *.gbk *.txt
   sleep 2
-  find *.fa *.mfa *.gbk *.txt -exec parallel_peptides {}  $1 $2 $3   \;
+  find *.fa *.mfa *.gbk *.txt -exec parallel_peptides {} $1 $2 $3   \;
 fi
 
 
-aminosee * -d -m 7
-aminosee * -d -m 8
-aminosee * -d -m 9
 echo "FINISHED ALL OF PROCESSS SCRIPT - FAROUT"
