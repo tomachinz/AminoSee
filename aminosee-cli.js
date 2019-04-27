@@ -987,7 +987,7 @@ function highlightFilename() {
       ret += `-reference`;
     }
   }
-  output(`ret: ${ret} currentTriplet: ${currentTriplet} currentPeptide ${currentPeptide}`);
+  log(`ret: ${ret} currentTriplet: ${currentTriplet} currentPeptide ${currentPeptide}`);
   return ret;
 }
 function getFileExtension() {
