@@ -41,9 +41,9 @@ many_size_hilbert() {
   # echo "ATTEMPTING TO RENDER AT DIMENSION 9 THIS MAY RUN OUT OF MEMORY"
 
 
-  sleep 1
-  echo "ATTEMPTING TO RENDER AT DIMENSION 9 THIS MAY RUN OUT OF MEMORY"
-  aminosee_do 9 $1 -m 9 $2 $3 $4 $5 $6
+  # sleep 1
+  # echo "ATTEMPTING TO RENDER AT DIMENSION 9 THIS MAY RUN OUT OF MEMORY"
+  # aminosee_do 9 $1 -m 9 $2 $3 $4 $5 $6
 
 }
 

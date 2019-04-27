@@ -1,6 +1,6 @@
 #!/bin/sh
 aminosee_do () {
-    nice aminosee $1 $2 $3 $4 $5 $6 $7
+    nice aminosee $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11
 }
 
 parallel_peptides () {
@@ -86,5 +86,5 @@ find_way_peptides () {
 }
 parallel_peptides $1 $2 $3 $4 $5 $6 $7 --reg
 parallel_peptides $1 $2 $3 $4 $5 $6 $7
-# find_way_peptides
-# find_way_peptides --reg
+find_way_peptides
+find_way_peptides --reg
