@@ -26,7 +26,7 @@ let artistic = false; // for Charlie
 let spew = false; // firehose your screen with DNA
 let report = true; // html reports
 let test = false;
-const overSampleFactor = 3.0;
+const overSampleFactor = 4.0;
 let updates = false;
 const maxMsPerUpdate = 12000; // milliseconds per update
 let msPerUpdate = 200; // min milliseconds per update
@@ -817,6 +817,8 @@ async function initStream(f) {
 
     log("Stream closed.");
     progato = null;
+    currentTriplet = "none";
+    currentTriplet = triplet;
     return saveDocuments();
   }));
 
@@ -831,7 +833,7 @@ async function initStream(f) {
   log("FINISHED INIT");
 }
 function showFlags() {
-  return `${(  force ? "F" : "-"    )}${(  args.updates || args.u ? `U` : "-"    )}${(  userCPP != -1 ? `C${userCPP}` : "--"    )}${(  args.keyboard || args.k ? `K` : "-"    )}${(  args.spew || spew ? `K` : "-"    )}${( verbose ? "V" : "-"  )}${(  artistic ? "A" : "-"    )}${(  args.ratio || args.r ? `${ratio}` : "---"    )}M${magnitude}C${onesigbitTolocale(codonsPerPixel)}H${onesigbitTolocale(codonsPerPixelHILBERT)}`;
+  return `${(  force ? "F" : "-"    )}${(  args.updates || args.u ? `U` : "-"    )}${(  userCPP != -1 ? `C${userCPP}` : "--"    )}${(  args.keyboard || args.k ? `K` : "-"    )}${(  args.spew || spew ? `K` : "-"    )}${( verbose ? "V" : "-"  )}${(  artistic ? "A" : "-"    )}${(  args.ratio || args.r ? `${ratio}` : "---"    )}${(magnitude? "M" + magnitude:"")}C${onesigbitTolocale(codonsPerPixel)}${(reg?"REG":"")}`;
   // chalk.rgb(255, 255, 255).inverse(justNameOfDNA.toUpperCase())
 }
 function testSummary() {
@@ -973,18 +975,19 @@ function removeFileExtension(f) {
 }
 function highlightFilename() {
   let ret = "";
+  // log(``)
   if ( isHighlightSet == false) {
     ret += `-reference`;
   } else {
-    if ( currentTriplet != "none" ) {
+    if ( currentTriplet.toLowerCase() != "none" || triplet.toLowerCase() != "none") {
       ret += `_${spaceTo_(currentTriplet).toUpperCase()}`;
     } else if (currentPeptide != "none") {
-      ret += `_${spaceTo_(currentPeptide).toLowerCase()}`;
+      ret += `_${spaceTo_(currentPeptide)}`;
     } else {
       ret += `-reference`;
     }
   }
-  // output(`ret: ${ret} currentTriplet: ${currentTriplet} currentPeptide ${currentPeptide}`);
+  output(`ret: ${ret} currentTriplet: ${currentTriplet} currentPeptide ${currentPeptide}`);
   return ret;
 }
 function getFileExtension() {
@@ -1294,15 +1297,18 @@ function quit(n) {
     pollForStream();
   } else {
     log(`process.exit type bye. last file: ${filename}`);
-    process.exitCode = 0;
     clearTimeout(updatesTimer);
-    process.stdin.pause();
     // args = [];
     if (devmode) {
       output("Because you are using --devmode, the lock file is not deleted. This is useful during development because I can quickly test new code by starting then interupting the render with Control-c. Then, when I use 'aminosee * -f -d' I can have new versions rendered but skip super large genomes that would take 5 mins or more to render. I like to see that they begin to render then break and retry.")
     } else {
       removeLocks();
     }
+    process.exitCode = 0;
+    if (keyboard) {
+      process.stdin.pause();
+    }
+
     // process.exit()
   }
 }
@@ -1906,7 +1912,7 @@ function hilDecode(i, dimension) {
 }
 function calculateShrinkage() {
   let linearpix = rgbArray.length / 4;
-  let computerWants = pixToMagnitude(linearpix); // you might need -1 on this depending
+  let computerWants = pixToMagnitude(linearpix)-1; // you might need -1 on this depending
   output(`Ideal magnitude: ${computerWants} currently set magnitude: ${magnitude}`);
 
   if ( computerWants > maxMagnitude ) {
@@ -1929,7 +1935,7 @@ function calculateShrinkage() {
 
   let hilpix = hilbPixels[dimension];;
   hilbertImage = [hilpix*4];
-  shrinkFactor = linearpix / hilpix;//  array.length / 4;
+  shrinkFactor = linearpix / (hilpix*2);//  array.length / 4;
   codonsPerPixelHILBERT = codonsPerPixel / shrinkFactor;
   output(`Linear input image size ${linearpix.toLocaleString()} will be down saple by factor ${shrinkFactor} to achieve a dimension ${dimension} hilbert curve yielding ${hilpix.toLocaleString()} pixels`);
   log(`shrinkFactor pre ${shrinkFactor} = linearpix ${linearpix } /  hilpix ${hilpix}  `);
@@ -1957,17 +1963,21 @@ function saveHilbert(array) {
     let cursorLinear  = 4 * i ;
     let hilbertLinear = 4 * ((hilbX % width) + (hilbY * width));
     let perc = i / hilpix;
-    let thinWhite = 249;
-    let thinWhiteSlice = (Math.round(perc * 1000 )-50) % thinWhite; // -5 is to hit 0% to 0.5% instead of 0% to 1% as previously. this is to enlarge the 99.5% to 100% thinWhite
+    // let thinWhite = 249;
+    // let thinWhiteSlice = (Math.round(perc * 1000 )-50) % thinWhite; // -5 is to hit 0% to 0.5% instead of 0% to 1% as previously. this is to enlarge the 99.5% to 100% thinWhite
 
     hilbertImage[hilbertLinear+0] = rgbArray[cursorLinear+0];
     hilbertImage[hilbertLinear+1] = rgbArray[cursorLinear+1];
     hilbertImage[hilbertLinear+2] = rgbArray[cursorLinear+2];
     hilbertImage[hilbertLinear+3] = rgbArray[cursorLinear+3];
 
-    if (thinWhiteSlice < 1 && reg) {
-      paintRegMarks(hilbertLinear, hilbertImage);
+    if (reg) {
+      paintRegMarks(hilbertLinear, hilbertImage, perc);
     }
+
+    // if (thinWhiteSlice < 1 && reg) {
+    //   paintRegMarks(hilbertLinear, hilbertImage, perc);
+    // }
 
     if (i-4 > rgbArray.length) {
       log("BREAKING at positon ${i} due to ran out of source image. rgbArray.length  = ${rgbArray.length}");
@@ -2238,17 +2248,22 @@ function arrayToPNG(callBack) {
       return true;
     }
 
-    function paintRegMarks(hilbertLinear, hilbertImage) {
+    function paintRegMarks(hilbertLinear, hilbertImage, perc) {
+      let thinWhiteSlice = (Math.round(perc * 1000 )) % 250; // 1% white bands at 0%, 25%, 50%, 75%, 100%
 
-      hilbertImage[hilbertLinear+0] = 255 - (hilbertImage[hilbertLinear+0]);
-      hilbertImage[hilbertLinear+1] = 255 - (hilbertImage[hilbertLinear+1]);
-      hilbertImage[hilbertLinear+2] = 255 - (hilbertImage[hilbertLinear+2]);
-      hilbertImage[hilbertLinear+3] = 128;
-      if (i%2) {
-        hilbertImage[hilbertLinear+0] = 255;
-        hilbertImage[hilbertLinear+1] = 255;
-        hilbertImage[hilbertLinear+2] = 255;
-        hilbertImage[hilbertLinear+3] = 255;
+      if (thinWhiteSlice < 1) { // 5 one out of 10,000
+        // paintRegMarks(hilbertLinear, hilbertImage, perc);
+
+        hilbertImage[hilbertLinear+0] = 255 - (hilbertImage[hilbertLinear+0]);
+        hilbertImage[hilbertLinear+1] = 255 - (hilbertImage[hilbertLinear+1]);
+        hilbertImage[hilbertLinear+2] = 255 - (hilbertImage[hilbertLinear+2]);
+        hilbertImage[hilbertLinear+3] = 128;
+        if (i%2) {
+          hilbertImage[hilbertLinear+0] = 255;
+          hilbertImage[hilbertLinear+1] = 255;
+          hilbertImage[hilbertLinear+2] = 255;
+          hilbertImage[hilbertLinear+3] = 255;
+        }
       }
     }
 
@@ -2276,23 +2291,19 @@ function arrayToPNG(callBack) {
 
         [hilbX, hilbY] = hilDecode(i, dimension, h);
 
-
-
         let cursorLinear  = 4 * i ;
         let hilbertLinear = 4 * ((hilbX % linearWidth) + (hilbY * linearWidth));
-
         let perc = i / hilpix;
-        let thinWhite = 250;
-        let thinWhiteSlice = (Math.round(perc * 1000 )) % thinWhite;
 
         hilbertImage[hilbertLinear] =   255*perc; // slow ramp of red
         hilbertImage[hilbertLinear+1] = ( i % Math.round( perc * 32) ) / (perc *32) *  255; // SNAKES! crazy bio snakes.
         hilbertImage[hilbertLinear+2] = (perc *2550)%255; // creates 10 segments to show each 10% mark in blue
         hilbertImage[hilbertLinear+3] = 255; // slight edge in alpha
 
-        if (thinWhiteSlice < 1 && reg) { // 5 one out of 10,000
-          paintRegMarks(hilbertLinear, hilbertImage);
+        if (reg) {
+          paintRegMarks(hilbertLinear, hilbertImage, perc);
         }
+
 
         rgbArray[cursorLinear+0] = hilbertImage[hilbertLinear+0];
         rgbArray[cursorLinear+1] = hilbertImage[hilbertLinear+1];
@@ -2329,7 +2340,9 @@ function arrayToPNG(callBack) {
 
         // BLOW LINEAR IMAGE UP DOUBLE SIZE:
         for (z = 0; z<upsampleSize; z++) { // 2x AA colClock is the number of pixels in linear
-          log(` z: ${z} samples remain: ${colClock - sampleClock} shrinkFactor: ${shrinkFactor} brightness: ${brightness} linear pixels: ${colClock} hil pixels ${hilbPixels[dimension]} `);
+          if (z % 100 == 0) {
+            log(` z: ${z.toLocaleString()} samples remain: ${(colClock - sampleClock).toLocaleString()} shrinkFactor: ${shrinkFactor} brightness: ${brightness} linear pixels: ${colClock.toLocaleString()} hil pixels ${hilbPixels[dimension].toLocaleString()} `);
+          }
 
           let sum = z*4;
           let clk = sampleClock*4;
@@ -2341,7 +2354,7 @@ function arrayToPNG(callBack) {
           antiAliasArray[sum+3] = rgbArray[clk+3]*brightness;
 
           // while(z / shrinkFactor * overSampleFactor  > sampleClock ) {
-          while(sampleClock  <= z*overSampleFactor / shrinkFactor ) {
+          while(sampleClock  <= z*shrinkFactor *2) {
             // log(` z: ${z} sampleClock: ${sampleClock} shrinkFactor: ${shrinkFactor} brightness: ${brightness} hil pixels ${hilbPixels[dimension]} `);
 
             // output(`z: ${z}   sampleClock: ${sampleClock}`)
@@ -2593,7 +2606,7 @@ function arrayToPNG(callBack) {
         return
       }
       function fixedWidth(str, wide) {
-        while(str.length < wide) { str = " " + str }
+        while(str.length <= wide) { str = " " + str }
         return str;
       }
       function drawHistogram() {
