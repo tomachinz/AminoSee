@@ -1760,7 +1760,7 @@ for (i=0; i<pepTable.length; i++) {
   <tr style="background-color: hsl( ${theHue} , 50%, 100%);">
   <td style="background-color: white;"> ${pepTable[i].Codon} </td>
   <td style="background-color: rgb(${lightC});">
-  <p class="fineprint" style="background-color: white; background-color: rgba(255,255,255,0.5); color: black;">${theHue}°</p>
+  <p class="fineprint" style="background-color: white; background-color: rgba(255,255,255,0.5); color: black;">${theHue}&#xB0;</p>
   </td>
   <td style="background-color: rgb(${c}); color: white; font-weight: bold; "> <p class="fineprint" style="background-color: black; background-color: rgba(0,0,0,0.5); color: white;">${c}</p> </td>
   <td>${pepTable[i].Histocount.toLocaleString()}</td>
