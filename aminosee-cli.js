@@ -28,7 +28,7 @@ let artistic = false; // for Charlie
 let spew = false; // firehose your screen with DNA
 let report = true; // html reports
 let test = false;
-const overSampleFactor = 1.0;
+const overSampleFactor = 2.0;
 let updates = false;
 const maxMsPerUpdate = 12000; // milliseconds per update
 let msPerUpdate = 200; // min milliseconds per update
@@ -454,7 +454,7 @@ module.exports = () => {
   }
 
 
-  log(args);
+  // log(args);
   let cmd = args._[0];
   log(args._);
   howMany = args._.length ;
@@ -505,14 +505,16 @@ module.exports = () => {
       }, 2000);
       return true;
     } else {
+      out(".");
       pollForStream();
       return true;
     }
     status = "leaving switch";
+    out(".");
     log(status)
   }
   status = "global";
-  log(status)
+  out(".");
 }
 function streamingZip(f) {
   zipfile = path.resolve(f);
@@ -567,6 +569,8 @@ function pepToColor(pep) {
   }
 }
 function pollForStream() {
+  status ="polling";
+  output(".");
   calcUpdate();
   log(` [polling ${twosigbitsTolocale(percentComplete)}%] `);
   if (renderLock) {
@@ -579,7 +583,8 @@ function pollForStream() {
     updates = false;
   }
   if (howMany < 1) {
-    output(" ");
+    output("FINITO");
+    return true;
   }
   try {
     if (args._) {
@@ -587,14 +592,10 @@ function pollForStream() {
       current = args._.pop();
 
     } else {
-
-
       setImmediate(() => {
         output("Finished processing.")
         quit(1);
       });
-
-
       return true;
     }
   } catch(e) {
@@ -639,7 +640,7 @@ function pollForStream() {
   // });
   try {
     if (!fs.statSync(filename).isFile) {
-      output("statSync: false " + filename)
+      output("This is not a file: " + filename)
       theSwitcher(false);
       return false;
     }
@@ -663,7 +664,6 @@ function pollForStream() {
     return false;
   } else {
 
-    baseChars = getFilesizeInBytes(filename);
     autoconfCodonsPerPixel();
     status ="polling";
     setupFNames();
@@ -698,7 +698,7 @@ function theSwitcher(bool) {
   log(`cpu has entered The Switcher!`)
   if (bool) {
 
-    baseChars = getFilesizeInBytes(filename);
+    // baseChars = getFilesizeInBytes(filename);
     autoconfCodonsPerPixel();
     status ="polling";
     setupFNames();
@@ -788,47 +788,37 @@ async function initStream(f) {
   // var readStream = fs.createReadStream('all_titles.txt');
   //var readStream = process.stdin;
 // pipeInstance
-
-  var s = fs.createReadStream(filename).pipe(es.split()).pipe(es.mapSync(function(line){
-    status = "stream";
-
-    // pause the readstream
-    s.pause();
+try {
+  var readStream = fs.createReadStream(filename).pipe(es.split()).pipe(es.mapSync(function(line){
+    status = "wait stream";
+    readStream.pause(); // pause the readstream during processing
     streamLineNr++;
-    // process line here and call s.resume() when rdy
-    // function below was for logging memory usage
     status = "paint";
-    if( percentComplete > 0.99 ) {
-      output( twosigbitsTolocale(percentComplete));
-    }
-    if( percentComplete > 0.99 && streamLineNr % 1000 == 0 ) {
-      log("something doesn't seem not right: " + percentComplete + " %   streamLineNr: " + streamLineNr + filename + this);
-    }
-    processLine(line);
-    // resume the readstream, possibly from a callback
-    s.resume();
+    processLine(line); // process line here and call readStream.resume() when ready
+    readStream.resume();
   })
   .on('error', function(err){
     status = "stream error";
-
     log('Error while reading file: ' + filename, err.reason);
     console.dir(err)
     log(status)
   })
   .on('end', function() {
     status = "stream end";
-
     log("Stream ending event");
   })
   .on('close', function() {
     status = "stream close";
-
     log("Stream closed.");
     progato = null;
     currentTriplet = "none";
     currentTriplet = triplet;
     return saveDocuments();
   }));
+} catch(e) {
+  log("ERROR:"  + e)
+}
+
 
 
   if (updates == true) {
@@ -897,8 +887,8 @@ function autoconfCodonsPerPixel() { // requires baseChars maxpix defaultC
   baseChars = getFilesizeInBytes(filename);
   if (baseChars = -1 ) { // switch to streaming pipe mode,
     isStreamingPipe = true; // cat Human.genome | aminosee
-    log("Could not get filesize, setting for image size of 1,000,000 pixels");
-    estimatedPixels = 1000000;
+    log("Could not get filesize, setting for image size of 696,969 pixels");
+    estimatedPixels = 696969;
     baseChars = estimatedPixels *3;
     codonsPerPixel = 100; // small images with _c100 in filename
     magnitude = dimension = 6;
@@ -1270,21 +1260,20 @@ function removeLocks() {
 }
 function getFilesizeInBytes(f) {
   try {
-    const temp = s.statSync(f); // grab the object
-    if (temp == true) {
-      baseChars = fs.statSync(f).size;
+    const file = s.fstatSync(f,{ bigint: true }); // grab the object
+    baseChars = file.size;
+    if (file == true) {
       log(`File exists with size ${baseChars} at: ${f}`);
       return baseChars;
     } else {
-      baseChars = fs.statSync(f).size;
       log(`statSync false getFilesizeInBytes ${baseChars} File Found at: ${f}`);
       return baseChars;
     }
   } catch(e) {
     baseChars = -1;
     log(`Cant stat filesize of ${f} File error: ${e}`);
-    return -1; // switches to streaming pipe mode
   }
+  return -69; // debug
 }
 function getLast5Chars(f) {
   let lastFive = f.slice(-5);
@@ -1954,7 +1943,7 @@ function calculateShrinkage() {
   hilbertImage = [hilpix*4];
   shrinkFactor = linearpix / (hilpix*2);//  array.length / 4;
   codonsPerPixelHILBERT = codonsPerPixel / shrinkFactor;
-  output(`Linear input image size ${linearpix.toLocaleString()} will be down saple by factor ${shrinkFactor} to achieve a dimension ${dimension} hilbert curve yielding ${hilpix.toLocaleString()} pixels`);
+  output(`Linear input image size ${linearpix.toLocaleString()} will be down saple by factor ${shrinkFactor} to achieve a dimension ${dimension} hilbert curve yielding ${hilbPixels[dimension].toLocaleString()} pixels`);
   log(`shrinkFactor pre ${shrinkFactor} = linearpix ${linearpix } /  hilpix ${hilpix}  `);
   magnitude = dimension; // for filenames
   // codonsPerPixelHILBERT = twosigbitsTolocale( codonsPerPixel*shrinkFactor );
@@ -2418,7 +2407,8 @@ function arrayToPNG(callBack) {
             }
           }
         }
-        dim--; // was off by 1
+        if (dim>0) { dim--; } // was off by 1
+
         out(` <<<--- chosen magnitude: ${dim} `);
         return dim;
       }
@@ -2458,7 +2448,7 @@ function arrayToPNG(callBack) {
       }
       function output(txt) {
         if (verbose) {
-          console.log(`[ ${(isHighlightSet ? peptide + " " : " ")}Jobs: ${howMany} ${status} RunID: ${timestamp} genomeSize: ${genomeSize} hilbert: ${hilbPixels[dimension]} ] ${txt} `);
+          console.log(`[ ${(isHighlightSet ? peptide + " " : " ")}Jobs: ${howMany} ${status} RunID: ${timestamp} baseChars ${baseChars} genomeSize: ${genomeSize} hilbert: ${hilbPixels[dimension]} ] ${txt} `);
         } else {
           // BgBlack = "\x1b[40m"
           console.log(txt);
@@ -2467,7 +2457,7 @@ function arrayToPNG(callBack) {
       function log(txt) {
         if (verbose && devmode) {
           const d = Math.round(+new Date()/1000);
-          console.log(`@${d} [ status: ${status} baseChars ${baseChars} ] [ ${howMany}_${status}_lock:${renderLock} ] + ${txt}`);
+          console.log(`@${d} [ status: ${status} ${howMany} ${status} lock:${renderLock} ] + ${txt}`);
         } else if (verbose) {
           output(txt);
         }
@@ -3746,23 +3736,23 @@ function arrayToPNG(callBack) {
 //     $ echo 'hello' > tmp && node stdin-and-fs-stream.js tmp
 
 // let fs = require('fs'),
-let through = require('through');
-
-var tr = through(function (buf) {
-  console.log(` [process.argv.length: ${process.argv.length}  process.argv[2]: ${process.argv[2]} ] buf.toString(): ${buf.toString()} `);
-});
-
-
-var stream;
-
-if (process.argv.length > 2) {
-  stream = fs.createReadStream(process.argv[2]);
-}
-else {
-  stream = process.stdin;
-  setImmediate(function () {
-    stream.push(null);
-  });
-}
+// let through = require('through');
+//
+// var tr = through(function (buf) {
+//   console.log(` [process.argv.length: ${process.argv.length}  process.argv[2]: ${process.argv[2]} ] buf.toString(): ${buf.toString()} `);
+// });
+//
+//
+// var stream;
+//
+// if (process.argv.length > 2) {
+//   stream = fs.createReadStream(process.argv[2]);
+// }
+// else {
+//   stream = process.stdin;
+//   setImmediate(function () {
+//     stream.push(null);
+//   });
+// }
 
 // stream.pipe(tr).pipe(process.stdout);
