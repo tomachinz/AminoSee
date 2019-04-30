@@ -73,7 +73,9 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
   "No")}${chalk.rgb(64, 64, 64).inverse("Evil")}`);
 let interactiveKeysGuide = "";
 let renderLock = false;
-let hilbertImage, keyboard, filenameTouch, maxpix, estimatedPixels, args, filenamePNG, extension, reader, hilbertPoints, herbs, levels, progress, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, textFile, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, fileUploadShowing, testColors, chunksMax, chunksize, chunksizeBytes, cpu, subdivisions, contextBitmap, aminoacid, colClock, start, updateClock, kBytesPerSec, pixelStacking, isHighlightCodon, justNameOfDNA, justNameOfPNG, justNameOfHILBERT, sliceDNA, filenameHTML, howMany, timeElapsed, runningDuration, kbRemain, width, triplet, updatesTimer, pngImageFlags, codonsPerPixel, codonsPerPixelHILBERT, CRASH, cyclesPerUpdate, red, green, blue, alpha, errorClock, breakClock, streamLineNr, filesDone, spewClock, opacity, codonRGBA, geneRGBA, currentTriplet, currentPeptide,  progato, shrinkFactor, reg, image, loopCounter, clear, percentComplete, charClock, baseChars;
+let hilbertImage, keyboard, filenameTouch, maxpix, estimatedPixels, args, filenamePNG, extension, reader, hilbertPoints, herbs, levels, progress, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, textFile, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, fileUploadShowing, testColors, chunksMax, chunksize, chunksizeBytes, cpu, subdivisions, contextBitmap, aminoacid, colClock, start, updateClock, bytesPerSec, pixelStacking, isHighlightCodon, justNameOfDNA, justNameOfPNG, justNameOfHILBERT, sliceDNA, filenameHTML, howMany, timeElapsed, runningDuration, kbRemain, width, triplet, updatesTimer, pngImageFlags, codonsPerPixel, codonsPerPixelHILBERT, CRASH, red, green, blue, alpha, errorClock, breakClock, streamLineNr, filesDone, spewClock, opacity, codonRGBA, geneRGBA, currentTriplet, currentPeptide,  progato, shrinkFactor, reg, image, loopCounter, clear, percentComplete, charClock, baseChars, bigIntFileSize;
+BigInt.prototype.toJSON = function() { return this.toString(); }; // shim for big int
+BigInt.prototype.toBSON = function() { return this.toString(); }; // Add a `toBSON()` function to enable MongoDB to store BigInts as strings
 
 percentComplete = charClock = baseChars = genomeSize = 0;
 
@@ -127,7 +129,7 @@ function setupKeyboardUI() {
       process.stdin.pause();
       status = "TERMINATED WITH CONTROL-C";
       console.log(status);
-      printRadMessage([`highlight: ${isHighlightSet}`, `peptide: ${peptide} triplet: ${triplet}`, filename, "In", raceDelay, `done: ${percentComplete}`]);
+      printRadMessage([`highlight: ${isHighlightSet}`, `peptide: ${peptide} triplet: ${triplet}`, chalk.underline(filename), "In", raceDelay, `done: ${nicePercent()}`]);
 
       updates = false;
       args = [];
@@ -413,7 +415,7 @@ module.exports = () => {
     output("will open html")
     openHtml = true;
   } else {
-    output("not opening html");
+    log("not opening html");
     openHtml = false;
   }
   if (args.spew || args.s) {
@@ -499,10 +501,10 @@ module.exports = () => {
 
       status = "no command";
       filename = "no file";
-      output("Try running aminosee * in a directory with DNA. Closing in 2 seconds.")
-      setTimeout(() => {
-        quit(1);
-      }, 2000);
+      output("Try running aminosee * in a directory with DNA.");//" Closing in 2 seconds.")
+      // setTimeout(() => {
+      //   quit(1);
+      // }, 2000);
       return true;
     } else {
       out(".");
@@ -569,10 +571,10 @@ function pepToColor(pep) {
   }
 }
 function pollForStream() {
-  status ="polling";
+  status = "polling";
   output(".");
   calcUpdate();
-  log(` [polling ${twosigbitsTolocale(percentComplete)}%] `);
+  log(` [polling ${nicePercent()}%] `);
   if (renderLock) {
     return true;
   } else if ((isDiskFinLinear && isDiskFinHilbert && isDiskFinHTML)){
@@ -611,13 +613,6 @@ function pollForStream() {
     return false;
   }
 
-  if (status == "removelocks" || status == "polling") {
-  }
-  if (current == undefined) {
-    // quit()
-    return false;
-  }
-  status = "polling";
   howMany = args._.length;
   filename = path.resolve(current);
   log("current: " + filename)
@@ -698,7 +693,6 @@ function theSwitcher(bool) {
   log(`cpu has entered The Switcher!`)
   if (bool) {
 
-    // baseChars = getFilesizeInBytes(filename);
     autoconfCodonsPerPixel();
     status ="polling";
     setupFNames();
@@ -706,7 +700,7 @@ function theSwitcher(bool) {
     touchLockAndStartStream(filenameTouch); // <--- THIS IS WHERE RENDER STARTS
     return true;
   } else  {
-    status = "polling"
+    status = "switcher"
     log(howMany);
     if (howMany > 0 ) {
       log(`there is more work but also renderLock: ${renderLock}`);
@@ -733,7 +727,6 @@ async function initStream(f) {
   codonsPerPixel = defaultC; //  one codon per pixel maximum
   CRASH = false; // hopefully not
   msPerUpdate = 200; // milliseconds per  update
-  cyclesPerUpdate = 100; // start valuue only this is auto tuneded to users computer speed based on msPerUpdate
   codonRGBA, geneRGBA, mixRGBA = [0,0,0,0]; // codonRGBA is colour of last codon, geneRGBA is temporary pixel colour before painting.
   rgbArray = [];
   red = 0;
@@ -885,13 +878,14 @@ function autoconfCodonsPerPixel() { // requires baseChars maxpix defaultC
   // internally, we signal pipe input from standard in as -1 filesize
   // therefore if filesize = -1 then streaming pipe mode is enabled.
   baseChars = getFilesizeInBytes(filename);
-  if (baseChars = -1 ) { // switch to streaming pipe mode,
+  log("File size in bytes: " + baseChars + " filename " + filename);
+  if (baseChars < 0) { // switch to streaming pipe mode,
     isStreamingPipe = true; // cat Human.genome | aminosee
     log("Could not get filesize, setting for image size of 696,969 pixels");
-    estimatedPixels = 696969;
-    baseChars = estimatedPixels *3;
-    codonsPerPixel = 100; // small images with _c100 in filename
-    magnitude = dimension = 6;
+    estimatedPixels = 696969; // 696969 flags a missing value in debug
+    baseChars = 696969; // 696969 flags a missing value in debug
+    codonsPerPixel = 69; // small images with _c69 in filename
+    magnitude = dimension = 6; // close to 69
     return
   } else { // use a file
     isStreamingPipe = false; // cat Human.genome | aminosee
@@ -1187,9 +1181,9 @@ function saveDocuments(callback) {
 
  // updates = true;
  status = "removelocks";
- setImmediate(() => {
+ // setImmediate(() => {
    removeLocks();
- });
+ // });
  if (callback != undefined) {
    callback();
  }
@@ -1205,19 +1199,15 @@ function compareHistocount(a,b) {
 function saveSync(theCallback) {
   fs.writeFile(filenameHTML, htmlTemplate(), function (err) {
     if (err) { output(`Error saving HTML: ${err}`) }
-    output('Saved html report to: ' + filenameHTML);
+    output('Saved html report to: ' + chalk.underline(filenameHTML));
   }, theCallback);
 }
 function saveHTML() {
-
-
   log( pepTable.sort( compareHistocount ) );
-
   fs.writeFileSync(filenameHTML, htmlTemplate(), function (err) {
     if (err) { output(`Error saving HTML: ${err}`) }
-    output('Saved html report to: ' + filenameHTML);
+    output('Saved html report to: ' + chalk.underline( filenameHTML ) );
   });
-
 }
 function touchLockAndStartStream(fTouch) {
   renderLock = true;
@@ -1237,7 +1227,6 @@ function touchLockAndStartStream(fTouch) {
 
 }
 function removeLocks() {
-  renderLock = false;
 
   if (keyboard == true) {
     try {
@@ -1249,32 +1238,47 @@ function removeLocks() {
   try {
     fs.unlinkSync(filenameTouch, (err) => {
       if (err) { console.warn(err) }
-      console.warn("Removing locks OK")
+      log("Removing locks OK")
     });
 
   } catch (err) {
     // log("No locks to remove: " + err);
   }
   isDiskFinHTML = true;
-  pollForStream();
-}
-function getFilesizeInBytes(f) {
-  try {
-    const file = s.fstatSync(f,{ bigint: true }); // grab the object
-    baseChars = file.size;
-    if (file == true) {
-      log(`File exists with size ${baseChars} at: ${f}`);
-      return baseChars;
-    } else {
-      log(`statSync false getFilesizeInBytes ${baseChars} File Found at: ${f}`);
-      return baseChars;
-    }
-  } catch(e) {
-    baseChars = -1;
-    log(`Cant stat filesize of ${f} File error: ${e}`);
+  renderLock = false;
+
+  if (howMany > 0 ) {
+    setTimeout(() => {
+      pollForStream();
+    }, raceDelay);
+  } else {
+    log("and thats's all she wrote folks.");
   }
-  return -69; // debug
+
 }
+
+function getFilesizeInBytes(file) {
+    const stats = fs.statSync(file)
+    const fileSizeInBytes = stats.size
+    return fileSizeInBytes
+}
+
+// function getFilesizeInBytes(f) {
+//   baseChars = 69;
+//   bigIntFileSize = 69696969696969n; // test of big int.
+//   try {
+//     baseChars = fs.fstatSync(f, { bigint: false }).size;
+//     bigIntFileSize = fs.fstatSync(f, { bigint: true } ).size;
+//     log(`File exists with size ${baseChars} at: ${f}`);
+//     return baseChars;
+//   } catch(e) {
+//     baseChars = -1;
+//     output(`Cant stat filesize of ${f} File error: ${e}`);
+//     return baseChars;
+//   }
+//   log(`f ${f} baseChars ${baseChars} file: ${file} big int filesize: ${bigIntFileSize}`);
+//   return baseChars; // debug flag. basically i should never see -69 appearing in error logs
+// }
 function getLast5Chars(f) {
   let lastFive = f.slice(-5);
   log(`lastFive ${lastFive}`)
@@ -2345,7 +2349,7 @@ function arrayToPNG(callBack) {
 
         // BLOW LINEAR IMAGE UP DOUBLE SIZE:
         for (z = 0; z<upsampleSize; z++) { // 2x AA colClock is the number of pixels in linear
-          if (z % 1000 == 0) {
+          if (z % 5000 == 0) {
             log(`z: ${z.toLocaleString()}/${upsampleSize.toLocaleString()} samples remain: ${(colClock - sampleClock).toLocaleString()}`);
           }
 
@@ -2395,8 +2399,10 @@ function arrayToPNG(callBack) {
       function pixToMaxMagnitude(pix) { // give it pix it returns a magnitude that fits inside it
         let dim = 0;
         out(`[HILBERT] Calculating largest Hilbert curve image that can fit inside ${twosigbitsTolocale(pix)} pixels, and over sampling factor of ${overSampleFactor}: `);
-        while (pix/overSampleFactor > hilbPixels[dim]) {
-          out(` [${hilbPixels[dim]}] `);
+        while (pix/overSampleFactor < hilbPixels[dim]) {
+          if (dim % 5000 == 0 ) {
+            log(` pixToMaxMagnitude [${hilbPixels[dim]}] pix ${pix}`);
+          }
           dim++;
           if (dim >= maxMagnitude) {
             if (magnitude && dim > theActualMaxMagnitude ) {
@@ -2448,7 +2454,7 @@ function arrayToPNG(callBack) {
       }
       function output(txt) {
         if (verbose) {
-          console.log(`[ ${(isHighlightSet ? peptide + " " : " ")}Jobs: ${howMany} ${status} RunID: ${timestamp} baseChars ${baseChars} genomeSize: ${genomeSize} hilbert: ${hilbPixels[dimension]} ] ${txt} `);
+          console.log(maxWidth(`[ ${(isHighlightSet ? peptide + " " : " ")}Jobs: ${howMany} genomeSize: ${genomeSize} bytes ${baseChars}  bigint ${bigIntFileSize} ${status} RunID: ${timestamp} hilbert: ${hilbPixels[dimension]}] `, 60) + " >>> " + txt);
         } else {
           // BgBlack = "\x1b[40m"
           console.log(txt);
@@ -2456,8 +2462,8 @@ function arrayToPNG(callBack) {
       }
       function log(txt) {
         if (verbose && devmode) {
-          const d = Math.round(+new Date()/1000);
-          console.log(`@${d} [ status: ${status} ${howMany} ${status} lock:${renderLock} ] + ${txt}`);
+          let d = Math.round(+new Date());
+          console.log(maxWidth(`@${d} gSize ${genomeSize} ${nicePercent()} ${status} ${howMany} ${status} lock ${renderLock}] `, 60) + " >>> " + txt);
         } else if (verbose) {
           output(txt);
         }
@@ -2465,18 +2471,6 @@ function arrayToPNG(callBack) {
 
       function onError(e) {
         output('ERROR: ' + e.toString());
-      }
-
-      // it used to chop the headers
-      // but not it just helps with the streaming read design.
-      function parseFileMeta() {
-        // show users a sample of their file
-        const first1k = rawDNA.substring(0,999);
-        baseChars = rawDNA.length; // Size of file in bytes
-        // ignore anything at the start of the file, it starts with 6 letters of base
-        // var regexp = "/[ATCGUNatcgun][ATCGUNatcgun][ATCGUNatcgun][ATCGUNatcgun][ATCGUNatcgun][ATCGUNatcgun]/";
-        log("baseChars " + baseChars);
-        log(removeLineBreaks(first1k.substring(0,360)));
       }
 
       // remove anything that isn't ATCG, convert U to T
@@ -2520,9 +2514,8 @@ function arrayToPNG(callBack) {
       }
       function cursorToTopLeft() {
           process.stdout.write('\x1B[0f'); // CURSOR TO TOP LEFT???? <-- best for macos
-          process.stdout.write("\033[<0>;<0>f"); // cursor to 0,0
-          process.stdout.write('\x1B[0f'); // CURSOR TO TOP LEFT???? <-- best for macos
-          process.stdout.write("\033[<0>;<0>H"); // pretty good
+          // process.stdout.write("\033[<0>;<0>f"); // cursor to 0,0 maybe linux
+          // process.stdout.write("\033[<0>;<0>H"); // pretty good
         clearCheck();
       }
       function clearCheck() {
@@ -2563,13 +2556,13 @@ function arrayToPNG(callBack) {
       function crashReport() {
         log(cleanDNA);
       }
-      function calcUpdate() {
-        percentComplete = (charClock+0.001) / (baseChars+0.001); // avoid div by zero below
+      function calcUpdate() { // DONT ROUND KEEP PURE NUMBERS
+        percentComplete = (charClock+69) / (baseChars+69); // avoid div by zero below
         let now = new Date().getTime();
-        runningDuration = now - start;
-        timeElapsed = Math.round((runningDuration + 1) / 1000);
+        runningDuration = (now - start) + 1;
+        timeElapsed = Math.round(runningDuration / 1000);
         timeRemain = Math.round(((timeElapsed + 0.001) / (percentComplete + 0.001)) - timeElapsed);
-        kbRemain = (Math.round((baseChars - charClock)/1000)).toLocaleString();
+        kbRemain = (baseChars - charClock)/1000;
       }
       function getHistoCount(item, index) {
         return [ item.Codon, item.Histocount];
@@ -2577,7 +2570,7 @@ function arrayToPNG(callBack) {
       function whack_a_progress_on() {
         setTimeout(() => {
           calcUpdate();
-          out(twosigbitsTolocale(percentComplete*100) + '%' );
+          out(nicePercent());
             // var bar = new ProgressBar({
             //   schema: ':bar',
             //   total : 5000
@@ -2611,6 +2604,13 @@ function arrayToPNG(callBack) {
         return
       }
       function fixedWidth(str, wide) {
+        return minWidth(maxWidth(str, wide), wide);
+      }
+      function maxWidth(str, wide) { // shorten it if you need to
+        while(str.length > wide) { str = str.substring(0,wide) }
+        return str;
+      }
+      function minWidth(str, wide) { // make it wider
         while(str.length <= wide) { str = " " + str }
         return str;
       }
@@ -2622,16 +2622,15 @@ function arrayToPNG(callBack) {
 
         calcUpdate();
 
-        let kCodonsPerSecond = Math.round((genomeSize+1) / (runningDuration+1));
-        let kBytesPerSec = Math.round((charClock+1) / (runningDuration+1));
+        let codonsPerSec = Math.round( (genomeSize+1) / (runningDuration*1000) );
+        let bytesPerSec = Math.round( (charClock+1) / runningDuration*1000 );
         let text = " ";
         let aacdata = [];
         let abc = pepTable.map(getHistoCount).entries();
 
         if (msPerUpdate < maxMsPerUpdate) {
-          msPerUpdate += 50; // begin to not update screen so much over time
+          msPerUpdate += 50; // updates will slow over time on big jobs
         }
-        cyclesPerUpdate = kCodonsPerSecond * msPerUpdate; // one update per second, or 1.8.
 
         // OPTIMISE i should not be creating a new array each frame!
         for (h=0;h<pepTable.length;h++) {
@@ -2642,12 +2641,12 @@ function arrayToPNG(callBack) {
 
         let array = [
           `File: ${chalk.rgb(255, 255, 255).inverse(justNameOfDNA.toUpperCase())}.${extension} `,
-          `Done: ${chalk.rgb(128, 255, 128).inverse( fixedWidth( twosigbitsTolocale(percentComplete*100)), 5)} % Elapsed:${ fixedWidth( twosigbitsTolocale(timeElapsed), 4) } Remain:${ fixedWidth( twosigbitsTolocale(timeRemain),4) } sec `,
-          `@i${fixedWidth( charClock.toLocaleString(), 11)} Lines:${ fixedWidth( breakClock.toLocaleString(),7)} Files:${fixedWidth(  howMany, 3)} Filesize:${fixedWidth( bytes(baseChars), 8)} MB`,
+          `Done: ${chalk.rgb(128, 255, 128).inverse(nicePercent())} % Elapsed:${ fixedWidth( twosigbitsTolocale(timeElapsed), 4) } Remain:${ fixedWidth( twosigbitsTolocale(timeRemain),4) } sec `,
+          `@i${fixedWidth( charClock.toLocaleString(), 11)} Lines:${ fixedWidth( breakClock.toLocaleString(),7)} Filesize:${fixedWidth( bytes(baseChars), 8)}`,
           `Next update: ${fixedWidth( msPerUpdate.toLocaleString(), 5)}ms Codon Opacity: ${twosigbitsTolocale(opacity*100)}% `,
-          `CPU:${fixedWidth( bytes(kBytesPerSec*1024), 6)}/s Codons per sec:${fixedWidth( Math.round(kCodonsPerSecond).toLocaleString(),5)} Acids/pixel: ${twosigbitsTolocale(codonsPerPixel)} Pixels:${fixedWidth(colClock.toLocaleString(),11)}`,
-          `[ Codons: ${genomeSize.toLocaleString()} ]  Last Acid: ${terminalRGB(aminoacid, red, green, blue)} ${ ( isHighlightSet ? "Highlight: " + peptide : "" ) } Files to go: ${howMany}`,
-          `[ clean: ${ cleanString(rawDNA)} ] Output png: ${justNameOfPNG}] ${showFlags()}`];
+          `CPU:${fixedWidth( bytes(bytesPerSec), 10)}/s${fixedWidth( Math.round(codonsPerSec).toLocaleString(),5)}tps Acids/pixel: ${twosigbitsTolocale(codonsPerPixel)} Pixels:${fixedWidth(colClock.toLocaleString(),11)}`,
+          `[ Codons: ${genomeSize.toLocaleString()} Last Acid: ${chalk.rgb(red, green, blue)(aminoacid)} ${ ( isHighlightSet ? "Highlight: " + chalk.rgb(255, 255, 0).inverse(peptide) : "" )} Files left: ${howMany}`,
+          `[ Sample: ${ fixedWidth(cleanString(rawDNA), 60) } ${showFlags()} ]`];
 
           clearCheck();
           cursorToTopLeft();
@@ -2710,6 +2709,9 @@ function arrayToPNG(callBack) {
         function isNormalTriplet(normaltrip) {
           // output(`your normalpep ${normalpep.toUpperCase()}`);
           return dnaTriplets => dnaTriplets.DNA.toUpperCase() === normaltrip.toUpperCase();
+        }
+        function nicePercent() {
+          return fixedWidth( (Math.round(percentComplete*1000) / 10) + "%");
         }
         function tidyTripletName(str) {
           let clean = "none";
@@ -2856,6 +2858,7 @@ function arrayToPNG(callBack) {
 
 
         function terminalRGB(_text, _r, _g, _b) {
+          return chalk.rgb(_r,_g,_b)(_text);
           // BgBlack = "\x1b[40m"
           if (_r+_g+_b >= 256.0) {
             _text += "\x1b[44m"; // add some black background if its a light colour
