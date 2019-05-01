@@ -2713,7 +2713,7 @@ function saveHilbert(array) {
 
 
           let array = [
-            `File: ${fixedWidth(chalk.inverse(justNameOfDNA.toUpperCase()), 20)} RunID: ${timestamp}`,
+            `File: ${fixedWidth(chalk.inverse(justNameOfDNA.toUpperCase()), 22)} RunID: ${timestamp}`,
             `Done: ${chalk.rgb(128, 255, 128).inverse(nicePercent())} % Elapsed:${ fixedWidth( twosigbitsTolocale(timeElapsed), 4) } Remain:${ fixedWidth( twosigbitsTolocale(timeRemain),4) } sec `,
             `@i${fixedWidth( charClock.toLocaleString(), 11)} Lines:${ fixedWidth( breakClock.toLocaleString(),7)} Filesize:${fixedWidth( bytes(baseChars), 8)}`,
             `Next update: ${fixedWidth( msPerUpdate.toLocaleString(), 5)}ms Codon Opacity: ${twosigbitsTolocale(opacity*100)}% `,
