@@ -29,8 +29,8 @@ let artistic = false; // for Charlie
 let spew = false; // firehose your screen with DNA
 let report = true; // html reports
 let test = false;
-const overSampleFactor =1.2;
-let updates = false;
+const overSampleFactor = 3; // your linear image needs to be 2 megapixels to make 1 megapixel hilbert
+let updates = true;
 const maxMsPerUpdate = 12000; // milliseconds per update
 let msPerUpdate = 200; // min milliseconds per update
 const hilbPixels = [ 64, 256, 1024, 4096, 16384, 65536, 262144, 1048576, 4194304, 16777216, 67108864 ]; // I've personally never seen a mag 9 or 10 image, cos my computer breaks down. 67 Megapixel hilbert curve!! the last two are breaking nodes heap and call stack both.
@@ -249,9 +249,11 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
       string: [ 'peptide'],
       string: [ 'ratio'],
       string: [ 'width'],
-      alias: { a: 'artistic', c: 'codons', d: 'devmode', f: 'force', m: 'magnitude', p: 'peptide', i: 'image', t: 'triplet', r: 'ratio', s: 'spew', w: 'width', v: 'verbose' },
+      unknown: [ true ],
+      alias: { a: 'artistic', c: 'codons', d: 'devmode', f: 'force', m: 'magnitude', p: 'peptide', i: 'image', t: 'triplet', r: 'reg', s: 'spew', w: 'width', v: 'verbose' },
       default: { updates: true, clear: true, verbose: false }
     });
+
     output("args is currently " + args.toString());
     output("args._ is currently " + args._.toString());
     output("args is currently " + args.toString());
@@ -903,13 +905,7 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
     let computersGuess = pixToMaxMagnitude(estimatedPixels); // give it pixels it gives magnitude
     log(`image estimatedPixels ${estimatedPixels}   computersGuess ${computersGuess}`)
 
-    if (codonsPerPixel < defaultC) {
-      codonsPerPixel = defaultC;
-    } else if (codonsPerPixel > 6000) {
-      codonsPerPixel = 6000;
-    } else if (codonsPerPixel == NaN || codonsPerPixel == undefined) {
-      codonsPerPixel = defaultC;
-    }
+
 
     if (magnitude != undefined || magnitude == false) {
       if ( magnitude < computersGuess) {
@@ -986,6 +982,13 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
       codonsPerPixel = codonsPerPixel / artisticHighlightLength; // to pack it into same image size
     }
 
+    if (codonsPerPixel < defaultC) {
+      codonsPerPixel = defaultC;
+    } else if (codonsPerPixel > 6000) {
+      codonsPerPixel = 6000;
+    } else if (codonsPerPixel == NaN || codonsPerPixel == undefined) {
+      codonsPerPixel = defaultC;
+    }
     if (codonsPerPixel < defaultC) { // less than 1
       codonsPerPixel = defaultC;
     }
@@ -1147,7 +1150,7 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
     output(' ');
     output('flags:');
 
-    output('     --ratio -r square|golden|fixed       (image proportions)');
+    output('     --ratio square|golden|fixed          (image proportions)');
     output('     --width -w   1-20          (only works with fixed ratio)');
     output('     --magnitude -m       (debug setting to limit memory use)');
     output('     --triplet -t        (highlight triplet eg --triplet GGC)');
@@ -1987,17 +1990,17 @@ function calculateShrinkage() {
     }
   } else if (computerWants < 0) {
     dimension = 0; // its an array index
+  } else {
+    dimension = computerWants; // give him what he wants
   }
 
   if (args.magnitude || args.m) {
     dimension = magnitude; // users choice
-  } else {
-    dimension = computerWants; // computers choice
   }
 
   let hilpix = hilbPixels[dimension];;
   hilbertImage = [hilpix*4];
-  shrinkFactor = linearpix / (hilpix*2);//  array.length / 4;
+  shrinkFactor = linearpix / hilpix;//  array.length / 4;
   codonsPerPixelHILBERT = codonsPerPixel / shrinkFactor;
   output(`Linear input image size ${linearpix.toLocaleString()} will be down saple by factor ${shrinkFactor} to achieve a dimension ${dimension} hilbert curve yielding ${hilbPixels[dimension].toLocaleString()} pixels`);
   log(`shrinkFactor pre ${shrinkFactor} = linearpix ${linearpix } /  hilpix ${hilpix}  `);
@@ -2406,14 +2409,14 @@ function saveHilbert(array) {
         function resampleByFactor(shrinkFactor) {
           let sampleClock = 0;
           let brightness = 1/shrinkFactor;
-          let upsampleSize = hilbPixels[dimension] * 2; // 2X over sampling high grade y'all!
-          let antiAliasArray = [ upsampleSize  * 4 ]; // RGBA needs 4 cells per pixel
-          output(`Resampling linear image of size in pixels ${colClock.toLocaleString()} by the factor ${shrinkFactor} brightness per amino acid ${brightness} destination hilbert curve pixels ${hilbPixels[dimension].toLocaleString()} `);
+          let downsampleSize = hilbPixels[dimension]; // 2X over sampling high grade y'all!
+          let antiAliasArray = [ downsampleSize  * 4 ]; // RGBA needs 4 cells per pixel
+          output(`Resampling linear image of size in pixels ${colClock.toLocaleString()} by the factor ${twosigbitsTolocale(shrinkFactor)}X brightness per amino acid ${brightness} destination hilbert curve pixels ${downsampleSize.toLocaleString()} `);
 
-          // BLOW LINEAR IMAGE UP DOUBLE SIZE:
-          for (z = 0; z<upsampleSize; z++) { // 2x AA colClock is the number of pixels in linear
+          // SHRINK LINEAR IMAGE:
+          for (z = 0; z<downsampleSize; z++) { // 2x AA colClock is the number of pixels in linear
             if (z % 5000 == 0) {
-              log(`z: ${z.toLocaleString()}/${upsampleSize.toLocaleString()} samples remain: ${(colClock - sampleClock).toLocaleString()}`);
+              log(`z: ${z.toLocaleString()}/${downsampleSize.toLocaleString()} samples remain: ${(colClock - sampleClock).toLocaleString()}`);
             }
 
             let sum = z*4;
@@ -2424,9 +2427,10 @@ function saveHilbert(array) {
             antiAliasArray[sum+2] = rgbArray[clk+2]*brightness;
             antiAliasArray[sum+3] = rgbArray[clk+3]*brightness;
 
-            while(sampleClock  < z*shrinkFactor*2) {
-              // log(` z: ${z} sampleClock: ${sampleClock} shrinkFactor: ${shrinkFactor} brightness: ${brightness} hil pixels ${hilbPixels[dimension]} `);
-              // output(`z: ${z}   sampleClock: ${sampleClock}`)
+            while(sampleClock  < z*shrinkFactor) {
+              if (sampleClock % 5000 == 0) {
+                log(`z: ${z.toLocaleString()}/${downsampleSize.toLocaleString()} samples remain: ${(colClock - sampleClock).toLocaleString()}`);
+              }
               clk = sampleClock*4;
 
               antiAliasArray[sum+0] += rgbArray[clk+0]*brightness;
@@ -2438,36 +2442,18 @@ function saveHilbert(array) {
             }
             sampleClock++;
           }
-
-          // SHRINK IT BY HALF:
-          sampleClock = 0;
-          for (aa = 0; aa<hilbPixels[dimension]; aa++) { // 2x AA
-            let sum = z*4;
-            let clk = sampleClock*4*2; // 2 X AA
-
-            rgbArray[sum+0] = antiAliasArray[clk+0]*brightness;
-            rgbArray[sum+1] = antiAliasArray[clk+1]*brightness;
-            rgbArray[sum+2] = antiAliasArray[clk+2]*brightness;
-            rgbArray[sum+3] = antiAliasArray[clk+3]*brightness;
-
-            // anti-alias
-            rgbArray[sum+0] += antiAliasArray[clk+4]*brightness;
-            rgbArray[sum+1] += antiAliasArray[clk+5]*brightness;
-            rgbArray[sum+2] += antiAliasArray[clk+6]*brightness;
-            rgbArray[sum+3] += antiAliasArray[clk+7]*brightness;
-            sampleClock++;
-          }
-
+          rgbArray = antiAliasArray;
         }
         function pixToMaxMagnitude(pix) { // give it pix it returns a magnitude that fits inside it
           let dim = 0;
           out(`[HILBERT] Calculating largest Hilbert curve image that can fit inside ${twosigbitsTolocale(pix)} pixels, and over sampling factor of ${overSampleFactor}: `);
-          while (pix*overSampleFactor > hilbPixels[dim]) {
-            dim++;
-            // if (dim % 666 == 0 && dim > 666) {
+          while (pix > (hilbPixels[dim] * overSampleFactor)) {
+            out(`dim ${dim}: ${hilbPixels[dim]}`);
+
+            if (dim % 666 == 0 && dim > 666) {
             log(`ERROR pixToMaxMagnitude [${hilbPixels[dim]}] pix ${pix} dim ${dim}`);
-            // }
-            if (dim >= maxMagnitude) {
+            }
+            if (dim > maxMagnitude) {
               if (magnitude && dim > theActualMaxMagnitude ) {
                 output("HELLO: This will likely exceed nodes heap memory and/or call stack. mag 11 sure does. spin up the fans.")
                 dim = theActualMaxMagnitude;
@@ -2477,6 +2463,7 @@ function saveHilbert(array) {
                 break
               }
             }
+            dim++;
           }
           // if (dim>0) { dim--; } // was off by 1
 
@@ -2713,11 +2700,11 @@ function saveHilbert(array) {
 
 
           let array = [
-            `File: ${fixedWidth(chalk.inverse(justNameOfDNA.toUpperCase()), 22)} RunID: ${timestamp}`,
+            `File: ${fixedWidth(chalk.inverse(justNameOfDNA), 23)} RunID: ${timestamp}`,
             `Done: ${chalk.rgb(128, 255, 128).inverse(nicePercent())} % Elapsed:${ fixedWidth( twosigbitsTolocale(timeElapsed), 4) } Remain:${ fixedWidth( twosigbitsTolocale(timeRemain),4) } sec `,
             `@i${fixedWidth( charClock.toLocaleString(), 11)} Lines:${ fixedWidth( breakClock.toLocaleString(),7)} Filesize:${fixedWidth( bytes(baseChars), 8)}`,
             `Next update: ${fixedWidth( msPerUpdate.toLocaleString(), 5)}ms Codon Opacity: ${twosigbitsTolocale(opacity*100)}% `,
-            `CPU:${fixedWidth( bytes(bytesPerSec), 10)}/s${fixedWidth( Math.round(codonsPerSec).toLocaleString(),5)}tps Acids/pixel: ${twosigbitsTolocale(codonsPerPixel)} Pixels:${fixedWidth(colClock.toLocaleString(),11)}`,
+            `CPU:${fixedWidth( bytes(bytesPerSec), 10)}/s${fixedWidth( codonsPerSec.toLocaleString(), 5)}t/s acids/pixel: ${twosigbitsTolocale(codonsPerPixel)} Pixels:${fixedWidth(colClock.toLocaleString(),11)}`,
             `[ Codons: ${genomeSize.toLocaleString()} Last Acid: ${chalk.rgb(red, green, blue)(aminoacid)} ${ ( isHighlightSet ? "Highlight: " + chalk.rgb(255, 255, 0).inverse(peptide) : "" )} Files left: ${howMany}`,
             `[ Sample: ${ fixedWidth(cleanString(rawDNA), 60) } ${showFlags()} ]`];
 

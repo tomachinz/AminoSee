@@ -1,13 +1,12 @@
 #!/bin/sh
 aminosee_do () {
+  sleep 5
   nice -n $1 aminosee $2 $3 $4 $5 $6     &
   echo "done $2 $3 $4 $5 $6"
-  sleep 5
 }
 aminosee_do_foreground () {
   nice -n $1 aminosee $2 $3 $4 $5 $6
   echo "done $2 $3 $4 $5 $6"
-  sleep 1
 }
 
 
@@ -27,21 +26,21 @@ many_size_hilbert() {
   # aminosee_do_foreground 7 $1 -m 7 $2 $3 $4 $5 $6
   # aminosee_do 8 $1 -m 8 $2 $3 $4 $5 $6
 
-  # aminosee_do 1            -c 1 $1 $2 $3 $4 $5 $6
-  aminosee_do 1                 $1 $2 $3 $4 $5 $6
+  aminosee_do_foreground 1      $1 $2 $3 $4 $5 $6
+  aminosee_do 2             -m 4 $1 $2 $3 $4 $5 $6
+  aminosee_do_foreground 5  -c 7 $1 $2 $3 $4 $5 $6
+  aminosee_do 6             -c 8 $1 $2 $3 $4 $5 $6
+  aminosee_do_foreground 6  -c 10 $1 $2 $3 $4 $5 $6
+  aminosee_do 6            -c 20 $1 $2 $3 $4 $5 $6
+  aminosee_do_foreground 6 -c 40 $1 $2 $3 $4 $5 $6
+  aminosee_do 7            -c 100 $1 $2 $3 $4 $5 $6
+  aminosee_do_foreground 8 -c 128 $1 $2 $3 $4 $5 $6
+  aminosee_do 7            -c 500 $1 $2 $3 $4 $5 $6
+  aminosee_do_foreground 8 -m 3 $1 $2 $3 $4 $5 $6
   # aminosee_do_foreground 2 -c 3 $1 $2 $3 $4 $5 $6
   # aminosee_do_foreground 2 -c 4 $1 $2 $3 $4 $5 $6
   # aminosee_do 3            -c 5 $1 $2 $3 $4 $5 $6
   # aminosee_do 4            -c 6 $1 $2 $3 $4 $5 $6
-  aminosee_do_foreground 5 -c 7 $1 $2 $3 $4 $5 $6
-  aminosee_do 6            -c 8 $1 $2 $3 $4 $5 $6
-  aminosee_do 6            -c 10 $1 $2 $3 $4 $5 $6
-  aminosee_do 6            -c 20 $1 $2 $3 $4 $5 $6
-  aminosee_do_foreground 6 -c 40 $1 $2 $3 $4 $5 $6
-  aminosee_do 7            -c 100 $1 $2 $3 $4 $5 $6
-  # aminosee_do_foreground 8 -c 128 $1 $2 $3 $4 $5 $6
-  aminosee_do 7            -c 500 $1 $2 $3 $4 $5 $6
-  aminosee_do_foreground 8 -c 1000 $1 $2 $3 $4 $5 $6
   # echo "ATTEMPTING TO RENDER AT DIMENSION 9 THIS MAY RUN OUT OF MEMORY"
 
 

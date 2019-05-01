@@ -12,8 +12,8 @@ parallel_peptides () {
   echo "                                         =///"
   aminosee_do $1 $2 $3 $4 $5 $6 $7
   aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Ochre &
-  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Glutamic
-  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Aspartic &
+  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide="Glutamic acid"
+  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide="Aspartic acid" &
   aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Amber &
   aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Cysteine
   aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Glycine &
