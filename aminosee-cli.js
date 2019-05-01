@@ -2424,7 +2424,7 @@ function saveHilbert(array) {
             antiAliasArray[sum+2] = rgbArray[clk+2]*brightness;
             antiAliasArray[sum+3] = rgbArray[clk+3]*brightness;
 
-            while(sampleClock  < z*shrinkFactor) {
+            while(sampleClock  < z*shrinkFactor*2) {
               // log(` z: ${z} sampleClock: ${sampleClock} shrinkFactor: ${shrinkFactor} brightness: ${brightness} hil pixels ${hilbPixels[dimension]} `);
               // output(`z: ${z}   sampleClock: ${sampleClock}`)
               clk = sampleClock*4;
@@ -2478,7 +2478,7 @@ function saveHilbert(array) {
               }
             }
           }
-          if (dim>0) { dim--; } // was off by 1
+          // if (dim>0) { dim--; } // was off by 1
 
           out(` <<<--- chosen magnitude: ${dim} `);
           return dim;
