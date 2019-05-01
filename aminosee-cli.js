@@ -10,7 +10,7 @@ process.title = "aminosee.funk.nz";
 const extensions = [ "txt", "fa", "mfa", "gbk", "dna", "fasta", "fna", "fsa", "mpfa", "gb"];
 const refimage = "Reference image - all amino acids blended together"
 const lockFileMessage = "aminosee.funk.nz DNA Viewer by Tom Atkinson. This is a temp lock file, to enable parallel cluster rendering, usually it means an AminoSee was quit before finishing. Safe to erase. Normally deleting when render is complete.";
-const targetPixels = 8000000; // for big genomes use setting flag -c 1 to achieve highest resolution and bypass this taret max render size
+const targetPixels = 12000000; // for big genomes use setting flag -c 1 to achieve highest resolution and bypass this taret max render size
 // const raceDelay = 6666;
 const raceDelay = 6;
 const defaultC = 1; // back when it could not handle 3+GB files.
@@ -29,7 +29,7 @@ let artistic = false; // for Charlie
 let spew = false; // firehose your screen with DNA
 let report = true; // html reports
 let test = false;
-const overSampleFactor = 2.0;
+const overSampleFactor =2;
 let updates = false;
 const maxMsPerUpdate = 12000; // milliseconds per update
 let msPerUpdate = 200; // min milliseconds per update
@@ -250,10 +250,8 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
       string: [ 'ratio'],
       string: [ 'width'],
       stopEarly: [ false ],
-      '--': [ true ],
       alias: { a: 'artistic', c: 'codons', d: 'devmode', f: 'force', m: 'magnitude', p: 'peptide', i: 'image', t: 'triplet', r: 'ratio', s: 'spew', w: 'width', v: 'verbose' },
-      default: { updates: true, clear: true, verbose: false },
-      '--': true
+      default: { updates: true, clear: true, verbose: false }
     });
     output("args is currently " + args.toString());
     output("args._ is currently " + args._.toString());
@@ -511,15 +509,24 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
         // setTimeout(() => {
         //   quit(1);
         // }, 2000);
+
+
+        current = args._[0];
+        // current = args._.pop();
+        // filename = path.resolve(current); //
+        args._.push(current);
+        pollForStream();
+
         return true;
       } else {
         out(".");
-        filename = args._[0];
+        // filename = args._[0];
         // current = args._.pop();
         // filename = path.resolve(current); //
-        args._.push(filename);
+        // args._.push(filename);
+        // args._.push(filename);
 
-        args._.push("hello-world.txt");
+        // args._.push("hello-world.txt");
         isDiskFinHTML = isDiskFinHilbert = isDiskFinLinear = true;
 
         pollForStream();
@@ -682,14 +689,15 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
       autoconfCodonsPerPixel();
       status ="polling";
       setupFNames();
-      let ok = okToOverwritePNG(filenamePNG)
+      let ok = okToOverwritePNG(filenamePNG);
       if (!ok) {
         log("Failed check: OK to overwrite existing image?  " + ok);
         log(filenamePNG + " exist, skipping.");
         if (openHtml || openImage) {
           openOutputs();
         }
-        theSwitcher(false);
+        // theSwitcher(false);
+        theSwitcher(true);
         return false;
       } else {
         let temp = !checkLocks(filenameTouch);
@@ -1661,7 +1669,7 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
 
     // let ret = `${justNameOfDNA}.${extension}_HILBERT${highlightFilename()}_c${codonsPerPixelHILBERT}${getFileExtension()}.png`;
     let ret = generateFilenameHilbert();
-    currentPeptide = temp;
+    peptide = temp; // put back unsafe usage!
     isHighlightSet = temp2;
     return ret;
   }

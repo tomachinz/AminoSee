@@ -1,11 +1,11 @@
 #!/bin/sh
 aminosee_do () {
-  nice -n $1 aminosee $2 $3 $4 $5 $6 &
+  nice -n $1 aminosee $3 $4 $5 $6    $2 &
   echo "done $2 $3 $4 $5 $6"
   sleep 1
 }
 aminosee_do_foreground () {
-  nice -n $1 aminosee $2 $3 $4 $5 $6
+  nice -n $1 aminosee $3 $4 $5 $6    $2
   echo "done $2 $3 $4 $5 $6"
   sleep 1
 }
@@ -28,10 +28,10 @@ many_size_hilbert() {
   # aminosee_do 8 $1 -m 8 $2 $3 $4 $5 $6
 
   aminosee_do 1            $1 -c 1 $2 $3 $4 $5 $6
-  # aminosee_do 1            $1 -c 1 -m $2 $3 $4 $5 $6
-  # aminosee_do_foreground 2 $1 -c 2 $2 $3 $4 $5 $6
-  # aminosee_do 3            $1 -c 4 $2 $3 $4 $5 $6
-  # aminosee_do 4            $1 -c 8 $2 $3 $4 $5 $6
+  aminosee_do 1            $1 -c 2 $2 $3 $4 $5 $6
+  aminosee_do_foreground 2 $1 -c 3 $2 $3 $4 $5 $6
+  aminosee_do 3            $1 -c 5 $2 $3 $4 $5 $6
+  aminosee_do 4            $1 -c 6 $2 $3 $4 $5 $6
   aminosee_do_foreground 5 $1 -c 16 $2 $3 $4 $5 $6
   # aminosee_do 6            $1 -c 32 $2 $3 $4 $5 $6
   aminosee_do 7            $1 -c 64 $2 $3 $4 $5 $6
