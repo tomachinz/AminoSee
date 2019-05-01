@@ -249,7 +249,6 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
       string: [ 'peptide'],
       string: [ 'ratio'],
       string: [ 'width'],
-      stopEarly: [ false ],
       alias: { a: 'artistic', c: 'codons', d: 'devmode', f: 'force', m: 'magnitude', p: 'peptide', i: 'image', t: 'triplet', r: 'ratio', s: 'spew', w: 'width', v: 'verbose' },
       default: { updates: true, clear: true, verbose: false }
     });
@@ -501,20 +500,20 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
       default:
       if (cmd == undefined) {
         welcomeMessage();
-
+        current = args._[0];
+        // current = args._.pop();
+        // filename = path.resolve(current); //
+        args._.push(current);
         status = "no command";
         // filename = "no file";
         output(`Try running aminosee * in a directory with DNA.`);//" Closing in 2 seconds.")
-        log(`your cmd: ${cmd}`);
+        output(`your cmd: ${current} howMany ${howMany}`);
         // setTimeout(() => {
         //   quit(1);
         // }, 2000);
 
 
-        current = args._[0];
-        // current = args._.pop();
-        // filename = path.resolve(current); //
-        args._.push(current);
+
         pollForStream();
 
         return true;
@@ -2714,7 +2713,7 @@ function saveHilbert(array) {
 
 
           let array = [
-            `File: ${chalk.rgb(255, 255, 255).inverse(justNameOfDNA.toUpperCase())}.${extension} `,
+            `File: ${fixedWidth(chalk.inverse(justNameOfDNA.toUpperCase()), 20)} RunID: ${timestamp}`,
             `Done: ${chalk.rgb(128, 255, 128).inverse(nicePercent())} % Elapsed:${ fixedWidth( twosigbitsTolocale(timeElapsed), 4) } Remain:${ fixedWidth( twosigbitsTolocale(timeRemain),4) } sec `,
             `@i${fixedWidth( charClock.toLocaleString(), 11)} Lines:${ fixedWidth( breakClock.toLocaleString(),7)} Filesize:${fixedWidth( bytes(baseChars), 8)}`,
             `Next update: ${fixedWidth( msPerUpdate.toLocaleString(), 5)}ms Codon Opacity: ${twosigbitsTolocale(opacity*100)}% `,

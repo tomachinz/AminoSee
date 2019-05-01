@@ -27,9 +27,10 @@ many_size_hilbert() {
   # aminosee_do_foreground 7 $1 -m 7 $2 $3 $4 $5 $6
   # aminosee_do 8 $1 -m 8 $2 $3 $4 $5 $6
 
-  aminosee_do 1            -c 1 $1 $2 $3 $4 $5 $6
-  aminosee_do 1            -c 2 $1 $2 $3 $4 $5 $6
+  # aminosee_do 1            -c 1 $1 $2 $3 $4 $5 $6
+  aminosee_do 1                 $1 $2 $3 $4 $5 $6
   aminosee_do_foreground 2 -c 3 $1 $2 $3 $4 $5 $6
+  aminosee_do_foreground 2 -c 4 $1 $2 $3 $4 $5 $6
   aminosee_do 3            -c 5 $1 $2 $3 $4 $5 $6
   aminosee_do 4            -c 6 $1 $2 $3 $4 $5 $6
   aminosee_do_foreground 5 -c 7 $1 $2 $3 $4 $5 $6
