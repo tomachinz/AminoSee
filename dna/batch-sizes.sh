@@ -34,6 +34,9 @@ many_size_hilbert() {
   aminosee_do 4            $1 -c 6 $2 $3 $4 $5 $6
   aminosee_do_foreground 5 $1 -c 7 $2 $3 $4 $5 $6
   aminosee_do 6            $1 -c 8 $2 $3 $4 $5 $6
+  aminosee_do 6            $1 -c 10 $2 $3 $4 $5 $6
+  aminosee_do 6            $1 -c 20 $2 $3 $4 $5 $6
+  aminosee_do_foreground 6            $1 -c 40 $2 $3 $4 $5 $6
   aminosee_do 7            $1 -c 100 $2 $3 $4 $5 $6
   # aminosee_do_foreground 8 $1 -c 128 $2 $3 $4 $5 $6
   aminosee_do 7            $1 -c 500 $2 $3 $4 $5 $6
@@ -49,7 +52,7 @@ many_size_hilbert() {
 
 
 
-many_size_hilbert $1 $2 $3 $4 $5 $6
+many_size_hilbert --reg $1 $2 $3 $4 $5 $6
 # sleep 2
 # many_size_hilbert $1 $2 $3 $4 $5 $6 *
 # many_size_hilbert megabase.fa
