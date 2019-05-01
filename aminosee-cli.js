@@ -344,7 +344,8 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
       } else if ( ratio == "hilbert" || ratio == "hilb" || ratio == "hil" ) {
         ratio = "hil";
       } else {
-        ratio = "sqr";
+        log(`No custom ratio chosen. (default)`);
+        ratio = "fix";
       }
       pngImageFlags += ratio;
     } else {
