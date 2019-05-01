@@ -393,7 +393,7 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
     } else {
       output(`peptide  ${peptide} triplet ${triplet}`);
       isHighlightSet = true;
-      // report = false; // disable html report
+      report = false; // disable html report
     }
 
     if (args.artistic || args.art || args.a) {
@@ -1193,18 +1193,21 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
       // hilbertFinished() ;
       linearFinished();
     });
-    out("Saving HTML");
-    saveHTML();
+    // out("Saving HTML");
+    // saveHTML();
 
-    // status = "saving html report";
-    // if (report == true ) { // report when highlight set
-    //   out("Saving HTML");
-    //   saveHTML();
-    // } else {
-    //   // out(`No HTML report output. Due to peptide filters: ${peptide} ${triplet}`);
-    //   out(`HTML report output. Peptide filters: ${peptide} ${triplet} may cause a bug here`);
-    //   saveHTML();
-    // }
+    status = "saving html report";
+    if (report == true ) { // report when highlight set
+      out("Saving HTML");
+      saveHTML();
+    } else {
+      out(`No HTML report output. Due to peptide filters: ${peptide} ${triplet}`);
+      htmlFinished();
+      // out(`HTML report output. Peptide filters: ${peptide} ${triplet} may cause a bug here, resetting them to none now`);
+      // peptide = "none";
+      // triplet = "none";
+      // saveHTML();
+    }
     openOutputs();
     log(renderSummary());
 
@@ -2064,7 +2067,6 @@ function saveHilbert(array) {
       .pipe(wstream)
       .on('finish', () => {
         out("Finished hilbert png save.");
-        // openOutputs();
         hilbertFinished();
       }));
 
@@ -2075,6 +2077,7 @@ function saveHilbert(array) {
     }
     function hilbertFinished() {
       isDiskFinHilbert = true;
+      openOutputs();
       pollForStream();
     }
     function linearFinished() {
