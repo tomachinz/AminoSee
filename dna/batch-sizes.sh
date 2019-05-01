@@ -1,11 +1,11 @@
 #!/bin/sh
 aminosee_do () {
-  nice -n $1 aminosee $3 $4 $5 $6    $2 &
+  nice -n $1 aminosee $2 $3 $4 $5 $6     &
   echo "done $2 $3 $4 $5 $6"
   sleep 5
 }
 aminosee_do_foreground () {
-  nice -n $1 aminosee $3 $4 $5 $6    $2
+  nice -n $1 aminosee $2 $3 $4 $5 $6
   echo "done $2 $3 $4 $5 $6"
   sleep 1
 }
