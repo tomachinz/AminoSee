@@ -64,9 +64,9 @@ const defaultFilename = "AminoSeeTestPatterns"; // for some reason this needs to
 let highlightTriplets = [];
 let isHighlightSet = false;
 let isHilbertPossible = true; // set false if -c flags used.
-let isDiskFinLinear = false; // flag shows if saving png is complete
-let isDiskFinHilbert = false; // flag shows if saving hilbert png is complete
-let isDiskFinHTML = false; // flag shows if saving html is complete
+let isDiskFinLinear = true; // flag shows if saving png is complete
+let isDiskFinHilbert = true; // flag shows if saving hilbert png is complete
+let isDiskFinHTML = true; // flag shows if saving html is complete
 let filename = defaultFilename;
 let rawDNA ="@"; // debug
 let status = "load";
@@ -690,14 +690,14 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
       status ="polling";
       setupFNames();
       let ok = okToOverwritePNG(filenamePNG);
-      if (!ok) {
+      if (ok != true) {
         log("Failed check: OK to overwrite existing image?  " + ok);
         log(filenamePNG + " exist, skipping.");
+        // openImage = true;
         if (openHtml || openImage) {
           openOutputs();
         }
-        // theSwitcher(false);
-        theSwitcher(true);
+        theSwitcher(false); // dont overwrite
         return false;
       } else {
         let temp = !checkLocks(filenameTouch);
@@ -1889,7 +1889,7 @@ function helpCmd(args) {
   output("run aminosee * to process all dna in current dir");
 }
 function checkLocks(ffffff) { // return false if locked.
-  log("checkLocks RUNNING");
+  log("checkLocks RUNNING: " + ffffff);
   if (force == true && devmode == false) {
     log("Not checking locks - force mode enabled.");
     return true;
@@ -1922,7 +1922,7 @@ function okToOverwritePNG(f) { // true to continue, false to abort
     result = fs.lstatSync(f).isDirectory;
     log("[lstatSync result]" + result);
     output("A png image has already been generated for this DNA: " + f)
-    output("use -f to overwrite");
+    output("use -f to overwrite or try --image to automatically open");
     if (openHtml || openImage) {
       openOutputs();
     }
@@ -2203,6 +2203,7 @@ function saveHilbert(array) {
           if (openHtml) {
             output("Opening: " + filenameHTML);
             output("Opening your RENDER SUMMARY HTML report. If process blocked either quit browser AND image viewer or [ CONTROL-C ]");
+            output("prevent this with --no-html");
             opn(filenameHTML).then(() => {
               log("browser closed");
             }).catch(function () { out("HTML opened: " + filenameHTML) });
