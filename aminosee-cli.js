@@ -76,7 +76,7 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
   "No")}${chalk.rgb(64, 64, 64).inverse("Evil")}`);
   let interactiveKeysGuide = "";
   let renderLock = false;
-  let hilbertImage, keyboard, filenameTouch, maxpix, estimatedPixels, args, filenamePNG, extension, reader, hilbertPoints, herbs, levels, progress, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, textFile, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, fileUploadShowing, testColors, chunksMax, chunksize, chunksizeBytes, cpu, subdivisions, contextBitmap, aminoacid, colClock, start, updateClock, bytesPerSec, pixelStacking, isHighlightCodon, justNameOfDNA, justNameOfPNG, justNameOfHILBERT, sliceDNA, filenameHTML, howMany, timeElapsed, runningDuration, kbRemain, width, triplet, updatesTimer, pngImageFlags, codonsPerPixel, codonsPerPixelHILBERT, CRASH, red, green, blue, alpha, errorClock, breakClock, streamLineNr, filesDone, spewClock, opacity, codonRGBA, geneRGBA, currentTriplet, currentPeptide,  progato, shrinkFactor, reg, image, loopCounter, clear, percentComplete, charClock, baseChars, bigIntFileSize, currentFile;
+  let hilbertImage, keyboard, filenameTouch, maxpix, estimatedPixels, args, filenamePNG, extension, reader, hilbertPoints, herbs, levels, progress, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, textFile, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, fileUploadShowing, testColors, chunksMax, chunksize, chunksizeBytes, cpu, subdivisions, contextBitmap, aminoacid, colClock, start, updateClock, bytesPerSec, pixelStacking, isHighlightCodon, justNameOfDNA, justNameOfPNG, justNameOfHILBERT, sliceDNA, filenameHTML, howMany, timeElapsed, runningDuration, kbRemain, width, triplet, updatesTimer, pngImageFlags, codonsPerPixel, codonsPerPixelHILBERT, CRASH, red, green, blue, alpha, errorClock, breakClock, streamLineNr, filesDone, spewClock, opacity, codonRGBA, geneRGBA, currentTriplet, currentPeptide,  progato, shrinkFactor, reg, image, loopCounter, clear, percentComplete, charClock, baseChars, bigIntFileSize, currentFile, outputPath, currentPepHighlight;
   BigInt.prototype.toJSON = function() { return this.toString(); }; // shim for big int
   BigInt.prototype.toBSON = function() { return this.toString(); }; // Add a `toBSON()` function to enable MongoDB to store BigInts as strings
 
@@ -256,9 +256,9 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
       default: { updates: true, clear: true, verbose: false }
     });
 
-    output("args is currently " + args.toString());
-    output("args._ is currently " + args._.toString());
-    output("args is currently " + args.toString());
+    log("args is currently " + args.toString());
+    log("args._ is currently " + args._.toString());
+    log("args is currently " + args.toString());
 
     //
     // console.log(`stdin pipe: ${pipeInstance.checkIsPipeActive()}`);
@@ -459,13 +459,8 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
       log("statistics updates disabled");
       updates = false;
     }
-
-    output()
-    // log(args);
     let cmd = args._[0];
-    output(`args: ${args._}`);
-    // output(process.argv);
-    // process.argv
+    log(`args: ${args._}`);
     howMany = args._.length ;
 
     if (args.test) {
@@ -513,7 +508,7 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
         status = "no command";
         // filename = "no file";
         output(`Try running aminosee * in a directory with DNA.`);//" Closing in 2 seconds.")
-        output(`your cmd: ${currentFile} howMany ${howMany}`);
+        log(`your cmd: ${currentFile} howMany ${howMany}`);
         // setTimeout(() => {
         //   quit(1);
         // }, 2000);
@@ -554,13 +549,13 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
     .pipe(stream.Transform({
       objectMode: true,
       transform: function(entry,e,cb) {
-        var filePath = entry.path;
+        var outputPath = entry.path;
         var type = entry.type; // 'Directory' or 'File'
         var size = entry.size;
         var cb = function (byte) {
           console.log(byte);
         }
-        if (filePath === "this IS the file I'm looking for") {
+        if (outputPath === "this IS the file I'm looking for") {
           entry.pipe(fs.createWriteStream('dna'))
           .on('finish',cb);
         } else {
@@ -615,7 +610,7 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
       updates = false;
     }
     if (howMany < 1) {
-      output("FINITO");
+      log("FINITO");
       return true;
     }
     try {
@@ -1021,7 +1016,7 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
       if ( currentTriplet.toLowerCase() != "none" || triplet.toLowerCase() != "none") {
         ret += `_${spaceTo_(currentTriplet).toUpperCase()}`;
       } else if (currentPeptide != "none") {
-        ret += `_${spaceTo_(currentPeptide)}`;
+        ret += `_${spaceTo_( tidyPeptideName( currentPeptide ) )}`;
       } else {
         ret += `-reference`;
       }
@@ -1029,42 +1024,25 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
     // log(`ret: ${ret} currentTriplet: ${currentTriplet} currentPeptide ${currentPeptide}`);
     return ret;
   }
-  function getFileExtension() {
-    let t = getRegmarks();
 
-    if (args.ratio) {
-      t += `_${ratio}`;
-    }
-    ( artistic ? t += "_artistic" : t += "_sci")
-    return t;
-  }
   function setupFNames() {
     extension = getLast5Chars(filename);
-    justNameOfDNA = spaceTo_(removeFileExtension(replaceFilepathFileName(filename)));
+    justNameOfDNA = spaceTo_(removeFileExtension(replaceoutputPathFileName(filename)));
 
     if (justNameOfDNA.length > 22 ) {
       justNameOfDNA = justNameOfDNA.substring(0,11) + justNameOfDNA.substring(justNameOfDNA.length-11,justNameOfDNA.length);
     }
-    // let filePath = path.dirname(path.resolve(path.dirname(filename))); // parent
-    let filePath = path.resolve(path.dirname(filename)) ;
-    filePath += "/output" ;
+    // let outputPath = path.dirname(path.resolve(path.dirname(filename))); // parent
+    outputPath = path.resolve(path.dirname(filename));
+    outputPath += "/output" ;
     mkdir("output");
-    let ext = spaceTo_(getFileExtension());
-    // if (magnitude != false) {
-    //   t += ".m" + magnitude;
-    // } else {
-    //   log(`no magnitude setting: ${magnitude}`)
-    // }
-    //
-    generateFilenameHTML();
-    generateFilenamePNG();
-    generateFilenameHilbert();
-    filenameTouch =   `${filePath}/${justNameOfDNA}.${extension}_LOCK${highlightFilename()}_c${onesigbitTolocale(codonsPerPixel)}${ext}.aminosee.touch`;
-    filenamePNG =     filePath + "/" + justNameOfPNG;
-    filenameHTML =    filePath + "/" + justNameOfHTML;
-    filenameHILBERT = filePath + "/" + justNameOfHILBERT;
+    let ext = spaceTo_(getImageType());
 
-    log(`ext: ${highlightFilename() + ext} pep ${peptide} status ${status} filePath ${filePath} isHighlightSet ${isHighlightSet}`);
+    filenamePNG =     outputPath + "/" + generateFilenamePNG();
+    filenameHTML =    outputPath + "/" + generateFilenameHTML();
+    filenameHILBERT = outputPath + "/" + generateFilenameHilbert();
+    filenameTouch =   outputPath + "/" + generateFilenameTouch();
+    // log(`ext: ${highlightFilename() + ext} pep ${peptide} status ${status} outputPath ${outputPath} isHighlightSet ${isHighlightSet}`);
   }
 
   function launchNonBlockingServer() {
@@ -1165,6 +1143,7 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
     output('     --no-update                       (dont provide updates)');
     output('     --reg    (put registration marks @ 25% 50% 75% and 100%)');
     output('     --test                (create calibration test patterns)');
+    output('     --keyboard -k (enable interactive mode, use control-c to end)');
     output('usage:');
     output('    aminosee *                         (to process all files)');
     output('use serve to run the web server');
@@ -1172,12 +1151,15 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
     output('wget https://www.funk.co.nz/aminosee/dna/megabase.fa');
     output(' ');
     output('examples:    ');
-    output('     aminosee human-genome-DNA.txt             (render one file)');
-    output('     aminosee chr1.fa  chrX.fa  chrY.fa         (render 3 files)');
+    output('     aminosee Human-Chromosome-DNA.txt --force (force overwrite fresh render)');
     output('     aminosee chr1.fa -m 8                 (render at 2048x2048)');
-    output('     aminosee * --golden --peptide=phenyl (Phenylalanine codons)');
-    output('     aminosee * --fixed  --triplet=GGT   (higlighted GGT codons)');
-    output('     aminosee serve                         (fire up the demo!!)');
+    output('     aminosee * --peptide="Glutamic acid" (use quotes if there is a space)');
+    output('     aminosee * --triplet=GGT (must be only 3 characters of ATCGU)');
+    output('     aminosee test                 (generate calibration images)');
+    output('     aminosee serve                (fire up the mini web server)');
+    output('     aminosee demo   <<-----           (run demo - beta version)');
+    output('     aminosee chr1.fa  chrX.fa  chrY.fa         (render 3 files)');
+    output('     aminosee *         (render all files with default settings)');
     printRadMessage();
   }
   // function
@@ -1205,7 +1187,7 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
     }
 
     status = "saving html report";
-    if (report == true ) { // report when highlight set
+    if (report == true && willRecycleSavedImage != true) { // report when highlight set
       out("Saving HTML");
       saveHTML();
     } else {
@@ -1642,56 +1624,68 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
     } // END OF line LOOP! thats one line but mixRGBA can survive lines
   } // end processLine
 
-  function aminoFilenameIndex(id) {
-    let temp = peptide; // store it after unsafe usage in this function
-    let temp2 = isHighlightSet; // store it after unsafe usage in this function
-    if (id == undefined || id == -1) {
-      isHighlightSet = false;
-      peptide = "none";
+  function aminoFilenameIndex(id) { // return the filename for this amino acid for the report
+    let backupPeptide = peptide;
+    let backupHighlight = isHighlightSet;
+    if (id == undefined || id == -1) { // for the reference image
+      currentPepHighlight = false;
       currentPeptide = "none";
     } else {
-      isHighlightSet = true;
-      currentPeptide = pepTable[id].Codon.toLowerCase(); // bad use of globals but highlightFilename use this global
+      currentPepHighlight = true;
+      currentPeptide = spaceTo_( pepTable[id].Codon );
     }
-
-    // let ret = `${justNameOfDNA}.${extension}_HILBERT${highlightFilename()}_c${codonsPerPixelHILBERT}${getFileExtension()}.png`;
+    peptide = currentPeptide; // bad use of globals i agree, well i aint getting paid for this, i do it for the love, so yeah
+    isHighlightSet = currentPepHighlight;
     let ret = generateFilenameHilbert();
-    peptide = temp; // put back unsafe usage!
-    isHighlightSet = temp2;
+    peptide = backupPeptide;
+    isHighlightSet = backupHighlight;
     return ret;
   }
-  function generateFilenameHTML() {
-    let ext = spaceTo_(getFileExtension());
-    justNameOfHTML =     `${justNameOfDNA}.${extension}_m${dimension}_c${onesigbitTolocale(codonsPerPixel)}${ext}.html`;
-    return justNameOfPNG;
+  function getImageType() {
+    let t = "";
+    if (args.ratio) {
+      t += `_${ratio}`;
+    }
+    ( artistic ? t += "_artistic" : t += "_sci")
+    return t;
+  }
+  function generateFilenameTouch() { // we only need the fullpath of this one
+    return                  `${justNameOfDNA}.${extension}_LOCK${highlightFilename()}_c${onesigbitTolocale(codonsPerPixel)}${getImageType()}.aminosee.touch`;
   }
   function generateFilenamePNG() {
-    let ext = spaceTo_(getFileExtension());
-    justNameOfPNG =     `${justNameOfDNA}.${extension}_linear${highlightFilename()}_c${onesigbitTolocale(codonsPerPixel)}${ext}.png`;
+    justNameOfPNG =         `${justNameOfDNA}.${extension}_linear${highlightFilename()}_c${onesigbitTolocale(codonsPerPixel)}${getImageType()}.png`;
     return justNameOfPNG;
   }
   function generateFilenameHilbert() {
-    let ext = spaceTo_(getFileExtension());
-    justNameOfHILBERT =     `${justNameOfDNA}.${extension}_HILBERT${highlightFilename()}_m${dimension}_c${onesigbitTolocale(codonsPerPixelHILBERT)}${ext}.png`;
+    justNameOfHILBERT =     `${justNameOfDNA}.${extension}_HILBERT${highlightFilename()}_m${dimension}_c${onesigbitTolocale(codonsPerPixelHILBERT)}${getRegmarks()}.png`;
     return justNameOfHILBERT;
+  }
+  function generateFilenameHTML() {
+    justNameOfHTML =        `${justNameOfDNA}.${extension}_m${dimension}_c${onesigbitTolocale(codonsPerPixel)}${getRegmarks()}${getImageType()}.html`;
+    return justNameOfPNG;
   }
   function imageStack() {
     let hhh = " ";
+    let backupPeptide = peptide;
+    let backupHighlight = isHighlightSet;
+
     hhh += `<a href="${aminoFilenameIndex()}" onmouseover="mover(${-1})" onmouseout="mout(${-1})"><img  src="${aminoFilenameIndex()}" id="stack_reference" width="256" height="256" style="z-index: ${999}; position: absolute; top: 0px; left: 0px;" alt="${refimage}" title="${refimage}"></a>`;
 
     for (i=0; i<pepTable.length; i++) {
-      let thePep = pepTable[i].Codon.toLowerCase();
+      let thePep = spaceTo_( pepTable[i].Codon );
       let theHue = pepTable[i].Hue;
       let c =      hsvToRgb( theHue/360, 0.5, 1.0 );
 
-      if (thePep != "non-coding nnn"  && thePep != "start codons" && thePep != "stop codons") {
-        hhh += `<a href="${aminoFilenameIndex(i)}" onmouseover="mover(${i})" onmouseout="mout(${i})"><img  src="${aminoFilenameIndex(i)}" id="stack_${i}" width="256" height="256" style="z-index: ${1000+i}; position: absolute; top: ${i*2}px; left: ${i*12}px;" alt="${pepTable[i].Codon}" title="${pepTable[i].Codon}"></a>`;
+      if (thePep != "Non-coding_NNN"  && thePep != "Start_Codons" && thePep != "Stop_Codons") {
+        hhh += `<a href="${aminoFilenameIndex(i)}" onmouseover="mover(${i})" onmouseout="mout(${i})"><img src="${aminoFilenameIndex(i)}" id="stack_${i}" width="256" height="256" style="z-index: ${1000+i}; position: absolute; top: ${i*2}px; left: ${i*12}px;" alt="${pepTable[i].Codon}" title="${pepTable[i].Codon}"></a>`;
       } else {
         log("non-coding nnn image not output");
       }
     }
-    currentPeptide = peptide = "none"; // hack to address globals
+    currentPeptide = "none"; // hack to address globals
     aminoFilenameIndex(); // hack to address globals
+    peptide = backupPeptide;
+    isHighlightSet = backupHighlight;
     return hhh;
   }
 
@@ -2350,8 +2344,8 @@ function saveHilbert(array) {
     function fakeReportInit(magnitude) {
       start = new Date().getTime();
       test, dimension = magnitude; // mags for the test
-      // let filePath = path.resolve(__dirname); // OLD WAY not compatible with pkg
-      let filePath = path.resolve(process.cwd()); //
+      // let outputPath = path.resolve(__dirname); // OLD WAY not compatible with pkg
+      let outputPath = path.resolve(process.cwd()); //
       let regmarks = getRegmarks();
       isHilbertPossible = true;
       report = true;
@@ -2360,9 +2354,9 @@ function saveHilbert(array) {
       justNameOfPNG = `${justNameOfDNA}_LINEAR_${ magnitude }.png`;
       justNameOfHILBERT = `${justNameOfDNA}_HILBERT_${ magnitude }.png`;
 
-      filenameHILBERT = filePath + "/calibration/" + justNameOfHILBERT;
-      filenamePNG     = filePath + "/calibration/" + justNameOfPNG;
-      filenameHTML    = filePath + "/calibration/" + justNameOfDNA + ".html";
+      filenameHILBERT = outputPath + "/calibration/" + justNameOfHILBERT;
+      filenamePNG     = outputPath + "/calibration/" + justNameOfPNG;
+      filenameHTML    = outputPath + "/calibration/" + justNameOfDNA + ".html";
 
       // baseChars = Math.pow(2, magnitude + 3); // HILBERT 8 IS 1024 PIXELS HILBERT 0 IS 8 PIXELS
       baseChars = hilbPixels[ magnitude ];
@@ -2542,7 +2536,7 @@ function saveHilbert(array) {
         }
       }
 
-      function replaceFilepathFileName(f) {
+      function replaceoutputPathFileName(f) {
         return f.replace(/^.*[\\\/]/, '');
       }
       function makeRequest(url) {

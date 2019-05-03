@@ -1,8 +1,15 @@
 #!/bin/sh
-
+# test should run quickly and quit.
 w
 
 aminosee_test () {
+
+  echo "doing  peptide spelling check"
+  nice aminosee $1 $2 $3 $4 $5 --peptide="gluTAMIC aCID"
+
+  echo "doing  triplet with no equals --triplet ggg "
+  nice aminosee $1 $2 $3 $4 $5 --triplet ggg
+
   echo "doing  $1 $2 $3 $4 $5"
   nice aminosee $1 $2 $3 $4 $5 --no-updates -m 5 --ratio=gol     --peptide=Ochre
 
@@ -26,11 +33,56 @@ aminosee_test () {
   echo "resuming..."
 }
 
-  echo "                                         =///"
-  echo "-------------------------------------------"
-  echo STARTING TESTING FOR $1 $2 $3
-  echo "-------------------------------------------"
-  echo "                                         =///"
+
+
+aminosee_test      *       --peptide=Ochre
+# aminosee_test            $1 $2 2 $3 $4 --peptide=Glutamic &
+# aminosee_test            $1 $2 3 $3 $4 --peptide=Aspartic &
+# aminosee_test            $1 $2 4 $3 $4 --peptide=Amber &
+aminosee_test      *       --peptide "aspartic acid"
+# aminosee_test            $1 $2 6 $3 $4 --peptide=Glycine &
+# aminosee_test_foreground $1 $2 0 $3 $4 --peptide=Alanine
+
+aminosee_test      *       --peptide="Methionine"
+# aminosee_test            $1 $2 2 $3 $4 --peptide=Valine &
+# aminosee_test_foreground $1 $2 3 $3 $4 --peptide=Leucine &
+# aminosee_test            $1 $2 4 $3 $4 --peptide=Isoleucine &
+aminosee_test     *       --peptide="GLUTAMIC ACID"
+# aminosee_test            $1 $2 6 $3 $4 --peptide=Tryptophan
+# aminosee_test            $1 $2 7 $3 $4 --peptide=Serine &
+# aminosee_test_foreground $1 $2 0 $3 $4 --peptide=Threonine
+
+aminosee_test             --peptide=Opal
+# aminosee_test            $1 $2 2 $3 $4 --peptide=Glutamine &
+# aminosee_test            $1 $2 3 $3 $4 --peptide=Asparagine &
+# aminosee_test_foreground $1 $2 0 $3 $4 --peptide=Tyrosine &
+# aminosee_test             --peptide=Arginine
+# aminosee_test_foreground $1 $2 6 $3 $4 --peptide=Lysine
+# aminosee_test_foreground $1 $2 0 $3 $4 --peptide=Histidine &
+
+echo "                                         =///"
+echo "-------------------------------------------"
+echo FINISHED PARALLEL DECODE FOR $1
+echo "-------------------------------------------"
+echo "                                         =///"
+
+sleep 12
+batch-process.sh
+w
+
+
+
+
+
+
+
+
+
+echo "                                         =///"
+echo "-------------------------------------------"
+echo STARTING TESTING FOR $1 $2 $3
+echo "-------------------------------------------"
+echo "                                         =///"
 
 nice ./batch-triplets.sh --no-updates  *
 nice ./batch-sizes.sh --no-updates  *
@@ -54,39 +106,3 @@ nice ./batch-peptides.sh  --no-updates  *
 # aminosee_test Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa AAA-to-TTT-50k.txt --peptide=Amber --no-updates &
 # aminosee_test megabase.fa Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa AAA-to-TTT-50k.txt --peptide=Tryptophan --no-clear &
 # aminosee_test * --no-updates -v &
-
-
-aminosee_test      *       --peptide=Ochre
-# aminosee_test            $1 $2 2 $3 $4 --peptide=Glutamic &
-# aminosee_test            $1 $2 3 $3 $4 --peptide=Aspartic &
-# aminosee_test            $1 $2 4 $3 $4 --peptide=Amber &
-aminosee_test      *       --peptide=Cysteine
-# aminosee_test            $1 $2 6 $3 $4 --peptide=Glycine &
-# aminosee_test_foreground $1 $2 0 $3 $4 --peptide=Alanine
-
-aminosee_test      *       --peptide=Methionine
-# aminosee_test            $1 $2 2 $3 $4 --peptide=Valine &
-# aminosee_test_foreground $1 $2 3 $3 $4 --peptide=Leucine &
-# aminosee_test            $1 $2 4 $3 $4 --peptide=Isoleucine &
-aminosee_test     *       --peptide=Phenylalanine
-# aminosee_test            $1 $2 6 $3 $4 --peptide=Tryptophan
-# aminosee_test            $1 $2 7 $3 $4 --peptide=Serine &
-# aminosee_test_foreground $1 $2 0 $3 $4 --peptide=Threonine
-
-aminosee_test             --peptide=Opal
-# aminosee_test            $1 $2 2 $3 $4 --peptide=Glutamine &
-# aminosee_test            $1 $2 3 $3 $4 --peptide=Asparagine &
-# aminosee_test_foreground $1 $2 0 $3 $4 --peptide=Tyrosine &
-# aminosee_test             --peptide=Arginine
-# aminosee_test_foreground $1 $2 6 $3 $4 --peptide=Lysine
-# aminosee_test_foreground $1 $2 0 $3 $4 --peptide=Histidine &
-
-  echo "                                         =///"
-  echo "-------------------------------------------"
-  echo FINISHED PARALLEL DECODE FOR $1
-  echo "-------------------------------------------"
-  echo "                                         =///"
-
-  sleep 12
-  batch-process.sh
-w
