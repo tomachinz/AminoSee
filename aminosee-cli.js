@@ -509,20 +509,15 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
         welcomeMessage();
         currentFile = args._[0];
         // currentFile = args._.pop();
-        // filename = path.resolve(currentFile); //
+        filename = path.resolve(currentFile); //
         args._.push(currentFile);
         status = "no command";
-        // filename = "no file";
         output(`Try running  --->>>        aminosee demo`);//" Closing in 2 seconds.")
         log(`your cmd: ${currentFile} howMany ${howMany}`);
         // setTimeout(() => {
         //   quit(1);
         // }, 2000);
-
-
-
         pollForStream();
-
         return true;
       } else {
         out(".");
@@ -1038,10 +1033,10 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
     if (justNameOfDNA.length > 22 ) {
       justNameOfDNA = justNameOfDNA.substring(0,11) + justNameOfDNA.substring(justNameOfDNA.length-11,justNameOfDNA.length);
     }
-    // let outputPath = path.dirname(path.resolve(path.dirname(filename))); // parent
+    outputPath = path.dirname(path.resolve(path.dirname(filename))); // parent
 
-    // mkdir("output");
-    // mkdir(`output/${justNameOfDNA}`);
+    mkdir("output");
+    mkdir(`output/${justNameOfDNA}`);
 
     let ext = spaceTo_(getImageType());
 
@@ -1053,7 +1048,7 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
   }
 
   function launchNonBlockingServer() {
-    serverPath = appPath.substring(0, appPath.length-15);// + aminosee-cli.js has 15 chars
+    serverPath = appPath.substring(0, appPath.length-8);// + aminosee-cli.js has 15 chars; cut 4 off to remove /dna
     console.log(`serverPath ${serverPath}`)
     const LocalWebServer = require('local-web-server')
     const localWebServer = new LocalWebServer()
@@ -1332,7 +1327,7 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
       log(`process.exit type bye. last file: ${filename}`);
       clearTimeout(updatesTimer);
       if (server != undefined) {
-        server.close()    
+        server.close()
       }
 
 
@@ -2395,7 +2390,7 @@ function saveHilbert(array) {
       start = new Date().getTime();
       test, dimension = magnitude; // mags for the test
       // let outputPath = path.resolve(__dirname); // OLD WAY not compatible with pkg
-      let outputPath = path.resolve(process.cwd()); //
+      // let outputPath = path.resolve(process.cwd()); //
       let regmarks = getRegmarks();
       isHilbertPossible = true;
       report = true;
