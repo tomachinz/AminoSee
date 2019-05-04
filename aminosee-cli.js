@@ -10,6 +10,7 @@ process.title = "aminosee.funk.nz";
 const extensions = [ "txt", "fa", "mfa", "gbk", "dna", "fasta", "fna", "fsa", "mpfa", "gb"];
 const refimage = "Reference image - all amino acids blended together"
 const lockFileMessage = "aminosee.funk.nz DNA Viewer by Tom Atkinson. This is a temp lock file, to enable parallel cluster rendering, usually it means an AminoSee was quit before finishing. Safe to erase. Normally deleting when render is complete.";
+const debugColumns = 80;
 const targetPixels = 9000000; // for big genomes use setting flag -c 1 to achieve highest resolution and bypass this taret max render size
 // const raceDelay = 6666;
 const raceDelay = 6;
@@ -36,6 +37,16 @@ let msPerUpdate = 200; // min milliseconds per update
 const hilbPixels = [ 64, 256, 1024, 4096, 16384, 65536, 262144, 1048576, 4194304, 16777216, 67108864 ]; // I've personally never seen a mag 9 or 10 image, cos my computer breaks down. 67 Megapixel hilbert curve!! the last two are breaking nodes heap and call stack both.
 const widthMax = 960;
 const timestamp = Math.round(+new Date()/1000);
+
+let aminosee = require('./lib/version');
+out( aminosee.version );
+let gv = require('genversion');
+// gv.generate('./lib/version.js', function (err, version) {
+//   if (err) {
+//     throw err;
+//   }
+//   });
+
 let MyManHilbert = require('hilbert-2d');
 // let StdInPipe = require('./stdinpipe');
 // let pipeInstance = new StdInPipe();
@@ -201,14 +212,7 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
         force = !force;
         output(`force overwrite ${force}`);
       }
-      function showHelp() {
-        output("Hello! Thanks for checking this. I've not made a help file yet.");
-        output("Author:         tom@funk.co.nz or +64212576422");
-        output("calls only between 2pm and 8pm NZT (GMT+11hrs)");
-        output("Donations can be sent to my bitcoin address with thanks:");
-        output("15S43axXZ8hqqaV8XpFxayZQa8bNhL5VVa");
-        output("https://www.funk.co.nz/blog/online-marketing/pay-tom-atkinson");
-      }
+
       function toggleClearScreen() {
         clear = !clear;
         output("clear screen toggled.");
@@ -229,9 +233,11 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
   }
 
 
+  // exports.version = require('./lib/version')
 
 
   module.exports = () => {
+    version = require('./lib/version');
     status = "exports";
     args = minimist(process.argv.slice(2), {
       boolean: [ 'artistic' ],
@@ -507,7 +513,7 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
         args._.push(currentFile);
         status = "no command";
         // filename = "no file";
-        output(`Try running aminosee * in a directory with DNA.`);//" Closing in 2 seconds.")
+        output(`Try running  --->>>        aminosee demo`);//" Closing in 2 seconds.")
         log(`your cmd: ${currentFile} howMany ${howMany}`);
         // setTimeout(() => {
         //   quit(1);
@@ -594,7 +600,6 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
   }
   function pollForStream() {
     status = "polling";
-    output(".");
     calcUpdate();
     log(` [polling ${nicePercent()}%] `);
     if (renderLock) {
@@ -748,6 +753,7 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
     isDiskFinHilbert = false;
     isDiskFinLinear = false;
     mkdir('output');
+    mkdir(`output/${justNameOfDNA}`);
     log(status.toUpperCase());
     start = new Date().getTime();
     timeElapsed, runningDuration, charClock, percentComplete, genomeSize, colClock, opacity = 0;
@@ -806,7 +812,7 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
       clearTimeout(updatesTimer);
     }
 
-    if (willRecycleSavedImage) {
+    if (willRecycleSavedImage == true) {
       recycleOldImage();
       saveDocuments();
       return
@@ -870,7 +876,7 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
     maxpix += 0; // cast it into a number from whatever the heck data type it was before!
     return `
     Filename: <b>${justNameOfDNA}</b>
-    Run ID: ${timestamp} (unix timestamp)
+    Run ID: ${timestamp} (unix timestamp) Host: ${hostname}
     Highlight set: ${isHighlightSet} ${(isHighlightSet ? peptide + " " + triplet : peptide)}
     ${ ( peptide || triplet ) ?  "Highlights: " + (peptide || triplet) : " "}
     Your custom flags: ${(  force ? "F" : ""    )}${(  userCPP != -1 ? `C${userCPP}` : ""    )}${(  devmode ? "D" : ""    )}${(  args.ratio || args.r ? `${ratio}` : "   "    )}${(  args.magnitude || args.m ? `M${magnitude}` : "   "    )}
@@ -1033,9 +1039,10 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
       justNameOfDNA = justNameOfDNA.substring(0,11) + justNameOfDNA.substring(justNameOfDNA.length-11,justNameOfDNA.length);
     }
     // let outputPath = path.dirname(path.resolve(path.dirname(filename))); // parent
-    outputPath = path.resolve(path.dirname(filename));
-    outputPath += "/output" ;
-    mkdir("output");
+
+    // mkdir("output");
+    // mkdir(`output/${justNameOfDNA}`);
+
     let ext = spaceTo_(getImageType());
 
     filenamePNG =     outputPath + "/" + generateFilenamePNG();
@@ -1046,7 +1053,7 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
   }
 
   function launchNonBlockingServer() {
-    serverPath = appPath.substring(0, appPath.length-15);// + "public";
+    serverPath = appPath.substring(0, appPath.length-15);// + aminosee-cli.js has 15 chars
     console.log(`serverPath ${serverPath}`)
     const LocalWebServer = require('local-web-server')
     const localWebServer = new LocalWebServer()
@@ -1054,15 +1061,20 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
       port: 3210,
       // https: true,
       directory: serverPath,
-      spa: 'index.html',
+      // sp a: 'index.html',
       // websocket: 'src/websocket-server.js'
     })
+
+    // catch((err, result) => {
+    //   if (err) { out( err ) }
+    //   log(" catch ");
+    // })
     // secure, SPA server with listening websocket now ready on port 8050
 
     // Stop listening when/if server is no longer needed
     // server.close()
 
-    openMiniWebsite();
+    openMiniWebsite('output/Chimp_Clint_chrY.gbk_c1.2_reg_fix_sci.html');
   }
 
   // const server = require('node-http-server');
@@ -1107,12 +1119,12 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
   // }
 
 
-  function openMiniWebsite() {
+  function openMiniWebsite(f) {
     // opn(`http://127.0.0.1:3210/${justNameOfHTML}`);
     try {
-      opn('http://127.0.0.1:3210/');
+      opn(`http://127.0.0.1:3210/${f}`);
     } catch(e) {
-      log(`error during openMiniWebsite: ${e}`);
+      log(`error during openMiniWebsite: ${e}  http://127.0.0.1:3210/${f}`);
     }
     stat("Personal mini-Webserver starting up around now (hopefully) on port 3210");
     stat("visit http://127.0.0.1:3210/ in your browser to see 3D WebGL visualisation");
@@ -1122,31 +1134,10 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
 
   }
   function welcomeMessage() {
-    output('Welcome to the AminoSeeNoEvil DNA Viewer!');
-    output(`This CLI is to convert sequence found in ASCII/RTF-8 text files - tested with .mfa .fa .gbk up to  into .png graphics. works with .mfa .fa .gbk DNA text files. It's been tested with files up to 3 GB, and uses asynchronous streaming architecture! Pass the name of the DNA file via command line, and it will put the images in a folder called 'output' in the same folder.`);
-    output(' ');
-    output('flags:');
 
-    output('     --ratio square|golden|fixed          (image proportions)');
-    output('     --width -w   1-20          (only works with fixed ratio)');
-    output('     --magnitude -m       (debug setting to limit memory use)');
-    output('     --triplet -t        (highlight triplet eg --triplet GGC)');
-    output('     --verbose -v                              (verbose mode)');
-    output('     --help -h                                          Help)');
-    output('     --force -f     (Overwrite existing .png file if present)');
-    output('     --devmode -d         (dont automatically open the image)');
-    output('     --artistitc -a  (creates a visual rhythm in the picture)');
-    output('     --codons -c  1-6000            (default is 1 per pixel )');
-    output('        setting codons per pixel disables hilbert mode export');
-    output('     --spew -s          (spew DNA bases to the screen during)');
-    output('     --no-clear              (dont clear the terminal during)');
-    output('     --no-update                       (dont provide updates)');
-    output('     --reg    (put registration marks @ 25% 50% 75% and 100%)');
-    output('     --test                (create calibration test patterns)');
-    output('     --keyboard -k (enable interactive mode, use control-c to end)');
     output('usage:');
-    output('    aminosee *                         (to process all files)');
-    output('use serve to run the web server');
+    output('    aminosee [files/*] --flags            (to process all files)');
+    output(' ');
     output(terminalRGB('if you need some DNA try this random clipping:', 255,255,200));
     output('wget https://www.funk.co.nz/aminosee/dna/megabase.fa');
     output(' ');
@@ -1157,10 +1148,12 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
     output('     aminosee * --triplet=GGT (must be only 3 characters of ATCGU)');
     output('     aminosee test                 (generate calibration images)');
     output('     aminosee serve                (fire up the mini web server)');
+    output('     aminosee help   <<-----               (shows options flags)');
     output('     aminosee demo   <<-----           (run demo - beta version)');
     output('     aminosee chr1.fa  chrX.fa  chrY.fa         (render 3 files)');
     output('     aminosee *         (render all files with default settings)');
     printRadMessage();
+
   }
   // function
   function saveDocuments(callback) {
@@ -1171,12 +1164,16 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
     calculateShrinkage();
     output(`Saving documents... ` + chalk.rgb(255, 255, 255).inverse(`Input DNA: ${justNameOfDNA}.${extension} Linear PNG: ${justNameOfPNG} Hilbert PNG: ${justNameOfHILBERT} HTML ${justNameOfHTML} Lock: ${filenameTouch}`));
 
-    if (!willRecycleSavedImage) {
+    if (willRecycleSavedImage == false) {
       arrayToPNG(function () {
         linearFinished();
+        removeLocks();
+      });
+    } else {
+      setImmediate(() => {
+        removeLocks();
       });
     }
-
 
     if (isHilbertPossible) {
       log("projecting linear array to 2D hilbert curve");
@@ -1186,12 +1183,13 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
       hilbertFinished() ;
     }
 
-    status = "saving html report";
-    if (report == true && willRecycleSavedImage != true) { // report when highlight set
-      out("Saving HTML");
+    if (report == true) { // report when highlight set
+      status = "saving html report";
+      out(status);
       saveHTML();
     } else {
-      out(`No HTML report output. Due to peptide filters: ${peptide} ${triplet}`);
+      status = "not saving html report";
+      out(status);
       htmlFinished();
     }
 
@@ -1201,12 +1199,10 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
     status = "removelocks";
     setImmediate(() => {
       openOutputs();
-      removeLocks();
     });
     if (callback != undefined) {
       callback();
     }
-
   }
   function compareHistocount(a,b) {
     if (a.Histocount < b.Histocount)
@@ -1222,6 +1218,11 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
     }, theCallback);
   }
   function saveHTML() {
+    if (willRecycleSavedImage == true) {
+      log("Didnt save HTML report because the linear file was recycled.");
+      htmlFinished();
+      return;
+    }
     log( pepTable.sort( compareHistocount ) ); // least common amino acids in front
     fs.writeFile(filenameHTML, htmlTemplate(), function (err) {
       if (err) { output(`Error saving HTML: ${err}`) }
@@ -1241,9 +1242,9 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
       status = "paint";
       output("Starting render");
       printRadMessage([`highlight: ${isHighlightSet}`, `peptide: ${peptide} triplet: ${triplet}`, filename, "Now", ".", "."]);
-      initStream(filename);
-      // setTimeout(() => {
-      // }, raceDelay);
+      setTimeout(() => {
+        initStream(filename);
+      }, raceDelay);
     });
 
   }
@@ -1330,6 +1331,8 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
     } else {
       log(`process.exit type bye. last file: ${filename}`);
       clearTimeout(updatesTimer);
+      server.close()
+
       // args = [];
       if (devmode) {
         output("Because you are using --devmode, the lock file is not deleted. This is useful during development because I can quickly test new code by starting then interupting the render with Control-c. Then, when I use 'aminosee * -f -d' I can have new versions rendered but skip super large genomes that would take 5 mins or more to render. I like to see that they begin to render then break and retry.")
@@ -1662,7 +1665,7 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
   }
   function generateFilenameHTML() {
     justNameOfHTML =        `${justNameOfDNA}.${extension}_m${dimension}_c${onesigbitTolocale(codonsPerPixel)}${getRegmarks()}${getImageType()}.html`;
-    return justNameOfPNG;
+    return justNameOfHTML;
   }
   function imageStack() {
     let hhh = " ";
@@ -1709,21 +1712,21 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
     <script src="https://www.funk.co.nz/aminosee/bundle.js"></script>
     <script src="https://www.funk.co.nz/aminosee/aminosee-gui-web.js"></script>
     <script>
-function mover(i) {
-  let el = document.getElementById(stack_+i);
-  el.style.zIndex = 6969;
-}
+    function mover(i) {
+      let el = document.getElementById(stack_+i);
+      el.style.zIndex = 6969;
+    }
 
-function mout(i) {
-  let el = document.getElementById(stack_+i);
-  el.style.zIndex = 100+i;
-}
+    function mout(i) {
+      let el = document.getElementById(stack_+i);
+      el.style.zIndex = 100+i;
+    }
     </script>
-<style>
-border: 1px black;
-backround: black;
-padding: 4px;
-</style>
+    <style>
+    border: 1px black;
+    backround: black;
+    padding: 4px;
+    </style>
     </head>
     <body>
     <!-- Google Tag Manager -->
@@ -1883,9 +1886,37 @@ padding: 4px;
 }
 
 function helpCmd(args) {
-  output("Help section." + args);
-  output(hilbPixels);
-  output("Calibrate your DNA with a --test  ");
+  output('Welcome to the AminoSeeNoEvil DNA Viewer!');
+  output(`This CLI is to convert sequence found in ASCII/RTF-8 text files - tested with .mfa .fa .gbk up to  into .png graphics. works with .mfa .fa .gbk DNA text files. It's been tested with files up to 3 GB, and uses asynchronous streaming architecture! Pass the name of the DNA file via command line, and it will put the images in a folder called 'output' in the same folder.`);
+  output(' ');
+  output(chalk.inverse("Help section"));
+  output("Hello!");
+  output("Author:         tom@funk.co.nz or +64212576422");
+  output("calls only between 2pm and 8pm NZT (GMT+11hrs)");
+  output(" ");
+  output("Donations can be sent to my bitcoin address with thanks:");
+  output("15S43axXZ8hqqaV8XpFxayZQa8bNhL5VVa");
+  output("https://www.funk.co.nz/blog/online-marketing/pay-tom-atkinson");
+  output("variables:");
+  output('     --ratio=(square|golden|fixed) (default fixed proportions)');
+  output('     --width=1920 -w960  (default 960px requires fixed ratio)');
+  output('     --magnitude=[0-8] -m8 (debug setting to limit memory use)');
+  output('     --triplet=[ATCGU][ATCGU][ATCGU]      (highlight triplet)');
+  output('     --codons=[1-999] -c[1-999]   (reduces quality 1 is best)');
+  output('flags:');
+  output('     --verbose -v                              (verbose mode)');
+  output('     --help -h                            (show this message)');
+  output('     --force -f             (ignore locks overwrite existing)');
+  output('     --devmode -d  (will skip locked files even with --force)');
+  output('     --artistitc -a  (creates a visual rhythm in the picture)');
+  output('     --spew -s          (spew DNA bases to the screen during)');
+  output('     --no-clear              (dont clear the terminal during)');
+  output('     --no-update                       (dont provide updates)');
+  output('     --reg    (put registration marks @ 25% 50% 75% and 100%)');
+  output('     --test                (create calibration test patterns)');
+  output('     --keyboard -k (enable interactive mode, use control-c to end)');
+
+  output("Calibrate your DNA with aminosee --test  ");
   output("run aminosee * to process all dna in current dir");
 }
 function checkLocks(ffffff) { // return false if locked.
@@ -1950,10 +1981,10 @@ function recycleOldImage(f) {
     //Pixels is a 1D array containing pixel data
     rgbArray = pixels; // load the main array :)
 
-      fakeReportInit(loopCounter);
-      autoconfCodonsPerPixel();
-      // patternsToPngAndMainArray(); // call with no array for test
-      fakeReportStop();
+    fakeReportInit(loopCounter);
+    autoconfCodonsPerPixel();
+    // patternsToPngAndMainArray(); // call with no array for test
+    fakeReportStop();
 
     saveDocuments();
   });
@@ -1967,17 +1998,21 @@ function okToOverwritePNG(f) { // true to continue, false to abort
   }
 
   try {
-    result = fs.lstatSync(f);
-    // fs.existsSync()
+    // result = fs.lstatSync(f);
+    result = fs.existsSync();
     // log("[fstatSync result]" + result);
-    if (result.isDirectory) {
-      output("File exists: " + f );
+    if (result) {
+      output("File exists?! " + f );
       return false;
+    } else {
+      output("File not exists?! " + f );
+      return true;
     }
-    // if (result.isFile) {
+    if (result.isFile) {
+      log("Recycling previously rendered linear file.");
       willRecycleSavedImage = true;
       return true; // this will cause the render to start but will use willRecycleSavedImage to skip the ingest
-    // }
+    }
     return false;
   } catch(e){
     output("Output png will be saved to: " + f );
@@ -2117,20 +2152,30 @@ function saveHilbert(array) {
       out("Finished hilbert png save.");
       hilbertFinished();
     }));
-
   }
   function htmlFinished() {
-    isDiskFinHTML = true;
-    pollForStream();
+    setImmediate(() => {
+      isDiskFinHTML = true;
+      setTimeout(() => {
+        pollForStream();
+      }, raceDelay);
+    });
   }
   function hilbertFinished() {
-    isDiskFinHilbert = true;
-    openOutputs();
-    pollForStream();
+    setImmediate(() => {
+      isDiskFinHilbert = true;
+      setTimeout(() => {
+        pollForStream();
+      }, raceDelay);
+    });
   }
   function linearFinished() {
-    isDiskFinLinear = true;
-    pollForStream();
+    setImmediate(() => {
+      isDiskFinLinear = true;
+      setTimeout(() => {
+        pollForStream();
+      }, raceDelay);
+    });
   }
   function arrayToPNG(callBack) {
     let pixels, height, width = 0;
@@ -2278,6 +2323,8 @@ function saveHilbert(array) {
       return ( reg == true ? "_reg" : "" )
     }
     function mkdir(d) {
+      outputPath = path.resolve(path.dirname(filename));
+      outputPath += "/" + d ;
       if (!fs.existsSync(d)){
         log(`Creating output directory: ${d}`)
         fs.mkdirSync(d);
@@ -2550,7 +2597,6 @@ function saveHilbert(array) {
           return "XHR Error " + e.toString();
         }
       }
-      const debugColumns = 60;
       function output(txt) {
         if (verbose) {
           console.log(maxWidth(`[ ${(isHighlightSet ? peptide + " " : " ")}Jobs: ${howMany} ${nicePercent()} genomeSize: ${genomeSize} bytes ${baseChars.toLocaleString()} ${status} RunID: ${timestamp} hilbert: ${hilbPixels[dimension]}] `,  debugColumns+(3*devmode)) + " >>> " + txt);
@@ -2646,9 +2692,9 @@ function saveHilbert(array) {
       }
       function printRadMessage(array) {
         if (array == undefined) {
-          array = ["__1__", "__2__", "__3__", "__4__", "__5__", "__6__", ""]
+          array = ["    ________", "    ________", "    ________", "    ________", "    ________", "", ""]
         } else if ( array.length < 6 ) {
-          array.push("__@__","__@__");
+          array.push("    ________","    ________");
         }
         console.log(terminalRGB(`╔═╗┌┬┐┬┌┐┌┌─┐╔═╗┌─┐┌─┐  ╔╦╗╔╗╔╔═╗  ╦  ╦┬┌─┐┬ ┬┌─┐┬─┐  ${array[0]}`, 255, 60,  250) );          console.log(terminalRGB(`╠═╣││││││││ │╚═╗├┤ ├┤    ║║║║║╠═╣  ╚╗╔╝│├┤ │││├┤ ├┬┘  ${array[1]}`, 170, 150, 255) );
         console.log(terminalRGB(`╩ ╩┴ ┴┴┘└┘└─┘╚═╝└─┘└─┘  ═╩╝╝╚╝╩ ╩   ╚╝ ┴└─┘└┴┘└─┘┴└─  ${array[2]}`, 128, 240, 240) );

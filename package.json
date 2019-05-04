@@ -1,7 +1,7 @@
 {
   "name": "aminosee",
   "productName": "AminoSee DNA Viewer",
-  "version": "1.5.8",
+  "version": "1.5.9",
   "description": "Allows genomics researchers to convert any file containing ASCII blocks of DNA (Fasta, GBK, .txt) into an image. A unique visualisation of DNA / RNA residing in text files, AminoSee is a way to render arbitrarily large files - due to support for streamed processing - into a static size PNG image using a pseudo-Hilbert infinite space filling curve written in the 18th century! Computation is done locally, and the files do not leave your machine. A back-end terminal daemon cli command that can be scripted is combined with a front-end GUI in Electron, AminoSee features asynchronous streaming processing enabling arbitrary size files to be processed. It has been tested with files in excess of 4 GB and does not need the whole file in memory at any time. Due to issues with the 'aminosee *' command, a batch script is provided for bulk rendering in the dna/ folder. Alertively use the GUI to Drag and drop files to render a unique colour view of RNA or DNA stored in text files, output to PNG graphics file, then launches an WebGL browser that projects the image onto a 3D Hilbert curve for immersive viewing, using THREEjs. Command line options alow one to filter by peptide.",
   "main": "main.js",
   "dependencies": {
@@ -42,21 +42,27 @@
     "vows": "^0.8.2",
     "xmlhttprequest": "^1.8.0"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "genversion": "^2.1.1"
+  },
   "scripts": {
     "test": "vows --spec --isolate",
     "start": "node bin/aminosee",
     "demo": "node bin/aminosee demo",
+    "build": "npm run build-genversion ; npm run build-browserify ; npm run build-electron ; npm run build-lib ; time npm run package",
+    "build-fast": "npm run build-genversion && npm run build-browserify && time npm run package",
+    "build-genversion": "genversion lib/version.js",
     "build-browserify": "browserify aminosee-gui-web.js -o bundle.js",
-    "build": "electron-packager ./ --platform=darwin,win32 --arch=x64 --prune --overwrite",
-    "build-pkg": "cp ./node_modules/opn/xdg-open ./xdg-open && cp ./node_modules/get-cursor-position/build/Release/pos.node ./pos.node ",
+    "build-electron": "electron-packager ./ --platform=darwin,win32 --arch=x64 --prune --overwrite",
+    "build-lib": "cp ./node_modules/opn/xdg-open ./lib/xdg-open && cp ./node_modules/get-cursor-position/build/Release/pos.node ./lib/pos.node ",
     "gui": "electron .",
     "guidev": "electron . --devmode --remote-debugging-port 8315 --host-rules='MAP * 127.0.0.1'",
-    "package": "pkg . --targets macos --output ./dist/aminosee-macos ; pkg . --output ./dist/aminosee-win32.exe --targets win-x86 ; pkg . --output ./dist/aminosee-win64.exe --targets win-x64 ; pkg . --output ./dist/aminosee-linux --assets index.html,public/**,libs/** --targets linux",
-    "mac": "pkg . --targets macos --output ./dist/aminosee-macos",
-    "win32": "pkg . --out-path dist --targets win-x86 --output aminosee-win32.exe",
-    "win64": "pkg . --out-path dist --targets win-x64 --output aminosee-win64.exe",
-    "linux": "cp ./node_modules/opn/xdg-open ./xdg-open && cp ./node_modules/get-cursor-position/build/Release/pos.node ./pos.node && pkg . --out-path dist --assets index.html,public/**,libs/** --targets linux"
+    "package": "npm run macos; npm run win32; npm run win64; npm run linux; ",
+    "macos": "pkg . --targets macos   --output ./dist/AminoSee_macos/aminosee-macos     ; zip -8 -r ./dist/AminoSee_macos.zip ./dist/AminoSee_macos",
+    "win32": "pkg . --targets win-x86 --output ./dist/AminoSee_win32/aminosee-win32.exe ; zip -8 -r ./dist/AminoSee_win32.zip ./dist/AminoSee_win32",
+    "win64": "pkg . --targets win-x64 --output ./dist/AminoSee_win64/aminosee-win64.exe ; zip -8 -r ./dist/AminoSee_win64.zip ./dist/AminoSee_win64",
+    "linux": "pkg . --targets linux   --output ./dist/AminoSee_linux/aminosee-linux     ; zip -8 -r ./dist/AminoSee_linux.zip ./dist/AminoSee_linux",
+    "linux2": "cp ./node_modules/opn/xdg-open ./xdg-open && cp ./node_modules/get-cursor-position/build/Release/pos.node ./pos.node && pkg . --out-path dist --assets index.html,public/**,lib/** --targets linux"
   },
   "keywords": [
     "dna",
@@ -85,7 +91,7 @@
       "index.php",
       "favicon.ico",
       "aminosee-gui-web.js",
-      "libs/**",
+      "lib/**",
       "xdg-open",
       "pos.node"
     ]

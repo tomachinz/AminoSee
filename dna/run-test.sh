@@ -60,6 +60,17 @@ aminosee_test             --peptide=Opal
 # aminosee_test_foreground $1 $2 6 $3 $4 --peptide=Lysine
 # aminosee_test_foreground $1 $2 0 $3 $4 --peptide=Histidine &
 
+aminosee Human-Chromosome-DNA.txt --force
+aminosee chr1.fa -m 8
+aminosee * --peptide="Glutamic acid"
+aminosee * --triplet=GGT   # (must be only 3 characters of ATCGU)
+aminosee test                # (generate calibration images)
+aminosee serve                #(fire up the mini web server)
+aminosee help  # <<-----        #       (shows options flags)
+aminosee demo  # <<-----         #  (run demo - beta version)
+aminosee chr1.fa  chrX.fa  chrY.fa  #       (render 3 files)
+aminosee *       #  (render all files with default settings)
+
 echo "                                         =///"
 echo "-------------------------------------------"
 echo FINISHED PARALLEL DECODE FOR $1
