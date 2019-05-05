@@ -18,6 +18,9 @@ const defaultMagnitude = 6; // max for auto setting
 const theoreticalMaxMagnitude = 12; // max for auto setting
 const overSampleFactor = 3; // your linear image needs to be 2 megapixels to make 1 megapixel hilbert
 const maxCanonical = 32; // max length of canonical name
+const hilbPixels = [ 64, 256, 1024, 4096, 16384, 65536, 262144, 1048576, 4194304, 16777216, 67108864 ]; // I've personally never seen a mag 9 or 10 image, cos my computer breaks down. 67 Megapixel hilbert curve!! the last two are breaking nodes heap and call stack both.
+const widthMax = 960; // i wanted these to be tall and slim kinda like the most common way of diagrammatically showing chromosomes
+const timestamp = Math.round(+new Date()/1000);
 let maxMsPerUpdate = 30000; // milliseconds per updatelet maxpix = targetPixels; // maxpix can be changed downwards by algorithm for small genomes in order to zoom in
 let termDisplayHeight = 29;
 let maxpix = targetPixels;
@@ -37,9 +40,10 @@ let test = false;
 let updates = true;
 let stats = true;
 let msPerUpdate = 200; // min milliseconds per update
-const hilbPixels = [ 64, 256, 1024, 4096, 16384, 65536, 262144, 1048576, 4194304, 16777216, 67108864 ]; // I've personally never seen a mag 9 or 10 image, cos my computer breaks down. 67 Megapixel hilbert curve!! the last two are breaking nodes heap and call stack both.
-const widthMax = 960; // i wanted these to be tall and slim kinda like the most common way of diagrammatically showing chromosomes
-const timestamp = Math.round(+new Date()/1000);
+const path = require('path');
+const appFilename = require.main.filename;
+let appPath = path.normalize(appFilename.substring(0, appFilename.length-11));// + aminosee.js has 11 chars; cut 4 off to remove /dna
+let outputPath = path.normalize(path.resolve(process.cwd().substring(0,path.length-11))); // current working diretory
 let term = require( 'terminal-kit' ).terminal ;
 let aminosee = require('./lib/version');
 let gv = require('genversion');
@@ -48,11 +52,13 @@ let es = require('event-stream');
 const minimist = require('minimist')
 const highland = require('highland')
 const fetch = require("node-fetch");
-const path = require('path');
 const keypress = require('keypress');
 const opn = require('opn'); //path-to-executable/xdg-open
 const parse = require('parse-apache-directory-index');
-const fs = require("fs");
+// const fs = require("fs");
+// const fs = require('fs') // this is no longer necessary
+const fs = require('fs-extra'); // drop in replacement
+
 const request = require('request');
 const histogram = require('ascii-histogram');
 const bytes = require('bytes');
@@ -65,8 +71,8 @@ const clog = console.log;
 const os = require("os");
 const hostname = os.hostname();
 const util = require('util');
-const appPath = require.main.filename;
-const defaultFilename = "AminoSeeTestPatterns"; // for some reason this needs to be here. hopefully the open source community can come to rescue and fix this Kludge.
+const testFilename = "AminoSeeTestPatterns"; // for some reason this needs to be here. hopefully the open source community can come to rescue and fix this Kludge.
+const defaultFilename = "megabase.fa"; // for some reason this needs to be here. hopefully the open source community can come to rescue and fix this Kludge.
 out( `version ${aminosee}` );
 let highlightTriplets = [];
 let isHighlightSet = false;
@@ -75,7 +81,7 @@ let isDiskFinLinear = true; // flag shows if saving png is complete
 let isDiskFinHilbert = true; // flag shows if saving hilbert png is complete
 let isDiskFinHTML = true; // flag shows if saving html is complete
 let willRecycleSavedImage = false; // allows all the regular processing to mock the DNA render stage
-let filename = defaultFilename;
+let filename = testFilename;
 let rawDNA ="@"; // debug
 let status = "load";
 // let StdInPipe = require('./stdinpipe');
@@ -89,7 +95,7 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
   "No")}${chalk.rgb(64, 64, 64).inverse("Evil")}`);
   let interactiveKeysGuide = "";
   let renderLock = false;
-  let hilbertImage, keyboard, filenameTouch, estimatedPixels, args, filenamePNG, extension, reader, hilbertPoints, herbs, levels, progress, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, textFile, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, fileUploadShowing, testColors, chunksMax, chunksize, chunksizeBytes, cpu, subdivisions, contextBitmap, aminoacid, colClock, start, updateClock, bytesPerSec, pixelStacking, isHighlightCodon, justNameOfDNA, justNameOfPNG, justNameOfHILBERT, sliceDNA, filenameHTML, howMany, timeElapsed, runningDuration, kbRemain, width, triplet, updatesTimer, pngImageFlags, codonsPerPixel, codonsPerPixelHILBERT, CRASH, red, green, blue, alpha, errorClock, breakClock, streamLineNr, filesDone, spewClock, opacity, codonRGBA, geneRGBA, currentTriplet, currentPeptide,  progato, shrinkFactor, reg, image, loopCounter, clear, percentComplete, charClock, baseChars, bigIntFileSize, currentFile, outputPath, currentPepHighlight, server, justNameOfCurrentFile;
+  let hilbertImage, keyboard, filenameTouch, estimatedPixels, args, filenamePNG, extension, reader, hilbertPoints, herbs, levels, progress, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, textFile, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, fileUploadShowing, testColors, chunksMax, chunksize, chunksizeBytes, cpu, subdivisions, contextBitmap, aminoacid, colClock, start, updateClock, bytesPerSec, pixelStacking, isHighlightCodon, justNameOfDNA, justNameOfPNG, justNameOfHILBERT, sliceDNA, filenameHTML, howMany, timeElapsed, runningDuration, kbRemain, width, triplet, updatesTimer, pngImageFlags, codonsPerPixel, codonsPerPixelHILBERT, CRASH, red, green, blue, alpha, errorClock, breakClock, streamLineNr, filesDone, spewClock, opacity, codonRGBA, geneRGBA, currentTriplet, currentPeptide,  progato, shrinkFactor, reg, image, loopCounter, clear, percentComplete, charClock, baseChars, bigIntFileSize, currentFile, currentPepHighlight, server, justNameOfCurrentFile;
   BigInt.prototype.toJSON = function() { return this.toString(); }; // shim for big int
   BigInt.prototype.toBSON = function() { return this.toString(); }; // Add a `toBSON()` function to enable MongoDB to store BigInts as strings
 
@@ -126,7 +132,6 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
   //
   // }
 
-  // exports.version = require('./lib/version')
 
 
   module.exports = () => {
@@ -344,6 +349,7 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
       output("calls only between 2pm and 8pm NZT (GMT+11hrs)");
     }
 
+
     if (args.clear || args.c) {
       log("screen clearing enabled.");
       clear = true;
@@ -370,10 +376,15 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
     } else {
       test = false;
     }
+    // firstRun();
 
     switch (cmd) {
       case 'unknown':
       output(` [unknown argument] ${cmd}`);
+      break;
+
+      case 'get':
+      downloadMegabase(pollForStream); //.then(out("megabase done"));//.catch(log("mega fucked up"));
       break;
 
       case 'test':
@@ -405,9 +416,9 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
         // args._.push(currentFile);
         status = "no command";
 
-        if (mkdir(`calibration`)) {
+        if (mkdir(`calibration`) == true && mkdir('output') == true) {
           output("FIRST RUN!!! Opening the demo... use aminosee demo to see this in future");
-          runDemo();
+          firstRun();
         } else {
           log('not first run')
         }
@@ -561,17 +572,42 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
     updates = !updates;
     output(`stats updates toggled to: ${updates}`);
   }
+
   function runDemo() {
     openHtml = true;
     openImage = true;
-    downloadMegabase();
-    generateTestPatterns();
-    launchNonBlockingServer();
-  }
-  function downloadMegabase() {
-    output(chalk.rgb(255,255,255)("Getting some DNA..."))
-    runTerminalCommand(`wget https://www.funk.co.nz/aminosee/dna/megabase.fa`);
+    currentFile = './megabase.fa';
+    args._[0] = currentFile;
+    args._.push(path.resolve(currentFile));
+    downloadMegabase( generateTestPatterns() );
+    // pollForStream();
+    // initStream(args._[0])
+    // theSwitcher(false);
+    // let thisJob = createJob().then().catch(log('thisJob LATCH'));
+    // launchNonBlockingServer();
 
+  }
+  function downloadMegabase(cb) {
+    currentFile = 'megabase.fa';
+    let promiseMegabase = new Promise(function(resolve,reject) {
+      var exists = fs.existsSync(currentFile);
+      if (exists) {
+          resolve()
+          cb()
+      } else {
+        if (runTerminalCommand(`wget https://www.funk.co.nz/aminosee/dna/megabase.fa`)) {
+          resolve();
+          cb()
+        } else {
+          reject();
+          cb()
+        }
+      }
+    });
+
+    output(chalk.rgb(255,255,255)("Getting some DNA..."))
+    // promiseMegabase.resolve();
+    return promiseMegabase;
   }
   function runTerminalCommand(str) {
     console.log(`[ running terminal command ---> ] ${str}`);
@@ -580,6 +616,11 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
       output(error);
       output(stdout);
       output(stderr);
+      if (error) {
+        return false;
+      } else {
+        return true;
+      }
     })
   }
   function streamingZip(f) {
@@ -633,10 +674,16 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
       return [0,0,0,0];
     }
   }
+  function createJob(cb) {
+    return new Promise(function(resolve,reject) {
+        ( cb ? resolve() : reject() )
+    })
+  }
   function pollForStream() {
     status = "polling";
+
     if (test) {
-      return
+      return false;
     }
     calcUpdate();
     log(` [polling ${nicePercent()}] `);
@@ -735,8 +782,8 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
       if (ok != true) {
         output("A png image has already been generated for this DNA: " + filenamePNG)
         output("use --force to overwrite  --image to automatically open   --no-image suppress automatic opening of the image.");
-        if (openHtml || openImage && args.image != true) {
-          // openOutputs();
+        if (openHtml || openImage && args.image == true) {
+          openOutputs();
         }
         recycleOldImage(filenamePNG);
         // theSwitcher(false); // dont overwrite
@@ -785,28 +832,62 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
       }
     }
   }
+  function firstRun() {
+    output("First run!");
+    downloadMegabase(pollForStream);
+    var src = path.normalize( appPath + 'gui');
+    var dest = path.normalize( outputPath + "/gui");
+    log(`Will try to copy from ${src} to ${dest}`)
+
+/** https://stackoverflow.com/questions/13786160/copy-folder-recursively-in-node-js/26038979
+    * Look ma, it's cp -R.
+    * @param {string} src The path to the thing to copy.
+    * @param {string} dest The path to the new copy.
+    */
+    var copyRecursiveSync = function(src, dest) {
+      log(`Will try to copy from ${src} to ${dest}`)
+      var exists = fs.existsSync(src);
+      var stats = exists && fs.statSync(src);
+      var isDirectory = exists && stats.isDirectory();
+      var existsDest = fs.existsSync(dest);
+      if (existsDest) {
+        log(`Remove the ${dest} folder or file, then I can rebuild the web-server`);
+        return false;
+      }
+      if (exists && isDirectory) {
+        var exists = fs.existsSync(dest);
+        if (exists) {
+          log("Remove the /gui/ folder and also /index.html, then I can rebuild the web-server");
+          return false;
+        } else {
+          fs.mkdirSync(dest);
+        }
+        fs.readdirSync(src).forEach(function(childItemName) {
+          log(childItemName);
+          copyRecursiveSync(path.join(src, childItemName),
+          path.join(dest, childItemName));
+        });
+      } else {
+        fs.linkSync(src, dest);
+      }
+    };
+    copyRecursiveSync(src, dest);
+
+    var src = path.normalize( appPath + 'gui/index.html');
+    var dest = path.normalize( outputPath + "/index.html");
+    log(`Will try to copy from ${src} to ${dest}`)
+    copyRecursiveSync(src, dest);
+
+    runDemo();
+  }
+
+
   async function initStream(f) {
     status = "init";
     isDiskFinHTML = false;
     isDiskFinHilbert = false;
     isDiskFinLinear = false;
-    if (mkdir('output')) {
-      // first run!
-      var fsextra = require("fs-extra");
-      var source = 'public'
-      var destination = 'output'
 
-      // copy source folder to destination
-      fsextra.copy(source, destination, function (err) {
-        if (err){
-          console.log('An error occured while copying the folder.')
-          return console.error(err)
-        }
-        console.log('Copy completed!')
-      });
-    } else {
-      out('output folder exists')
-    }
     mkdir(`output/${justNameOfDNA}`);
     log(status.toUpperCase());
     start = new Date().getTime();
@@ -1110,7 +1191,6 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
   }
 
   function launchNonBlockingServer() {
-    // serverPath = appPath.substring(0, appPath.length-8);// + aminosee-cli.js has 15 chars; cut 4 off to remove /dna
     let serverPath = './';// + aminosee-cli.js has 15 chars; cut 4 off to remove /dna
     console.log(`serverPath ${serverPath}`)
     const LocalWebServer = require('local-web-server')
@@ -2059,7 +2139,7 @@ function decodePNG(file, callback) {
         rgbArray[idx+3] = this.data[idx+3];
       }
     }
-    this.pack().pipe(fs.createWriteStream('out.png'));
+    // this.pack().pipe(fs.createWriteStream('out.png'));
     callback();
     return rgbArray;
   });
@@ -2788,6 +2868,9 @@ function saveHilbert(array) {
       function crashReport() {
         log(cleanDNA);
       }
+      function wTitle(txt) {
+        term.windowTitle(`aminosee@${hostname} ${justNameOfDNA} ${maxWidth(120,txt)}`);
+      }
       function calcUpdate() { // DONT ROUND KEEP PURE NUMBERS
         percentComplete = (charClock+69) / (baseChars+69); // avoid div by zero below
         let now = new Date().getTime();
@@ -2795,6 +2878,7 @@ function saveHilbert(array) {
         timeElapsed = Math.round(runningDuration / 1000);
         timeRemain = Math.round((timeElapsed / (percentComplete + 0.001)) - timeElapsed);
         kbRemain = (baseChars - charClock)/1000;
+        wTitle(`${nicePercent()} ${timeRemain}`);
       }
       function getHistoCount(item, index) {
         return [ item.Codon, item.Histocount];
