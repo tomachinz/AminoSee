@@ -33,7 +33,8 @@ aminosee_test () {
   echo "resuming..."
 }
 
-
+aminosee serve &
+aminosee demo
 
 aminosee_test      *       --peptide=Ochre
 # aminosee_test            $1 $2 2 $3 $4 --peptide=Glutamic &
