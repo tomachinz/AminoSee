@@ -1,50 +1,68 @@
 {
   "name": "aminosee",
   "productName": "AminoSee DNA Viewer",
-  "version": "1.3.2",
-  "description": "A unique visualisation of DNA or RNA residing in text files, AminoSee is a way to render huge genomics files into a PNG image using an infinite space filling curve from 18th century! Computation is done locally, and the files do not leave your machine. A back-end terminal daemon cli command that can be scripted is combined with a front-end GUI in Electron, AminoSee features asynchronous streaming processing enabling arbitrary size files to be processed. It has been tested with files in excess of 4 GB and does not need the whole file in memory at any time. Due to issues with the 'aminosee *' command, a batch script is provided for bulk rendering in the dna/ folder. Alertively use the GUI to Drag and drop files to render a unique colour view of RNA or DNA stored in text files, output to PNG graphics file, then launches an WebGL browser that projects the image onto a 3D Hilbert curve for immersive viewing, using THREEjs. Command line options alow one to filter by peptide.",
+  "version": "1.6.6",
+  "description": "Allows genomics researchers to convert any file containing ASCII blocks of DNA (Fasta, GBK, .txt) into an image. A unique visualisation of DNA / RNA residing in text files, AminoSee is a way to render arbitrarily large files - due to support for streamed processing - into a static size PNG image using a pseudo-Hilbert infinite space filling curve written in the 18th century! Computation is done locally, and the files do not leave your machine. A back-end terminal daemon cli command that can be scripted is combined with a front-end GUI in Electron, AminoSee features asynchronous streaming processing enabling arbitrary size files to be processed. It has been tested with files in excess of 4 GB and does not need the whole file in memory at any time. Due to issues with the 'aminosee *' command, a batch script is provided for bulk rendering in the dna/ folder. Alertively use the GUI to Drag and drop files to render a unique colour view of RNA or DNA stored in text files, output to PNG graphics file, then launches an WebGL browser that projects the image onto a 3D Hilbert curve for immersive viewing, using THREEjs. Command line options alow one to filter by peptide.",
   "main": "main.js",
   "dependencies": {
     "ascii-histogram": "^1.2.1",
-    "ascii-progress": "^1.0.5",
-    "bmp-js": "^0.1.0",
     "browserify": "^16.2.3",
-    "bytes": "^3.0.0",
-    "chalk": "^2.4.1",
-    "comlink-fetch": "^0.1.2",
-    "event-stream": "3.3.4",
+    "bytes": "^3.1.0",
+    "chalk": "^2.4.2",
+    "cheerio": "^1.0.0-rc.3",
+    "event-stream": "^3.3.5",
+    "fs-extra": "^7.0.1",
     "hammerjs": "^2.0.8",
-    "highland": "^2.13.0",
+    "highland": "^2.13.4",
     "hilbert-2d": "0.0.1",
+    "http-server": "^0.11.1",
     "jimp": "^0.5.6",
-    "jquery": "^3.3.1",
     "keypress": "^0.2.1",
     "local-web-server": "^2.6.1",
-    "localforage": "^1.7.3",
     "minimist": "^1.2.0",
-    "nexe": "^2.0.0-rc.34",
-    "node-fetch": "^2.3.0",
-    "opn": "^5.4.0",
+    "nexe": "^3.2.0",
+    "node-fetch": "^2.5.0",
+    "node-gyp": "^4.0.0",
+    "opn": "^5.5.0",
     "parse-apache-directory-index": "^1.2.1",
-    "pngjs": "^3.3.3",
+    "pkg": "^4.3.8",
+    "png-js": "^0.1.1",
+    "png.js": "^0.2.1",
+    "pngjs": "^3.4.0",
+    "progress": "^2.0.3",
+    "remove": "^0.1.5",
     "request": "^2.88.0",
     "save": "^2.3.3",
-    "stream-file": "^0.2.3",
+    "stream-file": "^0.2.4",
+    "terminal-kit": "^1.28.0",
     "three": "^0.98.0",
+    "through": "^2.3.8",
     "uniq": "^1.0.1",
-    "vows": "^0.8.2"
+    "vows": "^0.8.2",
+    "xmlhttprequest": "^1.8.0"
   },
   "devDependencies": {
-    "electron": "^3.0.13",
-    "electron-packager": "^12.2.0"
+    "electron": "^5.0.1",
+    "genversion": "^2.1.1"
   },
   "scripts": {
     "test": "vows --spec --isolate",
     "start": "node bin/aminosee",
+    "demo": "node bin/aminosee demo",
+    "build": "npm run genversion ; npm run build-browserify ; npm run lib ; time npm run package",
+    "build-all": "npm run genversion ; npm run build-browserify ; npm run lib ; time npm run package",
+    "genversion": "genversion lib/version.js",
     "build-browserify": "browserify aminosee-gui-web.js -o bundle.js",
-    "build": "electron-packager ./ --platform=darwin,win32 --arch=x64 --prune --overwrite",
+    "electron": "electron-packager ./ --platform=darwin,win32,linux --arch=x64 --prune --overwrite",
+    "lib": "cp ./node_modules/opn/xdg-open ./lib/xdg-open && cp ./node_modules/get-cursor-position/build/Release/pos.node ./lib/pos.node ",
     "gui": "electron .",
-    "guidev": "electron . --devmode --remote-debugging-port 8315 --host-rules='MAP * 127.0.0.1'"
+    "guidev": "electron . --devmode --remote-debugging-port 8315 --host-rules='MAP * 127.0.0.1'",
+    "package": "npm run electron; npm run macos; npm run win32; npm run win64; npm run linux;",
+    "macos": "echo MACOS ; pkg . --targets macos   --output ./dist/AminoSee_macos/aminosee-macos     ; zip -8 -r ./dist/AminoSee_macos.zip ./dist/AminoSee_macos",
+    "win32": "echo win32 ; pkg . --targets win-x86 --output ./dist/AminoSee_win32/aminosee-win32.exe ; zip -8 -r ./dist/AminoSee_win32.zip ./dist/AminoSee_win32",
+    "win64": "echo WIN64 ; pkg . --targets win-x64 --output ./dist/AminoSee_win64/aminosee-win64.exe ; zip -8 -r ./dist/AminoSee_win64.zip ./dist/AminoSee_win64",
+    "linux": "echo LINUX ; pkg . --targets linux   --output ./dist/AminoSee_linux/aminosee-linux     ; zip -8 -r ./dist/AminoSee_linux.zip ./dist/AminoSee_linux",
+    "linux2": "cp ./node_modules/opn/xdg-open ./xdg-open && cp ./node_modules/get-cursor-position/build/Release/pos.node ./pos.node && pkg . --out-path dist --assets index.html,public/**,lib/** --targets linux"
   },
   "keywords": [
     "dna",
@@ -53,7 +71,7 @@
   ],
   "author": "Tom Atkinson <tom@funk.co.nz>",
   "website": "http://aminosee.funk.nz",
-  "license": "GPL-2.0-only",
+  "license": "lGPL-3.0-only",
   "bin": {
     "aminosee": "./bin/aminosee.js"
   },
@@ -62,7 +80,18 @@
     "url": "git://github.com/tomachinz/AminoSee.git"
   },
   "pkg": {
-    "assets": "dna/*.txt",
-    "assets": "dna/*.sh"
+    "targets": [
+      "linux",
+      "macos",
+      "win"
+    ],
+    "assets": [
+      "bin/**",
+      "index.html",
+      "index.php",
+      "favicon.ico",
+      "aminosee-gui-web.js",
+      "lib/**"
+    ]
   }
 }
