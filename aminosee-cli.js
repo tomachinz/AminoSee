@@ -22,7 +22,8 @@ const hilbPixels = [ 64, 256, 1024, 4096, 16384, 65536, 262144, 1048576, 4194304
 const widthMax = 960; // i wanted these to be tall and slim kinda like the most common way of diagrammatically showing chromosomes
 const timestamp = Math.round(+new Date()/1000);
 let maxMsPerUpdate = 30000; // milliseconds per updatelet maxpix = targetPixels; // maxpix can be changed downwards by algorithm for small genomes in order to zoom in
-let termDisplayHeight = 29;
+let termDisplayHeight = 30;
+let termStatsHeight = 8;
 let maxpix = targetPixels;
 let raceDelay = 6; // so i learnt a lot on this project. one day this line shall disappear replaced by promises.
 let raceTimer = false;
@@ -58,7 +59,7 @@ const parse = require('parse-apache-directory-index');
 // const fs = require("fs");
 // const fs = require('fs') // this is no longer necessary
 const fs = require('fs-extra'); // drop in replacement
-
+let clear = false;
 const request = require('request');
 const histogram = require('ascii-histogram');
 const bytes = require('bytes');
@@ -72,6 +73,7 @@ const os = require("os");
 const hostname = os.hostname();
 const util = require('util');
 const testFilename = "AminoSeeTestPatterns"; // for some reason this needs to be here. hopefully the open source community can come to rescue and fix this Kludge.
+let nextFile = ""; // for batch jobs like *
 const defaultFilename = "megabase.fa"; // for some reason this needs to be here. hopefully the open source community can come to rescue and fix this Kludge.
 out( `version ${aminosee}` );
 let highlightTriplets = [];
@@ -95,7 +97,7 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
   "No")}${chalk.rgb(64, 64, 64).inverse("Evil")}`);
   let interactiveKeysGuide = "";
   let renderLock = false;
-  let hilbertImage, keyboard, filenameTouch, estimatedPixels, args, filenamePNG, extension, reader, hilbertPoints, herbs, levels, progress, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, textFile, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, fileUploadShowing, testColors, chunksMax, chunksize, chunksizeBytes, cpu, subdivisions, contextBitmap, aminoacid, colClock, start, updateClock, bytesPerSec, pixelStacking, isHighlightCodon, justNameOfDNA, justNameOfPNG, justNameOfHILBERT, sliceDNA, filenameHTML, howMany, timeElapsed, runningDuration, kbRemain, width, triplet, updatesTimer, pngImageFlags, codonsPerPixel, codonsPerPixelHILBERT, CRASH, red, green, blue, alpha, errorClock, breakClock, streamLineNr, filesDone, spewClock, opacity, codonRGBA, geneRGBA, currentTriplet, currentPeptide,  progato, shrinkFactor, reg, image, loopCounter, clear, percentComplete, charClock, baseChars, bigIntFileSize, currentFile, currentPepHighlight, server, justNameOfCurrentFile;
+  let hilbertImage, keyboard, filenameTouch, estimatedPixels, args, filenamePNG, extension, reader, hilbertPoints, herbs, levels, progress, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, textFile, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, fileUploadShowing, testColors, chunksMax, chunksize, chunksizeBytes, cpu, subdivisions, contextBitmap, aminoacid, colClock, start, updateClock, bytesPerSec, pixelStacking, isHighlightCodon, justNameOfDNA, justNameOfPNG, justNameOfHILBERT, sliceDNA, filenameHTML, howMany, timeElapsed, runningDuration, kbRemain, width, triplet, updatesTimer, pngImageFlags, codonsPerPixel, codonsPerPixelHILBERT, CRASH, red, green, blue, alpha, errorClock, breakClock, streamLineNr, filesDone, spewClock, opacity, codonRGBA, geneRGBA, currentTriplet, currentPeptide,  progato, shrinkFactor, reg, image, loopCounter, percentComplete, charClock, baseChars, bigIntFileSize, currentFile, currentPepHighlight, server, justNameOfCurrentFile;
   BigInt.prototype.toJSON = function() { return this.toString(); }; // shim for big int
   BigInt.prototype.toBSON = function() { return this.toString(); }; // Add a `toBSON()` function to enable MongoDB to store BigInts as strings
 
@@ -171,6 +173,7 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
 
     if (args.keyboard || args.k) {
       keyboard = true;
+      termDisplayHeight += 3; // display bigger
     } else {
       if (args.keyboard == false) {
         keyboard = false;
@@ -681,11 +684,11 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
   }
   function pollForStream() {
     status = "polling";
-
+    clearCheck();
     if (test) {
       return false;
     }
-    calcUpdate();
+    // calcUpdate();
     log(` [polling ${nicePercent()}] `);
     if (renderLock) {
       return true;
@@ -703,6 +706,13 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
       log("FINITO");
       return true;
     }
+
+    try {
+      nextFile = args._[2];
+    } catch(e) {
+      nextFile = "Finished. Due to: "+ e;
+    }
+
     try {
       if (args._) {
         currentFile = args._[0];
@@ -889,7 +899,7 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
     isDiskFinLinear = false;
 
     mkdir(`output/${justNameOfDNA}`);
-    log(status.toUpperCase());
+    log("stream");
     start = new Date().getTime();
     timeElapsed, runningDuration, charClock, percentComplete, genomeSize, colClock, opacity = 0;
     msPerUpdate = 200;
@@ -942,9 +952,19 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
     status = "init";
     clearCheck();
     output(`STARTING RENDER ${filename} in ${raceDelay} ms`);
-    term.down(8);
-
+    output(" ");
+    output(" ");
+    output(" ");
+    output(" ");
+    output(" ");
+    output(" ");
+    output(" ");
+    output(" ");
+    output(" ");
+    term.up(termDisplayHeight + termStatsHeight*2);
+    clearCheck();
     term.eraseDisplayBelow();
+
     if (updatesTimer) {
       clearTimeout(updatesTimer);
     }
@@ -961,7 +981,6 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
         status = "wait stream";
         readStream.pause(); // pause the readstream during processing
         streamLineNr++;
-        status = "paint";
         processLine(line); // process line here and call readStream.resume() when ready
         readStream.resume();
       })
@@ -990,6 +1009,8 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
     clearCheck();
     drawHistogram();
     log("FINISHED INIT");
+    term.up(termStatsHeight);
+    term.eraseDisplayBelow();
   }
   function showFlags() {
     return `${(  force ? "F" : "-"    )}${(  args.updates || args.u ? `U` : "-"    )}${(  userCPP != -1 ? `C${userCPP}` : "--"    )}${(  args.keyboard || args.k ? `K` : "-"    )}${(  args.spew || spew ? `K` : "-"    )}${( verbose ? "V" : "-"  )}${(  artistic ? "A" : "-"    )}${(  args.ratio || args.r ? `${ratio}` : "---"    )}${(magnitude? "M" + magnitude:"")}C${onesigbitTolocale(codonsPerPixel)}${(reg?"REG":"")}`;
@@ -1301,10 +1322,10 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
   function saveDocuments(callback) {
     status = "save"; // <-- this is the true end point of the program!
     term.eraseDisplayBelow();
+    percentComplete = 1; // to be sure it shows 100% complete
     out(status);
     clearTimeout(updatesTimer);
     calcUpdate();
-    percentComplete = 1;
     calculateShrinkage();
     output(chalk.rgb(255, 255, 255).inverse(fixedWidth(debugColumns, `Input DNA File: ${filename}`)));
     output(chalk.rgb(200,200,200).inverse(  fixedWidth(debugColumns, `Linear PNG: ${justNameOfPNG}`)));
@@ -1403,7 +1424,6 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
       if (err) { console.dir(err); console.warn("Touch file error " + fTouch) }
       log('Touched lockfile OK: ' + fTouch);
       log('Starting init for ' + filename);
-      status = "paint";
       output("Starting render");
       term.eraseDisplayBelow();
       // printRadMessage([`highlight: ${isHighlightSet}`, `peptide: ${peptide} triplet: ${triplet}`, filename, "Now", ".", "."]);
@@ -1516,6 +1536,7 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
     }
   }
   function processLine(l) {
+    status = "stream";
 
     rawDNA = l;
     var cleanDNA = "";
@@ -2145,22 +2166,22 @@ function decodePNG(file, callback) {
   });
 }
 function recycleOldImage(f) {
-  renderLock = true;
+  renderLock = false;
   isDiskFinHilbert = false;
   isDiskFinHTML = true;
-  isDiskFinPNG = true; // true because we are RECYCLING baby
+  isDiskFinLinear = true; // true because we are RECYCLING baby
 
   try {
     // var oldimage = new PNG.load(f);
     rgbArray = decodePNG(f, function () {
       calculateShrinkage();
       saveHilbert(this.data);
+      linearFinished();
     });
 
   } catch(e) {
     output(`Failure during recycling: ${e} will poll for work`);
     isDiskFinHilbert = true;
-    renderLock = false;
     pollForStream();
     return false;
   }
@@ -2186,6 +2207,7 @@ function okToOverwritePNG(f) { // true to continue, false to abort
     if (result.isFile) {
       log("Recycling previously rendered linear file.");
       willRecycleSavedImage = true;
+      isDiskFinLinear = true;
       return true; // this will cause the render to start but will use willRecycleSavedImage to skip the ingest
     }
     return false;
@@ -2762,7 +2784,7 @@ function saveHilbert(array) {
       }
       function output(txt) {
         if (verbose) {
-          console.log(maxWidth(debugColumns+(3*devmode), `[ ${(isHighlightSet ? peptide + " " : " ")}Jobs: ${howMany} ${nicePercent()} genomeSize: ${genomeSize} bytes ${baseChars.toLocaleString()} ${status} RunID: ${timestamp} hilbert: ${hilbPixels[dimension]}] `) + " >>> " + txt);
+          console.log(maxWidth(debugColumns+(3*devmode), `[${(isDiskFinLinear ? "LIN " : "OK  ")}${(isDiskFinHilbert ? "Hilb" : "OK  ")}${(isDiskFinHTML ? "HTML" : "OK  ")}  ${(isHighlightSet ? peptide + " " : " ")}Jobs: ${howMany} ${nicePercent()} genomeSize: ${genomeSize} bytes ${baseChars.toLocaleString()} ${status} RunID: ${timestamp} hilbert: ${hilbPixels[dimension]}] `) + " >>> " + txt);
         } else {
           console.log(txt);
         }
@@ -2809,7 +2831,6 @@ function saveHilbert(array) {
         return ret;
       }
       function paintPixel() {
-        status = "paint";
         let byteIndex = colClock * 4; // 4 bytes per pixel. RGBA.
 
         rgbArray.push(Math.round(red));
@@ -2829,11 +2850,13 @@ function saveHilbert(array) {
         clearCheck();
       }
       function cursorToLeft() {
+        term.eraseDisplayBelow();
         term.up( 1 ) ;
 
         // process.stdout.write('\033[<0>;<0>f');
       }
       function clearCheck() {
+        term.eraseDisplayBelow();
         if (clear) {
           clearScreen();
         }
@@ -2854,15 +2877,17 @@ function saveHilbert(array) {
       function printRadMessage(array) {
         if (array == undefined) {
           array = ["    ________", "    ________", "    ________", "    ________", "    ________", "", ""]
-        } else if ( array.length < 6 ) {
+        } else if ( array.length < 7 ) {
           array.push("    ________","    ________");
         }
-        console.log(terminalRGB(`╔═╗┌┬┐┬┌┐┌┌─┐╔═╗┌─┐┌─┐  ╔╦╗╔╗╔╔═╗  ╦  ╦┬┌─┐┬ ┬┌─┐┬─┐  ${array[0]}`, 255, 60,  250) );          console.log(terminalRGB(`╠═╣││││││││ │╚═╗├┤ ├┤    ║║║║║╠═╣  ╚╗╔╝│├┤ │││├┤ ├┬┘  ${array[1]}`, 170, 150, 255) );
+        console.log(terminalRGB(`╔═╗┌┬┐┬┌┐┌┌─┐╔═╗┌─┐┌─┐  ╔╦╗╔╗╔╔═╗  ╦  ╦┬┌─┐┬ ┬┌─┐┬─┐  ${array[0]}`, 255, 60,  250) );
+        console.log(terminalRGB(`╠═╣││││││││ │╚═╗├┤ ├┤    ║║║║║╠═╣  ╚╗╔╝│├┤ │││├┤ ├┬┘  ${array[1]}`, 170, 150, 255) );
         console.log(terminalRGB(`╩ ╩┴ ┴┴┘└┘└─┘╚═╝└─┘└─┘  ═╩╝╝╚╝╩ ╩   ╚╝ ┴└─┘└┴┘└─┘┴└─  ${array[2]}`, 128, 240, 240) );
         console.log(terminalRGB(` by Tom Atkinson          aminosee.funk.nz            ${array[3]}`, 225, 225, 130) );
         console.log(terminalRGB(`  ah-mee-no-see     'I See It Now - I AminoSee it!'   ${array[4]}`, 255, 180,  90) );
-        console.log(terminalRGB(`   ${prettyDate()}   ${array[5]}`                 , 220, 120,  70) );
-        console.log(terminalRGB(array[6], 180, 90,   50) );
+        console.log(terminalRGB(`   ${prettyDate()}   v${aminosee}            ${array[5]}`                 , 220, 120,  70) );
+        console.log(terminalRGB(array[6], 200, 105,   60) );
+        console.log(terminalRGB(array[7], 160, 32,   32) );
       }
 
       function crashReport() {
@@ -2957,27 +2982,29 @@ function saveHilbert(array) {
           aacdata[pepTable[h].Codon] = pepTable[h].Histocount ;
         }
         let array = [
-          `File: ${chalk.inverse(justNameOfDNA) + chalk(" ")}`,
-          `Done: ${chalk.rgb(128, 255, 128).inverse( nicePercent() )} Elapsed:${ fixedWidth(4, twosigbitsTolocale(timeElapsed)) } Remain:${ fixedWidth(4,  twosigbitsTolocale(timeRemain)) } sec `,
-          `@i${fixedWidth(10, charClock.toLocaleString())} Breaks:${ fixedWidth(6, breakClock.toLocaleString())} Filesize:${fixedWidth(7, bytes(baseChars))}`,
-          `Next update: ${fixedWidth(5, msPerUpdate.toLocaleString())}ms Codon Opacity: ${twosigbitsTolocale(opacity*100)}% `,
-          `CPU:${fixedWidth(10, bytes(bytesPerSec))} /s${fixedWidth(5, codonsPerSec.toLocaleString())}K acids/s Pixels:${fixedWidth(10, colClock.toLocaleString())}`,
-          `[ Codons:${fixedWidth(14, genomeSize.toLocaleString())} Last Acid:${chalk.rgb(red, green, blue).bgWhite( fixedWidth(14, aminoacid) ) } ${ ( isHighlightSet ? "Highlight: " + chalk.rgb(255, 255, 0).inverse(peptide) : "" )} Files left: ${howMany}`,
-          `[ Sample: ${ fixedWidth(60, cleanString(rawDNA)) } ${showFlags()} ]
-          RunID: ${chalk.rgb(128, 0, 0).bgWhite(timestamp)} acids per pixel: ${twosigbitsTolocale(codonsPerPixel)}` ];
-
+          `| File: ${chalk.inverse(fixedWidth(35,  justNameOfDNA+"           ")) + chalk("")}`,
+          `| Done: ${chalk.rgb(128, 255, 128).inverse( nicePercent() )} Elapsed:${ fixedWidth(4, twosigbitsTolocale(timeElapsed)) } Remain:${ fixedWidth(4,  twosigbitsTolocale(timeRemain)) } sec`,
+          `| @i${fixedWidth(10, charClock.toLocaleString())} Breaks:${ fixedWidth(6, breakClock.toLocaleString())} Filesize:${fixedWidth(7, bytes(baseChars))}`,
+          `| Next update: ${fixedWidth(5, msPerUpdate.toLocaleString())}ms Codon Opacity: ${twosigbitsTolocale(opacity*100)}%`,
+          `| CPU:${fixedWidth(10, bytes(bytesPerSec))} /s${fixedWidth(5, codonsPerSec.toLocaleString())}K acids/s`,
+          `| Files left: ${howMany} Next: ${nextFile}`,
+          ` Codons:${fixedWidth(14, genomeSize.toLocaleString())} Last Acid:${chalk.rgb(red, green, blue).bgWhite( fixedWidth(18, aminoacid) ) } ${ ( isHighlightSet ? "Highlight: " + chalk.rgb(255, 255, 0).inverse(peptide) : "" )} Host: ${hostname} Pixels:${fixedWidth(10, colClock.toLocaleString())}`,
+          ` Sample: ${ fixedWidth(60, cleanString(rawDNA)) } ${showFlags()}`,
+          `| RunID: ${chalk.rgb(128, 0, 0).bgWhite(timestamp)} acids per pixel: ${twosigbitsTolocale(codonsPerPixel)}` ];
 
           if (status == "save") {
             output("Saving... ");
           } else {
-            term.up(8);
+            term.eraseDisplayBelow();
+            term.up(termStatsHeight);
             printRadMessage(array);
+            console.log(); // white space
             console.log(histogram(aacdata, { bar: '/', width: 40, sort: true, map:  aacdata.Histocount} ));
             output(interactiveKeysGuide);
             log(    isDiskFinHTML, isDiskFinHilbert, isDiskFinLinear);
             term.up(termDisplayHeight);
           }
-          if (status == "paint") { // || updates) {
+          if (status == "stream") { // || updates) {
             updatesTimer = setTimeout(() => {
               drawHistogram(); // MAKE THE HISTOGRAM AGAIN LATER
             }, msPerUpdate);
