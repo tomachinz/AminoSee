@@ -89,11 +89,11 @@ let rawDNA ="@"; // debug
 let status = "load";
 // let StdInPipe = require('./stdinpipe');
 // let pipeInstance = new StdInPipe();
-// gv.generate('./lib/version.js', function (err, version) {
-//   if (err) {
-//     throw err;
-//   }
-//   });
+gv.generate('./lib/version.js', function (err, version) {
+  if (err) {
+    throw err;
+  }
+  });
 console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196).inverse("See")}${chalk.rgb(128,128,128).inverse(
   "No")}${chalk.rgb(64, 64, 64).inverse("Evil")}`);
   let interactiveKeysGuide = "";
