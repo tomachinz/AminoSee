@@ -14,7 +14,7 @@ const debugColumns = 80;
 const targetPixels = 9000000; // for big genomes use setting flag -c 1 to achieve highest resolution and bypass this taret max render size
 const defaultC = 1; // back when it could not handle 3+GB files.
 const artisticHighlightLength = 18; // px only use in artistic mode. must be 6 or 12 currently
-const defaultMagnitude = 6; // max for auto setting
+const defaultMagnitude = 7; // max for auto setting
 const theoreticalMaxMagnitude = 12; // max for auto setting
 const overSampleFactor = 3; // your linear image needs to be 2 megapixels to make 1 megapixel hilbert
 const maxCanonical = 32; // max length of canonical name
@@ -54,6 +54,7 @@ const minimist = require('minimist')
 const highland = require('highland')
 const fetch = require("node-fetch");
 const keypress = require('keypress');
+// const opn = require('opn'); //path-to-executable/xdg-open
 const opn = require('opn'); //path-to-executable/xdg-open
 const parse = require('parse-apache-directory-index');
 // const fs = require("fs");
@@ -137,7 +138,7 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
 
 
   module.exports = () => {
-    version = require('./lib/version');
+    // version = require('./lib/version');
     status = "exports";
     args = minimist(process.argv.slice(2), {
       boolean: [ 'artistic' ],
@@ -219,11 +220,11 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
       magnitude = Math.round(args.magnitude || args.m);
       if (isHilbertPossible) {
         if (magnitude < 1 ) {
-          magnitude = 1;
+          dimension = 1;
           // maxpix = 4096 * 16; // sixteen times oversampled in reference to the linear image.
           output("Magnitude must be an integer number between 3 and 9. Using -m 3 for 4096 pixel curve.");
         } else if ( magnitude > theoreticalMaxMagnitude) {
-          magnitude = theoreticalMaxMagnitude;
+          dimension = theoreticalMaxMagnitude;
           maxpix = 64000000;
           output("Magnitude must be an integer number between 3 and 9.");
         } else if (magnitude > 6 && magnitude < 9) {
@@ -236,10 +237,10 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
         }
       }
     } else {
-      magnitude = false;
+      dimension = defaultMagnitude;
     }
 
-    log(`maxpix: ${maxpix} magnitude: ${magnitude}`);
+    log(`maxpix: ${maxpix} dimension: ${dimension}`);
     if (args.ratio) {
       ratio = args.ratio;
       if (ratio && ratio != true ) { // this is for: aminosee --test -r
@@ -595,8 +596,8 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
     let promiseMegabase = new Promise(function(resolve,reject) {
       var exists = fs.existsSync(currentFile);
       if (exists) {
-          resolve()
-          cb()
+        resolve()
+        cb()
       } else {
         if (runTerminalCommand(`wget https://www.funk.co.nz/aminosee/dna/megabase.fa`)) {
           resolve();
@@ -679,7 +680,7 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
   }
   function createJob(cb) {
     return new Promise(function(resolve,reject) {
-        ( cb ? resolve() : reject() )
+      ( cb ? resolve() : reject() )
     })
   }
   function pollForStream() {
@@ -788,27 +789,30 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
       autoconfCodonsPerPixel();
       status ="polling";
       setupFNames();
-      let ok = okToOverwritePNG(filenamePNG);
-      if (ok != true) {
-        output("A png image has already been generated for this DNA: " + filenamePNG)
-        output("use --force to overwrite  --image to automatically open   --no-image suppress automatic opening of the image.");
-        if (openHtml || openImage && args.image == true) {
-          openOutputs();
+
+
+
+        if (okToOverwritePNG(filenamePNG) == false) {
+          output("A png image has already been generated for this DNA: " + filenamePNG);
+          if (openHtml || openImage || args.image == true) {
+            output("use --force to overwrite  --image to automatically open   --no-image suppress automatic opening of the image.");
+            openOutputs();
+          }
+          recycleOldImage(filenamePNG); // recycled with new hilbert
+          return false; // just straight quit both images are rendered
         }
-        recycleOldImage(filenamePNG);
-        // theSwitcher(false); // dont overwrite
+
+
+      }
+      let temp = !checkLocks(filenameTouch);
+      if (temp) {
+        log("!checkLocks(filenameTouch) " + temp);
+        theSwitcher(false); // <---- FAIL
         return false;
       } else {
-        let temp = !checkLocks(filenameTouch);
-        if (temp) {
-          log("!checkLocks(filenameTouch) " + temp);
-          theSwitcher(false); // <---- FAIL
-          return false;
-        } else {
-          log(`filenameTouch ${filenameTouch}`);
-          theSwitcher(true); // <--- GOOD
-          return true;
-        }
+        log(`filenameTouch ${filenameTouch}`);
+        theSwitcher(true); // <--- GOOD
+        return true;
       }
     }
 
@@ -849,7 +853,7 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
     var dest = path.normalize( outputPath + "/gui");
     log(`Will try to copy from ${src} to ${dest}`)
 
-/** https://stackoverflow.com/questions/13786160/copy-folder-recursively-in-node-js/26038979
+    /** https://stackoverflow.com/questions/13786160/copy-folder-recursively-in-node-js/26038979
     * Look ma, it's cp -R.
     * @param {string} src The path to the thing to copy.
     * @param {string} dest The path to the new copy.
@@ -1000,6 +1004,7 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
         progato = null;
         currentTriplet = "none";
         currentTriplet = triplet;
+        calcUpdate();
         return saveDocuments();
       }));
     } catch(e) {
@@ -1013,18 +1018,18 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
     term.eraseDisplayBelow();
   }
   function showFlags() {
-    return `${(  force ? "F" : "-"    )}${(  args.updates || args.u ? `U` : "-"    )}${(  userCPP != -1 ? `C${userCPP}` : "--"    )}${(  args.keyboard || args.k ? `K` : "-"    )}${(  args.spew || spew ? `K` : "-"    )}${( verbose ? "V" : "-"  )}${(  artistic ? "A" : "-"    )}${(  args.ratio || args.r ? `${ratio}` : "---"    )}${(magnitude? "M" + magnitude:"")}C${onesigbitTolocale(codonsPerPixel)}${(reg?"REG":"")}`;
+    return `${(  force ? "F" : "-"    )}${(  args.updates || args.u ? `U` : "-"    )}${(  userCPP != -1 ? `C${userCPP}` : "--"    )}${(  args.keyboard || args.k ? `K` : "-"    )}${(  args.spew || spew ? `K` : "-"    )}${( verbose ? "V" : "-"  )}${(  artistic ? "A" : "-"    )}${(  args.ratio || args.r ? `${ratio}` : "---"    )}${(dimension? "M" + dimension:"")}C${onesigbitTolocale(codonsPerPixel)}${(reg?"REG":"")}`;
   }
   function testSummary() {
     return `TEST
     Filename: <b>${justNameOfDNA}</b>
     Registration Marks: ${( reg ? true : false )}
     ${ ( peptide || triplet ) ?  "Highlights: " + (peptide || triplet) : " "}
-    Your custom flags: TEST${(  force ? "F" : ""    )}${(  userCPP != -1 ? `C${userCPP}` : ""    )}${(  devmode ? "D" : ""    )}${(  args.ratio || args.r ? `${ratio}` : ""    )}${(  args.magnitude || args.m ? `M${magnitude}` : ""    )}
+    Your custom flags: TEST${(  force ? "F" : ""    )}${(  userCPP != -1 ? `C${userCPP}` : ""    )}${(  devmode ? "D" : ""    )}${(  args.ratio || args.r ? `${ratio}` : ""    )}${(  args.magnitude || args.m ? `M${dimension}` : ""    )}
     ${(  artistic ? ` Artistic Mode` : ` Science Mode`    )}
-    Max magnitude: ${magnitude} / 10 Max pix: ${maxpix.toLocaleString()}
-    Hilbert Magnitude: ${magnitude} / ${defaultMagnitude}
-    Hilbert Curve Pixels: ${hilbPixels[magnitude]}`;
+    Max magnitude: ${dimension} / 10 Max pix: ${maxpix.toLocaleString()}
+    Hilbert Magnitude: ${dimension} / ${defaultMagnitude}
+    Hilbert Curve Pixels: ${hilbPixels[dimension]}`;
   }
   function renderSummary() {
     maxpix += 0; // cast it into a number from whatever the heck data type it was before!
@@ -1034,7 +1039,7 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
     Run ID: ${timestamp} (unix timestamp) Host: ${hostname}
     Highlight set: ${isHighlightSet} ${(isHighlightSet ? peptide + " " + triplet : peptide)}
     ${ ( peptide || triplet ) ?  "Highlights: " + (peptide || triplet) : " "}
-    Your custom flags: ${(  force ? "F" : ""    )}${(  userCPP != -1 ? `C${userCPP}` : ""    )}${(  devmode ? "D" : ""    )}${(  args.ratio || args.r ? `${ratio}` : "   "    )}${(  args.magnitude || args.m ? `M${magnitude}` : "   "    )}
+    Your custom flags: ${(  force ? "F" : ""    )}${(  userCPP != -1 ? `C${userCPP}` : ""    )}${(  devmode ? "D" : ""    )}${(  args.ratio || args.r ? `${ratio}` : "   "    )}${(  args.magnitude || args.m ? `M${dimension}` : "   "    )}
     ${(  artistic ? `Artistic Mode` : `Science Mode`    )}
     Aspect Ratio: ${ratio}
     Input bytes: ${baseChars.toLocaleString()}
@@ -1052,7 +1057,7 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
     overSampleFactor: ${twosigbitsTolocale(overSampleFactor)}
     Amino acid blend opacity: ${Math.round(opacity*10000)/100}%
     Users Max magnitude: ${ ( magnitude != false ? `${magnitude}/ 10 ` : "Not Set" ) } Max pix:${maxpix.toLocaleString()}
-    Hilbert Magnitude: ${magnitude} / ${defaultMagnitude}
+    Hilbert Magnitude: ${dimension} / ${defaultMagnitude}
     Hilbert Curve Pixels: ${hilbPixels[dimension]}
     Darken Factor ${twosigbitsTolocale(darkenFactor)}
     Highlight Factor ${twosigbitsTolocale(highlightFactor)}
@@ -1062,15 +1067,15 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
     let computersGuess = pixTodefaultMagnitude(estimatedPixels); // give it pixels it gives magnitude
     log(`image estimatedPixels ${estimatedPixels}   computersGuess ${computersGuess}`)
 
-    if (magnitude != undefined || magnitude == false) {
-      if ( magnitude < computersGuess) {
+    if (dimension != undefined || dimension == false || dimension == NaN) {
+      if ( dimension < computersGuess) {
         log(`It mite be possible to get higher resolution with --magnitude ${computersGuess}`)
-      } else if ( magnitude < computersGuess ) {
-        log(`Your --magnitude of ${magnitude} is larger than my default of ${computersGuess}`)
+      } else if ( dimension < computersGuess ) {
+        log(`Your --magnitude of ${dimension} is larger than my default of ${computersGuess}`)
       }
     } else {
-      if ( magnitude < computersGuess) {
-        log(`It mite be possible to get higher resolution with --magnitude ${computersGuess} your choice was ${magnitude}`)
+      if ( dimension < computersGuess) {
+        log(`It mite be possible to get higher resolution with --magnitude ${computersGuess} your choice was ${dimension}`)
         // default of 6
       } else {
         if ( computersGuess < defaultMagnitude) {
@@ -2279,7 +2284,7 @@ function calculateShrinkage() {
   }
 
   if (args.magnitude || args.m) {
-    dimension = magnitude; // users choice
+    dimension = magnitude; // users choice over ride all this nonsense
   }
 
   let hilpix = hilbPixels[dimension];;
@@ -2292,7 +2297,7 @@ function calculateShrinkage() {
   // codonsPerPixelHILBERT = twosigbitsTolocale( codonsPerPixel*shrinkFactor );
   codonsPerPixelHILBERT = codonsPerPixel*shrinkFactor;
   setupFNames();
-  log(`filenameHILBERT after shrinking: ${filenameHILBERT} magnitude: ${magnitude} shrinkFactor post ${shrinkFactor} codonsPerPixel ${codonsPerPixel} codonsPerPixelHILBERT ${codonsPerPixelHILBERT}`);
+  log(`filenameHILBERT after shrinking: ${filenameHILBERT} dimension: ${dimension} shrinkFactor post ${shrinkFactor} codonsPerPixel ${codonsPerPixel} codonsPerPixelHILBERT ${codonsPerPixelHILBERT}`);
 }
 // resample the large 760px wide linear image into a smaller square hilbert curve
 function saveHilbert(array) {
@@ -2568,12 +2573,14 @@ function saveHilbert(array) {
         test = true;
         updates = true;
         pngImageFlags = "_test_pattern";
+        if (args.magnitude || args.m) {
+          magnitude = Math.round(args.magnitude || args.m);
+        } else {
+          magnitude = defaultMagnitude;
+        }
         output("output test patterns to /calibration/ folder");
         mkdir('calibration');
 
-        if ( !magnitude ) {
-          magnitude = defaultMagnitude + 1;
-        }
         // if (magnitude > 8) { magnitude = 8}
         output(`TEST PATTERNS GENERATION    m${magnitude} c${codonsPerPixel}`);
         output("Use -m to try different dimensions. -m 9 requires 1.8 GB RAM");
