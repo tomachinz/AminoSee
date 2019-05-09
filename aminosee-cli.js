@@ -2729,7 +2729,7 @@ function saveHilbert(array) {
       function pixTodefaultMagnitude(pix) { // give it pix it returns a magnitude that fits inside it
         let dim = 0;
         output(`[HILBERT] Calculating largest Hilbert curve image that can fit inside ${twosigbitsTolocale(pix)} pixels, and over sampling factor of ${overSampleFactor}: `);
-        while (pix > (hilbPixels[dim+1] * overSampleFactor)) {
+        while (pix > (hilbPixels[dim] * overSampleFactor)) {
           out(`dim ${dim}: ${hilbPixels[dim]}`);
 
           if (dim % 666 == 0 && dim > 666) {
