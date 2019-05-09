@@ -803,7 +803,7 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
         }
 
 
-      }
+
       let temp = !checkLocks(filenameTouch);
       if (temp) {
         log("!checkLocks(filenameTouch) " + temp);
@@ -2265,18 +2265,12 @@ function hilDecode(i, dimension) {
 function calculateShrinkage() {
   let linearpix = rgbArray.length / 4;
   let computerWants = pixTodefaultMagnitude(linearpix);
-  output(`Ideal magnitude: ${computerWants} (new) previous magnitude: ${magnitude}`);
+  output(`Ideal magnitude: ${computerWants} (new) previous magnitude: ${dimension}`);
 
   if ( computerWants > defaultMagnitude ) {
     output(`This genome could be output at a higher resolution of ${hilbPixels[computerWants].toLocaleString()} then the default of ${computerWants}, you could try -m 8 or -m 9 if your machine is muscular, but it might core dump.`)
     dimension = defaultMagnitude;
 
-    if (args.magnitude || args.m && magnitude > defaultMagnitude) {
-      output(`I'm not sure that trying to render ${hilbPixels[magnitude]} is going to work out. Maybe try a lower magnitude like ${computerWants} if you get core dump.`)
-      dimension = magnitude;
-    } else {
-      output(`Max size reached: ${hilbPixels[computerWants]} trying a number one higher than -m ${computerWants} and see if I core dump.`)
-    }
   } else if (computerWants < 0) {
     dimension = 0; // its an array index
   } else {
