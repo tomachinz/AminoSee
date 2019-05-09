@@ -798,6 +798,7 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
             output("use --force to overwrite  --image to automatically open   --no-image suppress automatic opening of the image.");
             openOutputs();
           }
+
           recycleOldImage(filenamePNG); // recycled with new hilbert
           return false; // just straight quit both images are rendered
         }
@@ -976,7 +977,8 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
     if (willRecycleSavedImage == true) {
       log("AM PLANNING TO RECYCLE TODAY")
       recycleOldImage(filenamePNG);
-      saveDocuments();
+
+      // saveDocuments();
       return
     }
 
@@ -2279,6 +2281,8 @@ function calculateShrinkage() {
 
   if (args.magnitude || args.m) {
     dimension = magnitude; // users choice over ride all this nonsense
+  } else {
+    magnitude = dimension;
   }
 
   let hilpix = hilbPixels[dimension];;
@@ -2725,7 +2729,7 @@ function saveHilbert(array) {
       function pixTodefaultMagnitude(pix) { // give it pix it returns a magnitude that fits inside it
         let dim = 0;
         output(`[HILBERT] Calculating largest Hilbert curve image that can fit inside ${twosigbitsTolocale(pix)} pixels, and over sampling factor of ${overSampleFactor}: `);
-        while (pix > (hilbPixels[dim] * overSampleFactor)) {
+        while (pix > (hilbPixels[dim+1] * overSampleFactor)) {
           out(`dim ${dim}: ${hilbPixels[dim]}`);
 
           if (dim % 666 == 0 && dim > 666) {
@@ -2743,7 +2747,7 @@ function saveHilbert(array) {
           }
           dim++;
         }
-        // if (dim>0) { dim--; } // was off by 1
+        if (dim>0) { dim--; } // was off by 1
 
         out(` <<<--- chosen magnitude: ${dim} `);
         return dim;
