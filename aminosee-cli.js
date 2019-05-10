@@ -1038,7 +1038,8 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
     return `
     Canonical Filename: <b>${justNameOfDNA}</b>
     Source: ${justNameOfCurrentFile}
-    Run ID: ${timestamp} (unix timestamp) Host: ${hostname}
+    Run ID: ${timestamp} Host: ${hostname}
+    AminoSee version: ${aminosee}
     Highlight set: ${isHighlightSet} ${(isHighlightSet ? peptide + " " + triplet : peptide)}
     ${ ( peptide || triplet ) ?  "Highlights: " + (peptide || triplet) : " "}
     Your custom flags: ${(  force ? "F" : ""    )}${(  userCPP != -1 ? `C${userCPP}` : ""    )}${(  devmode ? "D" : ""    )}${(  args.ratio || args.r ? `${ratio}` : "   "    )}${(  args.magnitude || args.m ? `M${dimension}` : "   "    )}
