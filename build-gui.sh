@@ -3,35 +3,37 @@ ERASED="build"
 BUILDFOLDER="build/AminoSee_build_"
 TIMESTAMP=$(date +%s)
 TARGET="$BUILDFOLDER$TIMESTAMP"
-echo running from:
-pwd
-mkdir -p build
-mkdir -p build/TOBEDELETED
-ls -la build
-echo ERASING EVERYTHING IN  build in 10 seconds!
-echo ERASING EVERYTHING IN  build in 10 seconds!
-echo ERASING EVERYTHING IN  build in 10 seconds!
-echo ERASING EVERYTHING IN  build in 10 seconds!
+echo COPYING LIBRARIES INTO /lib
+mkdir -p lib
+mkdir -p lib/node_modules
+mkdir -p lib/node_modules/sliced/
+mkdir -p lib/node_modules/deep-defaults
+mkdir -p lib/node_modules/terminal-kit/lib/termconfig
 
-cd build
-pwd
-rm -rf TOBEDELETED
-sleep 10
-mkdir -p TOBEDELETED
-mv * TOBEDELETED
-cd ../
+echo GENERATE VERSION NUMBER IMPORT
+npm run genversion
 
-echo done
-sleep 1
+cp -v node_modules/sliced/index.js lib/node_modules/sliced
+cp -v node_modules/deep-defaults/lib/index.js lib/node_modules/deep-defaults/lib
+cp -v node_modules/get-cursor-position/build/Release/pos.node lib
+cp -v node_modules/opn/xdg-open lib
+cp -v node_modules/terminal-kit/lib/termconfig/xterm.generic.js  lib/termconfig
+# CP -V node_modules/electron/dist lib/electron/dist
+
+
+echo COPYING LIBRARIES INTO /dist/*
+cp -r -v lib/* dist/Aminosee_macos
+cp -r -v lib/* dist/Aminosee_linux
+cp -r -v lib/* dist/Aminosee_win
+
+
 
 echo "Move a bunch of files into $TARGET then run pkg on it"
 mkdir build
 mkdir $TARGET
 mkdir -p $TARGET/dna
+
 cp -v -r dna/megabase.fa $TARGET/dna
-
-  # node_modules/electron/dist
-
 cp -r images $TARGET
 cp -r imports $TARGET
 cp -r lib $TARGET
@@ -47,14 +49,15 @@ cp -r index.html $TARGET
 cp -r console.js $TARGET
 cp -r favicon.ico $TARGET
 cp -r favicon.png $TARGET
+cp -r -v dist $TARGET
 
 # cp -r package-electron.json $TARGET/package.json
-cp -r electron.html $TARGET
-cp -r main.js $TARGET
-cp -r renderer.js $TARGET
+# cp -r electron.html $TARGET
+# cp -r main.js $TARGET
+# cp -r renderer.js $TARGET
 
 
-cp -r node_modules $TARGET
+# cp -r node_modules $TARGET
 mkdir "build/THIS FOLDER IS AUTOMATICALLY WIPED BY SCRIPTS"
 
 cd $TARGET

@@ -45,8 +45,8 @@ const path = require('path');
 const appFilename = require.main.filename;
 let appPath = path.normalize(appFilename.substring(0, appFilename.length-11));// + aminosee.js has 11 chars; cut 4 off to remove /dna
 let outputPath = path.normalize(path.resolve(process.cwd().substring(0,path.length-11))); // current working diretory
-let term = require( 'terminal-kit' ).terminal ;
-let aminosee = require('./lib/version');
+let term = require( path.normalize(appPath + 'node_modules/terminal-kit') ).terminal ;
+let version = require('./lib/version');
 let gv = require('genversion');
 let MyManHilbert = require('hilbert-2d');
 let es = require('event-stream');
@@ -76,7 +76,6 @@ const util = require('util');
 const testFilename = "AminoSeeTestPatterns"; // for some reason this needs to be here. hopefully the open source community can come to rescue and fix this Kludge.
 let nextFile = ""; // for batch jobs like *
 const defaultFilename = "megabase.fa"; // for some reason this needs to be here. hopefully the open source community can come to rescue and fix this Kludge.
-out( `version ${aminosee}` );
 let highlightTriplets = [];
 let isHighlightSet = false;
 let isHilbertPossible = true; // set false if -c flags used.
@@ -89,13 +88,15 @@ let rawDNA ="@"; // debug
 let status = "load";
 // let StdInPipe = require('./stdinpipe');
 // let pipeInstance = new StdInPipe();
-gv.generate('./lib/version.js', function (err, version) {
+out( `v${version}` );
+gv.generate(appPath +'lib/version.js', function (err, version) {
   if (err) {
     throw err;
   } else {
     log("Generated version file");
   }
 });
+
 console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196).inverse("See")}${chalk.rgb(128,128,128).inverse(
   "No")}${chalk.rgb(64, 64, 64).inverse("Evil")}`);
   let interactiveKeysGuide = "";
@@ -140,7 +141,7 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
 
 
   module.exports = () => {
-    // version = require('lib/version');
+    version = require('./lib/version');
     status = "exports";
     args = minimist(process.argv.slice(2), {
       boolean: [ 'artistic' ],
@@ -239,7 +240,7 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
         }
       }
     } else {
-      dimension = defaultMagnitude;
+      magnitude = defaultMagnitude;
     }
 
     log(`maxpix: ${maxpix} dimension: ${dimension}`);
@@ -586,12 +587,11 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
     args._[0] = currentFile;
     args._.push(path.resolve(currentFile));
     downloadMegabase( generateTestPatterns() );
-    // pollForStream();
-    // initStream(args._[0])
-    // theSwitcher(false);
-    // let thisJob = createJob().then().catch(log('thisJob LATCH'));
-    // launchNonBlockingServer();
-
+    pollForStream();
+    initStream(args._[0])
+    theSwitcher(false);
+    let thisJob = createJob().then().catch(log('thisJob LATCH'));
+    launchNonBlockingServer();
   }
   function downloadMegabase(cb) {
     currentFile = 'megabase.fa';
@@ -794,16 +794,16 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
 
 
 
-        if (okToOverwritePNG(filenamePNG) == false) {
-          output("A png image has already been generated for this DNA: " + filenamePNG);
-          if (openHtml || openImage || args.image == true) {
-            output("use --force to overwrite  --image to automatically open   --no-image suppress automatic opening of the image.");
-            openOutputs();
-          }
-
-          recycleOldImage(filenamePNG); // recycled with new hilbert
-          return false; // just straight quit both images are rendered
+      if (okToOverwritePNG(filenamePNG) == false) {
+        output("A png image has already been generated for this DNA: " + filenamePNG);
+        if (openHtml || openImage || args.image == true) {
+          output("use --force to overwrite  --image to automatically open   --no-image suppress automatic opening of the image.");
+          openOutputs();
         }
+
+        recycleOldImage(filenamePNG); // recycled with new hilbert
+        return false; // just straight quit both images are rendered
+      }
 
 
 
@@ -1041,7 +1041,7 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
     Canonical Filename: <b>${justNameOfDNA}</b>
     Source: ${justNameOfCurrentFile}
     Run ID: ${timestamp} Host: ${hostname}
-    AminoSee version: ${aminosee}
+    AminoSee version: ${version}
     Highlight set: ${isHighlightSet} ${(isHighlightSet ? peptide + " " + triplet : peptide)}
     ${ ( peptide || triplet ) ?  "Highlights: " + (peptide || triplet) : " "}
     Your custom flags: ${(  force ? "F" : ""    )}${(  userCPP != -1 ? `C${userCPP}` : ""    )}${(  devmode ? "D" : ""    )}${(  args.ratio || args.r ? `${ratio}` : "   "    )}${(  args.magnitude || args.m ? `M${dimension}` : "   "    )}
@@ -1115,6 +1115,7 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
       return
     } else { // use a file
       isStreamingPipe = false; // cat Human.genome | aminosee
+      dimension = pixTodefaultMagnitude(estimatedPixels);
     }
     estimatedPixels = baseChars / 3; // divide by 4 times 3
 
@@ -1223,7 +1224,15 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
 
   function launchNonBlockingServer() {
     let serverPath = './';// + aminosee-cli.js has 15 chars; cut 4 off to remove /dna
-    console.log(`serverPath ${serverPath}`)
+    console.log(`serverPath ${serverPath}`);
+    try {
+      var relativePath = path.relative('/aminosee-gui-symlink', appPath + '/gui');
+      console.log(`${appPath}/gui`);
+
+      fs.symlink(relativePath, '/some-dir/foo', callback);
+    } catch(e) {
+
+    }
     const LocalWebServer = require('local-web-server')
     const localWebServer = new LocalWebServer()
     const server = localWebServer.listen({
@@ -1393,7 +1402,7 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
     // updates = true;
     status = "removelocks";
     setImmediate(() => {
-      // openOutputs();
+      openOutputs();
     });
     if (callback != undefined) {
       callback();
@@ -1419,18 +1428,43 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
       return;
     }
     log( pepTable.sort( compareHistocount ) ); // least common amino acids in front
-    fs.writeFile(filenameHTML, htmlTemplate(), function (err) {
-      if (err) { output(`Error saving HTML: ${err}`) }
-      output('Saved html report to:');
-      output(chalk.underline( filenameHTML ));
-      htmlFinished();
+
+    // var jsonObj = JSON.parse(jsonData);
+    // console.log(jsonObj);
+    // stringify JSON Object
+    let histoJSON = path.normalize( `${outputPath}/${justNameOfDNA}_histogram.json` );
+    let hypertext = htmlTemplate();
+    fs.writeFile(histoJSON, JSON.stringify(pepTable), 'utf8', function (err) {
+      if (err) {
+        console.log("An error occured while writing JSON Object to File.");
+        return console.log(err);
+      }
+      console.log("Amino acid histogram JSON file has been saved to: " + histoJSON);
+      fs.writeFile(filenameHTML, hypertext, function (err) {
+        if (err) { output(`Error saving HTML: ${err}`) }
+        output('Saved html report to:');
+        output(chalk.underline( filenameHTML ));
+        fs.writeFile(`${outputPath}/index.html`, hypertext, function (err) {
+          if (err) { log(`Issue with saving index.html: ${err}`) }
+          htmlFinished();
+        });
+      });
     });
+
+    // fs.writeFile(histoJSON, JSON.stringify(pepTable), 'utf8', function (err) {
+    //     if (err) {
+    //         console.log("An error occured while writing JSON Object to File.");
+    //         return console.log(err);
+    //     }
+    //     console.log("Amino acid histogram JSON file has been saved to: " + histoJSON);
+    // });
+
   }
   function touchLockAndStartStream(fTouch) {
     renderLock = true;
     isDiskFinHTML, isDiskFinHilbert, isDiskFinLinear = false;
 
-    fs.writeFile(fTouch, lockFileMessage + ` ${aminosee} ${timestamp} ${hostname} ${radMessage}`,  function (err) {
+    fs.writeFile(fTouch, lockFileMessage + ` ${version} ${timestamp} ${hostname} ${radMessage}`,  function (err) {
       if (err) { console.dir(err); console.warn("Touch file error " + fTouch) }
       log('Touched lockfile OK: ' + fTouch);
       log('Starting init for ' + filename);
@@ -1831,10 +1865,10 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
     let backupHighlight = isHighlightSet;
     if (id == undefined || id == -1) { // for the reference image
       currentPepHighlight = false;
-      currentPeptide = "none";
+      currentPeptide = "";
     } else {
       currentPepHighlight = true;
-      currentPeptide = spaceTo_( pepTable[id].Codon );
+      currentPeptide = pepTable[id].Codon;
     }
     peptide = currentPeptide; // bad use of globals i agree, well i aint getting paid for this, i do it for the love, so yeah
     isHighlightSet = currentPepHighlight;
@@ -1867,8 +1901,7 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
     return justNameOfHILBERT;
   }
   function generateFilenameHTML() {
-    // justNameOfHTML =        `${justNameOfDNA}.${extension}_m${dimension}_c${onesigbitTolocale(codonsPerPixel)}${getRegmarks()}${getImageType()}.html`;
-    justNameOfHTML = 'index.html';
+    justNameOfHTML =        `${justNameOfDNA}.${extension}_m${dimension}_c${onesigbitTolocale(codonsPerPixel)}${getRegmarks()}${getImageType()}.html`;
     return justNameOfHTML;
   }
   function imageStack() {
@@ -1913,9 +1946,10 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
     <script src="https://www.funk.co.nz/aminosee/public/hilbert2D.js"></script>
     <script src="https://www.funk.co.nz/aminosee/public/WebGL.js"></script>
     <script src="https://www.funk.co.nz/aminosee/node_modules/hammerjs/hammer.min.js"></script>
-    <script src="https://www.funk.co.nz/aminosee/bundle.js"></script>
+    <!-- script src="https://www.funk.co.nz/aminosee/bundle.js"></script -->
     <script src="https://www.funk.co.nz/aminosee/aminosee-gui-web.js"></script>
     <script>
+    let page = "report";
     function mover(i) {
       if (i == undefined) {
         i = "stack_reference"; // reference image
@@ -2024,7 +2058,7 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
   <td>${genomeSize}</td>
   <td>n/a</td>
   <td style="background-color: white;">
-  <a href="${aminoFilenameIndex(-1)}" class="button" title="Reference Image"><img width="48" height="16" class="blackback" src="${aminoFilenameIndex()}" alt="Reference Image ${justNameOfDNA}"></a>
+  <a href="${aminoFilenameIndex()}" class="button" title="Reference Image"><img width="48" height="16" class="blackback" src="${aminoFilenameIndex()}" alt="Reference Image ${justNameOfDNA}"></a>
   </td>
   </tr>
 
@@ -2064,7 +2098,7 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
   </tfoot>
   </table>
   <a name="scrollHILBERT" ></a>
-  <a href="${justNameOfHILBERT}" ><img src="${justNameOfHILBERT}"></a>
+  <a href="${justNameOfHILBERT}" ><img src="${justNameOfHILBERT}" width-"99%" height="auto"></a>
 
   <h2>About Start and Stop Codons</h2>
   <p>The codon AUG is called the START codon as it the first codon in the transcribed mRNA that undergoes translation. AUG is the most common START codon and it codes for the amino acid methionine (Met) in eukaryotes and formyl methionine (fMet) in prokaryotes. During protein synthesis, the tRNA recognizes the START codon AUG with the help of some initiation factors and starts translation of mRNA.
@@ -2901,7 +2935,7 @@ function saveHilbert(array) {
         console.log(terminalRGB(`╩ ╩┴ ┴┴┘└┘└─┘╚═╝└─┘└─┘  ═╩╝╝╚╝╩ ╩   ╚╝ ┴└─┘└┴┘└─┘┴└─  ${array[2]}`, 128, 240, 240) );
         console.log(terminalRGB(` by Tom Atkinson          aminosee.funk.nz            ${array[3]}`, 225, 225, 130) );
         console.log(terminalRGB(`  ah-mee-no-see     'I See It Now - I AminoSee it!'   ${array[4]}`, 255, 180,  90) );
-        console.log(terminalRGB(`   ${prettyDate()}   v${aminosee}            ${array[5]}`                 , 220, 120,  70) );
+        console.log(terminalRGB(`   ${prettyDate()}   v${version}            ${array[5]}`                 , 220, 120,  70) );
         console.log(terminalRGB(array[6], 200, 105,   60) );
         console.log(terminalRGB(array[7], 160, 32,   32) );
       }

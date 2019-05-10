@@ -13,18 +13,20 @@ parallel_peptides () {
   aminosee_do $1 $2 $3 $4 $5 $6 $7
   aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Ochre &
   aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Amber &
+  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Opal &
+  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Methionine &
+
   aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Cysteine
   aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Glycine &
   aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Alanine &
-  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Methionine &
   aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Valine
   aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Leucine &
   aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Isoleucine &
   aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Phenylalanine &
+  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Proline 
   aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Tryptophan &
   aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Serine
   aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Threonine &
-  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Opal &
   aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Glutamine &
   aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Asparagine &
   aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Tyrosine &
@@ -87,6 +89,6 @@ find_way_peptides () {
   echo "                                         =///"
 }
 parallel_peptides $1 $2 $3 $4 $5 $6 $7
-parallel_peptides  --reg $1 $2 $3 $4 $5 $6 $7
-find_way_peptides
-find_way_peptides  --reg
+# parallel_peptides  --reg $1 $2 $3 $4 $5 $6 $7
+# find_way_peptides
+# find_way_peptides  --reg

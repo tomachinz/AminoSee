@@ -14,9 +14,10 @@ mkdir -p dist/node_modules/termconfig
 mkdir -p lib/termconfig
 
 cp -v node_modules/sliced/index.js dist/node_modules/sliced
+cp -r -v node_modules/terminal-kit dist/node_modules
 cp -v node_modules/deep-defaults/lib/index.js dist/node_modules/deep-defaults/lib
-cp -v node_modules/terminal-kit/lib/termconfig/xterm.generic.js  dist/node_modules/termconfig
-
+cp -r dist/docs dist/Aminosee_macos
+# cp -v node_modules/terminal-kit/lib/termconfig/xterm.generic.js  dist/node_modules/termconfig
 
 # THIS ONE IS ODD:
 cp -v node_modules/terminal-kit/lib/termconfig/xterm.generic.js  lib/termconfig
@@ -36,7 +37,10 @@ cp -r dist/docs dist/Aminosee_linux
 cp -r dist/docs dist/Aminosee_win
 
 echo COPYING LIBRARIES INTO /dist/* APP ROOT FOLDERS
-cp -r -v lib/* dist/Aminosee_macos
+cp -r -v lib/* bin
+cp -r -v dist/node_modules bin
+
+cp -r  lib/* dist/Aminosee_macos
 cp -r  lib/* dist/Aminosee_linux
 cp -r  lib/* dist/Aminosee_win
 

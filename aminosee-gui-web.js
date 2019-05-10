@@ -19,8 +19,8 @@ basepairs = 3;
 zoom = 2; //  defalt 2
 distance = 900; // default 900
 let stateObj = { foo: "bar" };
-
 let current_image = document.getElementById('current_image');
+
 
 if(window.addEventListener) {
   window.addEventListener('load',pageLoaded,false); //W3C
@@ -37,7 +37,19 @@ function fileChanged(f) {
   console.log(current_image);
   loadImage();
 }
+function reportLoaded() {
+  fetch(filename +  "_histogram.json")
+    .then(response => response.json())
+    .then(json => console.log(json));
+}
 function pageLoaded() {
+  if (page == "report") {
+    console.log("Didnt run init due to this is a report");
+    reportLoaded();
+    return false;
+  } else {
+    console.log("not report")
+  }
   initVariables();
   sceneCameraSetup();
   setScene();
@@ -90,6 +102,8 @@ function initVariables() {
   }
 
   stat("initialisation: zoom levels distance subdivisions " +   zoom + ", " +  levels  + ", " + distance);
+  window.addEventListener('devicemotion', listener);
+  window.addEventListener('deviceorientation', listener);
 
   document.addEventListener( 'mousemove', onDocumentMouseMove, false );
   document.addEventListener( 'touchstart', onDocumentTouchStart, false );
@@ -1206,11 +1220,27 @@ function testParse() {
     pauseIntent = false;
     // camera.rotation.x -= 5;
     camera.position.z += 10;
+  }
+  function positionStack() {
+    for (i=0; i<pepTable.length; i++) {
+      let thePep = spaceTo_( pepTable[i].Codon );
+      let theHue = pepTable[i].Hue;
+      let c =      hsvToRgb( theHue/360, 0.5, 1.0 );
 
+      if (thePep != "Non-coding_NNN"  && thePep != "Start_Codons" && thePep != "Stop_Codons") {
+        hhh += `<a href="${aminoFilenameIndex(i)}" onmouseover="mover(${i})" onmouseout="mout(${i})"><img src="${aminoFilenameIndex(i)}" id="stack_${i}" width="256" height="256" style="z-index: ${1000+i}; position: absolute; top: ${i*2}px; left: ${i*12}px;" alt="${pepTable[i].Codon}" title="${pepTable[i].Codon}"></a>`;
+      } else {
+        log("non-coding nnn image not output");
+      }
+    }
   }
   function onDocumentMouseMove( event ) {
     mouseX = event.clientX - windowHalfX;
     mouseY = event.clientY - windowHalfY;
+    if (page == "report") {
+      log("Position")
+      positionStack();
+    }
   }
 
   function onDocumentTouchStart( event ) {

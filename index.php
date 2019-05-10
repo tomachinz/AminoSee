@@ -139,7 +139,7 @@
 					<br>
 					<label class="fineprint whitetext"><input type="checkbox" id="autostop" name="autostop" value="pause after running for 5 minutes" onchange="autostopChanged()" checked>pause after running for 5 minutes</label>
 					<br>
-					<h1>Welcome, try the <a href="output/Brown_Kiwi_013982187v1.fa_AMINOSEE-REPORT_c123.6_sci.html" style="color: white;">Brown Kiwi</a> or <a href="output/Caenorhabdihromosome-V.fa_AMINOSEE-REPORT_reg_c1.7_fix_sci.html" style="color: white;">C.elegans</a></h1>
+					<h1>Welcome, try the <a href="output/Brown_Kiwi_NW_013982187v1/" style="color: white;">Brown Kiwi</a> or <a href="output/Caenorhabditisel.dna_sm.toplevel/" style="color: white;">C.elegans</a></h1>
 					* 3D mode is only showing test patterns at this time. Try using WASD keys to move about.
 				</div>
 
