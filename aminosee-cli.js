@@ -92,8 +92,10 @@ let status = "load";
 gv.generate('./lib/version.js', function (err, version) {
   if (err) {
     throw err;
+  } else {
+    log("Generated version file");
   }
-  });
+});
 console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196).inverse("See")}${chalk.rgb(128,128,128).inverse(
   "No")}${chalk.rgb(64, 64, 64).inverse("Evil")}`);
   let interactiveKeysGuide = "";
@@ -1428,7 +1430,7 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
     renderLock = true;
     isDiskFinHTML, isDiskFinHilbert, isDiskFinLinear = false;
 
-    fs.writeFile(fTouch, lockFileMessage,  function (err) {
+    fs.writeFile(fTouch, lockFileMessage + ` ${aminosee} ${timestamp} ${hostname} ${radMessage}`,  function (err) {
       if (err) { console.dir(err); console.warn("Touch file error " + fTouch) }
       log('Touched lockfile OK: ' + fTouch);
       log('Starting init for ' + filename);
@@ -2996,13 +2998,13 @@ function saveHilbert(array) {
           aacdata[pepTable[h].Codon] = pepTable[h].Histocount ;
         }
         let array = [
-          `| File: ${chalk.inverse(fixedWidth(35,  justNameOfDNA+"           ")) + chalk("")}`,
+          `| File: ${chalk.inverse(fixedWidth(35,  justNameOfDNA+"           ")) + chalk("")}${ ( isHighlightSet ? "Highlight: " + chalk.rgb(255, 255, 0).inverse(peptide) : "" )}`,
           `| Done: ${chalk.rgb(128, 255, 128).inverse( nicePercent() )} Elapsed:${ fixedWidth(4, twosigbitsTolocale(timeElapsed)) } Remain:${ fixedWidth(4,  twosigbitsTolocale(timeRemain)) } sec`,
           `| @i${fixedWidth(10, charClock.toLocaleString())} Breaks:${ fixedWidth(6, breakClock.toLocaleString())} Filesize:${fixedWidth(7, bytes(baseChars))}`,
           `| Next update: ${fixedWidth(5, msPerUpdate.toLocaleString())}ms Codon Opacity: ${twosigbitsTolocale(opacity*100)}%`,
           `| CPU:${fixedWidth(10, bytes(bytesPerSec))} /s${fixedWidth(5, codonsPerSec.toLocaleString())}K acids/s`,
           `| Files left: ${howMany} Next: ${nextFile}`,
-          ` Codons:${fixedWidth(14, genomeSize.toLocaleString())} Last Acid:${chalk.rgb(red, green, blue).bgWhite( fixedWidth(18, aminoacid) ) } ${ ( isHighlightSet ? "Highlight: " + chalk.rgb(255, 255, 0).inverse(peptide) : "" )} Host: ${hostname} Pixels:${fixedWidth(10, colClock.toLocaleString())}`,
+          ` Codons:${fixedWidth(14, genomeSize.toLocaleString())} Last Acid:${chalk.rgb(red, green, blue).bgWhite( fixedWidth(18, aminoacid) ) } Host: ${hostname} Pixels:${fixedWidth(10, colClock.toLocaleString())}`,
           ` Sample: ${ fixedWidth(60, cleanString(rawDNA)) } ${showFlags()}`,
           `| RunID: ${chalk.rgb(128, 0, 0).bgWhite(timestamp)} acids per pixel: ${twosigbitsTolocale(codonsPerPixel)}` ];
 
