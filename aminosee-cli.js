@@ -1874,7 +1874,7 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
     let backupPeptide = peptide;
     let backupHighlight = isHighlightSet;
 
-    hhh += `<a href="${aminoFilenameIndex()}" onmouseover="mover(${-1})" onmouseout="mout(${-1})"><img  src="${aminoFilenameIndex()}" id="stack_reference" width="256" height="256" style="z-index: ${999}; position: absolute; top: 0px; left: 0px;" alt="${refimage}" title="${refimage}"></a>`;
+    hhh += `<a href="${aminoFilenameIndex()}" onmouseover="mover()" onmouseout="mout()"><img  src="${aminoFilenameIndex()}" id="stack_reference" width="256" height="256" style="z-index: ${999}; position: absolute; top: 0px; left: 0px;" alt="${refimage}" title="${refimage}"></a>`;
 
     for (i=0; i<pepTable.length; i++) {
       let thePep = spaceTo_( pepTable[i].Codon );
@@ -1915,12 +1915,22 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
     <script src="https://www.funk.co.nz/aminosee/aminosee-gui-web.js"></script>
     <script>
     function mover(i) {
-      let el = document.getElementById(stack_+i);
+      if (i == undefined) {
+        i = "stack_reference"; // reference image
+      } else {
+        i = "stack_" + i; // reference image
+      }
+      let el = document.getElementById(i);
       el.style.zIndex = 6969;
     }
 
     function mout(i) {
-      let el = document.getElementById(stack_+i);
+      if (i == undefined) {
+        i = "stack_reference"; // reference image
+      } else {
+        i = "stack_" + i; // reference image
+      }
+      let el = document.getElementById(i);
       el.style.zIndex = 100+i;
     }
     </script>
@@ -1951,6 +1961,7 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
   ${renderSummary()}
   </pre>
   </div>
+
   <a href="#scrollLINEAR" class="button" title"Click To Scroll Down To See LINEAR"><br />
   <img width="128" height="128" style="border: 4px black; background: black;" src="${justNameOfPNG}">
   1D Linear Map Image
@@ -1959,10 +1970,7 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
   <img width="128" height="128" style="border: 4px black background: black;" src="${justNameOfHILBERT}">
   2D Hilbert Map Image
   </a>
-  <a href="#scroll3D" class="button" title"Click To Scroll Down To See 3D Hilbert Map"><br />
-  <img width="128" height="128" style="border: 4px black;" src="https://www.funk.co.nz/aminosee/public/seenoevilmonkeys.jpg">
-  3D Hilbert Map Image
-  </a>
+
 
 
   <div id="monkeys">
@@ -2014,7 +2022,7 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
   <td>${genomeSize}</td>
   <td>n/a</td>
   <td style="background-color: white;">
-  <a href="${aminoFilenameIndex()}" class="button" title="${refimage}"><img width="48" height="16" style="border: 1px black;" src="${aminoFilenameIndex()}" alt="${refimage}"></a>
+  <a href="${aminoFilenameIndex(-1)}" class="button" title="Reference Image"><img width="48" height="16" class="blackback" src="${aminoFilenameIndex()}" alt="Reference Image ${justNameOfDNA}"></a>
   </td>
   </tr>
 
