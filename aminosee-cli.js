@@ -906,7 +906,7 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
     isDiskFinHilbert = false;
     isDiskFinLinear = false;
 
-    mkdir(`output/${justNameOfDNA}`);
+    mkdir(`output/${justNameOfDNA}/images`);
     log("stream");
     start = new Date().getTime();
     timeElapsed, runningDuration, charClock, percentComplete, genomeSize, colClock, opacity = 0;
@@ -1216,9 +1216,9 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
 
     let ext = spaceTo_(getImageType());
 
-    filenamePNG =     outputPath + "/" + generateFilenamePNG();
+    filenamePNG =     outputPath + "/images/" + generateFilenamePNG();
     filenameHTML =    outputPath + "/" + generateFilenameHTML();
-    filenameHILBERT = outputPath + "/" + generateFilenameHilbert();
+    filenameHILBERT = outputPath + "/images/" + generateFilenameHilbert();
     filenameTouch =   outputPath + "/" + generateFilenameTouch();
     // log(`ext: ${highlightFilename() + ext} pep ${peptide} status ${status} outputPath ${outputPath} isHighlightSet ${isHighlightSet}`);
   }
@@ -1229,9 +1229,11 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
     try {
       var relativePath = path.relative('/aminosee-gui-symlink', appPath + '/gui');
       console.log(`${appPath}/gui`);
-
-      fs.symlink(relativePath, '/some-dir/foo', callback);
+      fs.symlink(relativePath, '/gui', function () {
+        console.log("Symlink created.")
+      });
     } catch(e) {
+      console.log("Symlink not created. error: " + e)
 
     }
     const LocalWebServer = require('local-web-server')
@@ -1946,9 +1948,9 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
     <script src="https://www.funk.co.nz/aminosee/public/hilbert3D.js"></script>
     <script src="https://www.funk.co.nz/aminosee/public/hilbert2D.js"></script>
     <script src="https://www.funk.co.nz/aminosee/public/WebGL.js"></script>
-    <script src="https://www.funk.co.nz/aminosee/node_modules/hammerjs/hammer.min.js"></script>
+    <script src="node_modules/hammerjs/hammer.min.js"></script>
     <!-- script src="https://www.funk.co.nz/aminosee/bundle.js"></script -->
-    <script src="https://www.funk.co.nz/aminosee/aminosee-gui-web.js"></script>
+    <script src="aminosee-gui-web.js"></script>
     <script>
     let page = "report";
     function mover(i) {
@@ -2000,11 +2002,11 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
   </div>
 
   <a href="#scrollLINEAR" class="button" title"Click To Scroll Down To See LINEAR"><br />
-  <img width="128" height="128" style="border: 4px black; background: black;" src="${justNameOfPNG}">
+  <img width="128" height="128" style="border: 4px black; background: black;" src="images/${justNameOfPNG}">
   1D Linear Map Image
   </a>
   <a href="#scrollHILBERT" class="button" title"Click To Scroll Down To See 2D Hilbert Map"><br />
-  <img width="128" height="128" style="border: 4px black background: black;" src="${justNameOfHILBERT}">
+  <img width="128" height="128" style="border: 4px black background: black;" src="images/${justNameOfHILBERT}">
   2D Hilbert Map Image
   </a>
 

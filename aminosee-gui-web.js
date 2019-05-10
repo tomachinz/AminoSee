@@ -38,6 +38,7 @@ function fileChanged(f) {
   loadImage();
 }
 function reportLoaded() {
+  console.log("FETCH");
   fetch(filename +  "_histogram.json")
     .then(response => response.json())
     .then(json => console.log(json));
