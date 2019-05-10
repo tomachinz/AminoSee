@@ -1912,7 +1912,7 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
     let backupPeptide = peptide;
     let backupHighlight = isHighlightSet;
 
-    hhh += `<a href="${aminoFilenameIndex()}" onmouseover="mover()" onmouseout="mout()"><img  src="${aminoFilenameIndex()}" id="stack_reference" width="256" height="256" style="z-index: ${999}; position: absolute; top: 0px; left: 0px;" alt="${refimage}" title="${refimage}"></a>`;
+    hhh += `<a href="images/${aminoFilenameIndex()}" onmouseover="mover()" onmouseout="mout()"><img  src="images/${aminoFilenameIndex()}" id="stack_reference" width="256" height="256" style="z-index: ${999}; position: absolute; top: 0px; left: 0px;" alt="${refimage}" title="${refimage}"></a>`;
 
     for (i=0; i<pepTable.length; i++) {
       let thePep = spaceTo_( pepTable[i].Codon );
@@ -1920,7 +1920,7 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
       let c =      hsvToRgb( theHue/360, 0.5, 1.0 );
 
       if (thePep != "Non-coding_NNN"  && thePep != "Start_Codons" && thePep != "Stop_Codons") {
-        hhh += `<a href="${aminoFilenameIndex(i)}" onmouseover="mover(${i})" onmouseout="mout(${i})"><img src="${aminoFilenameIndex(i)}" id="stack_${i}" width="256" height="256" style="z-index: ${1000+i}; position: absolute; top: ${i*2}px; left: ${i*12}px;" alt="${pepTable[i].Codon}" title="${pepTable[i].Codon}"></a>`;
+        hhh += `<a href="${aminoFilenameIndex(i)}" onmouseover="mover(${i})" onmouseout="mout(${i})"><img src="images/${aminoFilenameIndex(i)}" id="stack_${i}" width="256" height="256" style="z-index: ${1000+i}; position: absolute; top: ${i*2}px; left: ${i*12}px;" alt="${pepTable[i].Codon}" title="${pepTable[i].Codon}"></a>`;
       } else {
         log("non-coding nnn image not output");
       }
@@ -2061,7 +2061,7 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
   <td>${genomeSize}</td>
   <td>n/a</td>
   <td style="background-color: white;">
-  <a href="${aminoFilenameIndex()}" class="button" title="Reference Image"><img width="48" height="16" class="blackback" src="${aminoFilenameIndex()}" alt="Reference Image ${justNameOfDNA}"></a>
+  <a href="images/${aminoFilenameIndex()}" class="button" title="Reference Image"><img width="48" height="16" class="blackback" src="images/${aminoFilenameIndex()}" alt="Reference Image ${justNameOfDNA}"></a>
   </td>
   </tr>
 
@@ -2073,20 +2073,24 @@ console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196
     let c =      hsvToRgb( theHue / 360, 0.5, 1.0 );
     let lightC = hsvToRgb( theHue / 360, 0.95, 0.75 );
     // log(thePep, theHue, c);
-    html += `
-    <tr style="background-color: hsl( ${theHue} , 50%, 100%);" onmouseover="mover(${i})" onmouseout="mout(${i})">
-    <td style="background-color: white;"> ${pepTable[i].Codon} </td>
-    <td style="background-color: rgb(${lightC});">
-    <p class="fineprint" style="background-color: white; background-color: rgba(255,255,255,0.5); color: black;">${theHue}&#xB0;</p>
-    </td>
-    <td style="background-color: rgb(${c}); color: white; font-weight: bold; "> <p class="fineprint" style="background-color: black; background-color: rgba(0,0,0,0.5); color: white;">${c}</p> </td>
-    <td>${pepTable[i].Histocount.toLocaleString()}</td>
-    <td>${pepTable[i].Description}</td>
-    <td style="background-color: white;">
-    <a href="${aminoFilenameIndex(i)}" class="button" title="Amino filter: ${spaceTo_(pepTable[i].Codon)}"><img width="48" height="16" class="blackback" src="${aminoFilenameIndex(i)}" alt="${spaceTo_(pepTable[i].Codon)}"></a>
-    </td>
-    </tr>
-    `
+    if (thePep.Codon == "Start Codons" || thePep.Codon == "Stop Codons" || thePep.Codon == "Non-coding NNN") {
+      html += `<!-- ${thePep.Codon} -->`;
+    } else {
+      html += `
+      <tr style="background-color: hsl( ${theHue} , 50%, 100%);" onmouseover="mover(${i})" onmouseout="mout(${i})">
+      <td style="background-color: white;"> ${pepTable[i].Codon} </td>
+      <td style="background-color: rgb(${lightC});">
+      <p class="fineprint" style="background-color: white; background-color: rgba(255,255,255,0.5); color: black;">${theHue}&#xB0;</p>
+      </td>
+      <td style="background-color: rgb(${c}); color: white; font-weight: bold; "> <p class="fineprint" style="background-color: black; background-color: rgba(0,0,0,0.5); color: white;">${c}</p> </td>
+      <td>${pepTable[i].Histocount.toLocaleString()}</td>
+      <td>${pepTable[i].Description}</td>
+      <td style="background-color: white;">
+      <a href="images/${aminoFilenameIndex(i)}" class="button" title="Amino filter: ${spaceTo_(pepTable[i].Codon)}"><img width="48" height="16" class="blackback" src="images/${aminoFilenameIndex(i)}" alt="${spaceTo_(pepTable[i].Codon)}"></a>
+      </td>
+      </tr>
+      `
+    }
   }
   html += `
   </tbody>
@@ -2776,12 +2780,12 @@ function saveHilbert(array) {
       }
       function pixTodefaultMagnitude(pix) { // give it pix it returns a magnitude that fits inside it
         let dim = 0;
-        output(`[HILBERT] Calculating largest Hilbert curve image that can fit inside ${twosigbitsTolocale(pix)} pixels, and over sampling factor of ${overSampleFactor}: `);
+        let ret = `[HILBERT] Calculating largest Hilbert curve image that can fit inside ${twosigbitsTolocale(pix)} pixels, and over sampling factor of ${overSampleFactor}: `;
         while (pix > (hilbPixels[dim] * overSampleFactor)) {
-          out(`dim ${dim}: ${hilbPixels[dim]}`);
+          ret += ` dim ${dim}: ${hilbPixels[dim]} `;
 
           if (dim % 666 == 0 && dim > 666) {
-            log(`ERROR pixTodefaultMagnitude [${hilbPixels[dim]}] pix ${pix} dim ${dim}`);
+            ret+= (`ERROR pixTodefaultMagnitude [${hilbPixels[dim]}] pix ${pix} dim ${dim} `);
           }
           if (dim > defaultMagnitude) {
             if (magnitude && dim > theoreticalMaxMagnitude ) {
@@ -2797,7 +2801,8 @@ function saveHilbert(array) {
         }
         if (dim>0) { dim--; } // was off by 1
 
-        out(` <<<--- chosen magnitude: ${dim} `);
+        ret+= ` <<<--- chosen magnitude: ${dim} `;
+        log(ret);
         return dim;
       }
       function dot(i, x, t) {
