@@ -20,8 +20,8 @@ basepairs = 3;
 zoom = 2; //  defalt 2
 distance = 900; // default 900
 let stateObj = { foo: "bar" };
-
 let current_image = document.getElementById('current_image');
+
 
 if(window.addEventListener) {
   window.addEventListener('load',pageLoaded,false); //W3C
@@ -38,9 +38,16 @@ function fileChanged(f) {
   console.log(current_image);
   loadImage();
 }
+function reportLoaded() {
+  console.log("FETCH");
+  fetch(filename +  "_histogram.json")
+    .then(response => response.json())
+    .then(json => console.log(json));
+}
 function pageLoaded() {
   if (page == "report") {
-    console.log("Didnt run init due to this is a report")
+    console.log("Didnt run init due to this is a report");
+    reportLoaded();
     return false;
   } else {
     console.log("not report")
