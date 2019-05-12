@@ -3,9 +3,7 @@
 # AminoSee DNA Viewer
 by Tom Atkinson
 
-*Allows genomics researchers to convert any file containing ASCII blocks of DNA (Fasta, GBK, .txt) into an image. A unique visualisation of DNA / RNA residing in text files, AminoSee is a way to render arbitrarily large files - due to support for streamed processing - into a static size PNG image using a pseudo-Hilbert infinite space filling curve written in the 18th century! Computation is done locally, and the files do not leave your machine. A back-end terminal daemon cli command that can be scripted is combined with a front-end GUI in Electron, AminoSee features asynchronous streaming processing enabling arbitrary size files to be processed. It has been tested with files in excess of 4 GB and does not need the whole file in memory at any time. Due to issues with the 'aminosee *' command, a batch script is provided for bulk rendering in the dna/ folder. Alertively use the GUI to Drag and drop files to render a unique colour view of RNA or DNA stored in text files, output to PNG graphics file, then launches an WebGL browser that projects the image onto a 3D Hilbert curve for immersive viewing, using THREEjs. Command line options alow one to filter by peptide.*
-
-Amino.See.No.Evil (AminoSee) is a DNA visualisation that makes PNG images from DNA files! It does this with a terminal command that should be run in a folder containing Fasta or GBK files. AminoSee assigns a unique colour hue to each amino acid and start/stop codon, condensing the information for large genomes by blending 1 or more pixels for each matched codon in the sequence; then projects the 1D "linear image" into curved 2D and 3D space using an infinite mathematics space-filling function called the "Hilbert curve". This is done to enhance the visual prominence of genetic structures - like repeats, genes, chromosomes, centromere, telomeres etc - which otherwise would appear as incredibly thin 1-pixel-thick lines. The bunching of the curve preserves local sequence proximity such that 90% of the DNA that is close to its neighbour - such as genes - are also close in proximity in the image - even at different resolutions, which is almost impossible when converted 1D into higher dimensions. Genomics researchers can convert any file containing ASCII blocks of DNA (tested with popular formats Fasta, GBK, and also just .txt) into an image. A unique visualisation of DNA / RNA residing in text files, AminoSee is a way to render arbitrarily large files - due to support for streamed processing - into a static size PNG image. Special thanks and shot-outs to David Hilbert who invented it in 1891! Computation is done locally, and the files do not leave your machine. A back-end terminal daemon cli command that can be scripted is combined with a front-end GUI in Electron, AminoSee features asynchronous streaming processing enabling arbitrary size files to be processed. It has been tested with files in excess of 4 GB and does not need the whole file in memory at any time. Due to issues with the 'aminosee *' command, a batch script is provided for bulk rendering in the dna/ folder. Alertively use the GUI to Drag and drop files to render a unique colour view of RNA or DNA stored in text files, output to PNG graphics file, then launches an WebGL browser that projects the image onto a 3D Hilbert curve for immersive viewing, using THREEjs. Command line options allow one to filter by peptide.
+Amino.See.No.Evil (AminoSee) is a DNA visualisation written in NodeJS that makes PNG images from DNA files! It does this with a terminal command that should be run in a folder containing Fasta or GBK files. AminoSee assigns a unique colour hue to each amino acid and start/stop codon, condensing the information for large genomes by blending 1 or more pixels for each matched codon in the sequence; AminoSee then projects the 1D "linear image" into curved 2D and 3D space using an infinite mathematics space-filling function called the "Hilbert curve". This is done to enhance the visual prominence of genetic structures - like repeats, genes, chromosomes, centromere, telomeres etc - which otherwise would appear as incredibly thin 1-pixel-thick lines. The bunching of the curve preserves local sequence proximity such that 90% of the DNA that is close to its neighbour - such as genes - are also close in proximity in the image - even at different resolutions, which is almost impossible when converted 1D into higher dimensions. Genomics researchers can convert any file containing ASCII blocks of DNA (tested with popular formats Fasta, GBK, and also just .txt) into an image. A unique visualisation of DNA / RNA residing in text files, AminoSee is a way to render arbitrarily large files - due to support for streamed processing - into a static size PNG image. Special thanks and shot-outs to David Hilbert who invented it in 1891! Computation is done locally, and the files do not leave your machine. A back-end terminal daemon cli command that can be automated by scripts in /dna/ folder is soon to be enhanced with a front-end GUI. AminoSee features asynchronous streaming processing enabling arbitrary size files to be processed. It has been tested with files in excess of 4 GB and does not need the whole file in memory at any time. The dna/batch-peptides.sh script is currently required for bulk rendering. Alternatively use the GUI to Drag and drop files to render a unique colour view of RNA or DNA stored in text files, output to PNG graphics file, then launches an WebGL browser that projects the image onto a 3D Hilbert curve for immersive viewing, using THREEjs. Command line options allow one to filter by peptide.
 
 [![Tom explains his AminoSee DNA Viewer App](http://img.youtube.com/vi/QerMTQs2bDs/0.jpg)](http://www.youtube.com/watch?v=QerMTQs2bDs "Video Title")
 
@@ -79,9 +77,15 @@ Head over to https://www.funk.co.nz/aminosee/dna/ to grab a test file.
 
 For example, this will grab a 1 Megabyte demo file:
 ```
+cd dna
 wget https://www.funk.co.nz/aminosee/dna/megabase.fa
 aminosee megabase.fa
 ```
+or alternatively, this will do the above, render it, and also generate test calibration images, and fire up the built-in web-server:
+```
+aminosee demo
+```
+
 ###Official Site
 This site was built using [AminoSee Official Site](https://www.funk.co.nz/aminosee/).
 
@@ -98,5 +102,8 @@ This site was built using [AminoSee Official Site](https://www.funk.co.nz/aminos
 - [ ] During transcoding the histogram shows totals for codons these always show zero still
 
 #Contributors and Credits
-
-Giuseppe Peano in 1890
+I need a kind sponsor to please to purchase a license for AminoSee to use Georghiou's original image
+- Christos Georghiou designed the "See No Evil Hear No Evil Monkeys" http://christosgeorghiou.com/
+-  on ShutterStock ID: 8798836 https://www.shutterstock.com/image-vector/vector-illustration-hear-no-evil-see-8798836
+- David Hilbert in 1891 designed the curve used in this program
+- Giuseppe Peano in 1890 inspired Hilbert to create his space filling curve

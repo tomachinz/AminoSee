@@ -7,7 +7,7 @@
 //       by Tom Atkinson            aminosee.funk.nz
 //        ah-mee no-see       "I See It Now - I AminoSee it!"
 process.title = "aminosee.funk.nz";
-const serverURL = "http://0.0.0.0:3210";
+
 const extensions = [ "txt", "fa", "mfa", "gbk", "dna", "fasta", "fna", "fsa", "mpfa", "gb"];
 const refimage = "Reference image - all amino acids blended together"
 const closeBrowser = "If the process apears frozen, it's waiting for your browser or image viewer to exit. Escape with [ CONTROL-C ] or use --no-image --no-html"
@@ -46,11 +46,11 @@ let renderLock = false; // not rendering right now obviously
 let msPerUpdate = 200; // min milliseconds per update
 const path = require('path');
 
-let term = require('terminal-kit').terminal ;
+let term = require('terminal-kit').terminal;
 // let term = require( path.normalize(appPath + 'node_modules/terminal-kit') ).terminal ;
 let version = require('./lib/version');
 let gv = require('genversion');
-let MyManHilbert = require('hilbert-2d');
+let MyManHilbert = require('hilbert-2d'); // also contains magic
 let es = require('event-stream');
 const minimist = require('minimist')
 const highland = require('highland')
@@ -58,6 +58,7 @@ const fetch = require("node-fetch");
 const keypress = require('keypress');
 // const opn = require('opn'); //path-to-executable/xdg-open
 const opn = require('opn'); //path-to-executable/xdg-open
+const LocalWebServer = require('local-web-server'); // awesome micro web server!
 const parse = require('parse-apache-directory-index');
 // const fs = require("fs");
 // const fs = require('fs') // this is no longer necessary
@@ -71,6 +72,13 @@ const PNG = require('pngjs').PNG;
 let PNGReader = require('png.js');
 let ProgressBar = require('progress');
 const chalk = require('chalk');
+// const internalIp = require('internal-ip');
+// (async () => {
+//   const ip6URL = `http://[${await internalIp.v6()}]:3210`;
+//   const serverURL = `http://${await internalIp.v4()}:3210`;
+// })();
+
+
 const clog = console.log;
 const os = require("os");
 const hostname = os.hostname();
@@ -1238,8 +1246,9 @@ function createSymlink(src, dest) {
 
 }
 function launchNonBlockingServer() {
+  out(internalIp.v6.sync())
+  out(internalIp.v4.sync())
   symlinkLibraryFromProcess('bin/gui', 'gui');
-  const LocalWebServer = require('local-web-server')
   const localWebServer = new LocalWebServer()
 
 
@@ -1470,7 +1479,7 @@ function saveHTML() {
   let histoJSON = path.normalize( path.resolve(`${currentOutputPath}/${justNameOfDNA}/${justNameOfDNA}_histogram.json`) );
   let hypertext = htmlTemplate();
   output(`currentOutputPath is ${currentOutputPath}`);
-  fs.writeFile(histoJSON, JSON.stringify(pepTable), 'utf8', function (err) {
+  fs.writeFile(histoJSON, JSON.stringify(this.pepTable), 'utf8', function (err) {
     if (err) {
       error("occured while writing JSON Object to File.");
       return console.log(err);
@@ -2636,7 +2645,6 @@ function saveHilbert(array) {
       setImmediate(function () {
         if (openHtml) {
           output(`Opening ${justNameOfDNA} DNA render summary HTML report.`);
-          output(closeBrowser);
           opn(filenameHTML).then(() => {
             log("browser closed");
           }).catch(function () { error("opn(filenameHTML)")});
@@ -2656,6 +2664,7 @@ function saveHilbert(array) {
           log(`values of openHtml ${openHtml}   openImage ${openImage}`);
         }
       });
+      output(closeBrowser); // tell user process is blocked
       log("Thats us cousin'! Sweet as a Kina in a creek as they say (in NZ).");
     }
     function getRegmarks() {
