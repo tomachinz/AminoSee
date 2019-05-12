@@ -27,7 +27,7 @@
     "nexe": "^3.2.0",
     "node-fetch": "^2.5.0",
     "node-gyp": "^4.0.0",
-    "opn": "^5.5.0",
+    "opn": "^6.0.0",
     "parse-apache-directory-index": "^1.2.1",
     "pkg": "^4.4.0",
     "png-js": "^0.1.1",
