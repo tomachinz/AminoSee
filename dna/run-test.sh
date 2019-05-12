@@ -20,9 +20,6 @@ aminosee_test () {
   nice aminosee $1 $2 $3 $4 $5 --no-updates -m 5 $1 $2 $3 $4 $5 --peptide=Methionine
 
   echo "doing  $1 $2 $3 $4 $5"
-  nice aminosee $1 $2 $3 $4 $5 --no-updates -m 10 $1 $2 $3 $4 $5 --peptide=Phenylalanine
-
-  echo "doing  $1 $2 $3 $4 $5"
   nice aminosee $1 $2 $3 $4 $5 --no-updates -c 500 $1 $2 $3 $4 $5  --peptide=Opal
 
   echo "doing  $1 $2 $3 $4 $5"

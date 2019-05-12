@@ -1371,7 +1371,31 @@ function welcomeMessage() {
   printRadMessage();
 
 }
-// function
+
+
+async.waterfall( [
+    function saveWaterfall( callback ) {
+        callback() ;
+    } ,
+
+    function getUserPhoto( userDocument , callback ) {
+        dbPhotoCollection.findOne( { _id: userDocument.photoID } , callback ) ;
+    }
+] )
+.timeout( 200 )
+.then( function( photoDocument ) {
+    httpResponse.writeHead( 200 , { 'Content-Type' : 'image/png' } ) ;
+    httpResponse.write( photoDocument.rawData ) ;
+    httpResponse.end() ;
+} )
+.catch( function( error ) {
+    httpResponse.writeHead( 404 , { 'Content-Type' : 'text/plain' } ) ;
+    httpResponse.write( '404 - Not found.' ) ;
+    httpResponse.end() ;
+} )
+.execArgs( callback ) ;
+
+
 function saveDocuments(callback) {
   status = "save"; // <-- this is the true end point of the program!
   term.eraseDisplayBelow();
@@ -2547,7 +2571,7 @@ function saveHilbert(array) {
       return hilbertImage;
     }
 
-    function arrayToPNG(callBack) {
+    function arrayToPNG(callback) {
       let pixels, height, width = 0;
       pixels = (rgbArray.length / 4);
 
@@ -2619,11 +2643,11 @@ function saveHilbert(array) {
         .on('finish', () => {
           log("Finished linear png save.");
           // openOutputs();
-          if (callBack != undefined) {
-            log("running callBack");
-            callBack();
+          if (callback != undefined) {
+            log("running callback");
+            callback();
           } else {
-            log("quit - no callBack");
+            log("quit - no callback");
             // quit();
           }
           linearFinished();
@@ -2663,8 +2687,9 @@ function saveHilbert(array) {
           output(`Use --html or --image to automatically open files after render, and "aminosee demo" to generate test pattern and download a 1 MB DNA file from aminosee.funk.nz`)
           log(`values of openHtml ${openHtml}   openImage ${openImage}`);
         }
+        output(closeBrowser); // tell user process is blocked
+
       });
-      output(closeBrowser); // tell user process is blocked
       log("Thats us cousin'! Sweet as a Kina in a creek as they say (in NZ).");
     }
     function getRegmarks() {
