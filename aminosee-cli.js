@@ -18,7 +18,7 @@ const defaultC = 1; // back when it could not handle 3+GB files.
 const artisticHighlightLength = 18; // px only use in artistic mode. must be 6 or 12 currently
 const defaultMagnitude = 7; // max for auto setting
 const theoreticalMaxMagnitude = 12; // max for auto setting
-const overSampleFactor = 3; // your linear image needs to be 2 megapixels to make 1 megapixel hilbert
+const overSampleFactor = 1.9; // your linear image needs to be 2 megapixels to make 1 megapixel hilbert
 const maxCanonical = 32; // max length of canonical name
 const hilbPixels = [ 64, 256, 1024, 4096, 16384, 65536, 262144, 1048576, 4194304, 16777216, 67108864 ]; // I've personally never seen a mag 9 or 10 image, cos my computer breaks down. 67 Megapixel hilbert curve!! the last two are breaking nodes heap and call stack both.
 const widthMax = 960; // i wanted these to be tall and slim kinda like the most common way of diagrammatically showing chromosomes
@@ -45,7 +45,7 @@ let stats = true;
 let renderLock = false; // not rendering right now obviously
 let msPerUpdate = 200; // min milliseconds per update
 const path = require('path');
-
+const async = require('async-kit'); // amazing lib
 let term = require('terminal-kit').terminal;
 // let term = require( path.normalize(appPath + 'node_modules/terminal-kit') ).terminal ;
 let version = require('./lib/version');
@@ -1375,25 +1375,21 @@ function welcomeMessage() {
 
 async.waterfall( [
     function saveWaterfall( callback ) {
-        callback() ;
+        callback();
     } ,
 
-    function getUserPhoto( userDocument , callback ) {
-        dbPhotoCollection.findOne( { _id: userDocument.photoID } , callback ) ;
+    function getUserPhoto( pepTable , callback ) {
+      callback();
     }
 ] )
 .timeout( 200 )
-.then( function( photoDocument ) {
-    httpResponse.writeHead( 200 , { 'Content-Type' : 'image/png' } ) ;
-    httpResponse.write( photoDocument.rawData ) ;
-    httpResponse.end() ;
+.then( function(  ) {
+  log("fubar")
 } )
 .catch( function( error ) {
-    httpResponse.writeHead( 404 , { 'Content-Type' : 'text/plain' } ) ;
-    httpResponse.write( '404 - Not found.' ) ;
-    httpResponse.end() ;
+  out("sleepy")
 } )
-.execArgs( callback ) ;
+.execArgs( () => {log("Fooos")});
 
 
 function saveDocuments(callback) {
@@ -2426,13 +2422,12 @@ function calculateShrinkage() {
   // codonsPerPixelHILBERT = twosigbitsTolocale( codonsPerPixel*shrinkFactor );
   codonsPerPixelHILBERT = codonsPerPixel*shrinkFactor;
   setupFNames();
-  log(`filenameHILBERT after shrinking: ${filenameHILBERT} dimension: ${dimension} shrinkFactor post ${shrinkFactor} codonsPerPixel ${codonsPerPixel} codonsPerPixelHILBERT ${codonsPerPixelHILBERT}`);
+  log(`filenameHILBERT after shrinking: ${filenameHILBERT} dimension: ${dimension} shrinkFactor post ${twosigbitsTolocale(shrinkFactor)} codonsPerPixel ${codonsPerPixel} codonsPerPixelHILBERT ${codonsPerPixelHILBERT}`);
 }
 // resample the large 760px wide linear image into a smaller square hilbert curve
 function saveHilbert(array) {
   term.eraseDisplayBelow() ;
-
-  output( "Getting in touch with my man... Hilbert. X" + twosigbitsTolocale(shrinkFactor));
+  output( "Getting in touch with my man from 1891... Hilbert. In the " + dimension + "th dimension and reduced by " + threesigbitsTolocale(shrinkFactor) + "X ");
   status = "hilbert";
   // output(status);
   let hilpix = hilbPixels[dimension];;
@@ -2908,7 +2903,7 @@ function saveHilbert(array) {
         t = '1';
       }
       if (i % x == 0 ) {
-        out('.');
+        process.stdout.write('.');
       }
     }
 
@@ -3062,7 +3057,7 @@ function saveHilbert(array) {
       timeElapsed = Math.round(runningDuration / 1000);
       timeRemain = Math.round((timeElapsed / (percentComplete + 0.001)) - timeElapsed);
       kbRemain = (baseChars - charClock)/1000;
-      wTitle(`${nicePercent()} ${timeRemain}`);
+      wTitle(`${nicePercent()} ${threesigbitsTolocale(timeRemain/60)} min remain`);
     }
     function getHistoCount(item, index) {
       return [ item.Codon, item.Histocount];
@@ -3093,6 +3088,9 @@ function saveHilbert(array) {
     }
     function twosigbitsTolocale(num){
       return (Math.round(num*100)/100).toLocaleString();
+    }
+    function threesigbitsTolocale(num){
+      return (Math.round(num*1000)/1000).toLocaleString();
     }
     function variable(v, space) {
       while (v.length < space) {

@@ -30,7 +30,7 @@ parallel_peptides () {
 find_way_peptides () {
   echo "                                         =///"
   echo "-------------------------------------------"
-  echo STARTING PARALLEL DECODE FOR $1 $2 $3
+  echo STARTING SERIAL DECODE FOR $1 $2 $3
   echo "-------------------------------------------"
   echo "                                         =///"
 
@@ -57,11 +57,11 @@ find_way_peptides () {
 
   echo "                                         =///"
   echo "-------------------------------------------"
-  echo FINISHED PARALLEL DECODE FOR $1
+  echo FINISHED SERIAL DECODE FOR $1
   echo "-------------------------------------------"
   echo "                                         =///"
 }
-parallel_peptides $1 $2 $3 $4 $5 $6
-parallel_peptides $1 $2 $3 $4 $5 $6 --reg --fix
-# find_way_peptides
+find_way_peptides
 # find_way_peptides --reg
+parallel_peptides $1 $2 $3 $4 $5 $6
+# parallel_peptides $1 $2 $3 $4 $5 $6 --reg
