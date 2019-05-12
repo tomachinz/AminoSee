@@ -10,6 +10,7 @@ process.title = "aminosee.funk.nz";
 const serverURL = "http://0.0.0.0:3210";
 const extensions = [ "txt", "fa", "mfa", "gbk", "dna", "fasta", "fna", "fsa", "mpfa", "gb"];
 const refimage = "Reference image - all amino acids blended together"
+const closeBrowser = "If the process apears frozen, it's waiting for your browser or image viewer to exit. Escape with [ CONTROL-C ] or use --no-image --no-html"
 const lockFileMessage = "aminosee.funk.nz DNA Viewer by Tom Atkinson. This is a temp lock file, to enable parallel cluster rendering, usually it means an AminoSee was quit before finishing. Safe to erase. Normally deleting when render is complete.";
 const debugColumns = 80;
 const targetPixels = 9000000; // for big genomes use setting flag -c 1 to achieve highest resolution and bypass this taret max render size
@@ -330,8 +331,8 @@ module.exports = () => {
     verbose = true;
     termDisplayHeight++;
   }
-  if (args.html) {
-    output("will open html")
+  if (args.html || args.h) {
+    output("will open html after render")
     openHtml = true;
   } else {
     log("not opening html");
@@ -467,7 +468,9 @@ module.exports = () => {
   status = "global";
   out(".");
 }
+function isThisFirstRun() { // true is first run by user
 
+}
 
 // var keypress = require('keypress');
 function setupKeyboardUI() {
@@ -612,7 +615,7 @@ function downloadMegabase(cb) {
   currentFile = 'megabase.fa';
   let promiseMegabase = new Promise(function(resolve,reject) {
     try {
-      var exists = fs.existsSync(currentFile);
+      var exists = doesFileExist(currentFile);
     } catch(err) {
       console.warn("HANDLED ERROR: " + err)
     }
@@ -1444,6 +1447,7 @@ function compareHistocount(a,b) {
 //   }, theCallback);
 // }
 function saveHTML() {
+  status = "report"
   if (willRecycleSavedImage == true) {
     log("Didnt save HTML report because the linear file was recycled. Use --html to enable and auto open when done.");
     htmlFinished();
@@ -1451,10 +1455,12 @@ function saveHTML() {
       openOutputs();
     } else {  return  false;}
   }
-  if (!report){
+  if (report == false){
     log("Didnt save HTML report because reports = false they were disabled. Use --html to enable and auto open when done.");
     htmlFinished();
     return;
+  } else {
+    out(status);
   }
   log( pepTable.sort( compareHistocount ) ); // least common amino acids in front
 
@@ -2285,7 +2291,7 @@ function okToOverwritePNG(f) { // true to continue, false to abort
 
   try {
     // result = fs.lstatSync(f);
-    result = fs.existsSync(f);
+    result = doesFileExist(f);
     // log("[fstatSync result]" + result);
     if (result) {
       output("File exists?! " + f );
@@ -2307,7 +2313,16 @@ function okToOverwritePNG(f) { // true to continue, false to abort
   }
   return true;
 }
-
+function doesFileExist(f) {
+  let ret = false;
+  try {
+    ret = fs.existsSync(f);
+  } catch(e) {
+    error(e)
+  }
+  log(`doesFileExist: ${doesFileExist}`)
+  return ret;
+}
 function stat(txt) {
   console.log(txt);
 }
@@ -2620,25 +2635,24 @@ function saveHilbert(array) {
 
       setImmediate(function () {
         if (openHtml) {
-          output("Opening: " + filenameHTML);
-          output("Opening your RENDER SUMMARY HTML report. If process blocked either quit browser AND image viewer or [ CONTROL-C ]");
-          output("prevent this with --no-html");
+          output(`Opening ${justNameOfDNA} DNA render summary HTML report.`);
+          output(closeBrowser);
           opn(filenameHTML).then(() => {
             log("browser closed");
-          }).catch(function () { out("HTML opened: " + filenameHTML) });
+          }).catch(function () { error("opn(filenameHTML)")});
         }
         if (isHilbertPossible && openImage) {
-          output("Opening your HILBERT PROJECTION image. If process blocked either quit browser AND image viewer or [ CONTROL-C ]");
+          output(`Opening ${justNameOfDNA} 2D hilbert space-filling image.`);
           opn(filenameHILBERT).then(() => {
             log("hilbert image closed");
-          }).catch(function () { out("Hilbert PNG may not have been saved. ") });
+          }).catch(function () { error("opn(filenameHILBERT)") });
         } else if (openImage) {
-          output("Opening your LINEAR PROJECTION image. If process blocked either quit browser AND image viewer or [ CONTROL-C ]");
+          output(`Opening ${justNameOfDNA} 1D linear projection image.`);
           opn(filenamePNG).then(() => {
             log("regular png image closed");
-          }).catch(function () { out("Linear PNG saved. ") });
+          }).catch(function () { error("opn(filenamePNG)") });
         } else {
-          output(`Use --html or --image to automatically open files after render, and "aminosee demo"`)
+          output(`Use --html or --image to automatically open files after render, and "aminosee demo" to generate test pattern and download a 1 MB DNA file from aminosee.funk.nz`)
           log(`values of openHtml ${openHtml}   openImage ${openImage}`);
         }
       });
@@ -2649,7 +2663,7 @@ function saveHilbert(array) {
     }
     function mkdir(short) { // returns true if a fresh dir was created
       dir2make = `${path.resolve(process.cwd())}/${short}`
-      if (!fs.existsSync(dir2make)) {
+      if (doesFileExist(dir2make) === false) {
         log(`Creating fresh directory: ${dir2make}`);
         try {
           fs.mkdirSync(dir2make, function (err, result) {
@@ -2672,6 +2686,7 @@ function saveHilbert(array) {
       test = true;
       updates = true;
       pngImageFlags = "_test_pattern";
+      openImage = false;
       openHtml = false;
       if (args.magnitude || args.m) {
         magnitude = Math.round(args.magnitude || args.m);
@@ -2715,8 +2730,8 @@ function saveHilbert(array) {
       // for (test = 0; test <= magnitude; test++) {
       fakeReportInit(loopCounter);
       dimension = loopCounter;
-      let hilbertImage = bothKindsTestPattern(); // sets up globals to call generic function with no DNA for test
-
+      // let hilbertImage = bothKindsTestPattern(); // sets up globals to call generic function with no DNA for test
+      bothKindsTestPattern(); // sets up globals to call generic function with no DNA for test
 
       arrayToPNG(function () { // hilbert
         log('finished linear test')
@@ -2724,7 +2739,8 @@ function saveHilbert(array) {
         // hilbertFinished();
         loopCounter++
         if (loopCounter > magnitude) { fakeReportStop(); saveHTML(); removeLocks(); return false }
-        runCycle();
+        setImmediate(runCycle); // helps with race conditions - gives time for ye olde garbage collector
+        // runCycle();
         return true;
       });
 
@@ -2733,12 +2749,12 @@ function saveHilbert(array) {
       // });
     }
     function fakeReportStop() {
+      openImage = true;
       genomeSize = 1;
       baseChars = 1;
       charClock = -1; // gets around zero length check
       colClock = -1; // gets around zero length check
       calcUpdate();
-
     }
     function fakeReportInit(magnitude) {
       start = new Date().getTime();
@@ -2746,7 +2762,7 @@ function saveHilbert(array) {
       let testPath = path.resolve(process.cwd() + "/calibration"); //
       let regmarks = getRegmarks();
       isHilbertPossible = true;
-      report = true;
+      report = false;
       justNameOfDNA = `AminoSee_Calibration${ regmarks }`;
       justNameOfPNG = `${justNameOfDNA}_LINEAR_${ magnitude }.png`;
       justNameOfHILBERT = `${justNameOfDNA}_HILBERT_${ magnitude }.png`;
@@ -4236,16 +4252,16 @@ function saveHilbert(array) {
             */
             function recursiveSync(src, dest) {
               log(`Will try to recursive copy from ${src} to ${dest}`)
-              var exists = fs.existsSync(src);
+              var exists = doesFileExist(src);
               var stats = exists && fs.statSync(src);
               var isDirectory = exists && stats.isDirectory();
-              var existsDest = fs.existsSync(dest);
+              var existsDest = doesFileExist(dest);
               if (existsDest) {
                 log(`Remove the ${dest} folder or file, then I can rebuild the web-server`);
                 return false;
               }
               if (exists && isDirectory) {
-                var exists = fs.existsSync(dest);
+                var exists = doesFileExist(dest);
                 if (exists) {
                   log("Remove the /gui/ folder and also /index.html, then I can rebuild the web-server");
                   return false;
