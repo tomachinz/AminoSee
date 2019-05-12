@@ -3213,9 +3213,14 @@ function saveHilbert(array) {
         return "";
       }
       function isDirtyPep(dirtyString) {
-
+        // if (dirtyString) {
+        //
+        // } else {
+        //   dirtyString = ""
+        // }
+        dirtyString = dirtyString + "";
         throttleOut(0.001, `your dirty string: ${dirtyString.substring(0,4).toUpperCase()}`);
-        return pepTable => pepTable.Codon.substring(0,4).toUpperCase() === dirtyString.substring(0,4).toUpperCase();
+        return pepTable => pepTable.Codon.substring(0,4).toUpperCase() == dirtyString.substring(0,4).toUpperCase();
       }
       function isNormalPep(normalpep) {
         // output(`your normalpep ${normalpep.toUpperCase()}`);
