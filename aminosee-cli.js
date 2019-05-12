@@ -72,11 +72,11 @@ const PNG = require('pngjs').PNG;
 let PNGReader = require('png.js');
 let ProgressBar = require('progress');
 const chalk = require('chalk');
-// const internalIp = require('internal-ip');
-// (async () => {
-//   const ip6URL = `http://[${await internalIp.v6()}]:3210`;
-//   const serverURL = `http://${await internalIp.v4()}:3210`;
-// })();
+let internalIp = require('internal-ip');
+(async () => {
+  let ip6URL = `http://[${await internalIp.v6()}]:3210`;
+  let serverURL = `http://${await internalIp.v4()}:3210`;
+})();
 
 
 const clog = console.log;
@@ -1247,7 +1247,7 @@ function createSymlink(src, dest) {
 }
 function launchNonBlockingServer() {
   out(internalIp.v6.sync())
-  out(internalIp.v4.sync())
+  serverURL = `http://${internalIp.v4.sync()}:3210`;
   symlinkLibraryFromProcess('bin/gui', 'gui');
   const localWebServer = new LocalWebServer()
 
@@ -2397,7 +2397,7 @@ function calculateShrinkage() {
   output(`Ideal magnitude: ${computerWants} (new) previous magnitude: ${dimension}`);
 
   if ( computerWants > defaultMagnitude ) {
-    output(`This genome could be output at a higher resolution of ${hilbPixels[computerWants].toLocaleString()} then the default of ${computerWants}, you could try -m 8 or -m 9 if your machine is muscular, but it might core dump.`)
+    output(`This genome could be output at a higher resolution of ${hilbPixels[computerWants].toLocaleString()} than the default of ${computerWants}, you could try -m 8 or -m 9 if your machine is muscular, but it might core dump. -m10 would be 67,108,864 pixels but node runs out of stack before I get there on my 16 GB macOS. -Tom.`)
     dimension = defaultMagnitude;
 
   } else if (computerWants < 0) {
