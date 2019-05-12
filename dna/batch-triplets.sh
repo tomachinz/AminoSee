@@ -1,6 +1,7 @@
 #!/bin/sh
 aminosee_do () {
     nice aminosee $1 $2 $3 $4 $5 $6
+    sleep 1
 }
 
 parallel_peptides () {

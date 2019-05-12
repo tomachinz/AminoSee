@@ -828,7 +828,7 @@ function pollForStream() {
     if (okToOverwritePNG(filenamePNG) == false) {
       output("A png image has already been generated for this DNA: " + filenamePNG);
       if (openHtml || openImage || args.image == true) {
-        output("use --force to overwrite  --image to automatically open   --no-image suppress automatic opening of the image.");
+        // output("use --force to overwrite  --image to automatically open   --no-image suppress automatic opening of the image.");
         openOutputs();
       }
 
@@ -975,11 +975,11 @@ async function initStream(f) {
   }
 
   if (willRecycleSavedImage == true) {
-    log("AM PLANNING TO RECYCLE TODAY")
+    log("AM PLANNING TO RECYCLE TODAY (joy)")
     recycleOldImage(filenamePNG);
 
     // saveDocuments();
-    return
+    return;
   }
 
   try {
@@ -2427,7 +2427,7 @@ function calculateShrinkage() {
 // resample the large 760px wide linear image into a smaller square hilbert curve
 function saveHilbert(array) {
   term.eraseDisplayBelow() ;
-  output( "Getting in touch with my man from 1891... Hilbert. In the " + dimension + "th dimension and reduced by " + threesigbitsTolocale(shrinkFactor) + "X ");
+  output( "Getting in touch with my man from 1891... Hilbert. In the " + dimension + "th dimension and reduced by " + threesigbitsTolocale(shrinkFactor) + "X  ----> " + justNameOfHILBERT);
   status = "hilbert";
   // output(status);
   let hilpix = hilbPixels[dimension];;
@@ -2439,7 +2439,7 @@ function saveHilbert(array) {
   let perc = 0;
 
   for (i = 0; i < hilpix; i++) {
-    dot(i, 20000);
+    dot(i, 10000);
     let hilbX, hilbY;
     [hilbX, hilbY] = hilDecode(i, dimension, MyManHilbert);
     let cursorLinear  = 4 * i ;
