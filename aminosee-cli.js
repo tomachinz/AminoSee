@@ -2413,7 +2413,7 @@ function calculateShrinkage() {
   hilbertImage = [hilpix*4];
   shrinkFactor = linearpix / hilpix;//  array.length / 4;
   codonsPerPixelHILBERT = codonsPerPixel / shrinkFactor;
-  out(`Linear input image size ${linearpix.toLocaleString()} will be down saple by factor ${shrinkFactor} to achieve a dimension ${dimension} hilbert curve yielding ${hilbPixels[dimension].toLocaleString()} pixels`);
+  out(`Linear image size ${linearpix.toLocaleString()} to be down sampled by ${shrinkFactor} for a ${dimension}th dimension hilbert curve of ${hilbPixels[dimension].toLocaleString()} pixels`);
   log(`shrinkFactor pre ${shrinkFactor} = linearpix ${linearpix } /  hilpix ${hilpix}  `);
   // dimension; // for filenames
   // codonsPerPixelHILBERT = twosigbitsTolocale( codonsPerPixel*shrinkFactor );
@@ -2538,7 +2538,7 @@ function saveHilbert(array) {
       howMany = dimension;
     }
 
-    output(`Generating hilbert curve, dimension: ${dimension} remainging: ${howMany}`);
+    output(`Generating hilbert curve of the ${dimension}th dimension remaining: ${howMany}`);
     log(filenameHILBERT);
     let perc = 0;
     for (i = 0; i < hilpix; i++) {
