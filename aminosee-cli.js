@@ -823,10 +823,11 @@ function pollForStream() {
 
 
     if (okToOverwritePNG(filenamePNG) == false) {
-      output("A png image has already been generated for this DNA: " + filenamePNG);
+      out("existing linear png found for: " + justNameOfDNA);
       if (openHtml || openImage || args.image == true) {
-        // output("use --force to overwrite  --image to automatically open   --no-image suppress automatic opening of the image.");
         openOutputs();
+      } else {
+        output("use --force to overwrite  --image to automatically open   --no-image suppress automatic opening of the image.");
       }
 
       recycleOldImage(filenamePNG); // recycled with new hilbert
@@ -848,7 +849,7 @@ function pollForStream() {
   }
 
 
-  log(`willStart   ${willStart}  pollAgainFlag ${pollAgainFlag}  defaultFilename  ${defaultFilename}  ${filename}  howMany   ${howMany}   status ${status}`);
+  // log(`willStart   ${willStart}  pollAgainFlag ${pollAgainFlag}  defaultFilename  ${defaultFilename}  ${filename}  howMany   ${howMany}   status ${status}`);
 
 }
 function theSwitcher(bool) {
@@ -1496,6 +1497,7 @@ function saveHTML() {
   fs.writeFile(histoJSON, JSON.stringify(this.pepTable), 'utf8', function (err) {
     if (err) {
       error("occured while writing JSON Object to File.");
+      htmlFinished();
       return console.log(err);
     }
     console.log("Amino acid histogram JSON file has been saved to: " + histoJSON);
@@ -2318,10 +2320,10 @@ function okToOverwritePNG(f) { // true to continue, false to abort
     result = doesFileExist(f);
     // log("[fstatSync result]" + result);
     if (result) {
-      output("File exists?! " + f );
+      out("previous projection found for " + justNameOfDNA );
       return false;
     } else {
-      output("File not exists?! " + f );
+      out("begin projection for " + justNameOfDNA );
       return true;
     }
     if (result.isFile) {
@@ -2389,10 +2391,10 @@ function hilDecode(i, dimension) {
 function calculateShrinkage() {
   let linearpix = rgbArray.length / 4;
   let computerWants = pixTodefaultMagnitude(linearpix);
-  output(`Ideal magnitude: ${computerWants} (new) previous magnitude: ${dimension}`);
+  out(`Ideal magnitude: ${computerWants} (new) previous magnitude: ${dimension}`);
 
   if ( computerWants > defaultMagnitude ) {
-    output(`This genome could be output at a higher resolution of ${hilbPixels[computerWants].toLocaleString()} than the default of ${computerWants}, you could try -m 8 or -m 9 if your machine is muscular, but it might core dump. -m10 would be 67,108,864 pixels but node runs out of stack before I get there on my 16 GB macOS. -Tom.`)
+    out(`This genome could be output at a higher resolution of ${hilbPixels[computerWants].toLocaleString()} than the default of ${computerWants}, you could try -m 8 or -m 9 if your machine is muscular, but it might core dump. -m10 would be 67,108,864 pixels but node runs out of stack before I get there on my 16 GB macOS. -Tom.`)
     dimension = defaultMagnitude;
 
   } else if (computerWants < 0) {
@@ -2411,7 +2413,7 @@ function calculateShrinkage() {
   hilbertImage = [hilpix*4];
   shrinkFactor = linearpix / hilpix;//  array.length / 4;
   codonsPerPixelHILBERT = codonsPerPixel / shrinkFactor;
-  output(`Linear input image size ${linearpix.toLocaleString()} will be down saple by factor ${shrinkFactor} to achieve a dimension ${dimension} hilbert curve yielding ${hilbPixels[dimension].toLocaleString()} pixels`);
+  out(`Linear input image size ${linearpix.toLocaleString()} will be down saple by factor ${shrinkFactor} to achieve a dimension ${dimension} hilbert curve yielding ${hilbPixels[dimension].toLocaleString()} pixels`);
   log(`shrinkFactor pre ${shrinkFactor} = linearpix ${linearpix } /  hilpix ${hilpix}  `);
   // dimension; // for filenames
   // codonsPerPixelHILBERT = twosigbitsTolocale( codonsPerPixel*shrinkFactor );
@@ -2423,12 +2425,13 @@ function calculateShrinkage() {
 function saveHilbert(array) {
   term.eraseDisplayBelow();
   if (doesFileExist(filenameHILBERT)) {
-    output("EXISTING HILBERT IMAGE FOUND (skipping projection)" );
+    output("Existing hilbert image found - skipping projection" );
     if (openImage) {
       openOutputs();
     } else {
-      output("Use --image to open in default browser")
+      log("Use --image to open in default browser")
     }
+    hilbertFinished();
     return false;
   }
   output( "Getting in touch with my man from 1891... Hilbert. In the " + dimension + "th dimension and reduced by " + threesigbitsTolocale(shrinkFactor) + "X  ----> " + justNameOfHILBERT);
