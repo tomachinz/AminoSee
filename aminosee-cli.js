@@ -457,7 +457,7 @@ module.exports = () => {
       currentFile = args._[0];
       // currentFile = args._.pop();
       filename = path.resolve(currentFile); //
-      out(filename)
+      log(filename)
       // args._.push(filename);
       // args._.push(filename);
 
@@ -659,32 +659,29 @@ function runTerminalCommand(str) {
     }
   })
 }
-function streamingZip(f) {
-  zipfile = path.resolve(f);
-
-  fs.createReadStream(zipfile)
-  .pipe(unzipper.Parse())
-  .pipe(stream.Transform({
-    objectMode: true,
-    transform: function(entry,e,cb) {
-      var zipPath = entry.path;
-      var type = entry.type; // 'Directory' or 'File'
-      var size = entry.size;
-      var cb = function (byte) {
-        console.log(byte);
-      }
-      if (zipPath === "this IS the file I'm looking for") {
-        entry.pipe(fs.createWriteStream('dna'))
-        .on('finish',cb);
-      } else {
-        entry.autodrain();
-        cb();
-      }
-    }
-
-  }));
-
-}
+// function streamingZip(f) {
+//   zipfile = path.resolve(f);
+//   fs.createReadStream(zipfile)
+//   .pipe(unzipper.Parse())
+//   .pipe(stream.Transform({
+//     objectMode: true,
+//     transform: function(entry,e,cb) {
+//       var zipPath = entry.path;
+//       var type = entry.type; // 'Directory' or 'File'
+//       var size = entry.size;
+//       var cb = function (byte) {
+//         console.log(byte);
+//       }
+//       if (zipPath === "this IS the file I'm looking for") {
+//         entry.pipe(fs.createWriteStream('dna'))
+//         .on('finish',cb);
+//       } else {
+//         entry.autodrain();
+//         cb();
+//       }
+//     }
+//   }));
+// }
 
 function listDNA() {
   var XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
@@ -1197,13 +1194,10 @@ function highlightFilename() {
 
 function setupFNames() {
   status = "setupFName";
-  output(`currentFile ${currentFile}`)
+  log(`f: ${currentFile}`)
   justNameOfCurrentFile = replaceoutputPathFileName( currentFile );
-  output(`f: ${justNameOfCurrentFile}`);
   currentOutputPath = path.normalize(path.resolve(currentFile)); // full path of file
-  log(`currentOutputPath: ${currentOutputPath}`)
   currentOutputPath = currentOutputPath.substring(0, currentOutputPath.length - justNameOfCurrentFile.length) + "output"; // just the path now
-  log(`currentOutputPath: ${currentOutputPath}`)
   extension = getFileExtension(currentFile);
   justNameOfDNA = spaceTo_(removeFileExtension(justNameOfCurrentFile));
 
@@ -1232,7 +1226,7 @@ function setupFNames() {
 function symlinkLibraryFromProcess(libsource, cwdest) { // input "bin/gui", "gui", output: ln -s /Users.....AminoSee/bin/gui, /Users.....currentWorkingDir/output/gui
 createSymlink(appPath + libsource, cwdest);
 }
-function createSymlink(src, dest) {
+function createSymlink(dest, src) {
   try { // the idea is to copy the GUI into the output folder to.... well enable it to render cos its a web app!
     var relativePath = path.relative(dest, currentOutputPath + "/" + dest);
     console.log(`relativePath: ${relativePath}`);
@@ -2298,6 +2292,7 @@ function recycleOldImage(f) {
 
   try {
     // var oldimage = new PNG.load(f);
+    output(chalk.inverse(" RECYCLING EXISTING LINEAR FILE ")+chalk(" " + justNameOfDNA))
     rgbArray = decodePNG(f, function () {
       calculateShrinkage();
       saveHilbert(this.data);
@@ -2426,8 +2421,15 @@ function calculateShrinkage() {
 }
 // resample the large 760px wide linear image into a smaller square hilbert curve
 function saveHilbert(array) {
-  term.eraseDisplayBelow() ;
+  term.eraseDisplayBelow();
+  if (doesFileExist(filenameHILBERT)) {
+    output("EXISTING HILBERT IMAGE FOUND (skipping projection)" );
+    return false;
+  } 
   output( "Getting in touch with my man from 1891... Hilbert. In the " + dimension + "th dimension and reduced by " + threesigbitsTolocale(shrinkFactor) + "X  ----> " + justNameOfHILBERT);
+  output("    ॐ    ");
+  out(justNameOfDNA);
+  // term.up(1);
   status = "hilbert";
   // output(status);
   let hilpix = hilbPixels[dimension];;
@@ -2437,14 +2439,16 @@ function saveHilbert(array) {
   width = Math.sqrt(hilpix);
   height = width;
   let perc = 0;
-
+  // whack_a_progress_on();
   for (i = 0; i < hilpix; i++) {
-    dot(i, 10000);
     let hilbX, hilbY;
     [hilbX, hilbY] = hilDecode(i, dimension, MyManHilbert);
     let cursorLinear  = 4 * i ;
     let hilbertLinear = 4 * ((hilbX % width) + (hilbY * width));
     let perc = i / hilpix;
+    percentComplete = perc;
+    dot(i, 20000, "Space filling " + fixedWidth(6, " " + (perc*100)) + "% of " + hilpix.toLocaleString());
+    // output("Space filling " + fixedWidth(10, (perc*100) + "%") + " of " + hilpix.toLocaleString());
 
     hilbertImage[hilbertLinear+0] = rgbArray[cursorLinear+0];
     hilbertImage[hilbertLinear+1] = rgbArray[cursorLinear+1];
@@ -2459,6 +2463,8 @@ function saveHilbert(array) {
       break;
     }
   }
+  out("Done projected 100% of " + hilpix.toLocaleString());
+
 
   var hilbert_img_data = Uint8ClampedArray.from(hilbertImage);
   var hilbert_img_png = new PNG({
@@ -2899,11 +2905,11 @@ function saveHilbert(array) {
       return dim;
     }
     function dot(i, x, t) {
-      if (!t) {
-        t = '1';
-      }
       if (i % x == 0 ) {
-        process.stdout.write('.');
+        if (!t) {
+          t = `[${i}]`;
+        }
+        out(t);
       }
     }
 
@@ -2953,9 +2959,12 @@ function saveHilbert(array) {
     }
     function out(t) {
       if (t.substring(0,5) == 'error') {
-        process.stderr.write(`[ ${t} ] `);
+        console.warn(`[ ${t} ] `);
       } else {
-        process.stdout.write(`[ ${t} ] `);
+        term.eraseLine();
+        console.log(t);
+        term.up(1);
+        // process.stdout.write(`[ ${t} ] `);
       }
     }
     function error(e) {
@@ -3063,25 +3072,24 @@ function saveHilbert(array) {
       return [ item.Codon, item.Histocount];
     }
     function whack_a_progress_on() {
-      setTimeout(() => {
-        calcUpdate();
-        out(nicePercent());
-        // var bar = new ProgressBar({
-        //   schema: ':bar',
-        //   total : 5000
-        // });
-        //
-        // var iv = setInterval(function () {
-        //   calcUpdate();
-        //   bar.update(percentComplete*1000);           // bar.tick();
-        //
-        //   if (bar.completed) {
-        //     clearInterval(iv);
-        //   }
-        // }, 200);
-        // return bar;
+      out(nicePercent());
+      var bar = new ProgressBar({
+        schema: ':bar',
+        total : 1000
+      });
+      // setTimeout(() => {
+        // calcUpdate();
+        var iv = setInterval(function () {
+          // calcUpdate();
+          bar.update(percentComplete*1000);           // bar.tick();
 
-      }, 1000);
+          if (bar.completed) {
+            clearInterval(iv);
+          }
+        }, 200);
+        return bar;
+
+      // }, 1000);
     }
     function onesigbitTolocale(num){
       return (Math.round(num*10)/10).toLocaleString();
@@ -3103,6 +3111,7 @@ function saveHilbert(array) {
     }
     function fixedWidth(wide, str) {
       return minWidth(wide, maxWidth(wide, str));
+      // return maxWidth(wide, minWidth(wide, str));
     }
     function maxWidth(wide, str) { // shorten it if you need to
       if (str) {
@@ -3113,7 +3122,7 @@ function saveHilbert(array) {
       }
     }
     function minWidth(wide, str) { // make it wider
-      while(str.length <= wide) { str = " " + str }
+      while(str.length < wide) { str = " " + str }
       return str;
     }
     function drawHistogram() {

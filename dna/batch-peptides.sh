@@ -120,7 +120,7 @@ find_way_peptides () {
   echo "-------------------------------------------"
   echo "                                         =///"
 }
-find_way_peptides $1 $2 $3 $4 $5 $6 $7
+# find_way_peptides $1 $2 $3 $4 $5 $6 $7
 parallel_peptides $1 $2 $3 $4 $5 $6 $7
 # parallel_peptides  --reg $1 $2 $3 $4 $5 $6 $7
 # find_way_peptides  --reg
