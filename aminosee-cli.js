@@ -2424,8 +2424,13 @@ function saveHilbert(array) {
   term.eraseDisplayBelow();
   if (doesFileExist(filenameHILBERT)) {
     output("EXISTING HILBERT IMAGE FOUND (skipping projection)" );
+    if (openImage) {
+      openOutputs();
+    } else {
+      output("Use --image to open in default browser")
+    }
     return false;
-  } 
+  }
   output( "Getting in touch with my man from 1891... Hilbert. In the " + dimension + "th dimension and reduced by " + threesigbitsTolocale(shrinkFactor) + "X  ----> " + justNameOfHILBERT);
   output("    ॐ    ");
   out(justNameOfDNA);
