@@ -35,11 +35,13 @@ many_size_hilbert() {
   aminosee_do 7             -m 5 $1 $2 $3 $4 $5 $6
   aminosee_do 8             -m 6 $1 $2 $3 $4 $5 $6
   aminosee_do_foreground 9  -m 7 $1 $2 $3 $4 $5 $6
-  aminosee_do_foreground 1  -m 9 $1 $2 $3 $4 $5 $6
-  # aminosee_do_foreground 2 -c 3 $1 $2 $3 $4 $5 $6
-  # aminosee_do_foreground 2 -c 4 $1 $2 $3 $4 $5 $6
-  # aminosee_do 3            -c 5 $1 $2 $3 $4 $5 $6
-  # aminosee_do 4            -c 6 $1 $2 $3 $4 $5 $6
+  # aminosee_do_foreground 1  -m 9 $1 $2 $3 $4 $5 $6
+
+
+
+  aminosee_do 1   -c 64 $1 $2 $3 $4 $5 $6
+  aminosee_do_foreground 2 -c 4 $1 $2 $3 $4 $5 $6
+  aminosee_do 3            -c 1024 $1 $2 $3 $4 $5 $6
   # echo "ATTEMPTING TO RENDER AT DIMENSION 9 THIS MAY RUN OUT OF MEMORY"
   # aminosee_do_foreground 5  -c 7 $1 $2 $3 $4 $5 $6
   # aminosee_do 6             -c 8 $1 $2 $3 $4 $5 $6

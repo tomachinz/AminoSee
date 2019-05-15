@@ -1038,6 +1038,7 @@ function pollForStream() {
     });
 
 
+    process.title = `aminosee.funk.nz ${justNameOfDNA} ${bytes(estimatedPixels*4)}`;
 
 
     try {
