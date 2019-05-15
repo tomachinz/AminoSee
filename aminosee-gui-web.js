@@ -677,7 +677,6 @@ function testParse() {
     `;
   }
 
-
   function handleFileSelect(evt) {
     document.getElementById('cancel').classList.remove('hidden');
 

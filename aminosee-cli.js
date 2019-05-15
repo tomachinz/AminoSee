@@ -8,9 +8,9 @@
 //        ah-mee no-see       "I See It Now - I AminoSee it!"
 process.title = "aminosee.funk.nz";
 
-const extensions = [ "txt", "fa", "mfa", "gbk", "dna", "fasta", "fna", "fsa", "mpfa", "gb"];
+const extensions = [ "txt", "fa", "mfa", "gbk", "dna", "fasta", "fna", "fsa", "mpfa", "gb", "gff"];
 const refimage = "Reference image - all amino acids blended together"
-const closeBrowser = "If the process apears frozen, it's waiting for your browser or image viewer to exit. Escape with [ CONTROL-C ] or use --no-image --no-html"
+const closeBrowser = " ";//If the process apears frozen, it's waiting for your browser or image viewer to exit. Escape with [ CONTROL-C ] or use --no-image --no-html"
 const lockFileMessage = "aminosee.funk.nz DNA Viewer by Tom Atkinson. This is a temp lock file, to enable parallel cluster rendering, usually it means an AminoSee was quit before finishing. Safe to erase. Normally deleting when render is complete.";
 const debugColumns = 80;
 const targetPixels = 9000000; // for big genomes use setting flag -c 1 to achieve highest resolution and bypass this taret max render size
@@ -24,10 +24,10 @@ const hilbPixels = [ 64, 256, 1024, 4096, 16384, 65536, 262144, 1048576, 4194304
 const widthMax = 960; // i wanted these to be tall and slim kinda like the most common way of diagrammatically showing chromosomes
 const timestamp = Math.round(+new Date()/1000);
 let maxMsPerUpdate = 30000; // milliseconds per updatelet maxpix = targetPixels; // maxpix can be changed downwards by algorithm for small genomes in order to zoom in
-let termDisplayHeight = 30;
+let termDisplayHeight = 31;
 let termStatsHeight = 8;
 let maxpix = targetPixels;
-let raceDelay = 6; // so i learnt a lot on this project. one day this line shall disappear replaced by promises.
+let raceDelay = 69; // so i learnt a lot on this project. one day this line shall disappear replaced by promises.
 let raceTimer = false;
 let dimension; // var that the hilbert projection is be downsampled to
 let darkenFactor = 0.25; // if user has chosen to highlight an amino acid others are darkened
@@ -42,14 +42,20 @@ let report = true; // html reports can be dynamically disabled
 let test = false;
 let updates = true;
 let stats = true;
+let recycEnabled = false; // bummer had to disable it
 let renderLock = false; // not rendering right now obviously
 let msPerUpdate = 200; // min milliseconds per update
+let stream = require('stream');
+let util = require('util');
 const path = require('path');
 const async = require('async-kit'); // amazing lib
 let term = require('terminal-kit').terminal;
 // let term = require( path.normalize(appPath + 'node_modules/terminal-kit') ).terminal ;
 let gv = require('genversion');
 let MyManHilbert = require('hilbert-2d'); // also contains magic
+let Readable = require('stream').Readable
+let Writable = require('stream').Writable
+let Transform = require('stream').Transform
 let es = require('event-stream');
 const minimist = require('minimist')
 const highland = require('highland')
@@ -75,7 +81,6 @@ const chalk = require('chalk');
 const clog = console.log;
 const os = require("os");
 const hostname = os.hostname();
-const util = require('util');
 const appFilename = require.main.filename;
 let appPath = path.normalize(appFilename.substring(0, appFilename.length-15));// + /bin/aminosee.js has 11 chars; cut 4 off to remove /dna
 const outputPath = path.normalize(path.resolve(process.cwd()) + "/output"); // current working diretory is in /bin/aminosee.js
@@ -108,7 +113,7 @@ out( `v${version}` );
 
 console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196).inverse("See")}${chalk.rgb(128,128,128).inverse("No")}${chalk.rgb(64, 64, 64).inverse("Evil")}`);
 let interactiveKeysGuide = "";
-let hilbertImage, keyboard, filenameTouch, estimatedPixels, args, filenamePNG, extension, reader, hilbertPoints, herbs, levels, progress, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, textFile, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, fileUploadShowing, testColors, chunksMax, chunksize, chunksizeBytes, cpu, subdivisions, contextBitmap, aminoacid, colClock, start, updateClock, bytesPerSec, pixelStacking, isHighlightCodon, justNameOfDNA, justNameOfPNG, justNameOfHILBERT, sliceDNA, filenameHTML, howMany, timeElapsed, runningDuration, kbRemain, width, triplet, updatesTimer, pngImageFlags, codonsPerPixel, codonsPerPixelHILBERT, CRASH, red, green, blue, alpha, errorClock, breakClock, streamLineNr, filesDone, spewClock, opacity, codonRGBA, geneRGBA, currentTriplet, currentPeptide,  progato, shrinkFactor, reg, image, loopCounter, percentComplete, charClock, baseChars, bigIntFileSize, currentFile, currentPepHighlight, justNameOfCurrentFile, server, openHtml, openFileExplorer;
+let hilbertImage, keyboard, filenameTouch, estimatedPixels, args, filenamePNG, extension, reader, hilbertPoints, herbs, levels, progress, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, textFile, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, fileUploadShowing, testColors, chunksMax, chunksize, chunksizeBytes, cpu, subdivisions, contextBitmap, aminoacid, colClock, start, updateClock, bytesPerSec, pixelStacking, isHighlightCodon, justNameOfDNA, justNameOfPNG, justNameOfHILBERT, sliceDNA, filenameHTML, howMany, timeElapsed, runningDuration, kbRemain, width, triplet, updatesTimer, pngImageFlags, codonsPerPixel, codonsPerPixelHILBERT, CRASH, red, green, blue, alpha, errorClock, breakClock, streamLineNr, filesDone, spewClock, opacity, codonRGBA, geneRGBA, currentTriplet, currentPeptide,  progato, shrinkFactor, reg, image, loopCounter, percentComplete, charClock, baseChars, bigIntFileSize, currentFile, currentPepHighlight, justNameOfCurrentFile, server, openHtml, openFileExplorer, pixelStream;
 BigInt.prototype.toJSON = function() { return this.toString(); }; // shim for big int
 BigInt.prototype.toBSON = function() { return this.toString(); }; // Add a `toBSON()` function to enable MongoDB to store BigInts as strings
 
@@ -172,7 +177,7 @@ module.exports = () => {
     string: [ 'width'],
     unknown: [ true ],
     alias: { a: 'artistic', c: 'codons', d: 'devmode', f: 'force', m: 'magnitude', p: 'peptide', i: 'image', t: 'triplet', r: 'reg', s: 'spew', w: 'width', v: 'verbose', x: 'explorer' },
-    default: { updates: true, explorer: true }
+    default: { updates: true, explorer: false }
   });
   let cmd = args._[0];
   out(`cmd ${cmd}`);
@@ -188,6 +193,9 @@ module.exports = () => {
   if (args.keyboard || args.k) {
     keyboard = true;
     termDisplayHeight += 3; // display bigger
+    if (verbose) {
+      termDisplayHeight++;
+    }
   } else {
     if (args.keyboard == false) {
       keyboard = false;
@@ -337,7 +345,7 @@ module.exports = () => {
     verbose = true;
     termDisplayHeight++;
   }
-  if (args.html || args.h) {
+  if (args.html) {
     output("will open html after render")
     openHtml = true;
   } else {
@@ -361,7 +369,7 @@ module.exports = () => {
     force = true;
   }
   if (args.file || args.explorer || args.x) {
-    output("will open folder in File Manager / Finder / Explorer when done.");
+    log("will open folder in File Manager / Finder / Explorer when done.");
     openFileExplorer = true;
     if (cmd == 'calibration' || cmd == 'test' || cmd == 'open') {
       openOutputs();
@@ -370,9 +378,7 @@ module.exports = () => {
     openFileExplorer = false;
   }
   if (args.help || args.h) {
-    output(siteDescription);
-    output("Author:         tom@funk.co.nz or +64212576422");
-    output("calls only between 2pm and 8pm NZT (GMT+11hrs)");
+    helpCmd(args);
   }
 
 
@@ -440,7 +446,6 @@ module.exports = () => {
 
     default:
     if (cmd == undefined) {
-      welcomeMessage();
       currentFile = args._[0];
       // currentFile = args._.pop();
       // filename = path.resolve(currentFile); //
@@ -455,6 +460,7 @@ module.exports = () => {
       }
 
       output(`Try running  --->>>        aminosee demo`);//" Closing in 2 seconds.")
+      output(`usage        --->>>        aminosee [*/dna-file.txt] [--help|--test|--demo|--force|--html|--image|--keyboard]     `);//" Closing in 2 seconds.")
       log(`your cmd: ${currentFile} howMany ${howMany}`);
       // setTimeout(() => {
       //   quit(1);
@@ -486,6 +492,11 @@ module.exports = () => {
   status = "global";
   out(".");
 }
+term.on('resize', function(width, height) {
+  // clearCheck();
+  clearScreen();
+  console.info('Terminal resized: ' + width + ', ' + height);
+});
 function isThisFirstRun() { // true is first run by user
 
 }
@@ -570,15 +581,15 @@ function setupKeyboardUI() {
 
 function toggleVerbose() {
   verbose = !verbose;
-  output(`verbose mode ${verbose}`);
+  out(`verbose mode ${verbose}`);
 }
 function toggleSpew() {
   spew = !spew;
-  output(`spew mode ${spew}`);
+  out(`spew mode ${spew}`);
 }
 function toggleDevmode() {
   devmode = !devmode;
-  output(`devmode ${devmode}`);
+  out(`devmode ${devmode}`);
   if (devmode) {
     verbose = true;
     updates = false;
@@ -592,20 +603,20 @@ function toggleDevmode() {
 }
 function toggleForce() {
   force = !force;
-  output(`force overwrite ${force}`);
+  out(`force overwrite ${force}`);
 }
 
 function toggleClearScreen() {
   clear = !clear;
-  output("clear screen toggled.");
+  out("clear screen toggled.");
 }
 function toggleUpdates() {
   updates = !updates;
-  output(`stats updates toggled to: ${updates}`);
+  out(`stats updates toggled to: ${updates}`);
 }
 function gracefulQuit() {
   status = "GRACEFUL QUIT IN 5 SECONDS";
-  output(status);
+  out(status);
   args = [];
   howMany = -1;
   calcUpdate();
@@ -633,32 +644,57 @@ function bgOpen(file, options) {
     options = { wait: false }
   }
   (async () => {
-      await open(file, options);
+    await open(file, options);
   })();
 }
 function runDemo() {
-  symlinkGUI();
-  // openHtml = true;
-  // openImage = true;
-  openHtml = false;
-  openImage = false;
-  // openFileExplorer = false;
-  currentFile = testFilename;
-
-  bgOpen(currentOutputPath + '/calibration')
-
-  generateTestPatterns();
 
 
-  currentFile = defaultFilename;
-  args._[0] = currentFile;
-  args._.push(currentFile);
-  downloadMegabase(pollForStream);
-  // pollForStream();
-  // initStream(args._[0])
-  // theSwitcher(false);
-  let thisJob = createJob().then(log('thisJob CONTINUE')).catch(log('thisJob LATCH'));
-  // launchNonBlockingServer();
+  async.waterfall( [
+    function w1( callback ) {
+      symlinkGUI();
+      generateTestPatterns(callback);
+    },
+    function w2( callback ) {
+      // openHtml = true;
+      // openImage = true;
+      openHtml = false;
+      openImage = false;
+      // openFileExplorer = false;
+      currentFile = testFilename;
+      // bgOpen(currentOutputPath + '/calibration');
+      callback();
+    },
+    function w3( callback ) {
+      regmarks = true;
+      generateTestPatterns();
+      callback();
+    },
+    function w4( callback ) {
+      callback();
+    },
+    function w4( callback ) {
+      currentFile = defaultFilename;
+      args._[0] = currentFile;
+      args._.push(currentFile);
+      downloadMegabase(pollForStream);
+      pollForStream();
+      // initStream(args._[0])
+      // theSwitcher(false);
+      // let thisJob = createJob().then(log('thisJob CONTINUE')).catch(log('thisJob LATCH'));
+      // launchNonBlockingServer();
+      callback();
+    }
+  ])
+  .timeout( 200 )
+  .then( function(  ) {
+    log("fubar")
+  } )
+  .catch( function( error ) {
+    log("sleepy")
+  } )
+  .execArgs( () => {log("Fooos")});
+
 }
 function downloadMegabase(cb) {
   currentFile = 'megabase.fa';
@@ -666,7 +702,7 @@ function downloadMegabase(cb) {
     try {
       var exists = doesFileExist(currentFile);
     } catch(err) {
-      console.warn("HANDLED ERROR: " + err)
+      out(maxWidth(5, "e:" + err));
     }
     if (exists) {
       resolve()
@@ -754,1495 +790,1514 @@ function createJob(cb) {
   })
 }
 function pollForStream() {
-  status = "polling";
-  clearCheck();
   if (test) {
     return false;
   }
-  // calcUpdate();
-  log(` [polling ${nicePercent()}] `);
   if (renderLock) {
-    return true;
+    return false;
   }
   if (!(isDiskFinLinear && isDiskFinHilbert && isDiskFinHTML)){
     log(` [is disk finished writing? linear hilbert html ] ${isDiskFinLinear  + " " +  isDiskFinHilbert  + " " +  isDiskFinHTML }`);
-    return true;
+    return false;
   } else {
     log(` [ disk finished. continuing to render next file ] ${isDiskFinLinear  + " " +  isDiskFinHilbert  + " " +  isDiskFinHTML }`);
   }
-  // if (!args.updates) {
-  //   updates = false;
-  // }
   if (howMany < 1) {
     log("FINITO");
-    return true;
-  }
-
-  try {
-    nextFile = args._[2];
-  } catch(e) {
-    nextFile = "Finished. Due to: "+ e;
-  }
-
-  try {
-    if (args._) {
-      currentFile = args._[0];
-      currentFile = args._.pop();
-      log(`pop ${currentFile} howMany ${howMany}`)
-    } else {
-      setImmediate(() => {
-        output("Finished processing.")
-        quit(1);
-      });
-      return true;
-    }
-  } catch(e) {
-    output("Finished processing. Maybe. This was catch.")
-    quit(1);
-    return true;
-  }
-  log(` [ howMany  ${howMany} ${status} ${filename} ${currentFile}]`)
-
-
-  if (currentFile == undefined) {
-    // quit()
     return false;
   }
 
-  howMany = args._.length;
-  filename = path.resolve(currentFile); //        currentFile = args._.pop();
+  status = "polling";
+  log(` [polling ${nicePercent()} ${status} ${new Date()}`);
+    clearCheck();
 
-  log("currentFile: " + filename)
-  let pollAgainFlag = false;
-  let willStart = true;
-  log( " currentFile is " + currentFile   + args)
+    try {
+      nextFile = args._[1];
+    } catch(e) {
+      nextFile = "Finished. Due to: "+ e;
+    }
+
+    try {
+      if (args._) {
+        currentFile = args._[0];
+        currentFile = args._.pop();
+        log(chalk.bgWhite(`pop ${currentFile} howMany ${howMany}`) +  chalk(nextFile) );
+      } else {
+        setImmediate(() => {
+          output("Finished processing.")
+          quit(1);
+        });
+        return true;
+      }
+    } catch(e) {
+      output("Finished processing. Maybe. This was catch.")
+      quit(1);
+      return true;
+    }
+    log(` [ howMany  ${howMany} ${status} ${filename} ${currentFile}]`)
 
 
-  //  var fileExist = fs.open('currentFile', 'r', (err, fd) => {
-  //   if (err) {
-  //     if (err.code === 'ENOENT') {
-  //       console.error('myfile does not exist');
-  //       return;
-  //     }
-  //
-  //     throw err;
-  //   }
-  //
-  //   readMyData(fd);
-  // });
-  try {
-    if (!fs.statSync(filename).isFile) {
-      output("This is not a file: " + filename)
+    if (currentFile == undefined) {
+      // quit()
+      return false;
+    }
+
+    howMany = args._.length;
+    filename = path.resolve(currentFile);
+    log("currentFile: " + filename)
+    let pollAgainFlag = false;
+    let willStart = true;
+    log( " currentFile is " + currentFile   + args)
+    try {
+      if (!fs.statSync(filename).isFile) {
+        output("This is not a file: " + filename)
+        theSwitcher(false);
+        return false;
+      }
+    } catch(err) {
+      error("HANDLED ERROR: " + err);
+      output("statSync: false " + filename)
       theSwitcher(false);
       return false;
     }
-  } catch(err) {
-    console.warn("HANDLED ERROR: " + err);
-    output("statSync: false " + filename)
-    theSwitcher(false);
-    return false;
-  }
 
-  if (filename == defaultFilename) { // maybe this is to get past my lack of understanding of processing of args.
-    log("skipping default: " + defaultFilename);
-    log("checkFileExtension: " + filename)
-    theSwitcher(false);
-    return false;
-  }
-  log("POLLING FILENAME: " + filename)
-  if (!checkFileExtension(getFileExtension(filename))) {
-    log("getFileExtension(filename): " + getFileExtension(filename));
-    log("checkFileExtension(getFileExtension(filename)): " + checkFileExtension(getFileExtension(filename)))
-    theSwitcher(false);
-    return false;
-  } else {
-
-    autoconfCodonsPerPixel();
-    status ="polling";
-    setupFNames();
-
-
-
-    if (okToOverwritePNG(filenamePNG) == false) {
-      out("existing linear png found for: " + justNameOfDNA);
-      if (openHtml || openImage || args.image == true) {
-        openOutputs();
-      } else {
-        output("use --force to overwrite  --image to automatically open   --no-image suppress automatic opening of the image.");
-      }
-
-      recycleOldImage(filenamePNG); // recycled with new hilbert
-      return false; // just straight quit both images are rendered
-    }
-
-
-
-    let temp = !checkLocks(filenameTouch);
-    if (temp) {
-      log("!checkLocks(filenameTouch) " + temp);
-      theSwitcher(false); // <---- FAIL
-      return false;
-    } else {
-      log(`Polling filenameTouch ${filenameTouch}`);
-      theSwitcher(true); // <--- GOOD
-      return true;
-    }
-  }
-
-
-  // log(`willStart   ${willStart}  pollAgainFlag ${pollAgainFlag}  defaultFilename  ${defaultFilename}  ${filename}  howMany   ${howMany}   status ${status}`);
-
-}
-function theSwitcher(bool) {
-  log(`cpu has entered The Switcher!`)
-  if (bool) {
-
-    autoconfCodonsPerPixel();
-    status ="polling";
-    setupFNames();
-
-    touchLockAndStartStream(filenameTouch); // <--- THIS IS WHERE RENDER STARTS
-    return true;
-  } else  {
-    status = "switcher"
-    log(howMany);
-    if (howMany > 0 ) {
-      log(`there is more work but also renderLock: ${renderLock}`);
-
-      pollForStream();
-      return true;
-    } else {
-      log(`polling none renderLock: ${renderLock}`);
-      clearTimeout(raceTimer);
-      quit();
+    if (filename == defaultFilename) { // maybe this is to get past my lack of understanding of processing of args.
+      log("skipping default: " + defaultFilename); // it was rendered same file twice i think
+      log("checkFileExtension: " + filename)
+      theSwitcher(false);
       return false;
     }
-  }
-}
-function firstRun() {
-  output(chalk.bgRed("First run demo!"));
-  output(chalk.bgYellow("First run demo!"));
-  output(chalk.bgGreen("First run demo!"));
-
-  runDemo();
-}
-
-async function initStream(f) {
-  status = "init";
-  isDiskFinHTML = false;
-  isDiskFinHilbert = false;
-  isDiskFinLinear = false;
-  mkdir(`output`);
-  mkdir(`output/${justNameOfDNA}`);
-  mkdir(`output/${justNameOfDNA}/images`);
-  log("stream");
-  start = new Date().getTime();
-  timeElapsed, runningDuration, charClock, percentComplete, genomeSize, colClock, opacity = 0;
-  msPerUpdate = 200;
-  codonRGBA, geneRGBA, mixRGBA = [0,0,0,0]; // codonRGBA is colour of last codon, geneRGBA is temporary pixel colour before painting.
-  codonsPerPixel = defaultC; //  one codon per pixel maximum
-  CRASH = false; // hopefully not
-  msPerUpdate = 200; // milliseconds per  update
-  codonRGBA, geneRGBA, mixRGBA = [0,0,0,0]; // codonRGBA is colour of last codon, geneRGBA is temporary pixel colour before painting.
-  rgbArray = [];
-  red = 0;
-  green = 0;
-  blue = 0;
-  alpha = 0;
-  charClock = 0; // its 'i' from the main loop
-  errorClock = 0; // increment each non DNA, such as line break. is reset after each codon
-  breakClock = 0;
-  streamLineNr = 0;
-  genomeSize = 1;
-  filesDone = 0;
-  spewClock = 0;
-  opacity = 1 / codonsPerPixel; // 0.9 is used to make it brighter, also due to line breaks
-
-  for (h=0; h<pepTable.length; h++) {
-    pepTable[h].Histocount = 0;
-  }
-  for (h=0; h<dnaTriplets.length; h++) {
-    dnaTriplets[h].Histocount = 0;
-  }
-
-  filename = path.resolve(f); // set a global. i know. god i gotta stop using those.
-
-  autoconfCodonsPerPixel();
-  setupFNames();
-
-
-  extension = getFileExtension(f);
-  log(` [ func parm: ${f} ]`);
-  log(` [ cli parameter: ${filename} ]`);
-  log(` [ canonical:     ${justNameOfDNA} ]`);
-  log("[FILESIZE] " + baseChars.toLocaleString() + " extension: " + extension);
-
-
-  percentComplete = 0;
-  genomeSize = 1; // number of codons.
-  pixelStacking = 0; // how we fit more than one codon on each pixel
-  colClock = 0; // which pixel are we painting?
-  timeElapsed = 0;
-
-
-  status = "init";
-  clearCheck();
-  output(`STARTING RENDER ${filename} in ${raceDelay} ms`);
-  output(" ");
-  output(" ");
-  output(" ");
-  output(" ");
-  output(" ");
-  output(" ");
-  output(" ");
-  output(" ");
-  output(" ");
-  term.up(termDisplayHeight + termStatsHeight*2);
-  clearCheck();
-  term.eraseDisplayBelow();
-
-  if (updatesTimer) {
-    clearTimeout(updatesTimer);
-  }
-
-  if (willRecycleSavedImage == true) {
-    log("AM PLANNING TO RECYCLE TODAY (joy)")
-    recycleOldImage(filenamePNG);
-
-    // saveDocuments();
-    return;
-  }
-
-  try {
-    var readStream = fs.createReadStream(filename).pipe(es.split()).pipe(es.mapSync(function(line){
-      status = "wait stream";
-      readStream.pause(); // pause the readstream during processing
-      streamLineNr++;
-      processLine(line); // process line here and call readStream.resume() when ready
-      readStream.resume();
-    })
-    .on('error', function(err){
-      status = "stream error";
-      error('while reading file: ' + filename, err.reason);
-      error(err)
-      log(status)
-    })
-    .on('end', function() {
-      status = "stream end";
-      log("Stream ending event");
-    })
-    .on('close', function() {
-      status = "stream close";
-      log("Stream closed.");
-      progato = null;
-      currentTriplet = "none";
-      currentTriplet = triplet;
-      calcUpdate();
-      return saveDocuments();
-    }));
-  } catch(e) {
-    error("ERROR:"  + e)
-  }
-
-  clearCheck();
-  drawHistogram();
-  log("FINISHED INIT");
-  term.up(termStatsHeight);
-  term.eraseDisplayBelow();
-}
-function showFlags() {
-  return `${(  force ? "F" : "-"    )}${(  args.updates || args.u ? `U` : "-"    )}${(  userCPP != -1 ? `C${userCPP}` : "--"    )}${(  args.keyboard || args.k ? `K` : "-"    )}${(  args.spew || spew ? `K` : "-"    )}${( verbose ? "V" : "-"  )}${(  artistic ? "A" : "-"    )}${(  args.ratio || args.r ? `${ratio}` : "---"    )}${(dimension? "M" + dimension:"")}C${onesigbitTolocale(codonsPerPixel)}${(reg?"REG":"")}`;
-}
-function testSummary() {
-  return `TEST
-  Filename: <b>${justNameOfDNA}</b>
-  Registration Marks: ${( reg ? true : false )}
-  ${ ( peptide || triplet ) ?  "Highlights: " + (peptide || triplet) : " "}
-  Your custom flags: TEST${(  force ? "F" : ""    )}${(  userCPP != -1 ? `C${userCPP}` : ""    )}${(  devmode ? "D" : ""    )}${(  args.ratio || args.r ? `${ratio}` : ""    )}${(  args.magnitude || args.m ? `M${dimension}` : ""    )}
-  ${(  artistic ? ` Artistic Mode` : ` Science Mode`    )}
-  Max magnitude: ${dimension} / 10 Max pix: ${maxpix.toLocaleString()}
-  Hilbert Magnitude: ${dimension} / ${defaultMagnitude}
-  Hilbert Curve Pixels: ${hilbPixels[dimension]}`;
-}
-function renderSummary() {
-  maxpix += 0; // cast it into a number from whatever the heck data type it was before!
-  return `
-  Canonical Filename: <b>${justNameOfDNA}</b>
-  Source: ${justNameOfCurrentFile}
-  Run ID: ${timestamp} Host: ${hostname}
-  AminoSee version: ${version}
-  Highlight set: ${isHighlightSet} ${(isHighlightSet ? peptide + " " + triplet : peptide)}
-  ${ ( peptide || triplet ) ?  "Highlights: " + (peptide || triplet) : " "}
-  Your custom flags: ${(  force ? "F" : ""    )}${(  userCPP != -1 ? `C${userCPP}` : ""    )}${(  devmode ? "D" : ""    )}${(  args.ratio || args.r ? `${ratio}` : "   "    )}${(  args.magnitude || args.m ? `M${dimension}` : "   "    )}
-  ${(  artistic ? `Artistic Mode` : `Science Mode`    )}
-  Aspect Ratio: ${ratio}
-  Input bytes: ${baseChars.toLocaleString()}
-  Output bytes: ${rgbArray.length.toLocaleString()}
-  Estimated Codons by file size: ${Math.round(estimatedPixels).toLocaleString()}
-  Actual Codons matched: ${genomeSize.toLocaleString()}
-  Estimate accuracy: ${Math.round(((estimatedPixels / genomeSize)-1)*100)}%
-  Non-Base Clock: ${errorClock.toLocaleString()}
-  Bases Clock: ${charClock.toLocaleString()}
-  Codons per pixel linear image: ${twosigbitsTolocale(codonsPerPixel)}
-  Codons per pixel hilbert: ${twosigbitsTolocale(codonsPerPixelHILBERT)}
-  Pixels linear: ${colClock.toLocaleString()}
-  Pixels hilbert: ${hilbPixels[dimension].toLocaleString()}
-  Scale down factor:  ${twosigbitsTolocale(shrinkFactor)}
-  overSampleFactor: ${twosigbitsTolocale(overSampleFactor)}
-  Amino acid blend opacity: ${Math.round(opacity*10000)/100}%
-  Users Max magnitude: ${ ( magnitude != false ? `${magnitude}/ 10 ` : "Not Set" ) } Max pix:${maxpix.toLocaleString()}
-  Hilbert Magnitude: ${dimension} / ${defaultMagnitude}
-  Hilbert Curve Pixels: ${hilbPixels[dimension]}
-  Darken Factor ${twosigbitsTolocale(darkenFactor)}
-  Highlight Factor ${twosigbitsTolocale(highlightFactor)}
-  Time used: ${runningDuration.toLocaleString()} miliseconds`;
-}
-function sanitiseMagnitude() {
-  let computersGuess = pixTodefaultMagnitude(estimatedPixels); // give it pixels it gives magnitude
-  log(`image estimatedPixels ${estimatedPixels}   computersGuess ${computersGuess}`)
-
-  if (dimension != undefined || dimension == false || dimension == NaN) {
-    if ( dimension < computersGuess) {
-      log(`It mite be possible to get higher resolution with --magnitude ${computersGuess}`)
-    } else if ( dimension < computersGuess ) {
-      log(`Your --magnitude of ${dimension} is larger than my default of ${computersGuess}`)
-    }
-  } else {
-    if ( dimension < computersGuess) {
-      log(`It mite be possible to get higher resolution with --magnitude ${computersGuess} your choice was ${dimension}`)
-      // default of 6
+    log("POLLING FILENAME: " + filename)
+    if (!checkFileExtension(getFileExtension(filename))) {
+      log("getFileExtension(filename): " + getFileExtension(filename));
+      log("checkFileExtension(getFileExtension(filename)): " + checkFileExtension(getFileExtension(filename)))
+      theSwitcher(false);
+      return false;
     } else {
-      if ( computersGuess < defaultMagnitude) {
-        log(`Image is not super large, fitting output to --magnitude ${computersGuess}`)
-        dimension = computersGuess;
+
+      autoconfCodonsPerPixel();
+      status ="polling";
+      setupFNames();
+
+
+
+      if (okToOverwritePNG(filenamePNG) == false) {
+        out("existing linear png found for: " + justNameOfDNA);
+        if (openHtml || openImage || args.image == true) {
+          output("use --no-image suppress automatic opening of the image.")
+          openOutputs();
+        } else {
+          output("use --force to overwrite  --image to automatically open   ");
+        }
+
+        recycleOldImage(filenamePNG); // recycled with new hilbert
+        return false; // just straight quit both images are rendered
+      }
+
+
+
+      let temp = !checkLocks(filenameTouch);
+      if (temp) {
+        log("!checkLocks(filenameTouch) " + temp);
+        theSwitcher(false); // <---- FAIL
+        return false;
       } else {
-        log(`Image is big. Limiting size to --magnitude ${defaultMagnitude}`)
-        dimension = defaultMagnitude;
+        log(`Polling filenameTouch ${filenameTouch}`);
+        theSwitcher(true); // <--- GOOD
+        return true;
+      }
+    }
+
+
+    // log(`willStart   ${willStart}  pollAgainFlag ${pollAgainFlag}  defaultFilename  ${defaultFilename}  ${filename}  howMany   ${howMany}   status ${status}`);
+
+  }
+  function theSwitcher(bool) {
+    log(`cpu has entered The Switcher!`)
+    if (bool) {
+
+      autoconfCodonsPerPixel();
+      status ="polling";
+      setupFNames();
+
+      touchLockAndStartStream(filenameTouch); // <--- THIS IS WHERE RENDER STARTS
+      return true;
+    } else  {
+      status = "switcher"
+      log(howMany);
+      if (howMany > 0 ) {
+        log(`there is more work but also renderLock: ${renderLock}`);
+
+        pollForStream();
+        return true;
+      } else {
+        log(`polling none renderLock: ${renderLock}`);
+        clearTimeout(raceTimer);
+        quit();
+        return false;
       }
     }
   }
+  function firstRun() {
+    output(chalk.bgRed("First run demo!"));
+    output(chalk.bgYellow("First run demo!"));
+    output(chalk.bgGreen("First run demo!"));
 
-  log(`users magnitude is ${magnitude} using dimension of ${dimension} new maxpix: ${maxpix}`);
-}
-
-
-// CODONS PER PIXEL
-function autoconfCodonsPerPixel() { // requires baseChars maxpix defaultC
-  let existing = userCPP;
-
-  // internally, we signal pipe input from standard in as -1 filesize
-  // therefore if filesize = -1 then streaming pipe mode is enabled.
-  baseChars = getFilesizeInBytes(filename);
-  log("File size in bytes: " + baseChars + " filename " + filename);
-  if (baseChars < 0) { // switch to streaming pipe mode,
-    isStreamingPipe = true; // cat Human.genome | aminosee
-    log("Could not get filesize, setting for image size of 696,969 pixels");
-    estimatedPixels = 696969; // 696969 flags a missing value in debug
-    baseChars = 696969; // 696969 flags a missing value in debug
-    codonsPerPixel = 69; // small images with _c69 in filename
-    magnitude = dimension = 6; // close to 69
-    return
-  } else { // use a file
-    isStreamingPipe = false; // cat Human.genome | aminosee
-    dimension = pixTodefaultMagnitude(estimatedPixels);
+    runDemo();
   }
-  estimatedPixels = baseChars / 3; // divide by 4 times 3
+  function pStream() { // returns readable to push pixels into
+    const stream = new Readable({
+      objectMode: true,
+      read() {}
+    })
+    return stream
+  }
+  async function initStream(f) {
+    status = "init";
+    isDiskFinHTML = false;
+    isDiskFinHilbert = false;
+    isDiskFinLinear = false;
+    mkdir(`output`);
+    mkdir(`output/${justNameOfDNA}`);
+    mkdir(`output/${justNameOfDNA}/images`);
+    log("stream");
+    start = new Date().getTime();
+    timeElapsed, runningDuration, charClock, percentComplete, genomeSize, colClock, opacity = 0;
+    msPerUpdate = 200;
+    codonRGBA, geneRGBA, mixRGBA = [0,0,0,0]; // codonRGBA is colour of last codon, geneRGBA is temporary pixel colour before painting.
+    codonsPerPixel = defaultC; //  one codon per pixel maximum
+    CRASH = false; // hopefully not
+    msPerUpdate = 200; // milliseconds per  update
+    codonRGBA, geneRGBA, mixRGBA = [0,0,0,0]; // codonRGBA is colour of last codon, geneRGBA is temporary pixel colour before painting.
+    rgbArray = [];
+    red = 0;
+    green = 0;
+    blue = 0;
+    alpha = 0;
+    charClock = 0; // its 'i' from the main loop
+    errorClock = 0; // increment each non DNA, such as line break. is reset after each codon
+    breakClock = 0;
+    streamLineNr = 0;
+    genomeSize = 1;
+    filesDone = 0;
+    spewClock = 0;
+    opacity = 1 / codonsPerPixel; // 0.9 is used to make it brighter, also due to line breaks
 
-
-  if (estimatedPixels < maxpix ) { // for sequence smaller than the screen
-    if (userCPP != -1)  {
-      log("its not recommended to use anything other than --codons 1 for small genomes, better to reduce the --magnitude")
-    } else {
-      codonsPerPixel = 1; // normally we want 1:1 for small genomes
+    for (h=0; h<pepTable.length; h++) {
+      pepTable[h].Histocount = 0;
     }
-  } else if (estimatedPixels > maxpix ){ // for seq bigger than screen        codonsPerPixel = estimatedPixels / maxpix*overSampleFactor;
-    codonsPerPixel = estimatedPixels / maxpix;
-    if (userCPP != -1) {
-      if (userCPP < codonsPerPixel) {
-        log(terminalRGB(`WARNING: Your target Codons Per Pixel setting ${userCPP} will make an estiamted ${Math.round(estimatedPixels / userCPP).toLocaleString()} is likely to exceed the max image size of ${maxpix.toLocaleString()}, sometimes this causes an out of memory error. My machine spit the dummy at 1.7 GB of virtual memory use by node, lets try yours. We reckon ${codonsPerPixel} would be better but will give it a try...`))
+    for (h=0; h<dnaTriplets.length; h++) {
+      dnaTriplets[h].Histocount = 0;
+    }
+
+    filename = path.resolve(f); // set a global. i know. god i gotta stop using those.
+    autoconfCodonsPerPixel();
+    setupFNames();
+    extension = getFileExtension(f);
+    log(` [ func parm: ${f} ]`);
+    log(` [ cli parameter: ${filename} ]`);
+    log(` [ canonical:     ${justNameOfDNA} ]`);
+    log(` [FILESIZE] ${baseChars.toLocaleString()} extension: ${extension}`);
+
+    percentComplete = 0;
+    genomeSize = 1; // number of codons.
+    pixelStacking = 0; // how we fit more than one codon on each pixel
+    colClock = 0; // which pixel are we painting?
+    timeElapsed = 0;
+    status = "init";
+    clearCheck();
+    output(`STARTING RENDER ${filename}`);
+    output(" ");
+    output(" ");
+    output(" ");
+    output(" ");
+    output(" ");
+    output(" ");
+    output(" ");
+    output(" ");
+    output(" ");
+    term.up(termDisplayHeight + termStatsHeight*2);
+    clearCheck();
+    term.eraseDisplayBelow();
+    if (updatesTimer) {
+      clearTimeout(updatesTimer);
+    }
+    if (willRecycleSavedImage == true) {
+      log("AM PLANNING TO RECYCLE TODAY (joy)")
+      recycleOldImage(filenamePNG);
+      // saveDocuments();
+      return;
+    }
+    pixelStream = pStream();
+    pixelStream.pipe(new PNG({
+      width: 960,
+      inputHasAlpha: true
+    }))
+    .on('parsed', function() {
+      this.pack().pipe(fs.createWriteStream('streaming-out.png'));
+    });
+
+
+
+
+    try {
+      var readStream = fs.createReadStream(filename).pipe(es.split()).pipe(es.mapSync(function(line){
+        status = "wait stream";
+        readStream.pause(); // pause the readstream during processing
+        streamLineNr++;
+        processLine(line); // process line here and call readStream.resume() when ready
+        readStream.resume();
+      })
+      .on('error', function(err){
+        status = "stream error";
+        error('while reading file: ' + filename, err.reason);
+        error(err)
+        log(status)
+      })
+      .on('end', function() {
+        status = "stream end";
+        log("Stream ending event");
+      })
+      .on('close', function() {
+        status = "stream close";
+        log("Stream closed.");
+        // pixelStream.close();
+        progato = null;
+        currentTriplet = "none";
+        currentTriplet = triplet;
+        setImmediate( calcUpdate )
+
+        return saveDocuments();
+      }));
+    } catch(e) {
+      error("ERROR:"  + e)
+    }
+
+    clearCheck();
+    drawHistogram();
+    log("FINISHED INIT");
+    term.up(termStatsHeight);
+    term.eraseDisplayBelow();
+  }
+  function showFlags() {
+    return `${(  force ? "F" : "-"    )}${(  args.updates || args.u ? `U` : "-"    )}${(  userCPP != -1 ? `C${userCPP}` : "--"    )}${(  args.keyboard || args.k ? `K` : "-"    )}${(  args.spew || spew ? `K` : "-"    )}${( verbose ? "V" : "-"  )}${(  artistic ? "A" : "-"    )}${(  args.ratio || args.r ? `${ratio}` : "---"    )}${(dimension? "M" + dimension:"")}C${onesigbitTolocale(codonsPerPixel)}${(reg?"REG":"")}`;
+  }
+  function testSummary() {
+    return `TEST
+    Filename: <b>${justNameOfDNA}</b>
+    Registration Marks: ${( reg ? true : false )}
+    ${ ( peptide || triplet ) ?  "Highlights: " + (peptide || triplet) : " "}
+    Your custom flags: TEST${(  force ? "F" : ""    )}${(  userCPP != -1 ? `C${userCPP}` : ""    )}${(  devmode ? "D" : ""    )}${(  args.ratio || args.r ? `${ratio}` : ""    )}${(  args.magnitude || args.m ? `M${dimension}` : ""    )}
+    ${(  artistic ? ` Artistic Mode` : ` Science Mode`    )}
+    Max magnitude: ${dimension} / 10 Max pix: ${maxpix.toLocaleString()}
+    Hilbert Magnitude: ${dimension} / ${defaultMagnitude}
+    Hilbert Curve Pixels: ${hilbPixels[dimension]}`;
+  }
+  function renderSummary() {
+    maxpix += 0; // cast it into a number from whatever the heck data type it was before!
+    return `
+    Canonical Filename: <b>${justNameOfDNA}</b>
+    Source: ${justNameOfCurrentFile}
+    Run ID: ${timestamp} Host: ${hostname}
+    AminoSee version: ${version}
+    Highlight set: ${isHighlightSet} ${(isHighlightSet ? peptide + " " + triplet : peptide)}
+    ${ ( peptide || triplet ) ?  "Highlights: " + (peptide || triplet) : " "}
+    Your custom flags: ${(  force ? "F" : ""    )}${(  userCPP != -1 ? `C${userCPP}` : ""    )}${(  devmode ? "D" : ""    )}${(  args.ratio || args.r ? `${ratio}` : "   "    )}${(  args.magnitude || args.m ? `M${dimension}` : "   "    )}
+    ${(  artistic ? `Artistic Mode` : `Science Mode`    )}
+    Aspect Ratio: ${ratio}
+    Input bytes: ${baseChars.toLocaleString()}
+    Output bytes: ${rgbArray.length.toLocaleString()}
+    Estimated Codons by file size: ${Math.round(estimatedPixels).toLocaleString()}
+    Actual Codons matched: ${genomeSize.toLocaleString()}
+    Estimate accuracy: ${Math.round(((estimatedPixels / genomeSize)-1)*100)}%
+    Non-Base Clock: ${errorClock.toLocaleString()}
+    Bases Clock: ${charClock.toLocaleString()}
+    Codons per pixel linear image: ${twosigbitsTolocale(codonsPerPixel)}
+    Codons per pixel hilbert: ${twosigbitsTolocale(codonsPerPixelHILBERT)}
+    Pixels linear: ${colClock.toLocaleString()}
+    Pixels hilbert: ${hilbPixels[dimension].toLocaleString()}
+    Scale down factor:  ${twosigbitsTolocale(shrinkFactor)}
+    overSampleFactor: ${twosigbitsTolocale(overSampleFactor)}
+    Amino acid blend opacity: ${Math.round(opacity*10000)/100}%
+    Users Max magnitude: ${ ( magnitude != false ? `${magnitude}/ 10 ` : "Not Set" ) } Max pix:${maxpix.toLocaleString()}
+    Hilbert Magnitude: ${dimension} / ${defaultMagnitude}
+    Hilbert Curve Pixels: ${hilbPixels[dimension]}
+    Darken Factor ${twosigbitsTolocale(darkenFactor)}
+    Highlight Factor ${twosigbitsTolocale(highlightFactor)}
+    Time used: ${runningDuration.toLocaleString()} miliseconds`;
+  }
+  function sanitiseMagnitude() {
+    let computersGuess = pixTodefaultMagnitude(estimatedPixels); // give it pixels it gives magnitude
+    log(`image estimatedPixels ${estimatedPixels}   computersGuess ${computersGuess}`)
+
+    if (dimension != undefined || dimension == false || dimension == NaN) {
+      if ( dimension < computersGuess) {
+        log(`It mite be possible to get higher resolution with --magnitude ${computersGuess}`)
+      } else if ( dimension < computersGuess ) {
+        log(`Your --magnitude of ${dimension} is larger than my default of ${computersGuess}`)
+      }
+    } else {
+      if ( dimension < computersGuess) {
+        log(`It mite be possible to get higher resolution with --magnitude ${computersGuess} your choice was ${dimension}`)
+        // default of 6
       } else {
-        codonsPerPixel = userCPP; // they picked a smaller size than me. therefore their computer less likely to melt.
+        if ( computersGuess < defaultMagnitude) {
+          log(`Image is not super large, fitting output to --magnitude ${computersGuess}`)
+          dimension = computersGuess;
+        } else {
+          log(`Image is big. Limiting size to --magnitude ${defaultMagnitude}`)
+          dimension = defaultMagnitude;
+        }
       }
     }
+
+    log(`users magnitude is ${magnitude} using dimension of ${dimension} new maxpix: ${maxpix}`);
   }
 
-  if ( userCPP != -1) {
-    output(`Manual zoom level override enabled at: ${userCPP} codons per pixel.`);
-    codonsPerPixel = userCPP;
-  } else {
-    log("Automatic codons per pixel setting")
-  }
 
-  if (artistic == true) {
-    codonsPerPixel = codonsPerPixel / artisticHighlightLength; // to pack it into same image size
-  }
+  // CODONS PER PIXEL
+  function autoconfCodonsPerPixel() { // requires baseChars maxpix defaultC
+    let existing = userCPP;
 
-  if (codonsPerPixel < defaultC) {
-    codonsPerPixel = defaultC;
-  } else if (codonsPerPixel > 6000) {
-    codonsPerPixel = 6000;
-  } else if (codonsPerPixel == NaN || codonsPerPixel == undefined) {
-    codonsPerPixel = defaultC;
-  }
-  if (codonsPerPixel < defaultC) { // less than 1
-    codonsPerPixel = defaultC;
-  }
-  opacity = 1 / codonsPerPixel;
-  // set highlight factor such  that:
-  // if cpp is 1 it is 1
-  // if cpp is 2 it is 1.5
-  // if cpp is 3 it is 1
-  // if cpp is 4 it is 2.5
-  // if cpp is 10 it is 6.5
-  if ( codonsPerPixel < 5 ) {
-    highlightFactor = 1 + (codonsPerPixel/2);
-  } else if ( codonsPerPixel < 64 )  {
-    highlightFactor = codonsPerPixel / 8 ;
-  } else if ( codonsPerPixel > 64 ) {
-    highlightFactor = 16 + ( 255 / codonsPerPixel) ;
-  }
+    // internally, we signal pipe input from standard in as -1 filesize
+    // therefore if filesize = -1 then streaming pipe mode is enabled.
+    baseChars = getFilesizeInBytes(filename);
+    log("File size in bytes: " + baseChars + " filename " + filename);
+    if (baseChars < 0) { // switch to streaming pipe mode,
+      isStreamingPipe = true; // cat Human.genome | aminosee
+      log("Could not get filesize, setting for image size of 696,969 pixels");
+      estimatedPixels = 696969; // 696969 flags a missing value in debug
+      baseChars = 696969; // 696969 flags a missing value in debug
+      codonsPerPixel = 69; // small images with _c69 in filename
+      magnitude = dimension = 6; // close to 69
+      return
+    } else { // use a file
+      isStreamingPipe = false; // cat Human.genome | aminosee
+      dimension = pixTodefaultMagnitude(estimatedPixels);
+    }
+    estimatedPixels = baseChars / 3; // divide by 4 times 3
 
-  return codonsPerPixel;
-}
 
-function removeFileExtension(f) {
-  return f.substring(0, f.length - (getFileExtension(f).length+1));
-}
-function highlightFilename() {
-  let ret = "";
-  // log(``)
-  if ( isHighlightSet == false) {
-    ret += `-reference`;
-  } else {
-    if ( currentTriplet.toLowerCase() != "none" || triplet.toLowerCase() != "none") {
-      ret += `_${spaceTo_(currentTriplet).toUpperCase()}`;
-    } else if (currentPeptide != "none") {
-      ret += `_${spaceTo_( tidyPeptideName( currentPeptide ) )}`;
+    if (estimatedPixels < maxpix ) { // for sequence smaller than the screen
+      if (userCPP != -1)  {
+        log("its not recommended to use anything other than --codons 1 for small genomes, better to reduce the --magnitude")
+      } else {
+        codonsPerPixel = 1; // normally we want 1:1 for small genomes
+      }
+    } else if (estimatedPixels > maxpix ){ // for seq bigger than screen        codonsPerPixel = estimatedPixels / maxpix*overSampleFactor;
+      codonsPerPixel = estimatedPixels / maxpix;
+      if (userCPP != -1) {
+        if (userCPP < codonsPerPixel) {
+          log(terminalRGB(`WARNING: Your target Codons Per Pixel setting ${userCPP} will make an estiamted ${Math.round(estimatedPixels / userCPP).toLocaleString()} is likely to exceed the max image size of ${maxpix.toLocaleString()}, sometimes this causes an out of memory error. My machine spit the dummy at 1.7 GB of virtual memory use by node, lets try yours. We reckon ${codonsPerPixel} would be better but will give it a try...`))
+        } else {
+          codonsPerPixel = userCPP; // they picked a smaller size than me. therefore their computer less likely to melt.
+        }
+      }
+    }
+
+    if ( userCPP != -1) {
+      output(`Manual zoom level override enabled at: ${userCPP} codons per pixel.`);
+      codonsPerPixel = userCPP;
     } else {
+      log("Automatic codons per pixel setting")
+    }
+
+    if (artistic == true) {
+      codonsPerPixel = codonsPerPixel / artisticHighlightLength; // to pack it into same image size
+    }
+
+    if (codonsPerPixel < defaultC) {
+      codonsPerPixel = defaultC;
+    } else if (codonsPerPixel > 6000) {
+      codonsPerPixel = 6000;
+    } else if (codonsPerPixel == NaN || codonsPerPixel == undefined) {
+      codonsPerPixel = defaultC;
+    }
+    if (codonsPerPixel < defaultC) { // less than 1
+      codonsPerPixel = defaultC;
+    }
+    opacity = 1 / codonsPerPixel;
+    // set highlight factor such  that:
+    // if cpp is 1 it is 1
+    // if cpp is 2 it is 1.5
+    // if cpp is 3 it is 1
+    // if cpp is 4 it is 2.5
+    // if cpp is 10 it is 6.5
+    if ( codonsPerPixel < 5 ) {
+      highlightFactor = 1 + (codonsPerPixel/2);
+    } else if ( codonsPerPixel < 64 )  {
+      highlightFactor = codonsPerPixel / 8 ;
+    } else if ( codonsPerPixel > 64 ) {
+      highlightFactor = 16 + ( 255 / codonsPerPixel) ;
+    }
+
+    return codonsPerPixel;
+  }
+
+  function removeFileExtension(f) {
+    return f.substring(0, f.length - (getFileExtension(f).length+1));
+  }
+  function highlightFilename() {
+    let ret = "";
+    // log(``)
+    if ( isHighlightSet == false) {
       ret += `-reference`;
-    }
-  }
-  // log(`ret: ${ret} currentTriplet: ${currentTriplet} currentPeptide ${currentPeptide}`);
-  return ret;
-}
-
-function setupFNames() {
-  status = "setupFName";
-  log(`f: ${currentFile}`)
-  justNameOfCurrentFile = replaceoutputPathFileName( currentFile );
-  // currentOutputPath = path.normalize(path.resolve(currentFile)); // full path of file
-  // currentOutputPath = currentOutputPath.substring(0, currentOutputPath.length - justNameOfCurrentFile.length) + "output"; // just the path now
-  extension = getFileExtension(currentFile);
-  justNameOfDNA = spaceTo_(removeFileExtension(justNameOfCurrentFile));
-  if (justNameOfDNA.length > maxCanonical ) {
-    justNameOfDNA = justNameOfDNA.replace('_', '');
-  }
-  if (justNameOfDNA.length > maxCanonical ) {
-    justNameOfDNA = justNameOfDNA.substring(0,maxCanonical/2) + justNameOfDNA.substring(justNameOfDNA.length-(maxCanonical/2),justNameOfDNA.length);
-  }
-  mkdir(`output/${justNameOfDNA}`);
-  let ext = spaceTo_(getImageType());
-  filenameTouch = `${currentOutputPath}/${justNameOfDNA}/${generateFilenameTouch()}`;
-  filenameHTML =  `${currentOutputPath}/${justNameOfDNA}/${generateFilenameHTML()}`;
-  filenamePNG =     `${currentOutputPath}/${justNameOfDNA}/images/${generateFilenamePNG()}`;
-  filenameHILBERT = `${currentOutputPath}/${justNameOfDNA}/images/${generateFilenameHilbert()}`;
-  log(`ext: ${highlightFilename() + ext} pep ${peptide} status ${status} currentOutputPath ${currentOutputPath} isHighlightSet ${isHighlightSet} filenameTouch ${filenameTouch}`);
-}
-function symlinkGUI() { // does:  ln -s /Users.....AminoSee/gui, /Users.....currentWorkingDir/output/gui
-  let fullSrc, fullDest;
-  mkdir('output');
-  fullSrc = path.normalize( path.resolve(appPath + '/gui') );
-  fullDest = path.normalize( path.resolve(currentOutputPath + '/gui') );
-  createSymlink(fullSrc  , fullDest);
-  fullSrc = path.normalize( path.resolve(appPath + '/gui/lws.config.js') );
-  fullDest = path.normalize( path.resolve(currentOutputPath + '/lws.config.js') ); // MOVES INTO ROOT
-  createSymlink(fullSrc, fullDest);
-  fullSrc = path.normalize( path.resolve(appPath + '/gui/index.html') );
-  fullDest = path.normalize( path.resolve(currentOutputPath + '/index.html') ); // MOVES INTO ROOT
-  createSymlink(fullSrc, fullDest);
-  fullSrc = path.normalize( path.resolve(appPath + '/node_modules') );
-  fullDest = path.normalize( path.resolve(currentOutputPath + '/node_modules') ); // MOVES INTO ROOT
-  createSymlink(fullSrc, fullDest);
-}
-function destroyGUI() {
-
-}
-function createSymlink(src, dest) { // source is the original, dest is the symlink
-  output(src, " --> " , dest);
-  try { // the idea is to copy the GUI into the output folder to.... well enable it to render cos its a web app!
-    let existing = doesFileExist(dest);
-    if (existing) {
-      log(`symlink already appears to be in place at: ${dest}`);
-      return false;
     } else {
-      // fs.symlink(src, dest, function (err, result) {
-      //   if (err) { console.warn(`Just a slight issue creating a symlink: ${err}`)}
-      //   if (result) { log(`Great Symlink Success ${result}`)}
-      // });
-      fs.symlinkSync(src, dest, function (err, result) {
-        if (err) { console.warn(`Just a slight issue creating a symlink: ${err}`)}
-        if (result) { log(`Great Symlink Success ${result}`)}
-      });
+      if ( currentTriplet.toLowerCase() != "none" || triplet.toLowerCase() != "none") {
+        ret += `_${spaceTo_(currentTriplet).toUpperCase()}`;
+      } else if (currentPeptide != "none") {
+        ret += `_${spaceTo_( tidyPeptideName( currentPeptide ) )}`;
+      } else {
+        ret += `-reference`;
+      }
     }
-  } catch(e) {
-    error("Symlink ${} could not created: " + e)
+    // log(`ret: ${ret} currentTriplet: ${currentTriplet} currentPeptide ${currentPeptide}`);
+    return ret;
   }
-}
-function getServerURL(path) {
-  let internalIp = require('internal-ip');
-  if (path == undefined) {
-    path = "/";
-  }
-  serverURL = `http://${internalIp.v4.sync()}:3210${path}`;
-  return serverURL;
-}
-function launchNonBlockingServer(path) {
-  printRadMessage([`Interactive keyboard mode ENABLED`, `use keyboard to control AminoSee`, `local webserver is running from:`, chalk.underline(outputPath), 'use Control-C to stop', 1, 2, 3, 4]);
 
-  if (path == undefined) {
-    path = "/";
+  function setupFNames() {
+    status = "setupFName";
+    log(`f: ${currentFile}`)
+    justNameOfCurrentFile = replaceoutputPathFileName( currentFile );
+    // currentOutputPath = path.normalize(path.resolve(currentFile)); // full path of file
+    // currentOutputPath = currentOutputPath.substring(0, currentOutputPath.length - justNameOfCurrentFile.length) + "output"; // just the path now
+    extension = getFileExtension(currentFile);
+    justNameOfDNA = spaceTo_(removeFileExtension(justNameOfCurrentFile));
+    if (justNameOfDNA.length > maxCanonical ) {
+      justNameOfDNA = justNameOfDNA.replace('_', '');
+    }
+    if (justNameOfDNA.length > maxCanonical ) {
+      justNameOfDNA = justNameOfDNA.substring(0,maxCanonical/2) + justNameOfDNA.substring(justNameOfDNA.length-(maxCanonical/2),justNameOfDNA.length);
+    }
+    mkdir(`output/${justNameOfDNA}`);
+    let ext = spaceTo_(getImageType());
+    filenameTouch = `${currentOutputPath}/${justNameOfDNA}/${generateFilenameTouch()}`;
+    filenameHTML =  `${currentOutputPath}/${justNameOfDNA}/${generateFilenameHTML()}`;
+    filenamePNG =     `${currentOutputPath}/${justNameOfDNA}/images/${generateFilenamePNG()}`;
+    filenameHILBERT = `${currentOutputPath}/${justNameOfDNA}/images/${generateFilenameHilbert()}`;
+    log(`ext: ${highlightFilename() + ext} pep ${peptide} status ${status} currentOutputPath ${currentOutputPath} isHighlightSet ${isHighlightSet} filenameTouch ${filenameTouch}`);
   }
-  setupKeyboardUI();
-  symlinkGUI();
-  // getServerURL();
+  function symlinkGUI() { // does:  ln -s /Users.....AminoSee/public, /Users.....currentWorkingDir/output/public
+    let fullSrc, fullDest;
+    mkdir('output');
+    fullSrc = path.normalize( path.resolve(appPath + '/public') );
+    fullDest = path.normalize( path.resolve(currentOutputPath + '/public') );
+    createSymlink(fullSrc  , fullDest);
+
+    fullSrc = path.normalize( path.resolve(appPath + '/public/index.html') );
+    fullDest = path.normalize( path.resolve(process.cwd() + '/index.html') ); // Protects users privacy in current working directory
+    createSymlink(fullSrc, fullDest);
+    fullSrc = path.normalize( path.resolve(appPath + '/node_modules') );
+    fullDest = path.normalize( path.resolve(currentOutputPath + '/node_modules') ); // MOVES INTO ROOT
+    createSymlink(fullSrc, fullDest);
+  }
+  function destroyGUI() {
+
+  }
+  function startLocalWebServer() {
+    fullSrc = path.normalize( path.resolve(appPath + '/public/lws.config.js') );
+    fullDest = path.normalize( path.resolve(process.cwd() + '/lws.config.js') ); // MOVES INTO ROOT
+    createSymlink(fullSrc, fullDest);
 
 
     // var PromisaryNote = function () {
-      const LocalWebServer = require('local-web-server')
-      const localWebServer = new LocalWebServer()
-      server = localWebServer.listen({
-        configFile: 'output/lws.config.js'
-      });
-      // .then(function () {
-      //   console.log("Promise Resolved");
-      // }).catch(function () {
-      //   console.log("Promise Rejected");
-      // });
-      output("Hello");
-      return new Promise(function (resolve, reject) {
-        if (true === true)
-        resolve();
-        else
-        reject();
-      });
+    const LocalWebServer = require('local-web-server')
+    const localWebServer = new LocalWebServer()
+    server = localWebServer.listen({
+      configFile: 'output/lws.config.js'
+    });
+    // .then(function () {
+    //   console.log("Promise Resolved");
+    // }).catch(function () {
+    //   console.log("Promise Rejected");
+    // });
+    output("Hello");
+    return new Promise(function (resolve, reject) {
+      if (true === true)
+      resolve();
+      else
+      reject();
+    });
     // }
 
+  }
+  function createSymlink(src, dest) { // source is the original, dest is the symlink
+    output(src, " --> " , dest);
+    try { // the idea is to copy the GUI into the output folder to.... well enable it to render cos its a web app!
+      let existing = doesFileExist(dest);
+      if (existing == true) {
+        log(`symlink already appears to be in place at: ${dest}`);
+        return false;
+      } else {
+        // fs.symlink(src, dest, function (err, result) {
+        //   if (err) { console.warn(`Just a slight issue creating a symlink: ${err}`)}
+        //   if (result) { log(`Great Symlink Success ${result}`)}
+        // });
+        fs.symlinkSync(src, dest, function (err, result) {
+          if (err) { console.warn(`Just a slight issue creating a symlink: ${err}`)}
+          if (result) { log(`Great Symlink Success ${result}`)}
+        });
+      }
+    } catch(e) {
+      log("Symlink ${} could not created. Probably not an error. " + maxWidth(12,e));
+    }
+  }
+  function getServerURL(path) {
+    let internalIp = require('internal-ip');
+    if (path == undefined) {
+      path = "/";
+    }
+    serverURL = `http://${internalIp.v4.sync()}:3210${path}`;
+    return serverURL;
+  }
+  function launchNonBlockingServer(path) {
+    startServeHandler();
+    serverURL =  getServerURL();
+    printRadMessage([
+      `Interactive keyboard mode ENABLED`,
+      `use keyboard to control AminoSee`, `local webserver is running from:`,
+       chalk.underline(outputPath),
+      'use Control-C to stop',
+       `${serverURL} <-- only your LAN  http://localhost:3210 <-- only your machine`
+     ]);
+    if (path == undefined) { path = "/" }
+    setupKeyboardUI();
+    symlinkGUI();
+    // openMiniWebsite(path);
+  }
+  function startServeHandler() {
 
+    const handler = require('serve-handler');
+    const http = require('http');
 
+    const server = http.createServer((request, response) => {
+      // You pass two more arguments for config and middleware
+      // More details here: https://github.com/zeit/serve-handler#options
+      let options = {
+        public: './',
+        renderSingle: true,
+        symlinks: true,
+        unlisted: [
+          ".DS_Store",
+          ".git"
+        ],
+        directoryListing: [
+          "/output/**",
+          "/public/**",
+          "/calibration/*"
+        ]
+      }
+      return handler(request, response, options);
+    })
+    let port = 4321;//3210;
+    server.listen(port, () => {
+      console.log(`Running at http://localhost:${port}`);
+    });
+  }
+  function startCrossSpawnHttp() {
 
-
-
-  // const spawn = require('cross-spawn');
-  //
-  // // Spawn NPM asynchronously
-  // // const evilSpawn = spawn('npm', ['list', '-g', '-depth', '0'], { stdio: 'inherit' });
-  // const evilSpawn = spawn('http-server', ['', '', '', '0'], { stdio: 'pipe' });
-  // evilSpawn.stdout.on('data', (data) => {
-  //   console.log(`${chalk.inverse('aminosee serve')}${chalk(': ')}${data}`);
-  // });
-  //
-  // evilSpawn.stderr.on('data', (data) => {
-  //   console.log(`${chalk.inverse('aminosee error')}${chalk(': ')}${data}`);
-  // });
-  //
-  // evilSpawn.on('close', (code) => {
-  //   console.log(`child process exited with code ${code}`);
-  // });
-  // port: 3210,
-  // https: true,
-  // log: ({
+    // const spawn = require('cross-spawn');
+    //
+    // // Spawn NPM asynchronously
+    // // const evilSpawn = spawn('npm', ['list', '-g', '-depth', '0'], { stdio: 'inherit' });
+    // const evilSpawn = spawn('http-server', ['', '', '', '0'], { stdio: 'pipe' });
+    // evilSpawn.stdout.on('data', (data) => {
+    //   console.log(`${chalk.inverse('aminosee serve')}${chalk(': ')}${data}`);
+    // });
+    //
+    // evilSpawn.stderr.on('data', (data) => {
+    //   console.log(`${chalk.inverse('aminosee error')}${chalk(': ')}${data}`);
+    // });
+    //
+    // evilSpawn.on('close', (code) => {
+    //   console.log(`child process exited with code ${code}`);
+    // });
+    // port: 3210,
+    // https: true,
+    // log: ({
     // format: 'stats'
-  // }),
-  // directory: currentOutputPath,
-  // sp a: 'index.html',
-  // websocket: 'src/websocket-server.js'
+    // }),
+    // directory: currentOutputPath,
+    // sp a: 'index.html',
+    // websocket: 'src/websocket-server.js'
 
-  // stat("Personal mini-Webserver starting up around now (hopefully) on port 3210");
-  // stat(`visit ${serverURL} in your browser to see 3D WebGL visualisation`);
-  // log(terminalRGB("ONE DAY this will serve up a really cool WebGL visualisation of your DNA PNG. That day.... is not today though.", 255, 240,10));
-  // log(terminalRGB("IDEA: Maybe send some bitcoin to the under-employed creator tom@funk.co.nz to convince him to work on it?", 240, 240,200));
-  // stat("Control-C to quit");
-
-  // openMiniWebsite(path);
-}
-
-function openMiniWebsite(path) {
-  out(`Opening URL: ${getServerURL()}`)
-  try {
-    open(`${getServerURL()}`);
-  } catch(e) {
-    error(`during openMiniWebsite: ${e} URL: ${getServerURL()}`);
+    // stat("Personal mini-Webserver starting up around now (hopefully) on port 3210");
+    // stat(`visit ${serverURL} in your browser to see 3D WebGL visualisation`);
+    // log(terminalRGB("ONE DAY this will serve up a really cool WebGL visualisation of your DNA PNG. That day.... is not today though.", 255, 240,10));
+    // log(terminalRGB("IDEA: Maybe send some bitcoin to the under-employed creator tom@funk.co.nz to convince him to work on it?", 240, 240,200));
+    // stat("Control-C to quit");
   }
-}
-function welcomeMessage() {
-
-  output('usage:');
-  output('    aminosee [files/*] --flags            (to process all files)');
-  output(' ');
-  output(terminalRGB('TIP: if you need some DNA in a hurry try this random clipping of 1MB human DNA:', 255,255,200));
-  output('wget https://www.funk.co.nz/aminosee/dna/megabase.fa');
-  output(' ');
-  output('examples:    ');
-  output('     aminosee Human-Chromosome-DNA.txt --force (force overwrite fresh render)');
-  output('     aminosee chr1.fa -m 8                 (render at 2048x2048)');
-  output('     aminosee * --peptide="Glutamic acid" (use quotes if there is a space)');
-  output('     aminosee * --triplet=GGT (must be only 3 characters of ATCGU)');
-  output('     aminosee test                 (generate calibration images)');
-  output('     aminosee serve                (fire up the mini web server)');
-  output('     aminosee help   <<-----               (shows options flags)');
-  output('     aminosee demo   <<-----           (run demo - beta version)');
-  output('     aminosee chr1.fa  chrX.fa  chrY.fa         (render 3 files)');
-  output('     aminosee *         (render all files with default settings)');
-  term.down(termStatsHeight);
-  printRadMessage();
-
-}
-
-
-async.waterfall( [
-  function saveWaterfall( callback ) {
-    callback();
-  } ,
-
-  function getUserPhoto( pepTable , callback ) {
-    callback();
-  }
-] )
-.timeout( 200 )
-.then( function(  ) {
-  log("fubar")
-} )
-.catch( function( error ) {
-  log("sleepy")
-} )
-.execArgs( () => {log("Fooos")});
-
-
-function saveDocuments(callback) {
-  status = "save"; // <-- this is the true end point of the program!
-  term.eraseDisplayBelow();
-  percentComplete = 1; // to be sure it shows 100% complete
-  out(status);
-  clearTimeout(updatesTimer);
-  calcUpdate();
-  calculateShrinkage();
-  output(chalk.rgb(255, 255, 255).inverse(fixedWidth(debugColumns, `Input DNA File: ${filename}`)));
-  output(chalk.rgb(200,200,200).inverse(  fixedWidth(debugColumns, `Linear PNG: ${justNameOfPNG}`)));
-  output(chalk.rgb(150,150,150).inverse(  fixedWidth(debugColumns, `Hilbert PNG: ${justNameOfHILBERT}`)));
-  output(chalk.rgb(100,100,180).inverse(  fixedWidth(debugColumns, `HTML ${justNameOfHTML}`)));
-  output(chalk.rgb(80,80,120).inverse(    fixedWidth(debugColumns, `${filenameTouch.substring(filenameTouch.length -24, -1)} LOCKFILE`)));
-
-  if (willRecycleSavedImage == false) {
-    arrayToPNG(function () {
-      linearFinished();
-      removeLocks();
-    });
-  } else {
-    setImmediate(() => {
-      removeLocks();
-    });
-  }
-
-  if (isHilbertPossible) {
-    log("projecting linear array to 2D hilbert curve");
-    saveHilbert(rgbArray);
-  } else {
-    output("Cant output hilbert image when using artistic mode");
-    hilbertFinished() ;
-  }
-
-  let promiseHTML = new Promise(function(resolve,reject) {
-    if (report == true) { // report when highlight set
-      status = "saving html report";
-      out(status);
-      saveHTML();
-    } else {
-      status = "not saving html report";
-      out(status);
-      htmlFinished();
-      resolve();
+  function openMiniWebsite(path) {
+    out(`Opening URL: ${getServerURL()}`)
+    try {
+      open(`${getServerURL()}`);
+    } catch(e) {
+      error(`during openMiniWebsite: ${e} URL: ${getServerURL()}`);
     }
-  });
-
-  // if (report == true) { // report when highlight set
-  //   status = "saving html report";
-  //   out(status);
-  //   saveHTML();
-  //
-  //
-  //
-  // } else {
-  //   status = "not saving html report";
-  //   out(status);
-  //   htmlFinished();
-  // }
-
-  log(renderSummary());
-
-  // updates = true;
-  status = "removelocks";
-  setImmediate(() => {
-    openOutputs();
-  });
-  if (callback != undefined) {
-    callback();
   }
-}
-function compareHistocount(a,b) {
-  if (a.Histocount < b.Histocount)
-  return -1;
-  if (a.Histocount > b.Histocount)
-  return 1;
-  return 0;
-}
-// function saveSync(theCallback) {
-//   fs.writeFile(filenameHTML, htmlTemplate(), function (err) {
-//     if (err) { output(`Error saving HTML: ${err}`) }
-//     output('SAVESYNC VERSION Saved html report to: ' + chalk.underline(filenameHTML));
-//   }, theCallback);
-// }
-function saveHTML() {
-  status = "report"
-  if (willRecycleSavedImage == true) {
-    log("Didnt save HTML report because the linear file was recycled. Use --html to enable and auto open when done.");
-    htmlFinished();
-    if (openHtml) {
-      openOutputs();
-    } else {  return  false;}
+  function welcomeMessage() {
+
+    output('usage:');
+    output('    aminosee [files/*] --flags            (to process all files)');
+    output(' ');
+    output(terminalRGB('TIP: if you need some DNA in a hurry try this random clipping of 1MB human DNA:', 255,255,200));
+    output('wget https://www.funk.co.nz/aminosee/dna/megabase.fa');
+    output(' ');
+    output('examples:    ');
+    output('     aminosee Human-Chromosome-DNA.txt --force (force overwrite fresh render)');
+    output('     aminosee chr1.fa -m 8                 (render at 2048x2048)');
+    output('     aminosee * --peptide="Glutamic acid" (use quotes if there is a space)');
+    output('     aminosee * --triplet=GGT (must be only 3 characters of ATCGU)');
+    output('     aminosee test                 (generate calibration images)');
+    output('     aminosee serve                (fire up the mini web server)');
+    output('     aminosee help   <<-----               (shows options flags)');
+    output('     aminosee demo   <<-----           (run demo - beta version)');
+    output('     aminosee chr1.fa  chrX.fa  chrY.fa         (render 3 files)');
+    output('     aminosee *         (render all files with default settings)');
+    term.down(termStatsHeight);
+    printRadMessage();
+
   }
-  if (report == false){
-    log("Didnt save HTML report because reports = false they were disabled. Use --html to enable and auto open when done.");
-    htmlFinished();
-    return;
-  } else {
+
+
+
+
+
+  function saveDocuments(callback) {
+    status = "save"; // <-- this is the true end point of the program!
+    term.eraseDisplayBelow();
+    percentComplete = 1; // to be sure it shows 100% complete
     out(status);
-  }
-  log( pepTable.sort( compareHistocount ) ); // least common amino acids in front
+    clearTimeout(updatesTimer);
+    calcUpdate();
+    calculateShrinkage();
+    output(chalk.rgb(255, 255, 255).inverse(fixedWidth(debugColumns, `Input DNA File: ${filename}`)));
+    output(chalk.rgb(200,200,200).inverse(  fixedWidth(debugColumns, `Linear PNG: ${justNameOfPNG}`)));
+    output(chalk.rgb(150,150,150).inverse(  fixedWidth(debugColumns, `Hilbert PNG: ${justNameOfHILBERT}`)));
+    output(chalk.rgb(100,100,180).inverse(  fixedWidth(debugColumns, `HTML ${justNameOfHTML}`)));
+    output(chalk.rgb(80,80,120).inverse(    fixedWidth(debugColumns, `${filenameTouch.substring(filenameTouch.length -24, -1)} LOCKFILE`)));
 
-  // var jsonObj = JSON.parse(jsonData);
-  // console.log(jsonObj);
-  // stringify JSON Object
-  let histoJSON = path.normalize( path.resolve(`${currentOutputPath}/${justNameOfDNA}/${justNameOfDNA}_histogram.json`) );
-  let hypertext = htmlTemplate();
-  output(`currentOutputPath is ${currentOutputPath}`);
-  fs.writeFile(histoJSON, JSON.stringify(this.pepTable), 'utf8', function (err) {
-    if (err) {
-      error("occured while writing JSON Object to File.");
-      htmlFinished();
-      return console.log(err);
-    }
-    console.log("Amino acid histogram JSON file has been saved to: " + histoJSON);
-    fs.writeFile(filenameHTML, hypertext, function (err) {
-      if (err) { output(`Error saving HTML: ${err}`) }
-      output('Saved html report to:');
-      output(chalk.underline( filenameHTML ));
-      fs.writeFile(`${currentOutputPath}/${justNameOfDNA}/index.html`, hypertext, function (err) {
-        if (err) { log(`Issue with saving index.html: ${err}`) }
-        htmlFinished();
+    mkdir(justNameOfDNA);
+    mkdir(`${justNameOfDNA}/images`);
+
+    if (willRecycleSavedImage == false) {
+      arrayToPNG(function () {
+        linearFinished();
+        removeLocks();
       });
+    } else {
+      setImmediate(() => {
+        removeLocks();
+      });
+    }
+
+    if (isHilbertPossible) {
+      log("projecting linear array to 2D hilbert curve");
+      saveHilbert(rgbArray);
+    } else {
+      output("Cant output hilbert image when using artistic mode");
+      hilbertFinished() ;
+    }
+
+    let promiseHTML = new Promise(function(resolve,reject) {
+      if (report == true) { // report when highlight set
+        status = "saving html report";
+        out(status);
+        saveHTML();
+      } else {
+        status = "not saving html report";
+        out(status);
+        htmlFinished();
+        resolve();
+      }
     });
-  });
 
-  // fs.writeFile(histoJSON, JSON.stringify(pepTable), 'utf8', function (err) {
-  //     if (err) {
-  //         console.log("An error occured while writing JSON Object to File.");
-  //         return console.log(err);
-  //     }
-  //     console.log("Amino acid histogram JSON file has been saved to: " + histoJSON);
-  // });
+    // if (report == true) { // report when highlight set
+    //   status = "saving html report";
+    //   out(status);
+    //   saveHTML();
+    //
+    //
+    //
+    // } else {
+    //   status = "not saving html report";
+    //   out(status);
+    //   htmlFinished();
+    // }
 
-}
-function touchLockAndStartStream(fTouch) {
-  renderLock = true;
-  isDiskFinHTML, isDiskFinHilbert, isDiskFinLinear = false;
+    log(renderSummary());
 
-  fs.writeFile(fTouch, lockFileMessage + ` ${version} ${timestamp} ${hostname} ${radMessage}`,  function (err) {
-    if (err) { console.dir(err); error("Touch file: " + fTouch) }
-    log('Touched lockfile OK: ' + fTouch);
-    log('Starting init for ' + filename);
+    // updates = true;
+    status = "removelocks";
+    setImmediate(() => {
+      openOutputs();
+    });
+    if (callback != undefined) {
+      callback();
+    }
+  }
+  function compareHistocount(a,b) {
+    if (a.Histocount < b.Histocount)
+    return -1;
+    if (a.Histocount > b.Histocount)
+    return 1;
+    return 0;
+  }
+  function saveHTML() {
+    status = "report"
+    if (willRecycleSavedImage == true) {
+      log("Didnt save HTML report because the linear file was recycled. Use --html to enable and auto open when done.");
+      htmlFinished();
+      if (openHtml) {
+        openOutputs();
+      } else {  return  false;}
+    }
+    if (report == false){
+      log("Didnt save HTML report because reports = false they were disabled. Use --html to enable and auto open when done.");
+      htmlFinished();
+      return;
+    } else {
+      out(status);
+    }
+    log( pepTable.sort( compareHistocount ) ); // least common amino acids in front
+
+    // var jsonObj = JSON.parse(jsonData);
+    // console.log(jsonObj);
+    // stringify JSON Object
+    let histogramFile = path.normalize( path.resolve(`${currentOutputPath}/${justNameOfDNA}/${justNameOfDNA}_histogram.json`) );
+    let hypertext = htmlTemplate();
+    log(`currentOutputPath is ${currentOutputPath}`);
+    fileWrite(histogramFile, JSON.stringify(this.pepTable), 'utf8');
+
+    // fs.writeFile(histogramFile, JSON.stringify(this.pepTable), 'utf8', function (err) {
+    //   if (err) {
+    //     error("occured while writing JSON Object to File.");
+    //     htmlFinished();
+    //     return console.log(err);
+    //   } else {
+    //     fs.chmodSync(histogramFile, 0o777);
+    //   }
+    //   log("Amino acid histogram JSON file has been saved to: " + histogramFile);
+    //   fs.writeFile(filenameHTML, hypertext, function (err) {
+    //     if (err) {
+    //       output(`Error saving HTML: ${err}`)
+    //     } else {
+    //       fs.chmodSync(filenameHTML, 0o777);
+    //     }
+    //     output('Saved html report to:');
+    //     output(chalk.underline( filenameHTML ));
+    //   });
+    //   fileWrite(`${currentOutputPath}/${justNameOfDNA}/index.html`, hypertext, 'utf8', htmlFinished());
+    //
+    // });
+  }
+  function fileWrite(file, contents, encoding, cb) {
+    try {
+      fs.writeFile(file, contents, encoding, function (err) { // OVERWRITE index.html so there is always the latest showing
+        if (err) { error(`Issue with saving: ${file} ${err}`) } else {
+          fs.chmodSync(file, 0o777);
+        }
+      });
+    } catch(err) {
+      error(`Issue with saving: ${file} ${err}`);
+    }
+    if (cb != undefined) {
+      // setTimeout((cb) => {
+        cb();
+      // }, raceDelay)
+    }
+  }
+  function touchLockAndStartStream(fTouch) {
+    renderLock = true;
+    isDiskFinHTML, isDiskFinHilbert, isDiskFinLinear = false;
     output("Starting render");
     term.eraseDisplayBelow();
-    // printRadMessage([`highlight: ${isHighlightSet}`, `peptide: ${peptide} triplet: ${triplet}`, filename, "Now", ".", "."]);
-    setTimeout(() => {
-      initStream(filename);
-    }, raceDelay);
-  });
+    fileWrite(
+      fTouch,
+      lockFileMessage + ` ${version} ${timestamp} ${hostname} ${radMessage}`,
+      'utf8',
+      () => { initStream(filename)  }
+    );
+  }
+  function removeLocks() {
 
-}
-function removeLocks() {
+    if (keyboard == true) {
+      try {
+        process.stdin.setRawMode(false);
+        process.stdin.resume();
+      } catch(e) { log( e ) }
+    }
 
-  if (keyboard == true) {
     try {
-      process.stdin.setRawMode(false);
-      process.stdin.resume();
-    } catch(e) { log( e ) }
-  }
+      fs.unlinkSync(filenameTouch, (err) => {
+        if (err) { console.warn(err) }
+        log("Removing locks OK")
+      });
 
-  try {
-    fs.unlinkSync(filenameTouch, (err) => {
-      if (err) { console.warn(err) }
-      log("Removing locks OK")
-    });
-
-  } catch (err) {
-    // log("No locks to remove: " + err);
-  }
-  // isDiskFinHTML = true;
-  renderLock = false;
-
-  if (howMany > 0 ) {
-    log("Unlocked and about to poll...");
-    setTimeout(() => {
-      pollForStream();
-    }, raceDelay);
-  } else {
-    log("and thats's all she wrote folks.");
-  }
-
-}
-
-function getFilesizeInBytes(file) {
-  try {
-    const stats = fs.statSync(file)
-    const fileSizeInBytes = stats.size
-    return fileSizeInBytes
-  } catch(err) {
-    console.warn("File not found: " + file);
-    return -1; // -1 is signal for failure or unknown size (stream).
-  }
-
-}
-
-// function getFilesizeInBytes(f) {
-//   baseChars = 69;
-//   bigIntFileSize = 69696969696969n; // test of big int.
-//   try {
-//     baseChars = fs.fstatSync(f, { bigint: false }).size;
-//     bigIntFileSize = fs.fstatSync(f, { bigint: true } ).size;
-//     log(`File exists with size ${baseChars} at: ${path}`);
-//     return baseChars;
-//   } catch(e) {
-//     baseChars = -1;
-//     output(`Cant stat filesize of ${path} File error: ${e}`);
-//     return baseChars;
-//   }
-//   log(`f ${path} baseChars ${baseChars} file: ${file} big int filesize: ${bigIntFileSize}`);
-//   return baseChars; // debug flag. basically i should never see -69 appearing in error logs
-// }
-function getFileExtension(f) {
-  let lastFive = f.slice(-5);
-  log(`lastFive ${lastFive}`)
-  return lastFive.replace(/.*\./, '').toLowerCase();
-}
-function checkFileExtension(f) {
-  let value = extensions.indexOf(getFileExtension(f));
-  if ( value < 0) {
-    log(`checkFileExtension FAIL: ${f}  ${value} `);
-    return false;
-  } else {
-    log(`checkFileExtension GREAT SUCCESS: ${f}  ${value} `);
-    return true;
-  }
-}
-
-function quit(n) {
-  if ( renderLock == true ) {
-    log("still rendering")
-    return true;
-  }
-  if (server != undefined) {
-    log("closing server")
-    server.close();
-  } else {
-    log("no server runningh")
-  }
-  // status = "bye";
-  // log(status);
-  if ( howMany > 0 ) {
-    log("Continuing...");
-    pollForStream();
-  } else {
-    log(`process.exit type bye. last file: ${filename}`);
-    clearTimeout(updatesTimer);
-    if (server != undefined) {
-      server.close()
+    } catch (err) {
+      // log("No locks to remove: " + err);
     }
+    // isDiskFinHTML = true;
+    renderLock = false;
 
-
-    // args = [];
-    if (devmode) {
-      output("Because you are using --devmode, the lock file is not deleted. This is useful during development because I can quickly test new code by starting then interupting the render with Control-c. Then, when I use 'aminosee * -f -d' I can have new versions rendered but skip super large genomes that would take 5 mins or more to render. I like to see that they begin to render then break and retry.")
+    if (howMany > 0 ) {
+      log("Unlocked and about to poll...");
+      setTimeout(() => {
+        pollForStream();
+      }, raceDelay);
     } else {
-      removeLocks();
-    }
-    process.exitCode = 0;
-    if (keyboard) {
-      process.stdin.pause();
+      log("and thats's all she wrote folks.");
     }
 
-    // process.exit()
   }
-}
-function processLine(l) {
-  status = "stream";
 
-  rawDNA = l;
-  var cleanDNA = "";
-  let lineLength = l.length; // replaces baseChars
-  let codon = "";
-  currentTriplet = "none";
-  isHighlightCodon = false;
-  CRASH = false;
-  for (column=0; column<lineLength; column++) {
-    // build a three digit codon
-    let c = cleanChar(l.charAt(column)); // has to be ATCG or a . for cleaned chars and line breaks
-    charClock++;
-    // ERROR DETECTING
-    // IMPLMENTED AFTER ENABLEDING "N" TO AFFECT THE IMAGE
-    // ITS AT THE STAGE WHERE IT CAN EAT ANY FILE WITH DNA
-    // BUT IF ANY META DATA CONTAINS THE WORD "CAT", "TAG" etc these are taken as coding (its a bug)
-    while ( c == "." && c != "N") { // biff it and get another
-      // log(c);
-      codon =  ""; // we wipe it because... codons should not cross line break boundaries.
-      column++;
-      c = cleanChar(l.charAt(column)); // line breaks
-      charClock++;
-      errorClock++;
-      red = 0;
-      green = 0;
-      blue = 0;
-
-      if (column > lineLength) {
-        // log("BREAK - END OF LINE")
-        breakClock++;
-        break
-      }
+  function getFilesizeInBytes(file) {
+    try {
+      const stats = fs.statSync(file)
+      const fileSizeInBytes = stats.size
+      return fileSizeInBytes
+    } catch(err) {
+      console.warn("File not found: " + file);
+      return -1; // -1 is signal for failure or unknown size (stream).
     }
-    codon += c; // add the base
-    if (codon == "..." || codon == "NNN") {
-      currentTriplet = codon;
-      if (codon == "NNN" ) {
-        pepTable.find(isNoncoding).Histocount++;
+
+  }
+
+  // function getFilesizeInBytes(f) {
+  //   baseChars = 69;
+  //   bigIntFileSize = 69696969696969n; // test of big int.
+  //   try {
+  //     baseChars = fs.fstatSync(f, { bigint: false }).size;
+  //     bigIntFileSize = fs.fstatSync(f, { bigint: true } ).size;
+  //     log(`File exists with size ${baseChars} at: ${path}`);
+  //     return baseChars;
+  //   } catch(e) {
+  //     baseChars = -1;
+  //     output(`Cant stat filesize of ${path} File error: ${e}`);
+  //     return baseChars;
+  //   }
+  //   log(`f ${path} baseChars ${baseChars} file: ${file} big int filesize: ${bigIntFileSize}`);
+  //   return baseChars; // debug flag. basically i should never see -69 appearing in error logs
+  // }
+  function getFileExtension(f) {
+    let lastFive = f.slice(-5);
+    log(`lastFive ${lastFive}`)
+    return lastFive.replace(/.*\./, '').toLowerCase();
+  }
+  function checkFileExtension(f) {
+    let value = extensions.indexOf(getFileExtension(f));
+    if ( value < 0) {
+      log(`checkFileExtension FAIL: ${f}  ${value} `);
+      return false;
+    } else {
+      log(`checkFileExtension GREAT SUCCESS: ${f}  ${value} `);
+      return true;
+    }
+  }
+
+  function quit(n) {
+    if ( renderLock == true ) {
+      log("still rendering")
+      return true;
+    }
+    if (server != undefined) {
+      log("closing server")
+      server.close();
+    } else {
+      log("no server runningh")
+    }
+    // status = "bye";
+    // log(status);
+    if ( howMany > 0 ) {
+      log("Continuing...");
+      pollForStream();
+    } else {
+      log(`process.exit type bye. last file: ${filename}`);
+      clearTimeout(updatesTimer);
+      if (server != undefined) {
+        server.close()
       }
-      codon="";
-      log(red+green+blue);
-      if (red+green+blue>0) { // this is a fade out to show headers.
-        // red -= codonsPerPixel;
-        // green-= codonsPerPixel;
-        // blue-= codonsPerPixel;
-        red --;
-        green--;
-        blue--;
-        // paintPixel();
+
+
+      // args = [];
+      if (devmode) {
+        output("Because you are using --devmode, the lock file is not deleted. This is useful during development because I can quickly test new code by starting then interupting the render with Control-c. Then, when I use 'aminosee * -f -d' I can have new versions rendered but skip super large genomes that would take 5 mins or more to render. I like to see that they begin to render then break and retry.")
       } else {
-        // do nothing this maybe a non-coding header section in the file.
-        // status = "header";
-        // msPerUpdate = 100;
+        removeLocks();
       }
-      errorClock++;
+      process.exitCode = 0;
+      if (keyboard) {
+        process.stdin.pause();
+      }
 
+      // process.exit()
+    }
+  }
+  function processLine(l) {
+    status = "stream";
 
-    } else if (codon.length ==  3) {
-      currentTriplet = codon;
-      pixelStacking++;
-      genomeSize++;
-      codonRGBA = codonToRGBA(codon); // this will report alpha info
-      let brightness = codonRGBA[0] +  codonRGBA[1] +  codonRGBA[2] + codonRGBA[3];
-      // log(" brightness: " + brightness);
-      cleanDNA += codon;
-      if (CRASH) {
-        output(cleanDNA + " IM CRASHING Y'ALL: " + codon);
-        crashReport();
-        // quit();
+    rawDNA = l;
+    var cleanDNA = "";
+    let lineLength = l.length; // replaces baseChars
+    let codon = "";
+    currentTriplet = "none";
+    isHighlightCodon = false;
+    CRASH = false;
+    for (column=0; column<lineLength; column++) {
+      // build a three digit codon
+      let c = cleanChar(l.charAt(column)); // has to be ATCG or a . for cleaned chars and line breaks
+      charClock++;
+      // ERROR DETECTING
+      // IMPLMENTED AFTER ENABLEDING "N" TO AFFECT THE IMAGE
+      // ITS AT THE STAGE WHERE IT CAN EAT ANY FILE WITH DNA
+      // BUT IF ANY META DATA CONTAINS THE WORD "CAT", "TAG" etc these are taken as coding (its a bug)
+      while ( c == "." && c != "N") { // biff it and get another
+        // log(c);
+        codon =  ""; // we wipe it because... codons should not cross line break boundaries.
+        column++;
+        c = cleanChar(l.charAt(column)); // line breaks
+        charClock++;
         errorClock++;
-        CRASH = false;
-        break
-      }
+        red = 0;
+        green = 0;
+        blue = 0;
 
-      // HIGHLIGHT codon --triplet Tryptophan
-      if (isHighlightSet) {
-        if (codon == triplet) {
-          isHighlightCodon = true;
-        } else if (aminoacid == peptide) {
-          isHighlightCodon = true;
-        } else {
-          isHighlightCodon = false;
+        if (column > lineLength) {
+          // log("BREAK - END OF LINE")
+          breakClock++;
+          break
         }
       }
-
-      if (isHighlightCodon) { // 255 = 1.0
-        mixRGBA[0]  += parseFloat(codonRGBA[0].valueOf()) * highlightFactor * opacity;// * opacity; // red
-        mixRGBA[1]  += parseFloat(codonRGBA[1].valueOf()) * highlightFactor * opacity;// * opacity; // green
-        mixRGBA[2]  += parseFloat(codonRGBA[2].valueOf()) * highlightFactor * opacity;// * opacity; // blue
-        mixRGBA[3]  +=   255 * highlightFactor *  opacity;// * opacity; // blue
-      } else {
-        //  not a START/STOP codon. Stack multiple codons per pixel.
-        // HERE WE ADDITIVELY BUILD UP THE VALUES with +=
-        mixRGBA[0] +=   parseFloat(codonRGBA[0].valueOf()) * opacity * darkenFactor;
-        mixRGBA[1] +=   parseFloat(codonRGBA[1].valueOf()) * opacity * darkenFactor;
-        mixRGBA[2] +=   parseFloat(codonRGBA[2].valueOf()) * opacity * darkenFactor;
-        mixRGBA[3] +=   255 * darkenFactor *  opacity;// * opacity; // blue
-      }
-
-
-
-
-
-      //  blends colour on one pixel
-      if (pixelStacking >= codonsPerPixel) {
-
-
-        if (artistic != true) {
-
-
-          red = mixRGBA[0];
-          green = mixRGBA[1];
-          blue = mixRGBA[2];
-          alpha = mixRGBA[3];
-          paintPixel(); // FULL BRIGHTNESS
-          // reset inks, using codonsPerPixel cycles for each pixel:
-          mixRGBA[0] =   0;
-          mixRGBA[1] =   0;
-          mixRGBA[2] =   0;
-          mixRGBA[3] =   0;
-          red = 0;
-          green = 0;
-          blue = 0;
-          alpha = 0;
-
-          // end science mode
+      codon += c; // add the base
+      if (codon == "..." || codon == "NNN") {
+        currentTriplet = codon;
+        if (codon == "NNN" ) {
+          pepTable.find(isNoncoding).Histocount++;
+        }
+        codon="";
+        log(red+green+blue);
+        if (red+green+blue>0) { // this is a fade out to show headers.
+          // red -= codonsPerPixel;
+          // green-= codonsPerPixel;
+          // blue-= codonsPerPixel;
+          red --;
+          green--;
+          blue--;
+          // paintPixel();
         } else {
-          // ************ ARTISTIC MODE
-          if (isHighlightCodon) {
-            if (artisticHighlightLength >= 12) {
-              red = mixRGBA[0]/12;
-              green = mixRGBA[1]/12;
-              blue = mixRGBA[2]/12;
-              paintPixel();
-              red += mixRGBA[0]/12;
-              green += mixRGBA[1]/12;
-              blue += mixRGBA[2]/12;
-              paintPixel();
-              red += mixRGBA[0]/12;
-              green += mixRGBA[1]/12;
-              blue += mixRGBA[2]/12;
-              paintPixel();
-              red += mixRGBA[0]/12;
-              green += mixRGBA[1]/12;
-              blue += mixRGBA[2]/12;
-              paintPixel();
-              red += mixRGBA[0]/12;
-              green += mixRGBA[1]/12;
-              blue += mixRGBA[2]/12;
-              paintPixel();
-              red += mixRGBA[0]/12;
-              green += mixRGBA[1]/12;
-              blue += mixRGBA[2]/12;
-              paintPixel();
+          // do nothing this maybe a non-coding header section in the file.
+          // status = "header";
+          // msPerUpdate = 100;
+        }
+        errorClock++;
+
+
+      } else if (codon.length ==  3) {
+        currentTriplet = codon;
+        pixelStacking++;
+        genomeSize++;
+        codonRGBA = codonToRGBA(codon); // this will report alpha info
+        let brightness = codonRGBA[0] +  codonRGBA[1] +  codonRGBA[2] + codonRGBA[3];
+        // log(" brightness: " + brightness);
+        cleanDNA += codon;
+        if (CRASH) {
+          output(cleanDNA + " IM CRASHING Y'ALL: " + codon);
+          crashReport();
+          // quit();
+          errorClock++;
+          CRASH = false;
+          break
+        }
+
+        // HIGHLIGHT codon --triplet Tryptophan
+        if (isHighlightSet) {
+          if (codon == triplet) {
+            isHighlightCodon = true;
+          } else if (aminoacid == peptide) {
+            isHighlightCodon = true;
+          } else {
+            isHighlightCodon = false;
+          }
+        }
+
+        if (isHighlightCodon) { // 255 = 1.0
+          mixRGBA[0]  += parseFloat(codonRGBA[0].valueOf()) * highlightFactor * opacity;// * opacity; // red
+          mixRGBA[1]  += parseFloat(codonRGBA[1].valueOf()) * highlightFactor * opacity;// * opacity; // green
+          mixRGBA[2]  += parseFloat(codonRGBA[2].valueOf()) * highlightFactor * opacity;// * opacity; // blue
+          mixRGBA[3]  +=   255 * highlightFactor *  opacity;// * opacity; // blue
+        } else {
+          //  not a START/STOP codon. Stack multiple codons per pixel.
+          // HERE WE ADDITIVELY BUILD UP THE VALUES with +=
+          mixRGBA[0] +=   parseFloat(codonRGBA[0].valueOf()) * opacity * darkenFactor;
+          mixRGBA[1] +=   parseFloat(codonRGBA[1].valueOf()) * opacity * darkenFactor;
+          mixRGBA[2] +=   parseFloat(codonRGBA[2].valueOf()) * opacity * darkenFactor;
+          mixRGBA[3] +=   255 * darkenFactor *  opacity;// * opacity; // blue
+        }
 
 
 
-              red = mixRGBA[0]/12;
-              green = mixRGBA[1]/12;
-              blue = mixRGBA[2]/12;
-              paintPixel();
-              red += mixRGBA[0]/12;
-              green += mixRGBA[1]/12;
-              blue += mixRGBA[2]/12;
-              paintPixel();
-              red += mixRGBA[0]/12;
-              green += mixRGBA[1]/12;
-              blue += mixRGBA[2]/12;
-              paintPixel();
-              red += mixRGBA[0]/12;
-              green += mixRGBA[1]/12;
-              blue += mixRGBA[2]/12;
-              paintPixel();
-              red += mixRGBA[0]/12;
-              green += mixRGBA[1]/12;
-              blue += mixRGBA[2]/12;
-              paintPixel();
-              red += mixRGBA[0]/12;
-              green += mixRGBA[1]/12;
-              blue += mixRGBA[2]/12;
-              paintPixel();
-            }
-            red += mixRGBA[0]/3;
-            green += mixRGBA[1]/3;
-            blue += mixRGBA[2]/3;
-            paintPixel();
-            red += mixRGBA[0]/3;
-            green += mixRGBA[1]/3;
-            blue += mixRGBA[2]/3;
-            paintPixel();
+
+
+        //  blends colour on one pixel
+        if (pixelStacking >= codonsPerPixel) {
+
+
+          if (artistic != true) {
+
+
             red = mixRGBA[0];
             green = mixRGBA[1];
             blue = mixRGBA[2];
-            paintPixel();
-            red += 200;
-            green += 200;
-            blue += 200;
-            paintPixel();
-            red = mixRGBA[0]/2;
-            green = mixRGBA[1]/2;
-            blue = mixRGBA[2]/2;
-            paintPixel();
+            alpha = mixRGBA[3];
+            paintPixel(); // FULL BRIGHTNESS
+            // reset inks, using codonsPerPixel cycles for each pixel:
+            mixRGBA[0] =   0;
+            mixRGBA[1] =   0;
+            mixRGBA[2] =   0;
+            mixRGBA[3] =   0;
             red = 0;
             green = 0;
             blue = 0;
-            paintPixel(); // END WITH BLACK
-            pixelStacking = 0;
-            mixRGBA[0] =   0;
-            mixRGBA[1] =   0;
-            mixRGBA[2] =   0;
-            //
-          } else { // non highlight pixel
-            red = 0;
-            green = 0;
-            blue = 0; // START WITH BLACK
-            paintPixel();
-            red = mixRGBA[0]/2;
-            green = mixRGBA[1]/2;
-            blue = mixRGBA[2]/2;
-            paintPixel();
-            red += 180; // <-- THIS IS THE WHITE GLINT
-            green += 180; // <-- THIS IS THE WHITE GLINT
-            blue += 180; // <-- THIS IS THE WHITE GLINT
-            alpha = 200;
-            paintPixel();
-            red = mixRGBA[0];
-            green = mixRGBA[1];
-            blue = mixRGBA[2];
-            paintPixel();
-            red = red / 1.2;
-            green = green / 1.2;
-            blue = blue / 1.2;
-            paintPixel();
-            red = red / 1.2;
-            green = green / 1.2;
-            blue = blue / 1.2;
-            paintPixel();
-            if (artisticHighlightLength >= 12) {
-              red = red / 1.1;
-              green = green / 1.1;
-              blue = blue / 1.1;
+            alpha = 0;
+
+            // end science mode
+          } else {
+            // ************ ARTISTIC MODE
+            if (isHighlightCodon) {
+              if (artisticHighlightLength >= 12) {
+                red = mixRGBA[0]/12;
+                green = mixRGBA[1]/12;
+                blue = mixRGBA[2]/12;
+                paintPixel();
+                red += mixRGBA[0]/12;
+                green += mixRGBA[1]/12;
+                blue += mixRGBA[2]/12;
+                paintPixel();
+                red += mixRGBA[0]/12;
+                green += mixRGBA[1]/12;
+                blue += mixRGBA[2]/12;
+                paintPixel();
+                red += mixRGBA[0]/12;
+                green += mixRGBA[1]/12;
+                blue += mixRGBA[2]/12;
+                paintPixel();
+                red += mixRGBA[0]/12;
+                green += mixRGBA[1]/12;
+                blue += mixRGBA[2]/12;
+                paintPixel();
+                red += mixRGBA[0]/12;
+                green += mixRGBA[1]/12;
+                blue += mixRGBA[2]/12;
+                paintPixel();
+
+
+
+                red = mixRGBA[0]/12;
+                green = mixRGBA[1]/12;
+                blue = mixRGBA[2]/12;
+                paintPixel();
+                red += mixRGBA[0]/12;
+                green += mixRGBA[1]/12;
+                blue += mixRGBA[2]/12;
+                paintPixel();
+                red += mixRGBA[0]/12;
+                green += mixRGBA[1]/12;
+                blue += mixRGBA[2]/12;
+                paintPixel();
+                red += mixRGBA[0]/12;
+                green += mixRGBA[1]/12;
+                blue += mixRGBA[2]/12;
+                paintPixel();
+                red += mixRGBA[0]/12;
+                green += mixRGBA[1]/12;
+                blue += mixRGBA[2]/12;
+                paintPixel();
+                red += mixRGBA[0]/12;
+                green += mixRGBA[1]/12;
+                blue += mixRGBA[2]/12;
+                paintPixel();
+              }
+              red += mixRGBA[0]/3;
+              green += mixRGBA[1]/3;
+              blue += mixRGBA[2]/3;
               paintPixel();
-              red = red / 1.1;
-              green = green / 1.1;
-              blue = blue / 1.1;
-              paintPixel();red = red / 1.1;
-              green = green / 1.1;
-              blue = blue / 1.1;
+              red += mixRGBA[0]/3;
+              green += mixRGBA[1]/3;
+              blue += mixRGBA[2]/3;
               paintPixel();
-              red = red / 1.1;
-              green = green / 1.1;
-              blue = blue / 1.1;
-              paintPixel();red = red / 1.1;
-              green = green / 1.1;
-              blue = blue / 1.1;
+              red = mixRGBA[0];
+              green = mixRGBA[1];
+              blue = mixRGBA[2];
               paintPixel();
-              red = red / 1.1;
-              green = green / 1.1;
-              blue = blue / 1.1;
+              red += 200;
+              green += 200;
+              blue += 200;
               paintPixel();
+              red = mixRGBA[0]/2;
+              green = mixRGBA[1]/2;
+              blue = mixRGBA[2]/2;
+              paintPixel();
+              red = 0;
+              green = 0;
+              blue = 0;
+              paintPixel(); // END WITH BLACK
+              pixelStacking = 0;
+              mixRGBA[0] =   0;
+              mixRGBA[1] =   0;
+              mixRGBA[2] =   0;
+              //
+            } else { // non highlight pixel
+              red = 0;
+              green = 0;
+              blue = 0; // START WITH BLACK
+              paintPixel();
+              red = mixRGBA[0]/2;
+              green = mixRGBA[1]/2;
+              blue = mixRGBA[2]/2;
+              paintPixel();
+              red += 180; // <-- THIS IS THE WHITE GLINT
+              green += 180; // <-- THIS IS THE WHITE GLINT
+              blue += 180; // <-- THIS IS THE WHITE GLINT
+              alpha = 200;
+              paintPixel();
+              red = mixRGBA[0];
+              green = mixRGBA[1];
+              blue = mixRGBA[2];
+              paintPixel();
+              red = red / 1.2;
+              green = green / 1.2;
+              blue = blue / 1.2;
+              paintPixel();
+              red = red / 1.2;
+              green = green / 1.2;
+              blue = blue / 1.2;
+              paintPixel();
+              if (artisticHighlightLength >= 12) {
+                red = red / 1.1;
+                green = green / 1.1;
+                blue = blue / 1.1;
+                paintPixel();
+                red = red / 1.1;
+                green = green / 1.1;
+                blue = blue / 1.1;
+                paintPixel();red = red / 1.1;
+                green = green / 1.1;
+                blue = blue / 1.1;
+                paintPixel();
+                red = red / 1.1;
+                green = green / 1.1;
+                blue = blue / 1.1;
+                paintPixel();red = red / 1.1;
+                green = green / 1.1;
+                blue = blue / 1.1;
+                paintPixel();
+                red = red / 1.1;
+                green = green / 1.1;
+                blue = blue / 1.1;
+                paintPixel();
+              }
+              // reset inks:
+              pixelStacking = 0;
+              mixRGBA[0] =   0;
+              mixRGBA[1] =   0;
+              mixRGBA[2] =   0;
             }
-            // reset inks:
-            pixelStacking = 0;
-            mixRGBA[0] =   0;
-            mixRGBA[1] =   0;
-            mixRGBA[2] =   0;
-          }
 
 
-        } // artistic mode
+          } // artistic mode
 
-      } // end pixel stacking
-      codon = ""; // wipe for next time
-    } // end codon.length ==  3
-  } // END OF line LOOP! thats one line but mixRGBA can survive lines
-} // end processLine
+        } // end pixel stacking
+        codon = ""; // wipe for next time
+      } // end codon.length ==  3
+    } // END OF line LOOP! thats one line but mixRGBA can survive lines
+  } // end processLine
 
-function aminoFilenameIndex(id) { // return the filename for this amino acid for the report
-  let backupPeptide = peptide;
-  let backupHighlight = isHighlightSet;
-  if (id == undefined || id == -1) { // for the reference image
-    currentPepHighlight = false;
-    currentPeptide = "";
-  } else {
-    currentPepHighlight = true;
-    currentPeptide = pepTable[id].Codon;
+  function aminoFilenameIndex(id) { // return the filename for this amino acid for the report
+    let backupPeptide = peptide;
+    let backupHighlight = isHighlightSet;
+    if (id == undefined || id == -1) { // for the reference image
+      currentPepHighlight = false;
+      currentPeptide = "";
+    } else {
+      currentPepHighlight = true;
+      currentPeptide = pepTable[id].Codon;
+    }
+    peptide = currentPeptide; // bad use of globals i agree, well i aint getting paid for this, i do it for the love, so yeah
+    isHighlightSet = currentPepHighlight;
+    let ret = generateFilenameHilbert();
+    peptide = backupPeptide;
+    isHighlightSet = backupHighlight;
+    return ret;
   }
-  peptide = currentPeptide; // bad use of globals i agree, well i aint getting paid for this, i do it for the love, so yeah
-  isHighlightSet = currentPepHighlight;
-  let ret = generateFilenameHilbert();
-  peptide = backupPeptide;
-  isHighlightSet = backupHighlight;
-  return ret;
-}
-function getImageType() {
-  let t = "";
-  if (args.ratio) {
-    t += `_${ratio}`;
+  function getImageType() {
+    let t = "";
+    if (args.ratio) {
+      t += `_${ratio}`;
+    }
+    ( artistic ? t += "_artistic" : t += "_sci")
+    return t;
   }
-  ( artistic ? t += "_artistic" : t += "_sci")
-  return t;
-}
-function generateFilenameTouch() { // we only need the fullpath of this one
-  return                  `${justNameOfDNA}.${extension}_LOCK${highlightFilename()}_c${onesigbitTolocale(codonsPerPixel)}${getImageType()}.aminosee.touch`;
-}
-function generateFilenamePNG() {
-  justNameOfPNG =         `${justNameOfDNA}.${extension}_linear${highlightFilename()}_c${onesigbitTolocale(codonsPerPixel)}${getImageType()}.png`;
-  return justNameOfPNG;
-}
-function generateFilenameHilbert() {
-  if (test) {
-    // the filename should be set already fingers crossed.
-  } else {
-    justNameOfHILBERT =     `${justNameOfDNA}.${extension}_HILBERT${highlightFilename()}_m${dimension}_c${onesigbitTolocale(codonsPerPixelHILBERT)}${getRegmarks()}.png`;
+  function generateFilenameTouch() { // we only need the fullpath of this one
+    return                  `${justNameOfDNA}.${extension}_LOCK${highlightFilename()}_c${onesigbitTolocale(codonsPerPixel)}${getImageType()}.aminosee.touch`;
   }
-  return justNameOfHILBERT;
-}
-function generateFilenameHTML() {
-  justNameOfHTML =        `${justNameOfDNA}.${extension}_m${dimension}_c${onesigbitTolocale(codonsPerPixel)}${getRegmarks()}${getImageType()}.html`;
-  return justNameOfHTML;
-}
-function imageStack() {
-  let hhh = " ";
-  let backupPeptide = peptide;
-  let backupHighlight = isHighlightSet;
+  function generateFilenamePNG() {
+    justNameOfPNG =         `${justNameOfDNA}.${extension}_linear${highlightFilename()}_c${onesigbitTolocale(codonsPerPixel)}${getImageType()}.png`;
+    return justNameOfPNG;
+  }
+  function generateFilenameHilbert() {
+    if (test) {
+      // the filename should be set already fingers crossed.
+    } else {
+      justNameOfHILBERT =     `${justNameOfDNA}.${extension}_HILBERT${highlightFilename()}_m${dimension}_c${onesigbitTolocale(codonsPerPixelHILBERT)}${getRegmarks()}.png`;
+    }
+    return justNameOfHILBERT;
+  }
+  function generateFilenameHTML() {
+    justNameOfHTML =        `${justNameOfDNA}.${extension}_m${dimension}_c${onesigbitTolocale(codonsPerPixel)}${getRegmarks()}${getImageType()}.html`;
+    return justNameOfHTML;
+  }
+  function imageStack() {
+    let hhh = " ";
+    let backupPeptide = peptide;
+    let backupHighlight = isHighlightSet;
 
-  hhh += `<a href="images/${aminoFilenameIndex()}" onmouseover="mover()" onmouseout="mout()"><img  src="images/${aminoFilenameIndex()}" id="stack_reference" width="256" height="256" style="z-index: ${999}; position: absolute; top: 0px; left: 0px;" alt="${refimage}" title="${refimage}"></a>`;
+    hhh += `<a href="images/${aminoFilenameIndex()}" onmouseover="mover()" onmouseout="mout()"><img  src="images/${aminoFilenameIndex()}" id="stack_reference" width="256" height="256" style="z-index: ${999}; position: absolute; top: 0px; left: 0px;" alt="${refimage}" title="${refimage}"></a>`;
 
+    for (i=0; i<pepTable.length; i++) {
+      let thePep = spaceTo_( pepTable[i].Codon );
+      let theHue = pepTable[i].Hue;
+      let c =      hsvToRgb( theHue/360, 0.5, 1.0 );
+
+      if (thePep != "Non-coding_NNN"  && thePep != "Start_Codons" && thePep != "Stop_Codons") {
+        hhh += `<a href="${aminoFilenameIndex(i)}" onmouseover="mover(${i})" onmouseout="mout(${i})"><img src="images/${aminoFilenameIndex(i)}" id="stack_${i}" width="256" height="256" style="z-index: ${1000+i}; position: absolute; top: ${i*2}px; left: ${i*12}px;" alt="${pepTable[i].Codon}" title="${pepTable[i].Codon}"></a>`;
+      } else {
+        log("non-coding nnn image not output");
+      }
+    }
+    currentPeptide = "none"; // hack to address globals
+    aminoFilenameIndex(); // hack to address globals
+    peptide = backupPeptide;
+    isHighlightSet = backupHighlight;
+    return hhh;
+  }
+
+  function htmlTemplate() {
+    var html = `<html>
+    <head>
+    <title>${justNameOfDNA} :: AminoSee HTML Report :: DNA Viewer by Tom Atkinson :: ${currentFile}</title>
+    <meta name="description" content="${siteDescription}">
+    <link rel="stylesheet" type="text/css" href="https://www.funk.co.nz/aminosee/public/AminoSee.css">
+    <link href='https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz:700,400,200,100' rel='stylesheet' type='text/css'>
+    <link href="https://www.funk.co.nz/css/menu.css" rel="stylesheet">
+    <link href="https://www.funk.co.nz/css/funk2014.css" rel="stylesheet">
+
+
+    <script src="https://www.funk.co.nz/aminosee/node_modules/three/build/three.min.js"></script>
+    <script src="https://www.funk.co.nz/aminosee/node_modules/jquery/dist/jquery.min.js"></script>
+    <script src="https://www.funk.co.nz/aminosee/public/hilbert3D.js"></script>
+    <script src="https://www.funk.co.nz/aminosee/public/hilbert2D.js"></script>
+    <script src="https://www.funk.co.nz/aminosee/public/WebGL.js"></script>
+    <script src="node_modules/hammerjs/hammer.min.js"></script>
+    <!-- script src="https://www.funk.co.nz/aminosee/bundle.js"></script -->
+
+    <script src="/public/aminosee-gui-web.js"></script>
+
+
+    <script>
+    let page = "report";
+    function mover(i) {
+      if (i == undefined) {
+        i = "stack_reference"; // reference image
+      } else {
+        i = "stack_" + i; // reference image
+      }
+      let el = document.getElementById(i);
+      el.style.zIndex = 6969;
+    }
+
+    function mout(i) {
+      if (i == undefined) {
+        i = "stack_reference"; // reference image
+      } else {
+        i = "stack_" + i; // reference image
+      }
+      let el = document.getElementById(i);
+      el.style.zIndex = 100+i;
+    }
+    </script>
+    <style>
+    border: 1px black;
+    backround: black;
+    padding: 4px;
+    </style>
+    </head>
+    <body>
+    <!-- Google Tag Manager -->
+    <noscript><iframe src="//www.googletagmanager.com/ns.html?id=GTM-P8JX"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer','GTM-P8JX');</script>
+  <!-- End Google Tag Manager -->
+
+  <h1>AminoSee DNA Render Summary for ${currentFile}</h1>
+  <h2>${justNameOfDNA}</h2>
+  ${( test ? " test " : imageStack())}
+
+
+  <div class="fineprint" style="text-align: right; float: right;">
+  <pre>
+  ${renderSummary()}
+  </pre>
+  </div>
+
+  <a href="#scrollLINEAR" class="button" title"Click To Scroll Down To See LINEAR"><br />
+  <img width="128" height="128" style="border: 4px black; background: black;" src="images/${justNameOfPNG}">
+  1D Linear Map Image
+  </a>
+  <a href="#scrollHILBERT" class="button" title"Click To Scroll Down To See 2D Hilbert Map"><br />
+  <img width="128" height="128" style="border: 4px black background: black;" src="images/${justNameOfHILBERT}">
+  2D Hilbert Map Image
+  </a>
+
+
+
+  <div id="monkeys">
+  <div><a href="http://aminosee.funk.nz/">
+  <input type="button" value="VISIT WEBSITE" onclick="window.location = '#scrollHILBERT'"><br>
+
+  <img src="https://www.funk.co.nz/aminosee/public/seenoevilmonkeys.jpg">
+
+  <!-- <h1>AminoSeeNoEvil</h1> -->
+  <h1>Amino<span style="color: #888888;">See</span><span style="color: #dddddd;">NoEvil</span></h1>
+  <div class="hidable">
+  <h2 id="h2">DNA/RNA Chromosome Viewer</h2>
+  <p id="description" class="fineprint hidable">A new way to view DNA that attributes a colour hue to each Amino acid codon triplet</p>
+
+
+
+  </div>
+  </a>
+  </div>
+  </div>
+
+  <div>`;
+
+
+
+  html += `</div>
+
+  <br /><br />
+
+  <table>
+  <thead>
+  <tr>
+  <th>Amino Acid</th>
+  <th>Hue</th>
+  <th>RGB</th>
+  <th>Count</th>
+  <th>Description</th>
+  <th>Hilbert PNG</th>
+  </tr>
+  </thead>
+  <tbody>
+
+  <tr>
+  <td style="background-color: white;"> All amino acids combined =   </td>
+  <td>
+  <p class="fineprint" style="background-color: white; background-color: rgba(255,255,255,0.5); color: black;">n/a</p>
+  </td>
+  <td style="color: white; font-weight: bold; "> <p class="fineprint" style="background-color: black; background-color: rgba(0,0,0,0.5); color: white;">n/a</p> </td>
+  <td>${genomeSize}</td>
+  <td>n/a</td>
+  <td style="background-color: white;">
+  <a href="images/${aminoFilenameIndex()}" class="button" title="Reference Image"><img width="48" height="16" class="blackback" src="images/${aminoFilenameIndex()}" alt="Reference Image ${justNameOfDNA}"></a>
+  </td>
+  </tr>
+
+  `;
+  // pepTable   = [Codon, Description, Hue, Alpha, Histocount]
   for (i=0; i<pepTable.length; i++) {
-    let thePep = spaceTo_( pepTable[i].Codon );
-    let theHue = pepTable[i].Hue;
-    let c =      hsvToRgb( theHue/360, 0.5, 1.0 );
-
-    if (thePep != "Non-coding_NNN"  && thePep != "Start_Codons" && thePep != "Stop_Codons") {
-      hhh += `<a href="${aminoFilenameIndex(i)}" onmouseover="mover(${i})" onmouseout="mout(${i})"><img src="images/${aminoFilenameIndex(i)}" id="stack_${i}" width="256" height="256" style="z-index: ${1000+i}; position: absolute; top: ${i*2}px; left: ${i*12}px;" alt="${pepTable[i].Codon}" title="${pepTable[i].Codon}"></a>`;
+    let thePep = pepTable[i];
+    let theHue = thePep.Hue;
+    let c =      hsvToRgb( theHue / 360, 0.5, 1.0 );
+    let lightC = hsvToRgb( theHue / 360, 0.95, 0.75 );
+    // log(thePep, theHue, c);
+    if (thePep.Codon == "Start Codons" || thePep.Codon == "Stop Codons" || thePep.Codon == "Non-coding NNN") {
+      html += `<!-- ${thePep.Codon} -->`;
     } else {
-      log("non-coding nnn image not output");
+      html += `
+      <tr style="background-color: hsl( ${theHue} , 50%, 100%);" onmouseover="mover(${i})" onmouseout="mout(${i})">
+      <td style="background-color: white;"> ${pepTable[i].Codon} </td>
+      <td style="background-color: rgb(${lightC});">
+      <p class="fineprint" style="background-color: white; background-color: rgba(255,255,255,0.5); color: black;">${theHue}&#xB0;</p>
+      </td>
+      <td style="background-color: rgb(${c}); color: white; font-weight: bold; "> <p class="fineprint" style="background-color: black; background-color: rgba(0,0,0,0.5); color: white;">${c}</p> </td>
+      <td>${pepTable[i].Histocount.toLocaleString()}</td>
+      <td>${pepTable[i].Description}</td>
+      <td style="background-color: white;">
+      <a href="images/${aminoFilenameIndex(i)}" class="button" title="Amino filter: ${spaceTo_(pepTable[i].Codon)}"><img width="48" height="16" class="blackback" src="images/${aminoFilenameIndex(i)}" alt="${spaceTo_(pepTable[i].Codon)}"></a>
+      </td>
+      </tr>
+      `
     }
   }
-  currentPeptide = "none"; // hack to address globals
-  aminoFilenameIndex(); // hack to address globals
-  peptide = backupPeptide;
-  isHighlightSet = backupHighlight;
-  return hhh;
-}
+  html += `
+  </tbody>
+  <tfoot>
+  <tr>
+  <td>19 Amino Acids, 4 Start/Stop codes, 1 NNN</td>
+  <td>.</td>
+  <td>.</td>
+  <td>.</td>
+  <td>.</td>
+  </tr>
+  </tfoot>
+  </table>
+  <a name="scrollHILBERT" ></a>
+  <a href="${justNameOfHILBERT}" ><img src="${justNameOfHILBERT}" width-"99%" height="auto"></a>
 
-function htmlTemplate() {
-  var html = `<html>
-  <head>
-  <title>${justNameOfDNA} :: AminoSee HTML Report :: DNA Viewer by Tom Atkinson :: ${currentFile}</title>
-  <meta name="description" content="${siteDescription}">
-  <link rel="stylesheet" type="text/css" href="https://www.funk.co.nz/aminosee/public/AminoSee.css">
-  <link href='https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz:700,400,200,100' rel='stylesheet' type='text/css'>
-  <link href="https://www.funk.co.nz/css/menu.css" rel="stylesheet">
-  <link href="https://www.funk.co.nz/css/funk2014.css" rel="stylesheet">
+  <h2>About Start and Stop Codons</h2>
+  <p>The codon AUG is called the START codon as it the first codon in the transcribed mRNA that undergoes translation. AUG is the most common START codon and it codes for the amino acid methionine (Met) in eukaryotes and formyl methionine (fMet) in prokaryotes. During protein synthesis, the tRNA recognizes the START codon AUG with the help of some initiation factors and starts translation of mRNA.
 
+  Some alternative START codons are found in both eukaryotes and prokaryotes. Alternate codons usually code for amino acids other than methionine, but when they act as START codons they code for Met due to the use of a separate initiator tRNA.
 
-  <script src="https://www.funk.co.nz/aminosee/node_modules/three/build/three.min.js"></script>
-  <script src="https://www.funk.co.nz/aminosee/node_modules/jquery/dist/jquery.min.js"></script>
-  <script src="https://www.funk.co.nz/aminosee/public/hilbert3D.js"></script>
-  <script src="https://www.funk.co.nz/aminosee/public/hilbert2D.js"></script>
-  <script src="https://www.funk.co.nz/aminosee/public/WebGL.js"></script>
-  <script src="node_modules/hammerjs/hammer.min.js"></script>
-  <!-- script src="https://www.funk.co.nz/aminosee/bundle.js"></script -->
+  Non-AUG START codons are rarely found in eukaryotic genomes. Apart from the usual Met codon, mammalian cells can also START translation with the amino acid leucine with the help of a leucyl-tRNA decoding the CUG codon. Mitochondrial genomes use AUA and AUU in humans and GUG and UUG in prokaryotes as alternate START codons.
 
-  <script src="/gui/aminosee-gui-web.js"></script>
+  In prokaryotes, E. coli is found to use AUG 83%, GUG 14%, and UUG 3% as START codons. The lacA and lacI coding regions in the E coli lac operon don’t have AUG START codon and instead use UUG and GUG as initiation codons respectively.</p>
+  <h2>Linear Projection</h2>
+  The following image is in raster order, top left to bottom right:
+  <a name="scrollLINEAR" ></a>
+  <a href="${justNameOfPNG}" ><img src="${justNameOfPNG}"></a>
+  <br/>
 
+  <div id="googleads">
 
+  <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  <!-- AminoSee Reports -->
+  <ins class="adsbygoogle"
+  style="display:block"
+  data-ad-client="ca-pub-0729228399056705"
+  data-ad-slot="2513777969"
+  data-ad-format="auto"
+  data-full-width-responsive="true"></ins>
   <script>
-  let page = "report";
-  function mover(i) {
-    if (i == undefined) {
-      i = "stack_reference"; // reference image
-    } else {
-      i = "stack_" + i; // reference image
-    }
-    let el = document.getElementById(i);
-    el.style.zIndex = 6969;
-  }
-
-  function mout(i) {
-    if (i == undefined) {
-      i = "stack_reference"; // reference image
-    } else {
-      i = "stack_" + i; // reference image
-    }
-    let el = document.getElementById(i);
-    el.style.zIndex = 100+i;
-  }
+  (adsbygoogle = window.adsbygoogle || []).push({});
   </script>
-  <style>
-  border: 1px black;
-  backround: black;
-  padding: 4px;
-  </style>
-  </head>
-  <body>
-  <!-- Google Tag Manager -->
-  <noscript><iframe src="//www.googletagmanager.com/ns.html?id=GTM-P8JX"
-  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-  '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-})(window,document,'script','dataLayer','GTM-P8JX');</script>
-<!-- End Google Tag Manager -->
 
-<h1>AminoSee DNA Render Summary for ${currentFile}</h1>
-<h2>${justNameOfDNA}</h2>
-${( test ? " test " : imageStack())}
-
-
-<div class="fineprint" style="text-align: right; float: right;">
-<pre>
-${renderSummary()}
-</pre>
-</div>
-
-<a href="#scrollLINEAR" class="button" title"Click To Scroll Down To See LINEAR"><br />
-<img width="128" height="128" style="border: 4px black; background: black;" src="images/${justNameOfPNG}">
-1D Linear Map Image
-</a>
-<a href="#scrollHILBERT" class="button" title"Click To Scroll Down To See 2D Hilbert Map"><br />
-<img width="128" height="128" style="border: 4px black background: black;" src="images/${justNameOfHILBERT}">
-2D Hilbert Map Image
-</a>
-
-
-
-<div id="monkeys">
-<div><a href="http://aminosee.funk.nz/">
-<input type="button" value="VISIT WEBSITE" onclick="window.location = '#scrollHILBERT'"><br>
-
-<img src="https://www.funk.co.nz/aminosee/public/seenoevilmonkeys.jpg">
-
-<!-- <h1>AminoSeeNoEvil</h1> -->
-<h1>Amino<span style="color: #888888;">See</span><span style="color: #dddddd;">NoEvil</span></h1>
-<div class="hidable">
-<h2 id="h2">DNA/RNA Chromosome Viewer</h2>
-<p id="description" class="fineprint hidable">A new way to view DNA that attributes a colour hue to each Amino acid codon triplet</p>
-
-
-
-</div>
-</a>
-</div>
-</div>
-
-<div>`;
-
-
-
-html += `</div>
-
-<br /><br />
-
-<table>
-<thead>
-<tr>
-<th>Amino Acid</th>
-<th>Hue</th>
-<th>RGB</th>
-<th>Count</th>
-<th>Description</th>
-<th>Hilbert PNG</th>
-</tr>
-</thead>
-<tbody>
-
-<tr>
-<td style="background-color: white;"> All amino acids combined =   </td>
-<td>
-<p class="fineprint" style="background-color: white; background-color: rgba(255,255,255,0.5); color: black;">n/a</p>
-</td>
-<td style="color: white; font-weight: bold; "> <p class="fineprint" style="background-color: black; background-color: rgba(0,0,0,0.5); color: white;">n/a</p> </td>
-<td>${genomeSize}</td>
-<td>n/a</td>
-<td style="background-color: white;">
-<a href="images/${aminoFilenameIndex()}" class="button" title="Reference Image"><img width="48" height="16" class="blackback" src="images/${aminoFilenameIndex()}" alt="Reference Image ${justNameOfDNA}"></a>
-</td>
-</tr>
-
-`;
-// pepTable   = [Codon, Description, Hue, Alpha, Histocount]
-for (i=0; i<pepTable.length; i++) {
-  let thePep = pepTable[i];
-  let theHue = thePep.Hue;
-  let c =      hsvToRgb( theHue / 360, 0.5, 1.0 );
-  let lightC = hsvToRgb( theHue / 360, 0.95, 0.75 );
-  // log(thePep, theHue, c);
-  if (thePep.Codon == "Start Codons" || thePep.Codon == "Stop Codons" || thePep.Codon == "Non-coding NNN") {
-    html += `<!-- ${thePep.Codon} -->`;
-  } else {
-    html += `
-    <tr style="background-color: hsl( ${theHue} , 50%, 100%);" onmouseover="mover(${i})" onmouseout="mout(${i})">
-    <td style="background-color: white;"> ${pepTable[i].Codon} </td>
-    <td style="background-color: rgb(${lightC});">
-    <p class="fineprint" style="background-color: white; background-color: rgba(255,255,255,0.5); color: black;">${theHue}&#xB0;</p>
-    </td>
-    <td style="background-color: rgb(${c}); color: white; font-weight: bold; "> <p class="fineprint" style="background-color: black; background-color: rgba(0,0,0,0.5); color: white;">${c}</p> </td>
-    <td>${pepTable[i].Histocount.toLocaleString()}</td>
-    <td>${pepTable[i].Description}</td>
-    <td style="background-color: white;">
-    <a href="images/${aminoFilenameIndex(i)}" class="button" title="Amino filter: ${spaceTo_(pepTable[i].Codon)}"><img width="48" height="16" class="blackback" src="images/${aminoFilenameIndex(i)}" alt="${spaceTo_(pepTable[i].Codon)}"></a>
-    </td>
-    </tr>
-    `
-  }
-}
-html += `
-</tbody>
-<tfoot>
-<tr>
-<td>19 Amino Acids, 4 Start/Stop codes, 1 NNN</td>
-<td>.</td>
-<td>.</td>
-<td>.</td>
-<td>.</td>
-</tr>
-</tfoot>
-</table>
-<a name="scrollHILBERT" ></a>
-<a href="${justNameOfHILBERT}" ><img src="${justNameOfHILBERT}" width-"99%" height="auto"></a>
-
-<h2>About Start and Stop Codons</h2>
-<p>The codon AUG is called the START codon as it the first codon in the transcribed mRNA that undergoes translation. AUG is the most common START codon and it codes for the amino acid methionine (Met) in eukaryotes and formyl methionine (fMet) in prokaryotes. During protein synthesis, the tRNA recognizes the START codon AUG with the help of some initiation factors and starts translation of mRNA.
-
-Some alternative START codons are found in both eukaryotes and prokaryotes. Alternate codons usually code for amino acids other than methionine, but when they act as START codons they code for Met due to the use of a separate initiator tRNA.
-
-Non-AUG START codons are rarely found in eukaryotic genomes. Apart from the usual Met codon, mammalian cells can also START translation with the amino acid leucine with the help of a leucyl-tRNA decoding the CUG codon. Mitochondrial genomes use AUA and AUU in humans and GUG and UUG in prokaryotes as alternate START codons.
-
-In prokaryotes, E. coli is found to use AUG 83%, GUG 14%, and UUG 3% as START codons. The lacA and lacI coding regions in the E coli lac operon don’t have AUG START codon and instead use UUG and GUG as initiation codons respectively.</p>
-<h2>Linear Projection</h2>
-The following image is in raster order, top left to bottom right:
-<a name="scrollLINEAR" ></a>
-<a href="${justNameOfPNG}" ><img src="${justNameOfPNG}"></a>
-<br/>
-
-<div id="googleads">
-
-<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
-<!-- AminoSee Reports -->
-<ins class="adsbygoogle"
-style="display:block"
-data-ad-client="ca-pub-0729228399056705"
-data-ad-slot="2513777969"
-data-ad-format="auto"
-data-full-width-responsive="true"></ins>
-<script>
-(adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-
-</div>
-`;
-return html;
+  </div>
+  `;
+  return html;
 }
 
 function helpCmd(args) {
+  output(siteDescription);
+  output("Author:         tom@funk.co.nz or +64212576422");
+  output("calls only between 2pm and 8pm NZT (GMT+11hrs)");
+
+  welcomeMessage();
   output('Welcome to the AminoSeeNoEvil DNA Viewer!');
   output(`This CLI is to convert sequence found in ASCII/RTF-8 text files - tested with .mfa .fa .gbk up to  into .png graphics. works with .mfa .fa .gbk DNA text files. It's been tested with files up to 3 GB, and uses asynchronous streaming architecture! Pass the name of the DNA file via command line, and it will put the images in a folder called 'output' in the same folder.`);
   output(' ');
@@ -2366,7 +2421,7 @@ function okToOverwritePNG(f) { // true to continue, false to abort
       out("begin projection for " + justNameOfDNA );
       return true;
     }
-    if (result.isFile) {
+    if (result.isFile && recycEnabled == true) {
       log("Recycling previously rendered linear file.");
       willRecycleSavedImage = true;
       isDiskFinLinear = true;
@@ -2386,7 +2441,7 @@ function doesFileExist(f) {
   } catch(e) {
     error(e)
   }
-  log(`doesFileExist: ${doesFileExist}`)
+  log(`doesFileExist: ${ret}`)
   return ret;
 }
 function stat(txt) {
@@ -2734,8 +2789,8 @@ function saveHilbert(array) {
         if (isHilbertPossible === true && openImage === true) {
           output(`Opening ${justNameOfDNA} 2D hilbert space-filling image.`);
           bgOpen(filenameHILBERT)
-            // open(filenameHILBERT).then(() => {
-            // log("hilbert image closed");
+          // open(filenameHILBERT).then(() => {
+          // log("hilbert image closed");
           // }).catch(function () { error("open(filenameHILBERT)") });
         } else if (openImage === true) {
           output(`Opening ${justNameOfDNA} 1D linear projection image.`);
@@ -2744,7 +2799,7 @@ function saveHilbert(array) {
           //   log("regular png image closed");
           // }).catch(function () { error("open(filenamePNG)") });
         } else {
-          output(`Use --html or --image to automatically open files after render, and "aminosee demo" to generate test pattern and download a 1 MB DNA file from aminosee.funk.nz`)
+          log(`Use --html or --image to automatically open files after render, and "aminosee demo" to generate test pattern and download a 1 MB DNA file from aminosee.funk.nz`)
           log(`values of openHtml ${openHtml}   openImage ${openImage}`);
         }
         output(closeBrowser); // tell user process is blocked
@@ -2775,7 +2830,7 @@ function saveHilbert(array) {
       gracefulQuit();
       return false;
     }
-    function generateTestPatterns() {
+    function generateTestPatterns(cb) {
       test = true;
       updates = true;
       pngImageFlags = "_test_pattern";
@@ -2800,23 +2855,27 @@ function saveHilbert(array) {
 
 
       loopCounter = 0; // THIS REPLACES THE FOR LOOP, INCREMENET BY ONE EACH FUNCTION CALL AND USE IF.
-      runCycle();
 
-      openOutputs();
+
+      updatesTimer = setTimeout(() => {
+        runCycle(cb);
+      }, raceDelay);
+
+      // openOutputs();
 
       log(`done with JUST ONE CYCLE OF generateTestPatterns(). Filenames:`);
       log(currentOutputPath);
       log(filenameTouch);
       log(filenamePNG);
-      log(filenameHILBERT);
+      // log(filenameHILBERT);
       log(filenameHTML);
-      // if (howMany != -1) {
-      //   openOutputs();
-      // } else {
-      //   out("_")
-      // }
+      if (howMany != -1) {
+        openOutputs();
+      } else {
+        out("_")
+      }
     }
-    function runCycle() {
+    function runCycle(cb) {
 
       // for (test = 0; test <= magnitude; test++) {
       fakeReportInit(loopCounter);
@@ -2829,8 +2888,13 @@ function saveHilbert(array) {
 
         // hilbertFinished();
         loopCounter++
-        if (loopCounter > magnitude) { fakeReportStop(); saveHTML(); removeLocks(); return false }
-        setImmediate(runCycle); // helps with race conditions - gives time for ye olde garbage collector
+        if (loopCounter > magnitude) { fakeReportStop(); saveHTML(); removeLocks(); if (cb != undefined) { cb() }  return false; }
+
+
+        updatesTimer = setTimeout(() => {
+          setImmediate( () => { runCycle(cb)} ); // helps with race conditions - gives time for ye olde garbage collector
+        }, raceDelay);
+
         // runCycle();
         return true;
       });
@@ -3059,6 +3123,13 @@ function saveHilbert(array) {
       rgbArray.push(Math.round(green));
       rgbArray.push(Math.round(blue));
       rgbArray.push(Math.round(alpha));
+
+      // new streaming method
+      // pixelStream.push(Math.round(red));
+      // pixelStream.push(Math.round(green));
+      // pixelStream.push(Math.round(blue));
+      // pixelStream.push(Math.round(alpha));
+
       pixelStacking = 0;
       colClock++;
     }
@@ -3114,7 +3185,7 @@ function saveHilbert(array) {
       log(cleanDNA);
     }
     function wTitle(txt) {
-      term.windowTitle(`aminosee@${hostname} ${justNameOfDNA} ${maxWidth(120,txt)}`);
+      term.windowTitle(`${justNameOfDNA} ${maxWidth(120,txt)} AminoSee@${hostname}`);
     }
     function calcUpdate() { // DONT ROUND KEEP PURE NUMBERS
       percentComplete = (charClock+69) / (baseChars+69); // avoid div by zero below
@@ -3123,30 +3194,28 @@ function saveHilbert(array) {
       timeElapsed = Math.round(runningDuration / 1000);
       timeRemain = Math.round((timeElapsed / (percentComplete + 0.001)) - timeElapsed);
       kbRemain = (baseChars - charClock)/1000;
-      wTitle(`${nicePercent()} ${threesigbitsTolocale(timeRemain/60)} min remain`);
+      bytesPerSec = Math.round( (charClock+1) / runningDuration*1000 );
+      wTitle(`${nicePercent()} ${bytes(Math.round(bytesPerSec/1000)*1000)} /sec ${threesigbitsTolocale(timeRemain/60)} min remain`);
     }
     function getHistoCount(item, index) {
       return [ item.Codon, item.Histocount];
     }
     function whack_a_progress_on() {
       out(nicePercent());
-      var bar = new ProgressBar({
-        schema: ':bar',
-        total : 1000
-      });
-      // setTimeout(() => {
-      // calcUpdate();
+      // var bar = new ProgressBar({
+      //   schema: ':bar',
+      //   total : 1000
+      // });
+      calcUpdate();
+      out(nicePercent());
       var iv = setInterval(function () {
-        // calcUpdate();
-        bar.update(percentComplete*1000);           // bar.tick();
-
-        if (bar.completed) {
+        calcUpdate();
+        out("    " + nicePercent());
+        // bar.update(percentComplete*1000);           // bar.tick();
+        if (percentComplete > 1) {
           clearInterval(iv);
         }
-      }, 200);
-      return bar;
-
-      // }, 1000);
+      }, 1500);
     }
     function onesigbitTolocale(num){
       return (Math.round(num*10)/10).toLocaleString();
@@ -3183,6 +3252,7 @@ function saveHilbert(array) {
       return str;
     }
     function drawHistogram() {
+       output(" ");
       calcUpdate();
       if (updates == false || howMany == -1) {
         log(nicePercent());
@@ -3194,7 +3264,6 @@ function saveHilbert(array) {
         return status;
       }
       let codonsPerSec =(genomeSize+1) / (runningDuration*1000);
-      let bytesPerSec = Math.round( (charClock+1) / runningDuration*1000 );
       let text = " ";
       let aacdata = [];
       let abc = pepTable.map(getHistoCount).entries();
@@ -3209,7 +3278,7 @@ function saveHilbert(array) {
         `| Done: ${chalk.rgb(128, 255, 128).inverse( nicePercent() )} Elapsed:${ fixedWidth(4, twosigbitsTolocale(timeElapsed)) } Remain:${ fixedWidth(4,  twosigbitsTolocale(timeRemain)) } sec`,
         `| @i${fixedWidth(10, charClock.toLocaleString())} Breaks:${ fixedWidth(6, breakClock.toLocaleString())} Filesize:${fixedWidth(7, bytes(baseChars))}`,
         `| Next update: ${fixedWidth(5, msPerUpdate.toLocaleString())}ms Codon Opacity: ${twosigbitsTolocale(opacity*100)}%`,
-        `| CPU:${fixedWidth(10, bytes(bytesPerSec))} /s${fixedWidth(5, codonsPerSec.toLocaleString())}K acids/s`,
+        `| CPU:${fixedWidth(10, bytes(bytesPerSec))}/s ${fixedWidth(5, codonsPerSec.toLocaleString())}K acids/s`,
         `| Files left: ${howMany} Next: ${nextFile}`,
         ` Codons:${fixedWidth(14, genomeSize.toLocaleString())} Last Acid:${chalk.rgb(red, green, blue).bgWhite( fixedWidth(18, aminoacid) ) } Host: ${hostname} Pixels:${fixedWidth(10, colClock.toLocaleString())}`,
         ` Sample: ${ fixedWidth(60, cleanString(rawDNA)) } ${showFlags()}`,
@@ -3308,7 +3377,7 @@ function saveHilbert(array) {
         } else {
           // clean = spaceTo_( clean.Codon );
         }
-        log(`isDirtyPep(${str}) ${isDirtyPep(str)} clean: ${clean}`)
+        out(fixedWidth(12,`tidy: ${str} dirty:${" " + isDirtyPep(str)} clean: ${clean}`));
         if (clean) {
           return clean;
         } else {
@@ -3330,7 +3399,8 @@ function saveHilbert(array) {
           }
         }
         clean = spaceTo_( clean );
-        log(`isDirtyPep(${str}) ${isDirtyPep(str)} clean: ${clean}`)
+        let blah = isDirtyPep(str) + " ";
+        log(`isDirtyPep(${str}) ${blah} clean: ${clean}`)
         if (clean) {
           return clean;
         } else {
@@ -3424,9 +3494,9 @@ function saveHilbert(array) {
             if (spew && spewClock > spewThresh) {
               let c = aminoacid.charAt(0) | ".";
               // log(terminalRGB(c, red, green, blue));
-              if(colClock % 20 ==0 ){
+              if(colClock % 2 ==0 ){
                 out(` [ ${colClock} ] `);
-                output(terminalRGB(rawDNA + " ", 64, 128, 64));
+                out(terminalRGB(rawDNA + " ", 64, 128, 64));
                 out(" ");
               }
               spewClock = 0;
@@ -4366,7 +4436,7 @@ function saveHilbert(array) {
               if (exists && isDirectory) {
                 var exists = doesFileExist(dest);
                 if (exists) {
-                  log("Remove the /gui/ folder and also /index.html, then I can rebuild the web-server");
+                  log("Remove the /public/ folder and also /index.html, then I can rebuild the web-server");
                   return false;
                 } else {
                   fs.mkdirSync(dest);

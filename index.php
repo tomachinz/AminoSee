@@ -70,7 +70,8 @@
 
 						<form action="../">
 						<select name="selectedGenome" onchange="fileChanged(this.options[this.selectedIndex].value)">
-						<option value="output/Brown_Kiwi_013982187v1.fa_linear_leucine_c123.6_sci.png" selected>Brown Kiwi</option>
+
+						<option value="output/Brown_Kiwi_NW_013982187v1/Brown_Kiwi_NW_013982187v1.fa_linear-reference_c57.6_sci.png" selected>Brown Kiwi</option>
 						<option value="calibration/AminoSee_Calibration_reg_linear_8.png">AminoSee Calibration Large</option>
 						<option value="calibration/AminoSee_Calibration_reg_linear_2.png">AminoSee Calibration Small</option>
 						<option value="output/Caenorhabdihromosome-V.fa_linear_reg_c1.7_fix_sci.png">C.elegans</option>
