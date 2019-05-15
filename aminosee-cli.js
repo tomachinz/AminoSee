@@ -104,7 +104,7 @@ gv.generate(appPath +'lib/version.js', function (err, version) {
   if (err) {
     throw err;
   } else {
-    log("Generated version file");
+    log("Generated version file complete " + version);
   }
 });
 let version = require('./lib/version');
@@ -117,8 +117,8 @@ let hilbertImage, keyboard, filenameTouch, estimatedPixels, args, filenamePNG, e
 BigInt.prototype.toJSON = function() { return this.toString(); }; // shim for big int
 BigInt.prototype.toBSON = function() { return this.toString(); }; // Add a `toBSON()` function to enable MongoDB to store BigInts as strings
 
-percentComplete = charClock = baseChars = genomeSize = 1;
-
+charClock = baseChars = genomeSize = 1;
+percentComplete = 0;
 // const public = path.join(__dirname, './public'); // include the webserver files in exe
 // const xdg = path.join(__dirname, './xdg-open'); // include the webserver files in exe
 // const pos = path.join(__dirname, './pos.node'); // cursor position
@@ -323,7 +323,7 @@ module.exports = () => {
   } else {
     output(`peptide  ${peptide} triplet ${triplet}`);
     isHighlightSet = true;
-    report = false; // disable html report
+    // report = false; // disable html report
   }
 
   if (args.artistic || args.art || args.a) {
@@ -447,42 +447,26 @@ module.exports = () => {
     default:
     if (cmd == undefined) {
       currentFile = args._[0];
-      // currentFile = args._.pop();
-      // filename = path.resolve(currentFile); //
-      // args._.push(currentFile);
       status = "no command";
-
       if (mkdir(`calibration`) == true && mkdir('output') == true) {
         output("FIRST RUN!!! Opening the demo... use the command aminosee demo to see this first run demo in future");
         firstRun();
       } else {
         log('not first run')
       }
-
       output(`Try running  --->>>        aminosee demo`);//" Closing in 2 seconds.")
       output(`usage        --->>>        aminosee [*/dna-file.txt] [--help|--test|--demo|--force|--html|--image|--keyboard]     `);//" Closing in 2 seconds.")
       log(`your cmd: ${currentFile} howMany ${howMany}`);
-      // setTimeout(() => {
-      //   quit(1);
-      // }, 2000);
       pollForStream();
       return true;
     } else {
-      status = "Ω";
+      status = "Ω first command";
       out(status);
       currentFile = args._[0];
-      // currentFile = args._.pop();
-      filename = path.resolve(currentFile); //
+      filename = path.resolve(currentFile);
       log(filename)
-      // args._.push(filename);
-      // args._.push(filename);
-
-      // args._.push("hello-world.txt");
       isDiskFinHTML = isDiskFinHilbert = isDiskFinLinear = true;
-
       pollForStream();
-      // theSwitcher(true); // <--- GOOD
-
       return true;
     }
     status = "leaving switch";
@@ -819,7 +803,6 @@ function pollForStream() {
 
     try {
       if (args._) {
-        currentFile = args._[0];
         currentFile = args._.pop();
         log(chalk.bgWhite(`pop ${currentFile} howMany ${howMany}`) +  chalk(nextFile) );
       } else {
@@ -863,14 +846,12 @@ function pollForStream() {
 
     if (filename == defaultFilename) { // maybe this is to get past my lack of understanding of processing of args.
       log("skipping default: " + defaultFilename); // it was rendered same file twice i think
-      log("checkFileExtension: " + filename)
       theSwitcher(false);
       return false;
     }
     log("POLLING FILENAME: " + filename)
-    if (!checkFileExtension(getFileExtension(filename))) {
-      log("getFileExtension(filename): " + getFileExtension(filename));
-      log("checkFileExtension(getFileExtension(filename)): " + checkFileExtension(getFileExtension(filename)))
+    if (!checkFileExtension(filename)) {
+      log("Format: " + getFileExtension(filename) + " OK: " + checkFileExtension(filename) );
       theSwitcher(false);
       return false;
     } else {
@@ -1568,7 +1549,9 @@ function pollForStream() {
     let histogramFile = path.normalize( path.resolve(`${currentOutputPath}/${justNameOfDNA}/${justNameOfDNA}_histogram.json`) );
     let hypertext = htmlTemplate();
     log(`currentOutputPath is ${currentOutputPath}`);
-    fileWrite(histogramFile, JSON.stringify(this.pepTable), 'utf8');
+    fileWrite(histogramFile, JSON.stringify(this.pepTable));
+    fileWrite(filenameHTML, hypertext, htmlFinished);
+    //   fs.writeFile(filenameHTML, hypertext, function (err) {
 
     // fs.writeFile(histogramFile, JSON.stringify(this.pepTable), 'utf8', function (err) {
     //   if (err) {
@@ -1663,26 +1646,24 @@ function pollForStream() {
     }
 
   }
-
-  // function getFilesizeInBytes(f) {
-  //   baseChars = 69;
-  //   bigIntFileSize = 69696969696969n; // test of big int.
-  //   try {
-  //     baseChars = fs.fstatSync(f, { bigint: false }).size;
-  //     bigIntFileSize = fs.fstatSync(f, { bigint: true } ).size;
-  //     log(`File exists with size ${baseChars} at: ${path}`);
-  //     return baseChars;
-  //   } catch(e) {
-  //     baseChars = -1;
-  //     output(`Cant stat filesize of ${path} File error: ${e}`);
-  //     return baseChars;
-  //   }
-  //   log(`f ${path} baseChars ${baseChars} file: ${file} big int filesize: ${bigIntFileSize}`);
-  //   return baseChars; // debug flag. basically i should never see -69 appearing in error logs
-  // }
+  function getFilesizeInBigIntBytes(f) {
+    baseChars = 69;
+    bigIntFileSize = 69696969696969n; // test of big int.
+    try {
+      baseChars = fs.fstatSync(f, { bigint: false }).size;
+      bigIntFileSize = fs.fstatSync(f, { bigint: true } ).size;
+      log(`File exists with size ${baseChars} at: ${path}`);
+      return baseChars;
+    } catch(e) {
+      baseChars = -1;
+      output(`Cant stat filesize of ${path} File error: ${e}`);
+      return baseChars;
+    }
+    log(`f ${path} baseChars ${baseChars} file: ${file} big int filesize: ${bigIntFileSize}`);
+    return baseChars; // debug flag. basically i should never see -69 appearing in error logs
+  }
   function getFileExtension(f) {
     let lastFive = f.slice(-5);
-    log(`lastFive ${lastFive}`)
     return lastFive.replace(/.*\./, '').toLowerCase();
   }
   function checkFileExtension(f) {
