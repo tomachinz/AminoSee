@@ -7,15 +7,17 @@ echo COPYING LIBRARIES INTO /lib
 mkdir -p lib
 mkdir -p dist
 mkdir -p dist/node_modules
-mkdir -p dist/node_modules/sliced/
+# mkdir -p dist/node_modules/sliced/
 mkdir -p dist/node_modules/deep-defaults
 mkdir -p dist/node_modules/deep-defaults/lib
 mkdir -p dist/node_modules/termconfig
-mkdir -p lib/termconfig
 
-cp -v node_modules/sliced/index.js dist/node_modules/sliced
-cp -r -v node_modules/terminal-kit dist/node_modules
-cp -v node_modules/deep-defaults/lib/index.js dist/node_modules/deep-defaults/lib
+# mkdir -p lib/termconfig
+# cp -r -v node_modules/deep-defaults dist/node_modules
+# cp -r -v node_modules/terminal-kit dist/node_modules
+
+# cp -v node_modules/sliced/index.js dist/node_modules/sliced/index.js
+cp -v node_modules/deep-defaults/lib/index.js dist/node_modules/deep-defaults/lib/index.js
 cp -r dist/docs dist/Aminosee_macos
 # cp -v node_modules/terminal-kit/lib/termconfig/xterm.generic.js  dist/node_modules/termconfig
 
