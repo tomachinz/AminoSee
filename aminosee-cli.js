@@ -443,7 +443,7 @@ module.exports = () => {
     openHtml = true;
   } else {
     log("not opening html");
-    // openHtml = false;
+    openHtml = false;
   }
   if (args.spew || args.s) {
     output("spew mode enabled.");
@@ -538,8 +538,11 @@ module.exports = () => {
     break
 
     default:
+    isDiskFinHTML = isDiskFinHilbert = isDiskFinLinear = true;
+    howMany = 2;
     if (cmd == undefined) {
       currentFile = args._[0];
+      args._.push(currentFile);
       status = "no command";
       if (cliruns <= 3) {
         output("FIRST RUN!!! Opening the demo... use the command aminosee demo to see this first run demo in future");
@@ -557,7 +560,6 @@ module.exports = () => {
       currentFile = args._[0];
       filename = path.resolve(currentFile);
       log(filename)
-      isDiskFinHTML = isDiskFinHilbert = isDiskFinLinear = true;
       status = "Ω first command " + howMany + " " + currentFile;
       out(status);
       pollForStream();
@@ -604,7 +606,6 @@ function setupKeyboardUI() {
       process.exit()
     }
     if (key && key.name == 'q') {
-      removeLocks();
       gracefulQuit();
     }
     if (key && key.name == 's') {
@@ -698,6 +699,7 @@ function toggleUpdates() {
 }
 function gracefulQuit() {
   status = "GRACEFUL QUIT IN 5 SECONDS";
+  removeLocks();
   out(status);
   args = [];
   howMany = -1;
@@ -706,6 +708,7 @@ function gracefulQuit() {
   setImmediate( () => {
     setTimeout(quit, 5000);
   })
+  drawHistogram();
   // whack_a_progress_on();
 }
 function background(callback) {
@@ -878,6 +881,7 @@ function createJob(cb) {
 }
 function pollForStream() {
   if (test) {
+    log("Test... >>");
     return false;
   }
   if (renderLock) {
@@ -2682,8 +2686,8 @@ function doesFileExist(f) {
       let hilbertLinear = 4 * ((hilbX % width) + (hilbY * width));
       let perc = i / hilpix;
       percentComplete = perc;
-      if (Math.round(perc * 1000) % 5 == 0) {
-      clout("Space filling " + fixedWidth(6, " " + (perc*100)) + "% of " + hilpix.toLocaleString());
+      if (Math.round(perc * 1000) % 10 == 0) {
+        clout("Space filling " + fixedWidth(6, " " + (perc*100)) + "% of " + hilpix.toLocaleString());
       }
 
       // output("Space filling " + fixedWidth(10, (perc*100) + "%") + " of " + hilpix.toLocaleString());
@@ -2914,7 +2918,7 @@ function doesFileExist(f) {
               log("file manager closed");
             }).catch(function () { error(`open(${outputPath})`)});
           }
-          if (openHtml === true) {
+          if (openHtml == true) {
             output(`Opening ${justNameOfDNA} DNA render summary HTML report.`);
             // bgOpen(filenameHTML, {app: 'firefox', wait: false} );
             open(filenameHTML).then(() => {
