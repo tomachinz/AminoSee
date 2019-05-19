@@ -41,7 +41,10 @@ function reportLoaded() {
   console.log("FETCH");
   fetch(filename +  "_histogram.json")
     .then(response => response.json())
-    .then(json => console.log(json));
+    .then(json => {
+      console.log(json);
+      alert(json);
+    });
 }
 function pageLoaded() {
   if (page == "report") {
@@ -90,12 +93,6 @@ function initVariables() {
   color = new THREE.Color();
   userFeedback = "";
 
-  // Check for the various File API support.
-  if (window.File && window.FileReader && window.FileList && window.Blob) {
-    console.log('File API support detected. Groovy.');
-  } else {
-    stat('The File APIs are not fully supported in this browser. They are needed for loading the super massive DNA text files.');
-  }
 
   if ( WEBGL.isWebGLAvailable() === false ) {
     document.body.appendChild( WEBGL.getWebGLErrorMessage() );
@@ -105,7 +102,6 @@ function initVariables() {
   stat("initialisation: zoom levels distance subdivisions " +   zoom + ", " +  levels  + ", " + distance);
   window.addEventListener('devicemotion', listener);
   window.addEventListener('deviceorientation', listener);
-
   document.addEventListener( 'mousemove', onDocumentMouseMove, false );
   document.addEventListener( 'touchstart', onDocumentTouchStart, false );
   document.addEventListener( 'touchmove', onDocumentTouchMove, false );
@@ -150,11 +146,11 @@ function init2D() {
   // addOffscreenImage();
 }
 
-
 function getParameterFromURL() {
   let href = window.location.href;
   let index = href.indexOf('selectedGenome');
   console.log(href, index);
+
   if ( index != -1 ) {
     href = href.substring(index);
     index = href.indexOf('&');
@@ -169,9 +165,10 @@ function getParameterFromURL() {
     // if ( index != -1 ) {
     //   href = href.substring(0, index); //CHOP OFF THE &
     // }
-    // alert(href)
+    alert(href)
     return href;
   } else {
+
     // alert("output/Brown_Kiwi_013982187v1.fa_linear_leucine_c123.6_sci.png")
     return `output/Brown_Kiwi_013982187v1.fa_linear_leucine_c123.6_sci.png`;
   }
