@@ -31,8 +31,8 @@ aminosee_test () {
 }
 
 aminosee serve &
+aminosee --art *
 aminosee demo
-
 aminosee_test      *       --peptide=Ochre
 # aminosee_test            $1 $2 2 $3 $4 --peptide=Glutamic &
 # aminosee_test            $1 $2 3 $3 $4 --peptide=Aspartic &
