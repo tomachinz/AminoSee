@@ -2679,7 +2679,10 @@ function doesFileExist(f) {
       let hilbertLinear = 4 * ((hilbX % width) + (hilbY * width));
       let perc = i / hilpix;
       percentComplete = perc;
+      if (Math.round(perc * 1000) % 5 == 0) {
       clout("Space filling " + fixedWidth(6, " " + (perc*100)) + "% of " + hilpix.toLocaleString());
+      }
+
       // output("Space filling " + fixedWidth(10, (perc*100) + "%") + " of " + hilpix.toLocaleString());
 
       hilbertImage[hilbertLinear+0] = rgbArray[cursorLinear+0];
@@ -3137,12 +3140,12 @@ function doesFileExist(f) {
       }
       function pixTodefaultMagnitude(pix) { // give it pix it returns a magnitude that fits inside it
         let dim = 0;
-        let ret = `[HILBERT] Calculating largest Hilbert curve image that can fit inside ${twosigbitsTolocale(pix)} pixels, and over sampling factor of ${overSampleFactor}: `;
+        let rtxt = `[HILBERT] Calculating largest Hilbert curve image that can fit inside ${twosigbitsTolocale(pix)} pixels, and over sampling factor of ${overSampleFactor}: `;
         while (pix > (hilbPixels[dim] * overSampleFactor)) {
-          ret += ` dim ${dim}: ${hilbPixels[dim]} `;
+          rtxt += ` dim ${dim}: ${hilbPixels[dim]} `;
 
           if (dim % 666 == 0 && dim > 666) {
-            ret+= (`ERROR pixTodefaultMagnitude [${hilbPixels[dim]}] pix ${pix} dim ${dim} `);
+            rtxt+= (`ERROR pixTodefaultMagnitude [${hilbPixels[dim]}] pix ${pix} dim ${dim} `);
           }
           if (dim > defaultMagnitude) {
             if (magnitude && dim > theoreticalMaxMagnitude ) {
@@ -3158,8 +3161,8 @@ function doesFileExist(f) {
         }
         if (dim>0) { dim--; } // was off by 1
 
-        ret+= ` <<<--- chosen magnitude: ${dim} `;
-        log(ret);
+        rtxt+= ` <<<--- chosen magnitude: ${dim} `;
+        log(rtxt);
         return dim;
       }
 
@@ -3421,7 +3424,7 @@ function doesFileExist(f) {
         let codonsPerSec =(genomeSize+1) / (runningDuration*1000);
         let text = " ";
         let aacdata = [];
-        let abc = pepTable.map(getHistoCount).entries();
+        // let abc = pepTable.map(getHistoCount).entries();
         if (msPerUpdate < maxMsPerUpdate) {
           msPerUpdate += 50; // updates will slow over time on big jobs
         }
