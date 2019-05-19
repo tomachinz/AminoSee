@@ -78,7 +78,8 @@ const PNG = require('pngjs').PNG;
 let PNGReader = require('png.js');
 let ProgressBar = require('progress');
 const chalk = require('chalk');
-let pepTable = require('./data.js').pepTable;
+let data = require('./data.js');
+let pepTable = data.pepTable;
 
 const clog = console.log;
 const os = require("os");
@@ -110,7 +111,7 @@ let isDiskFinHilbert = true; // flag shows if saving hilbert png is complete
 let isDiskFinHTML = true; // flag shows if saving html is complete
 let willRecycleSavedImage = false; // allows all the regular processing to mock the DNA render stage
 let filename = testFilename;
-let rawDNA ="@loading DNS Stream..."; // debug
+let rawDNA ="@loading DNA Stream..."; // debug
 let status = "load";
 // let StdInPipe = require('./stdinpipe');
 // let pipeInstance = new StdInPipe();
@@ -552,12 +553,13 @@ module.exports = () => {
       pollForStream();
       return true;
     } else {
-      status = "Ω first command";
-      out(status);
+
       currentFile = args._[0];
       filename = path.resolve(currentFile);
       log(filename)
       isDiskFinHTML = isDiskFinHilbert = isDiskFinLinear = true;
+      status = "Ω first command " + howMany + " " + currentFile;
+      out(status);
       pollForStream();
       return true;
     }
@@ -655,6 +657,7 @@ function toggleVerbose() {
 }
 function toggleSpew() {
   spew = !spew;
+  clearCheck();
   out(`spew mode ${spew}`);
 }
 function toggleDevmode() {
@@ -881,10 +884,10 @@ function pollForStream() {
     return false;
   }
   if (!(isDiskFinLinear && isDiskFinHilbert && isDiskFinHTML)){
-    bugtxt(` [is disk finished writing? linear hilbert html ] ${isDiskFinLinear  + " " +  isDiskFinHilbert  + " " +  isDiskFinHTML }`);
+    log(` [is disk finished writing? linear hilbert html ] ${isDiskFinLinear  + " " +  isDiskFinHilbert  + " " +  isDiskFinHTML }`);
     return false;
   } else {
-    bugtxt(` [ disk finished. continuing to render next file ] ${isDiskFinLinear  + " " +  isDiskFinHilbert  + " " +  isDiskFinHTML }`);
+    log(` [ disk finished. continuing to render next file ] ${isDiskFinLinear  + " " +  isDiskFinHilbert  + " " +  isDiskFinHTML }`);
   }
   if (howMany < 1) {
     log("FINITO");
@@ -1884,7 +1887,7 @@ function quit(n) {
 function processLine(l) {
   status = "stream";
 
-  rawDNA += cleanString(l);
+  rawDNA = cleanString(l) + rawDNA;
 
   var cleanDNA = "";
   let lineLength = l.length; // replaces baseChars
@@ -2730,7 +2733,7 @@ function doesFileExist(f) {
         setTimeout(() => {
           pollForStream();
         }, raceDelay);
-        openOutputs();
+        // openOutputs();
       });
     }
     function hilbertFinished() {
@@ -3449,11 +3452,14 @@ function doesFileExist(f) {
             term.up(termStatsHeight);
             printRadMessage(array);
             console.log(); // white space
-            if (spew) {
-              if (rawDNA.length > termPixels )  { rawDNA = rawDNA.substring(0, termPixels) }
+
+            if (spew  == true) {
+              rawDNA = rawDNA.substring(0, 500)
               out(rawDNA);
+              term.up(rawDNA.length/term.width);
             }
-            term.up(rawDNA.length/term.width);
+
+
             console.log(histogram(aacdata, { bar: '/', width: 40, sort: true, map:  aacdata.Histocount} ));
             output(interactiveKeysGuide);
             log(    isDiskFinHTML, isDiskFinHilbert, isDiskFinLinear);
