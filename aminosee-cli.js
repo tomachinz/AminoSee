@@ -698,7 +698,7 @@ function toggleUpdates() {
   out(`stats updates toggled to: ${updates}`);
 }
 function gracefulQuit() {
-  status = "GRACEFUL QUIT IN 5 SECONDS";
+  status = "GRACEFUL SHUTDOWN IN PROGRESS";
   removeLocks();
   out(status);
   args = [];
@@ -706,7 +706,7 @@ function gracefulQuit() {
   nextFile = "will exit after current file"
   calcUpdate();
   setImmediate( () => {
-    setTimeout(quit, 5000);
+    setTimeout(quit, raceDelay*10);
   })
   drawHistogram();
   // whack_a_progress_on();
