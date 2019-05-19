@@ -353,7 +353,7 @@ module.exports = () => {
   } else {
     output(`peptide  ${peptide} triplet ${triplet}`);
     isHighlightSet = true;
-    // report = false; // disable html report
+    report = false; // disable html report
   }
 
   if (args.artistic || args.art || args.a) {
