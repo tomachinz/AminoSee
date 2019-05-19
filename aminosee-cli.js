@@ -1633,11 +1633,11 @@ function saveHTML() {
   // stringify JSON Object
   let histogramFile = path.normalize( path.resolve(`${currentOutputPath}/${justNameOfDNA}/${justNameOfDNA}_histogram.json`) );
   let hypertext = htmlTemplate();
-  log(`currentOutputPath is ${currentOutputPath}`);
-  fileWrite(histogramFile, JSON.stringify(this.pepTable));
+  let histotext = JSON.stringify(pepTable);
+  out(`currentOutputPath is ${currentOutputPath} histotext is: ${histotext}`);
+  fileWrite(histogramFile, histotext);
   fileWrite(filenameHTML, hypertext, htmlFinished);
-  //   fs.writeFile(filenameHTML, hypertext, function (err) {
-
+  fileWrite(`${outputPath}/${justNameOfDNA}/index.html`, hypertext, htmlFinished);
 }
 function fileWrite(file, contents, encoding, cb) {
   try {
@@ -3183,9 +3183,9 @@ function saveHilbert(array) {
       console.log(terminalRGB(`╩ ╩┴ ┴┴┘└┘└─┘╚═╝└─┘└─┘  ═╩╝╝╚╝╩ ╩   ╚╝ ┴└─┘└┴┘└─┘┴└─  ${array[2]}`, 128, 240, 240) );
       console.log(terminalRGB(` by Tom Atkinson          aminosee.funk.nz            ${array[3]}`, 225, 225, 130) );
       console.log(terminalRGB(`  ah-mee-no-see     'I See It Now - I AminoSee it!'   ${array[4]}`, 255, 180,  90) );
-      console.log(terminalRGB(`   ${prettyDate()}   v${version}            ${array[5]}`                 , 220, 120,  70) );
+      console.log(terminalRGB(`   ${prettyDate()}   v${version}            ${array[5]}`          , 220, 120,  70) );
       console.log(terminalRGB(array[6], 200, 105,   60) );
-      console.log(terminalRGB(array[7], 180, 32,   32) );
+      console.log(terminalRGB(array[7], 200, 32,   32) );
     }
 
     function crashReport() {
