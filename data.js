@@ -621,7 +621,7 @@ function helpCmd(args) {
 
         //PARSE SOURCE CODE
         // https://www.npmjs.com/package/parse-apache-directory-index
-
+          let renderStats = [{ "justNameOfDNA": "loading data.js"}];
           let pepTable   = [
             {
               "Codon": "Non-coding NNN",

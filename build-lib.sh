@@ -3,14 +3,16 @@ ERASED="build"
 BUILDFOLDER="build/AminoSee_build_"
 TIMESTAMP=$(date +%s)
 TARGET="$BUILDFOLDER$TIMESTAMP"
-echo COPYING LIBRARIES INTO /lib
-mkdir -p lib
+echo COPYING LIBRARIES INTO dist/root
+echo items in dist/root will go in the root of the dist folder
+echo
 mkdir -p dist
-mkdir -p dist/node_modules
+mkdir -p dist/root
+mkdir -p dist/root/node_modules
 # mkdir -p dist/node_modules/sliced/
-mkdir -p dist/node_modules/deep-defaults
-mkdir -p dist/node_modules/deep-defaults/lib
-mkdir -p dist/node_modules/termconfig
+mkdir -p dist/root/node_modules/deep-defaults
+mkdir -p dist/root/node_modules/deep-defaults/lib
+mkdir -p dist/root/node_modules/termconfig
 
 # mkdir -p lib/termconfig
 # cp -r -v node_modules/deep-defaults dist/node_modules
@@ -39,13 +41,8 @@ cp -r dist/docs dist/Aminosee_linux
 cp -r dist/docs dist/Aminosee_win
 
 echo COPYING LIBRARIES INTO /dist/* APP ROOT FOLDERS
-cp -r -v lib/* bin
-cp -r -v dist/node_modules bin
+cp -r -v lib/* dist/root/lib
 
-cp -r  lib/* dist/Aminosee_macos
-cp -r  lib/* dist/Aminosee_linux
-cp -r  lib/* dist/Aminosee_win
-
-cp -r -v dist/node_modules dist/Aminosee_macos
-cp -r    dist/node_modules dist/Aminosee_linux
-cp -r    dist/node_modules dist/Aminosee_win
+cp -r  dist/root/* dist/Aminosee_macos
+cp -r  dist/root/* dist/Aminosee_linux
+cp -r  dist/root/* dist/Aminosee_win

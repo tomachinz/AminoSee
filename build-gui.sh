@@ -51,25 +51,25 @@ cp -r favicon.ico $TARGET
 cp -r favicon.png $TARGET
 cp -r -v dist $TARGET
 
-# cp -r package-electron.json $TARGET/package.json
-# cp -r electron.html $TARGET
-# cp -r main.js $TARGET
-# cp -r renderer.js $TARGET
+echo COPY AND RENAME package-electron.json $TARGET/package.json
+cp -v package-electron.json $TARGET/package.json
+cp -v electron.html $TARGET
+cp -v main.js $TARGET
+cp -v renderer.js $TARGET
+cp -r node_modules $TARGET
 
-
-# cp -r node_modules $TARGET
 mkdir "build/THIS FOLDER IS AUTOMATICALLY WIPED BY SCRIPTS"
 
 cd $TARGET
 pwd
-npm install -v
+# npm install -v
 npm install pkg
-npm update
-npm run electron
-
-npm run build
-# RUN ELECTRON BUILD BEFORE COPYING THE DIST SHELLS, AND TESTING
+# npm update
+npm run gui &
 cp -r ../dist .
+
+npm run electron
+# RUN ELECTRON BUILD BEFORE COPYING THE DIST SHELLS, AND TESTING
 
 # npm run start --no-image
 # npm run start megabase.fa --image

@@ -901,11 +901,8 @@ function pollForStream() {
     log("FINITO");
     return false;
   }
-
   status = "polling";
   bugtxt(` [polling ${nicePercent()} ${status} ${new Date()}`);
-    clearCheck();
-
     try {
       nextFile = args._[args._.length - 2];
     } catch(e) {
@@ -1493,7 +1490,7 @@ function startServeHandler() {
     // You pass two more arguments for config and middleware
     // More details here: https://github.com/zeit/serve-handler#options
     let options = {
-      public: './',
+      public: path.normalize( process.cwd() ),
       renderSingle: false,
       symlinks: true,
       unlisted: [
