@@ -78,7 +78,6 @@ const PNG = require('pngjs').PNG;
 let PNGReader = require('png.js');
 let ProgressBar = require('progress');
 const chalk = require('chalk');
-// let aminoseeData = require('./data.js');
 let pepTable = require('./data.js').pepTable;
 
 const clog = console.log;
@@ -230,9 +229,6 @@ module.exports = () => {
   let cmd = args._[0];
   bugtxt(`args.toString: ${args.toString()}`);
   bugtxt(`args._.toString: ${args._.toString()}`);
-  // let pepTable = aminoseeData.getPepTable();
-  // let pepTable = aminoseeData.pepTable;
-  output(JSON.stringify(pepTable));
   // console.log(`stdin pipe: ${pipeInstance.checkIsPipeActive()}`);
   // const stdin = pipeInstance.stdinLineByLine();
   // stdin.on('line', console.log);
