@@ -86,15 +86,15 @@ const os = require("os");
 const hostname = os.hostname();
 const appFilename = require.main.filename; //  /bin/aminosee.js
 const obviousFoldername = `/AminoSee_Output`;
-const outFoldername = `/output`;
+let outFoldername = `/output`;
 let appPath = path.normalize(appFilename.substring(0, appFilename.length-15));// + /bin/aminosee.js has 11 chars; cut 4 off to remove /dna
 
 // look in current dir for output or AminoSee_Output folders
 // if found, use those, if not use ~/AminoSee
 // this way you can create a network cluster quickly by just creating a folder called 'output' in the dna folder
 // then to cease work in the cluster, move the files to your homedir, and delete the output folder in the share
-let clusterPath = path.normalize(path.resolve(process.cwd() + outFoldername)); // legacy foldername
-let homedirOutput =  path.normalize(path.resolve(os.homedir() + obviousFoldername)); // legacy foldername
+const clusterPath = path.normalize(path.resolve(process.cwd() + outFoldername)); // legacy foldername
+const homedirOutput =  path.normalize(path.resolve(os.homedir() + obviousFoldername)); // legacy foldername
 let outputPath = clusterPath;
 if (!doesFolderExist(outputPath)) {
   let outputPath = path.normalize(path.resolve(process.cwd() + obviousFoldername)); // const outputPath = path.normalize(path.resolve(process.cwd()) + "/output"); // current working diretory is in /bin/aminosee.js
