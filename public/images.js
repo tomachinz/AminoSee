@@ -1,0 +1,21 @@
+export default images = [{
+"master": "homo-sapien38.p12_chr2.fa_HILBERT__c79_sci.png",
+"alanine": "homo-sapien38.p12_chr2.fa_HILBERT_alanine_c79_sci.png",
+"amber": "homo-sapien38.p12_chr2.fa_HILBERT_amber_c79_sci.png",
+"arginine": "homo-sapien38.p12_chr2.fa_HILBERT_arginine_c79_sci.png",
+"asparagine": "homo-sapien38.p12_chr2.fa_HILBERT_asparagine_c79_sci.png",
+"cysteine": "homo-sapien38.p12_chr2.fa_HILBERT_cysteine_c79_sci.png",
+"glutamine": "homo-sapien38.p12_chr2.fa_HILBERT_glutamine_c79_sci.png",
+"glycine": "homo-sapien38.p12_chr2.fa_HILBERT_glycine_c79_sci.png",
+"leucine": "homo-sapien38.p12_chr2.fa_HILBERT_leucine_c79_sci.png",
+"lysine": "homo-sapien38.p12_chr2.fa_HILBERT_lysine_c79_sci.png",
+"methionine": "homo-sapien38.p12_chr2.fa_HILBERT_methionine_c79_sci.png",
+"ochre": "homo-sapien38.p12_chr2.fa_HILBERT_ochre_c79_sci.png",
+"opal": "homo-sapien38.p12_chr2.fa_HILBERT_opal_c79_sci.png",
+"phenylalanine": "homo-sapien38.p12_chr2.fa_HILBERT_phenylalanine_c79_sci.png",
+"serine": "homo-sapien38.p12_chr2.fa_HILBERT_serine_c79_sci.png",
+"threonine": "homo-sapien38.p12_chr2.fa_HILBERT_threonine_c79_sci.png",
+"tryptophan": "homo-sapien38.p12_chr2.fa_HILBERT_tryptophan_c79_sci.png",
+"tyrosine": "homo-sapien38.p12_chr2.fa_HILBERT_tyrosine_c79_sci.png",
+"valine": "homo-sapien38.p12_chr2.fa_HILBERT_valine_c79_sci.png"
+}];

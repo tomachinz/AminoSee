@@ -25,7 +25,6 @@
     "jimp": "^0.5.6",
     "keypress": "^0.2.1",
     "local-web-server": "^2.6.1",
-    "magick-cli": "*",
     "minimist": "^1.2.0",
     "nexe": "^3.2.0",
     "node-fetch": "^2.6.0",
