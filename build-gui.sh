@@ -3,35 +3,50 @@ ERASED="build"
 BUILDFOLDER="build/AminoSee_build_"
 TIMESTAMP=$(date +%s)
 TARGET="$BUILDFOLDER$TIMESTAMP"
-echo COPYING LIBRARIES INTO /lib
-mkdir -p lib
-mkdir -p lib/node_modules
-mkdir -p lib/node_modules/sliced/
-mkdir -p lib/node_modules/deep-defaults
-mkdir -p lib/node_modules/terminal-kit/lib/termconfig
+echo open ./build-cli.sh
+sleep 1
+open ./build-cli.sh
 
-echo GENERATE VERSION NUMBER IMPORT
-npm run genversion
+echo "And now some bloated electron stuff"
+mkdir -p dist/root/node_modules/electron
+mkdir -p dist/root/node_modules/electron/dist
+cp -r node_modules/electron/dist/*  dist/root/node_modules/electron/dist
 
-cp -v node_modules/sliced/index.js lib/node_modules/sliced
-cp -v node_modules/deep-defaults/lib/index.js lib/node_modules/deep-defaults/lib
-cp -v node_modules/get-cursor-position/build/Release/pos.node lib
-cp -v node_modules/opn/xdg-open lib
-cp -v node_modules/terminal-kit/lib/termconfig/xterm.generic.js  lib/termconfig
-# CP -V node_modules/electron/dist lib/electron/dist
+#
 
 
-echo COPYING LIBRARIES INTO /dist/*
-cp -r -v lib/* dist/Aminosee_macos
-cp -r -v lib/* dist/Aminosee_linux
-cp -r -v lib/* dist/Aminosee_win
-
+# echo COPYING LIBRARIES INTO /lib
+# mkdir -p lib
+# mkdir -p lib/node_modules
+# mkdir -p lib/node_modules/sliced/
+# mkdir -p lib/node_modules/deep-defaults
+# mkdir -p lib/node_modules/terminal-kit/lib/termconfig
+# mkdir -p lib/node_modules/electron/dist
+#
+# echo GENERATE VERSION NUMBER IMPORT
+# npm run genversion
+#
+# cp -v node_modules/sliced/index.js lib/node_modules/sliced
+# cp -v node_modules/deep-defaults/lib/index.js lib/node_modules/deep-defaults/lib
+# cp -v node_modules/get-cursor-position/build/Release/pos.node lib
+# cp -v node_modules/opn/xdg-open lib
+# cp -v node_modules/terminal-kit/lib/termconfig/xterm.generic.js  lib/termconfig
+# # CP -V node_modules/electron/dist lib/electron/dist
+# cp -r node_modules/electron/dist/* dist/root/node_modules/electron/dist
+# path-to-executable/electron/dist
+#
 
 
 echo "Move a bunch of files into $TARGET then run pkg on it"
 mkdir build
 mkdir $TARGET
 mkdir -p $TARGET/dna
+
+echo COPYING LIBRARIES INTO /dist/*
+mkdir -p $TARGET/dist
+mkdir -p $TARGET/dist/root
+cp -r -v dist/root/* $TARGET/dist/root
+
 
 cp -v -r dna/megabase.fa $TARGET/dna
 cp -r images $TARGET

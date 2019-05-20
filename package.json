@@ -58,7 +58,8 @@
     "test": "vows --spec --isolate",
     "start": "node bin/aminosee",
     "demo": "node bin/aminosee demo",
-    "build": "./build-lib.sh ; npm run browserify ; time npm run package",
+    "build": "./build-lib.sh ; npm run genversion ; npm run browserify ; time npm run package",
+    "build-lib": "./build-lib.sh ; npm run browserify ; time npm run package",
     "build-all": "./build-lib.sh ; time npm run package",
     "genversion": "genversion lib/version.js",
     "browserify": "browserify  --minified aminosee-cli.js -o bundle.js",
@@ -98,15 +99,17 @@
       "win"
     ],
     "scripts": [
-      "pos.node"
+      "dist/root/pos.node"
     ],
     "assets": [
+      "node_modules/**",
+      "lib/**",
       "bin/**",
       "index.html",
       "index.php",
       "favicon.ico",
       "aminosee-gui-web.js",
-      "lib/**"
+      "public/**"
     ]
   }
 }

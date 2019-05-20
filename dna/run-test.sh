@@ -29,7 +29,12 @@ aminosee_test () {
   sleep 10
   echo "resuming..."
 }
-
+aminosee test --peptide=Ochre &
+sleep 2
+aminosee test --peptide=Methionine &
+sleep 4
+aminosee test --peptide=Opal
+aminosee_test test
 aminosee serve &
 aminosee --art *
 aminosee demo

@@ -28,7 +28,7 @@ let maxMsPerUpdate = 30000; // milliseconds per updatelet maxpix = targetPixels;
 let termDisplayHeight = 30;
 let termStatsHeight = 9;
 let maxpix = targetPixels;
-let raceDelay = 269; // so i learnt a lot on this project. one day this line shall disappear replaced by promises.
+let raceDelay = 369; // so i learnt a lot on this project. one day this line shall disappear replaced by promises.
 let raceTimer = false;
 let dimension; // var that the hilbert projection is be downsampled to
 let darkenFactor = 0.25; // if user has chosen to highlight an amino acid others are darkened
@@ -51,7 +51,8 @@ let stream = require('stream');
 let util = require('util');
 const path = require('path');
 const async = require('async-kit'); // amazing lib
-let term = require('terminal-kit').terminal;
+// let term = require('terminal-kit').terminal;
+let term = require('./node_modules/terminal-kit').terminal;
 // let term = require( path.normalize(appPath + 'node_modules/terminal-kit') ).terminal ;
 let gv = require('genversion');
 let MyManHilbert = require('hilbert-2d'); // also contains magic
@@ -740,54 +741,45 @@ function bgOpen(file, options) {
   })();
 }
 function runDemo() {
-  async.waterfall( [
-    function w1( args, callback ) {
-      symlinkGUI(callback);
-    },
-    function w15( callback ) {
-      // symlinkGUI();
-      openHtml = false;
-      openImage = false;
-      generateTestPatterns(callback);
-    },
-    function w2( callback ) {
-      openHtml = true;
-      openImage = true;
+  async.series( [
+      function( cb ) {
+        symlinkGUI(cb);
+      } ,
+      function( cb ) {
+        // openHtml = false;
+        openImage = true;
+        generateTestPatterns(cb);
+      } ,
+      function ( cb ) {
+        openOutputs(cb);
+      },
+      function ( cb ) {
+        currentFile = defaultFilename;
+        args._[0] = currentFile;
+        args._.push(currentFile);
+        // downloadMegabase(cb);
+        pollForStream(cb);
 
-      // openFileExplorer = true;
-      currentFile = testFilename;
-      launchNonBlockingServer(outFoldername);
-      // bgOpen(path.normalize( outputPath + '/calibration'));
-      callback();
-    },
-    function w3( callback ) {
-      regmarks = true;
-      generateTestPatterns();
-      callback();
-    },
-    function w4( callback ) {
-      callback();
-    },
-    function w4( callback ) {
-      currentFile = defaultFilename;
-      args._[0] = currentFile;
-      args._.push(currentFile);
-      downloadMegabase(pollForStream);
-      pollForStream();
-      // initStream(args._[0])
-      // theSwitcher(false);
-      // let thisJob = createJob().then(log('thisJob CONTINUE')).catch(log('thisJob LATCH'));
-      callback();
-    }
-  ])
-  .timeout( 200 )
-  .then( function(  ) {
-    out("demo complete.");
-  } )
-  .catch( function( error ) {
-    log("demo had error: " + error);
-  } )
-  .execArgs( () => {log("Fooos execArgs")});
+      },
+      // function ( cb ) {
+      //   pollForStream(cb);
+      // },
+      function( cb ) {
+        // openFileExplorer = true;
+        currentFile = testFilename;
+        regmarks = true;
+        // generateTestPatterns(cb);
+        // let thisJob = createJob().then(out('thisJob COMPLETE')).catch(out('thisJob ERROR'));
+        launchNonBlockingServer(cb);
+        // return thisJob;
+      }
+  ] )
+  .exec( function( error , results ) {
+      if ( error ) { console.log( 'Doh!' ) ; }
+      else { console.log( 'Yay! Done!' ) ; }
+  } ) ;
+
+
 }
 function downloadMegabase(cb) {
   currentFile = 'megabase.fa';
@@ -883,7 +875,12 @@ function createJob(cb) {
     ( cb ? resolve() : reject() )
   })
 }
-function pollForStream() {
+function pollForStream(cb) {
+  if ( cb == undefined) {
+    cb = new function () {
+      quit();
+    }
+  }
   if (test) {
     log("Test... >>");
     return false;
@@ -1396,8 +1393,12 @@ function symlinkGUI(cb) { // does:  ln -s /Users.....AminoSee/public, /Users....
   fullDest = path.normalize( path.resolve(outputPath + '/public') );
   createSymlink(fullSrc  , fullDest);
 
+  fullSrc = path.normalize( path.resolve(appPath + '/aminosee-gui-web.js') );
+  fullDest = path.normalize( path.resolve(outputPath + '/aminosee-gui-web.js') );
+  createSymlink(fullSrc  , fullDest);
+
   fullSrc = path.normalize( path.resolve(appPath + '/public/index.html') );
-  fullDest = path.normalize( path.resolve(outputPath + '/index.html') ); // Protects users privacy in current working directory
+  fullDest = path.normalize( path.resolve(process.cwd() + '/index.html') ); // Protects users privacy in current working directory
   createSymlink(fullSrc, fullDest);
   fullSrc = path.normalize( path.resolve(appPath + '/node_modules') );
   fullDest = path.normalize( path.resolve(outputPath + '/node_modules') ); // MOVES INTO ROOT
@@ -1460,12 +1461,12 @@ function createSymlink(src, dest) { // source is the original, dest is the symli
 function getServerURL(path) {
   let internalIp = require('internal-ip');
   if (path == undefined) {
-    path = "/";
+    path = "/index.html";
   }
   serverURL = `http://${internalIp.v4.sync()}:${port}${path}`;
   return serverURL;
 }
-function launchNonBlockingServer(path) {
+function launchNonBlockingServer(path, cb) {
   startServeHandler();
   serverURL =  getServerURL();
   printRadMessage([
@@ -1481,8 +1482,19 @@ function launchNonBlockingServer(path) {
   if (openHtml == true) {
     openMiniWebsite(path);
   }
-
+  if (cb) { cb() }
 }
+
+// directoryListing: [
+//   "./*",
+//   "./dna/*",
+//   "./AminoSee_Output/*",
+//   "./output/*",
+//   "./public/*",
+//   "./calibration/*"
+// ]
+
+
 function startServeHandler() {
   const handler = require('serve-handler');
   const http = require('http');
@@ -1490,7 +1502,7 @@ function startServeHandler() {
     // You pass two more arguments for config and middleware
     // More details here: https://github.com/zeit/serve-handler#options
     let options = {
-      public: path.normalize( process.cwd() ),
+      public: process.cwd(),
       renderSingle: false,
       symlinks: true,
       unlisted: [
@@ -1498,18 +1510,13 @@ function startServeHandler() {
         ".git"
       ],
       directoryListing: [
-        "./**",
-        "./dna/**",
-        "./AminoSee_Output/**",
-        "./output/**",
-        "./public/**",
-        "./calibration/*"
+        "*"
       ]
     }
     return handler(request, response);//, options);
   })
   server.listen(port, () => {
-    console.log(`Running at ` + chalk.underline(`http://localhost:${port}/?devmode`));
+    console.log(`Running at ` + chalk.underline(getServerURL()));
   });
 }
 function startCrossSpawnHttp() {
@@ -1548,7 +1555,7 @@ function startCrossSpawnHttp() {
 function openMiniWebsite(path) {
   out(`Opening URL: ${getServerURL()}`)
   try {
-    open(`${getServerURL()}`);
+    open(getServerURL());
   } catch(e) {
     error(`during openMiniWebsite: ${e} URL: ${getServerURL()}`);
   }
@@ -1625,6 +1632,22 @@ function saveDocuments(callback) {
   term.eraseDisplayBelow();
   percentComplete = 1; // to be sure it shows 100% complete
   out(`${status} ${genomeSize} codons`);
+
+
+  let promiseHTML = new Promise(function(resolve,reject) {
+    if (report == true) { // report when highlight set
+      status = "saving html report";
+      out(status);
+      saveHTML();
+    } else {
+      status = "not saving html report";
+      out(status);
+      htmlFinished();
+      resolve();
+    }
+  });
+
+
   arrayToPNG(function () {
     linearFinished();
     removeLocks();
@@ -1666,18 +1689,7 @@ function saveDocuments(callback) {
   //   hilbertFinished() ;
   // }
 
-  let promiseHTML = new Promise(function(resolve,reject) {
-    if (report == true) { // report when highlight set
-      status = "saving html report";
-      out(status);
-      saveHTML();
-    } else {
-      status = "not saving html report";
-      out(status);
-      htmlFinished();
-      resolve();
-    }
-  });
+
 
   // if (report == true) { // report when highlight set
   //   status = "saving html report";
@@ -2535,7 +2547,7 @@ function okToOverwritePNG(f) { // true to continue, false to abort
   try {
     // result = fs.lstatSync(f);
     result = doesFileExist(f);
-    // log("[fstatSync result]" + result);
+    log(`File Exists: ${replaceoutputPathFileName( f )}`);
     if (result) {
       out("allready done: " + justNameOfDNA );
       return false;
@@ -2791,6 +2803,17 @@ function saveHilbert(array) {
       hilbertImage[hilbertLinear+3] = 255; // slight edge in alpha
       if (reg) {
         paintRegMarks(hilbertLinear, hilbertImage, perc);
+      } else {
+        if (peptide == "Opal") {
+          hilbertImage[hilbertLinear]  = 0; // red
+          hilbertImage[hilbertLinear+1]  = 0; // green
+        } else if (peptide == "Ochre") {
+          hilbertImage[hilbertLinear+2]  = 0; // blue
+          hilbertImage[hilbertLinear+1]  = 0; // green
+        } else if (peptide == "Methione") {
+          hilbertImage[hilbertLinear]  = 0; // red
+          hilbertImage[hilbertLinear+2]  = 0; // blue
+        }
       }
       rgbArray[cursorLinear+0] = hilbertImage[hilbertLinear+0];
       rgbArray[cursorLinear+1] = hilbertImage[hilbertLinear+1];
@@ -2908,7 +2931,7 @@ function saveHilbert(array) {
 
     }
 
-    function openOutputs() {
+    function openOutputs(cb) {
       status ="open outputs";
       if (devmode == true)  { bugtxt(renderSummary()); }
       bugtxt(`openHtml, openImage, openFileExplorer`, openHtml, openImage, openFileExplorer);
@@ -2916,7 +2939,6 @@ function saveHilbert(array) {
       if (openFileExplorer === true) {
         output(`Opening ${justNameOfDNA} DNA renders in File Manager`);
         // bgOpen(outputPath);
-
         open(outputPath).then(() => {
           log("file manager closed");
         }).catch(function () { error(`open(${outputPath})`)});
@@ -2924,7 +2946,7 @@ function saveHilbert(array) {
       if (openHtml == true) {
         output(`Opening ${justNameOfDNA} DNA render summary HTML report.`);
         // bgOpen(filenameHTML, {app: 'firefox', wait: false} );
-        open(filenameHTML).then(() => {
+        open(filenameHTML, {app: 'firefox', wait: false}).then(() => {
           log("browser closed");
         }).catch(function () { error("open(filenameHTML)")});
       }
@@ -2947,6 +2969,7 @@ function saveHilbert(array) {
       output(closeBrowser); // tell user process is blocked
       // });
       log("Thats us cousin'! Sweet as a Kina in a creek as they say (in NZ).");
+      if ( cb !== undefined) { cb() }
     }
     function getRegmarks() {
       return ( reg == true ? "_reg" : "" )
@@ -2992,6 +3015,9 @@ function saveHilbert(array) {
       } else {
         magnitude = defaultMagnitude;
       }
+
+
+
       output("output test patterns to /calibration/ folder. filename: " + filename);
       mkdir('calibration');
       if (howMany == -1) { quit(1); return false;}
@@ -3021,7 +3047,7 @@ function saveHilbert(array) {
       // log(filenameHILBERT);
       log(filenameHTML);
       if (howMany != -1) {
-        openOutputs();
+        // openOutputs();
       } else {
         out("_")
       }
@@ -3067,9 +3093,18 @@ function saveHilbert(array) {
       test, dimension = magnitude; // mags for the test
       let testPath = outputPath + "/calibration"; //
       let regmarks = getRegmarks();
+      let highlight = "";
+      if (peptide == "Opal" || peptide == "Blue") {
+        highlight += "_BlueAt10Percent";
+      } else if (peptide == "Ochre" || peptide == "Red") {
+        highlight += "_RedRamp";
+      } else if (peptide == "Methionine" || peptide == "Green") {
+        highlight += "_GreenPowersTwo";
+      }
+      justNameOfDNA = `AminoSee_Calibration${highlight}${ regmarks }`;
+      // pepTable[getCodonIndex(peptide)].src = justNameOfDNA + '.png';
       isHilbertPossible = true;
       report = false;
-      justNameOfDNA = `AminoSee_Calibration${ regmarks }`;
       justNameOfPNG = `${justNameOfDNA}_LINEAR_${ magnitude }.png`;
       justNameOfHILBERT = `${justNameOfDNA}_HILBERT_${ magnitude }.png`;
 
