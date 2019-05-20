@@ -820,6 +820,8 @@ function testParse() {
   //   contextBitmap.stroke();
   // }
   function toggleFileUpload() {
+    stat(document.getElementById('fileupload').value );
+    alert('ho');
     if (!fileUploadShowing) {
       document.getElementById('fileheader').style.visibility = 'visible';
       document.getElementById('fileheader').style.display = 'block';

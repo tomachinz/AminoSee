@@ -131,7 +131,7 @@
 					<input type="button" id="reset" name="reset" value="Reset [U]" onclick="reset()" class="flex-item">
 					<input type="button" id="testcolour" name="testcolour" value="Test Colours [T]" onclick="testColour()" class="flex-item">
 					<input type="button" id="loadImage" name="loadImage" value="Load Image [L]" onclick="loadImage()" class="flex-item">
-					<!-- <input disabled type="button" id="fileupload" name="fileupload" value="Upload DNA (soon)" onclick="//toggleFileUpload()" class="flex-item"> -->
+					<input type="button" id="fileupload" name="fileupload" value="Upload DNA" onclick="toggleFileUpload()" class="flex-item">
 					<br>
 					<input type="button" class="tinyButton flex-item" name="A" value="Left [A]" onclick="cursorLeft()">
 					<input type="button" class="tinyButton flex-item" name="W" value="Fwd  [W]" onclick="cursorUp()">
