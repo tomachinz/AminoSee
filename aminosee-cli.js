@@ -44,7 +44,7 @@ let report = true; // html reports can be dynamically disabled
 let test = false;
 let updates = true;
 let stats = true;
-let recycEnabled = false; // bummer had to disable it
+let recycEnabled = true; // bummer had to disable it
 let renderLock = false; // not rendering right now obviously
 let msPerUpdate = 200; // min milliseconds per update
 let stream = require('stream');
@@ -226,7 +226,7 @@ module.exports = () => {
     string: [ 'width'],
     unknown: [ true ],
     alias: { a: 'artistic', c: 'codons', d: 'devmode', f: 'force', m: 'magnitude', o: 'outpath', out: 'outpath', output: 'outpath', p: 'peptide', i: 'image', t: 'triplet', r: 'reg', s: 'spew', w: 'width', v: 'verbose', x: 'explorer' },
-    default: { updates: true, clear: true }
+    default: { updates: true, clear: true, image: true }
   });
   let cmd = args._[0];
   bugtxt(`args.toString: ${args.toString()}`);
@@ -444,10 +444,10 @@ module.exports = () => {
     openHtml = true;
   }
   if (args.html || args.chrome || args.firefox  || args.safari  || args.report  || args.open) {
-    log("opening html");
+    output("opening html");
     openHtml = true;
   } else {
-    output("not opening html");
+    log("not opening html");
     openHtml = false;
   }
   if (args.spew || args.s) {
@@ -2549,18 +2549,21 @@ function okToOverwritePNG(f) { // true to continue, false to abort
     result = doesFileExist(f);
     log(`File Exists: ${replaceoutputPathFileName( f )}`);
     if (result) {
-      out("allready done: " + justNameOfDNA );
-      return false;
+      if (result.isFile && recycEnabled == true) {
+        out("<<--- recycling existing linear file");
+        willRecycleSavedImage = true;
+        isDiskFinLinear = true;
+        return true; // this will cause the render to start but will use willRecycleSavedImage to skip the ingest
+      } else {
+        out("<<--- allready done");
+
+      }
+
     } else {
-      out("begin projection: " + justNameOfDNA );
+      out("<<--- begin transcription");
       return true;
     }
-    if (result.isFile && recycEnabled == true) {
-      log("Recycling previously rendered linear file.");
-      willRecycleSavedImage = true;
-      isDiskFinLinear = true;
-      return true; // this will cause the render to start but will use willRecycleSavedImage to skip the ingest
-    }
+
     return false;
   } catch(e){
     output("Output png will be saved to: " + f );
@@ -2701,7 +2704,7 @@ function saveHilbert(array) {
     let hilbertLinear = 4 * ((hilbX % width) + (hilbY * width));
     let perc = i / hilpix;
     percentComplete = perc;
-    if (Math.round(perc * 100) % 50 == 0) {
+    if ((Math.round(perc * 1000) % 50) == 1) {
       clout("Space filling " + fixedWidth(6, " " + (perc*100)) + "% of " + hilpix.toLocaleString());
     }
 
@@ -2790,19 +2793,20 @@ function saveHilbert(array) {
     output(`Generating hilbert curve of the ${dimension}th dimension remaining: ${howMany}`);
     bugtxt(filenameHILBERT);
     let perc = 0;
+    let d = Math.round(hilpix/1000);
     for (i = 0; i < hilpix; i++) {
-      dot(i, 20000);
       let hilbX, hilbY;
       [hilbX, hilbY] = hilDecode(i, dimension, h);
       let cursorLinear  = 4 * i ;
       let hilbertLinear = 4 * ((hilbX % linearWidth) + (hilbY * linearWidth));
-      let perc = i / hilpix;
-      hilbertImage[hilbertLinear] =   255*perc; // slow ramp of red
-      hilbertImage[hilbertLinear+1] = ( i % Math.round( perc * 32) ) / (perc *32) *  255; // SNAKES! crazy bio snakes.
-      hilbertImage[hilbertLinear+2] = (perc *2550)%255; // creates 10 segments to show each 10% mark in blue
+      let percentComplete =  (i+1) / hilpix;
+      dot(i, d, ' ॐ  ' + nicePercent());
+      hilbertImage[hilbertLinear] =   255*percentComplete; // slow ramp of red
+      hilbertImage[hilbertLinear+1] = ( i % Math.round( percentComplete * 32) ) / (percentComplete *32) *  255; // SNAKES! crazy bio snakes.
+      hilbertImage[hilbertLinear+2] = (percentComplete *2550)%255; // creates 10 segments to show each 10% mark in blue
       hilbertImage[hilbertLinear+3] = 255; // slight edge in alpha
       if (reg) {
-        paintRegMarks(hilbertLinear, hilbertImage, perc);
+        paintRegMarks(hilbertLinear, hilbertImage, percentComplete);
       } else {
         if (peptide == "Opal") {
           hilbertImage[hilbertLinear]  = 0; // red
@@ -3219,7 +3223,7 @@ function saveHilbert(array) {
         if (devmode) {
           output(t)
         } else {
-          out(t);
+          clout(t);
         }
       }
     }
@@ -3579,7 +3583,7 @@ function saveHilbert(array) {
         return dnaTriplets => dnaTriplets.DNA.toUpperCase() === normaltrip.toUpperCase();
       }
       function nicePercent() {
-        return minWidth(4, (Math.round(percentComplete*1000) / 10) + "%");
+        return minWidth(5, (Math.round(percentComplete*1000) / 10) + "%");
       }
       function tidyTripletName(str) {
         let clean = "none";
