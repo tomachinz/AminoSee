@@ -16,28 +16,25 @@ many_size_hilbert() {
   echo STARTING PARALLEL DECODE FOR $1 $2 $3 $4 $5 $6
   echo "-------------------------------------------"
   echo "                                         =///"
-  # aminosee_do 1 $1      $2 $3 $4 $5 $6
+  aminosee_do 1 $1 --force $2 $3 $4 $5 $6
   # aminosee_do 1 $1 -m 1 $2 $3 $4 $5 $6
-  # aminosee_do 2 $1 -m 2 $2 $3 $4 $5 $6
-  # aminosee_do 3 $1 -m 3 $2 $3 $4 $5 $6
-  # aminosee_do 4 $1 -m 4 $2 $3 $4 $5 $6
-  # aminosee_do 5 $1 -m 5 $2 $3 $4 $5 $6
-  # aminosee_do 6 $1 -m 6 $2 $3 $4 $5 $6
-  # aminosee_do_foreground 7 $1 -m 7 $2 $3 $4 $5 $6
-  # aminosee_do 8 $1 -m 8 $2 $3 $4 $5 $6
+  aminosee_do 2 $1 -c 100 --ratio=gold  --reg $2 $3 $4 $5 $6
+  aminosee_do 2 $1 -c 150 --ratio=gold  --reg $2 $3 $4 $5 $6
+  aminosee_do 3 $1 -c 200 --ratio=gold  --reg $2 $3 $4 $5 $6
+  aminosee_do 4 $1 -c 400 --ratio=gold  --reg $2 $3 $4 $5 $6
+  aminosee_do 5 $1 -c 500 --ratio=gold  --reg $2 $3 $4 $5 $6
+  aminosee_do_foreground -c 250 --ratio=gold  --reg  $2 $3 $4 $5 $6
+  aminosee_do 8 $1 -c 8  --ratio=gold --reg $2 $3 $4 $5 $6
 
-  aminosee_do 2             -m 8 $1 $2 $3 $4 $5 $6
-  aminosee_do 3             -m 1 $1 $2 $3 $4 $5 $6
-  aminosee_do 4             -m 2 $1 $2 $3 $4 $5 $6
-  aminosee_do 5             -m 3 $1 $2 $3 $4 $5 $6
-  aminosee_do 6             -m 4 $1 $2 $3 $4 $5 $6
-  aminosee_do 7             -m 5 $1 $2 $3 $4 $5 $6
-  aminosee_do 8             -m 6 $1 $2 $3 $4 $5 $6
-  aminosee_do_foreground 9  -m 7 $1 $2 $3 $4 $5 $6
-  aminosee_do_foreground 1      $1 $2 $3 $4 $5 $6
-
+  aminosee_do 2             --ratio=sqr -m 8 --reg $1 $2 $3 $4 $5 $6
+  aminosee_do_foreground 9  --ratio=sqr -m 7 --reg $1 $2 $3 $4 $5 $6
+  aminosee_do 8             --ratio=sqr -m 6 --reg $1 $2 $3 $4 $5 $6
+  aminosee_do 9             --ratio=sqr -m 5 --reg $1 $2 $3 $4 $5 $6
+  # aminosee_do 4             -m 2 $1 $2 $3 $4 $5 $6
+  # aminosee_do 5             -m 3 $1 $2 $3 $4 $5 $6
+  # aminosee_do 6             -m 4 $1 $2 $3 $4 $5 $6
+  # aminosee_do 7             -m 5 $1 $2 $3 $4 $5 $6
   # aminosee_do_foreground 1  -m 9 $1 $2 $3 $4 $5 $6
-
 
 
   # aminosee_do 1   -c 64 $1 $2 $3 $4 $5 $6

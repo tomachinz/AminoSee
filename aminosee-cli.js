@@ -12,7 +12,7 @@ const refimage = "Reference image - all amino acids blended together"
 const closeBrowser = " ";//If the process apears frozen, it's waiting for your browser or image viewer to exit. Escape with [ CONTROL-C ] or use --no-image --no-html"
 const lockFileMessage = "aminosee.funk.nz DNA Viewer by Tom Atkinson. This is a temp lock file, to enable parallel cluster rendering, usually it means an AminoSee was quit before finishing. Safe to erase. Normally deleting when render is complete.";
 const debugColumns = 240;
-const targetPixels = 8000000; // for big genomes use setting flag -c 1 to achieve highest resolution and bypass this taret max render size
+const targetPixels = 7000000; // for big genomes use setting flag -c 1 to achieve highest resolution and bypass this taret max render size
 const defaultC = 1; // back when it could not handle 3+GB files.
 const artisticHighlightLength = 18; // px only use in artistic mode. must be 6 or 12 currently
 const defaultMagnitude = 7; // max for auto setting
@@ -1542,19 +1542,14 @@ function createSymlink(src, dest) { // source is the original, dest is the symli
     log("Symlink ${} could not created. Probably not an error. " + maxWidth(12,e));
   }
 }
-function getServerURL(path) {
-  let internalIp = require('internal-ip');
-  if (path == undefined) {
-    path = "/megabase";
-  } else {
-    path = `${outFoldername}/${path}`;
-  }
-  serverURL = `http://${internalIp.v4.sync()}:${port}${path}`;
-  log(`serverURL ${serverURL}`);
-  return serverURL;
-}
+
 function launchNonBlockingServer(path, cb) {
-  startServeHandler();
+  // let serve = require('./aminosee-serve');
+  // serve.start();
+  //
+  // return true;
+
+  let handler = serve.start();// startServeHandler();
   serverURL =  getServerURL(path);
   printRadMessage([
     `Interactive keyboard mode ENABLED`,
@@ -1594,32 +1589,7 @@ function launchNonBlockingServer(path, cb) {
 //   directoryListing: true
 // }
 
-function startServeHandler() {
-  const handler = require('serve-handler');
-  const http = require('http');
-  const server = http.createServer((request, response) => {
-    // You pass two more arguments for config and middleware
-    // More details here: https://github.com/zeit/serve-handler#options
-    let www =  path.normalize( path.join(os.homedir() ,  outFoldername));
-    output(www);
-    let options = {
-      public: path.resolve(www),
-      trailingSlash: true,
-      renderSingle: true,
-      cleanUrls: true,
-      symlinks: true,
-      directoryListing: true,
-      unlisted: [
-        ".DS_Store",
-        ".git"
-      ],
-    }
-    return handler(request, response);//, options);
-  })
-  server.listen(port, () => {
-    console.log(`Running at ` + chalk.underline(getServerURL()));
-  });
-}
+
 function startCrossSpawnHttp() {
 
   // const spawn = require('cross-spawn');

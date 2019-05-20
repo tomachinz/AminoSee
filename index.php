@@ -4,22 +4,22 @@
 	<title>AminoSee DNA Viewer :: WebGL 3D DNA Visualisation Pseudo-Hilbert Curve Projection :: Funk NZ</title>
 	<meta name="description" content="A new way to view DNA that attributes a colour hue to each Amino acid codon triplet">
 	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-	<meta http-equiv="Content-Security-Policy" content="default-src http://127.0.0.1:8888 https://dev.funk.co.nz https://www.funk.co.nz  http://www.funk.co.nz * data: blob: 'unsafe-inline' 'unsafe-eval' ws: wss:;">
+	<meta http-equiv="Content-Security-Policy" content="default-src http://localhost:4321 http://127.0.0.1:4321  http://127.0.0.1:8888 https://dev.funk.co.nz https://www.funk.co.nz  http://www.funk.co.nz * data: blob: 'unsafe-inline' 'unsafe-eval' ws: wss:;">
 	<!-- <script src="node_modules/three/build/three.min.js"></script> -->
-	<script src="public/three.min.js"></script>
 	<!-- <script src="node_modules/jquery/dist/jquery.min.js"></script> -->
-	<script src="public/jquery.min.js"></script>
-	<script src="public/hilbert3D.js"></script>
-	<script src="public/hilbert2D.js"></script>
-	<script src="public/WebGL.js"></script>
 	<!-- <script src="public/sprites.js" type="module"></script> -->
-	<script src="public/sprites.js"></script>
 	<!-- <script src="node_modules/hammerjs/hammer.min.js"></script> -->
-	<script src="public/hammer.min.js"></script>
-	<script src="aminosee-gui-web.js"></script>
 	<!-- <script src="bundle.js"></script> -->
+	<script src="aminosee/public/three.min.js"></script>
+	<script src="aminosee/public/jquery.min.js"></script>
+	<script src="aminosee/public/hilbert3D.js"></script>
+	<script src="aminosee/public/hilbert2D.js"></script>
+	<script src="aminosee/public/WebGL.js"></script>
+	<script src="aminosee/public/sprites.js"></script>
+	<script src="aminosee/public/hammer.min.js"></script>
+	<script src="aminosee/aminosee-gui-web.js"></script>
 
-	<link rel="stylesheet" type="text/css" href="public/AminoSee.css">
+	<link rel="stylesheet" type="text/css" href="aminosee/public/AminoSee.css">
 	<link href='https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz:700,400,200,100' rel='stylesheet' type='text/css'>
 	<link href="https://www.funk.co.nz/css/menu.css" rel="stylesheet">
 	<!-- <link href="/css/menu.css" rel="stylesheet"> -->
@@ -27,12 +27,12 @@
 	<!-- <link href="/css/funk2014.css" rel="stylesheet"> -->
 	<!-- Funk.nz menubar include -->
 	<!-- Google Tag Manager -->
-	<noscript><iframe src="//www.googletagmanager.com/ns.html?id=GTM-P8JX"
+	<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-P8JX"
 		height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 		<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
 		new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
 		j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-		'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+		'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
 	})(window,document,'script','dataLayer','GTM-P8JX');</script>
 	<!-- End Google Tag Manager -->
 </head>
@@ -71,7 +71,7 @@
 						<form action="../">
 						<select name="selectedGenome" onchange="fileChanged(this.options[this.selectedIndex].value)">
 
-						<option value="output/Brown_Kiwi_NW_013982187v1/Brown_Kiwi_NW_013982187v1.fa_linear-reference_c57.6_sci.png" selected>Brown Kiwi</option>
+						<option value="output/Brown_Kiwi_NW_013982187v1/images/Brown_Kiwi_NW_013982187v1.fa_linear-reference_c57.6_sci.png" selected>Brown Kiwi</option>
 						<option value="calibration/AminoSee_Calibration_reg_linear_8.png">AminoSee Calibration Large</option>
 						<option value="calibration/AminoSee_Calibration_reg_linear_2.png">AminoSee Calibration Small</option>
 						<option value="output/Caenorhabdihromosome-V.fa_linear_reg_c1.7_fix_sci.png">C.elegans</option>
