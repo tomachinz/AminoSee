@@ -81,43 +81,44 @@ let ProgressBar = require('progress');
 const chalk = require('chalk');
 let express = require('express');
 let bodyParser = require('body-parser');
-const clog = console.log;
 const os = require("os");
-const hostname = os.hostname();
+const humanizeDuration = require('humanize-duration')
 const appFilename = require.main.filename; //  /bin/aminosee.js
-const obviousFoldername = `/AminoSee_Output`;
-let outFoldername = `/output`;
+const hostname = os.hostname();
+const clog = console.log;
+const obviousFoldername = `/AminoSee_Output`; // descriptive for users
+const netFoldername = `/output`; // descriptive for users
+let outFoldername = `/output`; // tidy and succint, for networks
 let appPath = path.normalize(appFilename.substring(0, appFilename.length-15));// + /bin/aminosee.js has 11 chars; cut 4 off to remove /dna
 
 // look in current dir for output or AminoSee_Output folders
 // if found, use those, if not use ~/AminoSee
 // this way you can create a network cluster quickly by just creating a folder called 'output' in the dna folder
 // then to cease work in the cluster, move the files to your homedir, and delete the output folder in the share
-const clusterPath = path.normalize(path.resolve(process.cwd() + outFoldername)); // legacy foldername
-const homedirOutput =  path.normalize(path.resolve(os.homedir() + obviousFoldername)); // legacy foldername
+const clusterPath = path.normalize(path.resolve(process.cwd() + netFoldername)); // legacy foldername CLUTER IS FOR NETWORK SHARES
+const homedirOutput =  path.normalize(path.resolve(os.homedir() + obviousFoldername)); // SINGLE USER MODE
 let outputPath = clusterPath;
-if (!doesFolderExist(outputPath)) {
-  let outputPath = path.normalize(path.resolve(process.cwd() + obviousFoldername)); // const outputPath = path.normalize(path.resolve(process.cwd()) + "/output"); // current working diretory is in /bin/aminosee.js
+if (!doesFolderExist(outputPath)) { // here im enforcing a folder structure = benefit is automatic cluster sync!
+  outputPath = path.normalize(path.resolve(process.cwd() + obviousFoldername));
+  outFoldername = obviousFoldername; // the shorter dir name is an over ride to the longer newby one in essence
   if (!doesFolderExist(outputPath)) {
-    let outputPath = path.normalize(path.resolve(os.homedir + outFoldername)); // this shorter dir name is an over ride in essence
+    outputPath = homedirOutput;
     if (!doesFolderExist(outputPath)) { // save into users homedir in consistent location
-      let outputPath = homedirOutput; // default location after checking overrides
-      output(chalk.inverse(`ENABLING USERS HOME DIR RENDER OUTPUT`));
-      output(chalk(`Create a /output/ or /AminoSee_Output/ folder your LAN to enable cluster render`));
-      outFoldername = obviousFoldername;
-      mkdir();
-      // mkdirhomsedir(obviousFoldername);
-    } //
-  } else {
-    output(chalk.inverse(`ENABLING CLUSTER DISTRIBUTED RENDERING`));
+      outputPath = path.normalize(path.resolve(os.homedir + netFoldername)); // default location after checking overrides
+      outFoldername = netFoldername; // last choice, use ~/output if we cant write to a folder with obvious name
+    }
   }
-} else {
+}
+if (outputPath == clusterPath) {
   output(chalk.inverse(`ENABLING CLUSTER DISTRIBUTED RENDERING`));
-  output(chalk(`Delete the /output/ or /AminoSee_Output/ folders to disable LAN output`));
-  mkdir();
-}// cwd
+  log(chalk(`Enabled by the prseence of a /output/ or /AminoSee_Output/ folder in current dir. If not present, local users homedir ~/AminoSee_Output`));
+} else {
+  output(chalk.inverse(`ENABLING USERS HOME DIR RENDER OUTPUT`));
+  log(chalk.underline(`~/AminoSee_Output`) + chalk(`Create an /output/ or /AminoSee_Output/ folder in the folder with your DNA files on your LAN to enable automatic cluster rendering. Easy huh?`));
+}
+out(`full output path > ` + chalk.underline(outputPath));
+mkdir();
 
-output(outputPath);
 
 const defaultFilename = "dna/megabase.fa"; // for some reason this needs to be here. hopefully the open source community can come to rescue and fix this Kludge.
 const testFilename = "AminoSeeTestPatterns"; // for some reason this needs to be here. hopefully the open source community can come to rescue and fix this Kludge.
@@ -155,7 +156,7 @@ term.on('resize', function(tx, ty) {
 });
 
 let interactiveKeysGuide = "";
-let hilbertImage, keyboard, filenameTouch, estimatedPixels, args, filenamePNG, extension, reader, hilbertPoints, herbs, levels, progress, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, textFile, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, fileUploadShowing, testColors, chunksMax, chunksize, chunksizeBytes, cpu, subdivisions, contextBitmap, aminoacid, colClock, start, updateClock, bytesPerSec, pixelStacking, isHighlightCodon, justNameOfDNA, justNameOfPNG, justNameOfHILBERT, sliceDNA, filenameHTML, howMany, timeElapsed, runningDuration, kbRemain, width, triplet, updatesTimer, pngImageFlags, codonsPerPixel, codonsPerPixelHILBERT, CRASH, red, green, blue, alpha, errorClock, breakClock, streamLineNr, filesDone, spewClock, opacity, codonRGBA, geneRGBA, currentTriplet, currentPeptide,  progato, shrinkFactor, reg, image, loopCounter, percentComplete, charClock, baseChars, bigIntFileSize, currentFile, currentPepHighlight, justNameOfCurrentFile, server, openHtml, openFileExplorer, pixelStream, startPeptideIndex, stopPeptideIndex, flags, loadavg, platform, totalmem, correction, basepairs, aspect;
+let hilbertImage, keyboard, filenameTouch, estimatedPixels, args, filenamePNG, extension, reader, hilbertPoints, herbs, levels, progress, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, textFile, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, fileUploadShowing, testColors, chunksMax, chunksize, chunksizeBytes, cpu, subdivisions, contextBitmap, aminoacid, colClock, start, updateClock, bytesPerSec, pixelStacking, isHighlightCodon, justNameOfDNA, justNameOfPNG, justNameOfHILBERT, sliceDNA, filenameHTML, howMany, secElapsed, runningDuration, bytesRemain, width, triplet, updatesTimer, pngImageFlags, codonsPerPixel, codonsPerPixelHILBERT, CRASH, red, green, blue, alpha, errorClock, breakClock, streamLineNr, filesDone, spewClock, opacity, codonRGBA, geneRGBA, currentTriplet, currentPeptide,  progato, shrinkFactor, reg, image, loopCounter, percentComplete, charClock, baseChars, bigIntFileSize, currentFile, currentPepHighlight, justNameOfCurrentFile, server, openHtml, openFileExplorer, pixelStream, startPeptideIndex, stopPeptideIndex, flags, loadavg, platform, totalmem, correction, basepairs, aspect;
 BigInt.prototype.toJSON = function() { return this.toString(); }; // shim for big int
 BigInt.prototype.toBSON = function() { return this.toString(); }; // Add a `toBSON()` function to enable MongoDB to store BigInts as strings
 
@@ -676,7 +677,7 @@ function setupKeyboardUI() {
       updates = false;
       args = [];
       if (devmode) {
-        output("Because you are using --devmode, the lock file is not deleted. This is useful during development because I can quickly test new code by starting then interupting the render with Control-c. Then, when I use 'aminosee * -f -d' I can have new versions rendered but skip super large genomes that would take 5 mins or more to render. I like to see that they begin to render then break and retry.")
+        output("Because you are using --devmode, the lock file is not deleted. This is useful during development because I can quickly test new code by starting then interupting the render with Control-c. Then, when I use 'aminosee * -f -d' I can have new versions rendered but skip super large genomes that would take 5 mins or more to render. I like to see that they begin to render then break and retry; this way AminoSee will skip the large genome becauyse it has a lock file, saving me CPU during development. Lock files are safe to delete.")
       } else {
         removeLocks();
       }
@@ -1042,22 +1043,18 @@ function pollForStream() {
       }
 
 
+      bugtxt(`Polling filenameTouch ${filenameTouch} willStart   ${willStart}  pollAgainFlag ${pollAgainFlag}  defaultFilename  ${defaultFilename}  ${filename}  howMany   ${howMany}   status ${status}`);
 
-      let temp = !checkLocks(filenameTouch);
-      if (temp) {
-        bugtxt("!checkLocks(filenameTouch) " + temp);
-        theSwitcher(false); // <---- NO RENDER
+      if (checkLocks(filenameTouch)) {
+        bugtxt("checkLocks(filenameTouch) returned TRUE");
+        theSwitcher(false); // <---- BUSY, NO RENDER
         return false;
       } else {
-        bugtxt(`Polling filenameTouch ${filenameTouch}`);
-        theSwitcher(true); // <--- GOOD
+        bugtxt("checkLocks(filenameTouch) returned FALSE");
+        theSwitcher(true); // <--- GOOD TO GO
         return true;
       }
     }
-
-
-    // log(`willStart   ${willStart}  pollAgainFlag ${pollAgainFlag}  defaultFilename  ${defaultFilename}  ${filename}  howMany   ${howMany}   status ${status}`);
-
   }
   function theSwitcher(bool) {
     bugtxt(`cpu has entered The Switcher!`)
@@ -1083,17 +1080,23 @@ function pollForStream() {
       status = "switcher"
       bugtxt(howMany);
       if (howMany > 0 ) {
-        bugtxt(`there is more work but also renderLock: ${renderLock}`);
-        setImmediate(() => {
-          setTimeout(() => {
-            pollForStream();
-          }, raceDelay*3)
-        });
+        log(`There is more work. Rendering: ${renderLock} Load: ${os.loadavg()}`);
+        if (!renderLock) {
+          setImmediate(() => {
+            setTimeout(() => {
+              pollForStream();
+            }, raceDelay*3)
+          });
+        }
+
         return true;
       } else {
-        bugtxt(`polling none renderLock: ${renderLock}`);
-        clearTimeout(raceTimer);
-        quit();
+        log(`Polling found no more work. Currently rending: ${renderLock}`);
+        if (!renderLock) {
+          clearTimeout(raceTimer);
+          quit();
+        }
+
         return false;
       }
     }
@@ -1143,7 +1146,7 @@ async function initStream(f, cb) {
   mkdir(`${justNameOfDNA}/images`);
   log("File size in bytes: " + baseChars + " filename " + filename);
   start = new Date().getTime();
-  timeElapsed, runningDuration, charClock, percentComplete, genomeSize, colClock, opacity = 0;
+  secElapsed, runningDuration, charClock, percentComplete, genomeSize, colClock, opacity = 0;
   msPerUpdate = 200;
   codonRGBA, geneRGBA, mixRGBA = [0,0,0,0]; // codonRGBA is colour of last codon, geneRGBA is temporary pixel colour before painting.
   codonsPerPixel = defaultC; //  one codon per pixel maximum
@@ -1184,7 +1187,7 @@ async function initStream(f, cb) {
   genomeSize = 1; // number of codons.
   pixelStacking = 0; // how we fit more than one codon on each pixel
   colClock = 0; // which pixel are we painting?
-  timeElapsed = 0;
+  secElapsed = 0;
   status = "init";
   clearCheck();
   output(`STARTING RENDER ${filename}`);
@@ -1253,6 +1256,7 @@ async function initStream(f, cb) {
   log("FINISHED INIT");
   // term.up(termStatsHeight);
   term.eraseDisplayBelow();
+  pollForStream();
 }
 function showFlags() {
   return `${(  force ? "F" : "-"    )}${(  args.updates || args.u ? `U` : "-"    )}${(  userCPP != -1 ? `C${userCPP}` : "--"    )}${(  args.keyboard || args.k ? `K` : "-"    )}${(  args.spew || spew ? `K` : "-"    )}${( verbose ? "V" : "-"  )}${(  artistic ? "A" : "-"    )}${(  args.ratio || args.r ? `${ratio}` : "---"    )}${(dimension? "M" + dimension:"")}C${onesigbitTolocale(codonsPerPixel)}${(reg?"REG":"")}`;
@@ -2349,8 +2353,8 @@ function getImageType() {
   ( artistic ? t += "_artistic" : t += "_sci")
   return t;
 }
-function generateFilenameTouch() { // we only need the fullpath of this one
-  return                  `${justNameOfDNA}.${extension}_LOCK${highlightFilename()}_c${onesigbitTolocale(codonsPerPixel)}${getImageType()}.aminosee.touch`;
+function generateFilenameTouch() { // we need the *fullpath* of this one
+  return                  path.resolve(`${justNameOfDNA}.${extension}_LOCK${highlightFilename()}_c${onesigbitTolocale(codonsPerPixel)}${getImageType()}.aminosee.touch`);
 }
 function generateFilenamePNG() {
   justNameOfPNG =         `${justNameOfDNA}.${extension}_linear${highlightFilename()}_c${onesigbitTolocale(codonsPerPixel)}${getImageType()}.png`;
@@ -2609,26 +2613,26 @@ data-full-width-responsive="true"></ins>
 return html;
 }
 
-function checkLocks(ffffff) { // return false if locked.
-  bugtxt("checkLocks RUNNING: " + ffffff);
+function checkLocks(fullPathOfLockFile) { // return TRUE if locked.
+  bugtxt("checkLocks RUNNING: " + fullPathOfLockFile);
   if (force == true && devmode == false) {
     log("Not checking locks - force mode enabled.");
-    return true;
-  }
-  let unlocked, result;
-  unlocked = true;
-  try {
-    result = fs.lstatSync(ffffff).isDirectory();
-    bugtxt("[lstatSync result]" + result);
-    output("DNA render already in progress");
-    log(ffffff);
-    log("Another node in cluster maybe rendering this, or it could be from an interupted render. Either delete the file or use --force to overwrite.");
     return false;
-  } catch(e){
-    bugtxt("No lockfile found - proceeding to render" );
-    return true;
   }
-  return unlocked;
+  let locked, result;
+  locked = false;
+  try {
+    result = fs.lstatSync(fullPathOfLockFile).isDirectory();
+    bugtxt("[lstatSync result]" + result);
+    output(`DNA render already in progress for ${justNameOfDNA}`);
+    log(fullPathOfLockFile);
+    log("Another node in cluster maybe rendering this, or it could be from an interupted render. Either delete the file or use --force to overwrite.");
+    return true;
+  } catch(e){
+    log("No lockfile found - proceeding to render" );
+    return false;
+  }
+  return locked;
 }
 function decodePNG(file, callback) {
   // var fs = require('fs'),
@@ -2698,12 +2702,12 @@ function okToOverwritePNG(f) { // true to continue, false to abort
         isDiskFinLinear = true;
         return true; // this will cause the render to start but will use willRecycleSavedImage to skip the ingest
       } else {
-        out("<<--- allready done");
+        out("<<--- done");
 
       }
 
     } else {
-      out("<<--- begin transcription");
+      out("<<--- begin transcription of " + justNameOfDNA);
       return true;
     }
 
@@ -3556,17 +3560,20 @@ function saveHilbert(array, cb) {
       log(cleanDNA);
     }
     function wTitle(txt) {
-      term.windowTitle(`${justNameOfDNA} ${maxWidth(120,txt)} AminoSee@${hostname}`);
+      term.windowTitle(`${justNameOfDNA} ${maxWidth(120,txt)} AminoSee@${hostname} mode: ${status}`);
     }
     function calcUpdate() { // DONT ROUND KEEP PURE NUMBERS
-      percentComplete = (charClock+69) / (baseChars+69); // avoid div by zero below
+      percentComplete = ((charClock+1) / (baseChars+1)) + 0.001; // avoid div by zero below a lot
       let now = new Date().getTime();
-      runningDuration = (now - start) + 1;
-      timeElapsed = Math.round(runningDuration / 1000);
-      timeRemain = Math.round((timeElapsed / (percentComplete + 0.001)) - timeElapsed);
-      kbRemain = (baseChars - charClock)/1000;
-      bytesPerSec = Math.round( (charClock+1) / runningDuration*1000 );
-      wTitle(`${nicePercent()} ${bytes(Math.round(bytesPerSec/1000)*1000)} /sec ${threesigbitsTolocale(timeRemain/60)} min remain`);
+      runningDuration = (now - start);
+      secElapsed = deresSeconds(runningDuration); // ??!! ah i see
+      timeRemain =deresSeconds((runningDuration / (percentComplete )) - secElapsed); // everything in ms
+      bytesRemain = (baseChars - charClock);
+      bytesPerSec = Math.round( (charClock+1) / runningDuration );
+      wTitle(`${nicePercent()} done ${humanizeDuration(timeRemain)} remain`);
+    }
+    function deresSeconds(ms){
+      return Math.round(ms/1000) * 1000;
     }
     function getHistoCount(item, index) {
       return [ item.Codon, item.Histocount];
@@ -3647,9 +3654,13 @@ function saveHilbert(array, cb) {
       for (h=0;h<pepTable.length;h++) {       // OPTIMISE i should not be creating a new array each frame!
         aacdata[pepTable[h].Codon] = pepTable[h].Histocount ;
       }
+      l0 = os.loadavg()[0];
+      l1 = os.loadavg()[1];
+      l2 = os.loadavg()[2];
+      load = maxWidth(80, twosigbitsTolocale(l0) + " / " + twosigbitsTolocale(l1) + " / " + twosigbitsTolocale(l2));
       let array = [
-        `| File: ${chalk.inverse(fixedWidth(35,  justNameOfDNA+"           ")) + chalk("")}${ ( isHighlightSet ? "Highlight: " + chalk.rgb(255, 255, 0).inverse(peptide) : "" )}`,
-        `| Done: ${chalk.rgb(128, 255, 128).inverse( nicePercent() )} Elapsed:${ fixedWidth(4, twosigbitsTolocale(timeElapsed)) } Remain:${ fixedWidth(4,  twosigbitsTolocale(timeRemain)) } sec`,
+        `| Load: ${load}`,
+        `| Done: ${chalk.rgb(128, 255, 128).inverse( nicePercent() )} Elapsed: ${ fixedWidth(12, humanizeDuration(secElapsed)) } Remain: ${humanizeDuration(timeRemain)}`,
         `| @i${fixedWidth(10, charClock.toLocaleString())} Breaks:${ fixedWidth(6, breakClock.toLocaleString())} Filesize:${fixedWidth(7, bytes(baseChars))}`,
         `| Next update: ${fixedWidth(5, msPerUpdate.toLocaleString())}ms Codon Opacity: ${twosigbitsTolocale(opacity*100)}%`,
         `| CPU:${fixedWidth(10, bytes(bytesPerSec))}/s ${fixedWidth(5, codonsPerSec.toLocaleString())}K acids/s`,
@@ -3664,7 +3675,8 @@ function saveHilbert(array, cb) {
           term.up(termStatsHeight);
           term.eraseDisplayBelow();
           printRadMessage(array);
-          console.log(); // white space
+          // console.log(); // white space
+          console.log(`            File:  ${chalk.inverse(fixedWidth(40,  "  " + justNameOfDNA))}.${chalk(extension)} ${(isHighlightSet ? " Highlight: " + chalk.rgb(255, 255, 0).inverse(peptide) : " " )}` + chalk.rgb(200, 200, 200)(`Runs: ${cliruns} RunID: ${timestamp} on ${hostname}`));
           if (spew  == true) {
             output();
             output(terminalRGB(rawDNA.substring(0,5000), red, green, blue));

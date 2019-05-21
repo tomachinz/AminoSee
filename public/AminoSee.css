@@ -3,6 +3,75 @@ html, body, form, input, textarea, a, p, h1, h2, h3, h4, h5, h6, div {
   /* color: red; */
 }
 
+#monkeys h1, #monkeys h1.a {
+  font-size: 23.4px;
+  grid-area: footer;
+}
+
+#monkeys h2, #monkeys h2.a {
+  font-size: 18px;
+}
+
+#webgl body {
+  background-color: #000000;
+  margin: 0;
+  overflow: hidden;
+  /* background-color: yellow; */
+}
+
+input[type=button], input[type=submit], input[type=reset] {
+  min-width: 140px;
+  padding: 8px 8px;
+}
+
+/* .tinyButton input[type=button], tinyButton input[type=submit], tinyButton input[type=reset] {
+	min-width: 64px;
+	padding: 4px 4px;
+} */
+#hide {
+  font-size: 20px;
+  pading: 8px;
+  font-weight: bold;
+  color: black;
+}
+
+input[type=number] {
+  font-size: 26px;
+}
+
+#bgCanvFixed {
+  position: fixed;
+  z-index: -1 margin: 0 0 0 0;
+  padding: 0;
+}
+
+/* ********** USE FOR DEFAULT POS ******** */
+#status {
+  font-size: 18px;
+  position: fixed;
+  bottom: 32px;
+  z-index: 6969;
+  left: 32px;
+}
+
+.sidebar {
+  grid-area: sidebar;
+}
+
+.footer {
+  grid-area: footer;
+}
+
+.site {
+  display: grid;
+  grid-template-columns: 1fr 10fr 1fr;
+  grid-template-rows: auto 1fr 7fr 1fr;
+  grid-template-areas:
+    "title title title"
+    "main header header"
+    "main sidebar footer";
+}
+
 body {
   padding: 0;
   margin: 0 0 0 0;
@@ -56,56 +125,6 @@ form, input, textarea {
   font-weight: 200;
   src: local('Old-School-Adventures'), local('Old-School-Adventures'), url(/css/Old-School-Adventures.woff) format('woff');
   /* font-size: 12px; */
-}
-
-#monkeys h1, #monkeys h1.a {
-  font-size: 23.4px;
-}
-
-#monkeys h2, #monkeys h2.a {
-  font-size: 18px;
-}
-
-#webgl body {
-  background-color: #000000;
-  margin: 0;
-  overflow: hidden;
-  /* background-color: yellow; */
-}
-
-input[type=button], input[type=submit], input[type=reset] {
-  min-width: 140px;
-  padding: 8px 8px;
-}
-
-/* .tinyButton input[type=button], tinyButton input[type=submit], tinyButton input[type=reset] {
-	min-width: 64px;
-	padding: 4px 4px;
-} */
-#hide {
-  font-size: 20px;
-  pading: 8px;
-  font-weight: bold;
-  color: black;
-}
-
-input[type=number] {
-  font-size: 26px;
-}
-
-#bgCanvFixed {
-  position: fixed;
-  z-index: -1 margin: 0 0 0 0;
-  padding: 0;
-}
-
-/* ********** USE FOR DEFAULT POS ******** */
-#status {
-  font-size: 18px;
-  position: fixed;
-  bottom: 32px;
-  z-index: 6969;
-  left: 32px;
 }
 
 /* ********** USE TO GET ATTENTION ******** */
