@@ -4,7 +4,7 @@
 	<title>AminoSee DNA Viewer :: WebGL 3D DNA Visualisation Pseudo-Hilbert Curve Projection :: Funk NZ</title>
 	<meta name="description" content="A new way to view DNA that attributes a colour hue to each Amino acid codon triplet">
 	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-	<meta http-equiv="Content-Security-Policy" content="default-src http://localhost:4321 http://127.0.0.1:4321  http://127.0.0.1:  http://127.0.0.1:8888 https://dev.funk.co.nz https://www.funk.co.nz  http://www.funk.co.nz * data: blob: 'unsafe-inline' 'unsafe-eval' ws: wss:;">
+	<meta http-equiv="Content-Security-Policy" content="default-src http://localhost:4321 http://127.0.0.1:4321  http://127.0.0.1:35729  http://127.0.0.1:8888 https://dev.funk.co.nz https://www.funk.co.nz  http://www.funk.co.nz * data: blob: 'unsafe-inline' 'unsafe-eval' ws: wss:;">
 	<!-- <script src="node_modules/three/build/three.min.js"></script> -->
 	<script src="public/three.min.js"></script>
 	<!-- <script src="node_modules/jquery/dist/jquery.min.js"></script> -->
