@@ -1911,12 +1911,12 @@ function saveHTML(cb) {
   computerWants = pixTodefaultMagnitude(colClock);
   if (willRecycleSavedImage == true) {
     log("Didnt save HTML report because the linear file was recycled. Use --html to enable and auto open when done.");
-    cb();
+    if (cb) { cb() }
     return false;
   }
   if (report == false){
     log("Didnt save HTML report because reports = false they were disabled. Use --html to enable and auto open when done.");
-    cb();
+    if (cb) { cb() }
     return false;
   }
   bugtxt( pepTable.sort( compareHistocount ) ); // least common amino acids in front
