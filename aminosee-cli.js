@@ -62,11 +62,12 @@ const defaultFilename = "dna/megabase.fa"; // for some reason this needs to be h
 const testFilename = "AminoSeeTestPatterns"; // for some reason this needs to be here. hopefully the open source community can come to rescue and fix this Kludge.
 
 let browser = 'firefox';
+const minUpdateTime = 6000;
 let maxMsPerUpdate = 30000; // milliseconds per updatelet maxpix = targetPixels; // maxpix can be changed downwards by algorithm for small genomes in order to zoom in
 let termDisplayHeight = 31;
 let termStatsHeight = 9;
 let maxpix = targetPixels;
-let raceDelay = 1000; // so i learnt a lot on this project. one day this line shall disappear replaced by promises.
+let raceDelay = 69; // so i learnt a lot on this project. one day this line shall disappear replaced by promises.
 let raceTimer = false;
 let dimension = defaultMagnitude; // var that the hilbert projection is be downsampled to
 let darkenFactor = 0.25; // if user has chosen to highlight an amino acid others are darkened
@@ -273,7 +274,6 @@ module.exports = () => {
   // console.log(`stdin pipe: ${pipeInstance.checkIsPipeActive()}`);
   // const stdin = pipeInstance.stdinLineByLine();
   // stdin.on('line', console.log);
-  setupOutPaths();
   setupPrefs();
 
   if (args.outpath || args.output || args.out || args.o) {
@@ -525,6 +525,7 @@ module.exports = () => {
   }
   if (args.help || args.h) {
     helpCmd(args);
+
   }
 
 
@@ -617,12 +618,12 @@ module.exports = () => {
     } else {
       currentFile = args._[0];
       filename = path.resolve(currentFile);
-      log("ΩΩΩΩΩΩΩΩΩΩΩΩΩΩΩΩΩΩΩ "+filename)
+      log("Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω "+filename)
       status = "Ω first command " + howMany + " " + currentFile;
       out(status);
       setupFNames();
       autoconfCodonsPerPixel();
-      setupOutPaths();
+      // setupOutPaths();
       // initStream(filename);
       pollForStream();
       return true;
@@ -792,13 +793,15 @@ function background(callback) {
   //   console.log(`child process exited with code ${code}`);
   // });
 }
-function bgOpen(file, options) {
+function* generatorOpen(file, options) {
+
   if (options == undefined) {
     options = { wait: false }
   }
-  (async (file, options) => {
+  let result = (async (file, options) => {
     await open(file, options);
   })();
+  yield result;
 }
 function runDemo() {
   async.series( [
@@ -1087,16 +1090,15 @@ function pollForStream() {
     status ="polling";
     setupFNames();
 
-    if (okToOverwritePNG(filenamePNG) == false) {
-      log("existing linear png found for: " + justNameOfDNA + " skipping render.");
+    if (skipExitingFile(filenamePNG) == true) {
+      output("Existing linear png found for: " + justNameOfDNA + " Skipping render of: " + filenamePNG);
       if (openHtml == true || openImage == true || args.image == true) {
         log("use --no-image suppress automatic opening of the image.")
         openOutputs();
       } else {
         log("use --force to overwrite  --image to automatically open   ");
       }
-
-      // recycleOldImage(filenamePNG); // recycled with new hilbert
+      recycleOldImage(filenamePNG); // recycled with new hilbert
       theSwitcher(false); // <---- no render
       return false; // just straight quit both images are rendered
     }
@@ -1195,11 +1197,11 @@ async function initStream(f, cb) {
   log("File size in bytes: " + baseChars + " filename " + filename);
   start = new Date().getTime();
   secElapsed, runningDuration, charClock, percentComplete, genomeSize, colClock, opacity = 0;
-  msPerUpdate = 200;
+  msPerUpdate = minUpdateTime;
   codonRGBA, geneRGBA, mixRGBA = [0,0,0,0]; // codonRGBA is colour of last codon, geneRGBA is temporary pixel colour before painting.
   codonsPerPixel = defaultC; //  one codon per pixel maximum
   CRASH = false; // hopefully not
-  msPerUpdate = 200; // milliseconds per  update
+  msPerUpdate = minUpdateTime; // milliseconds per  update
   codonRGBA, geneRGBA, mixRGBA = [0,0,0,0]; // codonRGBA is colour of last codon, geneRGBA is temporary pixel colour before painting.
   rgbArray = [];
   red = 0;
@@ -1246,13 +1248,13 @@ async function initStream(f, cb) {
   if (updatesTimer) {
     clearTimeout(updatesTimer);
   }
-  // if (willRecycleSavedImage == true && recycEnabled ==  true) {
-  // output(`Skipped ${justNameOfDNA}`);
-  // log("AM PLANNING TO RECYCLE TODAY (joy)")
-  // recycleOldImage(filenamePNG);
-  // saveDocuments();
-  // return;
-  // }
+  if (willRecycleSavedImage == true && recycEnabled ==  true) {
+    output(`Skipped ${justNameOfDNA}`);
+    log("AM PLANNING TO RECYCLE TODAY (joy)")
+    recycleOldImage(filenamePNG);
+    // saveDocuments();
+    return false;
+  }
   // startStreamingPng();
   process.title = `aminosee.funk.nz ${justNameOfDNA} ${bytes(estimatedPixels*4)}`;
   renderLock = true;
@@ -1706,17 +1708,12 @@ function helpCmd(args) {
   output(siteDescription);
   output("Author:         tom@funk.co.nz or +64212576422");
   output("calls only between 2pm and 8pm NZT (GMT+11hrs)");
-
-
-
   output('usage:');
   output('    aminosee [files/*] --flags            (to process all files');
   output(' ');
   output(terminalRGB('TIP: if you need some DNA in a hurry try this random clipping of 1MB human DNA:', 255,255,200));
   output('wget https://www.funk.co.nz/aminosee/dna/megabase.fa');
   output(' ');
-
-
   output('Welcome to the AminoSeeNoEvil DNA Viewer!');
   output(`This CLI is to convert sequence found in ASCII/RTF-8 text files - tested with .mfa .fa .gbk up to  into .png graphics. works with .mfa .fa .gbk DNA text files. It's been tested with files up to 3 GB, and uses asynchronous streaming architecture! Pass the name of the DNA file via command line, and it will put the images in a folder called 'output' in the same folder.`);
   output(' ');
@@ -1766,6 +1763,8 @@ function helpCmd(args) {
   output('     aminosee *         (render all files with default settings');
   term.down(termStatsHeight);
   printRadMessage();
+  launchNonBlockingServer(justNameOfDNA);
+  open( serve.getServerURL(justNameOfDNA), {app: 'firefox', wait: false} );
 }
 function saveDocsSync(cb) {
   status = "save"; // <-- this is the true end point of the program!
@@ -1981,7 +1980,7 @@ function touchLockAndStartStream(fTouch, cb) {
   );
 
   setImmediate(() => {
-    out('~');
+    out("~~~ let's stream some DNA already ~~~");
     setTimeout(() => {
       initStream(filename);
       if (cb) { cb() }
@@ -2741,6 +2740,9 @@ function recycleOldImage(f) {
       calculateShrinkage();
       saveHilbert(this.data);
       linearFinished();
+      htmlFinished();
+
+      // saveDocuments();
     });
 
   } catch(e) {
@@ -2750,33 +2752,34 @@ function recycleOldImage(f) {
     return false;
   }
 }
-function okToOverwritePNG(f) { // true to continue, false to abort
-  bugtxt("okToOverwritePNG RUNNING");
+
+function skipExitingFile (f) { // skip the file if TRUE render it if FALSE
+  bugtxt("skipExitingFile  RUNNING: " + f);
   if (force == true) {
     bugtxt("Not checking - force mode enabled.");
-    return true;
+    return false;
   }
-
   try {
-    // result = fs.lstatSync(f);
     result = doesFileExist(f);
-    log(`File Exists: ${replaceoutputPathFileName( f )}`);
     if (result) {
+      log(`inode EXISTS: ${replaceoutputPathFileName( f )}`);
       if (result.isFile ) {
         out("<<--- done");
-        if (recycEnabled) {
-          out("<<--- recycling existing linear file");
-          willRecycleSavedImage = true;
-        }
+        willRecycleSavedImage = true;
         isDiskFinLinear = true;
-        return false; // this will cause the render to start but will use willRecycleSavedImage to skip the ingest
+        return true; // this will skip the ingest
+      } else {
+        error(`I thought this had been rendered already, but this is not actually a file: ${f}. I'll try to wipe over it... `)
+        return false;
       }
+    } else {
+      log(`File NOT Exists: ${replaceoutputPathFileName( f )}`);
+      out(justNameOfDNA + "<<--- begin transcription of ");
     }
   } catch(e){
-    bugtxt("okToOverwritePNG Output png will be saved to: " + f );
+    bugtxt(`skipExitingFile  catch exception BUT ITS SWEET. Probably says it cant find the file, but thats why Im gonna render it right about now: ${e}  Output png will be saved to:  ${f}`);
   }
-  out("<<--- begin transcription of " + justNameOfDNA);
-  return true;
+  return false;
 }
 function doesFolderExist(f) {
   if (doesFileExist(f)) {  // handle exceptions
@@ -3139,52 +3142,59 @@ function saveHilbert(array, cb) {
     function openOutputs(cb) {
       status ="open outputs";
       if (devmode == true)  { bugtxt(renderObjToString()); }
-      bugtxt(`openHtml, openImage, openFileExplorer`, openHtml, openImage, openFileExplorer);
-      // setImmediate(function (bgOpen) {
-      if (openFileExplorer === true) {
-        output(`Opening ${justNameOfDNA} DNA renders in File Manager`);
-        // bgOpen(outputPath);
-        open(outputPath).then(() => {
-          log("file manager closed");
-        }).catch(function () { error(`open(${outputPath})`)});
-      }
-      if (openHtml == true) {
-        output(`Opening ${justNameOfDNA} DNA render summary HTML report.`);
-        // bgOpen(filenameHTML, {app: 'firefox', wait: false} );
-        setTimeout( () => {
-          launchNonBlockingServer(justNameOfDNA);
 
-          open( serve.getServerURL(justNameOfDNA), {app: 'firefox', wait: false} )
-        }, raceDelay);
-
-        // open(filenameHTML, {app: 'firefox', wait: false}).then(() => {
-        //   log("browser closed");
-        // }).catch(function () { error("open(filenameHTML)")});
-      }
-      if (isHilbertPossible === true && openImage === true) {
-        output(`Opening ${justNameOfDNA} 2D hilbert space-filling image.`);
-        // bgOpen(filenameHILBERT)
-        open(filenameHILBERT).then(() => {
-          log("hilbert image closed");
-        }).catch(function () { error("open(filenameHILBERT)") });
-      } else if (openImage === true) {
-        output(`Opening ${justNameOfDNA} 1D linear projection image.`);
-        // bgOpen(filenamePNG)
-        open(filenamePNG).then(() => {
-          log("regular png image closed");
-        }).catch(function () { error("open(filenamePNG)") });
+      if (!openHtml && !openImage && !openFileExplorer) {
+        log('Will not open the output');
       } else {
-        log(`Use --html or --image to automatically open files after render, and "aminosee demo" to generate test pattern and download a 1 MB DNA file from aminosee.funk.nz`)
-        log(`values of openHtml ${openHtml}   openImage ${openImage}`);
+        setImmediate( () => {
+          setTimeout( () => {
+            bugtxt(`openHtml, openImage, openFileExplorer`, openHtml, openImage, openFileExplorer);
+            if (openFileExplorer === true) {
+              output(`Opening ${justNameOfDNA} DNA renders in File Manager`);
+              // bgOpen(outputPath);
+              open(outputPath).then(() => {
+                log("file manager closed");
+              }).catch(function () { error(`open(${outputPath})`)});
+            }
+            if (openHtml == true) {
+              output(`Opening ${justNameOfDNA} DNA render summary HTML report.`);
+              // bgOpen(filenameHTML, {app: 'firefox', wait: false} );
+              setTimeout( () => {
+                launchNonBlockingServer(justNameOfDNA);
+                open( serve.getServerURL(justNameOfDNA), {app: 'firefox', wait: false} );
+              }, raceDelay*2);
+              if (openLocalHtml == true) {
+                open(filenameHTML, {app: 'firefox', wait: false}).then(() => {
+                  log("browser closed");
+                }).catch(function () { error("open(filenameHTML)")});
+              }
+            }
+            if (isHilbertPossible === true && openImage === true) {
+              output(`Opening ${justNameOfDNA} 2D hilbert space-filling image.`);
+              // bgOpen(filenameHILBERT)
+              open(filenameHILBERT).then(() => {
+                log("hilbert image closed");
+              }).catch(function () { error("open(filenameHILBERT)") });
+            } else if (openImage === true) {
+              output(`Opening ${justNameOfDNA} 1D linear projection image.`);
+              // bgOpen(filenamePNG)
+              open(filenamePNG).then(() => {
+                log("regular png image closed");
+              }).catch(function () { error("open(filenamePNG)") });
+            } else {
+              log(`Use --html or --image to automatically open files after render, and "aminosee demo" to generate test pattern and download a 1 MB DNA file from aminosee.funk.nz`)
+              log(`values of openHtml ${openHtml}   openImage ${openImage}`);
+            }
+            if (openHtml || openImage || openFileExplorer) {
+              output(closeBrowser); // tell user process is blocked
+            } else {
+              out("Not opening anything");
+            }
+          }, raceDelay*10); // time for storage system under 100% load
+        });
       }
 
-      if (openHtml || openImage || openFileExplorer) {
-        output(closeBrowser); // tell user process is blocked
-      } else {
-        out("Not opening anything");
-      }
-      // });
-      log("Thats us cousin'! Sweet as a Kina in a creek as they say (in NZ).");
+            log("Thats us cousin'! Sweet as a Kina in a creek as they say (in NZ).");
       if ( cb !== undefined) { cb() }
     }
     function getRegmarks() {
@@ -3280,16 +3290,16 @@ function saveHilbert(array, cb) {
 
     }
     function runCycle(cb) {
+      loopCounter++
       out('test cycle');
       testInit (loopCounter); // replaces loop
       bothKindsTestPattern(); // <<--------- MAIN ACTION HERE sets up globals to call generic function with no DNA for test
       arrayToPNG(function () { // linear image saved. hilbert is saved up in "bothKindsTestPattern"
       log('finished linear test. max mag: ' + magnitude)
-      loopCounter++
-  // howMany--;
+      // howMany--;
       // removeLocks();
       if (howMany < 0) { quit(1); return false;}
-      if (loopCounter > magnitude) {
+      if (loopCounter >= magnitude) {
         testStop();
         saveHTML();
         openOutputs();
@@ -3479,7 +3489,8 @@ function saveHilbert(array, cb) {
     }
   }
   function bugout(txt) {
-    console.log(maxWidth(debugColumns+(3*devmode), `[mem ${process.memoryUsage()[0]} ${status} ${(renderLock ? 'Render' : 'Idle')} F:${currentFile} ${storage()}  ${(isHighlightSet ? peptide + " " : " ")}Jobs: ${howMany} ${nicePercent()} G: ${genomeSize} Est: ${onesigbitTolocale(estimatedPixels)} ${bytes( baseChars )} RunID: ${timestamp} H dim: ${hilbPixels[dimension]}] `) + ">>> " + txt);
+    // let mem = process.memoryUsage();
+    console.log(maxWidth(debugColumns+(3*devmode), `[${status} ${(renderLock ? 'Render' : 'Idle')} F:${currentFile} ${storage()}  ${(isHighlightSet ? peptide + " " : " ")}Jobs: ${howMany} ${nicePercent()} G: ${genomeSize} Est: ${onesigbitTolocale(estimatedPixels)} ${bytes( baseChars )} RunID: ${timestamp} H dim: ${hilbPixels[dimension]}] `) + ">>> " + txt);
   }
   function output(txt) {
     if (verbose && devmode) {

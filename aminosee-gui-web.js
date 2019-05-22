@@ -19,8 +19,8 @@ basepairs = 3;
 zoom = 2; //  defalt 2
 distance = 900; // default 900
 let stateObj = { foo: "bar" };
-let current_image = document.getElementById('current_image');
 
+let current_image = document.getElementById('current_image');
 
 if(window.addEventListener) {
   window.addEventListener('load',pageLoaded,false); //W3C
@@ -47,13 +47,6 @@ function reportLoaded() {
     });
 }
 function pageLoaded() {
-  if (page == "report") {
-    console.log("Didnt run init due to this is a report");
-    reportLoaded();
-    return false;
-  } else {
-    console.log("not report")
-  }
   initVariables();
   sceneCameraSetup();
   setScene();
@@ -93,6 +86,12 @@ function initVariables() {
   color = new THREE.Color();
   userFeedback = "";
 
+  // Check for the various File API support.
+  if (window.File && window.FileReader && window.FileList && window.Blob) {
+    console.log('File API support detected. Groovy.');
+  } else {
+    stat('The File APIs are not fully supported in this browser. They are needed for loading the super massive DNA text files.');
+  }
 
   if ( WEBGL.isWebGLAvailable() === false ) {
     document.body.appendChild( WEBGL.getWebGLErrorMessage() );
@@ -146,11 +145,11 @@ function init2D() {
   // addOffscreenImage();
 }
 
+
 function getParameterFromURL() {
   let href = window.location.href;
   let index = href.indexOf('selectedGenome');
   console.log(href, index);
-
   if ( index != -1 ) {
     href = href.substring(index);
     index = href.indexOf('&');
@@ -165,10 +164,9 @@ function getParameterFromURL() {
     // if ( index != -1 ) {
     //   href = href.substring(0, index); //CHOP OFF THE &
     // }
-    alert(href)
+    // alert(href)
     return href;
   } else {
-
     // alert("output/Brown_Kiwi_013982187v1.fa_linear_leucine_c123.6_sci.png")
     return `output/Brown_Kiwi_013982187v1.fa_linear_leucine_c123.6_sci.png`;
   }
@@ -673,6 +671,7 @@ function testParse() {
     <input type="button" id="modalBoxButton" value="${actionText}" onclick="togglePause()">
     `;
   }
+
 
   function handleFileSelect(evt) {
     document.getElementById('cancel').classList.remove('hidden');
@@ -1219,27 +1218,11 @@ function testParse() {
     pauseIntent = false;
     // camera.rotation.x -= 5;
     camera.position.z += 10;
-  }
-  function positionStack() {
-    for (i=0; i<pepTable.length; i++) {
-      let thePep = spaceTo_( pepTable[i].Codon );
-      let theHue = pepTable[i].Hue;
-      let c =      hsvToRgb( theHue/360, 0.5, 1.0 );
 
-      if (thePep != "Non-coding_NNN"  && thePep != "Start_Codons" && thePep != "Stop_Codons") {
-        hhh += `<a href="${aminoFilenameIndex(i)}" onmouseover="mover(${i})" onmouseout="mout(${i})"><img src="${aminoFilenameIndex(i)}" id="stack_${i}" width="256" height="256" style="z-index: ${1000+i}; position: absolute; top: ${i*2}px; left: ${i*12}px;" alt="${pepTable[i].Codon}" title="${pepTable[i].Codon}"></a>`;
-      } else {
-        log("non-coding nnn image not output");
-      }
-    }
   }
   function onDocumentMouseMove( event ) {
     mouseX = event.clientX - windowHalfX;
     mouseY = event.clientY - windowHalfY;
-    console.log("Position", mouseX, mouseY);
-    if (page == "report") {
-      positionStack();
-    }
   }
 
   function onDocumentTouchStart( event ) {

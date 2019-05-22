@@ -36,6 +36,8 @@ function startServeHandler() {
   });
 }
 function getServerURL(path) {
+  return 'http://127.0.0.1:8081';
+
   let internalIp = require('internal-ip');
   let port = 4321;
   if (path == undefined) {
@@ -99,6 +101,8 @@ module.exports.open = function (relative) {
   console.log("Opening page: " + relative);
 }
 module.exports.getServerURL = function (path) {
+  return 'http://127.0.0.1:8081';
+
   let internalIp = require('internal-ip');
   let port = 4321;
   if (path == undefined) {
