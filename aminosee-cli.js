@@ -598,7 +598,7 @@ module.exports = () => {
     howMany = 2;
     if (cmd == undefined) {
       currentFile = args._[0];
-      args._.push(currentFile); // could never figure out how those args were getting done
+      // args._.push(currentFile); // could never figure out how those args were getting done
       status = "no command";
       if (cliruns <= 3) {
         output("FIRST RUN!!! Opening the demo... use the command aminosee demo to see this first run demo in future");
@@ -915,9 +915,9 @@ function runTerminalCommand(str) {
   console.log(`[ running terminal command ---> ] ${str}`);
   const exec = require("child_process").exec
   exec(str, (error, stdout, stderr) => {
-    error(error);
+    error('runTerminalCommand ' + error);
     output(stdout);
-    error(stderr);
+    error('runTerminalCommand ' + stderr);
     if (error) {
       return false;
     } else {
@@ -1005,17 +1005,17 @@ function pollForStream() {
   //   }
   // }
   if (test) {
-    error("Test... >>");
+    bugtxt("Test... >>");
     return false;
   }
   if (renderLock === true) {
-    out('Rendering ' + percentComplete);
+    out('>>> RENDER <<<' + percentComplete);
     return false;
   } else {
-    out('IDLE');
+    out('>>> IDLE <<<');
   }
   if (isDiskFinLinear && isDiskFinHilbert && isDiskFinHTML){
-    log(` [ analyse file extension: ${chalk.inverse(fixedWidth(45, currentFile))} scan for DNA formats ${chalk.inverse(storage())} ]`);
+    log(` [ analyse file extension: ${chalk.inverse(currentFile)} scan for DNA formats ${chalk.inverse(storage())} ]`);
   } else {
     log(` [ wait on storage: ${chalk.inverse(storage())} ] `);
     return false;
@@ -1039,7 +1039,7 @@ function pollForStream() {
       } else {
         setImmediate(() => {
           output("Finished processing.")
-          quit(1);
+          // quit(1);
         });
         return true;
       }
@@ -1062,15 +1062,11 @@ function pollForStream() {
     let pollAgainFlag = false;
     let willStart = true;
     bugtxt( " currentFile is " + currentFile   + args)
-    try {
-      if (!fs.statSync(filename).isFile) {
-        output("This is not a file: " + filename)
-        theSwitcher(false);
-        return false;
-      }
-    } catch(err) {
-      error("HANDLED ERROR: " + err);
-      log("statSync: false " + filename);
+
+    if (doesFileExist(filename)) {
+      out('File Exists');
+    } else {
+      log('Skipping non-existent file: ' + filename);
       theSwitcher(false);
       return false;
     }
@@ -1281,7 +1277,6 @@ async function initStream(f, cb) {
     .on('error', function(err){
       status = "stream error";
       error('while reading file: ' + filename, err.reason);
-      error(err)
       log(status)
     })
     .on('end', function() {
@@ -1311,7 +1306,7 @@ async function initStream(f, cb) {
       // return saveDocuments();
     }));
   } catch(e) {
-    error("ERROR:"  + e)
+    error("Catch in Init ERROR:"  + e)
   }
 
   clearCheck();
@@ -2682,7 +2677,7 @@ return html;
 
 function checkLocks(fullPathOfLockFile) { // return TRUE if locked.
   bugtxt("checkLocks RUNNING: " + fullPathOfLockFile);
-  if (force == true && devmode == false) {
+  if (force == true) {
     log("Not checking locks - force mode enabled.");
     return false;
   }
@@ -2793,7 +2788,7 @@ function doesFileExist(f) {
   try {
     ret = fs.existsSync(f);
   } catch(e) {
-    error(e)
+    bugtxt(e)
   }
   bugtxt(`doesFileExist: ${ret}`)
   return ret;
@@ -3527,7 +3522,7 @@ function saveHilbert(array, cb) {
     }
   }
   function error(e) {
-    out('error start {{{ ----------- ' + chalk.inverse( e.toString() ) + chalk(" ") + ' ----------- }}} end');
+    out(status + ' / error start {{{ ----------- ' + chalk.inverse( e.toString() ) + chalk(" ") + ' ----------- }}} end');
   }
 
   // remove anything that isn't ATCG, convert U to T
