@@ -87,7 +87,7 @@ let recycEnabled = false; // bummer had to disable it
 let renderLock = false; // not rendering right now obviously
 let msPerUpdate = 200; // min milliseconds per update
 let clear = false;
-
+let openLocalHtml = false; // its better to use the built-in server due to CORS
 
 let PNGReader = require('png.js');
 let ProgressBar = require('progress');
