@@ -67,7 +67,7 @@ let maxMsPerUpdate = 30000; // milliseconds per updatelet maxpix = targetPixels;
 let termDisplayHeight = 31;
 let termStatsHeight = 9;
 let maxpix = targetPixels;
-let raceDelay = 469; // so i learnt a lot on this project. one day this line shall disappear replaced by promises.
+let raceDelay = 1000; // so i learnt a lot on this project. one day this line shall disappear replaced by promises.
 let raceTimer = false;
 let dimension = defaultMagnitude; // var that the hilbert projection is be downsampled to
 let darkenFactor = 0.25; // if user has chosen to highlight an amino acid others are darkened
@@ -729,7 +729,7 @@ function toggleDevmode() {
     updates = false;
     clear = false;
     if (debug) {
-      raceDelay = 2500; // this helps considerably!
+      raceDelay = 3000; // this helps considerably!
     }
     openHtml = false;
     openImage = false;
@@ -739,7 +739,7 @@ function toggleDevmode() {
     verbose = false;
     updates = true;
     clear = true;
-    raceDelay = 69;
+    raceDelay = 100;
     openHtml = true;
     openImage = true;
     openFileExplorer = true;
@@ -972,6 +972,7 @@ function storage() {
   return `${(!isDiskFinLinear ? 'Linear ' : '')} ${(!isDiskFinHilbert ? 'Hilbert ' : '')} ${(!isDiskFinHTML ? 'HTML ' : '' )}`;
 }
 function pollForStream() {
+  out('*');
   try {
     howMany = args._.length;
   } catch(e) {
@@ -1121,22 +1122,14 @@ function pollForStream() {
       status = "switcher"
       if (howMany > 0 ) {
         bugtxt(`There is more work. Rendering: ${renderLock} Load: ${os.loadavg()}`);
-        if (!renderLock) {
-          setImmediate(() => {
-            setTimeout(() => {
-              pollForStream();
-            }, raceDelay*3)
-          });
-        }
-
-        return true;
+        maybePoll('switcher has more');
+              return true;
       } else {
         log(`Polling found no more work. Currently rending: ${renderLock}`);
         if (!renderLock) {
           clearTimeout(raceTimer);
-          quit();
+          // quit();
         }
-
         return false;
       }
     }
@@ -1311,7 +1304,7 @@ async function initStream(f, cb) {
   log("FINISHED INIT " + howMany);
   // term.up(termStatsHeight);
   term.eraseDisplayBelow();
-  pollForStream();
+  // maybePoll('delete me');
 }
 function showFlags() {
   return `${(  force ? "F" : "-"    )}${(  args.updates || args.u ? `U` : "-"    )}${(  userCPP != -1 ? `C${userCPP}` : "--"    )}${(  args.keyboard || args.k ? `K` : "-"    )}${(  args.spew || spew ? `K` : "-"    )}${( verbose ? "V" : "-"  )}${(  artistic ? "A" : "-"    )}${(  args.ratio || args.r ? `${ratio}` : "---"    )}${(dimension? "M" + dimension:"")}C${onesigbitTolocale(codonsPerPixel)}${(reg?"REG":"")}`;
@@ -1980,7 +1973,7 @@ function touchLockAndStartStream(fTouch, cb) {
     setTimeout(() => {
       initStream(filename);
       if (cb) { cb() }
-    }, raceDelay)
+    }, raceDelay * 2)
   })
   // if (keyboard == true) {
   // try {
@@ -2002,24 +1995,20 @@ function removeLocks(cb) {
   }
   isDiskFinLinear = true;
   renderLock = false;
-  maybePoll();
+  maybePoll('remove locks');
 }
-function maybePoll() {
-  bugtxt("maybepoll");
+function maybePoll(reason) {
+  bugout("maybepoll reason: " + reason);
   if (howMany > 0 ) {
-    if (isDiskFinLinear && isDiskFinHilbert && isDiskFinHTML){
-      setImmediate(() => {
+    if (isDiskFinLinear && isDiskFinHilbert && isDiskFinHTML) {
         bugtxt(`Polling in ${raceDelay}ms ${howMany} files remain, next is ${maxWidth(32, nextFile)}`);
-        setTimeout(() => {
           pollForStream();
-        }, raceDelay);
-      });
       return true;
     } else {
       return false;
     }
   } else {
-    log("...and thats's all she wrote folks. The race condition finishes near here! No jobs left.");
+    log("...and thats's all she wrote folks, outa jobs.");
     return false;
   }
 }
@@ -2082,7 +2071,7 @@ function quit(n) {
   // status = "bye";
 
 
-  if ( maybePoll() ) {
+  if ( maybePoll('inside quit!! this must be it') ) {
     bugtxt("Continuing...");
   } else {
     calcUpdate();
@@ -2744,7 +2733,7 @@ function recycleOldImage(f) {
   } catch(e) {
     output(`Failure during recycling: ${e} will poll for work`);
     isDiskFinHilbert = true;
-    maybePoll();
+    maybePoll(`recycle fail`);
     return false;
   }
 }
@@ -2764,18 +2753,16 @@ function okToOverwritePNG(f) { // true to continue, false to abort
         out("<<--- recycling existing linear file");
         willRecycleSavedImage = true;
         isDiskFinLinear = true;
-        return true; // this will cause the render to start but will use willRecycleSavedImage to skip the ingest
+        return false; // this will cause the render to start but will use willRecycleSavedImage to skip the ingest
       } else {
         out("<<--- done");
-
+        return false; // this will cause the render to start but will use willRecycleSavedImage to skip the ingest
       }
 
     } else {
       out("<<--- begin transcription of " + justNameOfDNA);
-      return true;
     }
-
-    return false;
+    // return false;
   } catch(e){
     output("Output png will be saved to: " + f );
     return true;
@@ -2965,18 +2952,18 @@ function saveHilbert(array, cb) {
   function htmlFinished() {
     isDiskFinHTML = true;
     out("HTML done")
-    maybePoll();
+    maybePoll('htmlFinished');
   }
   function hilbertFinished() {
     isDiskFinHilbert = true;
     out("Hilbert PNG done")
-    maybePoll();
+    maybePoll('hilbertFinished');
   }
   function linearFinished() {
     isDiskFinLinear = true;
     out("Linear PNG done, waiting on: " + storage());
     removeLocks();
-    maybePoll();
+    maybePoll('linearFinished');
   }
   function bothKindsTestPattern() {
     let h = require('hilbert-2d');
@@ -3477,9 +3464,12 @@ function saveHilbert(array, cb) {
       return "XHR Error " + e.toString();
     }
   }
+  function bugout(txt) {
+    console.log(maxWidth(debugColumns+(3*devmode), `[${status} ${(renderLock ? 'Render' : 'Idle')} F:${currentFile} ${storage()}  ${(isHighlightSet ? peptide + " " : " ")}Jobs: ${howMany} ${nicePercent()} G: ${genomeSize} Est: ${onesigbitTolocale(estimatedPixels)} ${bytes( baseChars )} RunID: ${timestamp} H dim: ${hilbPixels[dimension]}] `) + ">>> " + txt);
+  }
   function output(txt) {
     if (verbose && devmode) {
-      console.log(maxWidth(debugColumns+(3*devmode), `[${status} ${(renderLock ? 'Render' : 'Idle')} F:${currentFile} ${storage()}  ${(isHighlightSet ? peptide + " " : " ")}Jobs: ${howMany} ${nicePercent()} G: ${genomeSize} Est: ${onesigbitTolocale(estimatedPixels)} ${bytes( baseChars )} RunID: ${timestamp} H dim: ${hilbPixels[dimension]}] `) + ">>> " + txt);
+      bugout(txt);
     } else {
       console.log(txt);
     }
@@ -3580,12 +3570,12 @@ function saveHilbert(array, cb) {
     }
   }
   function clearScreen() {
-    // term.clear();
-    process.stdout.write('\033c');
+    term.clear();
+    // process.stdout.write('\033c');
 
-    process.stdout.write("\x1Bc");
-    process.stdout.write("\x1B[2J"); // CLEAR TERMINAL SCREEN????
-    process.stdout.write('\033c'); // <-- maybe best for linux? clears the screen
+    // process.stdout.write("\x1Bc");
+    // process.stdout.write("\x1B[2J"); // THIS SHRINKS MY FONTS!! wtf?
+    // process.stdout.write('\033c'); // <-- maybe best for linux? clears the screen. ALSD SHRINKS MY FONTS
   }
 
 
