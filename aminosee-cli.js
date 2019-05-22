@@ -811,31 +811,31 @@ function runDemo() {
     },
     function( cb ) {
       openImage = false;
-      ratio = golden;
+      ratio = 'gol';
       generateTestPatterns(cb);
     },
     function( cb ) {
       openImage = false;
       peptide = 'Opal'; // BLUE TESTS
-      ratio = square;
+      ratio = 'sqr';
       generateTestPatterns(cb);
     },
     function( cb ) {
       // openImage = true;
       peptide = 'Ochre'; // RED TESTS
-      ratio = square;
+      ratio = 'sqr';
       generateTestPatterns(cb);
     },
     function( cb ) {
       // openImage = true;
       peptide = 'Arginine'; //  PURPLE TESTS
-      ratio = square;
+      ratio = 'sqr';
       generateTestPatterns(cb);
     },
     function( cb ) {
       // openImage = true;
       peptide = 'Methionine'; // GREEN TESTS
-      ratio = square;
+      ratio = 'sqr';
       generateTestPatterns(cb);
     },
 

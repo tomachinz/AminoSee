@@ -3,7 +3,7 @@
 w
 # aminosee_test () {
   echo 'doing   $1 $2 $3 $4 $5  --peptide="gluTAMIC aCID"'
-  nice aminosee $1 $2 $3 $4 $5 --peptide="gluTAMIC aCID"
+  nice aminosee $1 $2 $3 $4 $5 -f --peptide="gluTAMIC aCID"
 
   echo "doing   $1 $2 $3 $4 $5 --triplet ggg"
   nice aminosee $1 $2 $3 $4 $5 --triplet ggg
@@ -11,7 +11,7 @@ w
   echo "doing  $1 $2 $3 $4 $5 -m 5 --ratio=gol"
   nice aminosee $1 $2 $3 $4 $5
 
-  echo "doing  $1 $2 $3 $4 $5 -m 5 --ratio=gol --peptide=Ochre"
+  echo "doing  $1 $2 $3 $4 $5 -f -m 5 --ratio=gol --peptide=Ochre"
   nice aminosee $1 $2 $3 $4 $5
 
 
@@ -28,7 +28,7 @@ w
   echo "doing  $1 $2 $3 $4 $5 --no-updates -c 500 --ratio=GOLDEN --peptide=Tryptophan  "
   nice aminosee $1 $2 $3 $4 $5 --no-updates -c 500 --ratio=GOLDEN --peptide=Tryptophan
 
-  echo "doing  $1 $2 $3 $4 $5 --no-updates --ratio=fix --peptide=Arginine --html"
+  echo "doing  $1 $2 $3 $4 $5 -f --no-updates --ratio=fix --peptide=Arginine --html"
   nice aminosee $1 $2 $3 $4 $5 --no-updates --ratio=fix --peptide=Arginine --html
 
   echo "doing   $1 $2 $3 $4 $5 demo --no-html --no-image"
