@@ -617,7 +617,7 @@ module.exports = () => {
     } else {
       currentFile = args._[0];
       filename = path.resolve(currentFile);
-      log(filename)
+      log("ΩΩΩΩΩΩΩΩΩΩΩΩΩΩΩΩΩΩΩ "+filename)
       status = "Ω first command " + howMany + " " + currentFile;
       out(status);
       setupFNames();
@@ -2892,7 +2892,7 @@ function saveHilbert(array, cb) {
   resampleByFactor(shrinkFactor);
   width = Math.sqrt(hilpix);
   height = width;
-  let perc = 0;
+  percentComplete = 0;
   whack_a_progress_on();
   let spacie = Math.round(hilpix / 100);
   for (i = 0; i < hilpix; i++) {
@@ -2900,9 +2900,8 @@ function saveHilbert(array, cb) {
     [hilbX, hilbY] = hilDecode(i, dimension, MyManHilbert);
     let cursorLinear  = 4 * i ;
     let hilbertLinear = 4 * ((hilbX % width) + (hilbY * width));
-    let perc = i / hilpix;
-    percentComplete = perc;
-    // if ((Math.round(perc * 1000) % 100) === 0) {
+    percentComplete = i / hilpix;
+    // if ((Math.round(percentComplete * 1000) % 100) === 0) {
     dot(i, spacie, "Space filling " + nicePercent() + " of " + hilpix.toLocaleString());
     // }
 
@@ -2986,14 +2985,14 @@ function saveHilbert(array, cb) {
 
     output(`Generating hilbert curve of the ${dimension}th dimension out of: ${howMany}`);
     bugtxt(filenameHILBERT);
-    let perc = 0;
+    percentComplete = 0;
     let d = Math.round(hilpix/1000);
     for (i = 0; i < hilpix; i++) {
       let hilbX, hilbY;
       [hilbX, hilbY] = hilDecode(i, dimension, h);
       let cursorLinear  = 4 * i ;
       let hilbertLinear = 4 * ((hilbX % linearWidth) + (hilbY * linearWidth));
-      let percentComplete =  (i+1) / hilpix;
+      percentComplete =  (i+1) / hilpix;
       dot(i, d, ' ॐ  ' + nicePercent());
       hilbertImage[hilbertLinear] =   255*percentComplete; // slow ramp of red
       hilbertImage[hilbertLinear+1] = ( i % Math.round( percentComplete * 32) ) / (percentComplete *32) *  255; // SNAKES! crazy bio snakes.
@@ -3059,7 +3058,7 @@ function saveHilbert(array, cb) {
           width++;
           height++;
         }
-      }
+      } // SQUARE RATIO
 
       if (ratio == "gol") {
         let phi = ((Math.sqrt(5) + 1) / 2) ; // 1.618033988749895
@@ -3085,7 +3084,8 @@ function saveHilbert(array, cb) {
           out(`linear image height: ${height} pixels by 960`);
           height++;
         }
-      }
+      } // GOLDEN RATIO
+
       if ( pixels <= width*height) {
         log("Image allocation check: " + pixels + " < width x height = " + ( width * height ));
       } else {
@@ -3349,11 +3349,11 @@ function saveHilbert(array, cb) {
     return true;
   }
 
-  function paintRegMarks(hilbertLinear, hilbertImage, perc) {
-    let thinWhiteSlice = (Math.round(perc * 1000 )) % 250; // 1% white bands at 0%, 25%, 50%, 75%, 100%
+  function paintRegMarks(hilbertLinear, hilbertImage, percentComplete) {
+    let thinWhiteSlice = (Math.round(percentComplete * 1000 )) % 250; // 1% white bands at 0%, 25%, 50%, 75%, 100%
 
     if (thinWhiteSlice < 1) { // 5 one out of 10,000
-      // paintRegMarks(hilbertLinear, hilbertImage, perc);
+      // paintRegMarks(hilbertLinear, hilbertImage, percentComplete);
 
       hilbertImage[hilbertLinear+0] = 255 - (hilbertImage[hilbertLinear+0]);
       hilbertImage[hilbertLinear+1] = 255 - (hilbertImage[hilbertLinear+1]);
@@ -3477,7 +3477,7 @@ function saveHilbert(array, cb) {
     }
   }
   function bugout(txt) {
-    console.log(maxWidth(debugColumns+(3*devmode), `[${process.memoryUsage()} ${status} ${(renderLock ? 'Render' : 'Idle')} F:${currentFile} ${storage()}  ${(isHighlightSet ? peptide + " " : " ")}Jobs: ${howMany} ${nicePercent()} G: ${genomeSize} Est: ${onesigbitTolocale(estimatedPixels)} ${bytes( baseChars )} RunID: ${timestamp} H dim: ${hilbPixels[dimension]}] `) + ">>> " + txt);
+    console.log(maxWidth(debugColumns+(3*devmode), `[mem ${process.memoryUsage()[0]} ${status} ${(renderLock ? 'Render' : 'Idle')} F:${currentFile} ${storage()}  ${(isHighlightSet ? peptide + " " : " ")}Jobs: ${howMany} ${nicePercent()} G: ${genomeSize} Est: ${onesigbitTolocale(estimatedPixels)} ${bytes( baseChars )} RunID: ${timestamp} H dim: ${hilbPixels[dimension]}] `) + ">>> " + txt);
   }
   function output(txt) {
     if (verbose && devmode) {
