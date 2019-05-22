@@ -45,7 +45,7 @@
     "sliced": "^1.0.1",
     "stream-file": "^0.2.4",
     "terminal-kit": "^1.28.0",
-    "three": "^0.98.0",
+    "three": "^0.104.0",
     "through": "^2.3.8",
     "uniq": "^1.0.1",
     "vows": "^0.8.2",
