@@ -808,21 +808,31 @@ function runDemo() {
     },
     function( cb ) {
       openImage = false;
+      ratio = golden;
       generateTestPatterns(cb);
     },
     function( cb ) {
       openImage = false;
       peptide = 'Opal'; // BLUE TESTS
+      ratio = square;
       generateTestPatterns(cb);
     },
     function( cb ) {
       // openImage = true;
       peptide = 'Ochre'; // RED TESTS
+      ratio = square;
+      generateTestPatterns(cb);
+    },
+    function( cb ) {
+      // openImage = true;
+      peptide = 'Arginine'; //  PURPLE TESTS
+      ratio = square;
       generateTestPatterns(cb);
     },
     function( cb ) {
       // openImage = true;
       peptide = 'Methionine'; // GREEN TESTS
+      ratio = square;
       generateTestPatterns(cb);
     },
 
@@ -3261,14 +3271,6 @@ function saveHilbert(array, cb) {
 
       runCycle(cb); // runs in a callback loop
 
-      // if (howMany != -1) {
-      //   openOutputs();
-      //   if (cb) { cb() }
-      // } else {
-      //   out("_")
-      // }
-      // openOutputs();
-
       log(`done with JUST ONE CYCLE OF generateTestPatterns(). Filenames:`);
       log(outputPath);
       log(filenameTouch);
@@ -3278,18 +3280,17 @@ function saveHilbert(array, cb) {
 
     }
     function runCycle(cb) {
-      loopCounter++
       out('test cycle');
-      fakeReportInit(loopCounter); // replaces loop
-      dimension = loopCounter;
+      testInit (loopCounter); // replaces loop
       bothKindsTestPattern(); // <<--------- MAIN ACTION HERE sets up globals to call generic function with no DNA for test
       arrayToPNG(function () { // linear image saved. hilbert is saved up in "bothKindsTestPattern"
       log('finished linear test. max mag: ' + magnitude)
-      // howMany--;
+      loopCounter++
+  // howMany--;
       // removeLocks();
       if (howMany < 0) { quit(1); return false;}
       if (loopCounter > magnitude) {
-        fakeReportStop();
+        testStop();
         saveHTML();
         openOutputs();
         if (cb) { cb() }
@@ -3303,7 +3304,7 @@ function saveHilbert(array, cb) {
     //   log('finished linear test')
     // });
   }
-  function fakeReportStop() {
+  function testStop () {
     // openImage = true;
     genomeSize = 1;
     baseChars = 1;
@@ -3311,7 +3312,8 @@ function saveHilbert(array, cb) {
     colClock = -1; // gets around zero length check
     calcUpdate();
   }
-  function fakeReportInit(magnitude) {
+  function testInit (magnitude) {
+    dimension = magnitude;
     start = new Date().getTime();
     test, dimension = magnitude; // mags for the test
     let testPath = outputPath + "/calibration"; //
