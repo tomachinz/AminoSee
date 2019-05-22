@@ -40,11 +40,11 @@ function fileChanged(f) {
 function reportLoaded() {
   console.log("FETCH");
   fetch(filename +  "_histogram.json")
-    .then(response => response.json())
-    .then(json => {
-      console.log(json);
-      alert(json);
-    });
+  .then(response => response.json())
+  .then(json => {
+    console.log(json);
+    alert(json);
+  });
 }
 function pageLoaded() {
   initVariables();
@@ -1220,9 +1220,26 @@ function testParse() {
     camera.position.z += 10;
 
   }
+  function positionStack() {
+    for (i=0; i<pepTable.length; i++) {
+      let thePep = spaceTo_( pepTable[i].Codon );
+      let theHue = pepTable[i].Hue;
+      let c =      hsvToRgb( theHue/360, 0.5, 1.0 );
+
+      if (thePep != "Non-coding_NNN"  && thePep != "Start_Codons" && thePep != "Stop_Codons") {
+        hhh += `<a href="${aminoFilenameIndex(i)}" onmouseover="mover(${i})" onmouseout="mout(${i})"><img src="${aminoFilenameIndex(i)}" id="stack_${i}" width="256" height="256" style="z-index: ${1000+i}; position: absolute; top: ${i*2}px; left: ${i*12}px;" alt="${pepTable[i].Codon}" title="${pepTable[i].Codon}"></a>`;
+      } else {
+        log("non-coding nnn image not output");
+      }
+    }
+  }
   function onDocumentMouseMove( event ) {
     mouseX = event.clientX - windowHalfX;
     mouseY = event.clientY - windowHalfY;
+    console.log("Position", mouseX, mouseY);
+    if (page == "report") {
+      positionStack();
+    }
   }
 
   function onDocumentTouchStart( event ) {
