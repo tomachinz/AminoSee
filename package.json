@@ -23,7 +23,7 @@
     "hilbert-2d": "0.0.1",
     "humanize-duration": "^3.18.0",
     "internal-ip": "^4.3.0",
-    "jimp": "^0.5.6",
+    "jimp": "^0.6.4",
     "keypress": "^0.2.1",
     "local-web-server": "^2.6.1",
     "minimist": "^1.2.0",
