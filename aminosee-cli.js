@@ -3194,7 +3194,7 @@ function saveHilbert(array, cb) {
         });
       }
 
-            log("Thats us cousin'! Sweet as a Kina in a creek as they say (in NZ).");
+      log("Thats us cousin'! Sweet as a Kina in a creek as they say (in NZ).");
       if ( cb !== undefined) { cb() }
     }
     function getRegmarks() {
@@ -3291,28 +3291,26 @@ function saveHilbert(array, cb) {
     }
     function runCycle(cb) {
       loopCounter++
-      out('test cycle');
-      testInit (loopCounter); // replaces loop
-      bothKindsTestPattern(); // <<--------- MAIN ACTION HERE sets up globals to call generic function with no DNA for test
-      arrayToPNG(function () { // linear image saved. hilbert is saved up in "bothKindsTestPattern"
-      log('finished linear test. max mag: ' + magnitude)
-      // howMany--;
-      // removeLocks();
-      if (howMany < 0) { quit(1); return false;}
-      if (loopCounter >= magnitude) {
+      if (loopCounter+1 > magnitude) {
         testStop();
         saveHTML();
         openOutputs();
         if (cb) { cb() }
         return false;
-      } else {
-        setImmediate( () => {runCycle(cb)} );
       }
-      return true;
+      out('test cycle');
+      testInit (loopCounter); // replaces loop
+      bothKindsTestPattern(); // <<--------- MAIN ACTION HERE sets up globals to call generic function with no DNA for test
+      arrayToPNG(function () { // linear image saved. hilbert is saved up in "bothKindsTestPattern"
+      out('ok ' + loopCounter);
+      setImmediate( () => {
+        setTimeout( () => {
+          runCycle(cb)
+        }, raceDelay * 10 * loopCounter);
+      });
     });
-    // arrayToPNG(function () {
-    //   log('finished linear test')
-    // });
+    return true;
+
   }
   function testStop () {
     // openImage = true;
