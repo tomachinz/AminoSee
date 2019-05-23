@@ -619,13 +619,14 @@ module.exports = () => {
       currentFile = args._[0];
       filename = path.resolve(currentFile);
       log("Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω "+filename)
-      status = "Ω first command " + howMany + " " + currentFile;
+      status = "Ω first command " + howMany + " " + currentFile  + " " + filename;
       out(status);
       setupFNames();
       autoconfCodonsPerPixel();
       // setupOutPaths();
       // initStream(filename);
       pollForStream();
+      // maybePoll();
       return true;
     }
     status = "leaving switch";
@@ -733,7 +734,7 @@ function toggleDevmode() {
     updates = false;
     clear = false;
     if (debug) {
-      raceDelay = 3000; // this helps considerably!
+      raceDelay = 5000; // this helps considerably!
     }
     openHtml = false;
     openImage = false;
@@ -743,7 +744,7 @@ function toggleDevmode() {
     verbose = false;
     updates = true;
     clear = true;
-    raceDelay = 100;
+    raceDelay = 69;
     openHtml = true;
     openImage = true;
     openFileExplorer = true;
@@ -1008,12 +1009,6 @@ function pollForStream() {
     bugtxt("Test... >>");
     return false;
   }
-  if (renderLock === true) {
-    out('>>> RENDER <<<' + percentComplete);
-    return false;
-  } else {
-    out('>>> IDLE <<<');
-  }
   if (isDiskFinLinear && isDiskFinHilbert && isDiskFinHTML){
     log(` [ analyse file extension: ${chalk.inverse(currentFile)} scan for DNA formats ${chalk.inverse(storage())} ]`);
   } else {
@@ -1062,11 +1057,16 @@ function pollForStream() {
     let pollAgainFlag = false;
     let willStart = true;
     bugtxt( " currentFile is " + currentFile   + args)
-
-    if (doesFileExist(filename)) {
-      out('File Exists');
+    if (renderLock === true) {
+      out('>>> RENDER <<<' + percentComplete);
+      return false;
     } else {
-      log('Skipping non-existent file: ' + filename);
+      out('>>> IDLE <<<');
+    }
+    if (doesFileExist(filename)) {
+      out('DNA Found OK');
+    } else {
+      log('Skipping non-existent DNA file: ' + filename);
       theSwitcher(false);
       return false;
     }
@@ -1076,12 +1076,13 @@ function pollForStream() {
       theSwitcher(false);
       return false;
     }
-    bugtxt("POLLING FILENAME: " + filename)
+    bugtxt("CHECK FILE EXTENSION FORMAT: " + filename)
     if (checkFileExtension(filename) == false) {
       bugtxt("Format: " + getFileExtension(filename) + " NOT OK: " + checkFileExtension(filename) );
-      maybePoll();
+      theSwitcher(false);
       return false;
     }
+
     autoconfCodonsPerPixel();
     status ="polling";
     setupFNames();
@@ -1094,30 +1095,31 @@ function pollForStream() {
       } else {
         log("use --force to overwrite  --image to automatically open   ");
       }
-      recycleOldImage(filenamePNG); // recycled with new hilbert
-      theSwitcher(false); // <---- no render
-      return false; // just straight quit both images are rendered
     }
-
-
+    out("check locks")
     bugtxt(`Polling filenameTouch ${filenameTouch} willStart   ${willStart}  pollAgainFlag ${pollAgainFlag}  defaultFilename  ${defaultFilename}  ${filename}  howMany   ${howMany}   status ${status}`);
 
     if (checkLocks(filenameTouch)) {
-      bugtxt("checkLocks(filenameTouch) returned TRUE");
+      bugtxt("render already in progress, finding another file...");
       theSwitcher(false); // <---- BUSY, NO RENDER
       return false;
+    }
+
+    if (skipExitingFile(filenameHILBERT)) {
+      out("proceeding to render...");
+      theSwitcher(true); // <---- start render
     } else {
-      bugtxt("checkLocks(filenameTouch) returned FALSE");
-      theSwitcher(true); // <--- GOOD TO GO
-      return true;
+      out("Skipping");
+theSwitcher(false); // <---- no render
+return false; // just straight quit both images are rendered
     }
   }
   function theSwitcher(bool) {
+    mode(`Switcher`);
     bugtxt(`cpu has entered The Switcher!`);
     bugtxt(`entered the switch thinking its time for a new file`);
     if (bool) {
       autoconfCodonsPerPixel();
-      status ="polling";
       setupFNames();
       // if (clear) {       term.up(termStatsHeight) }
       clearCheck();
@@ -1130,10 +1132,9 @@ function pollForStream() {
       // touchLockAndStartStream(filenameTouch); // <--- THIS IS WHERE RENDER STARTS
       return true;
     } else  {
-      status = "switcher"
       if (howMany > 0 ) {
         bugtxt(`There is more work. Rendering: ${renderLock} Load: ${os.loadavg()}`);
-        // maybePoll('switcher has more');
+        maybePoll('switcher has more');
         return true;
       } else {
         log(`Polling found no more work. Currently rending: ${renderLock}`);
@@ -1182,10 +1183,12 @@ function pollForStream() {
 }
 async function initStream(f, cb) {
   status = "init";
-  if (renderLock == true ) {
-    error("RENDER LOCKED?! This is an error I'd like reported. Please run with --devmode --debug enabled and send to aminosee@funk.co.nz")
+  if (renderLock === true ) {
+    error("RENDER LOCKED?! This is an error I'd like reported. Please run with --devmode --debug enabled and send to aminosee@funk.co.nz");
+    return false;
   } else {
-    bugtxt("NO RENDER LOCK SO WHAT GIVES?")
+    bugtxt("SETTING RENDER LOCK");
+    renderLock = true;
   }
 
   mkdir(justNameOfDNA);
@@ -1253,11 +1256,9 @@ async function initStream(f, cb) {
   }
   // startStreamingPng();
   process.title = `aminosee.funk.nz ${justNameOfDNA} ${bytes(estimatedPixels*4)}`;
-  renderLock = true;
   try {
     var readStream = fs.createReadStream(filename).pipe(es.split()).pipe(es.mapSync(function(line){
       // mode("stream");
-      renderLock = true;
       readStream.pause(); // pause the readstream during processing
       streamLineNr++;
       processLine(line); // process line here and call readStream.resume() when ready
@@ -1265,7 +1266,6 @@ async function initStream(f, cb) {
     })
     .on('start', function(err){
       status = "stream";
-      renderLock = true;
       log(status);
       setTimeout(() => {
         if (renderLock) {
@@ -1276,6 +1276,8 @@ async function initStream(f, cb) {
     })
     .on('error', function(err){
       status = "stream error";
+      renderLock = false;
+
       error('while reading file: ' + filename, err.reason);
       log(status)
     })
@@ -1294,7 +1296,7 @@ async function initStream(f, cb) {
       log("Stream closed.");
       // pixelStream.close();
       // pixelStream.push(null);
-      // renderLock = false;
+      renderLock = false;
 
       progato = null;
       currentTriplet = "none";
@@ -1495,7 +1497,7 @@ function highlightFilename() {
 }
 
 function setupFNames() {
-  mode("setupFNames");
+  mode("setupFNames " + currentFile);
   bugtxt(`f: ${currentFile}`)
   justNameOfCurrentFile = replaceoutputPathFileName( currentFile );
   extension = getFileExtension(currentFile);
@@ -1765,7 +1767,6 @@ function saveDocsSync(cb) {
   status = "save"; // <-- this is the true end point of the program!
   term.eraseDisplayBelow();
   percentComplete = 1; // to be sure it shows 100% complete
-  renderLock = false;
   isDiskFinHTML = false;
   isDiskFinHilbert = false;
   isDiskFinLinear = false;
@@ -1773,17 +1774,12 @@ function saveDocsSync(cb) {
   if (genomeSize < 64) {
     error(`Genome needs to be at least 64 base pairs long to create image. Your file: ${justNameOfDNA} had the correct extenion ${extension} but DNA/RNA.`);
     hilbertFinished();
-    // return false;
+    maybePoll();
+    return false;
   }
 
   async.series( [
-    function( cb ) {
-      arrayToPNG(cb);
-    },
-    function( cb ) {
-      userprefs.aminosee.cliruns++; // increment run counter. for a future high score table stat and things maybe.
-      cb();
-    },
+
     function ( cb ) {
       clearTimeout(updatesTimer);
       calcUpdate();
@@ -1796,6 +1792,13 @@ function saveDocsSync(cb) {
       mkdir(justNameOfDNA);
       mkdir(`${justNameOfDNA}/images`);
       saveHilbert(rgbArray);
+      cb();
+    },
+    function( cb ) {
+      arrayToPNG(cb);
+    },
+    function( cb ) {
+      userprefs.aminosee.cliruns++; // increment run counter. for a future high score table stat and things maybe.
       cb();
     },
     function ( cb ) {
@@ -1964,7 +1967,6 @@ function fileWrite(file, contents, encoding, cb) {
 
 }
 function touchLockAndStartStream(fTouch, cb) {
-  renderLock = true;
   mode("Starting render, create lock file");
   term.eraseDisplayBelow();
 
@@ -2000,7 +2002,6 @@ function removeLocks(cb) {
     bugtxt("No locks to remove: " + err);
   }
   isDiskFinLinear = true;
-  renderLock = false;
   maybePoll('remove locks');
 }
 function maybePoll(reason) {
@@ -2009,7 +2010,11 @@ function maybePoll(reason) {
   if (howMany > 0 ) {
     if (isDiskFinLinear && isDiskFinHilbert && isDiskFinHTML) {
       bugtxt(`Polling in ${raceDelay}ms ${howMany} files remain, next is ${maxWidth(32, nextFile)}`);
-      pollForStream();
+      setImmediate( () => {
+        setTimeout( () => {
+          pollForStream()
+        }, raceDelay)
+      })
       return true;
     } else {
       return false;
@@ -2725,7 +2730,6 @@ function decodePNG(file, callback) {
   });
 }
 function recycleOldImage(f) {
-  renderLock = false;
 
 
   try {
@@ -2763,10 +2767,9 @@ function skipExitingFile (f) { // skip the file if TRUE render it if FALSE
         willRecycleSavedImage = true;
         isDiskFinLinear = true;
         return true; // this will skip the ingest
-      } else {
-        error(`I thought this had been rendered already, but this is not actually a file: ${f}. I'll try to wipe over it... `)
-        return false;
       }
+      error(`I thought this had been rendered already, but this is not actually a file: ${f}. I'll try to wipe over it... `)
+      return false;
     } else {
       log(`File NOT Exists: ${replaceoutputPathFileName( f )}`);
       out(justNameOfDNA + "<<--- begin transcription of ");
@@ -2774,7 +2777,7 @@ function skipExitingFile (f) { // skip the file if TRUE render it if FALSE
   } catch(e){
     bugtxt(`skipExitingFile  catch exception BUT ITS SWEET. Probably says it cant find the file, but thats why Im gonna render it right about now: ${e}  Output png will be saved to:  ${f}`);
   }
-  return false;
+  return true;
 }
 function doesFolderExist(f) {
   if (doesFileExist(f)) {  // handle exceptions
@@ -3483,7 +3486,7 @@ function saveHilbert(array, cb) {
   }
   function bugout(txt) {
     // let mem = process.memoryUsage();
-    console.log(maxWidth(debugColumns+(3*devmode), `[${status} ${(renderLock ? 'Render' : 'Idle')} F:${currentFile} ${storage()}  ${(isHighlightSet ? peptide + " " : " ")}Jobs: ${howMany} ${nicePercent()} G: ${genomeSize} Est: ${onesigbitTolocale(estimatedPixels)} ${bytes( baseChars )} RunID: ${timestamp} H dim: ${hilbPixels[dimension]}] `) + ">>> " + txt);
+    console.log(maxWidth(debugColumns+(3*devmode), `${(renderLock ? 'RENDERING' : 'IDLE')} [S:${status} F:${currentFile} ${storage()}  ${(isHighlightSet ? peptide + " " : " ")}Jobs: ${howMany} ${nicePercent()} G: ${genomeSize} Est: ${onesigbitTolocale(estimatedPixels)} ${bytes( baseChars )} RunID: ${timestamp} H dim: ${hilbPixels[dimension]}] `) + "@@@ " + txt);
   }
   function output(txt) {
     if (verbose && devmode) {
@@ -3603,8 +3606,8 @@ function saveHilbert(array, cb) {
 
     return today.toLocaleString(options) + "  " + today.toLocaleDateString(options); // Saturday, September 17, 2016
   }
-
-  function printRadMessage(array) {
+  function returnRadMessage(array) {
+    let returnText = "";
     if (array == undefined) {
       array = ["    ________", "    ________", "    ________", "    ________", "    ________", "", "Output path:", outputPath ];
       // array = [ "    ________", "    ________", "    ________", "    ________", "    ________", "", "Output path:"," " ];
@@ -3612,14 +3615,33 @@ function saveHilbert(array, cb) {
     while ( array.length < 8 ) {
       array.push("    ________","    ________");
     }
-    console.log(terminalRGB(`╔═╗┌┬┐┬┌┐┌┌─┐╔═╗┌─┐┌─┐  ╔╦╗╔╗╔╔═╗  ╦  ╦┬┌─┐┬ ┬┌─┐┬─┐  ${array[0]}`, 255, 60,  250) );
-    console.log(terminalRGB(`╠═╣││││││││ │╚═╗├┤ ├┤    ║║║║║╠═╣  ╚╗╔╝│├┤ │││├┤ ├┬┘  ${array[1]}`, 170, 150, 255) );
-    console.log(terminalRGB(`╩ ╩┴ ┴┴┘└┘└─┘╚═╝└─┘└─┘  ═╩╝╝╚╝╩ ╩   ╚╝ ┴└─┘└┴┘└─┘┴└─  ${array[2]}`, 128, 240, 240) );
-    console.log(terminalRGB(` by Tom Atkinson          aminosee.funk.nz            ${array[3]}`, 225, 225, 130) );
-    console.log(terminalRGB(`  ah-mee-no-see     'I See It Now - I AminoSee it!'   ${array[4]}`, 255, 180,  90) );
-    console.log(terminalRGB(`   ${prettyDate()}   v${version}            ${array[5]}`          , 220, 120,  70) );
-    console.log(terminalRGB(array[6], 200, 105,   60) );
-    console.log(terminalRGB(array[7], 200, 32,   32) );
+    returnText += terminalRGB(`╔═╗┌┬┐┬┌┐┌┌─┐╔═╗┌─┐┌─┐  ╔╦╗╔╗╔╔═╗  ╦  ╦┬┌─┐┬ ┬┌─┐┬─┐  ${array[0]}`, 255, 60,  250);
+    returnText += terminalRGB(`╠═╣││││││││ │╚═╗├┤ ├┤    ║║║║║╠═╣  ╚╗╔╝│├┤ │││├┤ ├┬┘  ${array[1]}`, 170, 150, 255);
+    returnText += terminalRGB(`╩ ╩┴ ┴┴┘└┘└─┘╚═╝└─┘└─┘  ═╩╝╝╚╝╩ ╩   ╚╝ ┴└─┘└┴┘└─┘┴└─  ${array[2]}`, 128, 240, 240);
+    returnText += terminalRGB(` by Tom Atkinson          aminosee.funk.nz            ${array[3]}`, 225, 225, 130);
+    returnText += terminalRGB(`  ah-mee-no-see     'I See It Now - I AminoSee it!'   ${array[4]}`, 255, 180,  90);
+    returnText += terminalRGB(`   ${prettyDate()}   v${version}            ${array[5]}`          , 220, 120,  70);
+    returnText += terminalRGB(array[6], 200, 105,   60);
+    returnText += terminalRGB(array[7], 200, 32,   32);
+    return returnText;
+  }
+  function printRadMessage(array) {
+    console.log( returnRadMessage(array) );
+    // if (array == undefined) {
+    //   array = ["    ________", "    ________", "    ________", "    ________", "    ________", "", "Output path:", outputPath ];
+    //   // array = [ "    ________", "    ________", "    ________", "    ________", "    ________", "", "Output path:"," " ];
+    // }
+    // while ( array.length < 8 ) {
+    //   array.push("    ________","    ________");
+    // }
+    // console.log(terminalRGB(`╔═╗┌┬┐┬┌┐┌┌─┐╔═╗┌─┐┌─┐  ╔╦╗╔╗╔╔═╗  ╦  ╦┬┌─┐┬ ┬┌─┐┬─┐  ${array[0]}`, 255, 60,  250) );
+    // console.log(terminalRGB(`╠═╣││││││││ │╚═╗├┤ ├┤    ║║║║║╠═╣  ╚╗╔╝│├┤ │││├┤ ├┬┘  ${array[1]}`, 170, 150, 255) );
+    // console.log(terminalRGB(`╩ ╩┴ ┴┴┘└┘└─┘╚═╝└─┘└─┘  ═╩╝╝╚╝╩ ╩   ╚╝ ┴└─┘└┴┘└─┘┴└─  ${array[2]}`, 128, 240, 240) );
+    // console.log(terminalRGB(` by Tom Atkinson          aminosee.funk.nz            ${array[3]}`, 225, 225, 130) );
+    // console.log(terminalRGB(`  ah-mee-no-see     'I See It Now - I AminoSee it!'   ${array[4]}`, 255, 180,  90) );
+    // console.log(terminalRGB(`   ${prettyDate()}   v${version}            ${array[5]}`          , 220, 120,  70) );
+    // console.log(terminalRGB(array[6], 200, 105,   60) );
+    // console.log(terminalRGB(array[7], 200, 32,   32) );
   }
 
   function crashReport() {
@@ -3707,6 +3729,7 @@ function saveHilbert(array, cb) {
       }, maxMsPerUpdate);
       return false;
     }
+    let textBuffer = "";
     let codonsPerSec =(genomeSize+1) / (runningDuration*1000);
     let text = " ";
     let aacdata = [];
@@ -3742,9 +3765,13 @@ function saveHilbert(array, cb) {
 
     term.up(termStatsHeight);
     term.eraseDisplayBelow();
-    printRadMessage(array);
+    textBuffer += returnRadMessage(array);
+    textBuffer += "\r"
+    // printRadMessage(array);
     // console.log(); // white space
-    console.log(`            File:  ${chalk.inverse(fixedWidth(40, justNameOfDNA))}.${extension} ${chalk.inverse(highlightOrNothin())} Runs: ${cliruns} RunID: ${timestamp} on ${hostname}`);
+    textBuffer += `            File:  ${chalk.inverse(fixedWidth(40, justNameOfDNA))}.${extension} ${chalk.inverse(highlightOrNothin())} Runs: ${cliruns} RunID: ${timestamp} on ${hostname}`;
+
+    // console.log(`            File:  ${chalk.inverse(fixedWidth(40, justNameOfDNA))}.${extension} ${chalk.inverse(highlightOrNothin())} Runs: ${cliruns} RunID: ${timestamp} on ${hostname}`);
     if (spew  == true) {
       output();
       output(terminalRGB(rawDNA.substring(0,5000), red, green, blue));

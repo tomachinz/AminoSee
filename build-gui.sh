@@ -78,12 +78,12 @@ mkdir "build/THIS FOLDER IS AUTOMATICALLY WIPED BY SCRIPTS"
 cd $TARGET
 pwd
 # npm install -v
-npm install pkg
+# npm install pkg
 # npm update
-npm run gui &
+# npm run gui &
 cp -r ../dist .
-
-npm run electron
+electron .
+# npm run electron
 # RUN ELECTRON BUILD BEFORE COPYING THE DIST SHELLS, AND TESTING
 
 # npm run start --no-image

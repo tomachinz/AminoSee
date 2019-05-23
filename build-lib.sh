@@ -27,7 +27,8 @@ mkdir -p lib/termconfig
 # cp -r -v node_modules/deep-defaults dist/root/node_modules
 # cp -r -v node_modules/terminal-kit dist/root/node_modules
 # cp -r node_modules/terminal-kit/*       dist/root/node_modules/terminal-kit
-
+cp -v aminosee-web-gui.js                                        dist/root/aminosee-web-gui.js
+cp -v aminosee-serve.js                                          dist/root/aminosee-serve.js
 cp -v node_modules/sliced/index.js                               dist/root/node_modules/sliced/index.js
 cp -v node_modules/deep-defaults/lib/index.js                    dist/root/node_modules/deep-defaults/lib
 cp -v node_modules/terminal-kit/lib/termconfig/xterm.generic.js  dist/root/node_modules/termconfig
