@@ -22,6 +22,7 @@ const hilbPixels = [ 64, 256, 1024, 4096, 16384, 65536, 262144, 1048576, 4194304
 const widthMax = 960; // i wanted these to be tall and slim kinda like the most common way of diagrammatically showing chromosomes
 const timestamp = Math.round(+new Date()/1000);
 const port = 4321;
+const spawn = require('cross-spawn');
 const serve = require('./aminosee-serve');
 const stream = require('stream');
 const util = require('util');
@@ -1660,7 +1661,6 @@ function launchNonBlockingServer(path, cb) {
 
 function startCrossSpawnHttp() {
 
-  const spawn = require('cross-spawn');
 
   // Spawn NPM asynchronously
   // const evilSpawn = spawn('npm', ['list', '-g', '-depth', '0'], { stdio: 'inherit' });
