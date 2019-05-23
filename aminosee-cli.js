@@ -3629,22 +3629,22 @@ function saveHilbert(array, cb) {
     return returnText;
   }
   function printRadMessage(array) {
-    console.log( returnRadMessage(array) );
-    // if (array == undefined) {
-    //   array = ["    ________", "    ________", "    ________", "    ________", "    ________", "", "Output path:", outputPath ];
-    //   // array = [ "    ________", "    ________", "    ________", "    ________", "    ________", "", "Output path:"," " ];
-    // }
-    // while ( array.length < 8 ) {
-    //   array.push("    ________","    ________");
-    // }
-    // console.log(terminalRGB(`╔═╗┌┬┐┬┌┐┌┌─┐╔═╗┌─┐┌─┐  ╔╦╗╔╗╔╔═╗  ╦  ╦┬┌─┐┬ ┬┌─┐┬─┐  ${array[0]}`, 255, 60,  250) );
-    // console.log(terminalRGB(`╠═╣││││││││ │╚═╗├┤ ├┤    ║║║║║╠═╣  ╚╗╔╝│├┤ │││├┤ ├┬┘  ${array[1]}`, 170, 150, 255) );
-    // console.log(terminalRGB(`╩ ╩┴ ┴┴┘└┘└─┘╚═╝└─┘└─┘  ═╩╝╝╚╝╩ ╩   ╚╝ ┴└─┘└┴┘└─┘┴└─  ${array[2]}`, 128, 240, 240) );
-    // console.log(terminalRGB(` by Tom Atkinson          aminosee.funk.nz            ${array[3]}`, 225, 225, 130) );
-    // console.log(terminalRGB(`  ah-mee-no-see     'I See It Now - I AminoSee it!'   ${array[4]}`, 255, 180,  90) );
-    // console.log(terminalRGB(`   ${prettyDate()}   v${version}            ${array[5]}`          , 220, 120,  70) );
-    // console.log(terminalRGB(array[6], 200, 105,   60) );
-    // console.log(terminalRGB(array[7], 200, 32,   32) );
+    // console.log( returnRadMessage(array) );
+    if (array == undefined) {
+      array = ["    ________", "    ________", "    ________", "    ________", "    ________", "", "Output path:", outputPath ];
+      // array = [ "    ________", "    ________", "    ________", "    ________", "    ________", "", "Output path:"," " ];
+    }
+    while ( array.length < 8 ) {
+      array.push("    ________","    ________");
+    }
+    console.log(terminalRGB(`╔═╗┌┬┐┬┌┐┌┌─┐╔═╗┌─┐┌─┐  ╔╦╗╔╗╔╔═╗  ╦  ╦┬┌─┐┬ ┬┌─┐┬─┐  ${array[0]}`, 255, 60,  250) );
+    console.log(terminalRGB(`╠═╣││││││││ │╚═╗├┤ ├┤    ║║║║║╠═╣  ╚╗╔╝│├┤ │││├┤ ├┬┘  ${array[1]}`, 170, 150, 255) );
+    console.log(terminalRGB(`╩ ╩┴ ┴┴┘└┘└─┘╚═╝└─┘└─┘  ═╩╝╝╚╝╩ ╩   ╚╝ ┴└─┘└┴┘└─┘┴└─  ${array[2]}`, 128, 240, 240) );
+    console.log(terminalRGB(` by Tom Atkinson          aminosee.funk.nz            ${array[3]}`, 225, 225, 130) );
+    console.log(terminalRGB(`  ah-mee-no-see     'I See It Now - I AminoSee it!'   ${array[4]}`, 255, 180,  90) );
+    console.log(terminalRGB(`   ${prettyDate()}   v${version}            ${array[5]}`          , 220, 120,  70) );
+    console.log(terminalRGB(array[6], 200, 105,   60) );
+    console.log(terminalRGB(array[7], 200, 32,   32) );
   }
 
   function crashReport() {
@@ -3739,6 +3739,9 @@ function saveHilbert(array, cb) {
     return str;
   }
   function drawHistogram() {
+
+    // let tb = new term.TextBuffer( )
+
     output(" ");
     output(" ");
     calcUpdate();
@@ -3750,7 +3753,7 @@ function saveHilbert(array, cb) {
       }, maxMsPerUpdate);
       return false;
     }
-    let textBuffer = "";
+    // let textBuffer = "";
     let codonsPerSec =(genomeSize+1) / (runningDuration*1000);
     let text = " ";
     let aacdata = [];
@@ -3786,25 +3789,26 @@ function saveHilbert(array, cb) {
 
     term.up(termStatsHeight);
     term.eraseDisplayBelow();
-    textBuffer += returnRadMessage(array);
-    textBuffer += "\r"
-    // printRadMessage(array);
-    // console.log(); // white space
-    textBuffer += `            File:  ${chalk.inverse(fixedWidth(40, justNameOfDNA))}.${extension} ${chalk.inverse(highlightOrNothin())} Runs: ${cliruns} RunID: ${timestamp} on ${hostname}`;
+    // tb.setText( returnRadMessage(array) )
+    // tb.setText( "\r" )
+    printRadMessage(array);
+    console.log(); // white space
+    // tb.setText( `            File:  ${chalk.inverse(fixedWidth(40, justNameOfDNA))}.${extension} ${chalk.inverse(highlightOrNothin())} Runs: ${cliruns} RunID: ${timestamp} on ${hostname}`);
 
-    // console.log(`            File:  ${chalk.inverse(fixedWidth(40, justNameOfDNA))}.${extension} ${chalk.inverse(highlightOrNothin())} Runs: ${cliruns} RunID: ${timestamp} on ${hostname}`);
+    console.log(`            File:  ${chalk.inverse(fixedWidth(40, justNameOfDNA))}.${extension} ${chalk.inverse(highlightOrNothin())} Runs: ${cliruns} RunID: ${timestamp} on ${hostname}`);
     if (spew  == true) {
       output();
       output(terminalRGB(rawDNA.substring(0,5000), red, green, blue));
       term.up(rawDNA.length/term.width);
       rawDNA = "@";
     }
-    textBuffer += histogram(aacdata, { bar: '/', width: 40, sort: true, map:  aacdata.Histocount} )
-    // console.log(histogram(aacdata, { bar: '/', width: 40, sort: true, map:  aacdata.Histocount} ));
+    // tb.setText( histogram(aacdata, { bar: '/', width: 40, sort: true, map:  aacdata.Histocount} ) )
+    console.log(histogram(aacdata, { bar: '/', width: 40, sort: true, map:  aacdata.Histocount} ));
+    // tb.setText( interactiveKeysGuide );
     output(interactiveKeysGuide);
     log(    isDiskFinHTML, isDiskFinHilbert, isDiskFinLinear);
     if (clear) {          term.up(termDisplayHeight)  }
-
+    // console.log(tb.getText);
     if (updates) { // status == "stream") { // || updates) {
       updatesTimer = setTimeout(() => {
         drawHistogram(); // MAKE THE HISTOGRAM AGAIN LATER
