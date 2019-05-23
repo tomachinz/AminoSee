@@ -116,7 +116,7 @@
       "index.html",
       "index.php",
       "favicon.ico",
-      "aminosee-gui-web.js",
+      "public/aminosee-gui-web.js",
       "aminosee-cli.js",
       "public/**",
       "dna/megabase.fa"
