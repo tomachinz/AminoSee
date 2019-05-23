@@ -2686,7 +2686,7 @@ function checkLocks(fullPathOfLockFile) { // return TRUE if locked.
   try {
     result = fs.lstatSync(fullPathOfLockFile).isDirectory();
     bugtxt("[lstatSync result]" + result);
-    output(`DNA render already in progress for ${replaceoutputPathFileName(fullPathOfLockFile)} maybe use --force`);
+    output(`DNA render already in progress for ${fullPathOfLockFile} maybe use --force`);
     log(fullPathOfLockFile);
     log("Another node in cluster maybe rendering this, or it could be from an interupted render. Either delete the file or use --force to overwrite.");
     return true;
@@ -3635,7 +3635,7 @@ function saveHilbert(array, cb) {
     secElapsed = deresSeconds(runningDuration); // ??!! ah i see
     timeRemain =deresSeconds((runningDuration / (percentComplete )) - secElapsed); // everything in ms
     bytesRemain = (baseChars - charClock);
-    bytesPerSec = Math.round( (charClock+1) / runningDuration );
+    bytesPerSec = Math.round( (charClock+1) / runningDuration )*1000;
     wTitle(`${nicePercent()} done ${humanizeDuration(timeRemain)} ${howMany} files remain`);
   }
   function deresSeconds(ms){
