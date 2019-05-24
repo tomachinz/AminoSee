@@ -264,7 +264,6 @@ module.exports = () => {
   });
   let cmd = args._[0];
   howMany = args._.length ;
-  setupOutPaths();
 
   bugtxt(`args.toString: ${args.toString()}`);
   bugtxt(`args._.toString: ${args._.toString()}`);
@@ -597,7 +596,7 @@ module.exports = () => {
     isDiskFinHTML = isDiskFinHilbert = isDiskFinLinear = true;
     if (cmd == undefined) {
       currentFile = args._.pop();
-      currentFile = args._.pop();
+      // currentFile = args._.pop();
       status = "no command";
       if (cliruns <= 3) {
         output("FIRST RUN!!! Opening the demo... use the command aminosee demo to see this first run demo in future");
@@ -611,6 +610,7 @@ module.exports = () => {
       log(`your cmd: ${currentFile} howMany ${howMany}`);
       return true;
     } else {
+      setupOutPaths();
       currentFile = args._[0];
       currentFile = args._.pop();
       filename = path.resolve(currentFile);
@@ -993,7 +993,7 @@ function mode(txt) {
 }
 function storage() {
   // return `${(isDiskFinLinear ? 'Linear ' : '')} ${(isDiskFinHilbert ? 'Hilbert ' : '')} ${(isDiskFinHTML ? 'HTML ' : '' )}`;
-  return `${(!isDiskFinLinear ? 'Linear ' : '')} ${(!isDiskFinHilbert ? 'Hilbert ' : '')} ${(!isDiskFinHTML ? 'HTML ' : '' )}`;
+  return `${(!isDiskFinLinear ? 'Linear ' : '.')} ${(!isDiskFinHilbert ? 'Hilbert ' : '.')} ${(!isDiskFinHTML ? 'HTML ' : '.' )}`;
 }
 function pollForStream() {
   if (renderLock) {
@@ -1087,12 +1087,11 @@ function pollForStream() {
     ///////////////// BEGIN PARSING DNA FILE //////////////////////////////
     mode('parsing');
     autoconfCodonsPerPixel();
-    setupFNames();
-    autoconfCodonsPerPixel();
-    setupFNames();
+    setupFNames(); // will have incorrect Hilbert file name. Need to wait until after render.
+
     bugtxt(`Polling filenameTouch ${filenameTouch} willStart   ${willStart}  pollAgainFlag ${pollAgainFlag}  defaultFilename  ${defaultFilename}  ${filename}  howMany   ${howMany}   status ${status}`);
 
-    if (skipExistingFile(filenameHILBERT) && skipExistingFile(filenamePNG)) {
+    if (skipExistingFile(filenamePNG)) {
       out("Skipping render.");
       log("use --force to overwrite  --image to automatically open   ");
       if (openHtml == true || openImage == true || args.image == true) {
@@ -1104,14 +1103,6 @@ function pollForStream() {
       theSwitcher(false); // <---- no render
       return false; // just straight quit both images are rendered
     } else {
-      if (skipExistingFile(filenamePNG)) {
-        log('Linear PNG render file exists');
-        theSwitcher(false); // <---- no render
-      }
-      if (skipExistingFile(filenameHILBERT)) {
-        log('Hilbert PNG render file exists');
-        theSwitcher(false); // <---- no render
-      }
       if (checkLocks(filenameTouch)) {
         log("Render already in progress, finding another file...");
         theSwitcher(false); // <---- BUSY, NO RENDER
@@ -1949,15 +1940,17 @@ function saveHTML(cb) {
 
 
   let histotext = JSON.stringify(renderData);
-  log(`outputPath is ${outputPath} histotext is: ${histotext} full path: ${filenameHTML}`);
   // fileWrite(histogramFile, histotext, (cb)=> {
   //   fileWrite(filenameHTML, hypertext, (cb) => {
   //     fileWrite(`${outputPath}/${justNameOfDNA}/main.html`, hypertext, cb);
   //   });
   // });
+  isDiskFinHTML = true
+  fileWrite(filenameHTML, hypertext, htmlFinished  );
   fileWrite(histogramFile, histotext, dot );
-  fileWrite(filenameHTML, hypertext, dot );
   fileWrite(`${outputPath}/${justNameOfDNA}/main.html`, hypertext, cb);
+  log(`outputPath is ${outputPath} histotext is: ${histotext} full path: ${filenameHTML}`);
+log(hypertext);
 }
 function fileWrite(file, contents, cb) {
   try {
@@ -2031,9 +2024,8 @@ function maybePoll(reason) {
       })
       return true;
     } else {
-      log("waiting on: " + storage());
-
-      log(`Render or storage BUSY will not try to start in ${raceDelay}ms ${howMany} files remain, next is ${maxWidth(32, nextFile)}`);
+      out(storage());
+      log(`${busy()} and waiting on: (${storage()}) will not retry. ${howMany} files remain, next is ${maxWidth(32, nextFile)}`);
     }
   } else {
     log("...and thats's all she wrote folks, outa jobs.");
@@ -2748,7 +2740,7 @@ function recycleOldImage(f) {
 }
 
 function skipExistingFile (fizzle) { // skip the file if TRUE render it if FALSE
-  return (doesFileExist(fizzle) && force == true);
+  return (doesFileExist(fizzle) && force == false);
 
 
   //
