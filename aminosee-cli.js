@@ -1809,24 +1809,26 @@ function saveDocsSync(cb) {
       arrayToPNG( cb );
     },
     function ( cb ) {
-      saveHTML(cb );
-    },function( cb ) {
+      saveHTML( cb );
+    },
+    function( cb ) {
       htmlFinished();
       userprefs.aminosee.cliruns++; // increment run counter. for a future high score table stat and things maybe.
-      setImmediate((cb) => {
+      setImmediate(() => {
         openOutputs();
-        if (cb) { cb() }
       });
+      cb();
     },
     function ( cb ) {
       setTimeout( (cb) => {
-        removeLocks(cb);
+        removeLocks();
+        if (cb) { cb() }
       }, raceDelay);
     }
   ])
   .exec( function( error , results ) {
+    out( 'RADICAL DUDE' ) ;
     if ( error ) { console.warn( 'Doh!' ) ; }
-    else { log( 'RADICAL DUDE' ) ; }
   })
   // .then( () => { out('OK') });
 
@@ -1917,7 +1919,7 @@ function saveHTML(cb) {
   computerWants = pixTodefaultMagnitude(colClock);
   log('SAVING REPORT')
 
-  if (willRecycleSavedImage == true) {
+  if (willRecycleSavedImage == true && recycEnabled) {
     log("Didnt save HTML report because the linear file was recycled. Use --html to enable and auto open when done.");
     if (cb) { cb() }
     return false;
@@ -1947,12 +1949,12 @@ function saveHTML(cb) {
 
 
   let histotext = JSON.stringify(renderData);
-  log(`outputPath is ${outputPath} histotext is: ${histotext}`);
-  fileWrite(histogramFile, histotext, (cb)=> {
-    fileWrite(filenameHTML, hypertext, (cb) => {
-      fileWrite(`${outputPath}/${justNameOfDNA}/main.html`, hypertext, cb);
-    });
-  });
+  log(`outputPath is ${outputPath} histotext is: ${histotext} full path: ${filenameHTML}`);
+  // fileWrite(histogramFile, histotext, (cb)=> {
+  //   fileWrite(filenameHTML, hypertext, (cb) => {
+  //     fileWrite(`${outputPath}/${justNameOfDNA}/main.html`, hypertext, cb);
+  //   });
+  // });
   fileWrite(histogramFile, histotext, dot );
   fileWrite(filenameHTML, hypertext, dot );
   fileWrite(`${outputPath}/${justNameOfDNA}/main.html`, hypertext, cb);
@@ -3127,6 +3129,8 @@ function saveHilbert(array, cb) {
         .pipe(wstream)
         .on('finish', () => {
           log("PNG Save OK " + storage());
+          linearFinished();
+
           if (callback != undefined) {
             bugtxt("callback");
             callback();
@@ -3135,7 +3139,6 @@ function saveHilbert(array, cb) {
           }
         })
       ).then( log('then after promise') ).catch( log('catch promise') );
-      linearFinished();
       // callback();
     }
 
@@ -3795,7 +3798,7 @@ function saveHilbert(array, cb) {
     // console.log(tb.getText);
     if (updates) { // status == "stream") { // || updates) {
       updatesTimer = setTimeout(() => {
-        output("drawingh again in " + msPerUpdate)
+        log("drawing again in " + msPerUpdate)
         drawHistogram(); // MAKE THE HISTOGRAM AGAIN LATER
       }, msPerUpdate);
     }
