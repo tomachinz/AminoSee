@@ -71,7 +71,6 @@ let termDisplayHeight = 31;
 let termStatsHeight = 9;
 let maxpix = targetPixels;
 let raceDelay = 100; // so i learnt a lot on this project. one day this line shall disappear replaced by promises.
-let raceTimer = false;
 let dimension = defaultMagnitude; // var that the hilbert projection is be downsampled to
 let darkenFactor = 0.25; // if user has chosen to highlight an amino acid others are darkened
 let highlightFactor = 4.0; // highten brightening.
@@ -1096,6 +1095,7 @@ function pollForStream() {
       log("use --force to overwrite  --image to automatically open   ");
       if (openHtml == true || openImage == true || args.image == true) {
         log("use --no-image suppress automatic opening of the image.")
+        isHilbertPossible = false;
         openOutputs();
       } else {
         out('use --image to open in viewer')
@@ -1138,10 +1138,14 @@ function pollForStream() {
         maybePoll('switcher has more');
         return true;
       } else {
-        log(`Polling found no more work. Currently rending: ${renderLock}`);
+        log(`Polling found no more work. Currently: ${busy()}`);
         if (!renderLock) {
-          clearTimeout(raceTimer);
-          // quit();
+          out('Will quit in ' + humanizeDuration(raceDelay))
+          clearTimeout(updatesTimer);
+          setTimeout(() => {
+            out('...quitting.')
+            quit();
+          }, raceDelay)
         }
         return false;
       }
@@ -1499,7 +1503,8 @@ function setupFNames() {
   mode("setupFNames " + currentFile);
   // calculateShrinkage(); // REQUIRES INFO FROM HERE FOR HILBERT FILENAME. BUT THAT INFO NOT EXIST UNTIL WE KNOW HOW MANY PIXELS CAME OUT OF THE DNA!
   bugtxt(`f: ${currentFile}`)
-  justNameOfCurrentFile = replaceoutputPathFileName( currentFile );
+  // justNameOfCurrentFile = replaceoutputPathFileName( currentFile );
+  justNameOfCurrentFile = replaceoutputPathFileName( filename );
   extension = getFileExtension(currentFile);
   justNameOfDNA = spaceTo_(removeFileExtension(justNameOfCurrentFile));
   if (justNameOfDNA.length > maxCanonical ) {
@@ -1803,10 +1808,10 @@ function saveDocsSync(cb) {
       saveHTML( cb );
     },
     function( cb ) {
-      htmlFinished();
       userprefs.aminosee.cliruns++; // increment run counter. for a future high score table stat and things maybe.
       setImmediate(() => {
         openOutputs();
+        htmlFinished();
       });
       cb();
     },
@@ -1948,9 +1953,12 @@ function saveHTML(cb) {
   isDiskFinHTML = true
   fileWrite(filenameHTML, hypertext, htmlFinished  );
   fileWrite(histogramFile, histotext, dot );
+  log(`outputPath is ${outputPath}`);
+  log(`full path: ${filenameHTML}`);
+  bugtxt(histotext)
+  bugtxt(hypertext);
   fileWrite(`${outputPath}/${justNameOfDNA}/main.html`, hypertext, cb);
-  log(`outputPath is ${outputPath} histotext is: ${histotext} full path: ${filenameHTML}`);
-log(hypertext);
+  maybePoll();
 }
 function fileWrite(file, contents, cb) {
   try {
@@ -3140,18 +3148,17 @@ function saveHilbert(array, cb) {
       if (!openHtml && !openImage && !openFileExplorer) {
         log('Will not open the output');
       } else {
-        setImmediate( () => {
-          setTimeout( () => {
+        // setImmediate( () => {
             bugtxt(`openHtml, openImage, openFileExplorer`, openHtml, openImage, openFileExplorer);
             if (openFileExplorer === true) {
-              output(`Opening ${justNameOfDNA} DNA renders in File Manager`);
+              output(`Opening render output folder in File Manager ${outputPath}`);
               // bgOpen(outputPath);
               open(outputPath).then(() => {
                 log("file manager closed");
               }).catch(function () { error(`open(${outputPath})`)});
             }
             if (openHtml == true) {
-              output(`Opening ${justNameOfDNA} DNA render summary HTML report.`);
+              output(`Opening ${justNameOfHTML} DNA render summary HTML report.`);
               // bgOpen(filenameHTML, {app: 'firefox', wait: false} );
               setTimeout( () => {
                 launchNonBlockingServer(justNameOfDNA);
@@ -3164,13 +3171,13 @@ function saveHilbert(array, cb) {
               }
             }
             if (isHilbertPossible === true && openImage === true) {
-              output(`Opening ${justNameOfDNA} 2D hilbert space-filling image.`);
+              output(`Opening ${justNameOfHILBERT} 2D hilbert space-filling image.`);
               // bgOpen(filenameHILBERT)
               open(filenameHILBERT).then(() => {
                 log("hilbert image closed");
               }).catch(function () { error("open(filenameHILBERT)") });
             } else if (openImage === true) {
-              output(`Opening ${justNameOfDNA} 1D linear projection image.`);
+              output(`Opening ${justNameOfPNG} 1D linear projection image.`);
               // bgOpen(filenamePNG)
               open(filenamePNG).then(() => {
                 log("regular png image closed");
@@ -3184,8 +3191,7 @@ function saveHilbert(array, cb) {
             } else {
               out("Not opening anything");
             }
-          }, raceDelay*10); // time for storage system under 100% load
-        });
+        // });
       }
       log("Thats us cousin'! Sweet as a Kina in a creek as they say (in NZ).");
     }
@@ -3476,8 +3482,7 @@ function saveHilbert(array, cb) {
   }
   function bugout(txt) {
     // let mem = process.memoryUsage();
-    console.log(maxWidth(debugColumns+(3*devmode), `${busy()} [S:${status} F:${currentFile} ${storage()}  ${(isHighlightSet ? peptide + " " : " ")}Jobs: ${howMany} ${nicePercent()} G: ${genomeSize} Est: ${onesigbitTolocale(estimatedPixels)} ${bytes( baseChars )} RunID: ${timestamp} H dim: ${hilbPixels[dimension]}] `));
-    console.log("@@@ " + txt);
+    console.log(maxWidth(debugColumns+(3*devmode), `${busy()} [S:${status} F:${currentFile} ${storage()}  ${(isHighlightSet ? peptide + " " : " ")}Jobs: ${howMany} ${nicePercent()} G: ${genomeSize} Est: ${onesigbitTolocale(estimatedPixels)} ${bytes( baseChars )} RunID: ${timestamp} H dim: ${hilbPixels[dimension]}]`) + ` @@@ >      ${txt}`);
 
   }
   function output(txt) {
@@ -3673,7 +3678,7 @@ function saveHilbert(array, cb) {
     return strTime;
   }
   function whack_a_progress_on(str) {
-    return "im a teapot";
+    // return "im a teapot";
     let progTimer = null;
     clearTimeout(progTimer);
     let progressBar = term.progressBar({

@@ -11,8 +11,8 @@ parallel_peptides () {
   echo "-------------------------------------------"
   echo "                                         =///"
   aminosee_do $1 $2 $3 $4 $5 $6 $7
-  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide="Start Codons" &
-  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide="Stop Codons"
+  # aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide="Start Codons" &
+  # aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide="Stop Codons"
   aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide="Glutamic acid" &
   aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide="Aspartic acid"
   aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Ochre &
@@ -90,8 +90,8 @@ find_way_peptides () {
   find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee $1 $2   $3 $4 $5 $6 "{}" \;
   find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee $1 $2   --peptide="Glutamic acid" $3 $4 $5 $6 "{}" \;
   find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee $1 $2   --peptide="Aspartic acid" $3 $4 $5 $6 "{}" \;
-  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee $1 $2   --peptide="Start Codons" $3 $4 $5 $6 "{}" \;
-  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee $1 $2   --peptide="Stop Codons" $3 $4 $5 $6 "{}" \;
+  # find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee $1 $2   --peptide="Start Codons" $3 $4 $5 $6 "{}" \;
+  # find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee $1 $2   --peptide="Stop Codons" $3 $4 $5 $6 "{}" \;
   find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee $1 $2   --peptide=Ochre $3 $4 $5 $6 "{}" \;
   find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee $1 $2   --peptide=Amber $3 $4 $5 $6 "{}" \;
   find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee $1 $2   --peptide=Cysteine $3 $4 $5 $6 "{}" \;
