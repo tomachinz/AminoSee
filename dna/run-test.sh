@@ -1,6 +1,12 @@
 #!/bin/sh
 # test should run quickly and quit.
 w
+aminosee
+aminosee -f
+aminosee -h
+aminosee help
+aminosee -v
+
 # aminosee_test () {
 echo 'doing  *  $1 $2 $3 $4 $5  --peptide="aspartic ACID"'
 nice aminosee * $1 $2 $3 $4 $5 --no-clear --peptide="aspartic ACID"
@@ -43,7 +49,10 @@ echo "doing aminosee help"
 nice aminosee help
 
 echo "doing aminosee serve"
-nice aminosee serve
+nice aminosee serve &
+
+echo 'doing  *  $1 $2 $3 $4 $5  --peptide="aspartic ACID"'
+nice aminosee * $1 $2 $3 $4 $5
 
 
 # }

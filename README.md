@@ -107,3 +107,10 @@ I need a kind sponsor to please to purchase a license for AminoSee to use Georgh
 -  on ShutterStock ID: 8798836 https://www.shutterstock.com/image-vector/vector-illustration-hear-no-evil-see-8798836
 - David Hilbert in 1891 designed the curve used in this program
 - Giuseppe Peano in 1890 inspired Hilbert to create his space filling curve
+
+
+## Images
+- https://www.quantamagazine.org/how-cells-pack-tangled-dna-into-neat-chromosomes-20180222/
+- https://www.sciencenews.org/article/art-dna-folding
+- https://www.cell.com/cell/fulltext/S0092-8674(14)01497-4 "A 3D Map of the Human Genome at Kilobase Resolution Reveals Principles of Chromatin Looping"
+- https://www.quantamagazine.org/how-cells-pack-tangled-dna-into-neat-chromosomes-20180222/

@@ -228,8 +228,19 @@ function setupPrefs() {
   mode('setupPrefs ' + cliruns);
   log(`AminoSee has been run ${cliruns} times`);
 }
+function setupProgress() {
+  progato = whack_a_progress_on(`Hilbert Curve`);
+  // elGatoProgasimo =   whack_a_progress_on(`Lush intense flavours`);
+}
+function destroyProgress() { // now thats a fucking cool function name if ever there was!
+  progato = null;
+  // elGatoProgasimo = null;
+}
+
 
 module.exports = () => {
+  setupProgress()
+
   version = require('./lib/version');
   status = "exports";
   args = minimist(process.argv.slice(2), {
@@ -607,6 +618,8 @@ module.exports = () => {
       output(`usage        --->>>        aminosee [*/dna-file.txt] [--help|--test|--demo|--force|--html|--image|--keyboard]     `);//" Closing in 2 seconds.")
       howMany = args._.length
       log(`your cmd: ${currentFile} howMany ${howMany}`);
+      progato.stop()
+      quit();
       return true;
     } else {
       setupOutPaths();
@@ -1310,7 +1323,7 @@ function streamStarted() {
       if (renderLock) {
         drawHistogram()
         output(' ');
-        progato = whack_a_progress_on('Main DNA Render ' + maxWidth(24,  new Date())); // Fri May 24 2019 23:17:52 = 24 chars
+        progato.update({ title: 'Main DNA Render ', items: howMany, syncMode: true })
       }
     }, raceDelay)
   } else {
@@ -1322,6 +1335,7 @@ function streamStopped() {
   renderLock = false;
   percentComplete = 1;
   calcUpdate();
+  percentComplete = 1;
   updatesTimer = null;
   progato = null;
   currentTriplet = "none";
@@ -1461,6 +1475,17 @@ function autoconfCodonsPerPixel() { // requires baseChars maxpix defaultC
     codonsPerPixel *= artisticHighlightLength;
     output(`Using ${codonsPerPixel} codonsPerPixel for art mode`);
   }
+  ///////// ok i stopped messing with codonsPerPixel now
+  if (codonsPerPixel = 1 ) {
+    if (args.ratio || args.r) {
+      // these use fixed to give a relative comparison of the genome sizes at same codonsPerPixel detail
+    } else {
+      if (estimatedPixels < 1843200) { // = 1920 x 960
+        ratio = 'sqr'; // small genomes like "the flu" look better square.
+        log('For genomes smaller than 1843200 codons, I switched to square ratio for better comparison to the Hilbert images. Use --ratio=fixed or --ratio=golden to avoid this. C. Elegans worm is big enough, but not Influenza.')
+      }
+    }
+  }
   opacity = 1 / codonsPerPixel;
   // set highlight factor such  that:
   // if cpp is 1 it is 1
@@ -1528,9 +1553,9 @@ function copyGUI(cb) { // does:  ln -s /Users.....AminoSee/public, /Users.....cu
   fullDest = path.normalize( path.resolve(outputPath + '/public') );
   mkdir('public')
   copyRecursiveSync(fullSrc, fullDest );
-  fullSrc = path.normalize( path.resolve(appPath + '/aminosee-gui-web.js') );
-  fullDest = path.normalize( path.resolve(outputPath + '/aminosee-gui-web.js') );
-  copyRecursiveSync(fullSrc, fullDest );
+  // fullSrc = path.normalize( path.resolve(appPath + '/aminosee-gui-web.js') );
+  // fullDest = path.normalize( path.resolve(outputPath + '/aminosee-gui-web.js') );
+  // copyRecursiveSync(fullSrc, fullDest );
   fullSrc = path.normalize( path.resolve(appPath + '/public/index.html') );
   fullDest = path.normalize( path.resolve(outputPath + '/main.html') ); // Protects users privacy in current working directory
   copyRecursiveSync(fullSrc, fullDest );
@@ -1775,10 +1800,14 @@ function helpCmd(args) {
   term.down(termStatsHeight);
   printRadMessage();
   launchNonBlockingServer(justNameOfDNA);
-  open( serve.getServerURL(justNameOfDNA), {app: 'firefox', wait: false} );
+  open( serve.getServerURL(`/aminosee/output/`), {app: 'firefox', wait: false} );
 }
 function saveDocsSync(cb) {
   status = "save"; // <-- this is the true end point of the program!
+  if (renderLock) {
+    error("no way is that possible");
+    renderLock = false;
+  }
   clearCheck(); // term.eraseDisplayBelow();
   percentComplete = 1; // to be sure it shows 100% complete
   isDiskFinHTML = false;
@@ -1952,7 +1981,7 @@ function saveHTML(cb) {
   bugtxt(histotext)
   bugtxt(hypertext);
   fileWrite(`${outputPath}/${justNameOfDNA}/main.html`, hypertext, cb);
-  maybePoll();
+  maybePoll('save html');
 }
 function fileWrite(file, contents, cb) {
   try {
@@ -2000,7 +2029,7 @@ function touchLockAndStartStream(fTouch, cb) {
   // }
 }
 function removeLocks(cb) {
-  mode('remove locks');
+  mode('remove locks ' + howMany);
   try {
     fs.unlinkSync(filenameTouch, (err) => {
       bugtxt("Removing locks OK...")
@@ -2031,6 +2060,8 @@ function maybePoll(reason) {
     }
   } else {
     log("...and thats's all she wrote folks, outa jobs.");
+    progato = null;
+    updates = false;
   }
   return false;
 }
@@ -2099,6 +2130,7 @@ function quit(n) {
     bugtxt("Continuing...");
   } else {
     calcUpdate();
+    destroyProgress();
     bugtxt(`process.exit going on. last file: ${filename} percent complete ${percentComplete}`);
     clearTimeout(updatesTimer);
     if (server != undefined) {
@@ -2121,7 +2153,7 @@ function quit(n) {
     if (keyboard) {
       process.stdin.pause();
     }
-
+    term.processExit();
     // process.exit()
   }
 }
@@ -2904,7 +2936,6 @@ function saveHilbert(array, cb) {
   height = width;
   percentComplete = 0;
   let spacie = Math.round(hilpix / 100);
-  progato = whack_a_progress_on(`Hilbert Curve ${hilpix} corners`);
   for (i = 0; i < hilpix; i++) {
     let hilbX, hilbY;
     [hilbX, hilbY] = hilDecode(i, dimension, MyManHilbert);
@@ -2931,7 +2962,6 @@ function saveHilbert(array, cb) {
     }
   }
   out("Done projected 100% of " + hilpix.toLocaleString());
-  progato.stop();
 
   var hilbert_img_data = Uint8ClampedArray.from(hilbertImage);
   var hilbert_img_png = new PNG({
@@ -3100,7 +3130,7 @@ function saveHilbert(array, cb) {
       } // GOLDEN RATIO
 
       if ( pixels <= width*height) {
-        log("Image allocation check: " + pixels + " < width x height = " + ( width * height ));
+        log("Image allocation is OK: " + pixels + " <= width x height = " + ( width * height ));
       } else {
         error(`MEGA FAIL: TOO MANY ARRAY PIXELS NOT ENOUGH IMAGE SIZE: array pixels: ${pixels} <  width x height = ${width*height}`);
         quit();
@@ -3581,7 +3611,7 @@ function saveHilbert(array, cb) {
       // term.eraseDisplayBelow();
       clearScreen();
     } else {
-      out('nc ' + busy());
+      output('nc ' + busy());
     }
   }
   function clearScreen() {
@@ -3642,17 +3672,24 @@ function saveHilbert(array, cb) {
     log(cleanDNA);
   }
   function wTitle(txt) {
-    term.windowTitle(`${justNameOfDNA} ${highlightOrNothin()} ${maxWidth(120,txt)} AminoSee@${hostname} mode: ${status}`);
+    term.windowTitle(`${highlightOrNothin()} ${justNameOfDNA} ${maxWidth(120,txt)} AminoSee@${hostname} mode: ${status}`);
   }
   function calcUpdate() { // DONT ROUND KEEP PURE NUMBERS
     percentComplete = ((charClock+1) / (baseChars+1)); // avoid div by zero below a lot
     let now = new Date().getTime();
     runningDuration = (now - start);
     secElapsed = deresSeconds(runningDuration); // ??!! ah i see
-    timeRemain =deresSeconds((runningDuration / (percentComplete )) - secElapsed); // everything in ms
+    timeRemain = deresSeconds((runningDuration / (percentComplete )) - secElapsed); // everything in ms
     bytesRemain = (baseChars - charClock);
     bytesPerSec = Math.round( (charClock+1) / runningDuration )*1000;
-    wTitle(`${nicePercent()} done ${humanizeDuration(timeRemain)} ${howMany} files remain`);
+    wTitle(`${nicePercent()} done ${howMany} files remain ${humanizeDuration(timeRemain)} `);
+    if (percentComplete > 1.1) {
+      error("Hello I'm a terrible bug, awfully sorry");
+      out(percentComplete + "this will end in 5 brudda")
+      setTimeout(() => {
+        process.exit()
+      }, 5000)
+    }
   }
   function deresSeconds(ms){
     return Math.round(ms/1000) * 1000;
@@ -3678,14 +3715,16 @@ function saveHilbert(array, cb) {
     // return "im a teapot";
     // clearTimeout(progTimer);
     let progressBar = term.progressBar({
-      width: term.width - 16,
+      width: term.width - 20,
       title: str + " " + formatAMPM( new Date()),
       eta: true,
       percent: true
     });
     let progTimer = setInterval(() => {
-      calcUpdate();
-      progressBar.update( percentComplete ) ;
+      if (percentComplete < 0.98) {
+        calcUpdate();
+        progressBar.update( percentComplete ) ;
+      }
     }, 500);
     return progressBar;
   }
@@ -3789,7 +3828,7 @@ function saveHilbert(array, cb) {
     log(    isDiskFinHTML, isDiskFinHilbert, isDiskFinLinear);
     if (clear == true) {          term.up(termDisplayHeight)  }
     // console.log(tb.getText);
-    if (updates) { // status == "stream") { // || updates) {
+    if (updates && renderLock) { // status == "stream") { // || updates) {
       updatesTimer = setTimeout(() => {
         log("drawing again in " + msPerUpdate)
         drawHistogram(); // MAKE THE HISTOGRAM AGAIN LATER
