@@ -57,7 +57,7 @@
   "scripts": {
     "test": "vows --spec --isolate",
     "start": "node bin/aminosee",
-    "inspect": "node --inspect bin/aminosee.js --force --html /Volumes/aminosee/dna/Brown_Kiwi_NW_013982187v1.fa dna/3MB_TestPattern.txt /Volumes/aminosee/dna/Brown_Kiwi_NW_013982187v1.fa",
+    "inspect": "node --inspect bin/aminosee.js -v",
     "demo": "node bin/aminosee demo",
     "build-old": "./build-lib.sh ; npm run genversion ; npm run browserify ; time npm run package",
     "build": "npm run genversion ; npm run browserify ; time npm run package",

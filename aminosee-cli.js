@@ -101,7 +101,7 @@ let willRecycleSavedImage = false; // allows all the regular processing to mock 
 let filename = testFilename;
 let rawDNA ="@loading DNA Stream..."; // debug
 let status = "load";
-let outputPath = "not set yet talk about Mr Race Condition";
+let outputPath = obviousFoldername;
 // let StdInPipe = require('./stdinpipe');
 // let pipeInstance = new StdInPipe();
 gv.generate(appPath +'lib/version.js', function (err, version) {
@@ -644,7 +644,8 @@ module.exports = () => {
     out("ॐ");
     log(status)
   }
-  status = "global";
+  percentComplete = 1;
+  mode("global")
   log("leaving exports")
   clout(".");
 }
@@ -744,9 +745,9 @@ function toggleDevmode() {
     verbose = true;
     updates = false;
     clear = false;
-    raceDelay = 1000; // this helps considerably!
+    raceDelay = 500; // this helps considerably!
     if (debug) {
-      raceDelay = 4000; // this helps considerably!
+      raceDelay = 1000; // this helps considerably!
     }
     openHtml = false;
     openImage = false;
@@ -1000,8 +1001,8 @@ function createJob(cb) {
 }
 function mode(txt) {
   status = txt;
+  out(txt);
   wTitle(txt);
-  log(txt);
 }
 function storage() {
   // return `${(isDiskFinLinear ? 'Linear ' : '')} ${(isDiskFinHilbert ? 'Hilbert ' : '')} ${(isDiskFinHTML ? 'HTML ' : '' )}`;
@@ -1940,9 +1941,7 @@ function compareHistocount(a,b) {
   return 0;
 }
 function saveHTML(cb) {
-  mode("save HTML");
-  computerWants = pixTodefaultMagnitude(colClock);
-  log('SAVING REPORT')
+
 
   if (willRecycleSavedImage == true && recycEnabled) {
     log("Didnt save HTML report because the linear file was recycled. Use --html to enable and auto open when done.");
@@ -1954,6 +1953,10 @@ function saveHTML(cb) {
     if (cb) { cb() }
     return false;
   }
+  mode("save HTML");
+  computerWants = pixTodefaultMagnitude(colClock);
+  out('HTML')
+
   bugtxt( pepTable.sort( compareHistocount ) ); // least common amino acids in front
   // let genomeData = {[
   //
@@ -2028,19 +2031,18 @@ function touchLockAndStartStream(fTouch, cb) {
   // } catch(e) { log( e ) }
   // }
 }
-function removeLocks(cb) {
+function removeLocks() {
   mode('remove locks ' + howMany);
   try {
     fs.unlinkSync(filenameTouch, (err) => {
       bugtxt("Removing locks OK...")
       if (err) { out('ish'); console.warn(err);  }
-      if (cb) { cb() }
     });
   } catch (err) {
     bugtxt("No locks to remove: " + err);
   }
   isDiskFinLinear = true;
-  maybePoll('remove locks');
+  // maybePoll('remove locks');
 }
 function maybePoll(reason) {
   if (test) { log('not polling due to test'); return false; }
@@ -2062,6 +2064,7 @@ function maybePoll(reason) {
     log("...and thats's all she wrote folks, outa jobs.");
     progato = null;
     updates = false;
+    gracefulQuit();
   }
   return false;
 }
@@ -2128,34 +2131,37 @@ function quit(n) {
 
   if ( maybePoll('inside quit!! this must be it') ) {
     bugtxt("Continuing...");
-  } else {
-    calcUpdate();
-    destroyProgress();
-    bugtxt(`process.exit going on. last file: ${filename} percent complete ${percentComplete}`);
-    clearTimeout(updatesTimer);
-    if (server != undefined) {
-      server.close()
-    }
-    if (keyboard == true) {
-      try {
-        process.stdin.setRawMode(false);
-        process.stdin.resume();
-      } catch(e) { log( e ) }
-    }
+    return false;
 
-    // args = [];
-    if (devmode) {
-      output("Because you are using --devmode, the lock file is not deleted. This is useful during development because I can quickly test new code by starting then interupting the render with Control-c. Then, when I use 'aminosee * -f -d' I can have new versions rendered but skip super large genomes that would take 5 mins or more to render. I like to see that they begin to render then break and retry.")
-    } else {
-      removeLocks();
-    }
-    process.exitCode = 0;
-    if (keyboard) {
-      process.stdin.pause();
-    }
-    term.processExit();
-    // process.exit()
   }
+
+  calcUpdate();
+  destroyProgress();
+  bugtxt(`process.exit going on. last file: ${filename} percent complete ${percentComplete}`);
+  clearTimeout(updatesTimer);
+  if (server != undefined) {
+    server.close()
+  }
+  if (keyboard == true) {
+    try {
+      process.stdin.setRawMode(false);
+      process.stdin.resume();
+    } catch(e) { log( e ) }
+  }
+
+  // args = [];
+  if (devmode) {
+    output("Because you are using --devmode, the lock file is not deleted. This is useful during development because I can quickly test new code by starting then interupting the render with Control-c. Then, when I use 'aminosee * -f -d' I can have new versions rendered but skip super large genomes that would take 5 mins or more to render. I like to see that they begin to render then break and retry.")
+  } else {
+    removeLocks();
+  }
+  process.exitCode = 0;
+  if (keyboard) {
+    process.stdin.pause();
+  }
+  term.processExit();
+  // process.exit()
+
 }
 function processLine(l) {
   status = "stream";
@@ -2936,7 +2942,11 @@ function saveHilbert(array, cb) {
   height = width;
   percentComplete = 0;
   let spacie = Math.round(hilpix / 100);
+  progato.update({ title: 'Hilbert Curve ', items: howMany, syncMode: true })
+
   for (i = 0; i < hilpix; i++) {
+    percentComplete =i/hilpx;
+    progato.update(percentComplete)
     let hilbX, hilbY;
     [hilbX, hilbY] = hilDecode(i, dimension, MyManHilbert);
     let cursorLinear  = 4 * i ;
@@ -2961,6 +2971,8 @@ function saveHilbert(array, cb) {
       break;
     }
   }
+  progato.update(null)
+
   out("Done projected 100% of " + hilpix.toLocaleString());
 
   var hilbert_img_data = Uint8ClampedArray.from(hilbertImage);
@@ -3090,6 +3102,11 @@ function saveHilbert(array, cb) {
         linearFinished();
         hilbertFinished();
         htmlFinished();
+        callback();
+        return false;
+      } else if (colClock == -1) {
+        output("Cant save " + filename);
+        callback();
         return false;
       }
 
@@ -3271,6 +3288,8 @@ function saveHilbert(array, cb) {
       return false;
     }
     function generateTestPatterns(cb) {
+      setupOutPaths();
+      report = false;
       test = true;
       updates = true;
       pngImageFlags = "_test_pattern";
@@ -3279,7 +3298,11 @@ function saveHilbert(array, cb) {
       } else {
         magnitude = defaultMagnitude;
       }
-
+      if (args.ratio || args.r) {
+        log("Looks better with --ratio=square in my humble opinion")
+      } else {
+        ratio = "sqr";
+      }
 
 
       output("output test patterns to /calibration/ folder. filename: " + filename);
@@ -3310,13 +3333,16 @@ function saveHilbert(array, cb) {
     }
     function runCycle(cb) {
       loopCounter++
+      howMany--;
       if (loopCounter+1 > magnitude) {
         testStop();
-        saveHTML(cb);
-        openOutputs();
+        if ( cb ) { cb() }
+        quit(1);
+        // saveHTML(cb);
+        // openOutputs();
         return false;
       }
-      out('test cycle');
+      output('test cycle');
       testInit (loopCounter); // replaces loop
       bothKindsTestPattern(); // <<--------- MAIN ACTION HERE sets up globals to call generic function with no DNA for test
       arrayToPNG(function () { // linear image saved. hilbert is saved up in "bothKindsTestPattern"
@@ -3332,11 +3358,14 @@ function saveHilbert(array, cb) {
   }
   function testStop () {
     // openImage = true;
+    destroyProgress()
+    percentComplete = 1;
     genomeSize = 1;
     baseChars = 1;
     charClock = -1; // gets around zero length check
     colClock = -1; // gets around zero length check
-    calcUpdate();
+    // calcUpdate();
+    quit(1);
   }
   function testInit (magnitude) {
     dimension = magnitude;
@@ -3365,14 +3394,17 @@ function saveHilbert(array, cb) {
     filenamePNG     = testPath + "/" + justNameOfPNG;
     filenameHILBERT = testPath + "/" + justNameOfHILBERT;
 
+    filenme = filenameHILBERT;
+    currentFile = justNameOfHILBERT;
+
     baseChars = hilbPixels[ magnitude ];
+    maxpix = hilbPixels[defaultMagnitude+1];
     genomeSize = baseChars;
-    errorClock = 0;
+    estimatedPixels = baseChars;
     charClock = baseChars;
     colClock = baseChars;
-
+    errorClock = 0;
     percentComplete = 1;
-    maxpix = hilbPixels[magnitude];
     runningDuration = 1;
     return true;
   }
@@ -3400,6 +3432,8 @@ function saveHilbert(array, cb) {
 
   // this will destroy the main array by first upsampling then down sampling
   function resampleByFactor(shrinkFactor) {
+    progato.update({ title: 'Resample by X'+shrinkFactor, items: howMany, syncMode: true })
+
     let sampleClock = 0;
     let brightness = 1/shrinkFactor;
     let downsampleSize = hilbPixels[dimension]; // 2X over sampling high grade y'all!
@@ -3408,6 +3442,8 @@ function saveHilbert(array, cb) {
 
     // SHRINK LINEAR IMAGE:
     for (z = 0; z<downsampleSize; z++) { // 2x AA colClock is the number of pixels in linear
+      percentComplete =z/downsampleSize;
+      progato.update(percentComplete)
       // if (z % 5000 == 0) {
       //   bugtxt(`z: ${z.toLocaleString()}/${downsampleSize.toLocaleString()} samples remain: ${(colClock - sampleClock).toLocaleString()}`);
       // }
