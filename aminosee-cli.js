@@ -1310,7 +1310,7 @@ function streamStarted() {
       if (renderLock) {
         drawHistogram()
         output(' ');
-        progato = whack_a_progress_on('Main DNA Render ' + new Date());
+        progato = whack_a_progress_on('Main DNA Render ' + maxWidth(24,  new Date())); // Fri May 24 2019 23:17:52 = 24 chars
       }
     }, raceDelay)
   } else {
@@ -1943,13 +1943,7 @@ function saveHTML(cb) {
     hypertext = htmlTemplate(testSummary());
   }
 
-
   let histotext = JSON.stringify(renderData);
-  // fileWrite(histogramFile, histotext, (cb)=> {
-  //   fileWrite(filenameHTML, hypertext, (cb) => {
-  //     fileWrite(`${outputPath}/${justNameOfDNA}/main.html`, hypertext, cb);
-  //   });
-  // });
   isDiskFinHTML = true
   fileWrite(filenameHTML, hypertext, htmlFinished  );
   fileWrite(histogramFile, histotext, dot );
@@ -2937,7 +2931,7 @@ function saveHilbert(array, cb) {
     }
   }
   out("Done projected 100% of " + hilpix.toLocaleString());
-
+  progato.stop();
 
   var hilbert_img_data = Uint8ClampedArray.from(hilbertImage);
   var hilbert_img_png = new PNG({
@@ -2953,6 +2947,7 @@ function saveHilbert(array, cb) {
 
   hilbert_img_png.data = Buffer.from(hilbert_img_data);
   let wstream = fs.createWriteStream(filenameHILBERT);
+  progato = null;
 
   new Promise(resolve =>
     hilbert_img_png.pack()
@@ -3063,6 +3058,8 @@ function saveHilbert(array, cb) {
       if (colClock == 0) {
         output("No DNA or RNA in this file sorry?! You sure you gave a file with sequences? Like: GCCTCTATGACTGACGTA" + filename);
         linearFinished();
+        hilbertFinished();
+        htmlFinished();
         return false;
       }
 
@@ -3679,18 +3676,17 @@ function saveHilbert(array, cb) {
   }
   function whack_a_progress_on(str) {
     // return "im a teapot";
-    let progTimer = null;
-    clearTimeout(progTimer);
+    // clearTimeout(progTimer);
     let progressBar = term.progressBar({
       width: term.width - 16,
       title: str + " " + formatAMPM( new Date()),
       eta: true,
       percent: true
     });
-    progTimer = setInterval(() => {
+    let progTimer = setInterval(() => {
       calcUpdate();
       progressBar.update( percentComplete ) ;
-    }, 250);
+    }, 500);
     return progressBar;
   }
   function onesigbitTolocale(num){
@@ -3784,8 +3780,8 @@ function saveHilbert(array, cb) {
       output();
       output(terminalRGB(rawDNA.substring(0,5000), red, green, blue));
       term.up(rawDNA.length/term.width);
-      rawDNA = "@";
     }
+    rawDNA = "@";
     // tb.setText( histogram(aacdata, { bar: '/', width: 40, sort: true, map:  aacdata.Histocount} ) )
     console.log(histogram(aacdata, { bar: '/', width: 40, sort: true, map:  aacdata.Histocount} ));
     // tb.setText( interactiveKeysGuide );
