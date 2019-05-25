@@ -1118,7 +1118,7 @@ function pollForStream() {
     setupFNames(); // will have incorrect Hilbert file name. Need to wait until after render.
     bugtxt(`Polling filenameTouch ${filenameTouch} willStart   ${willStart}  pollAgainFlag ${pollAgainFlag}  defaultFilename  ${defaultFilename}  ${filename}  howMany   ${howMany}   status ${status}`);
     if (skipExistingFile(filenamePNG)) {
-      out("Skipping render.");
+      output("Skipping render of: " + filenamePNG);
       log("use --force to overwrite  --image to automatically open   ");
       if (openHtml == true || openImage == true || args.image == true) {
         log("use --no-image suppress automatic opening of the image.")
