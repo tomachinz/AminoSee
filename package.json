@@ -58,7 +58,7 @@
     "crash": "node --inspect /home/tom/.nvm/versions/node/v12.1.0/bin/aminosee 1KB_TestPattern.txt 27MB_TestPattern.txt --peptide=Ochre 3MB_TestPattern.txt 50KB_TestPattern.txt batch-peptides.sh batch-process.sh Gorilla_gorGor4_chr2B.fa",
     "test": "vows --spec --isolate",
     "start": "node bin/aminosee",
-    "inspect": "node --inspect bin/aminosee.js -v",
+    "inspect": "node --inspect bin/aminosee.js dna/* -f -v",
     "demo": "node bin/aminosee demo",
     "build-old": "./build-lib.sh ; npm run genversion ; npm run browserify ; time npm run package",
     "build": "npm run genversion ; npm run browserify ; time npm run package",

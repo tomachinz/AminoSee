@@ -125,7 +125,7 @@ term.on('resize', function(tx, ty) {
 });
 
 let interactiveKeysGuide = "";
-let hilbertImage, keyboard, filenameTouch, estimatedPixels, args, filenamePNG, extension, reader, hilbertPoints, herbs, levels, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, textFile, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, fileUploadShowing, testColors, chunksMax, chunksize, chunksizeBytes, cpu, subdivisions, contextBitmap, aminoacid, colClock, start, updateClock, bytesPerSec, pixelStacking, isHighlightCodon, justNameOfPNG, justNameOfHILBERT, sliceDNA, filenameHTML, howMany, secElapsed, runningDuration, bytesRemain, width, triplet, updatesTimer, pngImageFlags, codonsPerPixel, codonsPerPixelHILBERT, CRASH, red, green, blue, alpha, errorClock, breakClock, streamLineNr, filesDone, spewClock, opacity, codonRGBA, geneRGBA, currentTriplet, currentPeptide,  progato, shrinkFactor, reg, image, loopCounter, percentComplete, charClock, baseChars, bigIntFileSize, currentFile, currentPepHighlight, justNameOfCurrentFile, server, openHtml, openFileExplorer, pixelStream, startPeptideIndex, stopPeptideIndex, flags, loadavg, platform, totalmem, correction, aspect, debugFreq;
+let hilbertImage, keyboard, filenameTouch, estimatedPixels, args, filenamePNG, extension, reader, hilbertPoints, herbs, levels, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, textFile, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, fileUploadShowing, testColors, chunksMax, chunksize, chunksizeBytes, cpu, subdivisions, contextBitmap, aminoacid, colClock, start, updateClock, bytesPerSec, pixelStacking, isHighlightCodon, justNameOfPNG, justNameOfHILBERT, sliceDNA, filenameHTML, howMany, secElapsed, runningDuration, bytesRemain, width, triplet, updatesTimer, pngImageFlags, codonsPerPixel, codonsPerPixelHILBERT, CRASH, red, green, blue, alpha, errorClock, breakClock, streamLineNr, filesDone, spewClock, opacity, codonRGBA, geneRGBA, currentTriplet, currentPeptide, shrinkFactor, reg, image, loopCounter, percentComplete, charClock, baseChars, bigIntFileSize, currentFile, currentPepHighlight, justNameOfCurrentFile, server, openHtml, openFileExplorer, pixelStream, startPeptideIndex, stopPeptideIndex, flags, loadavg, platform, totalmem, correction, aspect, debugFreq;
 BigInt.prototype.toJSON = function() { return this.toString(); }; // shim for big int
 BigInt.prototype.toBSON = function() { return this.toString(); }; // Add a `toBSON()` function to enable MongoDB to store BigInts as strings
 let data = require('./data.js');
@@ -233,17 +233,17 @@ function setupPrefs() {
   log(`AminoSee has been run ${cliruns} times`);
 }
 function setupProgress() {
-  progato = whack_a_progress_on(`Booting up`);
-  // elGatoProgasimo =   whack_a_progress_on(`Lush intense flavours`);
+  return whack_a_progress_on(`Booting up`);
 }
 function destroyProgress() { // now thats a fucking cool function name if ever there was!
   progato = null;
-  // elGatoProgasimo = null;
+}
+function progUpdate(obj) {
+  progato.update(obj)
 }
 
-
 module.exports = () => {
-  setupProgress()
+  progato = setupProgress()
 
   version = require('./lib/version');
   status = "exports";
@@ -679,7 +679,9 @@ function setupKeyboardUI() {
         removeLocks();
       }
       quit(130, 'ctrl-c');
-      // process.exit()
+      setImmediate(() => {
+        process.exit()
+      })
     }
     if (key && key.name == 'q') {
       gracefulQuit();
@@ -715,9 +717,6 @@ function setupKeyboardUI() {
         drawHistogram();
       }
     }
-
-
-
   });
 
   try {
@@ -1011,21 +1010,21 @@ function storage() {
 }
 function pollForStream() {
   mode('polling');
-  output("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-  output("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-  output("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-  output("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-  output("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-  output("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-  output("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-  output("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-  output("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-  output("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-  output("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-  output("!!!!!!!!!!!!!!!!!!!!! pollForStream  !!!!!!!!!!!!!!!!!!!!!!!!!!")
-  output("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-  output("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-  output("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+  bugtxt("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+  bugtxt("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+  bugtxt("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+  bugtxt("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+  bugtxt("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+  bugtxt("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+  bugtxt("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+  bugtxt("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+  bugtxt("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+  bugtxt("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+  bugtxt("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+  log("!!!!!!!!!!!!!!!!!!!!! pollForStream  !!!!!!!!!!!!!!!!!!!!!!!!!!")
+  bugtxt("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+  bugtxt("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+  bugtxt("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
   if (renderLock) {
     error('Render lock is enabled. This is a bug.')
     return false;
@@ -1092,12 +1091,13 @@ function pollForStream() {
       out('>>> RENDER <<<' + percentComplete);
       return false;
     } else {
-      out('>>> IDLE <<<');
+      bugtxt('>>> IDLE <<<');
+      out('.');
     }
     if (doesFileExist(filename)) {
-      out('DNA Found OK');
+      log('DNA Found OK');
     } else {
-      output('Skipping non-existent DNA file: ' + filename);
+      log('Skipping non-existent DNA file: ' + filename);
       theSwitcher(false);
       return false;
     }
@@ -1320,7 +1320,7 @@ function streamStarted() {
     if (renderLock) {
       drawHistogram()
       output(' ');
-      // progato.update({ title: 'Main DNA Render ', items: howMany, syncMode: true })
+      progUpdate({ title: 'DNA File Render step 1/3', items: howMany, syncMode: true })
     } else {
       log('Not rendering (bug)');
     }
@@ -2100,11 +2100,11 @@ function checkFileExtension(f) {
 }
 
 function quit(n, txt) {
-  output("######################################################")
-  output("######################################################")
-  output("############### RECEIVED quit: " + n)
-  output("######################################################")
-  output("############### " + txt)
+  bugtxt("######################################################")
+  bugtxt("######################################################")
+  bugtxt("############### RECEIVED quit: " + n)
+  bugtxt("######################################################")
+  bugtxt("############### " + txt)
   return true;
   if (!txt) { txt = status }
   mode('pre-quit '+ txt); // MAKE SURE WE DEFO WANNA QUIT
@@ -2135,8 +2135,7 @@ function quit(n, txt) {
   }
   if (keyboard == true) {
     try {
-      process.stdin.on('keypress', null);
-
+      // process.stdin.on('keypress', null);
       process.stdin.setRawMode(false);
       process.stdin.resume();
     } catch(e) { log( e ) }
@@ -2937,18 +2936,20 @@ function saveHilbert(array, cb) {
   height = width;
   percentComplete = 0;
   debugFreq = Math.round(hilpix / 100);
-  // progato.update({ title: 'Hilbert Curve ', items: howMany, syncMode: true })
-
+  progUpdate({ title: 'Hilbert Curve step 2/3', items: howMany, syncMode: true })
   for (i = 0; i < hilpix; i++) {
-    percentComplete =i/hilpix;
-    // progato.update(percentComplete)
+    if ( i%debugFreq == 0) {
+      percentComplete = i/hilpix;
+      progUpdate(percentComplete)
+    }
+
     let hilbX, hilbY;
     [hilbX, hilbY] = hilDecode(i, dimension, MyManHilbert);
     let cursorLinear  = 4 * i ;
     let hilbertLinear = 4 * ((hilbX % width) + (hilbY * width));
-    percentComplete = i / hilpix;
+    // percentComplete = i / hilpix;
     // if ((Math.round(percentComplete * 1000) % 100) === 0) {
-    dot(i, debugFreq, "Space filling " + nicePercent() + " of " + hilpix.toLocaleString());
+    // clout(i, debugFreq, "Space filling " + nicePercent() + " of " + hilpix.toLocaleString());
     // }
 
     // output("Space filling " + fixedWidth(10, (perc*100) + "%") + " of " + hilpix.toLocaleString());
@@ -2966,7 +2967,7 @@ function saveHilbert(array, cb) {
       break;
     }
   }
-  // progato.update(null)
+  // progUpdate(null)
 
   out("Done projected 100% of " + hilpix.toLocaleString());
 
@@ -3430,8 +3431,7 @@ function saveHilbert(array, cb) {
 
   // this will destroy the main array by first upsampling then down sampling
   function resampleByFactor(shrinkFactor) {
-    // progato.update({ title: 'Resample by X'+shrinkFactor, items: howMany, syncMode: true })
-
+    progUpdate({ title: 'Resample by X'+shrinkFactor+' step 3/3', items: howMany, syncMode: true })
     let sampleClock = 0;
     let brightness = 1/shrinkFactor;
     let downsampleSize = hilbPixels[dimension]; // 2X over sampling high grade y'all!
@@ -3440,29 +3440,21 @@ function saveHilbert(array, cb) {
     debugFreq = throttledFreq(50);
     // SHRINK LINEAR IMAGE:
     for (z = 0; z<downsampleSize; z++) { // 2x AA colClock is the number of pixels in linear
-      percentComplete =z/downsampleSize;
-      // progato.update(percentComplete)
-      // if (z % 5000 == 0) {
-      //   bugtxt(`z: ${z.toLocaleString()}/${downsampleSize.toLocaleString()} samples remain: ${(colClock - sampleClock).toLocaleString()}`);
-      // }
-
+      percentComplete = z/downsampleSize;
+      progUpdate(percentComplete)
       let sum = z*4;
       let clk = sampleClock*4; // starts on 0
-
       antiAliasArray[sum+0] = rgbArray[clk+0]*brightness;
       antiAliasArray[sum+1] = rgbArray[clk+1]*brightness;
       antiAliasArray[sum+2] = rgbArray[clk+2]*brightness;
       antiAliasArray[sum+3] = rgbArray[clk+3]*brightness;
       dot(z, debugFreq, `z: ${z.toLocaleString()}/${downsampleSize.toLocaleString()} samples remain: ${(colClock - sampleClock).toLocaleString()}`);
-
       while(sampleClock  < z*shrinkFactor) {
         clk = sampleClock*4;
-
         antiAliasArray[sum+0] += rgbArray[clk+0]*brightness;
         antiAliasArray[sum+1] += rgbArray[clk+1]*brightness;
         antiAliasArray[sum+2] += rgbArray[clk+2]*brightness;
         antiAliasArray[sum+3] += rgbArray[clk+3]*brightness;
-
         sampleClock++;
       }
       sampleClock++;
@@ -3498,7 +3490,7 @@ function saveHilbert(array, cb) {
   }
 
   function dot(i, x, t) {
-    debugFreq = throttledFreq();
+    // debugFreq = throttledFreq();
     if (i % x == 0 ) {
       if (!t) {
         t = `[${i}]`;
@@ -3568,7 +3560,7 @@ function saveHilbert(array, cb) {
     }
   }
   function out(t) {
-    process.stdout.write(`[ ${t} ] `);
+    process.stdout.write(`[${t}] `);
   }
   function clout(t) {
     if (t.substring(0,5) == 'error') {
@@ -3744,7 +3736,11 @@ function saveHilbert(array, cb) {
       return strTime;
     }
     function whack_a_progress_on(str) {
-      return "im a teapot";
+      let lines = 7
+      while (lines > 0) {
+        output();
+        lines--;
+      }
       // clearTimeout(progTimer);
       let progressBar = term.progressBar({
         width: term.width - 20,
@@ -3844,6 +3840,7 @@ function saveHilbert(array, cb) {
       // tb.setText( "\r" )
       printRadMessage(array);
       console.log(); // white space
+      progUpdate(percentComplete);
       // tb.setText( `            File:  ${chalk.inverse(fixedWidth(40, justNameOfDNA))}.${extension} ${chalk.inverse(highlightOrNothin())} Runs: ${cliruns} RunID: ${timestamp} on ${hostname}`);
 
       console.log(`            File:  ${chalk.inverse(fixedWidth(40, justNameOfDNA))}.${extension} ${chalk.inverse(highlightOrNothin())} Runs: ${cliruns} RunID: ${timestamp} on ${hostname}`);
