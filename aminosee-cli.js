@@ -1169,8 +1169,12 @@ function pollForStream() {
           log(`Polling found no more work. Currently: ${busy()}`);
           if (!renderLock) {
             clearTimeout(updatesTimer);
-            out('...quitting.')
-            // quit(0, 'Finito via The Switch');
+            out('...quitting in 4s.')
+            setTimeout(() => {
+              out('bye')
+              quit(0, 'Finito via The Switch');
+            }, 4000)
+
           }
         }
       }, raceDelay)
