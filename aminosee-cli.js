@@ -102,7 +102,7 @@ let isDiskFinHilbert = true; // flag shows if saving hilbert png is complete
 let isDiskFinHTML = true; // flag shows if saving html is complete
 let willRecycleSavedImage = false; // allows all the regular processing to mock the DNA render stage
 let codonsPerSec = 0;
-let filename = testFilename;
+let filename = "aminsee-cli.js";
 let rawDNA ="@loading DNA Stream..."; // debug
 let status = "load";
 let outputPath = obviousFoldername;
@@ -678,7 +678,8 @@ module.exports = () => {
   percentComplete = 1;
   mode("global")
   log("leaving exports")
-  clout(".");
+  out(".")
+  // clout(".");
 }
 
 function setupKeyboardUI() {
@@ -2976,7 +2977,7 @@ function saveHilbert(array, cb) {
   for (i = 0; i < hilpix; i++) {
     if ( i%debugFreq == 0) {
       percentComplete = i/hilpix;
-      progUpdate(percentComplete)
+      progato.update(percentComplete)
     }
 
     let hilbX, hilbY;
@@ -3238,7 +3239,7 @@ function saveHilbert(array, cb) {
           setTimeout( () => {
             launchNonBlockingServer(justNameOfDNA);
             open( serve.getServerURL(justNameOfDNA), {app: 'firefox', wait: false} );
-          }, raceDelay*2);
+          }, raceDelay);
           if (openLocalHtml == true) {
             open(filenameHTML, {app: 'firefox', wait: false}).then(() => {
               log("browser closed");
@@ -3320,6 +3321,7 @@ function saveHilbert(array, cb) {
     }
     function generateTestPatterns(cb) {
       setupOutPaths();
+      howMany = magnitude;
       report = false;
       test = true;
       updates = true;
@@ -3381,14 +3383,14 @@ function saveHilbert(array, cb) {
       setImmediate( (cb) => {
         setTimeout( (cb) => {
           runCycle(cb)
-        }, raceDelay * 10 * loopCounter);
+        }, raceDelay  * loopCounter);
       });
     });
     return true;
 
   }
   function testStop () {
-    destroyProgress()
+    // destroyProgress()
     percentComplete = 1;
     genomeSize = 1;
     baseChars = 1;
@@ -3422,8 +3424,9 @@ function saveHilbert(array, cb) {
     filenameHTML    = testPath + "/" + justNameOfDNA + ".html";
     filenamePNG     = testPath + "/" + justNameOfPNG;
     filenameHILBERT = testPath + "/" + justNameOfHILBERT;
+    filenameTouch   = testPath + "/" + justNameOfDNA + "_LOCK.touch";
 
-    filenme = filenameHILBERT;
+    filename = filenameHILBERT;
     currentFile = justNameOfHILBERT;
 
     baseChars = hilbPixels[ magnitude ];
@@ -3474,7 +3477,7 @@ function saveHilbert(array, cb) {
     // SHRINK LINEAR IMAGE:
     for (z = 0; z<downsampleSize; z++) { // 2x AA colClock is the number of pixels in linear
       percentComplete = z/downsampleSize;
-      progUpdate(percentComplete)
+      preogato.update(percentComplete)
       let sum = z*4;
       let clk = sampleClock*4; // starts on 0
       antiAliasArray[sum+0] = rgbArray[clk+0]*brightness;
@@ -3863,7 +3866,7 @@ function saveHilbert(array, cb) {
       // tb.setText( "\r" )
       printRadMessage(array);
       console.log(); // white space
-      progUpdate(percentComplete);
+      progato.update(percentComplete);
       // tb.setText( `            File:  ${chalk.inverse(fixedWidth(40, justNameOfDNA))}.${extension} ${chalk.inverse(highlightOrNothin())} Runs: ${cliruns} RunID: ${timestamp} on ${hostname}`);
 
       console.log(`            File:  ${chalk.inverse(fixedWidth(40, justNameOfDNA))}.${extension} ${chalk.inverse(highlightOrNothin())} Runs: ${cliruns} RunID: ${timestamp} on ${hostname}`);
@@ -3885,7 +3888,7 @@ function saveHilbert(array, cb) {
           if (updates && renderLock && howMany > 0 ) { // status == "stream") { // || updates) {
             log("drawing again in " + msPerUpdate)
             drawHistogram(); // MAKE THE HISTOGRAM AGAIN LATER
-          } else { destroyProgress()}
+          }
         }, msPerUpdate);
       }
     }
