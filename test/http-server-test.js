@@ -8,7 +8,7 @@ var assert = require('assert'),
 var root = path.join(__dirname, 'fixtures', 'root');
 
 vows.describe('http-server').addBatch({
-  'When http-server is listening on 3210': {
+  'When http-server is listening on 4321': {
     topic: function () {
       var server = httpServer.createServer({
         root: root,
@@ -19,12 +19,12 @@ vows.describe('http-server').addBatch({
         }
       });
 
-      server.listen(3210);
+      server.listen(4321);
       this.callback(null, server);
     },
     'it should serve files from root directory': {
       topic: function () {
-        request('http://localhost:32102/rhino.jpg', this.callback);
+        request('http://localhost:43212/rhino.jpg', this.callback);
       },
       'status code should be 200': function (res) {
         assert.equal(res.statusCode, 200);
@@ -43,7 +43,7 @@ vows.describe('http-server').addBatch({
     },
     'when requesting non-existent file': {
       topic: function () {
-        request('http://localhost:3210/404', this.callback);
+        request('http://localhost:4321/404', this.callback);
       },
       'status code should be 404': function (res) {
         assert.equal(res.statusCode, 404);
@@ -51,7 +51,7 @@ vows.describe('http-server').addBatch({
     },
     'when requesting /': {
       topic: function () {
-        request('http://localhost:3210/', this.callback);
+        request('http://localhost:4321/', this.callback);
       },
       'should respond with index': function (err, res, body) {
         assert.equal(res.statusCode, 200);
@@ -61,7 +61,7 @@ vows.describe('http-server').addBatch({
     },
     'when robots options is activated': {
       topic: function () {
-        request('http://localhost:3210/', this.callback);
+        request('http://localhost:4321/', this.callback);
       },
       'should respond with status code 200 to /robots.txt': function (res) {
         assert.equal(res.statusCode, 200);
@@ -69,17 +69,17 @@ vows.describe('http-server').addBatch({
     },
     'and options include custom set http-headers': {
       topic: function () {
-        request('http://localhost:3210/', this.callback);
+        request('http://localhost:4321/', this.callback);
       },
       'should respond with headers set in options': function (err, res) {
         assert.equal(res.headers['access-control-allow-origin'], '*');
         assert.equal(res.headers['access-control-allow-credentials'], 'true');
       }
     },
-    'When http-server is proxying from 8081 to 3210': {
+    'When http-server is proxying from 8081 to 4321': {
       topic: function () {
         var proxyServer = httpServer.createServer({
-          proxy: 'http://localhost:3210/',
+          proxy: 'http://localhost:4321/',
           root: path.join(__dirname, 'fixtures')
         });
         proxyServer.listen(8081);
