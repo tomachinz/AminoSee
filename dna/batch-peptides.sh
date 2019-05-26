@@ -2,6 +2,7 @@
 aminosee_do () {
   echo $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11
   nice aminosee  $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11
+  sleep 2
 }
 
 parallel_peptides () {

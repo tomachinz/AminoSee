@@ -248,7 +248,8 @@ function setupProgress() {
     return pb;
 }
 function destroyProgress() { // now thats a fucking cool function name if ever there was!
-  progato.stop();
+  if (progato) { progato.stop() }
+  // if ()
   clearTimeout(updatesTimer);
   clearTimeout(progTimer);
   // progato = null;
@@ -3477,7 +3478,7 @@ function saveHilbert(array, cb) {
     // SHRINK LINEAR IMAGE:
     for (z = 0; z<downsampleSize; z++) { // 2x AA colClock is the number of pixels in linear
       percentComplete = z/downsampleSize;
-      preogato.update(percentComplete)
+      progato.update(percentComplete)
       let sum = z*4;
       let clk = sampleClock*4; // starts on 0
       antiAliasArray[sum+0] = rgbArray[clk+0]*brightness;

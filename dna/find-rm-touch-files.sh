@@ -11,8 +11,7 @@
 
 cwd
 echo "About to delete these touch files:  *_LOCK*.aminosee.touch "
-echo find . -name '*_LOCK*.aminosee.touch'
-
+echo find $DASHF . -name '*_LOCK*.aminosee.touch'
 sleep 1
 find $DASHF . -name '*_LOCK*.aminosee.touch'
 echo "About to delete these touch files:  *_LOCK*.aminosee.touch "
