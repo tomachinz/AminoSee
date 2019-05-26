@@ -73,7 +73,7 @@ let debugGears = 1;
 let termDisplayHeight = 31;
 let termStatsHeight = 9;
 let maxpix = targetPixels;
-let raceDelay = 100; // so i learnt a lot on this project. one day this line shall disappear replaced by promises.
+let raceDelay = 500; // so i learnt a lot on this project. one day this line shall disappear replaced by promises.
 let dimension = defaultMagnitude; // var that the hilbert projection is be downsampled to
 let darkenFactor = 0.25; // if user has chosen to highlight an amino acid others are darkened
 let highlightFactor = 4.0; // highten brightening.
@@ -93,7 +93,7 @@ let renderLock = false; // not rendering right now obviously
 let msPerUpdate = 200; // min milliseconds per update
 let clear = true;
 let openLocalHtml = false; // its better to use the built-in server due to CORS
-let nextFile = ""; // for batch jobs like *
+let nextFile = "none"; // for batch jobs like *
 let highlightTriplets = [];
 let isHighlightSet = false;
 let isHilbertPossible = true; // set false if -c flags used.
@@ -376,9 +376,6 @@ module.exports = () => {
     browser = 'safari';
     output(`default browser set to open automatically in ${browser}`);
   }
-
-
-
   if (args.image || args.i) {
     openImage = true;
     output(`will automatically open image`)
@@ -408,7 +405,6 @@ module.exports = () => {
     codonsPerPixel = defaultC;
     userCPP = -1;
   }
-
   if (args.magnitude || args.m) {
     magnitude = Math.round(args.magnitude || args.m);
     if (isHilbertPossible) {
@@ -641,35 +637,19 @@ module.exports = () => {
     } else {
       progato = setupProgress()
       filename = path.resolve( cmd );
-      setupOutPaths();
       currentFile = args._[0].toString();
-      // currentFile = args._.pop().toString();
-      // currentFile = cmd;
-      // if (currentFile = 0) {
-      //   error(`currentFile = 0`)
-      //   term.processExit(7);
-      // } else if (currentFile = 1) {
-      //   error(`currentFile = 1`)
-      //   quit(130);
-      //   term.processExit(7);
-      //
-      // } else {
-      //   error(`no problem`)
-      //   filename = path.resolve(currentFile);
-      // }
+      setupOutPaths();
       log("Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω " + filename)
       status = "Ω first command " + howMany + " " + currentFile  + " " + filename;
       out(status);
-
       // args._.push(currentFile); // could never figure out how those args were getting done
       setupOutPaths();
       autoconfCodonsPerPixel();
       setupFNames();
-      // renderLock = true;
       // touchLockAndStartStream();
       // initStream(filename);
-      pollForStream();
-      // maybePoll();
+      // pollForStream();
+      maybePoll('first command');
       return true;
     }
     status = "leaving switch";
@@ -753,7 +733,7 @@ function setupKeyboardUI() {
   } catch(err) {
     output(`Could not use interactive keyboard due to: ${err}`)
   }
-  process.stdin.resume();
+  // process.stdin.resume(); // DONT
 }
 
 function toggleVerbose() {
@@ -772,15 +752,19 @@ function toggleDevmode() {
     verbose = true;
     updates = false;
     clear = false;
-    raceDelay = 1000; // this helps considerably!
-    if (debug) {
-      raceDelay = 2000; // this helps considerably!
-    }
     openHtml = false;
     openImage = false;
     openFileExplorer = false;
     termDisplayHeight++;
+    raceDelay += 1000; // this helps considerably!
+    if (debug) {
+      raceDelay += 2000; // this helps considerably!
+    }
   } else {
+    raceDelay -= 500; // if you turn devmode on and off a lot it will slow down
+    if (debug) {
+      raceDelay -= 1000;
+    }
     verbose = false;
     updates = true;
     clear = true;
@@ -1054,39 +1038,12 @@ function pollForStream() {
   bugtxt("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
   bugtxt("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
   bugtxt("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-  if (renderLock) {
-    error('Render lock is enabled. This is a bug.')
-    return false;
-  }
-  try {
-    howMany = args._.length;
-  } catch(e) {
-    bugtxt(e);
-  }
-  if (howMany == -1) {
-    output('Shutdown in progress');
-    return false;
-  }
-  if (test) {
-    bugtxt("Test... >>");
-    return false;
-  }
-  if (isDiskFinLinear && isDiskFinHilbert && isDiskFinHTML){
-    log(` [ storage threads ready: ${chalk.inverse(storage())} ] `);
-  } else {
-    log(` [ wait on storage: ${chalk.inverse(storage())} ] `);
-    return false;
-  }
-  if (howMany < 0) {
-    log("exit poll due to finished work.");
-    return false;
-  }
   status = "polling";
   bugtxt(` [polling ${nicePercent()} ${status} ${new Date()}`);
     try {
       nextFile = args._[args._.length - 2];
     } catch(e) {
-      nextFile = "Finished. Due to: "+ e;
+      nextFile = "None. Due to: "+ e;
     }
 
     try {
@@ -1117,11 +1074,10 @@ function pollForStream() {
     let pollAgainFlag = false;
     let willStart = true;
     bugtxt( " currentFile is " + currentFile   + args)
-    if (renderLock === true) {
+    if (renderLock == true) {
       out('>>> RENDER <<<' + percentComplete);
-      return false;
     } else {
-      bugtxt('>>> IDLE <<<');
+      error('>>> IDLE <<<');
       out('.');
     }
     if (doesFileExist(filename)) {
@@ -1170,45 +1126,15 @@ function pollForStream() {
       }
     }
   }
-  function theSwitcher(bool) {
+  function theSwitcher(bool) { // either start the job, or hit maybePoll to maybe quit
     mode(`Switcher ${bool}`);
     bugtxt(`cpu has entered The Switcher!`);
-    bugtxt(`entered the switch thinking its time for a new file`);
-    if (renderLock) { buttxt('switcher run during render'); return false; }
     if (bool) {
-      autoconfCodonsPerPixel();
-      setupFNames();
-      // if (clear == true) {       term.up(termStatsHeight) }
-      clearCheck();
-      // setImmediate(() => {
-        // setTimeout(() => {
-          renderLock = true; // naughty global
-          touchLockAndStartStream(); // <--- THIS IS WHERE RENDER STARTS
-        // }, raceDelay)
-      // });
-
-      // touchLockAndStartStream(); // <--- THIS IS WHERE RENDER STARTS
-      return true;
+      touchLockAndStartStream(); // <--- THIS IS WHERE RENDER STARTS
     } else  {
-      // setTimeout(() => {
-        if (howMany > 0 ) {
-          bugtxt(`There is more work. Rendering: ${renderLock} Load: ${os.loadavg()}`);
-          maybePoll('switcher has more');
-          return true;
-        } else {
-          log(`Polling found no more work. Currently: ${busy()}`);
-          destroyProgress();
-          if (!renderLock) {
-            destroyProgress();
-            out('...quitting in 3 seconds.')
-            setTimeout(() => {
-              out('bye')
-              quit(69, 'Finito via The Switch');
-            }, 3000)
+      setTimeout(() => {
 
-          }
-        }
-      // }, raceDelay)
+      }, raceDelay)
       return false;
     }
   }
@@ -1366,13 +1292,11 @@ function streamStopped() {
   // pixelStream.close();
   // pixelStream.push(null);
   log("Stream ending event");
-  renderLock = false;
-  isDiskFinLinear = false;
   percentComplete = 1;
   calcUpdate();
   percentComplete = 1;
-  updatesTimer = null;
-  currentTriplet = "none";
+  clearTimeout(updatesTimer);
+  clearTimeout(progTimer);
   currentTriplet = triplet;
 }
 function showFlags() {
@@ -1669,7 +1593,7 @@ function createSymlink(src, dest) { // source is the original, dest is the symli
       });
     }
   } catch(e) {
-    log("Symlink ${} could not created. Probably not an error. " + maxWidth(12,e));
+    log("Symlink ${} could not created. Probably not an error. " + maxWidth(12, "*" + e));
   }
 }
 function startHttpServer() {
@@ -1839,9 +1763,8 @@ function helpCmd(args) {
 }
 function saveDocsSync(cb) {
   status = "save"; // <-- this is the true end point of the program!
-  if (renderLock) {
-    error("no way is that possible");
-    renderLock = false;
+  if (!renderLock) {
+    error("no way is that even possible. renderLock should be true until all storage is complete");
   }
   clearCheck(); // term.eraseDisplayBelow();
   percentComplete = 1; // to be sure it shows 100% complete
@@ -1853,6 +1776,7 @@ function saveDocsSync(cb) {
     function ( cb ) {
       mode('Save documents with async.series');
       clearTimeout(updatesTimer);
+      clearTimeout(progTimer);
       calcUpdate();
       output(chalk.rgb(255, 255, 255).inverse(fixedWidth(debugColumns, `Input DNA File: ${filename}`)));
       output(chalk.rgb(200,200,200).inverse(  fixedWidth(debugColumns, `Linear PNG: ${justNameOfPNG}`)));
@@ -2043,14 +1967,17 @@ function fileWrite(file, contents, cb) {
 }
 function touchLockAndStartStream() {
   mode("touchLockAndStartStream");
+  autoconfCodonsPerPixel();
+  setupFNames();
   clearCheck();
-  // term.eraseDisplayBelow();
   fileWrite(
     filenameTouch,
     lockFileMessage + ` ${version} ${timestamp} ${hostname} ${radMessage}`,
     dot
   );
-  initStream();
+  setImmediate( () => { // time for the locks to go down
+    initStream();
+  })
 }
 function removeLocks() {
   mode('remove locks ' + howMany);
@@ -2068,17 +1995,42 @@ function removeLocks() {
   // maybePoll('remove locks');
 }
 function maybePoll(reason) {
-  if (test) { log('not polling due to test'); return false; }
   bugtxt("maybepoll reason: " + reason);
+
+  try {
+    howMany = args._.length;
+  } catch(e) {
+    bugtxt(e);
+    return false;
+  }
+  if (howMany == -1) {
+    output('Shutdown in progress');
+    return false;
+  }
+  if (test) {
+    bugtxt("Test running");
+    return false;
+  }
+  if (isDiskFinLinear && isDiskFinHilbert && isDiskFinHTML) {
+    log(` [ storage threads ready: ${chalk.inverse(storage())} ] `);
+    renderLock = false;
+  } else {
+    log(` [ wait on storage: ${chalk.inverse(storage())} ] `);
+    return false;
+  }
+  if (howMany < 1) {
+    log("exit poll due to finished work.");
+    return false;
+  }
   if (howMany > 0 ) {
-    if (isDiskFinLinear && isDiskFinHilbert && isDiskFinHTML && !renderLock) {
+    if (!renderLock) {
       log(`Polling in ${raceDelay}ms ${howMany} files remain, next is ${maxWidth(32, nextFile)}`);
       setImmediate( () => {
         setTimeout( () => {
+          renderLock = true; // BUSY NOW
           pollForStream()
         }, raceDelay)
       })
-      return true;
     } else {
       out(storage());
       log(`${busy()} and waiting on: (${storage()}) will not retry. ${howMany} files remain, next is ${maxWidth(32, nextFile)}`);
@@ -2086,9 +2038,6 @@ function maybePoll(reason) {
   } else {
     log("...and thats's all she wrote folks, outa jobs.");
     destroyProgress();
-    // progato = null;
-    // updates = false;
-    // gracefulQuit();
   }
   return false;
 }
@@ -2139,6 +2088,27 @@ function checkFileExtension(f) {
 }
 
 function quit(n, txt) {
+  if (n == undefined) { n = 0 }
+  if (txt == undefined) { txt = 'have a nice day' }
+  if (howMany > 0 ) {
+    bugtxt(`There is more work. Rendering: ${renderLock} Load: ${os.loadavg()}`);
+    maybePoll('quit ' + n + txt);
+    return true;
+  } else if (isDiskFinLinear && isDiskFinHilbert && isDiskFinHTML) {
+    log(`Quitting soon - no more work. Currently: ${busy()}`);
+      setTimeout(() => {
+        if (renderLock) {
+          log('... not quitting as still rendering.')
+          return false;
+        }
+        out('bye')
+      }, 3000)
+  } else {
+    log('Storage busy, not quitting')
+    return false;
+  }
+
+
   bugtxt("######################################################")
   bugtxt("######################################################")
   bugtxt("############### RECEIVED quit code: " + n)
@@ -2151,7 +2121,7 @@ function quit(n, txt) {
     renderLock = false;
     // args._ = [];
   }
-  if ( renderLock === true ) {
+  if ( renderLock == true ) {
     error("still rendering") // maybe this happens during gracefull shutdown
     return true;
   }
@@ -2795,7 +2765,6 @@ function recycleOldImage(pngfile) {
     output(chalk.inverse("RECYCLING EXISTING LINEAR FILE ") + chalk(" " + justNameOfDNA))
     rgbArray = decodePNG(pngfile, function () {
       isDiskFinHilbert = false;
-      renderLock = false;
       linearFinished();
       htmlFinished();
       calculateShrinkage();
