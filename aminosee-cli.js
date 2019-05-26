@@ -73,7 +73,7 @@ let debugGears = 1;
 let termDisplayHeight = 31;
 let termStatsHeight = 9;
 let maxpix = targetPixels;
-let raceDelay = 500; // so i learnt a lot on this project. one day this line shall disappear replaced by promises.
+let raceDelay = 69; // so i learnt a lot on this project. one day this line shall disappear replaced by promises.
 let dimension = defaultMagnitude; // var that the hilbert projection is be downsampled to
 let darkenFactor = 0.25; // if user has chosen to highlight an amino acid others are darkened
 let highlightFactor = 4.0; // highten brightening.
@@ -233,26 +233,24 @@ function setupPrefs() {
   log(`AminoSee has been run ${cliruns} times`);
 }
 function setupProgress() {
-    let lines = 7
-    while (lines > 0) {
-      output('................................');
-      lines--;
-    }
-    let pb = term.progressBar({
-      width: term.width - 20,
-      title: `Booting up at ${formatAMPM( new Date())} on ${hostname}`,
-      eta: true,
-      percent: true
-    });
-    drawProgress(pb);
-    return pb;
+  let lines = 7
+  while (lines > 0) {
+    output('................................');
+    lines--;
+  }
+  let pb = term.progressBar({
+    width: term.width - 20,
+    title: `Booting up at ${formatAMPM( new Date())} on ${hostname}`,
+    eta: true,
+    percent: true
+  });
+  drawProgress(pb);
+  return pb;
 }
 function destroyProgress() { // now thats a fucking cool function name if ever there was!
-  if (progato) { progato.stop() }
-  // if ()
+  progato.stop();
   clearTimeout(updatesTimer);
   clearTimeout(progTimer);
-  // progato = null;
 }
 function progUpdate(obj) {
   progato.update(obj)
@@ -1023,6 +1021,28 @@ function storage() {
 }
 function pollForStream() {
   mode('polling');
+  try {
+    nextFile = args._[args._.length - 2];
+  } catch(e) {
+    nextFile = "None. Due to: "+ e;
+  }
+  try {
+    if (args._) {
+      let x = args._.pop();
+      currentFile = x;//args._[0];
+      bugtxt(chalk.bgWhite.blue(`pop ${currentFile} howMany ${howMany} x = ${x}` ) +  chalk(nextFile) );
+    } else {
+      setImmediate(() => {
+        error("args._ not exist?")
+        quit(3, "Render job empty unexpectedly.");
+      });
+      return true;
+    }
+  } catch(e) {
+    error("args._ not exist?")
+    quit(3, "Render job empty unexpectedly.");
+    return true;
+  }
   bugtxt("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
   bugtxt("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
   bugtxt("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
@@ -1036,33 +1056,12 @@ function pollForStream() {
   bugtxt("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
   log("!!!!!!!!!!!!!!!!!!!!! pollForStream  !!!!!!!!!!!!!!!!!!!!!!!!!!")
   bugtxt("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-  bugtxt("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-  bugtxt("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+  bugtxt("!!!!!!!!!!!!!!!   " + nextFile)
+  output("!!!!!!!!!!!!!!!   " + currentFile)
   status = "polling";
   bugtxt(` [polling ${nicePercent()} ${status} ${new Date()}`);
-    try {
-      nextFile = args._[args._.length - 2];
-    } catch(e) {
-      nextFile = "None. Due to: "+ e;
-    }
 
-    try {
-      if (args._) {
-        currentFile = args._[0];
-        let x = args._.pop();
-        bugtxt(chalk.bgWhite.blue(`pop ${currentFile} howMany ${howMany} x = ${x}` ) +  chalk(nextFile) );
-      } else {
-        setImmediate(() => {
-          error("args._ not exist?")
-          quit(3, "Render job empty unexpectedly.");
-        });
-        return true;
-      }
-    } catch(e) {
-      error("args._ not exist?")
-      quit(3, "Render job empty unexpectedly.");
-      return true;
-    }
+
     bugtxt(` [ howMany  ${howMany} ${status} ${filename} ${currentFile}]`)
     if (currentFile == undefined) {
       quit(3, 'currentFile is undefined')
@@ -1084,18 +1083,18 @@ function pollForStream() {
       log('DNA Found OK');
     } else {
       log('Skipping non-existent DNA file: ' + filename);
-      theSwitcher(false);
+      quit()
       return false;
     }
     if (filename == defaultFilename) { // maybe this is to get past my lack of understanding of processing of args.
       bugtxt("skipping default: " + defaultFilename); // it was rendered same file twice i think
-      theSwitcher(false);
+      quit();
       return false;
     }
     log(` [ analyse file extension: ${chalk.inverse(currentFile)} scan for DNA formats ${chalk.inverse(storage())} Fullpath: ${filename} ]`);
     if (checkFileExtension(filename) == false) {
       bugtxt("Format: " + getFileExtension(filename) + " NOT OK: " + checkFileExtension(filename) );
-      theSwitcher(false);
+      quit();
       return false;
     }
     ///////////////// BEGIN PARSING DNA FILE //////////////////////////////
@@ -1113,12 +1112,12 @@ function pollForStream() {
       } else {
         out('use --image to open in viewer')
       }
-      theSwitcher(false); // <---- no render
+      quit(); // <---- no render
       return false; // just straight quit both images are rendered
     } else {
       if (checkLocks(filenameTouch)) {
         output("Render already in progress, or was cancelled early before, finding another file... delete the LOCK file or use --force");
-        theSwitcher(false); // <---- BUSY, NO RENDER
+        quit(); // <---- BUSY, NO RENDER
         return false;
       } else {
         out("Lock OK proceeding to render...");
@@ -1258,11 +1257,6 @@ function initStream() {
     .on('close', function() {
       mode("stream close");
       streamStopped();
-      // setImmediate( () => {
-      calcUpdate() ;
-      saveDocuments();
-      // });
-      // return saveDocuments();
     }));
   } catch(e) {
     error("Catch in Init ERROR:"  + e)
@@ -1278,19 +1272,16 @@ function initStream() {
 function streamStarted() {
   log('streamStarted');
   // setTimeout(() => {
-    if (renderLock) {
-      output('Starting prgress monitors');
-      drawHistogram()
-      progato.update({ title: 'DNA File Render step 1/3', items: howMany, syncMode: true })
-    } else {
-      log('Not rendering (bug)');
-    }
+  if (renderLock) {
+    output('Starting prgress monitors');
+    drawHistogram()
+    progato.update({ title: 'DNA File Render step 1/3', items: howMany, syncMode: true })
+  } else {
+    log('Not rendering (bug)');
+  }
   // }, 1)
 }
 function streamStopped() {
-  // log("Stream closed.");
-  // pixelStream.close();
-  // pixelStream.push(null);
   log("Stream ending event");
   percentComplete = 1;
   calcUpdate();
@@ -1298,6 +1289,7 @@ function streamStopped() {
   clearTimeout(updatesTimer);
   clearTimeout(progTimer);
   currentTriplet = triplet;
+  saveDocuments();
 }
 function showFlags() {
   return `${(  force ? "F" : "-"    )}${(  args.updates || args.u ? `U` : "-"    )}${(  userCPP != -1 ? `C${userCPP}` : "--"    )}${(  args.keyboard || args.k ? `K` : "-"    )}${(  args.spew || spew ? `K` : "-"    )}${( verbose ? "V" : "-"  )}${(  artistic ? "A" : "-"    )}${(  args.ratio || args.r ? `${ratio}` : "---"    )}${(dimension? "M" + dimension:"")}C${onesigbitTolocale(codonsPerPixel)}${(reg?"REG":"")}`;
@@ -1964,6 +1956,7 @@ function fileWrite(file, contents, cb) {
   } catch(err) {
     error(`[catch] Issue with saving: ${file} ${err}`);
   }
+  // maybePoll('fileWrite: ' + replaceoutputPathFileName(file));
 }
 function touchLockAndStartStream() {
   mode("touchLockAndStartStream");
@@ -1996,7 +1989,7 @@ function removeLocks() {
 }
 function maybePoll(reason) {
   bugtxt("maybepoll reason: " + reason);
-
+  destroyProgress();
   try {
     howMany = args._.length;
   } catch(e) {
@@ -2027,17 +2020,18 @@ function maybePoll(reason) {
       log(`Polling in ${raceDelay}ms ${howMany} files remain, next is ${maxWidth(32, nextFile)}`);
       setImmediate( () => {
         setTimeout( () => {
-          renderLock = true; // BUSY NOW
+          renderLock = true; // BUSY NOW. render lock protects the filename globals among others.
+          percentComplete = 0;
+          destroyProgress();
           pollForStream()
         }, raceDelay)
       })
     } else {
       out(storage());
-      log(`${busy()} and waiting on: (${storage()}) will not retry. ${howMany} files remain, next is ${maxWidth(32, nextFile)}`);
+      error(`${busy()} and waiting on: (${storage()}) will not retry. ${howMany} files remain, next is ${maxWidth(32, nextFile)}`);
     }
   } else {
-    log("...and thats's all she wrote folks, outa jobs.");
-    destroyProgress();
+    quit(0, "...and thats's all she wrote folks, outa jobs.");
   }
   return false;
 }
@@ -2088,24 +2082,26 @@ function checkFileExtension(f) {
 }
 
 function quit(n, txt) {
+  destroyProgress();
   if (n == undefined) { n = 0 }
   if (txt == undefined) { txt = 'have a nice day' }
-  if (howMany > 0 ) {
-    bugtxt(`There is more work. Rendering: ${renderLock} Load: ${os.loadavg()}`);
+  if (isDiskFinLinear && isDiskFinHilbert && isDiskFinHTML) {
+    renderLock = false;
     maybePoll('quit ' + n + txt);
-    return true;
-  } else if (isDiskFinLinear && isDiskFinHilbert && isDiskFinHTML) {
-    log(`Quitting soon - no more work. Currently: ${busy()}`);
-      setTimeout(() => {
-        if (renderLock) {
-          log('... not quitting as still rendering.')
-          return false;
-        }
-        out('bye')
-      }, 3000)
   } else {
     log('Storage busy, not quitting')
-    return false;
+  }
+  if (howMany > 0 ) {
+    bugtxt(`There is more work. Rendering: ${renderLock} Load: ${os.loadavg()}`);
+
+    return true;
+  } else {
+    log(`Quitting soon - no more work. Currently: ${busy()}`);
+    destroyProgress();
+    setTimeout(() => {
+      destroyProgress();
+      out('bye')
+    }, 3000)
   }
 
 
@@ -2132,7 +2128,6 @@ function quit(n, txt) {
   // }
   calcUpdate();
   bugtxt(`process.exit going on. last file: ${filename} percent complete ${percentComplete}`);
-  destroyProgress();
   args._ = [];
   if (server != undefined) {
     log("closing server")
@@ -2826,7 +2821,7 @@ function doesFolderExist(f) {
 function doesFileExist(f) {
   let ret = false;
   try {
-  ret = fs.existsSync(f) && fs.lstatSync(f).isFile;
+    ret = fs.existsSync(f) && fs.lstatSync(f).isFile;
   } catch(e) {
     bugtxt(e)
   }
@@ -3734,11 +3729,13 @@ function saveHilbert(array, cb) {
     function formatAMPM(date) {
       var hours = date.getHours();
       var minutes = date.getMinutes();
+      var secs   = date.getSeconds();
       var ampm = hours >= 12 ? 'pm' : 'am';
       hours = hours % 12;
       hours = hours ? hours : 12; // the hour '0' should be '12'
       minutes = minutes < 10 ? '0'+minutes : minutes;
-      var strTime = hours + ':' + minutes + ' ' + ampm;
+      secs = secs < 10 ? '0'+secs : secs;
+      var strTime = hours + ':' + minutes + ":" + secs + ' ' + ampm;
       return strTime;
     }
 
