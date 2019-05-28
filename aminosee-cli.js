@@ -2002,7 +2002,7 @@ function maybePoll(reason) {
     return false;
   }
   if (howMany < 1) {
-    output("exit poll due to finished work.");
+    log("exit poll due to finished work.");
     return false;
   }
   if (howMany > 0 ) {
@@ -2093,10 +2093,12 @@ function quit(n, txt) {
   } else {
     log(`Quitting soon - no more work. Currently: ${busy()}`);
     destroyProgress();
-    setTimeout(() => {
-      destroyProgress();
-      out('bye')
-    }, 3000)
+    if (verbose) {
+      setTimeout(() => {
+        log('bye')
+      }, 3000)
+    }
+
   }
 
 
