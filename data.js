@@ -1,12 +1,11 @@
-
-// "use strict";
-//       MADE IN NEW ZEALAND
-//       ╔═╗┌┬┐┬┌┐┌┌─┐╔═╗┌─┐┌─┐  ╔╦╗╔╗╔╔═╗  ╦  ╦┬┌─┐┬ ┬┌─┐┬─┐
-//       ╠═╣││││││││ │╚═╗├┤ ├┤    ║║║║║╠═╣  ╚╗╔╝│├┤ │││├┤ ├┬┘
-//       ╩ ╩┴ ┴┴┘└┘└─┘╚═╝└─┘└─┘  ═╩╝╝╚╝╩ ╩   ╚╝ ┴└─┘└┴┘└─┘┴└─
-//       by Tom Atkinson            aminosee.funk.nz
-//        ah-mee no-see       "I See It Now - I AminoSee it!"
-
+asciiart = `
+      MADE IN NEW ZEALAND
+      ╔═╗┌┬┐┬┌┐┌┌─┐╔═╗┌─┐┌─┐  ╔╦╗╔╗╔╔═╗  ╦  ╦┬┌─┐┬ ┬┌─┐┬─┐
+      ╠═╣││││││││ │╚═╗├┤ ├┤    ║║║║║╠═╣  ╚╗╔╝│├┤ │││├┤ ├┬┘
+      ╩ ╩┴ ┴┴┘└┘└─┘╚═╝└─┘└─┘  ═╩╝╝╚╝╩ ╩   ╚╝ ┴└─┘└┴┘└─┘┴└─
+      by Tom Atkinson            aminosee.funk.nz
+       ah-mee no-see       "I See It Now - I AminoSee it!"
+`;
 // module.exports = () => {
 //   this.pepTable = pepTable;
 //   console.log("data module");
@@ -824,3 +823,4 @@ function helpCmd(args) {
 
 
           module.exports.pepTable = pepTable;
+          module.exports.asciiart = asciiart;

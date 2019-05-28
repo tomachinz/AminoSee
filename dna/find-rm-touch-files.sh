@@ -19,3 +19,13 @@ sleep 5
 echo "Delete these touch files:  *_LOCK*.aminosee.touch "
 find $DASHF . -name '*_LOCK*.aminosee.touch' -exec rm -v {} \;
 sleep 2
+
+
+
+
+ find -f . '*_LOCK*.aminosee.touch'
+ # macos
+
+
+ find . '*_LOCK*.aminosee.touch'
+ # linux
