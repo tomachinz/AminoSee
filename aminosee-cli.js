@@ -11,7 +11,7 @@ const refimage = "Reference image - all amino acids blended together"
 const closeBrowser = "If the process apears frozen, it's waiting for your browser or image viewer to exit. Escape with [ CONTROL-C ] or use --no-image --no-html";
 const lockFileMessage = "aminosee.funk.nz DNA Viewer by Tom Atkinson. This is a temp lock file, to enable parallel cluster rendering, usually it means an AminoSee was quit before finishing. Safe to erase. Normally deleting when render is complete.";
 const debugColumns = 120;
-const targetPixels = 7000000; // for big genomes use setting flag -c 1 to achieve highest resolution and bypass this taret max render size
+const targetPixels = 6000000; // for big genomes use setting flag -c 1 to achieve highest resolution and bypass this taret max render size
 const defaultC = 1; // back when it could not handle 3+GB files.
 const artisticHighlightLength = 18; // px only use in artistic mode. must be 6 or 12 currently
 const defaultMagnitude = 7; // max for auto setting
@@ -2925,7 +2925,7 @@ function saveHilbert(cb) {
       log("Use --image to open in default browser")
     }
     // isDiskFinHilbert = true;
-    hilbertFinished(); // does re-poll 
+    hilbertFinished(); // does re-poll
     return false;
   }
   output( "Getting in touch with my man from 1891... Hilbert. In the " + dimension + "th dimension and reduced by " + threesigbitsTolocale(shrinkFactor) + "X  ----> " + justNameOfHILBERT);
