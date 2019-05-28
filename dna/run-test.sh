@@ -3,57 +3,61 @@
 w
 aminosee
 aminosee -f
-aminosee -h
-aminosee help
+# aminosee -h
+# aminosee help
 aminosee -v
 
 # aminosee_test () {
-echo 'doing  *  $1 $2 $3 $4 $5  --peptide="aspartic ACID"'
-nice aminosee * $1 $2 $3 $4 $5 --no-clear --peptide="aspartic ACID"
-
+echo 'nice aminosee * $1 $2 $3 $4 $5   --peptide="aspartic ACID"'
+nice aminosee * $1 $2 $3 $4 $5  --peptide="aspartic ACID"
 
 echo 'doing   $1 $2 $3 $4 $5  --peptide="gluTAMIC aCID"'
-nice aminosee $1 $2 $3 $4 $5 -f --peptide="gluTAMIC aCID"
+nice aminosee       $1 $2 $3 $4 $5 -f --peptide="gluTAMIC aCID"
 
-echo "doing   $1 $2 $3 $4 $5 --triplet ggg --ratio=sqr"
-nice aminosee $1 $2 $3 $4 $5 --triplet ggg --ratio=sqr
+echo "nice aminosee $1 $2 $3 $4 $5 --triplet ggg --ratio=sqr"
+nice aminosee       $1 $2 $3 $4 $5 --triplet ggg --ratio=sqr
 
-echo "doing  $1 $2 $3 $4 $5 -m5 --ratio=gol"
-nice aminosee $1 $2 $3 $4 $5 -m5 --ratio=gol
+echo "nice aminosee $1 $2 $3 $4 $5 -m5 --ratio=gol"
+nice aminosee       $1 $2 $3 $4 $5 -m5 --ratio=gol
 
-echo "doing  $1 $2 $3 $4 $5 -f --ratio=gol --peptide=Ochre"
-nice aminosee $1 $2 $3 $4 $5 -f --ratio=gol --peptide=Ochre
+echo "nice aminosee $1 $2 $3 $4 $5 -f --ratio=gol --peptide=Ochre"
+nice aminosee       $1 $2 $3 $4 $5 -f --ratio=gol --peptide=Ochre
 
-echo "doing  $1 $2 $3 $4 $5 -f --no-updates -m7 --ratio=sqr --peptide=Amber"
-nice aminosee $1 $2 $3 $4 $5 -f --no-updates -m7 --ratio=sqr --peptide=Amber
+echo "nice aminosee $1 $2 $3 $4 $5 -f --no-updates -m7 --ratio=sqr --peptide=Amber"
+nice aminosee       $1 $2 $3 $4 $5 -f --no-updates -m7 --ratio=sqr --peptide=Amber
 
-echo "doing  $1 $2 $3 $4 $5 --no-updates -m5 --peptide=Methionine --ratio=sqr"
-nice aminosee $1 $2 $3 $4 $5 --no-updates -m5 --peptide=Methionine --ratio=sqr
+echo "nice aminosee $1 $2 $3 $4 $5 --no-updates -m5 --peptide=Methionine --ratio=sqr"
+nice aminosee       $1 $2 $3 $4 $5 --no-updates -m5 --peptide=Methionine --ratio=sqr
 
-echo "doing  $1 $2 $3 $4 $5 -m 8 --peptide=Cysteine"
-nice aminosee $1 $2 $3 $4 $5 -m 8 --peptide=Cysteine
+echo "nice aminosee $1 $2 $3 $4 $5 -m 8 --peptide=Cysteine"
+nice aminosee       $1 $2 $3 $4 $5 -m 8 --peptide=Cysteine
 
-echo "doing  $1 $2 $3 $4 $5 --no-updates -c 500 --ratio=GOLDEN --peptide=Tryptophan"
-nice aminosee $1 $2 $3 $4 $5 --no-updates -c 500 --ratio=GOLDEN --peptide=Tryptophan
+echo "nice aminosee $1 $2 $3 $4 $5 --no-updates -c 500 --ratio=GOLDEN --peptide=Tryptophan"
+nice aminosee       $1 $2 $3 $4 $5 --no-updates -c 500 --ratio=GOLDEN --peptide=Tryptophan
 
-echo "doing  $1 $2 $3 $4 $5 -f --no-updates --ratio=fix --peptide=Arginine --html"
-nice aminosee $1 $2 $3 $4 $5 --no-updates --ratio=fix --peptide=Arginine --html
+echo "nice aminosee $1 $2 $3 $4 $5 -f --no-updates --ratio=fix --peptide=Arginine --html"
+nice aminosee       $1 $2 $3 $4 $5 -f --no-updates --ratio=fix --peptide=Arginine --html &
+sleep 2
 
-echo "doing   $1 $2 $3 $4 $5 demo --no-html --no-image"
-nice aminosee $1 $2 $3 $4 $5 demo --no-html --no-image
 
-echo "doing   $1 $2 $3 $4 $5 test --image --ratio square"
-nice aminosee $1 $2 $3 $4 $5 test --image --ratio square
+echo "nice aminosee $1 $2 $3 $4 $5 test --image --ratio square"
+nice aminosee       $1 $2 $3 $4 $5 test --image --ratio square &
+sleep 2
 
 echo "doing aminosee help"
-nice aminosee help
+nice aminosee help &
+sleep 2
+#
+# echo 'nice aminosee * $1 $2 $3 $4 $5   --peptide="aspartic ACID"'
+# nice aminosee * $1 $2 $3 $4 $5
 
-echo "doing aminosee serve"
+echo background demo
+nice aminosee demo --no-html --no-image &
+sleep 2
+
+echo "doing aminosee serve and opening a file"
 nice aminosee serve &
-
-echo 'doing  *  $1 $2 $3 $4 $5  --peptide="aspartic ACID"'
-nice aminosee * $1 $2 $3 $4 $5
-
+open http://127.0.0.1:8081 &
 
 # }
 # aminosee test --peptide=Ochre &
