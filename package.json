@@ -56,10 +56,10 @@
     "genversion": "^2.1.1"
   },
   "scripts": {
-    "crash": "node --inspect /home/tom/.nvm/versions/node/v12.1.0/bin/aminosee 1KB_TestPattern.txt 27MB_TestPattern.txt --peptide=Ochre 3MB_TestPattern.txt 50KB_TestPattern.txt batch-peptides.sh batch-process.sh Gorilla_gorGor4_chr2B.fa",
+    "crash": "node --inspect 27MB_TestPattern.txt --peptide=Ochre 3MB_TestPattern.txt 50KB_TestPattern.txt batch-peptides.sh batch-process.sh Gorilla_gorGor4_chr2B.fa",
     "test": "echo 'requires cli program time' ; time dna/run-test.sh ; vows --spec --isolate",
     "start": "node bin/aminosee",
-    "inspect": "node --inspect bin/aminosee.js dna/* -f -v",
+    "inspect": "node --inspect bin/aminosee.js  * dna/*     /Volumes/aminosee/dna/Brown_Kiwi_NW_013982187v1.fa    -f -v",
     "demo": "node bin/aminosee demo",
     "build-old": "./build-lib.sh ; npm run genversion ; npm run browserify ; time npm run package",
     "build": "npm run genversion ; npm run browserify ; time npm run package",

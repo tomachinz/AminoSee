@@ -36,27 +36,27 @@ echo "nice aminosee $1 $2 $3 $4 $5 --no-updates -c 500 --ratio=GOLDEN --peptide=
 nice aminosee       $1 $2 $3 $4 $5 --no-updates -c 500 --ratio=GOLDEN --peptide=Tryptophan
 
 echo "nice aminosee $1 $2 $3 $4 $5 -f --no-updates --ratio=fix --peptide=Arginine --html"
-nice aminosee       $1 $2 $3 $4 $5 -f --no-updates --ratio=fix --peptide=Arginine --html &
+# nice aminosee       $1 $2 $3 $4 $5 -f --no-updates --ratio=fix --peptide=Arginine --html &
 sleep 2
 
 
 echo "nice aminosee $1 $2 $3 $4 $5 test --image --ratio square"
-nice aminosee       $1 $2 $3 $4 $5 test --image --ratio square &
+# nice aminosee       $1 $2 $3 $4 $5 test --image --ratio square &
 sleep 2
 
 echo "doing aminosee help"
-nice aminosee help &
+# nice aminosee help &
 sleep 2
 #
 # echo 'nice aminosee * $1 $2 $3 $4 $5   --peptide="aspartic ACID"'
 # nice aminosee * $1 $2 $3 $4 $5
 
 echo background demo
-nice aminosee demo --no-html --no-image &
+# nice aminosee demo --no-html --no-image &
 sleep 2
 
 echo "doing aminosee serve and opening a file"
-nice aminosee serve &
+# nice aminosee serve &
 open http://127.0.0.1:8081 &
 
 # }

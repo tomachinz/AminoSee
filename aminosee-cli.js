@@ -72,6 +72,8 @@ let timeRemain = 5001;
 let debugGears = 1;
 let termDisplayHeight = 31;
 let termStatsHeight = 9;
+let termMarginLeft = (term.width - 100) / 2;
+let termMarginTop = (term.height - termDisplayHeight - termStatsHeight) / 2;
 let maxpix = targetPixels;
 let raceDelay = 69; // so i learnt a lot on this project. one day this line shall disappear replaced by promises.
 let dimension = defaultMagnitude; // var that the hilbert projection is be downsampled to
@@ -91,7 +93,7 @@ let stats = true;
 let recycEnabled = false; // bummer had to disable it
 let renderLock = false; // not rendering right now obviously
 let msPerUpdate = 200; // min milliseconds per update
-let clear = true; // clear the terminal screen while running
+let clear = false; // clear the terminal screen while running
 let openLocalHtml = false; // its better to use the built-in server due to CORS
 let nextFile = "not loaded"; // for batch jobs like *
 let highlightTriplets = [];
@@ -117,7 +119,7 @@ gv.generate(appPath +'lib/version.js', function (err, version) {
   }
 });
 let version = require('./lib/version');
-let termPixels = 80*60;
+let termPixels = Math.round(((term.width-5) * (term.height-5))/4);
 
 termSize(term.width, term.height);
 console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196).inverse("See")}${chalk.rgb(128,128,128).inverse("No")}${chalk.rgb(64, 64, 64).inverse("Evil")}       v${chalk.rgb(255,255,0)(version)}`);
@@ -140,12 +142,29 @@ for (h=0; h<pepTable.length; h++) { // update pepTable
     stopPeptideIndex = h;
   }
 }
+
+// let mouseCooler = " ";//null;
+
 function termSize(tx, ty) {
-  if (tx == undefined) { tx = term.width; ty = term.height }
+
+  // Enough to fill screen starting from underneath the histogram:
+  // termPixels = (tx-3 > 60 ? tx-3 : 60) * (ty-3 > termStatsHeight + termDisplayHeight ? ty-3 : termStatsHeight + termDisplayHeight);
+  if (tx == undefined) { tx = term.width; ty = term.height } else {
+    log(`Terminal resized: ${tx} x ${ty} and has at least ${termPixels} chars`)
+    // mouseCooler = setTimeout( () => {
+      // clearTimeout(updatesTimer);
+      drawHistogram();
+    // }, 250)
+  }
+  // cover entire screen!
+  termPixels = (tx) * (ty-8);
+  termMarginLeft = (term.width - 100) / 2;
+  termMarginTop = (term.height - termDisplayHeight - termStatsHeight) / 2;
   clearCheck();
-  termPixels = ((term.width-1) * (term.height-1));
-  log(`Terminal resized: ${tx} x ${ty} and has at least ${termPixels} chars`);
   debugColumns = Math.round(term.width / 3);
+  // mouseCooler = " ";//null;
+  // if (mouseCooler != undefined ) { clearTimeout(mouseCooler) }
+
 }
 function getRenderObject() { // return renderData obj
   let summary = {
@@ -300,7 +319,7 @@ module.exports = () => {
     string: [ 'width'],
     unknown: [ true ],
     alias: { a: 'artistic', c: 'codons', d: 'devmode', f: 'force', m: 'magnitude', o: 'outpath', out: 'outpath', output: 'outpath', p: 'peptide', i: 'image', t: 'triplet', r: 'reg', s: 'spew', w: 'width', v: 'verbose', x: 'explorer' },
-    default: { updates: true, clear: true }
+    default: { updates: true, spew: true }
   });
   setupApp(); // do stuff that is needed even just to run "aminosee" with no options.
   let cmd = args._[0];
@@ -1083,7 +1102,7 @@ function pollForStream() {
     let willStart = true;
     bugtxt( " currentFile is " + currentFile   + args)
     if (renderLock == true) {
-      clout(`>>> PREFLIGHT <<< ${fixedWidth(24,  currentFile)} then ${fixedWidth(24,  nextFile)}`);
+      // clout(`>>> PREFLIGHT <<< ${fixedWidth(24,  currentFile)} then ${fixedWidth(24,  nextFile)}`);
     } else {
       error('>>> IDLE <<<');
       out('.');
@@ -1208,7 +1227,7 @@ function initStream() {
   streamLineNr = 0;
   genomeSize = 1;
   filesDone = 0;
-  spewClock = 0;
+  // spewClock = 0;
   opacity = 1 / codonsPerPixel; // 0.9 is used to make it brighter, also due to line breaks
   for (h=0; h<pepTable.length; h++) {
     pepTable[h].Histocount = 0;
@@ -2003,9 +2022,12 @@ function maybePoll(reason) {
     bugtxt("Test running");
     return false;
   }
+  //////////////// HERE WE TAKE DOWN THE LOCKS AND GARBAGE COLLECT
   if (isDiskFinLinear && isDiskFinHilbert && isDiskFinHTML) {
     log(` [ storage threads ready: ${chalk.inverse(storage())} ] `);
     renderLock = false;
+    rgbArray = null;
+    hilbertImage = null;
   } else {
     log(` [ wait on storage: ${chalk.inverse(storage())} ] `);
     return false;
@@ -2157,10 +2179,7 @@ function quit(n, txt) {
 }
 function processLine(l) {
   status = "stream";
-
   rawDNA = cleanString(l) + rawDNA;
-
-  var cleanDNA = "";
   let lineLength = l.length; // replaces baseChars
   let codon = "";
   currentTriplet = "none";
@@ -2221,16 +2240,6 @@ function processLine(l) {
       genomeSize++;
       codonRGBA = codonToRGBA(codon); // this will report alpha info
       let brightness = codonRGBA[0] +  codonRGBA[1] +  codonRGBA[2] + codonRGBA[3];
-      // log(" brightness: " + brightness);
-      cleanDNA += codon;
-      if (CRASH) {
-        bugtxt(cleanDNA + " IM CRASHING Y'ALL: " + codon);
-        crashReport();
-        quit(5, "Crash during DNA render");
-        errorClock++; // normally this only counts non-coding DNA.
-        CRASH = false;
-        break
-      }
 
       // HIGHLIGHT codon --triplet Tryptophan
       if (isHighlightSet) {
@@ -3569,6 +3578,7 @@ function saveHilbert(cb) {
       bugout(txt);
     } else {
       console.log(txt);
+      term.right(termMarginLeft);
       // clout(txt);
     }
   }
@@ -3601,7 +3611,7 @@ function saveHilbert(cb) {
         redoLine(chalk.rgb(red, green, blue)(`[ `) + chalk(txt)  + chalk.rgb(red, green, blue)(`[ `));
         } else {
           console.log("-");
-          log(chalk.rgb(red, green, blue)(`[ `) + chalk(txt)  + chalk.rgb(red, green, blue)(`[ `));
+          redoLine(chalk.rgb(red, green, blue)(`[ `) + chalk(txt)  + chalk.rgb(red, green, blue)(`[ `));
           }
         }
       }
@@ -3662,7 +3672,7 @@ function saveHilbert(cb) {
           // term.eraseDisplayBelow();
           clearScreen();
         } else {
-          output('nc ' + busy());
+          // output('nc ' + busy());
         }
       }
       function clearScreen() {
@@ -3707,19 +3717,18 @@ function saveHilbert(cb) {
         while ( array.length < 8 ) {
           array.push("    ________","    ________");
         }
-        console.log(terminalRGB(`╔═╗┌┬┐┬┌┐┌┌─┐╔═╗┌─┐┌─┐  ╔╦╗╔╗╔╔═╗  ╦  ╦┬┌─┐┬ ┬┌─┐┬─┐  ${array[0]}`, 255, 60,  250) );
-        console.log(terminalRGB(`╠═╣││││││││ │╚═╗├┤ ├┤    ║║║║║╠═╣  ╚╗╔╝│├┤ │││├┤ ├┬┘  ${array[1]}`, 170, 150, 255) );
-        console.log(terminalRGB(`╩ ╩┴ ┴┴┘└┘└─┘╚═╝└─┘└─┘  ═╩╝╝╚╝╩ ╩   ╚╝ ┴└─┘└┴┘└─┘┴└─  ${array[2]}`, 128, 240, 240) );
-        console.log(terminalRGB(` by Tom Atkinson          aminosee.funk.nz            ${array[3]}`, 225, 225, 130) );
-        console.log(terminalRGB(`  ah-mee-no-see     'I See It Now - I AminoSee it!'   ${array[4]}`, 255, 180,  90) );
-        console.log(terminalRGB(`   ${prettyDate()}   v${version} ${array[5]}`          , 220, 120,  70) );
-        console.log(terminalRGB(array[6], 200, 105,   60) );
-        console.log(terminalRGB(array[7], 200, 32,   32) );
+        output();
+        console.log(); term.right(termMarginLeft);
+        console.log(terminalRGB(`╔═╗┌┬┐┬┌┐┌┌─┐╔═╗┌─┐┌─┐  ╔╦╗╔╗╔╔═╗  ╦  ╦┬┌─┐┬ ┬┌─┐┬─┐  ${array[0]}`, 255, 60,  250) ); term.right(termMarginLeft);
+        console.log(terminalRGB(`╠═╣││││││││ │╚═╗├┤ ├┤    ║║║║║╠═╣  ╚╗╔╝│├┤ │││├┤ ├┬┘  ${array[1]}`, 170, 150, 255) ); term.right(termMarginLeft);
+        console.log(terminalRGB(`╩ ╩┴ ┴┴┘└┘└─┘╚═╝└─┘└─┘  ═╩╝╝╚╝╩ ╩   ╚╝ ┴└─┘└┴┘└─┘┴└─  ${array[2]}`, 128, 240, 240) ); term.right(termMarginLeft);
+        console.log(terminalRGB(` by Tom Atkinson          aminosee.funk.nz            ${array[3]}`, 225, 225, 130) ); term.right(termMarginLeft);
+        console.log(terminalRGB(`  ah-mee-no-see     'I See It Now - I AminoSee it!'   ${array[4]}`, 255, 180,  90) ); term.right(termMarginLeft);
+        console.log(terminalRGB(`   ${prettyDate()}   v${version} ${array[5]}`          , 220, 120,  70) ); term.right(termMarginLeft);
+        console.log(terminalRGB(array[6], 200, 105,   60) ); term.right(termMarginLeft);
+        console.log(terminalRGB(array[7], 200, 32,   32) ); term.right(termMarginLeft);
       }
 
-      function crashReport() {
-        log(cleanDNA);
-      }
       function wTitle(txt) {
         term.windowTitle(`${highlightOrNothin()} ${justNameOfDNA} ${status} ${maxWidth(120,txt)} (${howMany} files) AminoSee@${hostname}`);
       }
@@ -3813,10 +3822,11 @@ function saveHilbert(cb) {
         // let textBuffer = "";
         // let abc = pepTable.map(getHistoCount).entries();
         calcUpdate();
+        termSize();
         let text = " ";
         let aacdata = [];
         if (msPerUpdate < maxMsPerUpdate) {
-          msPerUpdate += 50; // updates will slow over time on big jobs
+          msPerUpdate += 150; // updates will slow over time on big jobs
           if (devmode) {
             msPerUpdate += 50; // updates will slow over time on big jobs
             if (debug) {
@@ -3843,6 +3853,17 @@ function saveHilbert(cb) {
           term.up(termStatsHeight);
         } else { out('nc') }
         clearCheck();
+        if (spew  == true) {
+          term.moveTo(1,1);
+          rawDNA = rawDNA.substring(0, termPixels);
+          output(chalk.inverse.rgb(60,60,100).bgBlack(rawDNA));
+          // term.up(rawDNA.length/term.width);
+          term.moveTo(1 + termMarginLeft,1);
+          console.log("     To disable real-time DNA background use --no-spew     ");
+
+        }
+        term.moveTo(1 + termMarginLeft,1 + termMarginTop);
+
         // term.eraseDisplayBelow();
         // tb.setText( returnRadMessage(array) )
         // tb.setText( "\r" )
@@ -3852,16 +3873,16 @@ function saveHilbert(cb) {
         // tb.setText( `            File:  ${chalk.inverse(fixedWidth(40, justNameOfDNA))}.${extension} ${chalk.inverse(highlightOrNothin())} Runs: ${cliruns} RunID: ${timestamp} on ${hostname}`);
 
         output(`            File:  ${chalk.inverse(fixedWidth(40, justNameOfDNA))}.${extension} ${chalk.inverse(highlightOrNothin())} Runs: ${cliruns} RunID: ${timestamp} on ${hostname}`);
-        if (spew  == true) {
-          output(terminalRGB(rawDNA.substring(0,5000), red, green, blue));
-          term.up(rawDNA.length/term.width);
-        }
+        console.log();
+        console.log(histogram(aacdata, { bar: '/', width: term.width - 32, sort: true, map: aacdata.Histocount} ));
+
         rawDNA = "@";
         // tb.setText( histogram(aacdata, { bar: '/', width: 40, sort: true, map:  aacdata.Histocount} ) )
-        console.log(histogram(aacdata, { bar: '/', width: 40, sort: true, map:  aacdata.Histocount} ));
         // tb.setText( interactiveKeysGuide );
         output(interactiveKeysGuide);
         log(    isDiskFinHTML, isDiskFinHilbert, isDiskFinLinear);
+        // bugtxt(rawDNA.substring(0, 50));
+        rawDNA = "@";
         if (clear == true) {          term.up(termDisplayHeight)  }
         // console.log(tb.getText);
         if (updates && renderLock && howMany > 0 ) { // status == "stream") { // || updates) {
