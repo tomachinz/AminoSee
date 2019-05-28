@@ -93,7 +93,7 @@ let stats = true;
 let recycEnabled = false; // bummer had to disable it
 let renderLock = false; // not rendering right now obviously
 let msPerUpdate = 200; // min milliseconds per update
-let clear = false; // clear the terminal screen while running
+let clear ;//= false; // clear the terminal screen while running
 let openLocalHtml = false; // its better to use the built-in server due to CORS
 let nextFile = "not loaded"; // for batch jobs like *
 let highlightTriplets = [];
@@ -109,6 +109,7 @@ let rawDNA ="@loading DNA Stream..."; // debug
 let status = "load";
 let outputPath = obviousFoldername;
 let debugColumns = 24;
+let howMany = 1;
 // let StdInPipe = require('./stdinpipe');
 // let pipeInstance = new StdInPipe();
 gv.generate(appPath +'lib/version.js', function (err, version) {
@@ -128,7 +129,7 @@ term.on('resize', function(tx, ty) {
 });
 
 let interactiveKeysGuide = "";
-let progTimer, hilbertImage, keyboard, filenameTouch, estimatedPixels, args, filenamePNG, extension, reader, hilbertPoints, herbs, levels, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, textFile, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, fileUploadShowing, testColors, chunksMax, chunksize, chunksizeBytes, cpu, subdivisions, contextBitmap, aminoacid, colClock, start, updateClock, bytesPerSec, pixelStacking, isHighlightCodon, justNameOfPNG, justNameOfHILBERT, sliceDNA, filenameHTML, howMany, secElapsed, runningDuration, bytesRemain, width, triplet, updatesTimer, pngImageFlags, codonsPerPixel, codonsPerPixelHILBERT, CRASH, red, green, blue, alpha, errorClock, breakClock, streamLineNr, filesDone, spewClock, opacity, codonRGBA, geneRGBA, currentTriplet, currentPeptide, shrinkFactor, reg, image, loopCounter, percentComplete, charClock, baseChars, bigIntFileSize, currentPepHighlight, justNameOfCurrentFile, server, openHtml, openFileExplorer, pixelStream, startPeptideIndex, stopPeptideIndex, flags, loadavg, platform, totalmem, correction, aspect, debugFreq;
+let progTimer, hilbertImage, keyboard, filenameTouch, estimatedPixels, args, filenamePNG, extension, reader, hilbertPoints, herbs, levels, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, textFile, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, fileUploadShowing, testColors, chunksMax, chunksize, chunksizeBytes, cpu, subdivisions, contextBitmap, aminoacid, colClock, start, updateClock, bytesPerSec, pixelStacking, isHighlightCodon, justNameOfPNG, justNameOfHILBERT, sliceDNA, filenameHTML, secElapsed, runningDuration, bytesRemain, width, triplet, updatesTimer, pngImageFlags, codonsPerPixel, codonsPerPixelHILBERT, CRASH, red, green, blue, alpha, errorClock, breakClock, streamLineNr, filesDone, spewClock, opacity, codonRGBA, geneRGBA, currentTriplet, currentPeptide, shrinkFactor, reg, image, loopCounter, percentComplete, charClock, baseChars, bigIntFileSize, currentPepHighlight, justNameOfCurrentFile, server, openHtml, openFileExplorer, pixelStream, startPeptideIndex, stopPeptideIndex, flags, loadavg, platform, totalmem, correction, aspect, debugFreq;
 BigInt.prototype.toJSON = function() { return this.toString(); }; // shim for big int
 BigInt.prototype.toBSON = function() { return this.toString(); }; // Add a `toBSON()` function to enable MongoDB to store BigInts as strings
 let data = require('./data.js');
@@ -152,8 +153,9 @@ function termSize(tx, ty) {
   if (tx == undefined) { tx = term.width; ty = term.height } else {
     log(`Terminal resized: ${tx} x ${ty} and has at least ${termPixels} chars`)
     // mouseCooler = setTimeout( () => {
-      // clearTimeout(updatesTimer);
-      drawHistogram();
+    // clearTimeout(updatesTimer);
+    clearCheck();
+    // drawHistogram();
     // }, 250)
   }
   // cover entire screen!
@@ -319,7 +321,7 @@ module.exports = () => {
     string: [ 'width'],
     unknown: [ true ],
     alias: { a: 'artistic', c: 'codons', d: 'devmode', f: 'force', m: 'magnitude', o: 'outpath', out: 'outpath', output: 'outpath', p: 'peptide', i: 'image', t: 'triplet', r: 'reg', s: 'spew', w: 'width', v: 'verbose', x: 'explorer' },
-    default: { updates: true, spew: true }
+    default: { updates: true, spew: true, clear: true }
   });
   setupApp(); // do stuff that is needed even just to run "aminosee" with no options.
   let cmd = args._[0];
@@ -3852,7 +3854,7 @@ function saveHilbert(cb) {
         if (clear == true) {
           term.up(termStatsHeight);
         } else { out('nc') }
-        clearCheck();
+        // clearCheck();
         if (spew  == true) {
           term.moveTo(1,1);
           rawDNA = rawDNA.substring(0, termPixels);
