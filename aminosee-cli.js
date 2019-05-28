@@ -1088,7 +1088,7 @@ function pollForStream() {
       log('DNA Found OK');
     } else {
       log('Skipping non-existent DNA file: ' + filename);
-      quit()
+      maybePoll()
       return false;
     }
     if (filename == defaultFilename) { // maybe this is to get past my lack of understanding of processing of args.
@@ -1103,11 +1103,12 @@ function pollForStream() {
       return false;
     }
     ///////////////// BEGIN PARSING DNA FILE //////////////////////////////
+    ///////////////// Check if it's been rendered etc
     mode('parsing');
     autoconfCodonsPerPixel();
-    setupFNames(); // will have incorrect Hilbert file name. Need to wait until after render.
+    setupFNames(); // will have incorrect Hilbert file name. Need to wait until after render to check if exists.
     bugtxt(`Polling filenameTouch ${filenameTouch} willStart   ${willStart}  pollAgainFlag ${pollAgainFlag}  defaultFilename  ${defaultFilename}  ${filename}  howMany   ${howMany}   status ${status}`);
-    if (skipExistingFile(filenamePNG) && recycEnabled) {
+    if (skipExistingFile(filenamePNG)) {
       output("Skipping render of: " + filenamePNG);
       log("use --force to overwrite  --image to automatically open   ");
       if (openHtml == true || openImage == true || args.image == true) {
@@ -1277,7 +1278,8 @@ function streamStarted() {
   log('streamStarted');
   // setTimeout(() => {
   if (renderLock) {
-    output('Starting prgress monitors');
+
+    // output('Starting prgress monitors');
     drawHistogram()
     progUpdate({ title: 'DNA File Render step 1/3', items: howMany, syncMode: true })
   } else {
@@ -2021,12 +2023,7 @@ function maybePoll(reason) {
       error(`${busy()} and waiting on: (${storage()}) will not retry. ${howMany} files remain, next is ${maxWidth(32, nextFile)}`);
     }
     // quit(0, "...and thats's all she wrote folks, outa jobs.");
-
   }
-
-
-
-
   return false;
 }
 function getFilesizeInBytes(file) {
