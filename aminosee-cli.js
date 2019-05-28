@@ -835,7 +835,8 @@ function* generatorOpen(file, options) {
 function runDemo() {
   async.series( [
     function( cb ) {
-      copyGUI(cb);
+      launchNonBlockingServer();
+      // copyGUI(cb);
       // symlinkGUI(cb);
     },
     function( cb ) {
@@ -1509,10 +1510,10 @@ function copyGUI(cb) { // does:  ln -s /Users.....AminoSee/public, /Users.....cu
   fullSrc = path.normalize( path.resolve(appPath + '/public/index.html') );
   fullDest = path.normalize( path.resolve(outputPath + '/main.html') ); // Protects users privacy in current working directory
   copyRecursiveSync(fullSrc, fullDest );
-  fullSrc = path.normalize( path.resolve(appPath + '/node_modules') );
-  fullDest = path.normalize( path.resolve(outputPath + '/node_modules') ); // MOVES INTO ROOT
+  // fullSrc = path.normalize( path.resolve(appPath + '/node_modules') );
+  // fullDest = path.normalize( path.resolve(outputPath + '/node_modules') ); // MOVES INTO ROOT
   // copyRecursiveSync(fullSrc, fullDest );
-  if (cb !== undefined) {
+  if (cb != undefined) {
     cb();
   }
 }
