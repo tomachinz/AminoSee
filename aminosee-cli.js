@@ -3869,7 +3869,7 @@ function saveHilbert(cb) {
         if (spew  == true) {
           term.moveTo(1,1);
           rawDNA = rawDNA.substring(0, termPixels);
-          output(chalk.inverse.rgb(60,60,100).bgBlack(rawDNA));
+          output(chalk.inverse.rgb(64,64,128).bgBlack(rawDNA));
           // term.up(rawDNA.length/term.width);
           term.moveTo(1 + termMarginLeft,1);
           console.log("     To disable real-time DNA background use --no-spew     ");
