@@ -11,21 +11,21 @@
 
 cwd
 echo "About to delete these touch files:  *_LOCK*.aminosee.touch "
-echo find $DASHF . -name '*_LOCK*.aminosee.touch'
+echo find $DASHF . '*_LOCK*.aminosee.touch'
 sleep 1
-find $DASHF . -name '*_LOCK*.aminosee.touch'
+find $DASHF . '*_LOCK*.aminosee.touch'
 echo "About to delete these touch files:  *_LOCK*.aminosee.touch "
 sleep 5
 echo "Delete these touch files:  *_LOCK*.aminosee.touch "
-find $DASHF . -name '*_LOCK*.aminosee.touch' -exec rm -v {} \;
-sleep 2
+find $DASHF . '*_LOCK*.aminosee.touch' -exec rm -v {} \;
+# sleep 2
 
 
 
 
- find -f . '*_LOCK*.aminosee.touch'
+ # fnd -f . '*_LOCK*.aminosee.touch'
  # macos
 
 
- find . '*_LOCK*.aminosee.touch'
+ # find . '*_LOCK*.aminosee.touch'
  # linux
