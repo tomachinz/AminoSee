@@ -784,14 +784,14 @@ function toggleDevmode() {
     openImage = false;
     openFileExplorer = false;
     termDisplayHeight++;
-    raceDelay += 600; // this helps considerably!
+    raceDelay += 200; // this helps considerably!
     if (debug) {
-      raceDelay += 2000; // this helps considerably!
+      raceDelay += 200; // this helps considerably!
     }
   } else {
     raceDelay -= 100; // if you turn devmode on and off a lot it will slow down
     if (debug) {
-      raceDelay -= 1000;
+      raceDelay -= 100;
     }
     verbose = false;
     updates = true;
