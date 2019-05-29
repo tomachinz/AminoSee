@@ -650,12 +650,12 @@ module.exports = () => {
       currentFile = args._.pop();
       // currentFile = args._.pop();
       mode("no command");
-      if (cliruns <= 3) {
-        output("FIRST RUN!!! Opening the demo... use the command aminosee demo to see this first run demo in future");
-        firstRun();
-      } else {
-        log('not first run')
-      }
+      // if (cliruns < 3) {
+      //   output("FIRST RUN!!! Opening the demo... use the command aminosee demo to see this first run demo in future");
+      //   firstRun();
+      // } else {
+      //   log('not first run')
+      // }
       output(`Try running  --->>>        aminosee help`); //" Closing in 2 seconds.")
       output(`usage        --->>>        aminosee [*/dna-file.txt] [--help|--test|--demo|--force|--html|--image|--keyboard]     `); //" Closing in 2 seconds.")
       // log(`your cmd: ${currentFile} howMany ${howMany}`);
