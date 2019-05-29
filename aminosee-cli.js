@@ -253,6 +253,7 @@ function setupPrefs() {
     }
   });
   // Preferences can be accessed directly
+  userprefs.aminosee.cliruns++; // increment run counter. for a future high score table stat and things maybe.
   cliruns = userprefs.aminosee.cliruns;
   mode('setupPrefs ' + cliruns);
   log(`AminoSee has been run ${cliruns} times`);
@@ -3864,6 +3865,7 @@ function saveHilbert(cb) {
           console.log("     To disable real-time DNA background use --no-spew     ");
 
         }
+        rawDNA = "AminoSee_";
         term.moveTo(1 + termMarginLeft,1 + termMarginTop);
 
         // term.eraseDisplayBelow();
