@@ -79,7 +79,7 @@ let termStatsHeight = 9;
 let termMarginLeft = (term.width - 100) / 3;
 let termMarginTop = (term.height - termDisplayHeight - termStatsHeight) / 3;
 let maxpix = targetPixels;
-let raceDelay = 69; // so i learnt a lot on this project. one day this line shall disappear replaced by promises.
+let raceDelay = 169; // so i learnt a lot on this project. one day this line shall disappear replaced by promises.
 let dimension = defaultMagnitude; // var that the hilbert projection is be downsampled to
 let darkenFactor = 0.25; // if user has chosen to highlight an amino acid others are darkened
 let highlightFactor = 4.0; // highten brightening.
@@ -106,7 +106,8 @@ let isDiskFinLinear = true; // flag shows if saving png is complete
 let isDiskFinHilbert = true; // flag shows if saving hilbert png is complete
 let isDiskFinHTML = true; // flag shows if saving html is complete
 let willRecycleSavedImage = false; // allows all the regular processing to mock the DNA render stage
-let codonsPerSec, cliruns = 0;
+let codonsPerSec, cliruns =0;
+let peakRed = peakGreen = peakBlue = 0.123455;
 let rawDNA ="@loading DNA Stream..."; // debug
 let status = "load";
 let outputPath = obviousFoldername;
@@ -338,7 +339,7 @@ module.exports = () => {
     string: [ 'width'],
     unknown: [ true ],
     alias: { a: 'artistic', c: 'codons', d: 'devmode', f: 'force', m: 'magnitude', o: 'outpath', out: 'outpath', output: 'outpath', p: 'peptide', i: 'image', t: 'triplet', r: 'reg', s: 'spew', w: 'width', v: 'verbose', x: 'explorer' },
-    default: { spew: true, clear: true }
+    default: { updates: true, spew: true, clear: true }
   });
   setupApp(); // do stuff that is needed even just to run "aminosee" with no options.
   let cmd = args._[0];
@@ -461,7 +462,7 @@ module.exports = () => {
         maxpix = 64000000;
         output("Magnitude must be an integer number between 3 and 9.");
       } else if (magnitude > 6 && magnitude < 9) {
-        maxpix = 16000000;
+        // maxpix = 16000000;
         output(`Magnitude 8 requires 700 mb ram and takes a while. It's 2048x2048.`);
       } else if (magnitude > 8) {
         maxpix = 32000000;
@@ -540,7 +541,7 @@ module.exports = () => {
   if (args.artistic || args.art || args.a) {
     output(`artistic enabled. Start (Methione = Green) and Stop codons (Amber, Ochre, Opal) interupt the pixel timing creating columns. protein coding codons are diluted they are made ${twosigbitsTolocale(opacity*100)}% translucent and ${twosigbitsTolocale(codonsPerPixel)} of them are blended together to make one colour that is then faded across ${artisticHighlightLength} pixels horizontally. The start/stop codons get a whole pixel to themselves, and are faded across ${highlightFactor} pixels horizontally.`);
     artistic = true;
-    isHilbertPossible = false;
+    // isHilbertPossible = false;
     pngImageFlags += "_art";
     peptide = "none";
     triplet = "none";
@@ -1080,7 +1081,7 @@ function storage() {
 function pollForStream() {
   mode('pre-polling ' + howMany);
   output();
-  if (renderLock) { bugtxt(`Race condition tried to re-enter running stream: ${justNameOfDNA}`); resetAndMaybe(); return false; }
+  if (renderLock) { bugtxt(`Race condition tried to re-enter running stream: ${justNameOfDNA}`); return false; }
   renderLock = true; // BUSY NOW. render lock protects the filename globals among others.
   percentComplete = 0;
   try {
@@ -1180,13 +1181,15 @@ function pollForStream() {
       } else {
         out('use --image to open in viewer')
       }
-      pollForStream();
+      resetAndMaybe();
+      // pollForStream();
       // maybePoll('skipExistingFile'); // <---- no render
       return false; // just straight quit both images are rendered
     } else {
       if (checkLocks(filenameTouch)) {
         output("Render already in progress by another thread. Either use --force or delete this file: ");
         output(chalk.underline(filenameTouch));
+        renderLock = false;
         maybePoll(); // <---- BUSY, NO RENDER
         return false;
       } else {
@@ -1202,7 +1205,7 @@ function pollForStream() {
       touchLockAndStartStream(); // <--- THIS IS WHERE RENDER STARTS
     } else  {
       setTimeout(() => {
-
+        maybePoll();
       }, raceDelay)
       return false;
     }
@@ -1241,7 +1244,7 @@ function pollForStream() {
 }
 function resetAndMaybe(){
   renderLock = false;
-  isDiskFinHTML, isDiskFinLinear, isDiskFinHilbert = true;
+  isDiskFinHTML = isDiskFinLinear = isDiskFinHilbert = true;
   percentComplete = 1;
   maybePoll();
 }
@@ -1265,7 +1268,7 @@ function initStream() {
   msPerUpdate = minUpdateTime; // milliseconds per  update
   codonRGBA, geneRGBA, mixRGBA = [0,0,0,0]; // codonRGBA is colour of last codon, geneRGBA is temporary pixel colour before painting.
   rgbArray = [];
-  // hilbertImage = [];
+  hilbertImage = [];
   red = 0;
   green = 0;
   blue = 0;
@@ -1483,10 +1486,10 @@ function autoconfCodonsPerPixel() { // requires baseChars maxpix defaultC
     magnitude = dimension = 6; // close to 69
     return
   } else { // use a file
+    estimatedPixels = baseChars / 3; // divide by 4 times 3
     isStreamingPipe = false; // cat Human.genome | aminosee
     dimension = idealDimension(estimatedPixels);
   }
-  estimatedPixels = baseChars / 3; // divide by 4 times 3
   if (estimatedPixels < maxpix ) { // for sequence smaller than the screen
     if (userCPP != -1)  {
       log("its not recommended to use anything other than --codons 1 for small genomes, better to reduce the --magnitude")
@@ -1989,6 +1992,7 @@ function compareHistocount(a,b) {
   return 0;
 }
 function saveHTML(cb) {
+  if ( isHilbertPossible ) { htmlFinished(); cb(); return false; }
   if (willRecycleSavedImage == true && recycEnabled) {
     log("Didnt save HTML report because the linear file was recycled. Use --html to enable and auto open when done.");
     htmlFinished();
@@ -2074,7 +2078,7 @@ function tLock() {
     lockFileMessage + ` ${version} ${timestamp} ${hostname}
     ${asciiart}
     ${filename}
-    ${percentComplete} Started: ${formatAMPM(startDate)} Time remaining: ${humanizeDuration(timeRemain)}`,
+    ${percentComplete}% Started: ${formatAMPM(startDate)} Time remaining: ${humanizeDuration(timeRemain)} base pairs done: ${genomeSize}`,
     dot
   );
 }
@@ -2084,7 +2088,7 @@ function removeLocks() {
   clearTimeout(progTimer)
   try {
     fs.unlinkSync(filenameTouch, (err) => {
-      renderLock = false;
+      // renderLock = false;
 
       bugtxt("Removing locks OK...")
       if (err) { out('ish'); console.warn(err);  }
@@ -2094,7 +2098,7 @@ function removeLocks() {
 
   }
   isDiskFinLinear = true;
-  // renderLock = false;
+  renderLock = false;
   maybePoll('remove locks');
 }
 function maybePoll(reason) { // try to avoid messing with globals of a already running render!
@@ -2107,6 +2111,7 @@ function maybePoll(reason) { // try to avoid messing with globals of a already r
   //   return false;
   // }
   if (renderLock) {
+    bugout('Renderlock came knocking but this saved the day')
     // error('render lock breach: ' + reason)
     return false;
   }
@@ -3149,7 +3154,7 @@ function saveHilbert(cb) {
     out("Hilbert PNG done");
     setTimeout( () => {
       out(".");
-      maybePoll('hilbertFinished');
+      maybePoll('hilbertFinished ' + justNameOfDNA);
     }, raceDelay)
   }
   function linearFinished() {
@@ -3249,8 +3254,8 @@ function saveHilbert(cb) {
         output("No DNA or RNA in this file sorry?! You sure you gave a file with sequences? Like: GCCTCTATGACTGACGTA" + filename);
         isDiskFinHTML, isDiskFinLinear, isDiskFinHilbert = true;
         linearFinished();
-        // hilbertFinished();
-        // htmlFinished();
+        hilbertFinished();
+        htmlFinished();
         callback();
         resetAndMaybe();
         return false;
@@ -3745,6 +3750,7 @@ function saveHilbert(cb) {
         }
       }
       function error(e) {
+        output();
         out(status + ' / error start {{{ ----------- ' + chalk.inverse( e.toString() ) + chalk(" ") + ' ----------- }}} end');
         mode(`error: ${e}`)
       }
@@ -3787,7 +3793,14 @@ function saveHilbert(cb) {
         // pixelStream.push(Math.round(green));
         // pixelStream.push(Math.round(blue));
         // pixelStream.push(Math.round(alpha));
-
+        // STORE THE HIGH SCORES. Knowing what the peak brightness was enables
+        // a scale down in brightness later using floating point images.
+        // if (red > peakRed)     { peakRed = red} else {  peakRed--}
+        // if (green > peakGreen) { peakGreen = green} else {  peakGreen--}
+        // if (blue > peakBlue)   { peakBlue = blue} else {  peakBlue--}
+        peakRed = red;
+        peakGreen = green;
+        peakBlue = blue;
         pixelStacking = 0;
         colClock++;
       }
@@ -3981,7 +3994,7 @@ function saveHilbert(cb) {
           `| Next update: ${fixedWidth(5, msPerUpdate.toLocaleString())}ms Codon Opacity: ${twosigbitsTolocale(opacity*100)}%`,
           `| CPU:${fixedWidth(10, bytes(bytesPerSec))}/s ${fixedWidth(5, codonsPerSec.toLocaleString())}K acids/s`,
           `${howMany} files to go.       Next file >>> ${maxWidth(24,nextFile)}`,
-          `| Codons:${fixedWidth(14, genomeSize.toLocaleString())} Last Acid:${chalk.rgb(red, green, blue).bgWhite( fixedWidth(16, aminoacid + "   ") ) } Host: ${hostname} Pixels:${fixedWidth(10, colClock.toLocaleString())}`,
+          `| Codons:${fixedWidth(14, genomeSize.toLocaleString())} Last Acid:${chalk.rgb(peakRed, peakGreen, peakBlue).bgWhite( fixedWidth(16, aminoacid + "   ") ) } Host: ${hostname} Pixels:${fixedWidth(10, colClock.toLocaleString())}`,
           `| Sample: ${ fixedWidth(60, rawDNA) } ${showFlags()}`,
           `| RunID: ${chalk.rgb(128, 0, 0).bgWhite(timestamp)} acids per pixel: ${twosigbitsTolocale(codonsPerPixel)}`
         ];
@@ -4007,6 +4020,8 @@ function saveHilbert(cb) {
         console.log();
         console.log(histogram(aacdata, { bar: '/', width: Math.round(term.width * 2 / 3), sort: true, map: aacdata.Histocount} ));
         output(interactiveKeysGuide);
+        // output(`Last Red: ${red} Last Green: ${green} Last Blue: ${blue}`)
+        output(`Last Red: ${peakRed} Last Green: ${peakGreen} Last Blue: ${peakBlue}`)
         log(    isDiskFinHTML, isDiskFinHilbert, isDiskFinLinear);
         if (clear == true) {          term.up(termDisplayHeight)  }
         if (updates && renderLock && howMany >= 0 ) { // status == "stream") { // || updates) {
