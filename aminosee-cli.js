@@ -77,7 +77,7 @@ let termStatsHeight = 9;
 let termMarginLeft = (term.width - 100) / 2;
 let termMarginTop = (term.height - termDisplayHeight - termStatsHeight) / 2;
 let maxpix = targetPixels;
-let raceDelay = 69; // so i learnt a lot on this project. one day this line shall disappear replaced by promises.
+let raceDelay = 1; // so i learnt a lot on this project. one day this line shall disappear replaced by promises.
 let dimension = defaultMagnitude; // var that the hilbert projection is be downsampled to
 let darkenFactor = 0.25; // if user has chosen to highlight an amino acid others are darkened
 let highlightFactor = 4.0; // highten brightening.
@@ -3591,7 +3591,7 @@ function saveHilbert(cb) {
       bugout(txt);
     } else {
       console.log(txt);
-      term.right(termMarginLeft);
+      term.right(termMarginLeft); term.eraseLine();
       // clout(txt);
     }
   }
@@ -3730,16 +3730,15 @@ function saveHilbert(cb) {
         while ( array.length < 8 ) {
           array.push("    ________","    ________");
         }
-        output();
-        console.log(); term.right(termMarginLeft);
-        console.log(terminalRGB(`╔═╗┌┬┐┬┌┐┌┌─┐╔═╗┌─┐┌─┐  ╔╦╗╔╗╔╔═╗  ╦  ╦┬┌─┐┬ ┬┌─┐┬─┐  ${array[0]}`, 255, 60,  250) ); term.right(termMarginLeft);
-        console.log(terminalRGB(`╠═╣││││││││ │╚═╗├┤ ├┤    ║║║║║╠═╣  ╚╗╔╝│├┤ │││├┤ ├┬┘  ${array[1]}`, 170, 150, 255) ); term.right(termMarginLeft);
-        console.log(terminalRGB(`╩ ╩┴ ┴┴┘└┘└─┘╚═╝└─┘└─┘  ═╩╝╝╚╝╩ ╩   ╚╝ ┴└─┘└┴┘└─┘┴└─  ${array[2]}`, 128, 240, 240) ); term.right(termMarginLeft);
-        console.log(terminalRGB(` by Tom Atkinson          aminosee.funk.nz            ${array[3]}`, 225, 225, 130) ); term.right(termMarginLeft);
-        console.log(terminalRGB(`  ah-mee-no-see     'I See It Now - I AminoSee it!'   ${array[4]}`, 255, 180,  90) ); term.right(termMarginLeft);
-        console.log(terminalRGB(`   ${prettyDate()}   v${version} ${array[5]}`          , 220, 120,  70) ); term.right(termMarginLeft);
-        console.log(terminalRGB(array[6], 200, 105,   60) ); term.right(termMarginLeft);
-        console.log(terminalRGB(array[7], 200, 32,   32) ); term.right(termMarginLeft);
+        console.log(); term.right(termMarginLeft); term.eraseLine();
+        console.log(terminalRGB(`╔═╗┌┬┐┬┌┐┌┌─┐╔═╗┌─┐┌─┐  ╔╦╗╔╗╔╔═╗  ╦  ╦┬┌─┐┬ ┬┌─┐┬─┐  ${array[0]}`, 255, 60,  250) ); term.right(termMarginLeft); term.eraseLine();
+        console.log(terminalRGB(`╠═╣││││││││ │╚═╗├┤ ├┤    ║║║║║╠═╣  ╚╗╔╝│├┤ │││├┤ ├┬┘  ${array[1]}`, 170, 150, 255) ); term.right(termMarginLeft); term.eraseLine();
+        console.log(terminalRGB(`╩ ╩┴ ┴┴┘└┘└─┘╚═╝└─┘└─┘  ═╩╝╝╚╝╩ ╩   ╚╝ ┴└─┘└┴┘└─┘┴└─  ${array[2]}`, 128, 240, 240) ); term.right(termMarginLeft); term.eraseLine();
+        console.log(terminalRGB(` by Tom Atkinson          aminosee.funk.nz            ${array[3]}`, 225, 225, 130) ); term.right(termMarginLeft); term.eraseLine();
+        console.log(terminalRGB(`  ah-mee-no-see     'I See It Now - I AminoSee it!'   ${array[4]}`, 255, 180,  90) ); term.right(termMarginLeft); term.eraseLine();
+        console.log(terminalRGB(`   ${prettyDate()}   v${version} ${array[5]}`          , 220, 120,  70) ); term.right(termMarginLeft); term.eraseLine();
+        console.log(terminalRGB(array[6], 200, 105,   60) ); term.right(termMarginLeft); term.eraseLine();
+        console.log(terminalRGB(array[7], 200, 32,   32) ); term.right(termMarginLeft); term.eraseLine();
       }
 
       function wTitle(txt) {
