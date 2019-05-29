@@ -1414,15 +1414,12 @@ function autoconfCodonsPerPixel() { // requires baseChars maxpix defaultC
     baseChars = 696969; // 696969 flags a missing value in debug
     codonsPerPixel = 696; // small images with _c69 in filename
     magnitude = dimension = 6; // close to 69
-
     return
   } else { // use a file
     isStreamingPipe = false; // cat Human.genome | aminosee
     dimension = idealDimension(estimatedPixels);
   }
   estimatedPixels = baseChars / 3; // divide by 4 times 3
-
-
   if (estimatedPixels < maxpix ) { // for sequence smaller than the screen
     if (userCPP != -1)  {
       log("its not recommended to use anything other than --codons 1 for small genomes, better to reduce the --magnitude")
@@ -3898,10 +3895,10 @@ function saveHilbert(cb) {
         rawDNA = "@";
         if (clear == true) {          term.up(termDisplayHeight)  }
         // console.log(tb.getText);
-        if (updates && renderLock && howMany > 0 ) { // status == "stream") { // || updates) {
+        if (updates && renderLock && howMany >= 0 ) { // status == "stream") { // || updates) {
           if (updatesTimer) { clearTimeout(updatesTimer)};
           updatesTimer = setTimeout(() => {
-            if (updates && renderLock && howMany > 0 ) { // status == "stream") { // || updates) {
+            if (updates && renderLock && howMany >= 0 ) { // status == "stream") { // || updates) {
               drawHistogram(); // MAKE THE HISTOGRAM AGAIN LATER
             }
           }, msPerUpdate);
