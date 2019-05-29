@@ -65,6 +65,8 @@ const defaultFilename = "dna/megabase.fa"; // for some reason this needs to be h
 const testFilename = "AminoSeeTestPatterns"; // for some reason this needs to be here. hopefully the open source community can come to rescue and fix this Kludge.
 let justNameOfDNA = 'aminosee-is-looking-for-files-containing-ascii-DNA.txt';
 let currentFile = 'no file loaded';
+let nextFile = 'no queue loaded';
+let filename = 'no filename loaded';
 let browser = 'firefox';
 const minUpdateTime = 1000;
 let maxMsPerUpdate = 30000; // milliseconds per updatelet maxpix = targetPixels; // maxpix can be changed downwards by algorithm for small genomes in order to zoom in
@@ -95,7 +97,6 @@ let renderLock = false; // not rendering right now obviously
 let msPerUpdate = 200; // min milliseconds per update
 let clear ;//= false; // clear the terminal screen while running
 let openLocalHtml = false; // its better to use the built-in server due to CORS
-let nextFile = "not loaded"; // for batch jobs like *
 let highlightTriplets = [];
 let isHighlightSet = false;
 let isHilbertPossible = true; // set false if -c flags used.
@@ -104,7 +105,6 @@ let isDiskFinHilbert = true; // flag shows if saving hilbert png is complete
 let isDiskFinHTML = true; // flag shows if saving html is complete
 let willRecycleSavedImage = false; // allows all the regular processing to mock the DNA render stage
 let codonsPerSec, cliruns = 0;
-let filename = "aminsee-cli.js";
 let rawDNA ="@loading DNA Stream..."; // debug
 let status = "load";
 let outputPath = obviousFoldername;
@@ -823,7 +823,7 @@ function gracefulQuit() {
   out(status);
   args._ = [];
   howMany = -1;
-  nextFile = status;
+  nextFile = "shutting down";
   calcUpdate();
   setImmediate( () => {
     setTimeout( () => {
@@ -1057,7 +1057,10 @@ function pollForStream() {
   try {
     nextFile = args._[args._.length - 2];
   } catch(e) {
-    nextFile = "None. Due to: "+ e;
+    error(e);
+  }
+  if (nextFile == undefined) {
+    nextFile = "No_File";
   }
   try {
     if (args._) {
@@ -1220,6 +1223,7 @@ function initStream() {
   msPerUpdate = minUpdateTime; // milliseconds per  update
   codonRGBA, geneRGBA, mixRGBA = [0,0,0,0]; // codonRGBA is colour of last codon, geneRGBA is temporary pixel colour before painting.
   rgbArray = [];
+  hilbertImage = [];
   red = 0;
   green = 0;
   blue = 0;
@@ -1230,7 +1234,7 @@ function initStream() {
   streamLineNr = 0;
   genomeSize = 1;
   filesDone = 0;
-  // spewClock = 0;
+  spewClock = 0;
   opacity = 1 / codonsPerPixel; // 0.9 is used to make it brighter, also due to line breaks
   for (h=0; h<pepTable.length; h++) {
     pepTable[h].Histocount = 0;
@@ -2182,7 +2186,9 @@ function quit(n, txt) {
 }
 function processLine(l) {
   status = "stream";
-  rawDNA = cleanString(l) + rawDNA;
+  if (rawDNA.length < termPixels) {
+    rawDNA = cleanString(l) + rawDNA;
+  }
   let lineLength = l.length; // replaces baseChars
   let codon = "";
   currentTriplet = "none";
@@ -2825,11 +2831,11 @@ function doesFolderExist(f) {
   } catch(e) {
     bugtxt(e)
   }
-  try {
-    ret = fs.lstatSync(f).isFolder;
-  } catch(e) {
-    bugtxt(e)
-  }
+  // try {
+  //   ret = fs.lstatSync(f).isDirectory;
+  // } catch(e) {
+  //   bugtxt(e)
+  // }
   if ( ret == undefined) {
     error("ret was undef");
     ret = false;
@@ -2841,7 +2847,7 @@ function doesFolderExist(f) {
 function doesFileExist(f) {
   let ret = false;
   try {
-    ret = fs.existsSync(f) && fs.lstatSync(f).isFile;
+    ret = fs.existsSync(f);// && fs.lstatSync(f).isFile;
   } catch(e) {
     bugtxt(e)
   }
@@ -3552,7 +3558,7 @@ function saveHilbert(cb) {
   }
 
   function replaceoutputPathFileName(f) {
-    if (f == undefined) { f = "was not set!"; error(f); }
+    if (f == undefined) { f = "was_not_set"; error(f); }
     return f.replace(/^.*[\\\/]/, '');
   }
   function makeRequest(url) {
@@ -3847,7 +3853,7 @@ function saveHilbert(cb) {
           `| @i${fixedWidth(10, charClock.toLocaleString())} Breaks:${ fixedWidth(6, breakClock.toLocaleString())} Filesize:${fixedWidth(7, bytes(baseChars))}`,
           `| Next update: ${fixedWidth(5, msPerUpdate.toLocaleString())}ms Codon Opacity: ${twosigbitsTolocale(opacity*100)}%`,
           `| CPU:${fixedWidth(10, bytes(bytesPerSec))}/s ${fixedWidth(5, codonsPerSec.toLocaleString())}K acids/s`,
-          `${howMany} files to go.       Next file >>> ${replaceoutputPathFileName(nextFile)}`,
+          `${howMany} files to go.       Next file >>> ${maxWidth(24,nextFile)}`,
           `| Codons:${fixedWidth(14, genomeSize.toLocaleString())} Last Acid:${chalk.rgb(red, green, blue).bgWhite( fixedWidth(16, aminoacid + "   ") ) } Host: ${hostname} Pixels:${fixedWidth(10, colClock.toLocaleString())}`,
           `| Sample: ${ fixedWidth(60, rawDNA) } ${showFlags()}`,
           `| RunID: ${chalk.rgb(128, 0, 0).bgWhite(timestamp)} acids per pixel: ${twosigbitsTolocale(codonsPerPixel)}`
