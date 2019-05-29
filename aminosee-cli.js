@@ -3882,7 +3882,7 @@ function saveHilbert(cb) {
         // tb.setText( returnRadMessage(array) )
         // tb.setText( "\r" )
         printRadMessage(array);
-        output(); // white space
+        // output(); // white space
         progUpdate(percentComplete);
         // tb.setText( `            File:  ${chalk.inverse(fixedWidth(40, justNameOfDNA))}.${extension} ${chalk.inverse(highlightOrNothin())} Runs: ${cliruns} RunID: ${timestamp} on ${hostname}`);
 
