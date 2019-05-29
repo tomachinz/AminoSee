@@ -1,7 +1,7 @@
 {
   "name": "aminosee",
   "productName": "AminoSee DNA Viewer",
-  "version": "1.10.17",
+  "version": "1.10.19",
   "owner": "Thomas Bieder Atkinson",
   "description": "Allows genomics researchers to convert any file containing ASCII blocks of DNA (Fasta, GBK, .txt) into an image. A unique visualisation of DNA / RNA residing in text files, AminoSee is a way to render arbitrarily large files - due to support for streamed processing - into a static size PNG image using a pseudo-Hilbert infinite space filling curve written in the 18th century! Computation is done locally, and the files do not leave your machine. A back-end terminal daemon cli command that can be scripted is combined with a front-end GUI in Electron, AminoSee features asynchronous streaming processing enabling arbitrary size files to be processed. It has been tested with files in excess of 4 GB and does not need the whole file in memory at any time. In a diectory with DNA files try running aminosee *. Alternatively use the GUI to Drag and drop files to render a unique colour view of RNA or DNA stored in text files, output to PNG graphics file, then launches an WebGL browser that projects the image onto a 3D Hilbert curve for immersive viewing, using THREEjs. Command line options alow one to filter by peptide.",
   "main": "main.js",
@@ -14,6 +14,7 @@
     "chalk": "^2.4.2",
     "cheerio": "^1.0.0-rc.3",
     "cross-spawn": "^6.0.5",
+    "electron": "^5.0.2",
     "event-stream": "^4.0.1",
     "express": "^4.17.1",
     "fs-extra": "^8.0.1",
@@ -56,6 +57,7 @@
     "genversion": "^2.1.1"
   },
   "scripts": {
+    "credits": "npm list | wc -l > credits.txt ; echo ' open source packages used. ' >> credits.txt; echo >> credits.txt; npm list >> credits.txt; cat credits.txt",
     "crash": "node --inspect 27MB_TestPattern.txt --peptide=Ochre 3MB_TestPattern.txt 50KB_TestPattern.txt batch-peptides.sh batch-process.sh Gorilla_gorGor4_chr2B.fa",
     "test": "echo 'requires cli program time' ; time dna/run-test.sh ; vows --spec --isolate",
     "start": "node bin/aminosee",

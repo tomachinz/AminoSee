@@ -27,6 +27,7 @@ asciiart = `
 // 128+n - Fatal error signal “n”
 // 130 - Script terminated by Control-C
 // 255\* - Exit status out of range
+const extensions = [ "txt", "fa", "mfa", "gbk", "dna", "fasta", "fna", "fsa", "mpfa", "gb", "gff"];
 
 function showFlags() {
   return `${(  force ? "F" : "-"    )}${(  args.updates || args.u ? `U` : "-"    )}${(  userCPP != -1 ? `C${userCPP}` : "--"    )}${(  args.keyboard || args.k ? `K` : "-"    )}${(  args.spew || spew ? `Spew` : "-"    )}${( verbose ? "V" : "-"  )}${(  artistic ? "A" : "-"    )}${(  args.ratio ? `${ratio}` : "960px fixed"    )}${(dimension? "M" + dimension:"M?")}C${onesigbitTolocale(codonsPerPixel)}${(reg?"REGMARKS":"NOREG")}`;
@@ -824,3 +825,4 @@ function helpCmd(args) {
 
           module.exports.pepTable = pepTable;
           module.exports.asciiart = asciiart;
+          module.exports.extensions = extensions;

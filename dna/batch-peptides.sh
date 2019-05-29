@@ -1,43 +1,42 @@
 #!/bin/sh
 aminosee_do () {
-  echo $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11
-  nice aminosee  $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11
-  sleep 2
+  echo $1 $2 $3 $4 $5 $6 $7
+  nice aminosee  $1 $2 $3 $4 $5 $6 $7
+  # sleep 2
 }
 
 parallel_peptides () {
   echo "                                         =///"
   echo "-------------------------------------------"
-  echo STARTING TWIN THREAD DECODE FOR $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11
+  echo STARTING TWIN THREAD DECODE FOR $1 $2 $3 $4 $5 $6 $7
   echo "-------------------------------------------"
   echo "                                         =///"
   aminosee_do $1 $2 $3 $4 $5 $6 $7
-  # aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide="Start Codons" &
+  # aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide="Start Codons"
   # aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide="Stop Codons"
-  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide="Glutamic acid" &
+  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide="Glutamic acid"
   aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide="Aspartic acid"
-  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Ochre &
+  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Ochre
   aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Amber
-  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Opal &
+  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Opal
   aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Methionine
-  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Cysteine &
+  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Cysteine
   aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Glycine
-  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Alanine &
+  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Alanine
   aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Valine
-  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Leucine &
+  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Leucine
   aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Isoleucine
-  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Phenylalanine &
+  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Phenylalanine
   aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Proline
-  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Tryptophan &
+  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Tryptophan
   aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Serine
-  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Threonine &
+  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Threonine
   aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Glutamine
-  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Asparagine &
+  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Asparagine
   aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Tyrosine
-  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Arginine &
+  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Arginine
   aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Lysine
-  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Histidine &
-
+  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Histidine
   echo "                                         =///"
   echo "-------------------------------------------"
   echo FINISHED TWIN THREAD DECODE FOR $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11
@@ -60,34 +59,6 @@ find_way_peptides () {
     echo linux
     DASHF=" "
   fi
-
-  aminosee_do $1 $2 $3 $4 $5 $6 $7
-  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide="Start Codons" &
-  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide="Stop Codons"
-  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide="Glutamic acid" &
-  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide="Aspartic acid"
-  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Ochre &
-  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Amber
-  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Opal &
-  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Methionine
-  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Cysteine &
-  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Glycine
-  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Alanine &
-  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Valine
-  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Leucine &
-  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Isoleucine
-  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Phenylalanine &
-  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Proline
-  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Tryptophan &
-  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Serine
-  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Threonine &
-  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Glutamine
-  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Asparagine &
-  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Tyrosine
-  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Arginine &
-  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Lysine
-  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Histidine &
-
   find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee $1 $2   $3 $4 $5 $6 $7 "{}" \;
   find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee $1 $2   --peptide="Glutamic acid" $3 $4 $5 $6 $7 "{}" \;
   find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee $1 $2   --peptide="Aspartic acid" $3 $4 $5 $6 $7 "{}" \;
@@ -121,7 +92,10 @@ find_way_peptides () {
   echo "-------------------------------------------"
   echo "                                         =///"
 }
-find_way_peptides $1 $2 $3 $4 $5 $6 $7
+echo $1 $2 $3 $4 $5 $6 $7
+# parallel_peptides 50KB_TestPattern.txt  megabase.fa
 parallel_peptides $1 $2 $3 $4 $5 $6 $7
+
+# find_way_peptides $1 $2 $3 $4 $5 $6 $7
 # parallel_peptides  --reg $1 $2 $3 $4 $5 $6 $7
 # find_way_peptides  --reg

@@ -1,11 +1,10 @@
 // import
 // require('./aminosee.js')()
-
-// Modules to control application life and create native browser window
-const { app, BrowserWindow, Menu, dialog } = require('electron')
+const serve = require('./aminosee-cli');
+const { app, BrowserWindow, Menu, dialog } = require('electron'); // Modules to control application life and create native browser window
 const extensions = [ "txt", "fa", "mfa", "gbk", "dna"];
-
 const path = require('path')
+
 let mainWindow
 
 let devmode = true;
@@ -33,14 +32,12 @@ function log(txt) {
   console.log(` [${d}] txt: ${txt} argv: ${a} `);
 }
 
-
-
 function showOpenDialog() {
   // defaultPath: '~',
 
   const options = {
-    title: 'Open multiple DNA files',
-    buttonLabel: 'AminoSeeIt',
+    title: 'Open multiple DNA files or folders',
+    buttonLabel: 'Convert DNA to Image with AminoSee',
     filters: [
       { name: 'TXT', extensions: ['txt'] },
       { name: 'FA',  extensions: ['fa']  },
@@ -51,8 +48,10 @@ function showOpenDialog() {
       { name: 'GB',  extensions: ['gb'] },
       { name: 'DNA', extensions: ['dna'] }
     ],
+    buttonLabel : "Artistic",
+    defaultPath : "dna",
     properties: ['openFile', 'openDirectory', 'multiSelections'],
-    message: 'Any text file containing base pairs should work'
+    message: 'Any text file containing ASCII base pairs like: ACGTUacgtu'
   };
   const selectedPaths = dialog.showOpenDialog();
   console.log(selectedPaths);
