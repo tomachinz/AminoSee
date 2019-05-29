@@ -122,10 +122,10 @@ gv.generate(appPath +'lib/version.js', function (err, version) {
 let version = require('./lib/version');
 let termPixels = Math.round(((term.width-5) * (term.height-5))/4);
 
-termSize(term.width, term.height);
+termSize();
 console.log(`${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196).inverse("See")}${chalk.rgb(128,128,128).inverse("No")}${chalk.rgb(64, 64, 64).inverse("Evil")}       v${chalk.rgb(255,255,0)(version)}`);
 term.on('resize', function(tx, ty) {
-  termSize(tx,ty);
+  resized(tx,ty);
 });
 
 let interactiveKeysGuide = "";
@@ -145,9 +145,12 @@ for (h=0; h<pepTable.length; h++) { // update pepTable
 }
 
 // let mouseCooler = " ";//null;
-
-function termSize(tx, ty) {
-
+function termSize() {
+   tx = term.width;
+   ty = term.height
+   termPixels = (tx) * (ty-8);
+}
+function resized(tx, ty) {
   // Enough to fill screen starting from underneath the histogram:
   // termPixels = (tx-3 > 60 ? tx-3 : 60) * (ty-3 > termStatsHeight + termDisplayHeight ? ty-3 : termStatsHeight + termDisplayHeight);
   if (tx == undefined) { tx = term.width; ty = term.height } else {
@@ -159,14 +162,15 @@ function termSize(tx, ty) {
     // }, 250)
   }
   // cover entire screen!
-  termPixels = (tx) * (ty-8);
   termMarginLeft = (term.width - 100) / 2;
   termMarginTop = (term.height - termDisplayHeight - termStatsHeight) / 2;
+  termSize();
   clearCheck();
   debugColumns = Math.round(term.width / 3);
   // mouseCooler = " ";//null;
   // if (mouseCooler != undefined ) { clearTimeout(mouseCooler) }
-
+  msPerUpdate = 200;
+  drawHistogram();
 }
 function getRenderObject() { // return renderData obj
   let summary = {
@@ -3896,6 +3900,7 @@ function saveHilbert(cb) {
         if (clear == true) {          term.up(termDisplayHeight)  }
         // console.log(tb.getText);
         if (updates && renderLock && howMany > 0 ) { // status == "stream") { // || updates) {
+          if (updatesTimer) { clearTimeout(updatesTimer)};
           updatesTimer = setTimeout(() => {
             if (updates && renderLock && howMany > 0 ) { // status == "stream") { // || updates) {
               drawHistogram(); // MAKE THE HISTOGRAM AGAIN LATER
