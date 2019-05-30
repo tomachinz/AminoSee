@@ -3,7 +3,7 @@
 w
 aminosee
 aminosee -f
-aminosee -h & 
+aminosee -h &
 aminosee help &
 aminosee -v
 
@@ -34,21 +34,30 @@ nice aminosee       $1 $2 $3 $4 $5 $6 -m 8 --peptide=Cysteine
 echo "nice aminosee $1 $2 $3 $4 $5 $6 --no-updates -c 500 --ratio=GOLDEN --peptide=Tryptophan"
 nice aminosee       $1 $2 $3 $4 $5 $6 --no-updates -c 500 --ratio=GOLDEN --peptide=Tryptophan
 
-aminosee 27MB_TestPattern.txt  3MB_TestPattern.txt -f --no-updates --no-clear -v --debug
+
+aminosee 27MB_TestPattern.txt  3MB_TestPattern.txt -f --no-updates --no-clear -v --debug &
+sleep 2
 #
 echo 'nice aminosee *'
 nice aminosee * &
 sleep 2
 
-echo "nice aminosee $1 $2 $3 $4 $5 $6 -f --no-updates --ratio=fix --peptide=Arginine --html"
+echo
+echo "-------------------------------------------"
+echo HALFWAY TESTING FOR $1 $2 $3 $4 $5 $6 $6
+echo "-------------------------------------------"
+echo
+
+
+echo "nice aminosee $1 $2 $3 $4 $5 $6 -f --no-updates --ratio=fix --peptide=Arginine --html &"
 nice aminosee       $1 $2 $3 $4 $5 $6 -f --no-updates --ratio=fix --peptide=Arginine --html &
 sleep 2
 
-echo "nice aminosee $1 $2 $3 $4 $5 $6  test --image --ratio square"
+echo "nice aminosee $1 $2 $3 $4 $5 $6  test --image --ratio square &"
 nice aminosee       $1 $2 $3 $4 $5 $6  test --image --ratio square &
 sleep 2
 
-echo "nice aminosee help"
+echo "nice aminosee help &"
 nice aminosee help &
 sleep 2
 
@@ -62,7 +71,8 @@ nice aminosee serve &
 echo only works on linux:
 open http://127.0.0.1:8081 &
 sleep 2
-
+killall aminosee.funk.nz
+killall "aminosee.funk.nz 27MB_TestPattern 34.94MB"
 clear
 echo "                                         =///"
 echo "-------------------------------------------"
