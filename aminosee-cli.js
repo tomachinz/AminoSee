@@ -301,7 +301,7 @@ function destroyProgress() { // now thats a fucking cool function name if ever t
 
   }
   if (updates) {
-    if (progato) {
+    if (progato != undefined) {
       progato.stop();
     }
   }
