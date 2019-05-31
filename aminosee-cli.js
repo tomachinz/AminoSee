@@ -740,11 +740,11 @@ module.exports = () => {
       autoconfCodonsPerPixel();
       setupFNames();
       setupProject();
-      touchLockAndStartStream();
+      // touchLockAndStartStream();
 
       // initStream();
       // maybePoll('first poll');
-      // pollForStream();
+      pollForStream();
 
       return true;
     }
@@ -1124,7 +1124,7 @@ function mode(txt) {
 }
 function storage() {
   // return `${(isDiskFinLinear ? 'Linear ' : '')} ${(isDiskFinHilbert ? 'Hilbert ' : '')} ${(isDiskFinHTML ? 'HTML ' : '' )}`;
-  return `${(!isDiskFinLinear ? 'Linear ' : 'OK')} ${(!isDiskFinHilbert ? 'Hilbert ' : 'OK')} ${(!isDiskFinHTML ? 'HTML ' : '<' )}`;
+  return `${(!isDiskFinLinear ? 'Linear ' : 'OK')} ${(!isDiskFinHilbert ? 'Hilbert ' : 'OK')} ${(!isDiskFinHTML ? 'HTML ' : 'OK' )}`;
 }
 function pollForStream() { // remder lock must be off before calling.
   mode('pre-polling ' + howMany);
@@ -1233,8 +1233,8 @@ function pollForStream() { // remder lock must be off before calling.
     autoconfCodonsPerPixel();
     setupFNames(); // will have incorrect Hilbert file name. Need to wait until after render to check if exists.
     bugtxt(`Polling filenameTouch ${filenameTouch} willStart   ${willStart}  pollAgainFlag ${pollAgainFlag}  defaultFilename  ${defaultFilename}  ${filename}  howMany   ${howMany}   status ${status}`);
-
-
+    touchLockAndStartStream();
+    return false;
 
 
 
@@ -1328,7 +1328,7 @@ function initStream() {
     error("RENDER LOCK FAILED. This is an error I'd like reported. Please run with --devmode option enabled and send the logs to aminosee@funk.co.nz");
     // quit(4, 'Render lock failed');
     // resetAndMaybe();
-    maybePoll('render lock failed inside initStream')
+    // maybePoll('render lock failed inside initStream')
     return false;
   } else { output('Begin') }
   mkdir(justNameOfDNA);
@@ -1966,6 +1966,7 @@ function helpCmd(args) {
 }
 function saveDocsSync() {
   mode('Save documents with async.series');
+  printRadMessage(['Finished linear render', 'Saving docs out', storage(), busy(), outputPath]);
   if (!renderLock) {
     error("How is this even possible. renderLock should be true until all storage is complete");
   }
@@ -1974,7 +1975,7 @@ function saveDocsSync() {
   isDiskFinHilbert = false;
   isDiskFinLinear = false;
   clearCheck(); // term.eraseDisplayBelow();
-  // destroyProgress();
+  destroyProgress();
   calcUpdate();
   mkdir(justNameOfDNA);
   mkdir(`${justNameOfDNA}/images`);
@@ -2160,7 +2161,6 @@ function fileWrite(file, contents, cb) {
 }
 function touchLockAndStartStream() {
   mode("touchLockAndStartStream");
-  // output('touchLockAndStartStream');
   renderLock = true;
   startDate = new Date(); // required for touch locks.
   started = startDate.getTime(); // required for touch locks.
@@ -2168,16 +2168,15 @@ function touchLockAndStartStream() {
   setupFNames();
   clearCheck();
   setImmediate( () => { // time for the locks to go down
-    tLock(() => { initStream() } );
+    output("HELLO hello")
+    tLock();
+    initStream()
   })
 }
 function tLock(cb) {
-  // let mem = process.memoryUsage();
-
   const outski = `Started at ${formatAMPM(startDate)}, and after ${humanizeDuration(runningDuration)} completed ${nicePercent()}% of ${justNameOfDNA}. ${humanizeDuration(timeRemain)} to go with ${genomeSize.toLocaleString()} r/DNA base pairs done.
   ${memToString()}
   CPU load: ${loadAverages()}`;
-
   fileWrite(
     filenameTouch,
     lockFileMessage + ` ${version} ${timestamp} ${hostname}
@@ -2264,6 +2263,8 @@ function maybePoll(reason) {
     renderLock = false;
     rgbArray = null;     // garbage collection goodness!
     hilbertImage = null; // garbage collection goodness!
+    pollForStream();
+    // return false;
   } else {
     log(` [ wait on storage: ${chalk.inverse(storage())} ] `);
     return false;
@@ -3029,6 +3030,7 @@ function recycleOldImage(pngfile) {
 }
 
 function skipExistingFile (fizzle) { // skip the file if TRUE render it if FALSE
+  output(`The file is: ${fizzle} and the output is ${doesFileExist(fizzle)}`)
   mode('skipExistingFile')
   error('skipExistingFile');
   if (force == true) { return false; }
@@ -3264,7 +3266,7 @@ function saveHilbert(cb) {
     hilbert_img_png.pack()
     .pipe(wstream)
     .on('finish', (err) => {
-      if (err) { error(err) }
+      if (err) { error(`balls (${err}) `)}
       log("Finished hilbert png save.");
     }));
     output();
@@ -3835,8 +3837,9 @@ function saveHilbert(cb) {
     if (txt == undefined) { txt = 'txt not set' }
     // let mem = process.memoryUsage();
     // console.log();
-    let splitScreen = fixedWidth(debugColumns, `${busy()}  ${storage()} [Jobs: ${howMany} S:${status} F:${currentFile} ${(isHighlightSet ? peptide + " " : " ")} ${nicePercent()}@@@ >>>    `);
-    splitScreen += fixedWidth(debugColumns*2, `   ${txt} G: ${genomeSize.toLocaleString()} Est: ${onesigbitTolocale(estimatedPixels/1000000)} megapixels ${bytes( baseChars )} RunID: ${timestamp} H dim: ${hilbPixels[dimension]}]  ${formatAMPM(now)} and ${formatMs(now)}ms`);
+    let splitScreen = fixedWidth(debugColumns, `[Jbs: ${howMany}  Crrnt: ${maxWidth(12, currentFile)} Nxt: ${maxWidth(12, nextFile)} ${nicePercent()} ${busy()} ${storage()} Stat: ${status} Highlt${(isHighlightSet ? peptide + " " : " ")} >>>    `);
+    splitScreen += txt;
+    splitScreen += ` G: ${genomeSize.toLocaleString()} Est: ${onesigbitTolocale(estimatedPixels/1000000)} megapixels ${bytes( baseChars )} RunID: ${timestamp} H dim: ${hilbPixels[dimension]}]  ${formatAMPM(now)} and ${formatMs(now)}ms`;
     console.log(maxWidth(term.width -3,  splitScreen));
   }
   function output(txt) {
@@ -3854,7 +3857,7 @@ function saveHilbert(cb) {
       term.eraseLine();
       term.up(1);
       if (updates == true && renderLock == true) {
-        term.right(termMarginLeft);
+        // term.right(termMarginLeft);
       }
     }
   }
