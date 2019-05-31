@@ -5,7 +5,7 @@
 //       ╩ ╩┴ ┴┴┘└┘└─┘╚═╝└─┘└─┘  ═╩╝╝╚╝╩ ╩   ╚╝ ┴└─┘└┴┘└─┘┴└─
 //       by Tom Atkinson            aminosee.funk.nz
 //        ah-mee no-see       "I See It Now - I AminoSee it!"
-// const extensions = [ "txt", "fa", "mfa", "gbk", "dna", "fasta", "fna", "fsa", "mpfa", "gb", "gff"];
+module.exports.gracefulQuit = gracefulQuit;
 const defaultLabel = "aminosee.funk.nz"
 process.title = defaultLabel;
 const refimage = "Reference image - all amino acids blended together"
@@ -23,10 +23,15 @@ const widthMax = 960; // i wanted these to be tall and slim kinda like the most 
 const timestamp = Math.round(+new Date()/1000);
 const port = 4321;
 // const fileDialog = require('file-dialog')
-const spawn = require('cross-spawn');
-const httpserver = require('http-server'); // cant have - in js
+
+// AMINOSEE OWN IMPORTS:
 const serve = require('./aminosee-serve');
 const settings = require('./settings');
+const version = require('./lib/version');
+
+// OPEN SOURCE PACKAGES FROM NPM
+const spawn = require('cross-spawn');
+const httpserver = require('http-server'); // cant have - in js
 const stream = require('stream');
 const util = require('util');
 const path = require('path');
@@ -80,7 +85,7 @@ let termStatsHeight = 9;
 let termMarginLeft = (term.width - 100) / 3;
 let termMarginTop = (term.height - termDisplayHeight - termStatsHeight) / 3;
 let maxpix = targetPixels;
-let raceDelay = 169; // so i learnt a lot on this project. one day this line shall disappear replaced by promises.
+let raceDelay = 269; // so i learnt a lot on this project. one day this line shall disappear replaced by promises.
 let dimension = defaultMagnitude; // var that the hilbert projection is be downsampled to
 let darkenFactor = 0.25; // if user has chosen to highlight an amino acid others are darkened
 let highlightFactor = 4.0; // highten brightening.
@@ -90,7 +95,7 @@ let verbose = false; // not recommended. will slow down due to console.
 let debug = false; // not recommended. will slow down due to console.
 let force = false; // force overwrite existing PNG and HTML reports
 let artistic = false; // for Charlie
-let spew = false; // firehose your screen with DNA
+let spew = true; // firehose your screen with DNA
 let report = true; // html reports can be dynamically disabled
 let test = false;
 let updates = false;
@@ -117,7 +122,6 @@ let howMany = 1;
 // let StdInPipe = require('./stdinpipe');
 // let pipeInstance = new StdInPipe();
 
-let version = require('./lib/version');
 let termPixels = Math.round(((term.width-5) * (term.height-5))/4);
 
 termSize();
@@ -127,7 +131,7 @@ term.on('resize', function(tx, ty) {
 });
 
 let interactiveKeysGuide = "";
-let progTimer, hilbertImage, keyboard, filenameTouch, estimatedPixels, args, filenamePNG, extension, reader, hilbertPoints, herbs, levels, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, textFile, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, fileUploadShowing, testColors, chunksMax, chunksize, chunksizeBytes, cpu, subdivisions, contextBitmap, aminoacid, pixlinear, start, updateClock, bytesPerSec, pixelStacking, isHighlightCodon, justNameOfPNG, justNameOfHILBERT, sliceDNA, filenameHTML, secElapsed, runningDuration, bytesRemain, width, triplet, updatesTimer, pngImageFlags, codonsPerPixel, codonsPerPixelHILBERT, CRASH, red, green, blue, alpha, errorClock, breakClock, streamLineNr, filesDone, spewClock, opacity, codonRGBA, geneRGBA, currentTriplet, currentPeptide, shrinkFactor, reg, image, loopCounter, percentComplete, charClock, baseChars, bigIntFileSize, currentPepHighlight, justNameOfCurrentFile, server, openHtml, openFileExplorer, pixelStream, startPeptideIndex, stopPeptideIndex, flags, loadavg, platform, totalmem, correction, aspect, debugFreq;
+let progTimer, hilbertImage, keyboard, filenameTouch, estimatedPixels, args, filenamePNG, extension, reader, hilbertPoints, herbs, levels, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, textFile, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, fileUploadShowing, testColors, chunksMax, chunksize, chunksizeBytes, cpu, subdivisions, contextBitmap, aminoacid, pixlinear, start, updateClock, bytesPerMs, pixelStacking, isHighlightCodon, justNameOfPNG, justNameOfHILBERT, sliceDNA, filenameHTML, msElapsed , runningDuration, bytesRemain, width, triplet, updatesTimer, pngImageFlags, codonsPerPixel, codonsPerPixelHILBERT, CRASH, red, green, blue, alpha, errorClock, breakClock, streamLineNr, filesDone, spewClock, opacity, codonRGBA, geneRGBA, currentTriplet, currentPeptide, shrinkFactor, reg, image, loopCounter, percentComplete, charClock, baseChars, bigIntFileSize, currentPepHighlight, justNameOfCurrentFile, server, openHtml, openFileExplorer, pixelStream, startPeptideIndex, stopPeptideIndex, flags, loadavg, platform, totalmem, correction, aspect, debugFreq;
 BigInt.prototype.toJSON = function() { return this.toString(); }; // shim for big int
 BigInt.prototype.toBSON = function() { return this.toString(); }; // Add a `toBSON()` function to enable MongoDB to store BigInts as strings
 let data = require('./data.js');
@@ -161,7 +165,7 @@ function resized(tx, ty) {
     termMarginLeft = (term.width - 100) / 2;
     termMarginTop = (term.height - termDisplayHeight - termStatsHeight) / 2;
     debugColumns = Math.round(term.width / 3);
-    msPerUpdate = 200;
+    msPerUpdate = 100;
   } else {
     termMarginLeft = 0;
     termMarginTop = 0;
@@ -281,11 +285,14 @@ function setupApp() { // do stuff aside from creating any changes. eg if you jus
   setupPrefs();
 }
 function setupProject() { // returns progress bar.
-  let lines = 7
-  while (lines > 0) {
-    output('................................');
-    lines--;
+  if (verbose) {
+    let lines = 7
+    while (lines > 0) { // this is to help find the starts when scrolling in the terminal
+      output('................................');
+      lines--;
+    }
   }
+
   if (updates) {
     progato = term.progressBar({
       width: term.width - 20,
@@ -318,7 +325,7 @@ function progUpdate(obj) {  // allows to disable all the prog bars in one place
 }
 
 module.exports = () => {
-  version = require('./lib/version');
+  // version = require('./lib/version');
   status = "exports";
   args = minimist(process.argv.slice(2), {
     boolean: [ 'artistic' ],
@@ -577,9 +584,10 @@ module.exports = () => {
     openHtml = false;
   }
   if (args.spew || args.s) {
-    output("spew mode enabled.");
+    log("spew mode enabled.");
     spew = true;
   } else {
+    output("spew mode disabled.");
     spew = false;
   }
 
@@ -610,7 +618,7 @@ module.exports = () => {
     clear = false;
     termDisplayHeight--;
   }
-  if (args.updates || args.u) {
+  if (args.updates || args.u || updates) {
     log("statistics updates enabled");
     updates = true;
   } else {
@@ -691,18 +699,20 @@ module.exports = () => {
       currentFile = args._[0].toString();
       setupOutPaths();
       log("Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω " + filename)
-      mode("Ω first command " + howMany + " " + currentFile  + " " + filename);
+      mode("Ω first command " + howMany + " " + currentFile);
+      log(filename)
       out(status);
       args._.push(currentFile); // could never figure out how those args were getting done
       setupOutPaths();
       autoconfCodonsPerPixel();
       setupFNames();
-      // touchLockAndStartStream();
-      // initStream(filename);
       setupProject();
+      renderLock = true;
+      touchLockAndStartStream();
 
+      // initStream();
       // maybePoll('first poll');
-      pollForStream();
+      // pollForStream();
 
       return true;
     }
@@ -825,7 +835,7 @@ function toggleDevmode() {
     verbose = false;
     updates = true;
     clear = true;
-    raceDelay = 69;
+    raceDelay = 169;
     openHtml = true;
     openImage = true;
     openFileExplorer = true;
@@ -1090,14 +1100,14 @@ function pollForStream() { // remder lock must be off before calling.
   renderLock = true; // BUSY NOW. render lock protects the filename globals among others.
   percentComplete = 0;
   try {
-    nextFile = args._[args._.length - 2];
+    nextFile = args._[args._.length - 2]; // not the last but the second to last
   } catch(e) {
-    error(e);
+    log("This is not an error, but the second to last job " + e);
   }
   if (nextFile == undefined) {
     nextFile = "No_File";
-  }
-
+    out('SECOND TO LAST JOB')
+  } else { out('IM A PINEAPPLE ' + nextFile)}
 
   output(currentFile);
   output(currentFile);
@@ -1193,6 +1203,7 @@ function pollForStream() { // remder lock must be off before calling.
     setupFNames(); // will have incorrect Hilbert file name. Need to wait until after render to check if exists.
     bugtxt(`Polling filenameTouch ${filenameTouch} willStart   ${willStart}  pollAgainFlag ${pollAgainFlag}  defaultFilename  ${defaultFilename}  ${filename}  howMany   ${howMany}   status ${status}`);
     if (skipExistingFile(filenamePNG)) {
+      if (force) { return false } // dont skip
       renderLock = false;
       out(`Skipping render (${howMany} files to go)`);
       bugtxt(`Skipping render of: ${filenamePNG}    (${howMany} files to go)`);
@@ -1295,7 +1306,7 @@ function initStream() {
   mkdir(justNameOfDNA);
   mkdir(`${justNameOfDNA}/images`);
   // termSize();
-  secElapsed, runningDuration, charClock, percentComplete, genomeSize, pixlinear, opacity = 0;
+  msElapsed , runningDuration, charClock, percentComplete, genomeSize, pixlinear, opacity = 0;
   msPerUpdate = minUpdateTime;
   codonRGBA, geneRGBA, mixRGBA = [0,0,0,0]; // codonRGBA is colour of last codon, geneRGBA is temporary pixel colour before painting.
   codonsPerPixel = defaultC; //  one codon per pixel maximum
@@ -1329,7 +1340,7 @@ function initStream() {
   genomeSize = 1; // number of codons.
   pixelStacking = 0; // how we fit more than one codon on each pixel
   pixlinear = 0; // which pixel are we painting?
-  secElapsed = 0;
+  msElapsed  = 0;
   status = "init";
   clearCheck();
   output(`Loading ${filename} Filesize ${bytes(baseChars)}`);
@@ -1460,7 +1471,7 @@ function renderObjToString() {
   Run ID: ${timestamp} ${cliruns}th run on <b>${hostname}</b>
   Finished at: ${formatAMPM(new Date())} Time used: ${humanizeDuration( runningDuration )}
   Machine load averages: ${loadAverages()}
-  DNA Input bytes: ${bytes( baseChars )} ${bytes( bytesPerSec )}/sec
+  DNA Input bytes: ${bytes( baseChars )} ${bytes( bytesPerMs * 1000 )}/sec
   Image Output bytes: ${bytes (rgbArray.length)}
   Pixels linear: ${pixlinear.toLocaleString()} Aspect Ratio: ${ratio}
   Pixels hilbert: ${hilbPixels[dimension].toLocaleString()} ${(magnitude ? "(auto)" : "(manual -m)")}
@@ -3947,11 +3958,11 @@ function saveHilbert(cb) {
       function calcUpdate() { // DONT ROUND KEEP PURE NUMBERS
         fastUpdate();
         let now = new Date().getTime();
-        runningDuration = (now - started);
-        secElapsed = deresSeconds(runningDuration); // ??!! ah i see
-        timeRemain = deresSeconds((runningDuration / (percentComplete )) - secElapsed); // everything in ms
+        runningDuration = (now - started) + 1; // avoid division by zero
+        msElapsed  = deresSeconds(runningDuration); // ??!! ah i see
+        timeRemain = deresSeconds((runningDuration / (percentComplete )) - msElapsed ); // everything in ms
         bytesRemain = (baseChars - charClock);
-        bytesPerSec = Math.round( (charClock+1) / runningDuration )*1000;
+        bytesPerMs = Math.round( (charClock) / runningDuration );
         wTitle(`${nicePercent()} remain ${humanizeDuration(timeRemain)} `);
         codonsPerSec = (genomeSize+1) / (runningDuration*1000);
         if (percentComplete > 1.1) {
@@ -3982,19 +3993,22 @@ function saveHilbert(cb) {
       }
 
       function drawProgress() {
+        fastUpdate();
+        progato.update( percentComplete ) ;
+
         if (howMany >= 0 ) {
-          if (progTimer) { clearTimeout(progTimer) }
+          clearTimeout(progTimer)
+          // if (progTimer) { clearTimeout(progTimer) }
           progTimer = setTimeout(() => {
-            if (percentComplete < 0.98 && timeRemain > 5001) {
-              fastUpdate();
-              term.saveCursor();
-              term.moveTo(3, 3);
-              console.log();
-              progato.update( percentComplete ) ;
+            // term.saveCursor();
+            // term.moveTo(3, 3);
+            // term.restoreCursor();
+            if (percentComplete < 0.99 && timeRemain > 2001) {
+              drawProgress();
             } else {
               progato.stop();
             }
-          }, 1000);
+          }, 500);
         }
       }
       function onesigbitTolocale(num){
@@ -4042,9 +4056,9 @@ function saveHilbert(cb) {
         let text = " ";
         let aacdata = [];
         if (msPerUpdate < maxMsPerUpdate) {
-          msPerUpdate += 150; // updates will slow over time on big jobs
+          msPerUpdate += 200; // updates will slow over time on big jobs
           if (devmode) {
-            msPerUpdate += 50; // updates will slow over time on big jobs
+            msPerUpdate += 100; // updates will slow over time on big jobs
             if (debug) {
               msPerUpdate += 100;
             }
@@ -4056,10 +4070,10 @@ function saveHilbert(cb) {
         load = loadAverages();
         let array = [
           `| Load: ${load}`,
-          `| Done: ${chalk.rgb(128, 255, 128).inverse( nicePercent() )} Elapsed: ${ fixedWidth(12, humanizeDuration(secElapsed)) } Remain: ${humanizeDuration(timeRemain)}`,
+          `| Done: ${chalk.rgb(128, 255, 128).inverse( nicePercent() )} Elapsed: ${ fixedWidth(12, humanizeDuration(msElapsed )) } Remain: ${humanizeDuration(timeRemain)}`,
           `| @i${fixedWidth(10, charClock.toLocaleString())} Breaks:${ fixedWidth(6, breakClock.toLocaleString())} Filesize:${fixedWidth(7, bytes(baseChars))}`,
           `| Next update: ${fixedWidth(5, msPerUpdate.toLocaleString())}ms Codon Opacity: ${twosigbitsTolocale(opacity*100)}%`,
-          `| CPU:${fixedWidth(10, bytes(bytesPerSec))}/s ${fixedWidth(5, codonsPerSec.toLocaleString())}K acids/s`,
+          `| CPU:${fixedWidth(10, bytes(bytesPerMs*1000))}/s ${fixedWidth(5, codonsPerSec.toLocaleString())}K acids/s`,
           `${howMany} files to go.       Next file >>> ${maxWidth(24,nextFile)}`,
           `| Codons:${fixedWidth(14, genomeSize.toLocaleString())} Last Acid:${chalk.rgb(peakRed, peakGreen, peakBlue).bgWhite( fixedWidth(16, aminoacid + "   ") ) } Host: ${hostname} Pixels:${fixedWidth(10, pixlinear.toLocaleString())}`,
           `| Sample: ${ fixedWidth(60, rawDNA) } ${showFlags()}`,
@@ -4091,10 +4105,10 @@ function saveHilbert(cb) {
         output(`Last Red: ${peakRed} Last Green: ${peakGreen} Last Blue: ${peakBlue}`)
         log(    isDiskFinHTML, isDiskFinHilbert, isDiskFinLinear);
         if (clear == true) {          term.up(termDisplayHeight)  }
-        if (updates && renderLock && howMany >= 0 ) { // status == "stream") { // || updates) {
+        if (renderLock && howMany >= 0 ) { // status == "stream") { // || updates) {
           if (updatesTimer) { clearTimeout(updatesTimer)};
           updatesTimer = setTimeout(() => {
-            if (updates && renderLock && howMany >= 0 ) { // status == "stream") { // || updates) {
+            if (renderLock && howMany >= 0 ) { // status == "stream") { // || updates) {
               drawHistogram(); // MAKE THE HISTOGRAM AGAIN LATER
             }
           }, msPerUpdate);

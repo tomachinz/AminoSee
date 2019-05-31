@@ -1,3 +1,4 @@
+let aminosee = require('./aminosee-cli');
 // let pjson = require('../package.json');
 let fs = require('fs');
 
@@ -8,8 +9,9 @@ const base = process.env.PWD;
 let packagefile = base + '/package.json';
 
 function gracefulShutdown() {
-  console.log("[custom sigterm received]");
-  process.exit(); // now the "exit" event will fire
+  console.log("[custom sigterm received] @Aminosee settings.js");
+  aminosee.gracefulQuit();
+  // process.exit(); // now the "exit" event will fire
 }
 process.on("SIGTERM", () => {
   console.log('SIGTERM');
