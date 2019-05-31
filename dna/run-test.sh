@@ -80,9 +80,7 @@ echo NEARLY COMPLETED TESTING FOR $1 $2 $3 $4 $5 $6 $6
 echo LETS TYR THE ELECTRON APP GUI
 echo "-------------------------------------------"
 echo "                                         =///"
-cd ../../AminoSee/
-electron . &
-cd dna
+npm run electron  &
 sleep 2
 echo "                                         =///"
 echo "-------------------------------------------"

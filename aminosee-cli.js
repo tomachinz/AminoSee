@@ -3309,7 +3309,7 @@ function saveHilbert(cb) {
     output(`Generating hilbert curve of the ${dimension}th dimension out of: ${howMany}`);
     bugtxt(filenameHILBERT);
     percentComplete = 0;
-    let d = Math.round(hilpix/1000);
+    let d = Math.round(hilpix/100);
     for (i = 0; i < hilpix; i++) {
       let hilbX, hilbY;
       [hilbX, hilbY] = hilDecode(i, dimension, h);
