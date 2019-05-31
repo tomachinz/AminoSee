@@ -9,7 +9,7 @@ module.exports.gracefulQuit = gracefulQuit;
 module.exports.log = log;
 const defaultLabel = "aminosee.funk.nz"
 process.title = defaultLabel;
-const extensions = [ "txt", "fa", "mfa", "gbk", "dna", "fasta", "fna", "fsa", "mpfa", "gb", "gff"];
+// const extensions = [ "txt", "fa", "mfa", "gbk", "dna", "fasta", "fna", "fsa", "mpfa", "gb", "gff"];
 const refimage = "Reference image - all amino acids blended together"
 const closeBrowser = "If the process apears frozen, it's waiting for your browser or image viewer to exit. Escape with [ CONTROL-C ] or use --no-image --no-html";
 const lockFileMessage = `
@@ -143,7 +143,7 @@ BigInt.prototype.toJSON = function() { return this.toString(); }; // shim for bi
 BigInt.prototype.toBSON = function() { return this.toString(); }; // Add a `toBSON()` function to enable MongoDB to store BigInts as strings
 let data = require('./data.js');
 let pepTable = data.pepTable;
-// let extensions = data.extensions;
+let extensions = data.extensions;
 let asciiart = data.asciiart;
 for (h=0; h<pepTable.length; h++) { // update pepTable
   if (pepTable[h].Codon == "Start Codons") {
