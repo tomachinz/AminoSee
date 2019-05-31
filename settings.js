@@ -9,17 +9,17 @@ const base = process.env.PWD;
 let packagefile = base + '/package.json';
 
 function gracefulShutdown() {
-  console.log("[custom sigterm received] @Aminosee settings.js");
+  aminosee.log("[custom sigterm received] @Aminosee settings.js");
   aminosee.gracefulQuit();
   // process.exit(); // now the "exit" event will fire
 }
 process.on("SIGTERM", () => {
-  console.log('SIGTERM');
+  aminosee.log('SIGTERM');
   gracefulShutdown();
   process.exit(); // now the "exit" event will fire
 });
 process.on("SIGINT", function() {
-  console.log('SIGINT');
+  aminosee.log('SIGINT');
   gracefulShutdown();
   process.exit(); // now the "exit" event will fire
 });
