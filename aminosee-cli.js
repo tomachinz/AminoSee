@@ -973,7 +973,7 @@ function runDemo() {
 
     function ( cb ) {
       openOutputs();
-      cb();
+      if (cb) { cb() }
     },
     function ( cb ) {
       args._[0] = currentFile;
@@ -999,11 +999,12 @@ function downloadMegabase(cb) {
     }
     if (exists) {
       resolve()
-      cb()
+      if (cb) { cb( ) }
     } else {
       if (runTerminalCommand(`wget https://www.funk.co.nz/aminosee/dna/megabase.fa`)) {
         resolve();
-        cb()
+        if (cb) { cb( ) }
+
       } else {
         reject();
         cb()
@@ -1082,7 +1083,8 @@ function runTerminalCommand(str) {
 //         .on('finish',cb);
 //       } else {
 //         entry.autodrain();
-//         cb();
+//         if (cb) { cb( ) }
+;
 //       }
 //     }
 //   }));
