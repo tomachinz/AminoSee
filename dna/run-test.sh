@@ -43,7 +43,7 @@ sleep 2
 echo
 # echo "-------------------------------------------"
 # echo HALFWAY TESTING FOR $1 $2 $3 $4 $5 $6 $6
-ecoh ABOUT TO START OPENING WINDOWS AROUND THE PLACE
+echo ABOUT TO START OPENING WINDOWS AROUND THE PLACE
 # echo "-------------------------------------------"
 echo
 
