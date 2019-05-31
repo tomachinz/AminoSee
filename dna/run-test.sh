@@ -49,15 +49,15 @@ echo
 
 
 # echo "nice aminosee $1 $2 $3 $4 $5 $6 -f --no-updates --ratio=fix --peptide=Arginine --html &"
-nice aminosee       $1 $2 $3 $4 $5 $6 -f --no-updates --ratio=fix --peptide=Arginine --html &
+# nice aminosee       $1 $2 $3 $4 $5 $6 -f --no-updates --ratio=fix --peptide=Arginine --html &
 sleep 2
 
 # echo "nice aminosee $1 $2 $3 $4 $5 $6  test --image --ratio square &"
-nice aminosee       $1 $2 $3 $4 $5 $6  test --image --ratio square &
+# nice aminosee       $1 $2 $3 $4 $5 $6  test --image --ratio square &
 sleep 2
 
 # echo "nice aminosee help &"
-nice aminosee help  $1 $2 $3 $4 $5 $6  &
+nice aminosee help  $1 $2 $3 $4 $5 $6 --no-html  &
 sleep 2
 
 
@@ -66,9 +66,9 @@ nice aminosee demo   $1 $2 $3 $4 $5 $6  --no-html --no-image &
 sleep 2
 
 # echo "doing aminosee serve and opening a file"
-nice aminosee serve  $1 $2 $3 $4 $5 $6  &
+nice aminosee serve  $1 $2 $3 $4 $5 $6  --no-html &
 # echo only works on linux:
-open http://127.0.0.1:8081 &
+# open http://127.0.0.1:8081 &
 sleep 1
 echo KILLING ALL AMINOSEE SERVERS IN 5 seconds
 sleep 3
@@ -81,11 +81,12 @@ echo LETS TYR THE ELECTRON APP GUI
 echo "-------------------------------------------"
 echo "                                         =///"
 npm run gui  &
-sleep 2
+sleep 5
 echo "                                         =///"
 echo "-------------------------------------------"
 echo COMPLETED TESTING FOR $1 $2 $3 $4 $5 $6 $6
 echo "-------------------------------------------"
 echo "                                         =///"
+clear
 killall aminosee.funk.nz
 killall "aminosee.funk.nz 27MB_TestPattern 34.94MB"
