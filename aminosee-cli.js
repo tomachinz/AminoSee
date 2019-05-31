@@ -2137,6 +2137,7 @@ function saveHTML(cb) {
   fileWrite(filenameHTML, hypertext, htmlFinished );
   fileWrite(histogramFile, histotext );
   fileWrite(`${outputPath}/${justNameOfDNA}/main.html`, hypertext, cb);
+  htmlFinished();
 }
 function fileWrite(file, contents, cb) {
   try {
@@ -3393,7 +3394,7 @@ function saveHilbert(cb) {
         linearFinished();
         hilbertFinished();
         htmlFinished();
-        // if (cb) { cb() }
+        if (cb != undefined ) { cb( ) }
         resetAndMaybe();
         return false;
       } else if (pixlinear == -1) {
@@ -3469,12 +3470,14 @@ function saveHilbert(cb) {
         })
       ).then( log('then after promise') ).catch( log('catch promise') );
 
-      if (callback != undefined) {
-        bugtxt("callback");
-        callback();
-      } else {
-        bugtxt("quit - no callback");
-      }
+
+      if (cb != undefined ) { cb( ) }
+      // if (callback != undefined) {
+      //   bugtxt("callback");
+      //   callback();
+      // } else {
+      //   bugtxt("quit - no callback");
+      // }
     }
 
     function openOutputs() {
@@ -3766,7 +3769,7 @@ function saveHilbert(cb) {
     let rtxt = `[HILBERT] Calculating largest Hilbert curve image that can fit inside ${twosigbitsTolocale(pix)} pixels, and over sampling factor of ${overSampleFactor}: `;
     while (pix > (hilbPixels[dim] * overSampleFactor)) {
       rtxt += ` dim ${dim}: ${hilbPixels[dim]} `;
-
+      out(rtxt);
       if (dim % 666 == 0 && dim > 666) {
         rtxt+= (`ERROR idealDimension [${hilbPixels[dim]}] pix ${pix} dim ${dim} `);
       }
