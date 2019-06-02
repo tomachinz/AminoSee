@@ -392,10 +392,6 @@ module.exports = () => {
     debug = false;
   }
 
-  if (args.quiet || args.q) { // needs to be at top so toggleDevode() changes can be overridden! but after debug.
-    log("quiet mode enabled.");
-    const quiet = true;
-  } else { const quiet = false }
 
   devmode = false;
   if (args.devmode || args.d) { // needs to be at top so toggleDevode() changes can be overridden! but after debug.
@@ -669,6 +665,13 @@ module.exports = () => {
   } else {
     test = false;
   }
+  if (args.quiet || args.q) { // needs to be at top so toggleDevode() changes can be overridden! but after debug.
+    log("quiet mode enabled.");
+    const quiet = true;
+    verbose = false;
+
+  } else { const quiet = false }
+
   // firstRun();
   // mkdirhomedir(obviousFoldername); // creates the ~/AminoSee_outputPath/
   // mkdir();
@@ -1187,7 +1190,7 @@ function pollForStream() { // remder lock must be off before calling.
     log('wrong format');
     // isDiskFinHTML = true;
     currentFile = args._.pop();
-    nextFile = args._.pop();
+    // nextFile = args._.pop();
 
     pollForStream();
     return false;
@@ -3878,14 +3881,14 @@ function saveHilbert(cb) {
       // console.log(chalk.bgBlack(txt));
       console.log(txt);
       if (updates == true && renderLock == true) {
-        // term.right(termMarginLeft);
+        term.right(termMarginLeft);
       }
       term.eraseLine();
       term.down(1);
       term.eraseLine();
       term.up(1);
       if (updates == true && renderLock == true) {
-        // term.right(termMarginLeft);
+        term.right(termMarginLeft);
       }
     }
   }
