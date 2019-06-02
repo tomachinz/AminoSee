@@ -80,7 +80,7 @@ let currentFile = funknzLabel;
 let nextFile = funknzLabel;
 let filename = funknzLabel;
 let browser = 'firefox';
-const minUpdateTime = 1000;
+const minUpdateTime = 200;
 let now = new Date();
 let maxMsPerUpdate = 30000; // milliseconds per updatelet maxpix = targetPixels; // maxpix can be changed downwards by algorithm for small genomes in order to zoom in
 let timeRemain = 5001;
@@ -109,7 +109,7 @@ let stats = true;
 let recycEnabled = false; // bummer had to disable it
 let renderLock = false; // not rendering right now obviously
 let msPerUpdate = 200; // min milliseconds per update
-let clear = false; // clear the terminal screen while running
+let clear = true; // clear the terminal screen while running
 let openLocalHtml = true; // its better to use the built-in server due to CORS
 let highlightTriplets = [];
 let isHighlightSet = false;
@@ -168,7 +168,7 @@ function resized(tx, ty) {
     clearCheck();
   }
   debugColumns = setDebugCols(); // Math.round(term.width / 3);
-  msPerUpdate = minUpdateTime
+  msPerUpdate = minUpdateTime;
 
   if (updates == true) {
     // cover entire screen!
@@ -386,7 +386,7 @@ module.exports = () => {
     string: [ 'width'],
     unknown: [ true ],
     alias: { a: 'artistic', b: 'dnabg', c: 'codons', d: 'devmode', f: 'force', h: 'help', k: 'keyboard', m: 'magnitude', o: 'outpath', out: 'outpath', output: 'outpath', p: 'peptide', i: 'image', t: 'triplet', q: 'quiet', r: 'reg', w: 'width', v: 'verbose', x: 'explorer', finder: 'explorer'  },
-    default: { updates: true, dnabg: true, clear: false }
+    default: { updates: true, dnabg: true, clear: true }
   });
   setupApp(); // do stuff that is needed even just to run "aminosee" with no options.
   let cmd = args._[0];
@@ -400,11 +400,11 @@ module.exports = () => {
 
 
   devmode = false;
-  if (args.devmode || args.d) { // needs to be at top so toggleDevode() changes can be overridden! but after debug.
+  if (args.devmode || args.d) { // needs to be at top sochanges can be overridden! but after debug.
     output("devmode enabled.");
     toggleDevmode();
   }
-  if (args.recycle) { // needs to be at top so toggleDevode() changes can be overridden! but after debug.
+  if (args.recycle) { // needs to be at top so  changes can be overridden! but after debug.
     output("recycle mode enabled. (experimental)");
     recycEnabled = true;
   } else { recycEnabled = false }
@@ -607,7 +607,7 @@ module.exports = () => {
     output("verbose enabled.");
     verbose = true;
     termDisplayHeight++;
-  }
+  } else { verbose = false; }
   if (args.html) {
     output("will open html after render")
     openHtml = true;
@@ -671,11 +671,12 @@ module.exports = () => {
   } else {
     test = false;
   }
-  if (args.quiet || args.q) { // needs to be at top so toggleDevode() changes can be overridden! but after debug.
+  if (args.quiet || args.q) { // needs to be at top so changes can be overridden! but after debug.
     log("quiet mode enabled.");
     const quiet = true;
     verbose = false;
-
+    dnabg = false;
+    updates = false;
   } else { const quiet = false }
 
   switch (cmd) {
@@ -741,7 +742,7 @@ module.exports = () => {
       log("Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω " + filename)
       mode("Ω first command " + howMany + " " + currentFile);
       log(filename)
-      out(status);
+      log(status);
       args._.push(currentFile); // could never figure out how those args were getting done
       lookForWork('first command')
       return true;
@@ -856,7 +857,7 @@ function toggleDevmode() {
     termDisplayHeight++;
     raceDelay += 1000; // this helps considerably!
     if (debug == true) {
-      raceDelay += 2000; // this helps considerably!
+      raceDelay += 500; // this helps considerably!
     }
   } else {
     raceDelay -= 500; // if you turn devmode on and off a lot it will slow down
@@ -892,9 +893,8 @@ function toggleUpdates() {
 }
 function gracefulQuit() {
   mode( "Graceful shutdown in progress...");
-  out(status);
-  return true;
-  out(status);
+  log(status);
+  // return true;
   args._ = [];
   howMany = -1;
   removeLocks();
@@ -902,7 +902,7 @@ function gracefulQuit() {
   calcUpdate();
   setImmediate( () => {
     setTimeout( () => {
-      // quit(0, 'graceful')
+      quit(0, 'graceful')
     }, raceDelay);
   })
 }
@@ -1129,9 +1129,9 @@ function blueBlack(txt) {
 function mode(txt) {
   status = txt;
   if (!verbose) {
-    log(txt);
+    bugtxt(txt);
   } else {
-    blueBlack(txt);
+    log(txt);
   }
   wTitle(txt);
 }
@@ -1159,14 +1159,13 @@ function pollForStream() { // render lock must be off before calling. aim: start
     return false;
   }
   percentComplete = 0;
-
   setNextFile();
-
   try {
     currentFile = args._.pop().toString();
   } catch(e) {
     mode("pollForStream args not exist" + e)
     log('Render job ended empty unexpectedly due to: args not exist');
+    quit(1, status)
     return false;
   }
   if ( currentFile == undefined ) {
@@ -1179,12 +1178,15 @@ function pollForStream() { // render lock must be off before calling. aim: start
   howMany = args._.length;
   filename = path.resolve(currentFile);  // not thread safe after here!
   if (checkFileExtension(currentFile) == false) {
-    error("Format: " + getFileExtension(currentFile) + " NOT OK: " + checkFileExtension(currentFile) );
-    lookForWork();
+    clout("Format: " + getFileExtension(currentFile) + " NOT OK: " + checkFileExtension(currentFile) );
+    setTimeout( () => {
+      lookForWork();
+    }, raceDelay)
     return false;
   }
 
-  output(fixedWidth(64, "Now >>   " + currentFile + " then " + nextFile));
+  // output(fixedWidth(64, "Now >>   " + currentFile + " then " + nextFile));
+  output("Now >>   " + currentFile + " then " + nextFile);
 
   mode('starting ' + howMany);
   bugtxt("****************************************")
@@ -1200,12 +1202,12 @@ function pollForStream() { // render lock must be off before calling. aim: start
   bugtxt("****************************************")
   log   ("             starting render            ")
   bugtxt("****************************************")
-  output("next ***   " + nextFile)
-  out("current ***   " + currentFile);
+  log("next ***   " + nextFile)
+  log("current ***   " + currentFile);
 
   setupFNames();
 
-  out("PNG: " + justNameOfPNG);
+  log("PNG: " + justNameOfPNG);
   bugtxt(` [polling ${nicePercent()} ${status} ${new Date()}`);
     bugtxt(` [ howMany  ${howMany} ${status} ${filename} ${currentFile}]`);
     if (currentFile == undefined) {
@@ -1244,7 +1246,8 @@ function pollForStream() { // render lock must be off before calling. aim: start
     bugtxt(`Polling filenameTouch ${filenameTouch} willStart   ${willStart}  pollAgainFlag ${pollAgainFlag}  defaultFilename  ${defaultFilename}  ${filename}  howMany   ${howMany}   status ${status}`);
 
     if (skipExistingFile(filenamePNG)) {
-      out(`Skipping render (${howMany} files to go)`);
+      out(`Skipping render due to FILE EXISTING ALREADY (${howMany} files to go)`);
+      output(filenamePNG);
       bugtxt(`Skipping render of: ${filenamePNG}    (${howMany} files to go)`);
       out("use --force to overwrite  --image to automatically open   ");
       if (openHtml == true || openImage == true || args.image == true) {
@@ -1352,7 +1355,7 @@ function initStream() {
 
   mode("Ω first command " + howMany + " " + currentFile);
   log(filename)
-  out(status);
+  log(status);
 
   // args._.push(currentFile); // could never figure out how those args were getting done
   if (!checkFileExtension(currentFile)) {
@@ -1449,7 +1452,7 @@ function manageLocks(time) {
       // calcUpdate();
       output();
       if (percentComplete < 0.5) { // helps to eliminate concurrency issues
-        tLock(postRenderPoll);
+        tLock();
         manageLocks(time*2)
       } else {
         log('No more updates scheduled after 50%. Current at ' + nicePercent())
@@ -1464,6 +1467,11 @@ function manageLocks(time) {
 }
 function streamStopped() {
   log("Stream ending event");
+  if(!renderLock) {
+    error(`Unexpected state of renderlock`);
+    blueBlack(`Unexpected state of renderlock`)
+    renderLock = true;
+  }
   destroyProgress();
   percentComplete = 1;
   calcUpdate();
@@ -1534,7 +1542,7 @@ function autoconfCodonsPerPixel() {
     estimatedPixels = 696969; // 696969 flags a missing value in debug
     magnitude = dimension = 6; // close to 69
     log("Could not get filesize, setting for image size of 696,969 pixels, maybe use --codons 1 this is rendered with --codons 696");
-    output("Are you streaming std in? That part isn't written yet!")
+    bugtxt("Are you streaming std in? That part isn't written yet!")
     baseChars = 696969; // 696969 flags a missing value in debug
     codonsPerPixel = 696; // small images with _c69 in filename
     return true;
@@ -1557,7 +1565,7 @@ function autoconfCodonsPerPixel() {
     output(`Manual zoom level override enabled at: ${userCPP} codons per pixel.`);
     codonsPerPixel = userCPP;
   } else {
-    output("Automatic codons per pixel setting")
+    log("Automatic codons per pixel setting")
   }
 
   if (estimatedPixels > maxpix ) { // for seq bigger than screen        codonsPerPixel = estimatedPixels / maxpix*overSampleFactor;
@@ -1635,11 +1643,8 @@ function highlightFilename() {
 
 function setupFNames() {
   mode("setupFNames " + currentFile);
-  output(`current ${currentFile} next ${nextFile}`);
-  bugtxt(`outputPath is totally: ${outputPath}`);
   // calculateShrinkage(); // REQUIRES INFO FROM HERE FOR HILBERT FILENAME. BUT THAT INFO NOT EXIST UNTIL WE KNOW HOW MANY PIXELS CAME OUT OF THE DNA!
-  bugtxt(`f: ${currentFile}`)
-  // justNameOfCurrentFile = replaceoutputPathFileName( currentFile );
+  filename = path.resolve(currentFile);
   justNameOfCurrentFile = replaceoutputPathFileName( filename );
   extension = getFileExtension(currentFile);
   justNameOfDNA = spaceTo_(removeFileExtension(justNameOfCurrentFile));
@@ -1654,6 +1659,9 @@ function setupFNames() {
   filenameHTML =  `${outputPath}/${justNameOfDNA}/${generateFilenameHTML()}`;
   filenamePNG =     `${outputPath}/${justNameOfDNA}/images/${generateFilenamePNG()}`;
   filenameHILBERT = `${outputPath}/${justNameOfDNA}/images/${generateFilenameHilbert()}`;
+  bugtxt(`current ${currentFile} next ${nextFile}`);
+  bugtxt(`outputPath is totally: ${outputPath}`);
+  bugtxt(`f: ${currentFile}`)
   bugtxt(`ext: ${highlightFilename() + ext} pep ${peptide} status ${status} outputPath ${outputPath} isHighlightSet ${isHighlightSet} filenameTouch ${filenameTouch}`);
 }
 function buildServer() {
@@ -1936,11 +1944,11 @@ function mkRenderFolders() {
   mkdir(`${justNameOfDNA}/images`);
 }
 function saveDocsSync() {
-  mode('Save documents with async.series');
-  printRadMessage(['Finished linear render', 'Saving docs out', storage(), busy(), outputPath]);
+  mode('saveDocsSync');
   if (!renderLock) {
     error("How is this even possible. renderLock should be true until all storage is complete");
   }
+  printRadMessage(['Finished linear render of '+ justNameOfDNA, 'Saving docs out', storage(), `${howMany} files to go`, outputPath]);
   percentComplete = 1; // to be sure it shows 100% complete
   isDiskFinHTML = false;
   isDiskFinHilbert = false;
@@ -1953,11 +1961,11 @@ function saveDocsSync() {
   done++;
 
   output();
-  output(chalk.rgb(255, 255, 255).inverse(fixedWidth(debugColumns, `Input DNA File: ${filename}`)));
-  output(chalk.rgb(200,200,200).inverse(  fixedWidth(debugColumns, `Linear PNG: ${justNameOfPNG}`)));
-  output(chalk.rgb(150,150,150).inverse(  fixedWidth(debugColumns, `Hilbert PNG: ${justNameOfHILBERT}`)));
-  output(chalk.rgb(100,100,180).inverse(  fixedWidth(debugColumns, `HTML ${justNameOfHTML}`)));
-  output(chalk.rgb(80,80,120).inverse(    fixedWidth(debugColumns, `${filenameTouch.substring(filenameTouch.length -24, -1)} LOCKFILE`)));
+  output(chalk.rgb(255, 255, 255).inverse(fixedWidth(debugColumns*2, `Input DNA File: ${filename}`)));
+  output(chalk.rgb(200,200,200).inverse(  fixedWidth(debugColumns*2, `Linear PNG: ${justNameOfPNG}`)));
+  output(chalk.rgb(150,150,150).inverse(  fixedWidth(debugColumns*2, `Hilbert PNG: ${justNameOfHILBERT}`)));
+  output(chalk.rgb(100,100,180).inverse(  fixedWidth(debugColumns*2, `HTML ${justNameOfHTML}`)));
+  output(chalk.rgb(80,80,120).bgBlue.inverse(    fixedWidth(debugColumns*2, `${filenameTouch.substring(filenameTouch.length -24, -1)} LOCKFILE`)));
 
 
   async.series( [
@@ -2080,6 +2088,8 @@ function saveHTML(cb) {
     return false;
   }
   mode("save HTML");
+  percentComplete = 1;
+  calcUpdate();
   computerWants = idealDimension(pixlinear);
   out('HTML')
   bugtxt( pepTable.sort( compareHistocount ) ); // least common amino acids in front
@@ -2132,10 +2142,10 @@ function fileWrite(file, contents, cb) {
             bugtxt('Could not set permission for file: ' + file + ' due to ' + e);
           }
         }
-        out('¢');
+        log('¢');
         if (cb) { cb() }
       });
-      out('$');
+      log('$');
     } catch(err) {
       error(`[catch] Issue with saving: ${file} ${err}`);
       if (cb) { cb() }
@@ -2182,11 +2192,13 @@ function removeLocks() { // just remove the lock files.
       log("Removing locks OK...")
       if (err) { log('ish'); console.warn(err);  }
       renderLock = false;
+      // pollForStream();
       lookForWork('removeLocks unlinkSync success');
     });
   } catch (err) {
     log("No locks to remove: " + err);
     renderLock = false;
+    // pollForStream();
     lookForWork('removeLocks unlinkSync catch err: ' + err);
   }
 }
@@ -2212,16 +2224,6 @@ function lookForWork(reason) { // move on to the next file via pollForStream. on
     return false;
   }
   // log(`Idle, waiting on: ${storage()}`);
-
-  setNextFile();
-  currentFile = nextFile;
-
-  filename = path.resolve(currentFile);
-  howMany = args._.length;
-
-
-
-
   if (howMany == -1) {
     output('Shutdown in progress');
     return false;
@@ -2230,39 +2232,60 @@ function lookForWork(reason) { // move on to the next file via pollForStream. on
     log('Happiness.');
     return false;
   }
+  setNextFile();
+  // touchLockAndStartStream()
+  if (renderLock == true) {
+    return false;
+  }
 
-  setupFNames();
+  if (checkFileExtension(nextFile)) {
+    log(`Queued render job for: ${chalk.inverse(fixedWidth(24, currentFile))}`)
+    setImmediate( () => {
+        if (renderLock == false) {
+          // currentFile = nextFile;
+          setupFNames();
+          touchLockAndStartStream()
+          // pollForStream();
+        }
+    })
+  }
 
+
+  currentFile = args._.pop();
+  filename = path.resolve(currentFile);
+  howMany = args._.length;
   if (howMany > 0 ) {
     bugtxt(`Polling in ${raceDelay}ms ${howMany} files remain, next is ${maxWidth(32, nextFile)}`);
-
-
   } else {
     mode("...and thats's all she wrote folks, outa jobs.");
     quit(0, status);
     return true;
   }
-  // setupProject();
-
+  setupProject();
   autoconfCodonsPerPixel();
   setupFNames();
-
 
   if (checkFileExtension(currentFile)) {
     log(`Queued render job for: ${chalk.inverse(fixedWidth(24, currentFile))}`)
     setImmediate( () => {
-      setTimeout( () => {
-        pollForStream();
-      }, raceDelay);
+      // setTimeout( () => {
+        if (renderLock == false) {
+          // touchLockAndStartStream()
+          pollForStream();
+        }
+      // }, raceDelay);
     })
     // args._.push(nextFile);
   } else {
-    clout(`Skipping render of: ${chalk.inverse(fixedWidth(24, currentFile))} due to wrong format`);
-
+    log(`Skipping render of: ${chalk.inverse(fixedWidth(24, currentFile))} due to wrong format`);
+    renderLock = false;
+    currentFile = args._.pop();
+    filename = path.resolve(currentFile);
 
     setImmediate( () => {
       setTimeout( () => {
-        pollForStream();
+        lookForWork();
+        // pollForStream();
       }, raceDelay);
     })
   }
@@ -2271,10 +2294,10 @@ function lookForWork(reason) { // move on to the next file via pollForStream. on
 function postRenderPoll(reason) { // make sure all disks and images saved before dicking with global filenames
   if (test) { return false; }
   if (renderLock != true) { // re-entrancy filter
-    error("Not rendering, but entered postRenderPoll: "+reason)
+    bugtxt("Not rendering, but entered postRenderPoll: " + reason)
     return true
   } else {
-    log('busy saving')
+    log('saving')
   }
   // try to avoid messing with globals of a already running render!
   // sort through and load a file into "nextFile"
@@ -3016,7 +3039,7 @@ function recycleOldImage(pngfile) {
 }
 
 function skipExistingFile (fizzle) { // skip the file if TRUE render it if FALSE
-  output(`The file is: ${fizzle} which does ${(doesFileExist(fizzle) ? '' : 'not')} exist`)
+  bugtxt(`The file is: ${fizzle} which ${(doesFileExist(fizzle) ? 'DOES' : 'does NOT')} exist`)
   mode('skipExistingFile')
   if (force == true) { return false; } // true means to skip render
   return doesFileExist(fizzle);
@@ -3156,7 +3179,7 @@ function saveHilbert(cb) {
     return false;
   }
   mode('save hilbert');
-  output("Getting in touch with my man from 1891... Hilbert. In the " + dimension + "th dimension and reduced by " + threesigbitsTolocale(shrinkFactor) + "X  ----> " + justNameOfHILBERT);
+  log("Getting in touch with my man from 1891... Hilbert. In the " + dimension + "th dimension and reduced by " + threesigbitsTolocale(shrinkFactor) + "X  ----> " + justNameOfHILBERT);
   output("    ॐ    ");
   out(justNameOfDNA);
   // term.up(1);
@@ -3226,7 +3249,7 @@ function saveHilbert(cb) {
     hilbert_img_png.pack()
     .pipe(wstream)
     .on('finish', (err) => {
-      out("HILBERT Save OK " + storage());
+      bugtxt("HILBERT Save OK " + storage());
       hilbertFinished();
     })
     if (cb) { cb() }
@@ -3234,7 +3257,7 @@ function saveHilbert(cb) {
 }
 function htmlFinished() {
   isDiskFinHTML = true;
-  out("HTML done")
+  bugtxt("HTML done")
   setTimeout( () => {
     postRenderPoll('htmlFinished');
   }, raceDelay)
@@ -3242,14 +3265,14 @@ function htmlFinished() {
 }
 function hilbertFinished() {
   isDiskFinHilbert = true;
-  out("Hilbert PNG done");
+  bugtxt("Hilbert PNG done");
   setTimeout( () => {
     postRenderPoll('hilbertFinished');
   }, raceDelay)
 }
 function linearFinished() {
   isDiskFinLinear = true;
-  out(`Linear PNG done`);
+  bugtxt(`Linear PNG done`);
   if (test == true) { return false; } else {
     setTimeout( () => {
       postRenderPoll('linearFinished');
@@ -3343,13 +3366,15 @@ function bothKindsTestPattern() {
     }
 
     if (pixlinear == 0) {
-      output("No DNA or RNA in this file sorry?! You sure you gave a file with sequences? Like: GCCTCTATGACTGACGTA" + filename);
+      error("No DNA or RNA in this file sorry?! You sure you gave a file with sequences? Like: GCCTCTATGACTGACGTA" + filename);
       isDiskFinHTML = isDiskFinLinear = isDiskFinHilbert = true;
-      linearFinished();
-      hilbertFinished();
-      htmlFinished();
+      renderLock = false;
+      lookForWork('No DNA or RNA in this file sorry?!');
+      // linearFinished();
+      // hilbertFinished();
+      // htmlFinished();
       if (cb != undefined ) { cb( ) }
-      resetAndMaybe();
+      // resetAndMaybe();
       return false;
     } else if (pixlinear == -1) {
       output("Cant save " + filename);
@@ -3419,7 +3444,7 @@ function bothKindsTestPattern() {
       img_png.pack()
       .pipe(wstream)
       .on('finish', () => {
-        blueBlack("PNG Save OK " + storage());
+        log("PNG Save OK " + storage());
         linearFinished();
       })
     }
@@ -3728,7 +3753,7 @@ function idealDimension(pix) { // give it pix it returns a magnitude that fits i
   if (dim>0) { dim--; } // was off by 1
 
   rtxt+= ` <<<--- chosen magnitude: ${dim} `;
-  output(rtxt);
+  log(rtxt);
   if (devmode == true) { bugtxt(rtxt) }
   return dim;
 }
@@ -3797,7 +3822,7 @@ function bugout(txt) {
   term.up(1);
 }
 function output(txt) {
-  if (txt == undefined) { txt = status; }
+  if (txt == undefined) { txt = ( debug ? status : ' ') }
   term.eraseLine();
   console.log(txt);
   if (updates == true && renderLock == true) {
@@ -3831,7 +3856,9 @@ function out(txt) {
   }
 }
 function clout(txt) {
-  if (txt == undefined) { return false; }
+  if (txt == undefined) {
+    return false;
+  }
   if (txt.substring(0,5) == 'error') {
     console.warn(`[ ${txt} ] `);
   } else {
@@ -3989,15 +4016,8 @@ function clout(txt) {
       timeRemain = deresSeconds((runningDuration / (percentComplete )) - msElapsed ); // everything in ms
       bytesRemain = (baseChars - charClock);
       bytesPerMs = Math.round( (charClock) / runningDuration );
-      wTitle(`${nicePercent()} remain ${humanizeDuration(timeRemain)} `);
       codonsPerSec = (genomeSize+1) / (runningDuration*1000);
-      // if (percentComplete > 1.1) {
-      //   error("Hello I'm a terrible bug, awfully sorry");
-      //   out(percentComplete + "this will end in 5 brudda")
-      //   setTimeout(() => {
-      //     process.exit()
-      //   }, 5000)
-      // }
+      wTitle(`${nicePercent()} remain ${humanizeDuration(timeRemain)} `);
     }
     function deresSeconds(ms){
       return Math.round(ms/1000) * 1000;
@@ -4130,7 +4150,7 @@ function clout(txt) {
 
       printRadMessage(array);
       term.right(termMarginLeft);
-      output(`Done: ${chalk.rgb(128, 255, 128).inverse( nicePercent() )} Elapsed: ${ fixedWidth(12, humanizeDuration(msElapsed )) } Remain: ${humanizeDuration(timeRemain)} Processed ${twosigbitsTolocale(gbprocessed)} GB Runs: ${cliruns} RunID: ${timestamp} on ${hostname}`);
+      output(`Done: ${chalk.rgb(128, 255, 128).inverse( nicePercent() )} Elapsed: ${ fixedWidth(12, humanizeDuration(msElapsed )) } Processed ${twosigbitsTolocale(gbprocessed)} GB Runs: ${cliruns} RunID: ${timestamp} on ${hostname} Remain: ${humanizeDuration(timeRemain)}`);
       progUpdate(percentComplete);
       output();
       console.log(histogram(aacdata, { bar: '/', width: debugColumns*2, sort: true, map: aacdata.Histocount} ));

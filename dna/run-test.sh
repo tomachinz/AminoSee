@@ -17,6 +17,9 @@ nice aminosee       $1 $2 $3 $4 $5 $6 --triplet ggg --ratio=sqr
 # echo "nice aminosee $1 $2 $3 $4 $5 $6 -m5 --ratio=gol"
 nice aminosee       $1 $2 $3 $4 $5 $6 -m5 --ratio=gol
 
+echo nice aminosee  $1 $2 $3 $4 $5 $6 -c100 --ratio=sqr
+nice aminosee  $1 $2 $3 $4 $5 $6 -c100 --ratio=sqr
+
 # echo "nice aminosee $1 $2 $3 $4 $5 $6 -f --ratio=gol --peptide=Ochre"
 nice aminosee       $1 $2 $3 $4 $5 $6 -f --ratio=gol --peptide=Ochre
 
@@ -33,7 +36,10 @@ nice aminosee       $1 $2 $3 $4 $5 $6 -m 8 --peptide=Cysteine
 nice aminosee       $1 $2 $3 $4 $5 $6 --no-updates -c 500 --ratio=GOLDEN --peptide=Tryptophan
 
 
-aminosee 27MB_TestPattern.txt  3MB_TestPattern.txt -f --no-updates --no-clear -v --debug &
+aminosee 27MB_TestPattern.txt  3MB_TestPattern.txt -c10 -f --no-updates --no-clear -v --debug
+
+aminosee 27MB_TestPattern.txt  3MB_TestPattern.txt -c10 
+
 sleep 2
 #
 # echo 'nice aminosee *'
