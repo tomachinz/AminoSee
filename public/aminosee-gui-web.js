@@ -28,6 +28,7 @@ if(window.addEventListener) {
   window.attachEvent('onload',pageLoaded); //IE
 }
 function fileChanged(f) {
+  if (f == undefined) { f = 'megabase' }
   filename = f;
   let path = window.location.pathname;
   let newURL = `${path}#?selectedGenome=${f}`;
@@ -39,7 +40,7 @@ function fileChanged(f) {
 }
 function reportLoaded() {
   console.log("FETCH");
-  fetch(filename +  "_histogram.json")
+  fetch(filename +  "output/megabase/megabase_histogram.json")
   .then(response => response.json())
   .then(json => {
     console.log(json);
@@ -47,6 +48,7 @@ function reportLoaded() {
   });
 }
 function pageLoaded() {
+  reportLoaded();
   initVariables();
   sceneCameraSetup();
   setScene();
@@ -62,6 +64,15 @@ function pageLoaded() {
     togglePause(); // done twice to re-trigger the autopause
   }
   // parseApache()
+}
+function jsonTest() {
+  fetch('output/megabase/megabase.json')
+  .then(function(response) {
+    return response.json();
+  })
+  .then(function(myJson) {
+    console.log(JSON.stringify(myJson));
+  });
 }
 function initVariables() {
   // DO THIS ONCE!
@@ -99,8 +110,8 @@ function initVariables() {
   }
 
   stat("initialisation: zoom levels distance subdivisions " +   zoom + ", " +  levels  + ", " + distance);
-  window.addEventListener('devicemotion', listener);
-  window.addEventListener('deviceorientation', listener);
+  // window.addEventListener('devicemotion', listener);
+  // window.addEventListener('deviceorientation', listener);
   document.addEventListener( 'mousemove', onDocumentMouseMove, false );
   document.addEventListener( 'touchstart', onDocumentTouchStart, false );
   document.addEventListener( 'touchmove', onDocumentTouchMove, false );
@@ -1237,9 +1248,9 @@ function testParse() {
     mouseX = event.clientX - windowHalfX;
     mouseY = event.clientY - windowHalfY;
     console.log("Position", mouseX, mouseY);
-    if (page == "report") {
-      positionStack();
-    }
+    // if (page == "report") {
+    //   positionStack();
+    // }
   }
 
   function onDocumentTouchStart( event ) {

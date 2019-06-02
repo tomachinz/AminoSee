@@ -57,7 +57,7 @@ const fs = require('fs-extra'); // drop in replacement = const fs = require('fs'
 const request = require('request');
 const histogram = require('ascii-histogram');
 const bytes = require('bytes');
-const Jimp = require('jimp');
+// const Jimp = require('jimp');
 const PNG = require('pngjs').PNG;
 const os = require("os");
 const humanizeDuration = require('humanize-duration')
@@ -1723,36 +1723,33 @@ function symlinkGUI(cb) { // does:  ln -s /Users.....AminoSee/public, /Users....
     cb();
   }
 }
-function destroyGUI() {
 
-}
-function startLocalWebServer() {
-  fullSrc = path.normalize( path.resolve(appPath + '/public/lws.config.js') );
-  fullDest = path.normalize( path.resolve(process.cwd() + '/lws.config.js') ); // MOVES INTO ROOT
-  createSymlink(fullSrc, fullDest);
+// function startLocalWebServer() { // package lws
+//   fullSrc = path.normalize( path.resolve(appPath + '/public/lws.config.js') );
+//   fullDest = path.normalize( path.resolve(process.cwd() + '/lws.config.js') ); // MOVES INTO ROOT
+//   createSymlink(fullSrc, fullDest);
 
 
   // var PromisaryNote = function () {
-  const LocalWebServer = require('local-web-server')
-  const localWebServer = new LocalWebServer()
-  server = localWebServer.listen({
-    configFile: 'output/lws.config.js'
-  });
+  // const LocalWebServer = require('local-web-server')
+  // const localWebServer = new LocalWebServer()
+  // server = localWebServer.listen({
+  //   configFile: 'output/lws.config.js'
+  // });
   // .then(function () {
   //   console.log("Promise Resolved");
   // }).catch(function () {
   //   console.log("Promise Rejected");
   // });
-  output("Hello");
-  return new Promise(function (resolve, reject) {
-    if (true === true)
-    resolve();
-    else
-    reject();
-  });
+  // output("Hello");
+  // return new Promise(function (resolve, reject) {
+  //   if (true === true)
+  //   resolve();
+  //   else
+  //   reject();
+  // });
   // }
-
-}
+// }
 function createSymlink(src, dest) { // source is the original, dest is the symlink
   log(src, " --> " , dest);
   try { // the idea is to copy the GUI into the output folder to.... well enable it to render cos its a web app!
@@ -5019,20 +5016,20 @@ function clout(txt) {
       }
 
       // source: https://github.com/oliver-moran/jimp/blob/master/packages/core/src/index.js#L117
-      function isRawRGBAData(obj) {
-        return (
-          obj &&
-          typeof obj === 'object' &&
-          typeof obj.width === 'number' &&
-          typeof obj.height === 'number' &&
-          (Buffer.isBuffer(obj.data) ||
-          obj.data instanceof Uint8Array ||
-          (typeof Uint8ClampedArray === 'function' &&
-          obj.data instanceof Uint8ClampedArray)) &&
-          (obj.data.length === obj.width * obj.height * 4 ||
-            obj.data.length === obj.width * obj.height * 3)
-          );
-        }
+      // function isRawRGBAData(obj) {
+      //   return (
+      //     obj &&
+      //     typeof obj === 'object' &&
+      //     typeof obj.width === 'number' &&
+      //     typeof obj.height === 'number' &&
+      //     (Buffer.isBuffer(obj.data) ||
+      //     obj.data instanceof Uint8Array ||
+      //     (typeof Uint8ClampedArray === 'function' &&
+      //     obj.data instanceof Uint8ClampedArray)) &&
+      //     (obj.data.length === obj.width * obj.height * 4 ||
+      //       obj.data.length === obj.width * obj.height * 3)
+      //     );
+      //   }
 
 
         //PARSE SOURCE CODE

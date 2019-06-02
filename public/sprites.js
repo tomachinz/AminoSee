@@ -19,7 +19,7 @@ var SPRITES = {
 
 };
 
-fetch("public/images.json")
+fetch("output/megabase/megabase_histogram.json")
 	.then(response => response.json())
 	.then(json => console.log(json));
 
