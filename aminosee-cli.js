@@ -309,6 +309,7 @@ termSize();
 setupPrefs();
 }
 function setupProject() { // returns progress bar.
+  setupOutPaths();
   if (verbose == true) {
     let lines = 7
     while (lines > 0) { // this is to help find the starts when scrolling in the terminal
@@ -334,9 +335,9 @@ function destroyProgress() { // now thats a fucking cool function name if ever t
 
   }
   // if (updates == true) {
-    // if (progato != undefined) {
-      // progato.stop();
-    // }
+  // if (progato != undefined) {
+  // progato.stop();
+  // }
   // }
   clearTimeout(updatesTimer);
   clearTimeout(progTimer);
@@ -380,7 +381,7 @@ module.exports = () => {
     string: [ 'width'],
     unknown: [ true ],
     alias: { a: 'artistic', b: 'dnabg', c: 'codons', d: 'devmode', f: 'force', h: 'help', k: 'keyboard', m: 'magnitude', o: 'outpath', out: 'outpath', output: 'outpath', p: 'peptide', i: 'image', t: 'triplet', q: 'quiet', r: 'reg', w: 'width', v: 'verbose', x: 'explorer', finder: 'explorer'  },
-    default: { updates: true, dnabg: true, clear: true }
+    default: { updates: true, dnabg: true, clear: false }
   });
   setupApp(); // do stuff that is needed even just to run "aminosee" with no options.
   let cmd = args._[0];
@@ -672,10 +673,6 @@ module.exports = () => {
 
   } else { const quiet = false }
 
-  // firstRun();
-  // mkdirhomedir(obviousFoldername); // creates the ~/AminoSee_outputPath/
-  // mkdir();
-
   switch (cmd) {
     case 'unknown':
     output(` [unknown argument] ${cmd}`);
@@ -734,22 +731,14 @@ module.exports = () => {
     } else {
       filename =  path.resolve( cmd );
       currentFile = args._[0].toString();
-      setupOutPaths();
+      setupApp();
+      setupProject();
       log("Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω " + filename)
       mode("Ω first command " + howMany + " " + currentFile);
       log(filename)
       out(status);
       args._.push(currentFile); // could never figure out how those args were getting done
-      setupOutPaths();
-      autoconfCodonsPerPixel();
-      setupFNames();
-      setupProject();
-      // touchLockAndStartStream();
-
-      // initStream();
-      // postRenderPoll('first poll');
-      pollForStream();
-
+      lookForWork('first command')
       return true;
     }
     status = "leaving switch";
@@ -860,9 +849,9 @@ function toggleDevmode() {
     openImage = false;
     openFileExplorer = false;
     termDisplayHeight++;
-    raceDelay += 500; // this helps considerably!
+    raceDelay += 1000; // this helps considerably!
     if (debug == true) {
-      raceDelay += 1000; // this helps considerably!
+      raceDelay += 2000; // this helps considerably!
     }
   } else {
     raceDelay -= 500; // if you turn devmode on and off a lot it will slow down
@@ -900,10 +889,10 @@ function gracefulQuit() {
   mode( "Graceful shutdown in progress...");
   out(status);
   return true;
-  removeLocks();
   out(status);
   args._ = [];
   howMany = -1;
+  removeLocks();
   nextFile = "shutting down";
   calcUpdate();
   setImmediate( () => {
@@ -1044,20 +1033,19 @@ function setupOutPaths() {
     outFoldername = netFoldername;
   }
   // if (done = suopIters) {
-    if (clusterRender) {
-      output(chalk.inverse(`ENABLING CLUSTER DISTRIBUTED RENDERING`) + chalk(` for ${howMany} files`));
-      log(chalk(`Enabled by the prseence of a /output/ or /AminoSee_Output/ folder in *current* dir. If not present, local users homedir ~/AminoSee_Output`));
-      outputPath = path.normalize(path.resolve(process.cwd() + outFoldername))  // default location after checking overrides
-    } else {
-      output(chalk.inverse(`ENABLING USERS HOME DIR RENDER OUTPUT`) + chalk(` for ${howMany} files`));
-      log(chalk.underline(`~/AminoSee_Output`) + chalk(`To render in current dir, create an /output/ or /AminoSee_Output/ folder in the folder with your DNA files on your LAN to enable automatic cluster rendering. Easy huh? Thats zeroconf style.`));
-      outputPath = path.normalize(path.resolve(os.homedir + outFoldername))  // default location after checking overrides
-    }
+  if (clusterRender) {
+    output(chalk.inverse(`ENABLING CLUSTER DISTRIBUTED RENDERING`) + chalk(` for ${howMany} files`));
+    log(chalk(`Enabled by the prseence of a /output/ or /AminoSee_Output/ folder in *current* dir. If not present, local users homedir ~/AminoSee_Output`));
+    outputPath = path.normalize(path.resolve(process.cwd() + outFoldername))  // default location after checking overrides
+  } else {
+    output(chalk.inverse(`ENABLING USERS HOME DIR RENDER OUTPUT`) + chalk(` for ${howMany} files`));
+    log(chalk.underline(`~/AminoSee_Output`) + chalk(`To render in current dir, create an /output/ or /AminoSee_Output/ folder in the folder with your DNA files on your LAN to enable automatic cluster rendering. Easy huh? Thats zeroconf style.`));
+    outputPath = path.normalize(path.resolve(os.homedir + outFoldername))  // default location after checking overrides
+  }
   // }
   suopIters++; // only show message once to user. s.u.o.p = setup  output paths.
 
   log(`full output path > ` + chalk.underline(outputPath));
-  mkdir();
 }
 function runTerminalCommand(str) {
   console.log(`[ running terminal command ---> ] ${str}`);
@@ -1127,20 +1115,36 @@ function createJob(cb) {
     ( cb ? resolve() : reject() )
   })
 }
+function blueBlack(txt) {
+  console.log();
+  console.log();
+  output(chalk.bgBlue.white.bold(txt));
+
+}
 function mode(txt) {
   status = txt;
   if (!verbose) {
     log(txt);
   } else {
-    console.log();
-    console.log();
-    output(chalk.bgBlue.black(txt));
+    blueBlack(txt);
   }
   wTitle(txt);
 }
 function storage() {
   // return `${(isDiskFinLinear ? 'Linear ' : '')} ${(isDiskFinHilbert ? 'Hilbert ' : '')} ${(isDiskFinHTML ? 'HTML ' : '' )}`;
   return `${(!isDiskFinLinear ? 'Linear ' : 'OK')} ${(!isDiskFinHilbert ? 'Hilbert ' : 'OK')} ${(!isDiskFinHTML ? 'HTML ' : 'OK' )}`;
+}
+function setNextFile() {
+  try {
+    nextFile = args._[args._.length - 2]; // not the last but the second to last
+  } catch(e) {
+    log("This is not an error, but the second to last job " + e);
+  }
+  if (nextFile == undefined) {
+    nextFile = "Finished";
+    out('SECOND TO LAST JOB');
+    return false;
+  } else { return true; }
 }
 function pollForStream() { // render lock must be off before calling. aim: start the render, or look for work
   mode('pre-polling ' + howMany);
@@ -1150,56 +1154,34 @@ function pollForStream() { // render lock must be off before calling. aim: start
     return false;
   }
   percentComplete = 0;
+
+  setNextFile();
+
   try {
-    nextFile = args._[args._.length - 2]; // not the last but the second to last
+    currentFile = args._.pop().toString();
   } catch(e) {
-    log("This is not an error, but the second to last job " + e);
+    mode("pollForStream args not exist" + e)
+    log('Render job ended empty unexpectedly due to: args not exist');
+    return false;
   }
-  if (nextFile == undefined) {
-    nextFile = "No_File";
-    out('SECOND TO LAST JOB')
-  }
-
-
-
   if ( currentFile == undefined ) {
-    error("houston problem: currentFile is undef")
+    lookForWork(`currentFile is undef`)
+    // currentFile = "Finished";
+    // quit(0, `pollForStream Finished`);
+    return true;
   }
-    try {
-      currentFile = args._.pop().toString();
-    } catch(e) {
-      error("problem: args not exist" + e)
-      log('Render job ended empty unexpectedly due to: args not exist');
-      return false;
-    }
-    howMany = args._.length;
-    filename = path.resolve(currentFile);  /// not thread safe after here!
 
-    if (checkFileExtension(currentFile) == false) {
-      error("Format: " + getFileExtension(currentFile) + " NOT OK: " + checkFileExtension(currentFile) );
-      error("Format: " + getFileExtension(currentFile) + " NOT OK: " + checkFileExtension(currentFile) );
-      error("Format: " + getFileExtension(currentFile) + " NOT OK: " + checkFileExtension(currentFile) );
-      error("Format: " + getFileExtension(currentFile) + " NOT OK: " + checkFileExtension(currentFile) );
-      error("Format: " + getFileExtension(currentFile) + " NOT OK: " + checkFileExtension(currentFile) );
-      error("Format: " + getFileExtension(currentFile) + " NOT OK: " + checkFileExtension(currentFile) );
-      currentFile = args._.pop();
-      pollForStream();
-      return false;
-    }
-
-  if (args._) {
-    if (nextFile) {
-      // out(`pop ${currentFile} howMany ${howMany} x = ${x} ${chalk.inverse(nextFile)}`);
-    }
-  } else {
-    error("problem with args")
+  howMany = args._.length;
+  filename = path.resolve(currentFile);  // not thread safe after here!
+  if (checkFileExtension(currentFile) == false) {
+    error("Format: " + getFileExtension(currentFile) + " NOT OK: " + checkFileExtension(currentFile) );
+    lookForWork();
+    return false;
   }
+
   output(fixedWidth(64, "Now >>   " + currentFile + " then " + nextFile));
 
-
-
-
-  mode('polling ' + howMany);
+  mode('starting ' + howMany);
   bugtxt("****************************************")
   bugtxt("****************************************")
   bugtxt("****************************************")
@@ -1211,10 +1193,13 @@ function pollForStream() { // render lock must be off before calling. aim: start
   bugtxt("****************************************")
   bugtxt("****************************************")
   bugtxt("****************************************")
-  log   ("             pollForStream              ")
+  log   ("             starting render            ")
   bugtxt("****************************************")
   output("next ***   " + nextFile)
   out("current ***   " + currentFile);
+
+  setupFNames();
+
   out("PNG: " + justNameOfPNG);
   bugtxt(` [polling ${nicePercent()} ${status} ${new Date()}`);
     bugtxt(` [ howMany  ${howMany} ${status} ${filename} ${currentFile}]`);
@@ -1234,8 +1219,6 @@ function pollForStream() { // render lock must be off before calling. aim: start
       log('DNA Found OK');
     } else {
       setTimeout( () => {
-
-        // resetAndMaybe();
         lookForWork('Skipping non-existent DNA file: ' + filename);
       }, raceDelay)
       return false;
@@ -1265,8 +1248,8 @@ function pollForStream() { // render lock must be off before calling. aim: start
       } else {
         out('use --image to open in viewer')
       }
-        resetAndMaybe();
-        return false;
+      lookForWork();
+      return false;
     }
 
     if (checkLocks(filenameTouch)) {
@@ -1322,8 +1305,7 @@ function resetAndMaybe(){
 function initStream() {
   mode("initStream");
   output(status);
-  termSize();
-  resized();
+
   if (renderLock == false ) {
     error("RENDER LOCK FAILED. This is an error I'd like reported. Please run with --devmode option enabled and send the logs to aminosee@funk.co.nz");
     // quit(4, 'Render lock failed');
@@ -1331,13 +1313,13 @@ function initStream() {
     // lookForWork('render lock failed inside initStream')
     return false;
   } else { output('Begin') }
-  mkdir(justNameOfDNA);
-  mkdir(`${justNameOfDNA}/images`);
+  termSize();
+  resized();
+
   // termSize();
   msElapsed, runningDuration, charClock, percentComplete, genomeSize, pixlinear, opacity = 0;
   msPerUpdate = minUpdateTime;
   codonRGBA, geneRGBA, mixRGBA = [0,0,0,0]; // codonRGBA is colour of last codon, geneRGBA is temporary pixel colour before painting.
-  codonsPerPixel = defaultC; //  one codon per pixel maximum
   CRASH = false; // hopefully not
   msPerUpdate = minUpdateTime; // milliseconds per  update
   codonRGBA, geneRGBA, mixRGBA = [0,0,0,0]; // codonRGBA is colour of last codon, geneRGBA is temporary pixel colour before painting.
@@ -1362,8 +1344,20 @@ function initStream() {
   for (h=0; h<dnaTriplets.length; h++) {
     dnaTriplets[h].Histocount = 0;
   }
+
+  mode("Ω first command " + howMany + " " + currentFile);
+  log(filename)
+  out(status);
+
+  // args._.push(currentFile); // could never figure out how those args were getting done
+  if (!checkFileExtension(currentFile)) {
+    removeLocks();
+    return false;
+  }
+  setupOutPaths();
   autoconfCodonsPerPixel();
   setupFNames();
+  autoconfCodonsPerPixel();
   extension = getFileExtension(filename);
   percentComplete = 0;
   genomeSize = 1; // number of codons.
@@ -1395,14 +1389,13 @@ function initStream() {
   try {
     log(filename)
     var readStream = fs.createReadStream(filename).pipe(es.split()).pipe(es.mapSync(function(line){
-      // mode("stream");
       readStream.pause(); // pause the readstream during processing
       streamLineNr++;
       processLine(line); // process line here and call readStream.resume() when ready
       readStream.resume();
     })
     .on('start', function(err){
-      mode("stream");
+      mode("streaming");
     })
     .on('error', function(err){
       mode("stream error");
@@ -1476,7 +1469,7 @@ function streamStopped() {
   saveDocsSync();
 }
 function showFlags() {
-  return `${(  force ? "F" : `-`    )}${(  args.updates || args.u ? `U` : `-`    )}${(  userCPP == "auto" ? `C${userCPP}` : "--"    )}${(  args.keyboard || args.k ? `K` : `-`    )}${(  dnabg ? `D` : `-`    )}${( verbose ? "V" : `-`  )}${(  artistic ? "A" : `-`    )}${(  args.ratio || args.r ? `${ratio}` : "---"    )}${(dimension? "M" + dimension:"")}C${onesigbitTolocale(codonsPerPixel)}${(reg?"REG":"")}`;
+  return `${(  force ? "F" : `-`    )}${( updates ? `U` : `-` )}C_${userCPP}${( keyboard ? `K` : `-` )}${(  dnabg ? `B` : `-`  )}${( verbose ? "V" : `-`  )}${(  artistic ? "A" : `-`    )}${(  args.ratio || args.r ? `${ratio}` : "---"    )}${(dimension ? "M" + dimension : "-")}${(reg?"REG":"")} C${onesigbitTolocale(codonsPerPixel)}`;
 }
 function testSummary() {
   return `TEST
@@ -1522,7 +1515,7 @@ function renderObjToString() {
 
 // CODONS PER PIXEL
 function autoconfCodonsPerPixel() {
-
+  mode('autoconf')
   // requires baseChars maxpix
   // baseChars is like genomeSize but the esetimation of it based on filesize
   // internally, we signal streamed pipe input from standard in as -1 filesize
@@ -1555,54 +1548,53 @@ function autoconfCodonsPerPixel() {
     }
   }
 
-  if (estimatedPixels > maxpix ){ // for seq bigger than screen        codonsPerPixel = estimatedPixels / maxpix*overSampleFactor;
+    if ( userCPP != "auto" ) {
+      output(`Manual zoom level override enabled at: ${userCPP} codons per pixel.`);
+      codonsPerPixel = userCPP;
+    } else {
+      output("Automatic codons per pixel setting")
+    }
+
+  if (estimatedPixels > maxpix ) { // for seq bigger than screen        codonsPerPixel = estimatedPixels / maxpix*overSampleFactor;
     codonsPerPixel = estimatedPixels / maxpix;
     if (userCPP == "auto" ) {
       if (userCPP < codonsPerPixel) {
-        log(terminalRGB(`WARNING: Your target Codons Per Pixel setting ${userCPP} will make an estiamted ${Math.round(estimatedPixels / userCPP).toLocaleString()} is likely to exceed the max image size of ${maxpix.toLocaleString()}, sometimes this causes an out of memory error. My machine spit the dummy at 1.7 GB of virtual memory use by node, lets try yours. We reckon ${codonsPerPixel} would be better but will give it a try...`))
-      } else {
-        codonsPerPixel = userCPP; // they picked a smaller size than me. therefore their computer less likely to melt.
+        log(terminalRGB(`WARNING: Your target Codons Per Pixel setting ${userCPP} will make an estimated ${Math.round(estimatedPixels / userCPP).toLocaleString()} is likely to exceed the max image size of ${maxpix.toLocaleString()}, sometimes this causes an out of memory error. My machine spit the dummy at 1.7 GB of virtual memory use by node, lets try yours. We reckon ${codonsPerPixel} would be better, higher numbers give a smaller image.`))
       }
+    } else {
+      codonsPerPixel = userCPP; // they picked a smaller size than me. therefore their computer less likely to melt.
     }
   }
 
 
-  if ( userCPP == "auto" ) {
-    output(`Manual zoom level override enabled at: ${userCPP} codons per pixel.`);
-    codonsPerPixel = userCPP;
-  } else {
-    bugtxt("Automatic codons per pixel setting")
-  }
+  let dtxt = `estimatedPixels: ${estimatedPixels}   dimension: ${dimension}   userCPP: ${userCPP}  codonsPerPixel: ${codonsPerPixel}`
+  blueBlack(dtxt)
+  log(dtxt)
   if (codonsPerPixel < defaultC) {
     codonsPerPixel = defaultC;
   } else if (codonsPerPixel > 6000) {
     codonsPerPixel = 6000;
   } else if (codonsPerPixel == NaN || codonsPerPixel == undefined) {
-    codonsPerPixel = defaultC;
-  }
-  if (codonsPerPixel < defaultC) { // less than 1
+    error(`codonsPerPixel == NaN || codonsPerPixel == undefined`)
     codonsPerPixel = defaultC;
   }
   if (artistic == true) {
     codonsPerPixel *= artisticHighlightLength;
     output(`Using ${codonsPerPixel} codonsPerPixel for art mode`);
   }
+  dtxt = `estimatedPixels: ${estimatedPixels}   dimension: ${dimension}   userCPP: ${userCPP}  codonsPerPixel: ${codonsPerPixel} middle`
+  blueBlack(dtxt)
   ///////// ok i stopped messing with codonsPerPixel now
-  if (codonsPerPixel = 1 ) {
-    if (args.ratio || args.r) {
-      // these use fixed to give a relative comparison of the genome sizes at same codonsPerPixel detail
-    } else {
-      if (estimatedPixels < 1843200) { // = 1920 x 960
-        ratio = 'sqr'; // small genomes like "the flu" look better square.
-        if (verbose == true) {
-          log('For genomes smaller than 1843200 codons, I switched to square ratio for better comparison to the Hilbert images. Use --ratio=fixed or --ratio=golden to avoid this. C. Elegans worm is big enough, but not Influenza.')
 
-        } else {
-          out('Genomes <  1840000 codons. square ratio enabled')
-        }
-      }
+  if (estimatedPixels < 1843200 && !args.ratio && !args.r) { // if user has not set aspect, small bacteria and virus will be square ratio. big stuff is fixed.
+    ratio = 'sqr'; // small genomes like "the flu" look better square.
+    if (verbose == true) {
+      log('For genomes smaller than 1843200 codons, I switched to square ratio for better comparison to the Hilbert images. Use --ratio=fixed or --ratio=golden to avoid this. C. Elegans worm is big enough, but not Influenza.')
+    } else {
+      out('Genomes <  1840000 codons. square ratio enabled')
     }
   }
+
   opacity = 1 / codonsPerPixel;
   // set highlight factor such  that:
   // if cpp is 1 it is 1
@@ -1617,6 +1609,10 @@ function autoconfCodonsPerPixel() {
   } else if ( codonsPerPixel > 64 ) {
     highlightFactor = 16 + ( 255 / codonsPerPixel) ;
   }
+
+  dtxt = `estimatedPixels: ${estimatedPixels}   dimension: ${dimension}   userCPP: ${userCPP}  codonsPerPixel: ${codonsPerPixel} last`
+  blueBlack(dtxt)
+
   return codonsPerPixel;
 }
 
@@ -1657,7 +1653,6 @@ function setupFNames() {
   if (justNameOfDNA.length > maxCanonical ) {
     justNameOfDNA = justNameOfDNA.substring(0,maxCanonical/2) + justNameOfDNA.substring(justNameOfDNA.length-(maxCanonical/2),justNameOfDNA.length);
   }
-  mkdir(justNameOfDNA);
   let ext = spaceTo_(getImageType());
   filenameTouch = generateFilenameTouch();
   filenameHTML =  `${outputPath}/${justNameOfDNA}/${generateFilenameHTML()}`;
@@ -1679,7 +1674,7 @@ function buildServer() {
 
 function copyGUI(cb) { // does:  ln -s /Users.....AminoSee/public, /Users.....currentWorkingDir/output/public
   // outputPath = appPath;
-  mkdir(); // create output folder
+  mkRenderFolders();
   mkdir('public')
 
 
@@ -1705,7 +1700,8 @@ function copyGUI(cb) { // does:  ln -s /Users.....AminoSee/public, /Users.....cu
 }
 
 function symlinkGUI(cb) { // does:  ln -s /Users.....AminoSee/public, /Users.....currentWorkingDir/output/public
-  mkdir(); // create output folder
+  mkRenderFolders();
+  mkdir('public')
   let fullSrc, fullDest;
   fullSrc = path.normalize( path.resolve(appPath + '/public') );
   fullDest = path.normalize( path.resolve(outputPath + '/public') );
@@ -1938,6 +1934,11 @@ function helpCmd(args) {
   launchNonBlockingServer(); // justNameOfDNA
   open( serve.getServerURL(`output/`), {app: 'firefox', wait: false} );
 }
+function mkRenderFolders() {
+  mkdir(); // create the output dir if it not exist
+  mkdir(justNameOfDNA); // render dir
+  mkdir(`${justNameOfDNA}/images`);
+}
 function saveDocsSync() {
   mode('Save documents with async.series');
   printRadMessage(['Finished linear render', 'Saving docs out', storage(), busy(), outputPath]);
@@ -1951,38 +1952,29 @@ function saveDocsSync() {
   clearCheck(); // term.eraseDisplayBelow();
   destroyProgress();
   calcUpdate();
-  mkdir(justNameOfDNA);
-  mkdir(`${justNameOfDNA}/images`);
+
   userprefs.aminosee.cliruns++; // increment run counter. for a future high score table stat and things maybe.
   done++;
   async.series( [
     function( cb ) {
-      savePNG( cb );
-    },
-    function ( cb ) {
-      setTimeout( () => {
-        saveHilbert( cb );
-
+      setTimeout( ( cb ) => {
+        savePNG( cb );
       }, raceDelay)
     },
     function ( cb ) {
-      saveHTML( cb );
+      setTimeout( ( cb ) => {
+        saveHilbert( cb );
+      }, raceDelay)
     },
-    function( cb ) {
-      setImmediate(() => {
+    function ( cb ) {
+      setTimeout( () => {
         openOutputs();
-        cb();
-      });
+      }, raceDelay)
+      saveHTML( cb );
     }
-    // function ( cb ) {
-    //   setTimeout( (cb) => {
-    //     removeLocks();
-    //     if (cb) { cb() }
-    //   }, raceDelay);
-    // }
   ])
   .exec( function( error , results ) {
-    log( 'Saving complete.' ) ;
+    blueBlack( 'Saving complete.' ) ;
     if ( error ) { console.warn( 'Doh!' ) ; }
   })
 
@@ -2120,6 +2112,8 @@ function saveHTML(cb) {
   }, raceDelay)
 }
 function fileWrite(file, contents, cb) {
+  mkRenderFolders();
+
   setImmediate( () => {
     try {
       fs.writeFile(file, contents, 'utf8', function (err, cb) {
@@ -2143,7 +2137,7 @@ function fileWrite(file, contents, cb) {
     }
   });
 }
-function touchLockAndStartStream() {
+function touchLockAndStartStream() { // saves CPU waste. delete lock when all files are saved, not just the png.
   mode("touchLockAndStartStream");
   renderLock = true;
   startDate = new Date(); // required for touch locks.
@@ -2158,7 +2152,8 @@ function touchLockAndStartStream() {
   })
 }
 function tLock(cb) {
-  const outski = `Started ${justNameOfDNA} at ${formatAMPM(startDate)}, and after ${humanizeDuration(runningDuration)} completed ${nicePercent()}% of ${justNameOfDNA}. ${humanizeDuration(timeRemain)} to go with ${genomeSize.toLocaleString()} r/DNA base pairs done.
+  calcUpdate();
+  const outski = `Started ${justNameOfDNA} at ${formatAMPM(startDate)}, and after ${humanizeDuration(runningDuration)} completed ${nicePercent()} of the ${bytes(baseChars)} file at ${bytes(bytesPerMs*1000)} per second. Estimated ${humanizeDuration(timeRemain)} to go with ${genomeSize.toLocaleString()} r/DNA base pairs done so far.
   ${memToString()}
   CPU load: ${loadAverages()}`;
   fileWrite(
@@ -2173,7 +2168,7 @@ function tLock(cb) {
   output();
   output(outski);
 }
-function removeLocks() { // just remove the lock files
+function removeLocks() { // just remove the lock files.
   mode('remove locks ' + howMany);
   clearTimeout(updatesTimer)
   clearTimeout(progTimer)
@@ -2181,73 +2176,46 @@ function removeLocks() { // just remove the lock files
     fs.unlinkSync(filenameTouch, (err) => {
       log("Removing locks OK...")
       if (err) { log('ish'); console.warn(err);  }
-      isDiskFinLinear = true;
-      postRenderPoll('removeLocks unlinkSync success');
+      renderLock = false;
+      lookForWork('removeLocks unlinkSync success');
     });
   } catch (err) {
     log("No locks to remove: " + err);
-    isDiskFinLinear = true;
-    postRenderPoll('removeLocks catch err: ' + err);
+    renderLock = false;
+    lookForWork('removeLocks unlinkSync catch err: ' + err);
   }
-
 }
 
-function lookForWork(reason) { // move on to the next file. only calL from early parts prio to render.
-  mode('lookForWork')
+function lookForWork(reason) { // move on to the next file via pollForStream. only call from early parts prio to render.
+  mode(`lookForWork ${reason}`);
   if (renderLock == true) { // re-entrancy filter
     log('busy with render ' + reason);
     return false;
   } else {
     log('looking for work')
   }
-  pollForStream();
-}
-
-function postRenderPoll(reason) { // make sure all disks and images saved before dicking with global filenames
-  if (test) { return false; }
-  if (renderLock != true) { // re-entrancy filter
-    error("Not rendering, but entered postRenderPoll: "+reason)
-    return true
-  } else {
-    log('Still busy saving')
-  }
-  // try to avoid messing with globals of a already running render!
-  // sort through and load a file into "nextFile"
-  // if its the right extension go to sleep
-  // check if all the disk is finished and if so change the locks
-  output(chalk.inverse(fixedWidth(24, justNameOfDNA))  + " postRenderPoll reason: " + reason);
-  if (isDiskFinLinear == true && isDiskFinHilbert == true  && isDiskFinHTML == true ) {
-    log(` [ storage threads ready: ${chalk.inverse(storage())} ] `);
-    renderLock = false;
-    currentFile = nextFile;
-    // return false;
-  } else {
-    log(` [ wait on storage: ${chalk.inverse(storage())} ] `);
+  if (test == true) { // re-entrancy filter
+    bugtxt('test');
     return false;
   }
-
-
   try {
     howMany = args._.length;
   } catch(e) {
-    bugtxt(e);
+    mode(`lookForWork caught error: ${e}`);
+    bugtxt(status)
+    quit(1, status)
     return false;
   }
-  log(`Idle, waiting on: ${storage()}`);
+  // log(`Idle, waiting on: ${storage()}`);
 
-  if (checkFileExtension(nextFile) && !force) {
-    log(`Queued render job for: ${chalk.inverse(fixedWidth(24, nextFile))}`)
-    // args._.push(nextFile);
-  } else {
-    log(`Skipping render of: ${chalk.inverse(fixedWidth(24, nextFile))} due to wrong format`);
-    nextFile = args._.pop();
-    // return false
-  }
-
+  setNextFile();
   currentFile = nextFile;
+
   filename = path.resolve(currentFile);
   howMany = args._.length;
-  setupFNames();
+
+
+
 
   if (howMany == -1) {
     output('Shutdown in progress');
@@ -2258,24 +2226,62 @@ function postRenderPoll(reason) { // make sure all disks and images saved before
     return false;
   }
 
-  if (howMany > 0 ) {
+  setupFNames();
 
-    if (renderLock == false) {
-      bugtxt(`Polling in ${raceDelay}ms ${howMany} files remain, next is ${maxWidth(32, nextFile)}`);
-      setImmediate( () => {
-        setTimeout( () => {
-          pollForStream()
-        }, raceDelay)
-      })
-    } else {
-      output(`waiting on: (${storage()})`);
-      out(`${busy()} and will retry now. ${howMany} files remain, next is ${maxWidth(32, nextFile)}`);
-      // pollForStream();
-    }
+  if (howMany > 0 ) {
+    bugtxt(`Polling in ${raceDelay}ms ${howMany} files remain, next is ${maxWidth(32, nextFile)}`);
+
+
   } else {
-    output("...and thats's all she wrote folks, outa jobs.");
+    mode("...and thats's all she wrote folks, outa jobs.");
+    quit(0, status);
+    return true;
   }
-  return true;
+  // setupProject();
+
+  autoconfCodonsPerPixel();
+  setupFNames();
+
+
+  if (checkFileExtension(currentFile)) {
+    log(`Queued render job for: ${chalk.inverse(fixedWidth(24, currentFile))}`)
+    setImmediate( () => {
+      setTimeout( () => {
+        pollForStream();
+      }, raceDelay);
+    })
+    // args._.push(nextFile);
+  } else {
+    clout(`Skipping render of: ${chalk.inverse(fixedWidth(24, currentFile))} due to wrong format`);
+
+
+    setImmediate( () => {
+      setTimeout( () => {
+        pollForStream();
+      }, raceDelay);
+    })
+  }
+}
+
+function postRenderPoll(reason) { // make sure all disks and images saved before dicking with global filenames
+  if (test) { return false; }
+  if (renderLock != true) { // re-entrancy filter
+    error("Not rendering, but entered postRenderPoll: "+reason)
+    return true
+  } else {
+    log('busy saving')
+  }
+  // try to avoid messing with globals of a already running render!
+  // sort through and load a file into "nextFile"
+  // if its the right extension go to sleep
+  // check if all the disk is finished and if so change the locks
+  output(chalk.inverse(fixedWidth(24, justNameOfDNA))  + " postRenderPoll reason: " + reason);
+  if (isDiskFinLinear == true && isDiskFinHilbert == true  && isDiskFinHTML == true ) {
+    log(` [ storage threads ready: ${chalk.inverse(storage())} ] `);
+    removeLocks(); // <<--- render queue proceeds through here and lookForWork()
+  } else {
+    log(` [ wait on storage: ${chalk.inverse(storage())} ] `);
+  }
 }
 function getFilesizeInBytes(file) {
   try {
@@ -2335,7 +2341,6 @@ function quit(n, txt) {
   }
   if (howMany > 0 ) {
     bugtxt(`There is more work (${howMany}) . Rendering: ${renderLock} Load: ${os.loadavg()}`);
-
     return true;
   } else {
     log(`Quitting soon - no more work. Currently: ${busy()}`);
@@ -3265,14 +3270,14 @@ function saveHilbert(cb) {
   }
   function hilbertFinished() {
     isDiskFinHilbert = true;
-    log("Hilbert PNG done");
+    out("Hilbert PNG done");
     setTimeout( () => {
       postRenderPoll('hilbertFinished');
     }, raceDelay)
   }
   function linearFinished() {
     isDiskFinLinear = true;
-    out(`Linear PNG ${justNameOfPNG} done`);
+    out(`Linear PNG done`);
     if (test == true) { return false; } else {
       setTimeout( () => {
         postRenderPoll('linearFinished');
@@ -3513,25 +3518,9 @@ function saveHilbert(cb) {
     function getRegmarks() {
       return ( reg == true ? "_reg" : "" )
     }
-    function mkdirhomedir(relative) { // returns true if a fresh dir was created
-      let f = path.resolve(path.join(os.homedir(), relative))
-      if (doesFolderExist(f) == false) {
-        fs.mkdirSync(f, function (err, result) {
-          if (result) {
-            output(`Created home directory project folder: ${chalk.underline(f)} the web server will run from here`)
-          }
-          if (err) {
-            error(`Couldnt create home directory project folder: ${err} the web server normally will run from here: ${chalk.underline(f)}`)
-          }
-        });
-      } else {
-        log('Folder already exists');
-      }
-    }
-    function mkdir(short) { // returns true if a fresh dir was created
-      output(outputPath);
-      dir2make = path.resolve( `${outputPath}/${short}` );
-      if (!short) { short = '/'}
+    function mkdir(relative) { // returns true if a fresh dir was created
+      if (!relative) { relative = ''}
+      dir2make = path.resolve( `${outputPath}/${relative}` );
       if (doesFolderExist(outputPath) == false) {
         try {
           fs.mkdirSync(outputPath, function (err, result) {
@@ -3550,11 +3539,13 @@ function saveHilbert(cb) {
         } catch(e) { bugtxt(`${e} This is normal`)}
         return true; // true because its first run
       } else {
-        bugtxt(`Directory ${short} already exists - This is normal`)
+        bugtxt(`Directory ${relative} already exists - This is normal`)
         return false;
       }
       console.warn("Exiting due to lack of permissions in this directory");
       howMany = 0;
+      bugtxt(`outputPath: ${outputPath}`);
+
       return false;
     }
     function generateTestPatterns(cb) {
@@ -3822,31 +3813,22 @@ function saveHilbert(cb) {
     let splitScreen = "";
     splitScreen += chalk.rgb(64,64,64).inverse(fixedWidth(debugColumns - 10,  `[Jbs: ${howMany}  Crrnt: ${maxWidth(12, currentFile)} Nxt: ${maxWidth(12, nextFile)} ${nicePercent()} ${busy()} ${storage()} Stat: ${status} Highlt${(isHighlightSet ? peptide + " " : " ")} >>>    `));
     splitScreen += fixedWidth(debugColumns,` ${txt} `);
-    splitScreen += chalk.gray.inverse( fixedWidth(debugColumns - 10, ` G: ${genomeSize.toLocaleString()} Est: ${onesigbitTolocale(estimatedPixels/1000000)} megapixels ${bytes( baseChars )} RunID: ${timestamp} H dim: ${hilbPixels[dimension]}]  ${formatAMPM(now)} and ${formatMs(now)}ms`));
     term.eraseLine();
     console.log(splitScreen);
-    term.down(1);
+    term.
+    splitScreen += chalk.gray.inverse( fixedWidth(debugColumns - 10, `Cpp: ${codonsPerPixel}  G: ${genomeSize.toLocaleString()} Est: ${onesigbitTolocale(estimatedPixels/1000000)} megapixels ${bytes( baseChars )} RunID: ${timestamp} H dim: ${hilbPixels[dimension]}]  ${formatAMPM(now)} and ${formatMs(now)}ms`));
+
+    console.log();
+    // term.down(1);
     term.eraseLine();
     term.up(1);
   }
   function output(txt) {
     if (txt == undefined) { txt = status; }
-    if (verbose && devmode || debug) {
-      bugout(txt);
-    } else {
-      term.eraseLine();
-      // console.log(chalk.bgBlack(txt));
-      console.log(txt);
-      if (updates == true && renderLock == true) {
-        term.right(termMarginLeft);
-      }
-      term.eraseLine();
-      term.down(1);
-      term.eraseLine();
-      term.up(1);
-      // if (updates == true && renderLock == true) {
-      //   term.right(termMarginLeft);
-      // }
+    term.eraseLine();
+    console.log(txt);
+    if (updates == true && renderLock == true) {
+      term.right(termMarginLeft);
     }
   }
   function bugtxt(txt) { // full debug output
@@ -3860,16 +3842,20 @@ function saveHilbert(cb) {
   }
   function log(txt) {
     if (verbose == true) {
-      output(txt);
+      if (devmode || debug) {
+        bugout(txt);
+      } else {
+        output(txt);
+      }
     }
   }
   function out(txt) {
-    if (txt == undefined) { txt = '   ___   '; }
+    if (txt == undefined) { console.log(); return false;}
     term.eraseDisplayBelow;
     process.stdout.write(`[${txt}] `);
-    // if (updates == true && renderLock == true) {
-    //   term.right(termMarginLeft);
-    // }
+    if (updates == true && renderLock == true) {
+      term.right(termMarginLeft);
+    }
   }
   function clout(txt) {
     if (txt == undefined) { return false; }
@@ -4018,7 +4004,9 @@ function saveHilbert(cb) {
         } else {
           percentComplete = charClock / baseChars; // avoid div by zero below a lot
         }
-        if (percentComplete > 1) { bugtxt(`error percentComplete is over 1: ${percentComplete}`)}
+        if (percentComplete > 1) {
+          bugtxt(`error percentComplete is over 1: ${percentComplete} `)
+        }
       }
       function calcUpdate() { // DONT ROUND KEEP PURE NUMBERS
         fastUpdate();
@@ -4030,13 +4018,13 @@ function saveHilbert(cb) {
         bytesPerMs = Math.round( (charClock) / runningDuration );
         wTitle(`${nicePercent()} remain ${humanizeDuration(timeRemain)} `);
         codonsPerSec = (genomeSize+1) / (runningDuration*1000);
-        if (percentComplete > 1.1) {
-          error("Hello I'm a terrible bug, awfully sorry");
-          out(percentComplete + "this will end in 5 brudda")
-          setTimeout(() => {
-            process.exit()
-          }, 5000)
-        }
+        // if (percentComplete > 1.1) {
+        //   error("Hello I'm a terrible bug, awfully sorry");
+        //   out(percentComplete + "this will end in 5 brudda")
+        //   setTimeout(() => {
+        //     process.exit()
+        //   }, 5000)
+        // }
       }
       function deresSeconds(ms){
         return Math.round(ms/1000) * 1000;
@@ -4156,15 +4144,15 @@ function saveHilbert(cb) {
           output(chalk.inverse.grey.bgBlack(rawDNA));
           // term.up(rawDNA.length/term.width);
           // if (clear == true) {
-            term.moveTo(1 + termMarginLeft,1);
-            console.log("     To disable real-time DNA background use any of --no-dnabg --no-updates --quiet -q");
+          term.moveTo(1 + termMarginLeft,1);
+          console.log("     To disable real-time DNA background use any of --no-dnabg --no-updates --quiet -q");
           // }
         }
 
         rawDNA = funknzLabel;
 
         // if (clear == true) {
-          term.moveTo(1 + termMarginLeft,1 + termMarginTop);
+        term.moveTo(1 + termMarginLeft,1 + termMarginTop);
         // }
 
         printRadMessage(array);
@@ -4177,9 +4165,9 @@ function saveHilbert(cb) {
         output(`Last Red: ${peakRed} Last Green: ${peakGreen} Last Blue: ${peakBlue}`)
         log(    isDiskFinHTML, isDiskFinHilbert, isDiskFinLinear);
         // if (clear == true) {
-          term.up(termDisplayHeight)
+        term.up(termDisplayHeight)
         // } // stuff will come out just under the main HUD
-        if (renderLock == true && howMany >= 0 ) { // status == "stream") { // || updates) {
+        if (renderLock == true && howMany >= 0 ) { // dont update if not rendering
           if (updatesTimer) { clearTimeout(updatesTimer)};
           if (msPerUpdate < maxMsPerUpdate) {
             msPerUpdate += 200; // updates will slow over time on big jobs
@@ -4196,11 +4184,10 @@ function saveHilbert(cb) {
             }
           }, msPerUpdate);
           log("drawing again in " + msPerUpdate)
-        }
+        } else { out('DNA render done?')}
       }
       function memToString() {
-        let memReturn = `Memory load:
-        `;
+        let memReturn = `Memory load: (`;
         // const arr = [1, 2, 3, 4, 5, 6, 9, 7, 8, 9, 10];
         const arr = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
         arr.reverse();
@@ -4208,7 +4195,7 @@ function saveHilbert(cb) {
         for (let key in used) {
           memReturn += `${key} ${Math.round(used[key] / 1024 / 1024 * 100) / 100} MB`;
         }
-        return memReturn;
+        return memReturn + ") ";
       }
       function loadAverages() {
         l0 = os.loadavg()[0];
