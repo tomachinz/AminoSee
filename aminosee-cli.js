@@ -96,13 +96,12 @@ let raceDelay = 169; // so i learnt a lot on this project. one day this line sha
 let dimension = defaultMagnitude; // var that the hilbert projection is be downsampled to
 let darkenFactor = 0.25; // if user has chosen to highlight an amino acid others are darkened
 let highlightFactor = 4.0; // highten brightening.
-let spewThresh = 6969; // spew mode creates matrix style terminal filling each thresh cycles
 let devmode = false; // kills the auto opening of reports etc
 let verbose = false; // not recommended. will slow down due to console.
 let debug = false; // not recommended. will slow down due to console.
 let force = false; // force overwrite existing PNG and HTML reports
 let artistic = false; // for Charlie
-let spew = true; // firehose your screen with DNA
+let dnabg = true; // firehose your screen with DNA!
 let report = true; // html reports can be dynamically disabled
 let test = false;
 let updates = true;
@@ -138,7 +137,7 @@ output(logo());
 
 let runningDuration = 1; // ms
 let interactiveKeysGuide = "";
-let progTimer, hilbertImage, keyboard, filenameTouch, estimatedPixels, args, filenamePNG, extension, reader, hilbertPoints, herbs, levels, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, textFile, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, fileUploadShowing, testColors, chunksMax, chunksize, chunksizeBytes, cpu, subdivisions, contextBitmap, aminoacid, pixlinear, start, updateClock, bytesPerMs, pixelStacking, isHighlightCodon, justNameOfPNG, justNameOfHILBERT, sliceDNA, filenameHTML, msElapsed, bytesRemain, width, triplet, updatesTimer, pngImageFlags, codonsPerPixel, codonsPerPixelHILBERT, CRASH, red, green, blue, alpha, errorClock, breakClock, streamLineNr, spewClock, opacity, codonRGBA, geneRGBA, currentTriplet, currentPeptide, shrinkFactor, reg, image, loopCounter, percentComplete, charClock, baseChars, bigIntFileSize, currentPepHighlight, justNameOfCurrentFile, server, openHtml, openFileExplorer, pixelStream, startPeptideIndex, stopPeptideIndex, flags, loadavg, platform, totalmem, correction, aspect, debugFreq;
+let progTimer, hilbertImage, keyboard, filenameTouch, estimatedPixels, args, filenamePNG, extension, reader, hilbertPoints, herbs, levels, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, textFile, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, fileUploadShowing, testColors, chunksMax, chunksize, chunksizeBytes, cpu, subdivisions, contextBitmap, aminoacid, pixlinear, start, updateClock, bytesPerMs, pixelStacking, isHighlightCodon, justNameOfPNG, justNameOfHILBERT, sliceDNA, filenameHTML, msElapsed, bytesRemain, width, triplet, updatesTimer, pngImageFlags, codonsPerPixel, codonsPerPixelHILBERT, CRASH, red, green, blue, alpha, errorClock, breakClock, streamLineNr, opacity, codonRGBA, geneRGBA, currentTriplet, currentPeptide, shrinkFactor, reg, image, loopCounter, percentComplete, charClock, baseChars, bigIntFileSize, currentPepHighlight, justNameOfCurrentFile, server, openHtml, openFileExplorer, pixelStream, startPeptideIndex, stopPeptideIndex, flags, loadavg, platform, totalmem, correction, aspect, debugFreq;
 BigInt.prototype.toJSON = function() { return this.toString(); }; // shim for big int
 BigInt.prototype.toBSON = function() { return this.toString(); }; // Add a `toBSON()` function to enable MongoDB to store BigInts as strings
 let data = require('./data.js');
@@ -178,7 +177,7 @@ function resized(tx, ty) {
     termMarginLeft = 0;
     msPerUpdate = maxMsPerUpdate;
   }
-  if (spew == true) {
+  if (dnabg == true) {
     termMarginTop = Math.round(((term.height - termDisplayHeight) - termStatsHeight) / 3);
   } else {
     if (clear == true) {
@@ -360,7 +359,7 @@ module.exports = () => {
     boolean: [ 'html' ],
     boolean: [ 'updates' ],
     boolean: [ 'force' ],
-    boolean: [ 'spew' ],
+    boolean: [ 'dnabg' ],
     boolean: [ 'test' ],
     boolean: [ 'verbose' ],
     boolean: [ 'reg' ],
@@ -380,8 +379,8 @@ module.exports = () => {
     string: [ 'ratio'],
     string: [ 'width'],
     unknown: [ true ],
-    alias: { a: 'artistic', c: 'codons', d: 'devmode', f: 'force', m: 'magnitude', o: 'outpath', out: 'outpath', output: 'outpath', p: 'peptide', i: 'image', t: 'triplet', q: 'quiet', r: 'reg', s: 'spew', w: 'width', v: 'verbose', x: 'explorer', finder: 'explorer'  },
-    default: { updates: true, spew: true, clear: false }
+    alias: { a: 'artistic', b: 'dnabg', c: 'codons', d: 'devmode', f: 'force', h: 'help', k: 'keyboard', m: 'magnitude', o: 'outpath', out: 'outpath', output: 'outpath', p: 'peptide', i: 'image', t: 'triplet', q: 'quiet', r: 'reg', w: 'width', v: 'verbose', x: 'explorer', finder: 'explorer'  },
+    default: { updates: true, dnabg: true, clear: true }
   });
   setupApp(); // do stuff that is needed even just to run "aminosee" with no options.
   let cmd = args._[0];
@@ -394,7 +393,7 @@ module.exports = () => {
   }
 
   if (args.quiet || args.q) { // needs to be at top so toggleDevode() changes can be overridden! but after debug.
-    output("devmode enabled.");
+    log("quiet mode enabled.");
     const quiet = true;
   } else { const quiet = false }
 
@@ -618,12 +617,12 @@ module.exports = () => {
     log("not opening html");
     openHtml = false;
   }
-  if (args.spew || args.s) {
-    log("spew mode enabled.");
-    spew = true;
+  if (args.dnabg || args.s) {
+    log("dnabg mode enabled.");
+    dnabg = true;
   } else {
-    output("spew mode disabled.");
-    spew = false;
+    output("dnabg mode disabled.");
+    dnabg = false;
   }
 
   if (args.force || args.f) {
@@ -767,7 +766,7 @@ function askUserForDNA() {
 function setupKeyboardUI() {
   interactiveKeysGuide += `
   Interactive control:    D            (devmode)  Q   (graceful quit next save)
-  V       (verbose mode)  S (spew DNA to screen)  Control-C      (instant quit)
+  V       (verbose mode)  S (dnabg DNA to screen)  Control-C      (instant quit)
   F      (overwrite png)  W (toggle scr clear)    U       (stats update on/off)`;
 
   // make `process.stdin` begin emitting "keypress" events
@@ -798,7 +797,7 @@ function setupKeyboardUI() {
       gracefulQuit();
     }
     if (key && key.name == 's') {
-      toggleSpew();
+      togglednabg();
     }
     if (key && key.name == 'f') {
       toggleForce();
@@ -842,10 +841,10 @@ function toggleVerbose() {
   verbose = !verbose;
   out(`verbose mode ${verbose}`);
 }
-function toggleSpew() {
-  spew = !spew;
+function togglednabg() {
+  dnabg = !dnabg;
   clearCheck();
-  out(`spew mode ${spew}`);
+  out(`dnabg mode ${dnabg}`);
 }
 function toggleDevmode() {
   devmode = !devmode;
@@ -1041,7 +1040,7 @@ function setupOutPaths() {
     clusterRender = false;
     outFoldername = netFoldername;
   }
-  if (done = suopIters) {
+  // if (done = suopIters) {
     if (clusterRender) {
       output(chalk.inverse(`ENABLING CLUSTER DISTRIBUTED RENDERING`) + chalk(` for ${howMany} files`));
       log(chalk(`Enabled by the prseence of a /output/ or /AminoSee_Output/ folder in *current* dir. If not present, local users homedir ~/AminoSee_Output`));
@@ -1051,11 +1050,11 @@ function setupOutPaths() {
       log(chalk.underline(`~/AminoSee_Output`) + chalk(`To render in current dir, create an /output/ or /AminoSee_Output/ folder in the folder with your DNA files on your LAN to enable automatic cluster rendering. Easy huh? Thats zeroconf style.`));
       outputPath = path.normalize(path.resolve(os.homedir + outFoldername))  // default location after checking overrides
     }
-  }
+  // }
   suopIters++; // only show message once to user. s.u.o.p = setup  output paths.
 
   log(`full output path > ` + chalk.underline(outputPath));
-  // mkdir();
+  mkdir();
 }
 function runTerminalCommand(str) {
   console.log(`[ running terminal command ---> ] ${str}`);
@@ -1364,7 +1363,6 @@ function initStream() {
   breakClock = 0;
   streamLineNr = 0;
   genomeSize = 1;
-  spewClock = 0;
   opacity = 1 / codonsPerPixel; // 0.9 is used to make it brighter, also due to line breaks
   isDiskFinHTML = false;
   isDiskFinHilbert = false;
@@ -1490,7 +1488,7 @@ function streamStopped() {
   saveDocsSync();
 }
 function showFlags() {
-  return `${(  force ? "F" : "-"    )}${(  args.updates || args.u ? `U` : "-"    )}${(  userCPP == "auto" ? `C${userCPP}` : "--"    )}${(  args.keyboard || args.k ? `K` : "-"    )}${(  args.spew || spew ? `K` : "-"    )}${( verbose ? "V" : "-"  )}${(  artistic ? "A" : "-"    )}${(  args.ratio || args.r ? `${ratio}` : "---"    )}${(dimension? "M" + dimension:"")}C${onesigbitTolocale(codonsPerPixel)}${(reg?"REG":"")}`;
+  return `${(  force ? "F" : `-`    )}${(  args.updates || args.u ? `U` : `-`    )}${(  userCPP == "auto" ? `C${userCPP}` : "--"    )}${(  args.keyboard || args.k ? `K` : `-`    )}${(  dnabg ? `D` : `-`    )}${( verbose ? "V" : `-`  )}${(  artistic ? "A" : `-`    )}${(  args.ratio || args.r ? `${ratio}` : "---"    )}${(dimension? "M" + dimension:"")}C${onesigbitTolocale(codonsPerPixel)}${(reg?"REG":"")}`;
 }
 function testSummary() {
   return `TEST
@@ -1951,7 +1949,7 @@ function helpCmd(args) {
   output('  --force -f              ignore locks overwrite existing');
   output('  --devmode -d   will skip locked files even with --force');
   output('  --artistitc -a   creates a visual rhythm in the picture');
-  output('  --spew -s           spew DNA bases to the screen during');
+  output('  --dnabg -b   spew DNA bases to background during render');
   output('  --clear --no-clear       dont clear the terminal during');
   output('  --reg     put registration marks @ 25% 50% 75% and 100%');
   output('  --test                 create calibration test patterns');
@@ -3867,7 +3865,7 @@ function saveHilbert(cb) {
     // console.log();
     let splitScreen = "";
     splitScreen += chalk.rgb(64,64,64).inverse(fixedWidth(debugColumns - 10,  `[Jbs: ${howMany}  Crrnt: ${maxWidth(12, currentFile)} Nxt: ${maxWidth(12, nextFile)} ${nicePercent()} ${busy()} ${storage()} Stat: ${status} Highlt${(isHighlightSet ? peptide + " " : " ")} >>>    `));
-    splitScreen += fixedWidth(debugColumns, txt);
+    splitScreen += fixedWidth(debugColumns,` ${txt} `);
     splitScreen += chalk.gray.inverse( fixedWidth(debugColumns - 10, ` G: ${genomeSize.toLocaleString()} Est: ${onesigbitTolocale(estimatedPixels/1000000)} megapixels ${bytes( baseChars )} RunID: ${timestamp} H dim: ${hilbPixels[dimension]}]  ${formatAMPM(now)} and ${formatMs(now)}ms`));
     console.log(splitScreen);
   }
@@ -3922,7 +3920,7 @@ function saveHilbert(cb) {
         // process.stdout.write();
         redoLine(chalk.rgb(red, green, blue)(`[ `) + chalk(txt)  + chalk.rgb(red, green, blue)(`[ `));
         } else {
-          // console.log("-");
+          // console.log(`-`);
           redoLine(chalk.rgb(red, green, blue)(`[ `) + chalk(txt)  + chalk.rgb(red, green, blue)(`[ `));
           }
         }
@@ -4190,7 +4188,7 @@ function saveHilbert(cb) {
         } else { out('nc') }
         // clearCheck();
 
-        if (spew  == true) {
+        if (dnabg  == true) {
           if (clear == true) {
             term.moveTo(1,1);
           }
@@ -4199,7 +4197,7 @@ function saveHilbert(cb) {
           // term.up(rawDNA.length/term.width);
           // if (clear == true) {
             term.moveTo(1 + termMarginLeft,1);
-            console.log("     To disable real-time DNA background use any of --no-spew --no-updates --quiet");
+            console.log("     To disable real-time DNA background use any of --no-dnabg --no-updates --quiet -q");
           // }
         }
 
@@ -4447,9 +4445,6 @@ function saveHilbert(cb) {
             } else {
               alpha = 255; // only custom peptide pngs are transparent
             }
-
-            spewClock++;
-
             return [red, green, blue, alpha];
           }
         }
