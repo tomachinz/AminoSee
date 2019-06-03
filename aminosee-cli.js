@@ -35,8 +35,8 @@ const serve = require('./aminosee-serve');
 // let pepTable = data.pepTable;
 
 let settings = require('./settings.js');
-// const version = require('./lib/version');
-let version =  require('./settings.js').version; //  settings.version;
+const version = require('./lib/version');
+// let version =  require('./settings.js').version; //  settings.version;
 
 // OPEN SOURCE PACKAGES FROM NPM
 const spawn = require('cross-spawn');
@@ -136,7 +136,8 @@ let howMany = 1;
 let termPixels = Math.round(((term.width-5) * (term.height-5))/4);
 
 function logo() {
-  return `${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196).inverse("See")}${chalk.rgb(128,128,128).inverse("No")}${chalk.grey.inverse("Evil")}`;
+  return `${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196).inverse("See")}${chalk.rgb(128,128,128).inverse("No")}${chalk.grey.inverse("Evil")}       v${chalk.rgb(255,255,0).bgBlue(version)}`;
+  // process.stdout.write(`v${chalk.rgb(255,255,0).bgBlue(version)}`);
 }
 output(logo());
 
@@ -608,8 +609,9 @@ module.exports = () => {
     log("1:1 science mode enabled.");
     artistic = false;
   }
+
   if (args.verbose || args.v) {
-    output(`v${chalk.rgb(255,255,0).bgBlue(version)}`);
+
     output("verbose enabled. AminoSee version: " + version);
     output(`os.platform(): ${os.platform()} ${process.cwd()}`)
     verbose = true;
@@ -728,12 +730,12 @@ module.exports = () => {
       currentFile = args._.pop();
       // currentFile = args._.pop();
       mode("no command");
-      // if (cliruns < 3) {
-      //   output("FIRST RUN!!! Opening the demo... use the command aminosee demo to see this first run demo in future");
-      //   firstRun();
-      // } else {
-      //   log('not first run')
-      // }
+      if (cliruns < 3) {
+        output("FIRST RUN!!! Opening the demo... use the command aminosee demo to see this first run demo in future");
+        firstRun();
+      } else {
+        log('not first run')
+      }
       output(`Try running  --->>>        aminosee help`); //" Closing in 2 seconds.")
       output(`usage        --->>>        aminosee [*/dna-file.txt] [--help|--test|--demo|--force|--html|--image|--keyboard]     `); //" Closing in 2 seconds.")
       askUserForDNA()
@@ -941,21 +943,19 @@ function* generatorOpen(file, options) {
 }
 function runDemo() {
   async.series( [
-    function( cb ) {
-      launchNonBlockingServer();
-      // copyGUI(cb);
-      // symlinkGUI(cb);
-    },
+
     function( cb ) {
       openImage = false;
       ratio = 'gol';
       generateTestPatterns(cb);
     },
     function( cb ) {
-      openImage = false;
+      openImage = true;
       peptide = 'Opal'; // BLUE TESTS
       ratio = 'sqr';
       generateTestPatterns(cb);
+      openOutputs();
+
     },
     function( cb ) {
       // openImage = true;
@@ -985,6 +985,11 @@ function runDemo() {
       currentFile = '*';
       args._.push(currentFile); // DEMO
       pollForStream();
+    },
+    function( cb ) {
+      launchNonBlockingServer();
+      // copyGUI(cb);
+      // symlinkGUI(cb);
     }
   ] )
   .exec( function( error , results ) {
@@ -2439,7 +2444,7 @@ function quit(n, txt) {
   } else {
     removeLocks();
   }
-  term.clear();
+  term.eraseDisplayBelow();
   process.exitCode = 0;
   if (keyboard) {
     process.stdin.pause();
