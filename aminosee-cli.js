@@ -30,8 +30,13 @@ const port = 4321;
 
 // AMINOSEE OWN IMPORTS:
 const serve = require('./aminosee-serve');
-const settings = require('./settings');
-const version = require('./lib/version');
+
+// let data = require('./data.js');
+// let pepTable = data.pepTable;
+
+let settings = require('./settings.js');
+// const version = require('./lib/version');
+let version =  require('./settings.js').version; //  settings.version;
 
 // OPEN SOURCE PACKAGES FROM NPM
 const spawn = require('cross-spawn');
@@ -131,7 +136,7 @@ let howMany = 1;
 let termPixels = Math.round(((term.width-5) * (term.height-5))/4);
 
 function logo() {
-  return `${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196).inverse("See")}${chalk.rgb(128,128,128).inverse("No")}${chalk.grey.inverse("Evil")}       v${chalk.rgb(255,255,0).bgBlue(version)}`;
+  return `${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196).inverse("See")}${chalk.rgb(128,128,128).inverse("No")}${chalk.grey.inverse("Evil")}`;
 }
 output(logo());
 
@@ -604,6 +609,7 @@ module.exports = () => {
     artistic = false;
   }
   if (args.verbose || args.v) {
+    output(`v${chalk.rgb(255,255,0).bgBlue(version)}`);
     output("verbose enabled.");
     verbose = true;
     termDisplayHeight++;
@@ -1043,10 +1049,11 @@ function setupOutPaths() {
     log(chalk(`Enabled by the prseence of a /output/ or /AminoSee_Output/ folder in *current* dir. If not present, local users homedir ~/AminoSee_Output`));
     outputPath = path.normalize(path.resolve(process.cwd() + outFoldername))  // default location after checking overrides
   } else {
-    output(chalk.inverse(`ENABLING USERS HOME DIR RENDER OUTPUT`) + chalk(` for ${howMany} files`));
+    output(chalk.inverse(`ENABLING USERS HOME DIR RENDER OUTPUT`)  );
     log(chalk.underline(`~/AminoSee_Output`) + chalk(`To render in current dir, create an /output/ or /AminoSee_Output/ folder in the folder with your DNA files on your LAN to enable automatic cluster rendering. Easy huh? Thats zeroconf style.`));
     outputPath = path.normalize(path.resolve(os.homedir + outFoldername))  // default location after checking overrides
   }
+  out(chalk(` for ${howMany} files`));
   // }
   suopIters++; // only show message once to user. s.u.o.p = setup  output paths.
 
@@ -1310,6 +1317,7 @@ function resetAndMaybe(){
   percentComplete = 1;
   lookForWork();
 }
+
 function initStream() {
   mode("initStream");
   output(status);
@@ -2167,7 +2175,7 @@ function tLock(cb) {
   calcUpdate();
   const outski = `Started ${justNameOfDNA} at ${formatAMPM(startDate)}, and after ${humanizeDuration(runningDuration)} completed ${nicePercent()} of the ${bytes(baseChars)} file at ${bytes(bytesPerMs*1000)} per second. Estimated ${humanizeDuration(timeRemain)} to go with ${genomeSize.toLocaleString()} r/DNA base pairs done so far.
   ${memToString()}
-  CPU load: ${loadAverages()}`;
+  CPU load:    [ ${loadAverages()} ]`;
   fileWrite(
     filenameTouch,
     lockFileMessage + ` ${version} ${timestamp} ${hostname}
@@ -2177,8 +2185,13 @@ function tLock(cb) {
     ${outski}`,
     cb
   );
-  output();
-  output(outski);
+  term.saveCursor()
+  term.moveTo(3, term.height - 6);
+  console.log()
+  console.log(outski)
+  console.log()
+  term.restoreCursor()
+
 }
 function removeLocks() { // just remove the lock files.
   mode('remove locks ' + howMany);
@@ -2238,29 +2251,33 @@ function lookForWork(reason) { // move on to the next file via pollForStream. on
   if (checkFileExtension(nextFile)) {
     log(`Queued render job for: ${chalk.inverse(fixedWidth(24, currentFile))}`)
     setImmediate( () => {
-        if (renderLock == false) {
+        if (renderLock == false && checkFileExtension(nextFile)) {
           // currentFile = nextFile;
-          setupFNames();
-          touchLockAndStartStream()
-          // pollForStream();
+          // setupFNames();
+          // touchLockAndStartStream()
+          // return true;
         }
     })
   }
 
-
   currentFile = args._.pop();
   filename = path.resolve(currentFile);
   howMany = args._.length;
-  if (howMany > 0 ) {
-    bugtxt(`Polling in ${raceDelay}ms ${howMany} files remain, next is ${maxWidth(32, nextFile)}`);
-  } else {
-    mode("...and thats's all she wrote folks, outa jobs.");
-    quit(0, status);
-    return true;
-  }
+  // if (howMany > 0 ) {
+  //   bugtxt(`Polling in ${raceDelay}ms ${howMany} files remain, next is ${maxWidth(32, nextFile)}`);
+  // } else {
+  //   mode("...and thats's all she wrote folks, outa jobs.");
+  //   quit(0, status);
+  //   return true;
+  // }
   setupProject();
   autoconfCodonsPerPixel();
   setupFNames();
+  if (skipExistingFile()) {
+    clout("Skipping render of " + justNameOfPNG);
+    popAndLock();
+    return false;
+  }
 
   if (checkFileExtension(currentFile)) {
     log(`Queued render job for: ${chalk.inverse(fixedWidth(24, currentFile))}`)
@@ -2275,19 +2292,21 @@ function lookForWork(reason) { // move on to the next file via pollForStream. on
     // args._.push(nextFile);
   } else {
     log(`Skipping render of: ${chalk.inverse(fixedWidth(24, currentFile))} due to wrong format`);
-    renderLock = false;
-    currentFile = args._.pop();
-    filename = path.resolve(currentFile);
-
-    setImmediate( () => {
-      setTimeout( () => {
-        lookForWork();
-        // pollForStream();
-      }, raceDelay);
-    })
+    popAndLock();
   }
 }
+function popAndLock() {
+  renderLock = false;
+  currentFile = args._.pop();
+  filename = path.resolve(currentFile);
 
+  setImmediate( () => {
+    setTimeout( () => {
+      lookForWork();
+      // pollForStream();
+    }, raceDelay);
+  })
+}
 function postRenderPoll(reason) { // make sure all disks and images saved before dicking with global filenames
   if (test) { return false; }
   if (renderLock != true) { // re-entrancy filter
@@ -2366,6 +2385,7 @@ function quit(n, txt) {
   }
   if (howMany > 0 ) {
     bugtxt(`There is more work (${howMany}) . Rendering: ${renderLock} Load: ${os.loadavg()}`);
+    lookForWork('quit')
     return true;
   } else {
     log(`Quitting soon - no more work. Currently: ${busy()}`);
@@ -2417,6 +2437,7 @@ function quit(n, txt) {
   } else {
     removeLocks();
   }
+  term.clear();
   process.exitCode = 0;
   if (keyboard) {
     process.stdin.pause();
@@ -3848,9 +3869,9 @@ function out(txt) {
   if (txt == undefined) { console.log(); return false;}
   term.eraseDisplayBelow;
   process.stdout.write(`[${txt}] `);
-  if (updates == true && renderLock == true) {
-    term.right(termMarginLeft);
-  }
+  // if (updates == true && renderLock == true) {
+  //   term.right(termMarginLeft);
+  // }
 }
 function clout(txt) {
   if (txt == undefined) {
@@ -4150,6 +4171,9 @@ function clout(txt) {
       output(`Done: ${chalk.rgb(128, 255, 128).inverse( nicePercent() )} Elapsed: ${ fixedWidth(12, humanizeDuration(msElapsed )) } Processed ${twosigbitsTolocale(gbprocessed)} GB Runs: ${cliruns} RunID: ${timestamp} on ${hostname} Remain: ${humanizeDuration(timeRemain)}`);
       progUpdate(percentComplete);
       output();
+      term.left(termMarginLeft);
+      console.log();
+
       console.log(histogram(aacdata, { bar: '/', width: debugColumns*2, sort: true, map: aacdata.Histocount} ));
       output(interactiveKeysGuide);
       output(`Last Red: ${peakRed} Last Green: ${peakGreen} Last Blue: ${peakBlue}`)
@@ -4177,15 +4201,15 @@ function clout(txt) {
       } else { out('DNA render done?')}
     }
     function memToString() {
-      let memReturn = `Memory load: (`;
+      let memReturn = `Memory load: [ `;
         // const arr = [1, 2, 3, 4, 5, 6, 9, 7, 8, 9, 10];
         const arr = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
         arr.reverse();
         const used = process.memoryUsage();
         for (let key in used) {
-          memReturn += `${key} ${Math.round(used[key] / 1024 / 1024 * 100) / 100} MB`;
+          memReturn += `${key} ${Math.round(used[key] / 1024 / 1024 * 100) / 100} MB `;
         }
-        return memReturn + ") ";
+        return memReturn + " ] ";
       }
       function loadAverages() {
         l0 = os.loadavg()[0];
