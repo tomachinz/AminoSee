@@ -54,12 +54,12 @@ module.exports.settings = settings;
 // console.log(settings.version)
 // var fs = require('fs');
 
-fs.readFile(path.resolve(process.cwd() + "/package.json"), 'utf8', function(err, contents) {
-  obj = JSON.parse(contents);
-  console.log(obj.version +  " this version");
+// fs.readFile(path.resolve(process.cwd() + "/package.json"), 'utf8', function(err, contents) {
+  // obj = JSON.parse(contents);
+  // console.log(obj.version +  " this version");
   // console.log('after calling readFile');
 
-});
+// });
 
 // console.log('before calling readFile');
 
@@ -76,4 +76,4 @@ const getData = async url => {
     console.log(error);
   }
 };
-getData(url);
+// getData(url);

@@ -124,6 +124,7 @@
       "public/aminosee-gui-web.js",
       "aminosee-cli.js",
       "public/**",
+      "package.json",
       "dna/megabase.fa"
     ]
   }

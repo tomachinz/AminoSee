@@ -46,7 +46,7 @@ const util = require('util');
 const path = require('path');
 const async = require('async-kit'); // amazing lib
 const term = require('terminal-kit').terminal;
-const gv = require('genversion');
+// const gv = require('genversion');
 const MyManHilbert = require('hilbert-2d'); // also contains magic
 const Readable = require('stream').Readable
 const Writable = require('stream').Writable
@@ -301,13 +301,13 @@ streamLineNr = 0;
 genomeSize = 1;
 msElapsed = runningDuration = charClock = percentComplete = genomeSize = pixlinear = opacity = 0;
 
-gv.generate(appPath +'lib/version.js', function (err, version) {
-  if (err) {
-    throw err;
-  } else {
-    log("Generated version file complete " + version);
-  }
-});
+// gv.generate(appPath +'lib/version.js', function (err, version) {
+//   if (err) {
+//     throw err;
+//   } else {
+//     log("Generated version file complete " + version);
+//   }
+// });
 bugtxt(`args.toString: ${args.toString()}`);
 bugtxt(`args._.toString: ${args._.toString()}`);
 // console.log(`stdin pipe: ${pipeInstance.checkIsPipeActive()}`);
@@ -610,7 +610,8 @@ module.exports = () => {
   }
   if (args.verbose || args.v) {
     output(`v${chalk.rgb(255,255,0).bgBlue(version)}`);
-    output("verbose enabled.");
+    output("verbose enabled. AminoSee version: " + version);
+    output(`os.platform(): ${os.platform()} ${process.cwd()}`)
     verbose = true;
     termDisplayHeight++;
   } else { verbose = false; }
@@ -1021,6 +1022,7 @@ function downloadMegabase(cb) {
   return promiseMegabase;
 }
 function setupOutPaths() {
+  log(os.platform())
   let clusterRender = false;
   outFoldername = obviousFoldername;
 
