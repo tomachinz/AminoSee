@@ -391,7 +391,7 @@ module.exports = () => {
     string: [ 'width'],
     unknown: [ true ],
     alias: { a: 'artistic', b: 'dnabg', c: 'codons', d: 'devmode', f: 'force', h: 'help', k: 'keyboard', m: 'magnitude', o: 'outpath', out: 'outpath', output: 'outpath', p: 'peptide', i: 'image', t: 'triplet', q: 'quiet', r: 'reg', w: 'width', v: 'verbose', x: 'explorer', finder: 'explorer'  },
-    default: { updates: true, dnabg: true, clear: true }
+    default: { updates: true, dnabg: true, clear: true, explorer: true }
   });
   setupApp(); // do stuff that is needed even just to run "aminosee" with no options.
   let cmd = args._[0];
