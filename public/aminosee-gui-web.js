@@ -40,12 +40,12 @@ function fileChanged(f) {
 }
 function reportLoaded() {
   console.log("FETCH");
-  fetch(filename +  "output/megabase/megabase_histogram.json")
+  fetch(filename +  "../megabase/megabase_histogram.json")
   .then(response => response.json())
   .then(json => {
     console.log(json);
     alert(json);
-  });
+  }).catch();
 }
 function pageLoaded() {
   reportLoaded();
