@@ -6,7 +6,6 @@ AminoSee-macos
 AminoSee-linux
 output/
 funk.co.nz-aminosee/
-lib/version.js
 dist/
 
 # this kludge is so i can have a shell script in there "process-all-files-in-cd.sh"

@@ -18,12 +18,18 @@ var SPRITES = {
 
 
 };
+http://localhost:8888/aminosee/output/50KB_TestPattern/50KB_TestPattern.txt_linear-reference_c1_sci.png
+
 
 fetch("output/megabase/megabase_histogram.json")
 	.then(response => response.json())
 	.then(json => console.log(json));
 
 
+json.pepTable(src).forEach(function(childItemName) {
+	log(childItemName);
+	console.log(childItemName),
+});
 
 // fetch("images.json")
 // 	.then(response => response.json())

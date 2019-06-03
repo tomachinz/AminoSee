@@ -1,7 +1,7 @@
 #!/bin/sh
 aminosee_do () {
   echo $1 $2 $3 $4 $5 $6 $7
-  nice aminosee  $1 $2 $3 $4 $5 $6 $7 &
+  nice aminosee  $1 $2 $3 $4 $5 $6 $7 --no-explorer -q &
   sleep 5
 }
 
@@ -14,28 +14,28 @@ parallel_peptides () {
   aminosee_do $1 $2 $3 $4 $5 $6 $7
   # aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide="Start Codons"
   # aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide="Stop Codons"
-  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide="Glutamic acid"
-  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide="Aspartic acid"
-  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Ochre
-  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Amber
-  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Opal
-  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Methionine
-  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Cysteine
-  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Glycine
-  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Alanine
-  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Valine
-  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Leucine
-  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Isoleucine
-  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Phenylalanine
-  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Proline
-  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Tryptophan
-  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Serine
-  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Threonine
-  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Glutamine
-  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Asparagine
-  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Tyrosine
-  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Arginine
-  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Lysine
+  aminosee_do $1 $2  --peptide "Glutamic acid"
+  aminosee_do $1 $2  --peptide "Aspartic acid"
+  aminosee_do $1 $2 $3 $4  --peptide=Ochre
+  aminosee_do $1 $2 $3 $4  --peptide=Amber
+  aminosee_do $1 $2   --peptide Opal
+  aminosee_do $1 $2 $3 $4  --peptide=Methionine
+  aminosee_do $1 $2 $3 $4  --peptide=Cysteine
+  aminosee_do $1 $2 $3 $4  --peptide=Glycine
+  aminosee_do $1 $2 $3 $4  --peptide=Alanine
+  aminosee_do $1 $2 $3 $4  --peptide=Valine
+  aminosee_do $1 $2 $3 $4  --peptide=Leucine
+  aminosee_do $1 $2 $3 $4  --peptide=Isoleucine
+  aminosee_do $1 $2 $3 $4  --peptide=Phenylalanine
+  aminosee_do $1 $2 $3 $4  --peptide=Proline
+  aminosee_do $1 $2 $3 $4  --peptide=Tryptophan
+  aminosee_do $1 $2 $3 $4  --peptide=Serine
+  aminosee_do $1 $2 $3 $4  --peptide=Threonine
+  aminosee_do $1 $2 $3 $4  --peptide=Glutamine
+  aminosee_do $1 $2 $3 $4  --peptide=Asparagine
+  aminosee_do $1 $2 $3 $4  --peptide=Tyrosine
+  aminosee_do $1 $2 $3 $4  --peptide=Arginine
+  aminosee_do $1 $2 $3 $4  --peptide=Lysine
   nice aminosee $1 $2 $3 $4 $5 $6 $7  --peptide=Histidine
 # last one is not in background
   sleep 15

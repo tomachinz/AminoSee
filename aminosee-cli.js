@@ -571,13 +571,12 @@ module.exports = () => {
   if (args.peptide || args.p) {
     users = args.peptide || args.p;
     peptide = tidyPeptideName(users);
-    output(`Users peptide: ${users}  peptide: ${peptide}`);
+    // output(`Users peptide: ${users}  peptide: ${peptide}`);
     if (peptide != "none") { // this colour is a flag for error
       isHighlightSet = true;
     } else {
       error(`could not lookup peptide: ${users} using ${peptide}`);
     }
-    output(`Custom peptide ${chalk.bgBlue.white(peptide)} set. Others will be mostly transparent.`);
 
   } else {
     log(`No custom peptide chosen. (default)`);
@@ -589,7 +588,7 @@ module.exports = () => {
     highlightFactor = 1.0; // set to zero to i notice any bugs
     isHighlightSet = false;
   } else {
-    output(`peptide  ${peptide} triplet ${triplet}`);
+    log(`peptide  ${peptide} triplet ${triplet}`);
     isHighlightSet = true;
     report = false; // disable html report
   }
@@ -688,6 +687,7 @@ module.exports = () => {
     dnabg = false;
     updates = false;
   } else { quiet = false }
+  output(`Custom peptide ${chalk.bgBlue.white(peptide)} set. Others will be mostly transparent. Triplet: ${triplet}`);
 
   switch (cmd) {
     case 'unknown':
@@ -2864,11 +2864,11 @@ ${rsobj}
 </div>
 
 <a href="#scrollLINEAR" class="button" title"Click To Scroll Down To See LINEAR"><br />
-<img width="128" height="128" style="border: 4px black; background: black;" src="images/${justNameOfPNG}">
+<img width="128" height="128" style="border: 4px black; background: black;" src="images/${justNameOfDNA}/${justNameOfPNG}">
 1D Linear Map Image
 </a>
 <a href="#scrollHILBERT" class="button" title"Click To Scroll Down To See 2D Hilbert Map"><br />
-<img width="128" height="128" style="border: 4px black background: black;" src="images/${justNameOfHILBERT}">
+<img width="128" height="128" style="border: 4px black background: black;" src="images/${justNameOfDNA}/${justNameOfHILBERT}">
 2D Hilbert Map Image
 </a>
 
@@ -4288,7 +4288,7 @@ function clout(txt) {
       return pepTable => pepTable.Codon.substring(0,4).toUpperCase() == dirtyString.substring(0,4).toUpperCase();
     }
     function isNormalPep(normalpep) {
-      // output(`your normalpep ${normalpep.toUpperCase()}`);
+      output(`your normalpep ${normalpep.toUpperCase()}`);
       return pepTable => pepTable.Codon.toUpperCase() === normalpep.toUpperCase();
     }
     function isNormalTriplet(normaltrip) {
@@ -4315,7 +4315,7 @@ function clout(txt) {
       }
     }
     function tidyPeptideName(str) {
-      currentPeptide = str;
+      currentPeptide = str.toUpperCase();
       let clean = "none";
       try {
         clean = pepTable.find(isNormalPep(str)).Codon;
