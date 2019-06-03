@@ -742,6 +742,10 @@ module.exports = () => {
       // log(`your cmd: ${currentFile} howMany ${howMany}`);
       // progato.stop()
       // quit(0, status);
+
+      if (os.platform() != 'darwin') {
+        helpCmd();
+      }
       return true;
     } else {
       filename =  path.resolve( cmd );
