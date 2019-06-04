@@ -107,7 +107,7 @@ let verbose = false; // not recommended. will slow down due to console.
 let debug = false; // not recommended. will slow down due to console.
 let force = false; // force overwrite existing PNG and HTML reports
 let artistic = false; // for Charlie
-let dnabg = true; // firehose your screen with DNA!
+let dnabg = false; // firehose your screen with DNA!
 let report = true; // html reports can be dynamically disabled
 let test = false;
 let updates = true;
@@ -319,36 +319,36 @@ function setupPrefs() {
   cliruns = userprefs.aminosee.cliruns;
   gbprocessed = userprefs.aminosee.gbprocessed;
   mode('setupPrefs ' + cliruns);
-  // log(`AminoSee has been run ${cliruns} times and processed ${gbprocessed.toLocaleString()}  GB`);
+  bugtxt(`AminoSee has been run ${cliruns} times and processed ${gbprocessed.toLocaleString()}  GB`);
 }
 function setupApp() { // do stuff aside from creating any changes. eg if you just run "aminosee" by itself.
-red = 0;
-green = 0;
-blue = 0;
-alpha = 0;
-charClock = 0; // its 'i' from the main loop
-errorClock = 0; // increment each non DNA, such as line break. is reset after each codon
-breakClock = 0;
-streamLineNr = 0;
-genomeSize = 1;
-msElapsed = runningDuration = charClock = percentComplete = genomeSize = pixlinear = opacity = 0;
+  red = 0;
+  green = 0;
+  blue = 0;
+  alpha = 0;
+  charClock = 0; // its 'i' from the main loop
+  errorClock = 0; // increment each non DNA, such as line break. is reset after each codon
+  breakClock = 0;
+  streamLineNr = 0;
+  genomeSize = 1;
+  msElapsed = runningDuration = charClock = percentComplete = genomeSize = pixlinear = opacity = 0;
 
-// gv.generate(appPath +'lib/version.js', function (err, version) {
-//   if (err) {
-//     throw err;
-//   } else {
-//     log("Generated version file complete " + version);
-//   }
-// });
-bugtxt(`args.toString: ${args.toString()}`);
-bugtxt(`args._.toString: ${args._.toString()}`);
-// console.log(`stdin pipe: ${pipeInstance.checkIsPipeActive()}`);
-// const stdin = pipeInstance.stdinLineByLine();
-// stdin.on('line', console.log);
-startDate = new Date(); // required for touch locks.
-started = startDate.getTime(); // required for touch locks.
-termSize();
-setupPrefs();
+  // gv.generate(appPath +'lib/version.js', function (err, version) {
+  //   if (err) {
+  //     throw err;
+  //   } else {
+  //     log("Generated version file complete " + version);
+  //   }
+  // });
+  bugtxt(`args.toString: ${args.toString()}`);
+  bugtxt(`args._.toString: ${args._.toString()}`);
+  // console.log(`stdin pipe: ${pipeInstance.checkIsPipeActive()}`);
+  // const stdin = pipeInstance.stdinLineByLine();
+  // stdin.on('line', console.log);
+  startDate = new Date(); // required for touch locks.
+  started = startDate.getTime(); // required for touch locks.
+  termSize();
+  setupPrefs();
 }
 function setupProject() { // returns progress bar.
   setupOutPaths();
@@ -371,21 +371,21 @@ function setupProject() { // returns progress bar.
   //   drawProgress();
   // }
 
+
 }
 function destroyProgress() { // now thats a fucking cool function name if ever there was!
   if (howMany == -1) {
-
   }
-  // if (updates == true) {
-  // if (progato != undefined) {
-  // progato.stop();
-  // }
-  // }
+  if (updates == true) {
+    // if (progato != undefined) {
+    //   progato.stop();
+    // }
+  }
   clearTimeout(updatesTimer);
   clearTimeout(progTimer);
 }
 function progUpdate(obj) {  // allows to disable all the prog bars in one place
-  // bugtxt(`progress dummy function: ${obj}`)
+  bugtxt(`progress dummy function: ${obj}`)
   if (updates == true) {
     // progato.update(obj);
   }
@@ -423,7 +423,7 @@ module.exports = () => {
     string: [ 'width'],
     unknown: [ true ],
     alias: { a: 'artistic', b: 'dnabg', c: 'codons', d: 'devmode', f: 'force', h: 'help', k: 'keyboard', m: 'magnitude', o: 'outpath', out: 'outpath', output: 'outpath', p: 'peptide', i: 'image', t: 'triplet', q: 'quiet', r: 'reg', w: 'width', v: 'verbose', x: 'explorer', finder: 'explorer'  },
-    default: { updates: true, dnabg: true, clear: true, explorer: false, quiet: false }
+    default: { updates: true, dnabg: false, clear: true, explorer: false, quiet: false }
   });
   setupApp(); // do stuff that is needed even just to run "aminosee" with no options.
   let cmd = args._[0];
@@ -657,6 +657,8 @@ module.exports = () => {
     log("not opening html");
     openHtml = false;
   }
+
+  if ( cliruns > 69 || gbprocessed > 0.1 ) { dnabg = true } // if you actually use the program, this easter egg starts showing raw DNA as the background after 100 megs or 69 runs.
   if (args.dnabg || args.s) {
     log("dnabg mode enabled.");
     dnabg = true;
@@ -2171,7 +2173,7 @@ function saveHTML(cb) {
     htmlFinished();
     if (cb) { cb() }
 
-  }, raceDelay*2)
+  }, raceDelay)
 }
 function fileWrite(file, contents, cb) {
   mkRenderFolders();
@@ -2287,20 +2289,32 @@ function lookForWork(reason) { // move on to the next file via pollForStream. on
   if (renderLock == true) {
     return false;
   }
-  if (skipExistingFile()) {
+  if (skipExistingFile(filename)) {
     clout(`Skipping render of ${justNameOfPNG} due to file exists`);
-    log(popAndLock());
+    // log(popAndLock());
+    pollForStream();
     return false;
   }
   if (checkFileExtension(currentFile)) {
     log(`Queued render job for: ${chalk.inverse(fixedWidth(24, currentFile))}`)
     if (renderLock == false) {
       setNextFile();
-      // pollForStream()
+      if (checkLocks(filenameTouch)) {
+        log("Render already in progress by another thread. Either use --force or delete this file: ");
+        log(chalk.underline(filenameTouch));
+        resetAndMaybe(); // <---  another node maybe working on, NO RENDER
+      } else {
+        out("Lock OK proceeding to render...");
+        // setTimeout(() => {
+          if (!renderLock) {
+            touchLockAndStartStream(); // <--- THIS IS WHERE MAGIC STARTS
+          }
+          log('polling end');
+        // }, raceDelay);
+      }
+    } else { log('already rendering')}
+    return false;
 
-      touchLockAndStartStream();
-      return false;
-    }
   } else {
     clout(`Skipping render of: ${chalk.inverse(fixedWidth(24, currentFile))} due to wrong format`);
     lookForWork();
@@ -3046,9 +3060,9 @@ function skipExistingFile (fizzle) { // skip the file if TRUE render it if FALSE
   if (force == true) { return false; } // true means to skip render
   let result = doesFileExist(fizzle);
   bugtxt('skipExistingFile ' + fizzle + "force: " + force + " result: " + result)
-  output(`The file is: ${fizzle} which ${(doesFileExist(fizzle) ? 'DOES' : 'does NOT')} exist`)
+  output(`The file is: ${fizzle} which ${( result ? 'DOES' : 'does NOT')} exist`)
 
-  return ;
+  return result;
 }
 function doesFolderExist(f) {
   let ret = false;
@@ -3071,16 +3085,20 @@ function doesFolderExist(f) {
 }
 
 function doesFileExist(f) {
-  let ret = false;
-  if (f == undefined) { return true; }
-  try {
-    ret = fs.existsSync(f);// && fs.lstatSync(f).isFile;
-    ret = true;
-  } catch(e) {
-    bugtxt(e)
-  }
-  // bugtxt(`doesFileExist ${replaceoutputPathFileName(f)} returns: ${ret}`)
-  return ret;
+  if (f == undefined) { return false; }
+  f = path.resolve(f);
+    try {
+      if (fs.existsSync(f)) {
+        log(fixedWidth(debugColumns*2, fs.existsSync(f)+ " FILE EXISTS: " + f ))
+        return true;
+      } else {
+        log(fixedWidth(debugColumns*2, fs.existsSync(f) + " FILE EXISTS: " + f ))
+        return false;
+      }
+    } catch(err) {
+      bugtxt(err);
+    }
+    return false;
 }
 function stat(txt) {
   console.log(txt);
@@ -3160,7 +3178,7 @@ function calculateShrinkage() { // danger: can change filenames of Hilbert image
 
 // resample the large 760px wide linear image into a smaller square hilbert curve
 function saveHilbert(cb) {
-  mode('maybe save hilbert');
+  mode('maybe save hilbert if file not found');
   calculateShrinkage();
   if (isHilbertPossible == true) {
     log("projecting linear array to 2D hilbert curve");
@@ -3175,14 +3193,15 @@ function saveHilbert(cb) {
   // term.eraseDisplayBelow();
   if (skipExistingFile(filenameHILBERT)) {
     log("Existing hilbert image found - skipping projection " + filenameHILBERT);
-    if (openImage) {
-      bugtxt('opening');
-      openOutputs();
-    } else {
-      log("Use --image to open in default browser")
-    }
-    // isDiskFinHtml = true;
-    hilbertFinished(); // does re-poll    return false;
+    // if (openImage) {
+    //   bugtxt('opening');
+    //   openOutputs();
+    // } else {
+    //   log("Use --image to open in default browser")
+    // }
+    setTimeout( () => {
+      hilbertFinished();
+    }, raceDelay)
     if (cb) { cb() }
     return false;
   }
@@ -4063,7 +4082,7 @@ function clout(txt) {
         clearTimeout(progTimer)
         progTimer = setTimeout(() => {
           if (percentComplete < 0.99 && timeRemain > 2001) {
-            // drawProgress();
+            drawProgress();
           } else {
             // progato.stop();
           }
@@ -4164,7 +4183,7 @@ function clout(txt) {
 
     printRadMessage(array);
     term.right(termMarginLeft);
-    output(`Done: ${chalk.rgb(128, 255, 128).inverse( nicePercent() )} Elapsed: ${ fixedWidth(12, humanizeDuration(msElapsed )) } Processed ${twosigbitsTolocale(gbprocessed)} GB Runs: ${cliruns} RunID: ${timestamp} on ${hostname} Remain: ${humanizeDuration(timeRemain)}`);
+    output(`Done: ${chalk.rgb(128, 255, 128).inverse( nicePercent() )} Elapsed: ${ fixedWidth(12, humanizeDuration(msElapsed )) } Processed ${twosigbitsTolocale(gbprocessed)} GB Runs: ${cliruns.toLocaleString()} UID: ${timestamp} on ${hostname} Remain: ${humanizeDuration(timeRemain)}`);
     progUpdate(percentComplete);
     output();
     term.left(termMarginLeft);
@@ -4266,7 +4285,7 @@ function clout(txt) {
       return pepTable => pepTable.Codon.substring(0,4).toUpperCase() == dirtyString.substring(0,4).toUpperCase();
     }
     function isNormalPep(normalpep) {
-      output(`your normalpep ${normalpep.toUpperCase()}`);
+      bugtxt(`your normalpep ${normalpep.toUpperCase()}`);
       return pepTable => pepTable.Codon.toUpperCase() === normalpep.toUpperCase();
     }
     function isNormalTriplet(normaltrip) {
