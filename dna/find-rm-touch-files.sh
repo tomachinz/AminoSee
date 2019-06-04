@@ -10,6 +10,7 @@
   fi
 
 LOCKFILES='*_BUSY_LOCK*.aminosee.txt'
+
 pwd
 echo "About to delete these touch files:  *_LOCK*.aminosee.touch "
 echo find $DASHF . -name $LOCKFILES
@@ -25,5 +26,9 @@ sleep 2
  # macos
 
 
- # find .  -name '*_LOCK*.aminosee.touch'
+ # find   .  -name '*_LOCK*.aminosee.touch'
  # linux
+
+
+ # find   .  -name '*Glutamic*acid*'
+  # find   .  -name '*_*ic*acid*png' -exec rm -v {} \;

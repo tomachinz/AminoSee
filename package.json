@@ -15,7 +15,6 @@
     "chalk": "^2.4.2",
     "cheerio": "^1.0.0-rc.3",
     "cross-spawn": "^6.0.5",
-    "electron": "^5.0.2",
     "event-stream": "^4.0.1",
     "express": "^4.17.1",
     "fs-extra": "^8.0.1",
@@ -57,7 +56,8 @@
     "xmlhttprequest": "^1.8.0"
   },
   "devDependencies": {
-    "genversion": "^2.1.1"
+    "genversion": "^2.1.1",
+    "electron": "^5.0.2"
   },
   "scripts": {
     "credits": "npm list | wc -l > credits.txt ; echo ' open source packages used. ' >> credits.txt; echo >> credits.txt; npm list >> credits.txt; cat credits.txt",

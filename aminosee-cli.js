@@ -1272,7 +1272,7 @@ function pollForStream() { // render lock must be off before calling. aim: start
     let pollAgainFlag = false;
     let willStart = true;
     bugtxt( " currentFile is " + currentFile   + args)
-    clout(`>>> PREFLIGHT <<< ${fixedWidth(24,  currentFile)} then ${fixedWidth(24,  nextFile)}`);
+    clout(`>>> PREFLIGHT <<< ${howMany} ${fixedWidth(24,  currentFile)} then ${fixedWidth(24,  nextFile)}`);
 
 
     if (doesFileExist(filename)) {
@@ -2267,7 +2267,13 @@ function lookForWork(reason) { // move on to the next file via pollForStream. on
     return false;
   }
   if (currentFile == undefined) {
+    quit(1, status)
+    return false;
   }
+
+pollForStream();
+return false;
+
   log( popAndLock());
   try {
     howMany = args._.length;
@@ -2280,21 +2286,22 @@ function lookForWork(reason) { // move on to the next file via pollForStream. on
   // log(`Idle, waiting on: ${storage()}`);
   if (howMany == -1) {
     output('Shutdown in progress');
+    quit(1, status)
     return false;
   }
   if (howMany <= 0) {
     log('Happiness.');
+    quit(0, status)
     return false;
   }
   if (renderLock == true) {
     return false;
   }
-  if (skipExistingFile(filename)) {
-    clout(`Skipping render of ${justNameOfPNG} due to file exists`);
-    // log(popAndLock());
-    pollForStream();
-    return false;
-  }
+  // if (skipExistingFile(filenamePNG)) {
+  //   clout(`Skipping render of ${justNameOfPNG} due to file exists`);
+  //   lookForWork();
+  //   return false;
+  // }
   if (checkFileExtension(currentFile)) {
     log(`Queued render job for: ${chalk.inverse(fixedWidth(24, currentFile))}`)
     if (renderLock == false) {
@@ -2312,12 +2319,13 @@ function lookForWork(reason) { // move on to the next file via pollForStream. on
           log('polling end');
         // }, raceDelay);
       }
-    } else { log('already rendering')}
+    } else { output('already rendering')}
     return false;
 
   } else {
     clout(`Skipping render of: ${chalk.inverse(fixedWidth(24, currentFile))} due to wrong format`);
-    lookForWork();
+    pollForStream();
+    return false;
   }
   if (howMany > 0 && renderLock == false) {
     bugtxt(`Polling in ${raceDelay}ms ${howMany} files remain, next is ${maxWidth(32, nextFile)}`);
