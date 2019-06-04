@@ -251,6 +251,8 @@ function getRenderObject() { // return part of the histogramJson obj
     darkenFactor: darkenFactor,
     highlightFactor: highlightFactor,
     correction: 'Ceiling',
+    finish: new Date(),
+    blurb: blurb(),
     runningDuration: runningDuration,
     totalmem: os.totalmem(),
     platform: os.platform(),
@@ -2129,6 +2131,7 @@ function compareHistocount(a,b) {
   return 0;
 }
 function saveHTML(cb) {
+  mode("maybe save HTML");
   // if ( isHilbertPossible ) { htmlFinished(); cb(); return false; }
   if (willRecycleSavedImage == true && recycEnabled) {
     log("Didnt save HTML report because the linear file was recycled. Use --html to enable and auto open when done.");
@@ -2146,13 +2149,7 @@ function saveHTML(cb) {
   percentComplete = 1;
   calcUpdate();
   computerWants = idealDimension(pixlinear);
-  // bugtxt( pepTable.sort( compareHistocount ) ); // least common amino acids in front
-  // let genomeData = {[
-  //
-  // ]}
-  // var jsonObj = JSON.parse(jsonData);
-  // console.log(jsonObj);
-  // stringify JSON Object
+  bugtxt( pepTable.sort( compareHistocount ) ); // least common amino acids in front
   let histogramJson =  getRenderObject();
   bugtxt(histogramJson);
   let histogramFile = path.normalize( path.resolve(`${outputPath}/${justNameOfDNA}/aminosee_histogram.json`) );
@@ -2217,11 +2214,14 @@ function touchLockAndStartStream() { // saves CPU waste. delete lock when all fi
     initStream()
   })
 }
+function blurb() {
+  return `Started ${justNameOfDNA} at ${formatAMPM(startDate)}, and after ${humanizeDuration(runningDuration)} completed ${nicePercent()} of the ${bytes(baseChars)} file at ${bytes(bytesPerMs*1000)} per second. Estimated ${humanizeDuration(timeRemain)} to go with ${genomeSize.toLocaleString()} r/DNA base pairs done so far.
+  ${memToString()}
+  CPU load:    [ ${loadAverages()} ]`
+}
 function tLock(cb) {
   calcUpdate();
-  const outski = `Started ${justNameOfDNA} at ${formatAMPM(startDate)}, and after ${humanizeDuration(runningDuration)} completed ${nicePercent()} of the ${bytes(baseChars)} file at ${bytes(bytesPerMs*1000)} per second. Estimated ${humanizeDuration(timeRemain)} to go with ${genomeSize.toLocaleString()} r/DNA base pairs done so far.
-  ${memToString()}
-  CPU load:    [ ${loadAverages()} ]`;
+  const outski = blurb();
   fileWrite(
     filenameTouch,
     lockFileMessage + ` ${version} ${timestamp} ${hostname}
