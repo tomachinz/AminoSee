@@ -144,7 +144,7 @@ output(logo());
 
 let runningDuration = 1; // ms
 let interactiveKeysGuide = "";
-let progTimer, hilbertImage, keyboard, filenameTouch, estimatedPixels, args, filenamePNG, extension, reader, hilbertPoints, herbs, levels, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, textFile, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, fileUploadShowing, testColors, chunksMax, chunksize, chunksizeBytes, cpu, subdivisions, contextBitmap, aminoacid, pixlinear, start, updateClock, bytesPerMs, pixelStacking, isHighlightCodon, justNameOfPNG, justNameOfHILBERT, sliceDNA, filenameHTML, msElapsed, bytesRemain, width, triplet, updatesTimer, pngImageFlags, codonsPerPixel, codonsPerPixelHILBERT, CRASH, red, green, blue, alpha, errorClock, breakClock, streamLineNr, opacity, codonRGBA, geneRGBA, currentTriplet, currentPeptide, shrinkFactor, reg, image, loopCounter, percentComplete, charClock, baseChars, bigIntFileSize, currentPepHighlight, justNameOfCurrentFile, server, openHtml, openFileExplorer, pixelStream, startPeptideIndex, stopPeptideIndex, flags, loadavg, platform, totalmem, correction, aspect, debugFreq;
+let progTimer, hilbertImage, keyboard, filenameTouch, estimatedPixels, args, filenamePNG, extension, reader, hilbertPoints, herbs, levels, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, textFile, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, fileUploadShowing, testColors, chunksMax, chunksize, chunksizeBytes, cpu, subdivisions, contextBitmap, aminoacid, pixlinear, start, updateClock, bytesPerMs, pixelStacking, isHighlightCodon, justNameOfPNG, justNameOfHILBERT, sliceDNA, filenameHTML, msElapsed, bytesRemain, width, triplet, updatesTimer, pngImageFlags, codonsPerPixel, codonsPerPixelHILBERT, CRASH, red, green, blue, alpha, errorClock, breakClock, streamLineNr, opacity, codonRGBA, geneRGBA, currentTriplet, currentPeptide, shrinkFactor, reg, image, loopCounter, percentComplete, charClock, baseChars, bigIntFileSize, currentPepHighlight, justNameOfCurrentFile, server, openHtml, openFileExplorer, pixelStream, startPeptideIndex, stopPeptideIndex, flags, loadavg, platform, totalmem, correction, aspect, debugFreq, help;
 BigInt.prototype.toJSON = function() { return this.toString(); }; // shim for big int
 BigInt.prototype.toBSON = function() { return this.toString(); }; // Add a `toBSON()` function to enable MongoDB to store BigInts as strings
 let data = require('./data.js');
@@ -641,7 +641,6 @@ module.exports = () => {
   }
 
   if (args.verbose || args.v) {
-
     output("verbose enabled. AminoSee version: " + version);
     output(`os.platform(): ${os.platform()} ${process.cwd()}`)
     verbose = true;
@@ -680,8 +679,10 @@ module.exports = () => {
     openFileExplorer = false;
   }
   if (args.help || args.h) {
+    help = true;
     helpCmd(args);
-
+  } else {
+    help = false;
   }
 
 
@@ -774,7 +775,7 @@ module.exports = () => {
       // progato.stop()
       // quit(0, status);
 
-      if (os.platform() != 'darwin') {
+      if (os.platform() != 'darwin' && !quiet) {
         helpCmd();
       }
       return true;
@@ -1988,8 +1989,10 @@ function helpCmd(args) {
   output('     aminosee *         (render all files with default settings');
   term.down(termStatsHeight);
   printRadMessage();
-  launchNonBlockingServer(); // justNameOfDNA
-  open( serve.getServerURL(`output/`), {app: 'firefox', wait: false} );
+  if (help == true) {
+    launchNonBlockingServer(); // justNameOfDNA
+    open( serve.getServerURL(`output/`), {app: 'firefox', wait: false} );
+  }
 }
 function mkRenderFolders() {
   mkdir(); // create the output dir if it not exist
