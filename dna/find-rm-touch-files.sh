@@ -9,24 +9,24 @@
     DASHF=" "
   fi
 
-LOCKFILES='*_BUSY_LOCK*.aminosee.txt'
+LOCKFILES='AminoSee_BUSY_LOCK*.txt'
 
 pwd
-echo "About to delete these touch files:  *_LOCK*.aminosee.touch "
+echo "About to delete files matching: $LOCKFILES"
 echo find $DASHF . -name $LOCKFILES
      find $DASHF . -name $LOCKFILES
 
-echo "About to delete these touch files:  *_LOCK*.aminosee.touch "
+echo "About to delete these touch files matching: $LOCKFILES"
 sleep 5
 echo "Deleting these touch files: $LOCKFILES"
-    find $DASHF . -name $LOCKFILES -exec rm -v {} \;
+    find $DASHF . -name '$LOCKFILES' -exec rm -v {} \;
 sleep 2
 
  # fnd -f .  -name '*_LOCK*.aminosee.touch'
  # macos
 
 
- # find   .  -name '*_LOCK*.aminosee.touch'
+ # find   .  -name 'AminoSee_BUSY_LOCK*.txt'
  # linux
 
 

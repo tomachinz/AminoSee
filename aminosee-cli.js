@@ -2767,7 +2767,7 @@ function getImageType() {
   return t;
 }
 function generateFilenameTouch() { // we need the *fullpath* of this one
-  filenameTouch = path.resolve(`${outputPath}/${justNameOfDNA}/AminoSee_BUSY_LOCK_${extension}${highlightFilename()}_c${onesigbitTolocale(codonsPerPixel)}${getImageType()}.aminosee.txt`);
+  filenameTouch = path.resolve(`${outputPath}/${justNameOfDNA}/AminoSee_BUSY_LOCK_${extension}${highlightFilename()}_c${onesigbitTolocale(codonsPerPixel)}${getImageType()}.txt`);
   bugtxt(`debug for generateFilenameTouch: ${filenameTouch}`);
   return                filenameTouch;
 }
