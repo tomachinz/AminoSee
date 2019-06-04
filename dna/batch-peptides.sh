@@ -14,8 +14,8 @@ parallel_peptides () {
   aminosee_do $1 $2 $3 $4 $5 $6 $7
   # aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide="Start Codons"
   # aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide="Stop Codons"
-  aminosee_do $1 $2  --peptide "Glutamic acid"
-  aminosee_do $1 $2  --peptide "Aspartic acid"
+  aminosee $1  --peptide "Glutamic acid" &
+  aminosee $1  --peptide "Aspartic acid"
   aminosee_do $1 $2 $3 $4  --peptide=Ochre
   aminosee_do $1 $2 $3 $4  --peptide=Amber
   aminosee_do $1 $2   --peptide Opal

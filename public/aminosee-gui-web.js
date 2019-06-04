@@ -19,13 +19,37 @@ basepairs = 3;
 zoom = 2; //  defalt 2
 distance = 900; // default 900
 let stateObj = { foo: "bar" };
+let histogramJson = { foo: "bar " };
+let peptide = "none";
+let stackOimages = document.getElementById('stackOimages');
+//
+// if(window.addEventListener) {
+//   window.addEventListener('load',pageLoaded,false); //W3C
+// } else {
+//   window.attachEvent('onload',pageLoaded); //IE
+// }
+// let page = "report";
 
-let current_image = document.getElementById('current_image');
+function mover(i) {
+  if (i == undefined) {
+    let id = "stack_reference"; // reference image
+  } else {
+    id = "stack_" + i; // reference image
+  }
+  console.log(id);
+  let el = document.getElementById(id);
+  el.style.zIndex = 6969;
+}
 
-if(window.addEventListener) {
-  window.addEventListener('load',pageLoaded,false); //W3C
-} else {
-  window.attachEvent('onload',pageLoaded); //IE
+function mout(i) {
+  if (i == undefined) {
+    let id = "stack_reference"; // reference image
+  } else {
+    id = "stack_" + i; // reference image
+  }
+  console.log(id);
+  let el = document.getElementById(id);
+  el.style.zIndex = 100 + i;
 }
 function fileChanged(f) {
   if (f == undefined) { f = 'megabase' }
@@ -38,17 +62,26 @@ function fileChanged(f) {
   console.log(current_image);
   loadImage();
 }
-function reportLoaded() {
-  console.log("FETCH");
-  fetch(filename +  "../megabase/megabase_histogram.json")
+function loadHistogramJson() {
+  console.log("FETCH"); // filename
+  fetch( "megabase_histogram.json")
   .then(response => response.json())
-  .then(json => {
-    console.log(json);
-    alert(json);
+  .then(histogramJson => {
+    console.log(histogramJson);
+    // alert(histogramJson);
+    buildPage(histogramJson);
   }).catch();
 }
+function buildPage(histogramJson) {
+  pepTable = histogramJson.pepTable;
+  summary = histogramJson.summary;
+  document.getElementById('stackOimages').innerHTML = imageStack(histogramJson);
+  // let stackOimages = document.getElementById('stackOimages');
+  // stackOimages.innerHTML = imageStack();
+
+}
 function pageLoaded() {
-  reportLoaded();
+  loadHistogramJson();
   initVariables();
   sceneCameraSetup();
   setScene();
@@ -1248,8 +1281,9 @@ function testParse() {
     mouseX = event.clientX - windowHalfX;
     mouseY = event.clientY - windowHalfY;
     console.log("Position", mouseX, mouseY);
+    alert("deleteme")
     // if (page == "report") {
-    //   positionStack();
+      // buildPage();
     // }
   }
 
@@ -1493,3 +1527,29 @@ function testParse() {
   function out(txt) {
     console.log(txt)
   }
+
+function imageStack(histogramJson) {
+  let hhh = " ";
+  let summary = histogramJson.summary;
+  let name = summary.name;
+  let refimage = summary.refimage;
+  let linearimage = summary.linearimage;
+  hhh += `<div id="stackOimages">
+  <a href="images/${name}" onmouseover="mover()" onmouseout="mout()"><img  src="images/${name}" id="stack_reference" width="256" height="256" style="z-index: ${999}; position: absolute; top: 0px; left: 0px;" alt="${refimage}" title="${refimage}"></a>`;
+  histogramJson.pepTable.forEach(function(item) {
+    log(item);
+    let thePep = item.Codon;
+    let theHue = item.Hue;
+    let c =      hsvToRgb( theHue/360, 0.5, 1.0 );
+    let src =    item.src;
+    let z =      item.z;
+    let i =      item.index + 1;
+    if (thePep == "Start Codons" || thePep == "Stop Codons" || thePep == "Non-coding NNN") {
+      html += `<!-- ${thePep.Codon} -->`;
+    } else {
+      hhh += `<a href="images/${src}" onmouseover="mover(${i})" onmouseout="mout(${i})"><img src="images/${src}" id="stack_${i}" width="256" height="256" style="z-index: 99; position: absolute; top: 64px; left: 64px;" alt="${thePep}" title="${item.Description}"></a>`;
+    }
+  });
+  hhh += `</div> <!--  id="stackOimages -- >`;
+  return hhh;
+}
