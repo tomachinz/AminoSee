@@ -761,9 +761,7 @@ module.exports = () => {
     isDiskFinHTML = isDiskFinHilbert = isDiskFinLinear = true;
     howMany = args._.length
     if (cmd == undefined) {
-      currentFile = args._.pop();
-      // currentFile = args._.pop();
-      mode("no command");
+      mode("no command " + popAndLock());
       if (cliruns < 3) {
         output("FIRST RUN!!! Opening the demo... use the command aminosee demo to see this first run demo in future");
         firstRun();
@@ -790,7 +788,8 @@ module.exports = () => {
       mode("Ω first command " + howMany + " " + currentFile);
       log(filename)
       log(status);
-      args._.push(currentFile); // could never figure out how those args were getting done
+      // args._.push(currentFile); // could never figure out how those args were getting done
+      // pollForStream();
       lookForWork('first command')
       return true;
     }
@@ -895,6 +894,7 @@ function toggleDevmode() {
   devmode = !devmode;
   out(`devmode ${devmode}`);
   if (devmode == true) {
+    quiet = false;
     verbose = true;
     updates = false;
     clear = false;
@@ -1213,25 +1213,15 @@ function pollForStream() { // render lock must be off before calling. aim: start
   }
   percentComplete = 0;
   setNextFile();
-  try {
-    currentFile = args._.pop().toString();
-  } catch(e) {
-    mode("pollForStream args not exist" + e)
-    log('Render job ended empty unexpectedly due to: args not exist');
-    quit(1, status)
-    return false;
-  }
-  if ( currentFile == undefined ) {
-    // lookForWork(`currentFile is undef`)
-    // currentFile = "Finished";
-    quit(0, `pollForStream Finished`);
-    return true;
-  }
+
+  mode(`pollForStream ${popAndLock()}`)
+
+
 
   howMany = args._.length;
   filename = path.resolve(currentFile);  // not thread safe after here!
   if (checkFileExtension(currentFile) == false) {
-    clout("Format: " + getFileExtension(currentFile) + " NOT OK: " + checkFileExtension(currentFile) );
+    clout("File Format not supported: " + chalk.inverse(getFileExtension(currentFile)));
     setTimeout( () => {
       lookForWork();
     }, raceDelay)
@@ -1272,7 +1262,7 @@ function pollForStream() { // render lock must be off before calling. aim: start
     let pollAgainFlag = false;
     let willStart = true;
     bugtxt( " currentFile is " + currentFile   + args)
-    clout(`>>> PREFLIGHT <<< ${howMany} ${fixedWidth(24,  currentFile)} then ${fixedWidth(24,  nextFile)}`);
+    output(`>>> PREFLIGHT <<< ${howMany} ${fixedWidth(24,  currentFile)} then ${fixedWidth(24,  nextFile)}`);
 
 
     if (doesFileExist(filename)) {
@@ -1307,9 +1297,10 @@ function pollForStream() { // render lock must be off before calling. aim: start
       } else {
         log('use --image to open in viewer')
       }
-      lookForWork();
+      // popAndLock();
+      lookForWork(`skipExistingFile ${filenamePNG}`);
       return false;
-    }
+    } else { log('Not skipping')}
 
     if (checkLocks(filenameTouch)) {
       log("Render already in progress by another thread. Either use --force or delete this file: ");
@@ -1364,7 +1355,9 @@ function resetAndMaybe(){
   isDiskFinHTML = isDiskFinLinear = isDiskFinHilbert = true;
   renderLock = false;
   percentComplete = 0;
-  lookForWork();
+  setTimeout(() => {
+    lookForWork(`resetAndMaybe`);
+  }, raceDelay)
 }
 
 function initStream() {
@@ -1434,7 +1427,7 @@ function initStream() {
   status = "init";
   clearCheck();
   output(`Loading ${filename} Filesize ${bytes(baseChars)}`);
-  if (clear) {
+  if (clear == true) {
     term.up(termDisplayHeight + termStatsHeight*2);
     term.eraseDisplayBelow();
   }
@@ -2029,14 +2022,23 @@ function saveDocsSync() {
 
   async.parallel( [
     function( cb ) {
-      savePNG( cb );
+      savePNG();
+      setImmediate(() => {
+        cb()
+      })
     },
     function ( cb ) {
-      saveHilbert( cb )
+      saveHilbert( )
+      setImmediate(() => {
+        cb()
+      })
     },
     function ( cb ) {
-      saveHTML( cb );
+      saveHTML( );
       openOutputs();
+      setImmediate(() => {
+        cb()
+      })
     }
   ])
   .exec( function( error , results ) {
@@ -2237,23 +2239,27 @@ function tLock(cb) {
   term.restoreCursor()
 }
 function removeLocks() { // just remove the lock files.
-  renderLock = false;
   mode('remove locks ' + howMany);
   clearTimeout(updatesTimer)
   clearTimeout(progTimer)
   try {
     fs.unlinkSync(filenameTouch, (err) => {
-      log("Removing locks OK...")
+      mode("Removing locks OK...")
       if (err) { log('ish'); console.warn(err);  }
     });
   } catch (err) {
-    log("No locks to remove: " + err);
+    mode("No locks to remove: " + err);
   }
   setTimeout( () => {
+    renderLock = false;
+    // popAndLock();
+    // pollForStream();
+    howMany--;
     lookForWork('removeLocks unlinkSync success');
   }, raceDelay)
 }
 
+// start or poll.
 function lookForWork(reason) { // move on to the next file via pollForStream. only call from early parts prio to render.
   mode(`lookForWork ${reason}`);
   if (renderLock == true) { // re-entrancy filter
@@ -2266,15 +2272,15 @@ function lookForWork(reason) { // move on to the next file via pollForStream. on
     bugtxt('test');
     return false;
   }
-  if (currentFile == undefined) {
-    quit(1, status)
-    return false;
-  }
+  // if (currentFile == undefined) {
+  //   quit(1, status)
+  //   return false;
+  // }
 
-pollForStream();
-return false;
+  // pollForStream();
+  // return false;
 
-  log( popAndLock());
+  // log( popAndLock());
   try {
     howMany = args._.length;
   } catch(e) {
@@ -2295,14 +2301,17 @@ return false;
     return false;
   }
   if (renderLock == true) {
+    bugtxt(`thread re-entry`);
     return false;
   }
-  // if (skipExistingFile(filenamePNG)) {
-  //   clout(`Skipping render of ${justNameOfPNG} due to file exists`);
-  //   lookForWork();
-  //   return false;
-  // }
-  if (checkFileExtension(currentFile)) {
+  pollForStream();
+  return false;
+  if (skipExistingFile(filenamePNG)) {
+    clout(`Skipping render of ${justNameOfPNG} due to file exists`);
+    pollForStream();
+    return false;
+  }
+  if (checkFileExtension(filename)) {
     log(`Queued render job for: ${chalk.inverse(fixedWidth(24, currentFile))}`)
     if (renderLock == false) {
       setNextFile();
@@ -2312,24 +2321,25 @@ return false;
         resetAndMaybe(); // <---  another node maybe working on, NO RENDER
       } else {
         out("Lock OK proceeding to render...");
-        // setTimeout(() => {
           if (!renderLock) {
             touchLockAndStartStream(); // <--- THIS IS WHERE MAGIC STARTS
           }
           log('polling end');
-        // }, raceDelay);
       }
     } else { output('already rendering')}
     return false;
-
   } else {
     clout(`Skipping render of: ${chalk.inverse(fixedWidth(24, currentFile))} due to wrong format`);
     pollForStream();
     return false;
   }
-  if (howMany > 0 && renderLock == false) {
-    bugtxt(`Polling in ${raceDelay}ms ${howMany} files remain, next is ${maxWidth(32, nextFile)}`);
-    lookForWork();
+  if (howMany > 0) {
+    log(`Starting in ${raceDelay}ms ${howMany} files remain, next is ${maxWidth(32, nextFile)}`);
+    setTimeout(() => {
+      if (!renderLock) {
+        touchLockAndStartStream(); // <--- THIS IS WHERE MAGIC STARTS
+      }
+    }, raceDelay);
   } else {
     mode("...and thats's all she wrote folks, outa jobs.");
     quit(0, status);
@@ -2341,7 +2351,9 @@ function popAndLock() {
   if (renderLock == true ) { return 'thread re-entry' }
   try {
     currentFile = args._.pop().toString();
+    howMany = args._.length;
   } catch(e) {
+    howMany = args._.length;
     return 'popAndLock args not exist ' + e;
   }
   if (currentFile.indexOf('...') != -1) { return 'Cant use files with three dots in filename ... ' }
@@ -3207,9 +3219,9 @@ function saveHilbert(cb) {
     // } else {
     //   log("Use --image to open in default browser")
     // }
-    setTimeout( () => {
-      hilbertFinished();
-    }, raceDelay)
+    // setTimeout( () => {
+      isDiskFinHilbert = true;
+    // }, raceDelay)
     if (cb) { cb() }
     return false;
   }
@@ -3292,7 +3304,7 @@ function saveHilbert(cb) {
 }
 function htmlFinished() {
   isDiskFinHTML = true;
-  bugtxt("HTML done")
+  mode(`HTML done. Waiting on (${storage()})`);
   setTimeout( () => {
     postRenderPoll('htmlFinished');
   }, raceDelay)
@@ -3300,14 +3312,14 @@ function htmlFinished() {
 }
 function hilbertFinished() {
   isDiskFinHilbert = true;
-  bugtxt("Hilbert PNG done");
+  mode(`Hilbert curve done. Waiting on (${storage()})`);
   setTimeout( () => {
     postRenderPoll('hilbertFinished');
   }, raceDelay)
 }
 function linearFinished() {
   isDiskFinLinear = true;
-  bugtxt(`Linear PNG done`);
+  mode(`DNA linear render done. Waiting on (${storage()})`);
   if (test == true) { return false; } else {
     setTimeout( () => {
       postRenderPoll('linearFinished');
@@ -3479,7 +3491,6 @@ function bothKindsTestPattern() {
       img_png.pack()
       .pipe(wstream)
       .on('finish', () => {
-        log("PNG Save OK " + storage());
         linearFinished();
       })
     }
@@ -5189,6 +5200,7 @@ function clout(txt) {
 
 
         function imageStack(histogramJson) {
+          mode('imageStack')
           let html = " ";
           let summary = histogramJson.summary;
           let name = summary.name;
@@ -5206,7 +5218,7 @@ function clout(txt) {
             currentPeptide = thePep;
             item.src = aminoFilenameIndex(item.index);
             let src =    item.src;
-            console.log( src );
+            bugtxt( src );
             if (thePep == "Start Codons" || thePep == "Stop Codons" || thePep == "Non-coding NNN") {
               html += `<!-- ${thePep.Codon} -->`;
             } else {
