@@ -1,19 +1,22 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<html lang="en">
+
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 	<title>AminoSeeNoEvil :: WebGL 3D DNA Visualisation Pseudo-Hilbert Curve Projection :: Funk NZ</title>
 	<meta name="description" content="A new way to view DNA that attributes a colour hue to each Amino acid codon triplet">
 
 	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 	<meta http-equiv="Content-Security-Policy" content="default-src https://dev.funk.co.nz https://www.funk.co.nz * data: blob: 'unsafe-inline' ws: wss:;">
 	<!-- <meta http-equiv="Content-Security-Policy" content="default-src https://dev.funk.co.nz https://www.funk.co.nz https://www.google-analytics.com https://www.googletagmanager.com * data: blob: 'unsafe-inline' 'unsafe-eval' ws: wss:;"> -->
-	<script src="node_modules/three/build/three.min.js"></script>
-	<script src="node_modules/jquery/dist/jquery.min.js"></script>
+	<!-- <script src="renderer.js"></script> -->
+	<script src="public/three.min.js"></script>
+	<script src="public/jquery.min.js"></script>
 	<script src="public/hilbert3D.js"></script>
 	<script src="public/hilbert2D.js"></script>
 	<script src="public/WebGL.js"></script>
-	<script src="node_modules/hammerjs/hammer.min.js"></script>
-	<script src="renderer.js"></script>
-	<script src="../public/aminosee-gui-web.js"></script>
+	<script src="public/hammer.min.js"></script>
+	<script src="public/aminosee-gui-web.js"></script>
 
 	<link rel="stylesheet" type="text/css" href="public/AminoSee.css">
 	<link href='https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz:700,400,200,100' rel='stylesheet' type='text/css'>
@@ -21,9 +24,10 @@
 	<link href="https://www.funk.co.nz/css/funk2014.css" rel="stylesheet">
 	<!-- Funk.nz menubar include -->
 	<!-- Google Tag Manager -->
-	<noscript><!--iframe src="//www.googletagmanager.com/ns.html?id=GTM-P8JX"
+	<noscript>
+		<!--iframe src="//www.googletagmanager.com/ns.html?id=GTM-P8JX"
 		height="0" width="0" style="display:none;visibility:hidden"></iframe--></noscript>
-		<!--script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+	<!--script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
 		new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
 		j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 		'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
@@ -31,6 +35,7 @@
 	<!-- End Google Tag Manager -->
 
 </head>
+
 <body id="webgl" class="black nocse">
 	<div id="supercontainer">
 		<div id="modalBox" class="hidden">
@@ -49,7 +54,8 @@
 
 
 
-				<a target="_blank" onclick="opn('https://www.funk.co.nz/')" href="https://www.funk.co.nz/" style="width: 100px;" title="Return to FUNK Homepage"><img src="https://www.funk.co.nz/images/nav/funk-logo-140px.png" width="140" height="70" alt="www.funk.co.nz" style="position: fixed; top: -2px; left: 26px;"/></a>
+		<a target="_blank" onclick="opn('https://www.funk.co.nz/')" href="https://www.funk.co.nz/" style="width: 100px;" title="Return to FUNK Homepage"><img src="https://www.funk.co.nz/images/nav/funk-logo-140px.png" width="140" height="70" alt="www.funk.co.nz"
+			  style="position: fixed; top: -2px; left: 26px;" /></a>
 
 		<div id="info">
 
@@ -90,12 +96,12 @@
 			<!-- </div>
 			class="gridcontainer"
 		-->
-		<div id="controls">
+			<div id="controls">
 
-			<div id="fileheader">
-				<label class="custom-file-upload">
-					Custom Upload
-					<input type="file" id="choosefiles" name="file" value="example-sequence.fa" multiple onchange="handleFileSelect()" /></label>
+				<div id="fileheader">
+					<label class="custom-file-upload">
+						Custom Upload
+						<input type="file" id="choosefiles" name="file" value="example-sequence.fa" multiple onchange="handleFileSelect()" /></label>
 					<input type="button" id="cancel" class="fineprint small hidden" name="cancel" value="Cancel" onclick="cancel()">
 					<span class="fineprint whitetext">Any ASCII text file containing DNA or RNA sequences in first 1k</span>
 					<br />
@@ -144,4 +150,6 @@
 			<div class="footer"></div>
 		</div>
 	</div>
-</body></html>
+</body>
+
+</html>

@@ -1,3 +1,4 @@
+let aminosee = require('./aminosee-cli');
 
 
 const asciiart = `
@@ -23,6 +24,7 @@ const asciiart = `
 // 4 - Render lock failed.
 // 5 - Crash during DNA render.
 // 6 - Failed to allocate correct image size (doh!)
+// 7 - Quit but leave web server running in background
 // 126 - Command invoked cannot execute
 // 127 - “command not found”
 // 128 - Invalid argument to exit

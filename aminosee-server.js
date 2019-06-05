@@ -2,6 +2,7 @@ const http = require('http');
 const chalk = require('chalk');
 const path = require('path');
 const os = require("os");
+let aminosee = require('./aminosee-cli');
 
 let options = {
   port: 4321
@@ -12,7 +13,7 @@ function startServeHandler() {
   // let www =  path.normalize( path.join(os.homedir() ,  outFoldername));
   let www = path.resolve(os.homedir() + "/AminoSee_Output");
   console.log(`www = ${www}`);
-  const server = http.createServer((request, response) => {
+  const serveHandler = http.createServer((request, response) => {
     // You pass two more arguments for config and middleware
     // More details here: https://github.com/zeit/serve-handler#options
     let options = {
@@ -31,7 +32,7 @@ function startServeHandler() {
     response.write('bloody hell');
     return handler(request, response);//, options);
   })
-  server.listen(options, () => {
+  serveHandler.listen(options, () => {
     console.log(`Running at ` + chalk.underline(getServerURL()));
   });
 }
@@ -94,6 +95,21 @@ module.exports.start = function() {
   return startServeHandler();
 };
 module.exports.startServeHandler = startServeHandler;
+
+module.exports.close = function() {
+  try {
+    if (serveHandler != undefined) {
+      console.log("Stoping server");
+      serveHandler.close();
+    } else {
+      console.log("no server");
+    }
+  } catch(e) {
+    aminosee.bugtxt(e);
+  }
+
+};
+
 module.exports.stop = function() {
   console.log("Stoping server");
 };

@@ -1,16 +1,34 @@
-filesIpc// This file is required by the index.html file and will
+// This file is required by the index.html file and will
 // be executed in the renderer process for that window.
 // All of the Node.js APIs are available in this process.
 
 // for the Electron Desktop App
+// const { ipcMain } = require('electron')
+// const { ipcRenderer } = require('electron')
+// const { dialog } = require('electron').remote;
+const { app, BrowserWindow, Menu, dialog, ipcRenderer } = require('electron'); // Modules to control application life and create native browser window
 
-const { ipcRenderer } = require('electron')
-const { dialog } = require('electron').remote;
+
+
+console.log(ipcRenderer.sendSync('synchronous-message', 'ping')) // prints "pong"
+ipcRenderer.on('asynchronous-reply', (event, arg) => {
+  console.log(`asynchronous: ${arg}`) // prints "pong"
+})
+ipcRenderer.send('asynchronous-message', 'ping sent from renderer')
+
+
+
+
+
+
 dialog.showOpenDialog((filenames) => {
   if (filesNames === undefined ) {
-  console.log("no files were selected");
-  return;
-}
+    console.log("no files were selected");
+    return;
+  } else {
+    console.log(`Renderer thread got: ${filesNames}`);
+
+  }
 
 } )
 document.getElementById('choosefiles').addEventListener('change', filesIpc, false);
@@ -26,11 +44,11 @@ function pageLoaded() {
   let supercontainer = document.getElementById('supercontainer');
   let dragitem = document.getElementById('dragitem')
 
-   dragitem.addEventListener('dragstart', (evt) => {
-     evt.dataTransfer.effectAllowed = 'copy'
-     evt.preventDefault()
-     ipcRenderer.send('ondragstart', `${__dirname}/abc.txt`)
-   })
+  dragitem.addEventListener('dragstart', (evt) => {
+    evt.dataTransfer.effectAllowed = 'copy'
+    evt.preventDefault()
+    ipcRenderer.send('ondragstart', `${__dirname}/abc.txt`)
+  })
 
   supercontainer.ondragstart = (evt) => {
     evt.preventDefault()
@@ -132,16 +150,16 @@ function statModal(txt, callback) {
 
 function filesIpc(evt) {
   document.getElementById('cancel').classList.remove('hidden');
-  alert(evt.toString());
+  // alert(evt.toString());
   let choosefiles = evt.target.files;
   for (i=0; i<choosefiles.length; i++) {
-      // alert(choosefiles[i].toString());
-      ipcRenderer.send('do_LoadFile', {
-        aTopic: 'do_LoadURL',
-        filename: choosefiles[i].toString(),
-        url: choosefiles[i],
-        type: 'text/plain'
-      })
+    // alert(choosefiles[i].toString());
+    ipcRenderer.send('do_LoadFile', {
+      aTopic: 'do_LoadURL',
+      filename: choosefiles[i].toString(),
+      url: choosefiles[i],
+      type: 'text/plain'
+    })
     // downloader.postMessage({
     //   aTopic: 'do_LoadURL',
     //   filename: choosefiles[i],

@@ -1,11 +1,22 @@
 {
   "name": "aminosee",
-  "productName": "AminoSee DNA Viewer",
-  "version": "1.12.4",
+  "version": "1.12.5",
   "owner": "Thomas Bieder Atkinson",
   "description": "Allows genomics researchers to convert any file containing ASCII blocks of DNA (Fasta, GBK, .txt) into an image. A unique visualisation of DNA / RNA residing in text files, AminoSee is a way to render arbitrarily large files - due to support for streamed processing - into a static size PNG image using a pseudo-Hilbert infinite space filling curve written in the 18th century! Computation is done locally, and the files do not leave your machine. A back-end terminal daemon cli command that can be scripted is combined with a front-end GUI in Electron, AminoSee features asynchronous streaming processing enabling arbitrary size files to be processed. It has been tested with files in excess of 4 GB and does not need the whole file in memory at any time. In a diectory with DNA files try running aminosee *. Alternatively use the GUI to Drag and drop files to render a unique colour view of RNA or DNA stored in text files, output to PNG graphics file, then launches an WebGL browser that projects the image onto a 3D Hilbert curve for immersive viewing, using THREEjs. Command line options alow one to filter by peptide.",
   "main_bundle": "bundle.js",
   "main": "main.js",
+  "build": {
+    "productName": "AminoSee DNA Viewer",
+    "appId": "nz.funk.aminosee",
+    "copyright": "Copyright © 2018-2019 Tom Atkinson",
+    "directories": [
+      "public/**",
+      "dist/root/**"
+    ],
+    "mac": {
+      "category": "your.app.category.type"
+    }
+  },
   "dependencies": {
     "ascii-histogram": "^1.2.1",
     "async-kit": "^2.2.4",
@@ -56,8 +67,9 @@
     "xmlhttprequest": "^1.8.0"
   },
   "devDependencies": {
-    "genversion": "^2.1.1",
-    "electron": "^5.0.2"
+    "electron": "^5.0.2",
+    "electron-rebuild": "^1.8.5",
+    "genversion": "^2.1.1"
   },
   "scripts": {
     "credits": "npm list | wc -l > credits.txt ; echo ' open source packages used. ' >> credits.txt; echo >> credits.txt; npm list >> credits.txt; cat credits.txt",
@@ -66,18 +78,18 @@
     "start": "node bin/aminosee",
     "inspect": "node --inspect bin/aminosee.js /Volumes/aminosee/dna/Brown_Kiwi_NW_013982187v1.fa  -f -c100 -vd --debug --no-updates --no-clear",
     "demo": "node bin/aminosee demo",
-    "build-old": "./build-lib.sh ; npm run genversion ; npm run browserify ; time npm run package",
-    "build": "npm run genversion ; npm run browserify ; time npm run package",
-    "build-lib": "./build-lib.sh ; npm run browserify ; time npm run package",
-    "build-all": "./build-lib.sh ; time npm run package",
+    "build": "npm run build-web ; time npm run pkg",
+    "build-lib": "./build-lib.sh ; ",
+    "build-all": "./build-lib.sh ; npm run buid-web ; time npm run pkg",
+    "build-web": "npm run genversion ; npm run browserify ; npm run minify",
     "genversion": "genversion lib/version.js",
-    "browserify": "browserify bin/aminosee.js -o bundle.js",
-    "minify": "uglify gui/bundle.js -o bundle.min.js",
+    "browserify": "browserify bin/aminosee.js -o public/bundle.js",
+    "minify": "uglify public/bundle.js -o public/bundle.min.js",
     "electron": "electron-packager ./bin/aminosee.js --platform=darwin --arch=x64 --prune --overwrite  --output ./dist/",
     "electron-all": "electron-packager ./ --platform=darwin,win32,linux --arch=x64 --prune --overwrite  --output ./dist/",
     "gui": "electron .",
     "guidev": "electron . --devmode --remote-debugging-port 8315 --host-rules='MAP * 127.0.0.1'",
-    "package": "npm run macos; npm run win32; npm run win64; npm run linux;",
+    "pkg": "npm run macos; npm run win32; npm run win64; npm run linux;",
     "runmac": "open ./dist/AminoSee_macos/aminosee-macos",
     "macos": "echo MACOS ; pkg . --targets macos   --output ./dist/AminoSee_macos/aminosee-macos   ; zip -8 -r ./dist/AminoSee_macos.zip ./dist/AminoSee_macos",
     "win32": "echo WIN32 ; pkg . --targets win-x86 --output ./dist/AminoSee_win/aminosee-win32.exe ;",
@@ -123,7 +135,6 @@
       "index.html",
       "index.php",
       "favicon.ico",
-      "public/aminosee-gui-web.js",
       "aminosee-cli.js",
       "public/**",
       "package.json",

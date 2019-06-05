@@ -11,6 +11,8 @@ aminosee demo
 echo "If you don't see a demo try:"
 echo "npm run demo"
 
+./node_modules/.bin/electron-rebuild
+
 
 echo "IDEA: try starting the experimental GUI mode with "
 echo npm run gui
