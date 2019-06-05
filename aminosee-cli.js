@@ -128,12 +128,12 @@ let isDiskFinLinear = true; // flag shows if saving png is complete
 let isDiskFinHilbert = true; // flag shows if saving hilbert png is complete
 let isDiskFinHTML = true; // flag shows if saving html is complete
 let willRecycleSavedImage = false; // allows all the regular processing to mock the DNA render stage
-let codonsPerSec, cliruns, gbprocessed = 0;
+let codonsPerSec = cliruns = gbprocessed = opens = 0;
 let peakRed = peakGreen = peakBlue = 0.123455;
 let rawDNA ="@loading DNA Stream..."; // debug
 let status = "load";
 let outputPath = obviousFoldername;
-let debugColumns = 0; debugColumns = setDebugCols();
+let debugColumns = 0; debugColumns = setDebugCols(); // why?
 let howMany = 1;
 // let StdInPipe = require('./stdinpipe');
 // let pipeInstance = new StdInPipe();
@@ -148,7 +148,7 @@ output(logo());
 
 let runningDuration = 1; // ms
 let interactiveKeysGuide = "";
-let progTimer, hilbertImage, keyboard, filenameTouch, estimatedPixels, args, filenamePNG, extension, reader, hilbertPoints, herbs, levels, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, textFile, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, fileUploadShowing, testColors, chunksMax, chunksize, chunksizeBytes, cpu, subdivisions, contextBitmap, aminoacid, pixelClock, start, updateClock, bytesPerMs, pixelStacking, isHighlightCodon, justNameOfPNG, justNameOfHILBERT, sliceDNA, filenameHTML, msElapsed, bytesRemain, width, triplet, updatesTimer, pngImageFlags, codonsPerPixel, codonsPerPixelHILBERT, CRASH, red, green, blue, alpha, errorClock, breakClock, streamLineNr, opacity, codonRGBA, geneRGBA, currentTriplet, currentPeptide, shrinkFactor, reg, image, loopCounter, percentComplete, charClock, baseChars, bigIntFileSize, currentPepHighlight, justNameOfCurrentFile, openHtml, openFileExplorer, pixelStream, startPeptideIndex, stopPeptideIndex, flags, loadavg, platform, totalmem, correction, aspect, debugFreq, help;
+let progTimer, hilbertImage, keyboard, filenameTouch, filenameServerLock, estimatedPixels, args, filenamePNG, extension, reader, hilbertPoints, herbs, levels, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, textFile, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, fileUploadShowing, testColors, chunksMax, chunksize, chunksizeBytes, cpu, subdivisions, contextBitmap, aminoacid, pixelClock, start, updateClock, bytesPerMs, pixelStacking, isHighlightCodon, justNameOfPNG, justNameOfHILBERT, sliceDNA, filenameHTML, msElapsed, bytesRemain, width, triplet, updatesTimer, pngImageFlags, codonsPerPixel, codonsPerPixelHILBERT, CRASH, red, green, blue, alpha, errorClock, breakClock, streamLineNr, opacity, codonRGBA, geneRGBA, currentTriplet, currentPeptide, shrinkFactor, reg, image, loopCounter, percentComplete, charClock, baseChars, bigIntFileSize, currentPepHighlight, justNameOfCurrentFile, openHtml, openFileExplorer, pixelStream, startPeptideIndex, stopPeptideIndex, flags, loadavg, platform, totalmem, correction, aspect, debugFreq, help;
 BigInt.prototype.toJSON = function() { return this.toString(); }; // shim for big int
 BigInt.prototype.toBSON = function() { return this.toString(); }; // Add a `toBSON()` function to enable MongoDB to store BigInts as strings
 let data = require('./data.js');
@@ -327,34 +327,52 @@ function setupPrefs() {
   mode('setupPrefs ' + cliruns);
   bugtxt(`AminoSee has been run ${cliruns} times and processed ${gbprocessed.toLocaleString()}  GB`);
 }
+function serverLock(cb) {
+    const outski = "Server started at " + server.getServerURL();
+    fileWrite(
+      filenameServerLock,
+      lockFileMessage + ` ${version} ${timestamp} ${hostname}
+      ${asciiart}
+      Input: ${filename}
+      Your output path : ${outputPath}
+      ${outski}`,
+      cb
+    );
+    term.saveCursor()
+    term.moveTo(3, term.height - 6);
+    console.log()
+    console.log(outski)
+    console.log()
+    term.restoreCursor()
+}
 function setupApp() { // do stuff aside from creating any changes. eg if you just run "aminosee" by itself.
-red = 0;
-green = 0;
-blue = 0;
-alpha = 0;
-charClock = 0; // its 'i' from the main loop
-errorClock = 0; // increment each non DNA, such as line break. is reset after each codon
-breakClock = 0;
-streamLineNr = 0;
-genomeSize = 1;
-msElapsed = runningDuration = charClock = percentComplete = genomeSize = pixelClock = opacity = 0;
+  red = 0;
+  green = 0;
+  blue = 0;
+  alpha = 0;
+  charClock = 0; // its 'i' from the main loop
+  errorClock = 0; // increment each non DNA, such as line break. is reset after each codon
+  breakClock = 0;
+  streamLineNr = 0;
+  genomeSize = 1;
+  msElapsed = runningDuration = charClock = percentComplete = genomeSize = pixelClock = opacity = 0;
+  setupOutPaths();
 
-// gv.generate(appPath +'lib/version.js', function (err, version) {
-//   if (err) {
-//     throw err;
-//   } else {
-//     log("Generated version file complete " + version);
-//   }
-// });
-bugtxt(`args.toString: ${args.toString()}`);
-bugtxt(`args._.toString: ${args._.toString()}`);
-// console.log(`stdin pipe: ${pipeInstance.checkIsPipeActive()}`);
-// const stdin = pipeInstance.stdinLineByLine();
-// stdin.on('line', console.log);
-startDate = new Date(); // required for touch locks.
-started = startDate.getTime(); // required for touch locks.
-termSize();
-setupPrefs();
+  filenameServerLock = path.resolve(`${outputPath}/aminosee_server_lock.txt`);
+
+
+  // console.log(`stdin pipe: ${pipeInstance.checkIsPipeActive()}`);
+  // const stdin = pipeInstance.stdinLineByLine();
+  // stdin.on('line', console.log);
+  startDate = new Date(); // required for touch locks.
+  started = startDate.getTime(); // required for touch locks.
+  termSize();
+  setupPrefs();
+
+  if (!doesFileExist(filenameServerLock)) {
+    killServersOnExit = false;
+    serverLock(launchNonBlockingServer)
+  }
 }
 function setupProject() { // returns progress bar.
   setupOutPaths();
@@ -985,25 +1003,15 @@ function gracefulQuit() {
   mode( "Graceful shutdown in progress...");
   bugtxt(status);
   bugtxt("webserverEnabled: " + webserverEnabled + " killServersOnExit: "+ killServersOnExit)
-  // return true;
   args._ = [];
   howMany = -1;
-  removeLocks();
   nextFile = "shutdown";
+  removeLocks();
   calcUpdate();
-  // setImmediate( () => {
-  // setTimeout( () => {
-  // if (webserverEnabled == true) {
-  // quit(7, 'webserver in bg')
-  // } else {
   quit(0, 'graceful')
-  // }
-  // }, raceDelay);
-  // })
 }
 function background(callback) {
   // const spawn = require('cross-spawn');
-
   // Spawn NPM asynchronously
   // const evilSpawn = spawn('npm', ['list', '-g', '-depth', '0'], { stdio: 'pipe' }); // inline can quit
   // const evilSpawn = spawn('aminosee', ['open', 'explorer'], { stdio: 'inherit' }); // background
@@ -1732,7 +1740,7 @@ function highlightFilename() {
     if ( currentTriplet.toLowerCase() != "none" || triplet.toLowerCase() != "none") {
       ret += `_${spaceTo_(currentTriplet).toUpperCase()}`;
     } else if (currentPeptide != "none") {
-      ret += `_${spaceTo_( tidyPeptideName( currentPeptide ) )}`;
+      ret += `_${spaceTo_( tidyPeptideName( peptide ) )}`;
     } else {
       ret += `-reference`;
     }
@@ -1895,6 +1903,10 @@ function buildServer() {
   });
 }
 function launchNonBlockingServer(path, cb) {
+  if (doesFileExist(filenameServerLock)) {
+    log('Server already running at: ' + server.getServerURL())
+    return false;
+  }
 
   buildServer();  // copyGUI();  // startHttpServer()
   startCrossSpawnHttp(); // requires http-server be installed globally
@@ -1967,7 +1979,7 @@ function startCrossSpawnHttp() {
 
   // Spawn NPM asynchronously
   // const evilSpawn = spawn('npm', ['list', '-g', '-depth', '0'], { stdio: 'inherit' });
-  const evilSpawn = spawn('http-server', [outputPath, '', '', '0'], { stdio: 'pipe' });
+  const evilSpawn = spawn('http-server', [server.getServerURL(justNameOfDNA), '--port', port, '0'], { stdio: 'pipe' });
   evilSpawn.stdout.on('data', (data) => {
     console.log(`${chalk.inverse('aminosee serve')}${chalk(': ')}${data}`);
   });
@@ -2506,12 +2518,19 @@ function quit(n, txt) {
       } else {
         bugtxt("no server running")
       }
+    }
+    if (n = 130) {
 
-
+      try {
+        fs.unlinkSync(filenameServerLock, (err) => {
+          bugtxt("Removing server locks OK...")
+          if (err) { log('ish'); console.warn(err);  }
+        });
+      } catch (err) {
+        bugtxt("No server locks to remove: " + err);
+      }
 
     }
-
-
 
   } else if (webserverEnabled == true){
     console.log("If you get a lot of servers running, use Control-C instead of [Q] to issues a 'killall node' command to kill all of them")
@@ -2803,13 +2822,14 @@ function aminoFilenameIndex(id) { // return the filename for this amino acid for
   if (id == undefined || id == -1) { // for the reference image
     currentPepHighlight = false;
     currentPeptide = "";
+    isHighlightSet = false; //currentPepHighlight;
   } else {
     currentPepHighlight = true;
     currentPeptide = pepTable[id].Codon;
+    isHighlightSet = true; //currentPepHighlight;
   }
   peptide = currentPeptide; // bad use of globals i agree, well i aint getting paid for this, i do it for the love, so yeah
-  isHighlightSet = currentPepHighlight;
-  let ret = generateFilenameHilbert();
+  let ret = generateFilenameHilbert(); // isHighlightSet needs to be false for reference
   peptide = backupPeptide;
   isHighlightSet = backupHighlight;
   return ret;
@@ -2863,24 +2883,21 @@ function htmlTemplate(histogramJson) {
   <link href="https://www.funk.co.nz/css/funk2014.css" rel="stylesheet">
 
 
-  <!--
-  <script src="https://www.funk.co.nz/aminosee/node_modules/three/build/three.min.js"></script>
-  <script src="https://www.funk.co.nz/aminosee/node_modules/jquery/dist/jquery.min.js"></script>
+
+  <script src="https://www.funk.co.nz/aminosee/public/three.min.js"></script>
+  <script src="https://www.funk.co.nz/aminosee/public/jquery.min.js"></script>
   <script src="https://www.funk.co.nz/aminosee/public/hilbert3D.js"></script>
   <script src="https://www.funk.co.nz/aminosee/public/hilbert2D.js"></script>
   <script src="https://www.funk.co.nz/aminosee/public/WebGL.js"></script>
-  <script src="https://www.funk.co.nz/aminosee/public/hammerjs/hammer.min.js"></script> -->
-  <!-- script src="https://www.funk.co.nz/aminosee/bundle.js"></script -->
-
-  <script type="text/javascript" src="https://golden-layout.com/files/latest/js/goldenlayout.min.js"></script>
-  <link type="text/css" rel="stylesheet" href="https://golden-layout.com/files/latest/css/goldenlayout-base.css" />
-
+  <script src="https://www.funk.co.nz/aminosee/public/hammer.min.js"></script>
+  <!--
   <script src="../public/three.min.js"></script>
   <script src="../public/jquery.min.js"></script>
   <script src="../public/hilbert3D.js"></script>
   <script src="../public/hilbert2D.js"></script>
   <script src="../public/WebGL.js"></script>
   <script src="../public/hammer.min.js"></script>
+  -->
   <script src="../public/aminosee-gui-web.js"></script>
 
   <style>
@@ -2891,12 +2908,12 @@ function htmlTemplate(histogramJson) {
   </head>
   <body>
   <!-- Google Tag Manager -->
-  <noscript><iframe src="//www.googletagmanager.com/ns.html?id=GTM-P8JX"
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-P8JX"
   height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
   new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
   j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-  '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
 })(window,document,'script','dataLayer','GTM-P8JX');</script>
 <!-- End Google Tag Manager -->
 
@@ -3555,52 +3572,60 @@ function openOutputs() {
   if (devmode == true)  { bugtxt(renderObjToString()); }
   if (!openHtml && !openImage && !openFileExplorer) {
     log('Will not open the output');
-  } else {
-    // setImmediate( () => {
-    bugtxt(`openHtml, openImage, openFileExplorer`, openHtml, openImage, openFileExplorer);
-    if (openFileExplorer === true) {
-      output(`Opening render output folder in File Manager ${outputPath}`);
-      // bgOpen(outputPath);
-      open(outputPath).then(() => {
-        log("file manager closed");
-      }).catch(function () { error(`open(${outputPath})`)});
-    }
-    if (openHtml == true) {
-      output(`Opening ${justNameOfHTML} DNA render summary HTML report.`);
-      // bgOpen(filenameHTML, {app: 'firefox', wait: false} );
-      setTimeout( () => {
-        launchNonBlockingServer(justNameOfDNA);
-        open( server.getServerURL(justNameOfDNA), {app: 'firefox', wait: false} );
-      }, raceDelay);
-      if (openLocalHtml == true) {
-        open(filenameHTML, {app: 'firefox', wait: false}).then(() => {
-          log("browser closed");
-        }).catch(function () { error("open(filenameHTML)")});
-      }
-    }
-    if (isHilbertPossible === true && openImage === true) {
-      output(`Opening ${justNameOfHILBERT} 2D hilbert space-filling image.`);
-      // bgOpen(filenameHILBERT)
-      open(filenameHILBERT).then(() => {
-        log("hilbert image closed");
-      }).catch(function () { error("open(filenameHILBERT)") });
-    } else if (openImage === true) {
-      output(`Opening ${justNameOfPNG} 1D linear projection image.`);
-      // bgOpen(filenamePNG)
-      open(filenamePNG).then(() => {
-        log("regular png image closed");
-      }).catch(function () { error("open(filenamePNG)") });
-    } else {
-      log(`Use --html or --image to automatically open files after render, and "aminosee demo" to generate test pattern and download a 1 MB DNA file from aminosee.funk.nz`)
-      log(`values of openHtml ${openHtml}   openImage ${openImage}`);
-    }
-    if (openHtml || openImage || openFileExplorer) {
-      output(closeBrowser); // tell user process is blocked
-    } else {
-      out("Not opening anything");
-    }
-    // });
+    return false;
   }
+  if (opens > 3) {
+    log('3 opens, will not open more windows')
+    return false;
+  }
+  bugtxt(`openHtml, openImage, openFileExplorer`, openHtml, openImage, openFileExplorer);
+  if (openFileExplorer === true) {
+    output(`Opening render output folder in File Manager ${outputPath}`);
+    open(outputPath).then(() => {
+      opens++;
+      log("file manager closed");
+    }).catch(function () { error(`open(${outputPath})`)});
+  }
+  if (openHtml == true) {
+    output(`Opening ${justNameOfHTML} DNA render summary HTML report.`);
+    // bgOpen(filenameHTML, {app: 'firefox', wait: false} );
+    setTimeout( () => {
+      // launchNonBlockingServer(justNameOfDNA);
+      opens++;
+      // open( server.getServerURL(justNameOfDNA), {app: 'firefox', wait: false} );
+      open( server.getServerURL(justNameOfDNA), {wait: false} );
+    }, raceDelay);
+    // if (openLocalHtml == true) {
+    //   opens++;
+    //   open(filenameHTML, {app: 'firefox', wait: false}).then(() => {
+    //     log("browser closed");
+    //   }).catch(function () { error("open(filenameHTML)")});
+    // }
+  }
+  if (isHilbertPossible === true && openImage === true) {
+    output(`Opening ${justNameOfHILBERT} 2D hilbert space-filling image.`);
+    // bgOpen(filenameHILBERT)
+    opens++;
+    open(filenameHILBERT).then(() => {
+      log("hilbert image closed");
+    }).catch(function () { error("open(filenameHILBERT)") });
+  } else if (openImage === true) {
+    output(`Opening ${justNameOfPNG} 1D linear projection image.`);
+    // bgOpen(filenamePNG)
+    opens++;
+    open(filenamePNG).then(() => {
+      log("regular png image closed");
+    }).catch(function () { error("open(filenamePNG)") });
+  } else {
+    log(`Use --html or --image to automatically open files after render, and "aminosee demo" to generate test pattern and download a 1 MB DNA file from aminosee.funk.nz`)
+    log(`values of openHtml ${openHtml}   openImage ${openImage}`);
+  }
+  if (openHtml || openImage || openFileExplorer) {
+    output(closeBrowser); // tell user process is blocked
+  } else {
+    out("Not opening anything");
+  }
+  // });
   log("Thats us cousin'! Sweet as a Kina in a creek as they say (in NZ).");
 }
 function getRegmarks() {
@@ -3636,6 +3661,7 @@ function mkdir(relative) { // returns true if a fresh dir was created
 
   return false;
 }
+
 function generateTestPatterns(cb) {
   setupApp();
   setupProject()
@@ -3965,1325 +3991,1325 @@ function clout(txt) {
   } else {
     // console.log(`-`);
     redoLine(chalk.rgb(red, green, blue)(`[ `) + chalk(txt)  + chalk.rgb(red, green, blue)(`[ `))
+    }
   }
-}
-function error(e) {
-  if ( quiet == false ) {
-    output(status + ' / error start {{{ ----------- ' + chalk.inverse( e.toString() ) + chalk(" ") + ' ----------- }}} end');
+  function error(e) {
+    if ( quiet == false ) {
+      output(status + ' / error start {{{ ----------- ' + chalk.inverse( e.toString() ) + chalk(" ") + ' ----------- }}} end');
+    }
+
+    mode(`error: ${e}`)
   }
 
-  mode(`error: ${e}`)
-}
-
-// remove anything that isn't ATCG, convert U to T
-function cleanChar(c) {
-  char = c.toUpperCase();
-  if (char == "A" || char == "C" || char == "G" || char == "T" || char == "U") {
-    if (char == "U") {
-      return "T"; // convert RNA into DNA
+  // remove anything that isn't ATCG, convert U to T
+  function cleanChar(c) {
+    char = c.toUpperCase();
+    if (char == "A" || char == "C" || char == "G" || char == "T" || char == "U") {
+      if (char == "U") {
+        return "T"; // convert RNA into DNA
+      } else {
+        return char; // add it to the clean string
+      }
     } else {
-      return char; // add it to the clean string
-    }
-  } else {
-    return "."; // remove line breaks etc. also helps error detect codons.
-  }
-}
-function removeLineBreaks(txt) {
-  return txt.replace(/(\r\n\t|\n|\r\t)/gm,"");
-}
-function cleanString(s) {
-  let ret = "";
-  s = removeLineBreaks(s);
-
-  for (i=0; i< s.length; i++) {
-    ret += cleanChar(s.charAt(i));
-  }
-  return ret;
-}
-function paintPixel() {
-  let byteIndex = pixelClock * 4; // 4 bytes per pixel. RGBA.
-
-  rgbArray.push(Math.round(red));
-  rgbArray.push(Math.round(green));
-  rgbArray.push(Math.round(blue));
-  rgbArray.push(Math.round(alpha));
-
-  // new streaming method
-  // pixelStream.push(Math.round(red));
-  // pixelStream.push(Math.round(green));
-  // pixelStream.push(Math.round(blue));
-  // pixelStream.push(Math.round(alpha));
-  // STORE THE HIGH SCORES. Knowing what the peak brightness was enables
-  // a scale down in brightness later using floating point images.
-  // if (red > peakRed)     { peakRed = red} else {  peakRed--}
-  // if (green > peakGreen) { peakGreen = green} else {  peakGreen--}
-  // if (blue > peakBlue)   { peakBlue = blue} else {  peakBlue--}
-  peakRed = red;
-  peakGreen = green;
-  peakBlue = blue;
-  pixelStacking = 0;
-  pixelClock++;
-}
-
-function clearCheck() {
-  if (clear == true) {
-    clearScreen();
-  } else {
-    process.stdout.write('[nc]');
-    term.eraseDisplayBelow();
-  }
-}
-function clearScreen() {
-  term.clear();
-  // process.stdout.write("\x1Bc");
-  // process.stdout.write("\x1B[2J"); // THIS SHRINKS MY FONTS!! wtf?
-  // process.stdout.write('\033c'); // <-- maybe best for linux? clears the screen. ALSD SHRINKS MY FONTS
-}
-
-
-function prettyDate() {
-  var options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-  var today  = new Date();
-
-  return today.toLocaleString(options) + "  " + today.toLocaleDateString(options); // Saturday, September 17, 2016
-}
-function returnRadMessage(array) {
-  let returnText = "";
-  if (array == undefined) {
-    array = ["    ________", "    ________", "    ________", "    ________", "    ________", "", "Output path:", outputPath ];
-    // array = [ "    ________", "    ________", "    ________", "    ________", "    ________", "", "Output path:"," " ];
-  }
-  while ( array.length < 8 ) {
-    array.push("    ________","    ________");
-  }
-  returnText += terminalRGB(`╔═╗┌┬┐┬┌┐┌┌─┐╔═╗┌─┐┌─┐  ╔╦╗╔╗╔╔═╗  ╦  ╦┬┌─┐┬ ┬┌─┐┬─┐  ${array[0]}`, 255, 60,  250);
-  returnText += terminalRGB(`╠═╣││││││││ │╚═╗├┤ ├┤    ║║║║║╠═╣  ╚╗╔╝│├┤ │││├┤ ├┬┘  ${array[1]}`, 170, 150, 255);
-  returnText += terminalRGB(`╩ ╩┴ ┴┴┘└┘└─┘╚═╝└─┘└─┘  ═╩╝╝╚╝╩ ╩   ╚╝ ┴└─┘└┴┘└─┘┴└─  ${array[2]}`, 128, 240, 240);
-  returnText += terminalRGB(` by Tom Atkinson          aminosee.funk.nz            ${array[3]}`, 225, 225, 130);
-  returnText += terminalRGB(`  ah-mee-no-see     'I See It Now - I AminoSee it!'   ${array[4]}`, 255, 180,  90);
-  returnText += terminalRGB(`   ${prettyDate()}   v${version}            ${array[5]}`          , 220, 120,  70);
-  returnText += terminalRGB(array[6], 200, 105,   60);
-  returnText += terminalRGB(array[7], 200, 32,   32);
-  return returnText;
-}
-function printRadMessage(array) {
-  // console.log( returnRadMessage(array) );
-  if (array == undefined) {
-    array = ["    ________", "    ________", "    ________", "    ________", "    ________", "", "Output path:", outputPath ];
-    // array = [ "    ________", "    ________", "    ________", "    ________", "    ________", "", "Output path:"," " ];
-  }
-  while ( array.length < 8 ) {
-    array.push("    ________","    ________");
-  }
-  let radMargin = termMarginLeft;
-  if (renderLock == false) { radMargin = 3; }
-  term.eraseLine();
-  console.log(); term.right(radMargin); term.eraseLine();
-  console.log(terminalRGB(`╔═╗┌┬┐┬┌┐┌┌─┐╔═╗┌─┐┌─┐  ╔╦╗╔╗╔╔═╗  ╦  ╦┬┌─┐┬ ┬┌─┐┬─┐  ${array[0]}`, 255, 60,  250) ); term.right(radMargin); term.eraseLine();
-  console.log(terminalRGB(`╠═╣││││││││ │╚═╗├┤ ├┤    ║║║║║╠═╣  ╚╗╔╝│├┤ │││├┤ ├┬┘  ${array[1]}`, 170, 150, 255) ); term.right(radMargin); term.eraseLine();
-  console.log(terminalRGB(`╩ ╩┴ ┴┴┘└┘└─┘╚═╝└─┘└─┘  ═╩╝╝╚╝╩ ╩   ╚╝ ┴└─┘└┴┘└─┘┴└─  ${array[2]}`, 128, 240, 240) ); term.right(radMargin); term.eraseLine();
-  console.log(terminalRGB(` by Tom Atkinson          aminosee.funk.nz            ${array[3]}`, 225, 225, 130) ); term.right(radMargin); term.eraseLine();
-  console.log(terminalRGB(`  ah-mee-no-see     'I See It Now - I AminoSee it!'   ${array[4]}`, 255, 180,  90) ); term.right(radMargin); term.eraseLine();
-  console.log(terminalRGB(`   ${prettyDate()}   v${version} ${array[5]}`          , 220, 120,  70) ); term.right(radMargin); term.eraseLine();
-  console.log(terminalRGB(array[6], 200, 105,   60) ); term.right(radMargin); term.eraseLine();
-  console.log(terminalRGB(array[7], 200, 32,   32) ); term.eraseLine();
-  // term.right(radMargin);
-  // console.log(); term.right(radMargin); term.eraseLine();
-}
-
-function wTitle(txt) {
-  term.windowTitle(`${highlightOrNothin()} ${justNameOfDNA} ${status} ${maxWidth(120,txt)} (${howMany} files) AminoSee@${hostname}`);
-}
-function fastUpdate() {
-  if (charClock == 0 || baseChars == 0) {
-    percentComplete = ((charClock+1) / (baseChars+1)); // avoid div by zero below a lot
-  } else {
-    percentComplete = charClock / baseChars; // avoid div by zero below a lot
-  }
-  if (percentComplete > 1) {
-    bugtxt(`error percentComplete is over 1: ${percentComplete} `)
-  }
-}
-function calcUpdate() { // DONT ROUND KEEP PURE NUMBERS
-  if (percentComplete == 1) {
-    timeRemain = 0;
-  } else {
-    fastUpdate();
-
-    timeRemain = deresSeconds((runningDuration / (percentComplete )) - msElapsed ); // everything in ms
-  }
-  present = new Date().getTime();
-  runningDuration = (present - started) + 1; // avoid division by zero
-  msElapsed  = deresSeconds(runningDuration); // ??!! ah i see
-
-  bytesRemain = (baseChars - charClock);
-  bytesPerMs = Math.round( (charClock) / runningDuration );
-  codonsPerSec = (genomeSize+1) / (runningDuration*1000);
-  wTitle(`${nicePercent()} remain ${humanizeDuration(timeRemain)} `);
-}
-function deresSeconds(ms){
-  return Math.round(ms/1000) * 1000;
-}
-function getHistoCount(item, index) {
-  return [ item.Codon, item.Histocount];
-}
-function formatMs(date) {
-  return  deresSeconds(date.getTime()) -  now.getTime();
-}
-function formatAMPM(date) {
-  var hours = date.getHours();
-  var minutes = date.getMinutes();
-  var secs   = date.getSeconds();
-  var ampm = hours >= 12 ? 'pm' : 'am';
-  hours = hours % 12;
-  hours = hours ? hours : 12; // the hour '0' should be '12'
-  minutes = minutes < 10 ? '0'+minutes : minutes;
-  secs = secs < 10 ? '0'+secs : secs;
-  var strTime = hours + ':' + minutes + ":" + secs + ' ' + ampm;
-  return strTime;
-}
-
-function drawProgress() {
-  fastUpdate();
-  if (updates == true) {
-    progato.update( percentComplete ) ;
-    if (howMany >= 0 ) {
-      clearTimeout(progTimer)
-      progTimer = setTimeout(() => {
-        if (percentComplete < 0.99 && timeRemain > 2001) {
-          drawProgress();
-        } else {
-          // progato.stop();
-        }
-      }, 500);
+      return "."; // remove line breaks etc. also helps error detect codons.
     }
   }
-}
-function onesigbitTolocale(num){
-  return (Math.round(num*10)/10).toLocaleString();
-}
-function twosigbitsTolocale(num){
-  return (Math.round(num*100)/100).toLocaleString();
-}
-function threesigbitsTolocale(num){
-  return (Math.round(num*1000)/1000).toLocaleString();
-}
-function variable(v, space) {
-  while (v.length < space) {
-    v = " " + v;
+  function removeLineBreaks(txt) {
+    return txt.replace(/(\r\n\t|\n|\r\t)/gm,"");
   }
-  if (v.length > space) {
-    v = v.substring(1,-1);
-  }
-  return
-}
-function fixedRightSide(wide, str) {
-  return maxWidth(wide, minWidth(wide, str));
-}
-function fixedWidth(wide, str){
-  return minWidthRight(wide, maxWidth(wide, str));
-}
-function maxWidth(wide, str) { // shorten it if you need to
-  if (str) {
-    if (str.length > wide) { str = str.substring(0,wide) }
-    return str;
-  } else {
-    return logo()
-  }
-}
-function minWidth(wide, str) { // make it wider
-  while(str.length < wide) { str = " " + str }
-  return str;
-}
-function minWidthRight(wide, str) { // make it wider
-  while(str.length < wide) { str += " " }
-  return str;
-}
+  function cleanString(s) {
+    let ret = "";
+    s = removeLineBreaks(s);
 
-function ceiling(number) {
-  number = Math.ceil(number) // round into integer
-  if (number > 255) {
-    number = 255;
-  } else if (number < 0 ){
-    number = 0;
+    for (i=0; i< s.length; i++) {
+      ret += cleanChar(s.charAt(i));
+    }
+    return ret;
   }
-  return number;
-}
-function drawHistogram() {
-  if (!renderLock) { error("render lock failed"); rawDNA = "!"; return false; }
-  if (!updates) { bugtxt("updates disabled"); return false; }
-  // let tb = new term.TextBuffer( )
-  // let textBuffer = "";
-  // let abc = pepTable.map(getHistoCount).entries();
-  calcUpdate();
-  termSize();
-  let text = " ";
-  let aacdata = [];
-  load = loadAverages();
+  function paintPixel() {
+    let byteIndex = pixelClock * 4; // 4 bytes per pixel. RGBA.
 
-  for (h=0;h<pepTable.length;h++) {       // OPTIMISE i should not be creating a new array each frame!
-    aacdata[pepTable[h].Codon] = pepTable[h].Histocount ;
+    rgbArray.push(Math.round(red));
+    rgbArray.push(Math.round(green));
+    rgbArray.push(Math.round(blue));
+    rgbArray.push(Math.round(alpha));
+
+    // new streaming method
+    // pixelStream.push(Math.round(red));
+    // pixelStream.push(Math.round(green));
+    // pixelStream.push(Math.round(blue));
+    // pixelStream.push(Math.round(alpha));
+    // STORE THE HIGH SCORES. Knowing what the peak brightness was enables
+    // a scale down in brightness later using floating point images.
+    // if (red > peakRed)     { peakRed = red} else {  peakRed--}
+    // if (green > peakGreen) { peakGreen = green} else {  peakGreen--}
+    // if (blue > peakBlue)   { peakBlue = blue} else {  peakBlue--}
+    peakRed = red;
+    peakGreen = green;
+    peakBlue = blue;
+    pixelStacking = 0;
+    pixelClock++;
   }
-  let array = [
-    `| Load: ${load}  Files to go: ${howMany}`,
-    `| File:  ${chalk.inverse(fixedWidth(40, justNameOfDNA))}.${extension} ${chalk.inverse(highlightOrNothin())}`,
-    `| @i${fixedWidth(10, charClock.toLocaleString())} Breaks:${ fixedWidth(6, breakClock.toLocaleString())} Filesize:${fixedWidth(7, bytes(baseChars))}`,
-    `| Next update: ${fixedWidth(5, msPerUpdate.toLocaleString())}ms Codon Opacity: ${twosigbitsTolocale(opacity*100)}%`,
-    `| CPU:${fixedWidth(10, bytes(bytesPerMs*1000))}/s ${fixedWidth(5, codonsPerSec.toLocaleString())}K acids/s`,
-    ` Next file >>> ${maxWidth(24,nextFile)}`,
-    `| Codons:${fixedWidth(14, " " + genomeSize.toLocaleString())} Pixels:${fixedWidth(10, " " + pixelClock.toLocaleString())} Last Acid: ${chalk.inverse.rgb(ceiling(red), ceiling(green), ceiling(blue)).bgWhite.bold( fixedWidth(16, "  " + aminoacid + "   ") ) } Host: ${hostname}`,
-    `| Sample: ${ fixedWidth(60, rawDNA) } ${showFlags()}`,
-    `| RunID: ${chalk.rgb(128, 0, 0).bgWhite(timestamp)} acids per pixel: ${twosigbitsTolocale(codonsPerPixel)}`
-  ];
-  if (clear == true) {
-    term.up(termStatsHeight);
-  } else { out('nc') }
-  // clearCheck();
 
-  if (dnabg  == true) {
+  function clearCheck() {
     if (clear == true) {
-      term.moveTo(1,1);
+      clearScreen();
+    } else {
+      process.stdout.write('[nc]');
+      term.eraseDisplayBelow();
     }
-    rawDNA = rawDNA.substring(0, termPixels);
-    output(chalk.inverse.grey.bgBlack(rawDNA));
-    // term.up(rawDNA.length/term.width);
+  }
+  function clearScreen() {
+    term.clear();
+    // process.stdout.write("\x1Bc");
+    // process.stdout.write("\x1B[2J"); // THIS SHRINKS MY FONTS!! wtf?
+    // process.stdout.write('\033c'); // <-- maybe best for linux? clears the screen. ALSD SHRINKS MY FONTS
+  }
+
+
+  function prettyDate() {
+    var options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    var today  = new Date();
+
+    return today.toLocaleString(options) + "  " + today.toLocaleDateString(options); // Saturday, September 17, 2016
+  }
+  function returnRadMessage(array) {
+    let returnText = "";
+    if (array == undefined) {
+      array = ["    ________", "    ________", "    ________", "    ________", "    ________", "", "Output path:", outputPath ];
+      // array = [ "    ________", "    ________", "    ________", "    ________", "    ________", "", "Output path:"," " ];
+    }
+    while ( array.length < 8 ) {
+      array.push("    ________","    ________");
+    }
+    returnText += terminalRGB(`╔═╗┌┬┐┬┌┐┌┌─┐╔═╗┌─┐┌─┐  ╔╦╗╔╗╔╔═╗  ╦  ╦┬┌─┐┬ ┬┌─┐┬─┐  ${array[0]}`, 255, 60,  250);
+    returnText += terminalRGB(`╠═╣││││││││ │╚═╗├┤ ├┤    ║║║║║╠═╣  ╚╗╔╝│├┤ │││├┤ ├┬┘  ${array[1]}`, 170, 150, 255);
+    returnText += terminalRGB(`╩ ╩┴ ┴┴┘└┘└─┘╚═╝└─┘└─┘  ═╩╝╝╚╝╩ ╩   ╚╝ ┴└─┘└┴┘└─┘┴└─  ${array[2]}`, 128, 240, 240);
+    returnText += terminalRGB(` by Tom Atkinson          aminosee.funk.nz            ${array[3]}`, 225, 225, 130);
+    returnText += terminalRGB(`  ah-mee-no-see     'I See It Now - I AminoSee it!'   ${array[4]}`, 255, 180,  90);
+    returnText += terminalRGB(`   ${prettyDate()}   v${version}            ${array[5]}`          , 220, 120,  70);
+    returnText += terminalRGB(array[6], 200, 105,   60);
+    returnText += terminalRGB(array[7], 200, 32,   32);
+    return returnText;
+  }
+  function printRadMessage(array) {
+    // console.log( returnRadMessage(array) );
+    if (array == undefined) {
+      array = ["    ________", "    ________", "    ________", "    ________", "    ________", "", "Output path:", outputPath ];
+      // array = [ "    ________", "    ________", "    ________", "    ________", "    ________", "", "Output path:"," " ];
+    }
+    while ( array.length < 8 ) {
+      array.push("    ________","    ________");
+    }
+    let radMargin = termMarginLeft;
+    if (renderLock == false) { radMargin = 3; }
+    term.eraseLine();
+    console.log(); term.right(radMargin); term.eraseLine();
+    console.log(terminalRGB(`╔═╗┌┬┐┬┌┐┌┌─┐╔═╗┌─┐┌─┐  ╔╦╗╔╗╔╔═╗  ╦  ╦┬┌─┐┬ ┬┌─┐┬─┐  ${array[0]}`, 255, 60,  250) ); term.right(radMargin); term.eraseLine();
+    console.log(terminalRGB(`╠═╣││││││││ │╚═╗├┤ ├┤    ║║║║║╠═╣  ╚╗╔╝│├┤ │││├┤ ├┬┘  ${array[1]}`, 170, 150, 255) ); term.right(radMargin); term.eraseLine();
+    console.log(terminalRGB(`╩ ╩┴ ┴┴┘└┘└─┘╚═╝└─┘└─┘  ═╩╝╝╚╝╩ ╩   ╚╝ ┴└─┘└┴┘└─┘┴└─  ${array[2]}`, 128, 240, 240) ); term.right(radMargin); term.eraseLine();
+    console.log(terminalRGB(` by Tom Atkinson          aminosee.funk.nz            ${array[3]}`, 225, 225, 130) ); term.right(radMargin); term.eraseLine();
+    console.log(terminalRGB(`  ah-mee-no-see     'I See It Now - I AminoSee it!'   ${array[4]}`, 255, 180,  90) ); term.right(radMargin); term.eraseLine();
+    console.log(terminalRGB(`   ${prettyDate()}   v${version} ${array[5]}`          , 220, 120,  70) ); term.right(radMargin); term.eraseLine();
+    console.log(terminalRGB(array[6], 200, 105,   60) ); term.right(radMargin); term.eraseLine();
+    console.log(terminalRGB(array[7], 200, 32,   32) ); term.eraseLine();
+    // term.right(radMargin);
+    // console.log(); term.right(radMargin); term.eraseLine();
+  }
+
+  function wTitle(txt) {
+    term.windowTitle(`${highlightOrNothin()} ${justNameOfDNA} ${status} ${maxWidth(120,txt)} (${howMany} files) AminoSee@${hostname}`);
+  }
+  function fastUpdate() {
+    if (charClock == 0 || baseChars == 0) {
+      percentComplete = ((charClock+1) / (baseChars+1)); // avoid div by zero below a lot
+    } else {
+      percentComplete = charClock / baseChars; // avoid div by zero below a lot
+    }
+    if (percentComplete > 1) {
+      bugtxt(`error percentComplete is over 1: ${percentComplete} `)
+    }
+  }
+  function calcUpdate() { // DONT ROUND KEEP PURE NUMBERS
+    if (percentComplete == 1) {
+      timeRemain = 0;
+    } else {
+      fastUpdate();
+
+      timeRemain = deresSeconds((runningDuration / (percentComplete )) - msElapsed ); // everything in ms
+    }
+    present = new Date().getTime();
+    runningDuration = (present - started) + 1; // avoid division by zero
+    msElapsed  = deresSeconds(runningDuration); // ??!! ah i see
+
+    bytesRemain = (baseChars - charClock);
+    bytesPerMs = Math.round( (charClock) / runningDuration );
+    codonsPerSec = (genomeSize+1) / (runningDuration*1000);
+    wTitle(`${nicePercent()} remain ${humanizeDuration(timeRemain)} `);
+  }
+  function deresSeconds(ms){
+    return Math.round(ms/1000) * 1000;
+  }
+  function getHistoCount(item, index) {
+    return [ item.Codon, item.Histocount];
+  }
+  function formatMs(date) {
+    return  deresSeconds(date.getTime()) -  now.getTime();
+  }
+  function formatAMPM(date) {
+    var hours = date.getHours();
+    var minutes = date.getMinutes();
+    var secs   = date.getSeconds();
+    var ampm = hours >= 12 ? 'pm' : 'am';
+    hours = hours % 12;
+    hours = hours ? hours : 12; // the hour '0' should be '12'
+    minutes = minutes < 10 ? '0'+minutes : minutes;
+    secs = secs < 10 ? '0'+secs : secs;
+    var strTime = hours + ':' + minutes + ":" + secs + ' ' + ampm;
+    return strTime;
+  }
+
+  function drawProgress() {
+    fastUpdate();
+    if (updates == true) {
+      progato.update( percentComplete ) ;
+      if (howMany >= 0 ) {
+        clearTimeout(progTimer)
+        progTimer = setTimeout(() => {
+          if (percentComplete < 0.99 && timeRemain > 2001) {
+            drawProgress();
+          } else {
+            // progato.stop();
+          }
+        }, 500);
+      }
+    }
+  }
+  function onesigbitTolocale(num){
+    return (Math.round(num*10)/10).toLocaleString();
+  }
+  function twosigbitsTolocale(num){
+    return (Math.round(num*100)/100).toLocaleString();
+  }
+  function threesigbitsTolocale(num){
+    return (Math.round(num*1000)/1000).toLocaleString();
+  }
+  function variable(v, space) {
+    while (v.length < space) {
+      v = " " + v;
+    }
+    if (v.length > space) {
+      v = v.substring(1,-1);
+    }
+    return
+  }
+  function fixedRightSide(wide, str) {
+    return maxWidth(wide, minWidth(wide, str));
+  }
+  function fixedWidth(wide, str){
+    return minWidthRight(wide, maxWidth(wide, str));
+  }
+  function maxWidth(wide, str) { // shorten it if you need to
+    if (str) {
+      if (str.length > wide) { str = str.substring(0,wide) }
+      return str;
+    } else {
+      return logo()
+    }
+  }
+  function minWidth(wide, str) { // make it wider
+    while(str.length < wide) { str = " " + str }
+    return str;
+  }
+  function minWidthRight(wide, str) { // make it wider
+    while(str.length < wide) { str += " " }
+    return str;
+  }
+
+  function ceiling(number) {
+    number = Math.ceil(number) // round into integer
+    if (number > 255) {
+      number = 255;
+    } else if (number < 0 ){
+      number = 0;
+    }
+    return number;
+  }
+  function drawHistogram() {
+    if (!renderLock) { error("render lock failed"); rawDNA = "!"; return false; }
+    if (!updates) { bugtxt("updates disabled"); return false; }
+    // let tb = new term.TextBuffer( )
+    // let textBuffer = "";
+    // let abc = pepTable.map(getHistoCount).entries();
+    calcUpdate();
+    termSize();
+    let text = " ";
+    let aacdata = [];
+    load = loadAverages();
+
+    for (h=0;h<pepTable.length;h++) {       // OPTIMISE i should not be creating a new array each frame!
+      aacdata[pepTable[h].Codon] = pepTable[h].Histocount ;
+    }
+    let array = [
+      `| Load: ${load}  Files to go: ${howMany}`,
+      `| File:  ${chalk.inverse(fixedWidth(40, justNameOfDNA))}.${extension} ${chalk.inverse(highlightOrNothin())}`,
+      `| @i${fixedWidth(10, charClock.toLocaleString())} Breaks:${ fixedWidth(6, breakClock.toLocaleString())} Filesize:${fixedWidth(7, bytes(baseChars))}`,
+      `| Next update: ${fixedWidth(5, msPerUpdate.toLocaleString())}ms Codon Opacity: ${twosigbitsTolocale(opacity*100)}%`,
+      `| CPU:${fixedWidth(10, bytes(bytesPerMs*1000))}/s ${fixedWidth(5, codonsPerSec.toLocaleString())}K acids/s`,
+      ` Next file >>> ${maxWidth(24,nextFile)}`,
+      `| Codons:${fixedWidth(14, " " + genomeSize.toLocaleString())} Pixels:${fixedWidth(10, " " + pixelClock.toLocaleString())} Last Acid: ${chalk.inverse.rgb(ceiling(red), ceiling(green), ceiling(blue)).bgWhite.bold( fixedWidth(16, "  " + aminoacid + "   ") ) } Host: ${hostname}`,
+      `| Sample: ${ fixedWidth(60, rawDNA) } ${showFlags()}`,
+      `| RunID: ${chalk.rgb(128, 0, 0).bgWhite(timestamp)} acids per pixel: ${twosigbitsTolocale(codonsPerPixel)}`
+    ];
+    if (clear == true) {
+      term.up(termStatsHeight);
+    } else { out('nc') }
+    // clearCheck();
+
+    if (dnabg  == true) {
+      if (clear == true) {
+        term.moveTo(1,1);
+      }
+      rawDNA = rawDNA.substring(0, termPixels);
+      output(chalk.inverse.grey.bgBlack(rawDNA));
+      // term.up(rawDNA.length/term.width);
+      // if (clear == true) {
+      term.moveTo(1 + termMarginLeft,1);
+      console.log("     To disable real-time DNA background use any of --no-dnabg --no-updates --quiet -q");
+      // }
+    }
+
+    rawDNA = funknzLabel;
+
     // if (clear == true) {
-    term.moveTo(1 + termMarginLeft,1);
-    console.log("     To disable real-time DNA background use any of --no-dnabg --no-updates --quiet -q");
+    term.moveTo(1 + termMarginLeft,1 + termMarginTop);
     // }
-  }
 
-  rawDNA = funknzLabel;
+    printRadMessage(array);
+    // term.right(termMarginLeft);
+    output(` Done: ${chalk.rgb(128, 255, 128).inverse( nicePercent() )} Elapsed: ${ fixedWidth(12, humanizeDuration(msElapsed )) } Processed ${twosigbitsTolocale(gbprocessed)} GB Runs: ${cliruns.toLocaleString()} UID: ${timestamp} on ${hostname} Remain: ${humanizeDuration(timeRemain)}`);
+    progUpdate(percentComplete);
+    output();
+    term.left(termMarginLeft);
+    console.log();
 
-  // if (clear == true) {
-  term.moveTo(1 + termMarginLeft,1 + termMarginTop);
-  // }
-
-  printRadMessage(array);
-  // term.right(termMarginLeft);
-  output(` Done: ${chalk.rgb(128, 255, 128).inverse( nicePercent() )} Elapsed: ${ fixedWidth(12, humanizeDuration(msElapsed )) } Processed ${twosigbitsTolocale(gbprocessed)} GB Runs: ${cliruns.toLocaleString()} UID: ${timestamp} on ${hostname} Remain: ${humanizeDuration(timeRemain)}`);
-  progUpdate(percentComplete);
-  output();
-  term.left(termMarginLeft);
-  console.log();
-
-  console.log(histogram(aacdata, { bar: '/', width: debugColumns*2, sort: true, map: aacdata.Histocount} ));
-  output(interactiveKeysGuide);
-  output(`Last Red: ${peakRed} Last Green: ${peakGreen} Last Blue: ${peakBlue}`)
-  // log(    isDiskFinHTML, isDiskFinHilbert, isDiskFinLinear);
-  // if (clear == true) {
-  term.up(termDisplayHeight)
-  // } // stuff will come out just under the main HUD
-  if (renderLock == true && howMany >= 0 ) { // dont update if not rendering
-    if (updatesTimer) { clearTimeout(updatesTimer)};
-    if (msPerUpdate < maxMsPerUpdate) {
-      msPerUpdate += 200; // updates will slow over time on big jobs
-      if (devmode == true) {
-        msPerUpdate += 100; // updates will slow over time on big jobs
-        if (debug == true) {
-          msPerUpdate += 100;
+    console.log(histogram(aacdata, { bar: '/', width: debugColumns*2, sort: true, map: aacdata.Histocount} ));
+    output(interactiveKeysGuide);
+    output(`Last Red: ${peakRed} Last Green: ${peakGreen} Last Blue: ${peakBlue}`)
+    // log(    isDiskFinHTML, isDiskFinHilbert, isDiskFinLinear);
+    // if (clear == true) {
+    term.up(termDisplayHeight)
+    // } // stuff will come out just under the main HUD
+    if (renderLock == true && howMany >= 0 ) { // dont update if not rendering
+      if (updatesTimer) { clearTimeout(updatesTimer)};
+      if (msPerUpdate < maxMsPerUpdate) {
+        msPerUpdate += 200; // updates will slow over time on big jobs
+        if (devmode == true) {
+          msPerUpdate += 100; // updates will slow over time on big jobs
+          if (debug == true) {
+            msPerUpdate += 100;
+          }
         }
       }
-    }
-    updatesTimer = setTimeout(() => {
-      if (renderLock == true && howMany >= 0 ) { // status == "stream") { // || updates) {
-        drawHistogram(); // MAKE THE HISTOGRAM AGAIN LATER
+      updatesTimer = setTimeout(() => {
+        if (renderLock == true && howMany >= 0 ) { // status == "stream") { // || updates) {
+          drawHistogram(); // MAKE THE HISTOGRAM AGAIN LATER
+        }
+      }, msPerUpdate);
+      log("drawing again in " + msPerUpdate)
+    } else { out('DNA render done?')}
+  }
+  function memToString() {
+    let memReturn = `Memory load: [ `;
+      // const arr = [1, 2, 3, 4, 5, 6, 9, 7, 8, 9, 10];
+      const arr = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+      arr.reverse();
+      const used = process.memoryUsage();
+      for (let key in used) {
+        memReturn += `${key} ${Math.round(used[key] / 1024 / 1024 * 100) / 100} MB `;
       }
-    }, msPerUpdate);
-    log("drawing again in " + msPerUpdate)
-  } else { out('DNA render done?')}
-}
-function memToString() {
-  let memReturn = `Memory load: [ `;
-    // const arr = [1, 2, 3, 4, 5, 6, 9, 7, 8, 9, 10];
-    const arr = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-    arr.reverse();
-    const used = process.memoryUsage();
-    for (let key in used) {
-      memReturn += `${key} ${Math.round(used[key] / 1024 / 1024 * 100) / 100} MB `;
+      return memReturn + " ] ";
     }
-    return memReturn + " ] ";
-  }
-  function loadAverages() {
-    l0 = os.loadavg()[0];
-    l1 = os.loadavg()[1];
-    l2 = os.loadavg()[2];
-    return twosigbitsTolocale(l0) + " / " + twosigbitsTolocale(l1) + " / " + twosigbitsTolocale(l2);
-  }
-  function highlightOrNothin() { // no highlight, no return!
-    return (isHighlightSet ?  peptideOrNothing() + tripletOrNothing()  : " " )
-  }
-  function peptideOrNothing() {
-    return (peptide == "none" ? "" : peptide )
-  }
-  function tripletOrNothing() {
-    return (triplet == "none" ? "" : triplet )
-  }
-  function isTriplet(array) {
-    return array.DNA == currentTriplet;
-    // return dnaTriplets.find(isTriplet).Hue;
-  }
-  function isHighlightTriplet(array) {
-    return array.DNA == triplet;
-  }
-  function isCurrentPeptide(pep) {
-    // return p.Codon == peptide || p.Codon == triplet;
-    return pep.Codon.toLowerCase() == peptide.toLowerCase();
-  }
-  function isStartCodon(pep) {
-    return pep.Codon == "Methionine";
-  }
-  function isStopCodon(pep) {
-    return (pep.Codon == "Amber" || pep.Codon == "Ochre" || pep.Codon == "Opal" );
-  }
-  function isStartTOTAL(pep) {
-    return (pep.Codon == "Start Codons" )
-  }
-  function isStopTOTAL(pep) {
-    return (pep.Codon == "Stop Codons" )
-  }
-  function isNoncoding(pep) {
-    return pep.Codon == "Non-coding NNN"
-  }
-  function isPeptide(pep) {
-    return pep.Codon == peptide
-  }
-  function throttleOut(ratio, str){
-    if (Math.random() < ratio) { return str }
-    return "";
-  }
-  function isDirtyPep(dirtyString) {
-    // if (dirtyString) {
-    //
-    // } else {
-    //   dirtyString = ""
-    // }
-    dirtyString = dirtyString + "";
-    bugtxt(`your dirty string: ${dirtyString.substring(0,4).toUpperCase()}`);
-    return pepTable => pepTable.Codon.substring(0,4).toUpperCase() == dirtyString.substring(0,4).toUpperCase();
-  }
-  function isNormalPep(normalpep) {
-    bugtxt(`your normalpep ${normalpep.toUpperCase()}`);
-    return pepTable => pepTable.Codon.toUpperCase() === normalpep.toUpperCase();
-  }
-  function isNormalTriplet(normaltrip) {
-    // output(`your normalpep ${normalpep.toUpperCase()}`);
-    return dnaTriplets => dnaTriplets.DNA.toUpperCase() === normaltrip.toUpperCase();
-  }
-  function nicePercent() {
-    return minWidth(5, (Math.round(percentComplete*1000) / 10) + "%");
-  }
-  function tidyTripletName(str) {
-    let clean = "none";
-    currentTriplet = str;
-    clean = dnaTriplets.find(isNormalTriplet(str)).DNA.toUpperCase();
-    if ( clean == undefined ) {
-      clean = "none";
-    } else {
-      // clean = spaceTo_( clean.Codon );
+    function loadAverages() {
+      l0 = os.loadavg()[0];
+      l1 = os.loadavg()[1];
+      l2 = os.loadavg()[2];
+      return twosigbitsTolocale(l0) + " / " + twosigbitsTolocale(l1) + " / " + twosigbitsTolocale(l2);
     }
-    bugtxt(fixedWidth(12,`tidy: ${str} dirty:${" " + isDirtyPep(str)} clean: ${clean}`));
-    if (clean) {
-      return clean;
-    } else {
-      return "none";
+    function highlightOrNothin() { // no highlight, no return!
+      return (isHighlightSet ?  peptideOrNothing() + tripletOrNothing()  : " " )
     }
-  }
-  function tidyPeptideName(str) {
-    currentPeptide = str.toUpperCase();
-    let clean = "none";
-    try {
-      clean = pepTable.find(isNormalPep(str)).Codon;
-    } catch(e) {
-      log("tidyPeptideName " + clean)
+    function peptideOrNothing() {
+      return (peptide == "none" ? "" : peptide )
+    }
+    function tripletOrNothing() {
+      return (triplet == "none" ? "" : triplet )
+    }
+    function isTriplet(array) {
+      return array.DNA == currentTriplet;
+      // return dnaTriplets.find(isTriplet).Hue;
+    }
+    function isHighlightTriplet(array) {
+      return array.DNA == triplet;
+    }
+    function isCurrentPeptide(pep) {
+      // return p.Codon == peptide || p.Codon == triplet;
+      return pep.Codon.toLowerCase() == peptide.toLowerCase();
+    }
+    function isStartCodon(pep) {
+      return pep.Codon == "Methionine";
+    }
+    function isStopCodon(pep) {
+      return (pep.Codon == "Amber" || pep.Codon == "Ochre" || pep.Codon == "Opal" );
+    }
+    function isStartTOTAL(pep) {
+      return (pep.Codon == "Start Codons" )
+    }
+    function isStopTOTAL(pep) {
+      return (pep.Codon == "Stop Codons" )
+    }
+    function isNoncoding(pep) {
+      return pep.Codon == "Non-coding NNN"
+    }
+    function isPeptide(pep) {
+      return pep.Codon == peptide
+    }
+    function throttleOut(ratio, str){
+      if (Math.random() < ratio) { return str }
+      return "";
+    }
+    function isDirtyPep(dirtyString) {
+      // if (dirtyString) {
+      //
+      // } else {
+      //   dirtyString = ""
+      // }
+      dirtyString = dirtyString + "";
+      bugtxt(`your dirty string: ${dirtyString.substring(0,4).toUpperCase()}`);
+      return pepTable => pepTable.Codon.substring(0,4).toUpperCase() == dirtyString.substring(0,4).toUpperCase();
+    }
+    function isNormalPep(normalpep) {
+      bugtxt(`your normalpep ${normalpep.toUpperCase()}`);
+      return pepTable => pepTable.Codon.toUpperCase() === normalpep.toUpperCase();
+    }
+    function isNormalTriplet(normaltrip) {
+      // output(`your normalpep ${normalpep.toUpperCase()}`);
+      return dnaTriplets => dnaTriplets.DNA.toUpperCase() === normaltrip.toUpperCase();
+    }
+    function nicePercent() {
+      return minWidth(5, (Math.round(percentComplete*1000) / 10) + "%");
+    }
+    function tidyTripletName(str) {
+      let clean = "none";
+      currentTriplet = str;
+      clean = dnaTriplets.find(isNormalTriplet(str)).DNA.toUpperCase();
       if ( clean == undefined ) {
-        clean = pepTable.find(isDirtyPep(str));
-        if ( clean == undefined ) {
-          clean = "none";
-        }
+        clean = "none";
+      } else {
+        // clean = spaceTo_( clean.Codon );
+      }
+      bugtxt(fixedWidth(12,`tidy: ${str} dirty:${" " + isDirtyPep(str)} clean: ${clean}`));
+      if (clean) {
+        return clean;
+      } else {
+        return "none";
       }
     }
-    clean = spaceTo_( clean );
-    if (clean) {
-      return clean;
-    } else {
-      return "none";
+    function tidyPeptideName(str) {
+      currentPeptide = str.toUpperCase();
+      let clean = "none";
+      try {
+        clean = pepTable.find(isNormalPep(str)).Codon;
+      } catch(e) {
+        log("tidyPeptideName " + clean)
+        if ( clean == undefined ) {
+          clean = pepTable.find(isDirtyPep(str));
+          if ( clean == undefined ) {
+            clean = "none";
+          }
+        }
+      }
+      clean = spaceTo_( clean );
+      if (clean) {
+        return clean;
+      } else {
+        return "none";
+      }
     }
-  }
-  function tripletToCodon(str) {
-    currentTriplet = str;
-    return dnaTriplets.find(isTriplet).DNA;
-  }
-  function tripletToHue(str) {
-    console.warn(str);
-    currentTriplet = str;
-    // let hue = dnaTriplets.find(  (dna, str) => {dna.DNA == str}).Hue;
-    let hue = dnaTriplets.find(isTriplet).Hue;
-    if (hue) {
-      return hue
-    } else {
+    function tripletToCodon(str) {
+      currentTriplet = str;
+      return dnaTriplets.find(isTriplet).DNA;
+    }
+    function tripletToHue(str) {
+      console.warn(str);
+      currentTriplet = str;
+      // let hue = dnaTriplets.find(  (dna, str) => {dna.DNA == str}).Hue;
+      let hue = dnaTriplets.find(isTriplet).Hue;
+      if (hue) {
+        return hue
+      } else {
+        return 120
+      }
       return 120
     }
-    return 120
-  }
-  function peptideToHue(str) {
-    console.warn(`str ${str}`);
-    let r = pepTable.find( (pep) => { pep.Codon == str });
-    console.warn(r);
-    return r.Hue;
-  }
-  function getCodonIndex(str) {
-    return pepTable.indexOf(str)
-  }
-  function getTripletIndex(str) {
-    return dnaTriplets.indexOf( str )
-  }
-  // *
-  // take 3 letters, convert into a Uint8ClampedArray with 4 items
-  function codonToRGBA(cod) {
-    // STOP CODONS are hard coded as   index 24 in pepTable array       "Description": "One of Opal, Ochre, or Amber",
-    // START CODONS are hard coded as  ndex 23 in pepTable array       "Description": "Count of Methionine",
-    // Non-coding NNN triplets are hard coded as index 0 in pepTable array
-    // dot(genomeSize, 10000, cod);
-    aminoacid = "ERROR";
-    currentTriplet = cod;
-    debugFreq = throttledFreq(3);
+    function peptideToHue(str) {
+      console.warn(`str ${str}`);
+      let r = pepTable.find( (pep) => { pep.Codon == str });
+      console.warn(r);
+      return r.Hue;
+    }
+    function getCodonIndex(str) {
+      return pepTable.indexOf(str)
+    }
+    function getTripletIndex(str) {
+      return dnaTriplets.indexOf( str )
+    }
+    // *
+    // take 3 letters, convert into a Uint8ClampedArray with 4 items
+    function codonToRGBA(cod) {
+      // STOP CODONS are hard coded as   index 24 in pepTable array       "Description": "One of Opal, Ochre, or Amber",
+      // START CODONS are hard coded as  ndex 23 in pepTable array       "Description": "Count of Methionine",
+      // Non-coding NNN triplets are hard coded as index 0 in pepTable array
+      // dot(genomeSize, 10000, cod);
+      aminoacid = "ERROR";
+      currentTriplet = cod;
+      debugFreq = throttledFreq(3);
 
-    let theMatch = dnaTriplets.find(isTriplet).DNA
-    for (z=0; z<dnaTriplets.length; z++) {
-      if (cod == dnaTriplets[z].DNA) { // SUCCESSFUL MATCH (convert to map)
-        aminoacid = dnaTriplets[z].Codon;
-        dnaTriplets[z].Histocount++;
-        dot(genomeSize, debugFreq, `z = ${z} theMatch ${theMatch} <==> ${cod} ${aminoacid}`); // show each 10,000th (or so) base pair.
+      let theMatch = dnaTriplets.find(isTriplet).DNA
+      for (z=0; z<dnaTriplets.length; z++) {
+        if (cod == dnaTriplets[z].DNA) { // SUCCESSFUL MATCH (convert to map)
+          aminoacid = dnaTriplets[z].Codon;
+          dnaTriplets[z].Histocount++;
+          dot(genomeSize, debugFreq, `z = ${z} theMatch ${theMatch} <==> ${cod} ${aminoacid}`); // show each 10,000th (or so) base pair.
 
-        for (h=0; h<pepTable.length; h++) { // update pepTable
-          if (aminoacid == pepTable[h].Codon) {
-            pepTable[h].Histocount++;
-            // pepTable[h].Histocount++;
+          for (h=0; h<pepTable.length; h++) { // update pepTable
+            if (aminoacid == pepTable[h].Codon) {
+              pepTable[h].Histocount++;
+              // pepTable[h].Histocount++;
 
-            // let cindex =   pepTable[h].Description;
-            let acidesc = pepTable[h].Description;
-            // bugtxt(`codon index for ${fixedWidth(20, aminoacid)} is ${getCodonIndex(aminoacid)} or acidesc = ${acidesc}`)
-            // let startStops = -1; // for the start/stop codon histogram
-            if (acidesc == "Stop Codons") {
-              pepTable[24].Histocount++;
-              // pepTable[getCodonIndex(acidesc)]
-            } else if (acidesc == "Start Codons") {
-              pepTable[23].Histocount++;
-              // startStops = pepTable.indexOf("Start Codons");
+              // let cindex =   pepTable[h].Description;
+              let acidesc = pepTable[h].Description;
+              // bugtxt(`codon index for ${fixedWidth(20, aminoacid)} is ${getCodonIndex(aminoacid)} or acidesc = ${acidesc}`)
+              // let startStops = -1; // for the start/stop codon histogram
+              if (acidesc == "Stop Codons") {
+                pepTable[24].Histocount++;
+                // pepTable[getCodonIndex(acidesc)]
+              } else if (acidesc == "Start Codons") {
+                pepTable[23].Histocount++;
+                // startStops = pepTable.indexOf("Start Codons");
+              }
+              // if (startStops > -1) { // good ole -1 as an exception flag. oldskool.
+              //   log(startStops);
+              //   pepTable[ startStops ].Histocount++;
+              // }
+              break
             }
-            // if (startStops > -1) { // good ole -1 as an exception flag. oldskool.
-            //   log(startStops);
-            //   pepTable[ startStops ].Histocount++;
-            // }
-            break
           }
-        }
-        // bugtxt( acidesc);
+          // bugtxt( acidesc);
 
-        let hue = dnaTriplets[z].Hue / 360;
-        let tempcolor = hsvToRgb(hue, 1, 1);
-        // RED, GREEN, BLUE, ALPHA
-        red   = tempcolor[0];
-        green = tempcolor[1];
-        blue  = tempcolor[2];
+          let hue = dnaTriplets[z].Hue / 360;
+          let tempcolor = hsvToRgb(hue, 1, 1);
+          // RED, GREEN, BLUE, ALPHA
+          red   = tempcolor[0];
+          green = tempcolor[1];
+          blue  = tempcolor[2];
 
-        if (isHighlightSet) {
+          if (isHighlightSet) {
 
-          if (aminoacid == peptide ) {
-            alpha = 255;
-            // log(`isHighlightSet    ${isHighlightSet}   aminoacid ${aminoacid}  peptide ${peptide}`)
-            // log(alpha);
+            if (aminoacid == peptide ) {
+              alpha = 255;
+              // log(`isHighlightSet    ${isHighlightSet}   aminoacid ${aminoacid}  peptide ${peptide}`)
+              // log(alpha);
+            } else {
+              alpha = 0;
+              // log(alpha);
+            }
           } else {
-            alpha = 0;
-            // log(alpha);
+            alpha = 255; // only custom peptide pngs are transparent
           }
-        } else {
-          alpha = 255; // only custom peptide pngs are transparent
+          return [red, green, blue, alpha];
         }
-        return [red, green, blue, alpha];
       }
+      if ( aminoacid == "ERROR" ) {
+        aminoacid = "ERROR " + cod;
+        CRASH = true;
+      } else {
+        CRASH = false;
+
+      }
+      // return [13,255,13,128]; // this colour means "ERROR".
+      return [0,0,0,0]; // this colour means "ERROR".
     }
-    if ( aminoacid == "ERROR" ) {
-      aminoacid = "ERROR " + cod;
-      CRASH = true;
-    } else {
-      CRASH = false;
 
+
+    function terminalRGB(_text, _r, _g, _b) {
+      return chalk.rgb(_r,_g,_b)(_text);
+      // BgBlack = "\x1b[40m"
+      if (_r+_g+_b >= 256.0) {
+        _text += "\x1b[44m"; // add some black background if its a light colour
+      }
+      // BgBlue = "\x1b[44m"
+
+      return "\x1b[38;2;" + _r + ";" + _g + ";" + _b + "m" + _text + "\x1b[0m";
+    };
+
+    // let dnaTriplets = [
+    //   {
+    //     "DNA": "AAA",
+    //     "Codon": "Lysine",
+    //     "Hue": 313,
+    //     "Alpha": 0.1,
+    //     "Histocount": 0,
+    //   },
+    //   {
+    //     "DNA": "AAC",
+    //     "Codon": "Asparagine",
+    //     "Hue": 266,
+    //     "Alpha": 0.1,
+    //     "Histocount": 0,
+    //   },
+    //   {
+    //     "DNA": "AAG",
+    //     "Codon": "Lysine",
+    //     "Hue": 313,
+    //     "Alpha": 0.1,
+    //     "Histocount": 0,
+    //   },
+    //   {
+    //     "DNA": "AAT",
+    //     "Codon": "Asparagine",
+    //     "Hue": 266,
+    //     "Alpha": 0.1,
+    //     "Histocount": 0,
+    //   },
+    //   {
+    //     "DNA": "ACA",
+    //     "Codon": "Threonine",
+    //     "Hue": 219,
+    //     "Alpha": 0.1,
+    //     "Histocount": 0,
+    //   },
+    //   {
+    //     "DNA": "ACC",
+    //     "Codon": "Threonine",
+    //     "Hue": 219,
+    //     "Alpha": 0.1,
+    //     "Histocount": 0,
+    //   },
+    //   {
+    //     "DNA": "ACG",
+    //     "Codon": "Threonine",
+    //     "Hue": 219,
+    //     "Alpha": 0.1,
+    //     "Histocount": 0,
+    //   },
+    //   {
+    //     "DNA": "ACT",
+    //     "Codon": "Threonine",
+    //     "Hue": 219,
+    //     "Alpha": 0.1,
+    //     "Histocount": 0,
+    //   },
+    //   {
+    //     "DNA": "AGA",
+    //     "Codon": "Arginine",
+    //     "Hue": 297,
+    //     "Alpha": 0.1,
+    //     "Histocount": 0,
+    //   },
+    //   {
+    //     "DNA": "AGC",
+    //     "Codon": "Serine",
+    //     "Hue": 203,
+    //     "Alpha": 0.1,
+    //     "Histocount": 0,
+    //   },
+    //   {
+    //     "DNA": "AGG",
+    //     "Codon": "Arginine",
+    //     "Hue": 297,
+    //     "Alpha": 0.1,
+    //     "Histocount": 0,
+    //   },
+    //   {
+    //     "DNA": "AGT",
+    //     "Codon": "Serine",
+    //     "Hue": 203,
+    //     "Alpha": 0.1,
+    //     "Histocount": 0,
+    //   },
+    //   {
+    //     "DNA": "ATA",
+    //     "Codon": "Isoleucine",
+    //     "Hue": 157,
+    //     "Alpha": 0.1,
+    //     "Histocount": 0,
+    //   },
+    //   {
+    //     "DNA": "ATC",
+    //     "Codon": "Isoleucine",
+    //     "Hue": 157,
+    //     "Alpha": 0.1,
+    //     "Histocount": 0,
+    //   },
+    //   {
+    //     "DNA": "ATG",
+    //     "Codon": "Methionine",
+    //     "Hue": 110,
+    //     "Alpha": 1,
+    //     "Histocount": 0,
+    //   },
+    //   {
+    //     "DNA": "ATT",
+    //     "Codon": "Isoleucine",
+    //     "Hue": 157,
+    //     "Alpha": 0.1,
+    //     "Histocount": 0,
+    //   },
+    //   {
+    //     "DNA": "CAA",
+    //     "Codon": "Glutamine",
+    //     "Hue": 250,
+    //     "Alpha": 0.1,
+    //     "Histocount": 0,
+    //   },
+    //   {
+    //     "DNA": "CAC",
+    //     "Codon": "Histidine",
+    //     "Hue": 329,
+    //     "Alpha": 0.1,
+    //     "Histocount": 0,
+    //   },
+    //   {
+    //     "DNA": "CAG",
+    //     "Codon": "Glutamine",
+    //     "Hue": 250,
+    //     "Alpha": 0.1,
+    //     "Histocount": 0,
+    //   },
+    //   {
+    //     "DNA": "CAT",
+    //     "Codon": "Histidine",
+    //     "Hue": 329,
+    //     "Alpha": 0.1,
+    //     "Histocount": 0,
+    //   },
+    //   {
+    //     "DNA": "CCA",
+    //     "Codon": "Proline",
+    //     "Hue": 344,
+    //     "Alpha": 0.1,
+    //     "Histocount": 0,
+    //   },
+    //   {
+    //     "DNA": "CCC",
+    //     "Codon": "Proline",
+    //     "Hue": 344,
+    //     "Alpha": 0.1,
+    //     "Histocount": 0,
+    //   },
+    //   {
+    //     "DNA": "CCG",
+    //     "Codon": "Proline",
+    //     "Hue": 344,
+    //     "Alpha": 0.1,
+    //     "Histocount": 0,
+    //   },
+    //   {
+    //     "DNA": "CCT",
+    //     "Codon": "Proline",
+    //     "Hue": 344,
+    //     "Alpha": 0.1,
+    //     "Histocount": 0,
+    //   },
+    //   {
+    //     "DNA": "CGA",
+    //     "Codon": "Arginine",
+    //     "Hue": 297,
+    //     "Alpha": 0.1,
+    //     "Histocount": 0,
+    //   },
+    //   {
+    //     "DNA": "CGC",
+    //     "Codon": "Arginine",
+    //     "Hue": 297,
+    //     "Alpha": 0.1,
+    //     "Histocount": 0,
+    //   },
+    //   {
+    //     "DNA": "CGG",
+    //     "Codon": "Arginine",
+    //     "Hue": 297,
+    //     "Alpha": 0.1,
+    //     "Histocount": 0,
+    //   },
+    //   {
+    //     "DNA": "CGT",
+    //     "Codon": "Arginine",
+    //     "Hue": 297,
+    //     "Alpha": 0.1,
+    //     "Histocount": 0,
+    //   },
+    //   {
+    //     "DNA": "CTA",
+    //     "Codon": "Leucine",
+    //     "Hue": 141,
+    //     "Alpha": 0.1,
+    //     "Histocount": 0,
+    //   },
+    //   {
+    //     "DNA": "CTC",
+    //     "Codon": "Leucine",
+    //     "Hue": 141,
+    //     "Alpha": 0.1,
+    //     "Histocount": 0,
+    //   },
+    //   {
+    //     "DNA": "CTG",
+    //     "Codon": "Leucine",
+    //     "Hue": 141,
+    //     "Alpha": 0.1,
+    //     "Histocount": 0,
+    //   },
+    //   {
+    //     "DNA": "CTT",
+    //     "Codon": "Leucine",
+    //     "Hue": 141,
+    //     "Alpha": 0.1,
+    //     "Histocount": 0,
+    //   },
+    //   {
+    //     "DNA": "GAA",
+    //     "Codon": "Glutamic acid",
+    //     "Hue": 16,
+    //     "Alpha": 0.1,
+    //     "Histocount": 0,
+    //   },
+    //   {
+    //     "DNA": "GAC",
+    //     "Codon": "Aspartic acid",
+    //     "Hue": 31,
+    //     "Alpha": 0.1,
+    //     "Histocount": 0,
+    //   },
+    //   {
+    //     "DNA": "GAG",
+    //     "Codon": "Glutamic acid",
+    //     "Hue": 16,
+    //     "Alpha": 0.1,
+    //     "Histocount": 0,
+    //   },
+    //   {
+    //     "DNA": "GAT",
+    //     "Codon": "Aspartic acid",
+    //     "Hue": 31,
+    //     "Alpha": 0.1,
+    //     "Histocount": 0,
+    //   },
+    //   {
+    //     "DNA": "GCA",
+    //     "Codon": "Alanine",
+    //     "Hue": 94,
+    //     "Alpha": 0.1,
+    //     "Histocount": 0,
+    //   },
+    //   {
+    //     "DNA": "GCC",
+    //     "Codon": "Alanine",
+    //     "Hue": 94,
+    //     "Alpha": 0.1,
+    //     "Histocount": 0,
+    //   },
+    //   {
+    //     "DNA": "GCG",
+    //     "Codon": "Alanine",
+    //     "Hue": 94,
+    //     "Alpha": 0.1,
+    //     "Histocount": 0,
+    //   },
+    //   {
+    //     "DNA": "GCT",
+    //     "Codon": "Alanine",
+    //     "Hue": 94,
+    //     "Alpha": 0.1,
+    //     "Histocount": 0,
+    //   },
+    //   {
+    //     "DNA": "GGA",
+    //     "Codon": "Glycine",
+    //     "Hue": 78,
+    //     "Alpha": 0.1,
+    //     "Histocount": 0,
+    //   },
+    //   {
+    //     "DNA": "GGC",
+    //     "Codon": "Glycine",
+    //     "Hue": 78,
+    //     "Alpha": 0.1,
+    //     "Histocount": 0,
+    //   },
+    //   {
+    //     "DNA": "GGG",
+    //     "Codon": "Glycine",
+    //     "Hue": 78,
+    //     "Alpha": 0.1,
+    //     "Histocount": 0,
+    //   },
+    //   {
+    //     "DNA": "GGT",
+    //     "Codon": "Glycine",
+    //     "Hue": 78,
+    //     "Alpha": 0.1,
+    //     "Histocount": 0,
+    //   },
+    //   {
+    //     "DNA": "GTA",
+    //     "Codon": "Valine",
+    //     "Hue": 125,
+    //     "Alpha": 0.1,
+    //     "Histocount": 0,
+    //   },
+    //   {
+    //     "DNA": "GTC",
+    //     "Codon": "Valine",
+    //     "Hue": 125,
+    //     "Alpha": 0.1,
+    //     "Histocount": 0,
+    //   },
+    //   {
+    //     "DNA": "GTG",
+    //     "Codon": "Valine",
+    //     "Hue": 125,
+    //     "Alpha": 0.1,
+    //     "Histocount": 0,
+    //   },
+    //   {
+    //     "DNA": "GTT",
+    //     "Codon": "Valine",
+    //     "Hue": 125,
+    //     "Alpha": 0.1,
+    //     "Histocount": 0,
+    //   },
+    //   {
+    //     "DNA": "TAA",
+    //     "Codon": "Ochre",
+    //     "Hue": 0,
+    //     "Alpha": 1,
+    //     "Histocount": 0,
+    //   },
+    //   {
+    //     "DNA": "TAC",
+    //     "Codon": "Tyrosine",
+    //     "Hue": 282,
+    //     "Alpha": 0.1,
+    //     "Histocount": 0,
+    //   },
+    //   {
+    //     "DNA": "TAG",
+    //     "Codon": "Amber",
+    //     "Hue": 47,
+    //     "Alpha": 1,
+    //     "Histocount": 0,
+    //   },
+    //   {
+    //     "DNA": "TAT",
+    //     "Codon": "Tyrosine",
+    //     "Hue": 282,
+    //     "Alpha": 0.1,
+    //     "Histocount": 0,
+    //   },
+    //   {
+    //     "DNA": "TCA",
+    //     "Codon": "Serine",
+    //     "Hue": 203,
+    //     "Alpha": 0.1,
+    //     "Histocount": 0,
+    //   },
+    //   {
+    //     "DNA": "TCC",
+    //     "Codon": "Serine",
+    //     "Hue": 203,
+    //     "Alpha": 0.1,
+    //     "Histocount": 0,
+    //   },
+    //   {
+    //     "DNA": "TCG",
+    //     "Codon": "Serine",
+    //     "Hue": 203,
+    //     "Alpha": 0.1,
+    //     "Histocount": 0,
+    //   },
+    //   {
+    //     "DNA": "TCT",
+    //     "Codon": "Serine",
+    //     "Hue": 203,
+    //     "Alpha": 0.1,
+    //     "Histocount": 0,
+    //   },
+    //   {
+    //     "DNA": "TGA",
+    //     "Codon": "Opal",
+    //     "Hue": 240,
+    //     "Alpha": 1,
+    //     "Histocount": 0,
+    //   },
+    //   {
+    //     "DNA": "TGC",
+    //     "Codon": "Cysteine",
+    //     "Hue": 63,
+    //     "Alpha": 0.1,
+    //     "Histocount": 0,
+    //   },
+    //   {
+    //     "DNA": "TGG",
+    //     "Codon": "Tryptophan",
+    //     "Hue": 188,
+    //     "Alpha": 0.1,
+    //     "Histocount": 0,
+    //   },
+    //   {
+    //     "DNA": "TGT",
+    //     "Codon": "Cysteine",
+    //     "Hue": 63,
+    //     "Alpha": 0.1,
+    //     "Histocount": 0,
+    //   },
+    //   {
+    //     "DNA": "TTA",
+    //     "Codon": "Leucine",
+    //     "Hue": 141,
+    //     "Alpha": 0.1,
+    //     "Histocount": 0,
+    //   },
+    //   {
+    //     "DNA": "TTC",
+    //     "Codon": "Phenylalanine",
+    //     "Hue": 172,
+    //     "Alpha": 0.1,
+    //     "Histocount": 0,
+    //   },
+    //   {
+    //     "DNA": "TTG",
+    //     "Codon": "Leucine",
+    //     "Hue": 141,
+    //     "Alpha": 0.1,
+    //     "Histocount": 0,
+    //   },
+    //   {
+    //     "DNA": "TTT",
+    //     "Codon": "Phenylalanine",
+    //     "Hue": 172,
+    //     "Alpha": 0.1,
+    //     "Histocount": 0,
+    //   },
+    //   {
+    //     "DNA": "NNN",
+    //     "Codon": "Non-coding",
+    //     "Hue": 120,
+    //     "Alpha": 1.0,
+    //     "Histocount": 0,
+    //   },
+    //   {
+    //     "DNA": "",
+    //     "Codon": "NoMatchError",
+    //     "Hue": 120,
+    //     "Alpha": 0,
+    //     "Histocount": 0,
+    //   }
+    // ]
+    // ;
+
+
+
+    /**
+    * Converts an RGB color value to HSL. Conversion formula
+    * adapted from http://en.wikipedia.org/wiki/HSL_color_space.
+    * Assumes r, g, and b are contained in the set [0, 255] and
+    * returns h, s, and l in the set [0, 1].
+    *
+    * @param   Number  r       The red color value
+    * @param   Number  g       The green color value
+    * @param   Number  b       The blue color value
+    * @return  Array           The HSL representation
+    */
+    function rgbToHsl(r, g, b) {
+      r /= 255, g /= 255, b /= 255;
+
+      var max = Math.max(r, g, b), min = Math.min(r, g, b);
+      var hue, s, l = (max + min) / 2;
+
+      if (max == min) {
+        hue = s = 0; // achromatic
+      } else {
+        var d = max - min;
+        s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+
+        switch (max) {
+          case r: hue = (g - b) / d + (g < b ? 6 : 0); break;
+          case g: hue = (b - r) / d + 2; break;
+          case b: hue = (r - g) / d + 4; break;
+        }
+
+        hue /= 6;
+      }
+
+      return [ hue, s, l ];
     }
-    // return [13,255,13,128]; // this colour means "ERROR".
-    return [0,0,0,0]; // this colour means "ERROR".
-  }
 
+    /**
+    * Converts an HSL color value to RGB. Conversion formula
+    * adapted from http://en.wikipedia.org/wiki/HSL_color_space.
+    * Assumes h, s, and l are contained in the set [0, 1] and
+    * returns r, g, and b in the set [0, 255].
+    *
+    * @param   Number  h       The hue
+    * @param   Number  s       The saturation
+    * @param   Number  l       The lightness
+    * @return  Array           The RGB representation
+    */
+    function hslToRgb(hue, s, l) {
+      var r, g, b;
 
-  function terminalRGB(_text, _r, _g, _b) {
-    return chalk.rgb(_r,_g,_b)(_text);
-    // BgBlack = "\x1b[40m"
-    if (_r+_g+_b >= 256.0) {
-      _text += "\x1b[44m"; // add some black background if its a light colour
+      if (s == 0) {
+        r = g = b = l; // achromatic
+      } else {
+        function hue2rgb(p, q, t) {
+          if (t < 0) t += 1;
+          if (t > 1) t -= 1;
+          if (t < 1/6) return p + (q - p) * 6 * t;
+          if (t < 1/2) return q;
+          if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+          return p;
+        }
+
+        var q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+        var p = 2 * l - q;
+
+        r = hue2rgb(p, q, hue + 1/3);
+        g = hue2rgb(p, q, hue);
+        b = hue2rgb(p, q, hue - 1/3);
+      }
+
+      return [ r * 255, g * 255, b * 255 ];
     }
-    // BgBlue = "\x1b[44m"
 
-    return "\x1b[38;2;" + _r + ";" + _g + ";" + _b + "m" + _text + "\x1b[0m";
-  };
+    /**
+    * Converts an RGB color value to HSV. Conversion formula
+    * adapted from http://en.wikipedia.org/wiki/HSV_color_space.
+    * Assumes r, g, and b are contained in the set [0, 255] and
+    * returns h, s, and v in the set [0, 1].
+    *
+    * @param   Number  r       The red color value
+    * @param   Number  g       The green color value
+    * @param   Number  b       The blue color value
+    * @return  Array           The HSV representation
+    */
+    function rgbToHsv(r, g, b) {
+      r /= 255, g /= 255, b /= 255;
 
-  // let dnaTriplets = [
-  //   {
-  //     "DNA": "AAA",
-  //     "Codon": "Lysine",
-  //     "Hue": 313,
-  //     "Alpha": 0.1,
-  //     "Histocount": 0,
-  //   },
-  //   {
-  //     "DNA": "AAC",
-  //     "Codon": "Asparagine",
-  //     "Hue": 266,
-  //     "Alpha": 0.1,
-  //     "Histocount": 0,
-  //   },
-  //   {
-  //     "DNA": "AAG",
-  //     "Codon": "Lysine",
-  //     "Hue": 313,
-  //     "Alpha": 0.1,
-  //     "Histocount": 0,
-  //   },
-  //   {
-  //     "DNA": "AAT",
-  //     "Codon": "Asparagine",
-  //     "Hue": 266,
-  //     "Alpha": 0.1,
-  //     "Histocount": 0,
-  //   },
-  //   {
-  //     "DNA": "ACA",
-  //     "Codon": "Threonine",
-  //     "Hue": 219,
-  //     "Alpha": 0.1,
-  //     "Histocount": 0,
-  //   },
-  //   {
-  //     "DNA": "ACC",
-  //     "Codon": "Threonine",
-  //     "Hue": 219,
-  //     "Alpha": 0.1,
-  //     "Histocount": 0,
-  //   },
-  //   {
-  //     "DNA": "ACG",
-  //     "Codon": "Threonine",
-  //     "Hue": 219,
-  //     "Alpha": 0.1,
-  //     "Histocount": 0,
-  //   },
-  //   {
-  //     "DNA": "ACT",
-  //     "Codon": "Threonine",
-  //     "Hue": 219,
-  //     "Alpha": 0.1,
-  //     "Histocount": 0,
-  //   },
-  //   {
-  //     "DNA": "AGA",
-  //     "Codon": "Arginine",
-  //     "Hue": 297,
-  //     "Alpha": 0.1,
-  //     "Histocount": 0,
-  //   },
-  //   {
-  //     "DNA": "AGC",
-  //     "Codon": "Serine",
-  //     "Hue": 203,
-  //     "Alpha": 0.1,
-  //     "Histocount": 0,
-  //   },
-  //   {
-  //     "DNA": "AGG",
-  //     "Codon": "Arginine",
-  //     "Hue": 297,
-  //     "Alpha": 0.1,
-  //     "Histocount": 0,
-  //   },
-  //   {
-  //     "DNA": "AGT",
-  //     "Codon": "Serine",
-  //     "Hue": 203,
-  //     "Alpha": 0.1,
-  //     "Histocount": 0,
-  //   },
-  //   {
-  //     "DNA": "ATA",
-  //     "Codon": "Isoleucine",
-  //     "Hue": 157,
-  //     "Alpha": 0.1,
-  //     "Histocount": 0,
-  //   },
-  //   {
-  //     "DNA": "ATC",
-  //     "Codon": "Isoleucine",
-  //     "Hue": 157,
-  //     "Alpha": 0.1,
-  //     "Histocount": 0,
-  //   },
-  //   {
-  //     "DNA": "ATG",
-  //     "Codon": "Methionine",
-  //     "Hue": 110,
-  //     "Alpha": 1,
-  //     "Histocount": 0,
-  //   },
-  //   {
-  //     "DNA": "ATT",
-  //     "Codon": "Isoleucine",
-  //     "Hue": 157,
-  //     "Alpha": 0.1,
-  //     "Histocount": 0,
-  //   },
-  //   {
-  //     "DNA": "CAA",
-  //     "Codon": "Glutamine",
-  //     "Hue": 250,
-  //     "Alpha": 0.1,
-  //     "Histocount": 0,
-  //   },
-  //   {
-  //     "DNA": "CAC",
-  //     "Codon": "Histidine",
-  //     "Hue": 329,
-  //     "Alpha": 0.1,
-  //     "Histocount": 0,
-  //   },
-  //   {
-  //     "DNA": "CAG",
-  //     "Codon": "Glutamine",
-  //     "Hue": 250,
-  //     "Alpha": 0.1,
-  //     "Histocount": 0,
-  //   },
-  //   {
-  //     "DNA": "CAT",
-  //     "Codon": "Histidine",
-  //     "Hue": 329,
-  //     "Alpha": 0.1,
-  //     "Histocount": 0,
-  //   },
-  //   {
-  //     "DNA": "CCA",
-  //     "Codon": "Proline",
-  //     "Hue": 344,
-  //     "Alpha": 0.1,
-  //     "Histocount": 0,
-  //   },
-  //   {
-  //     "DNA": "CCC",
-  //     "Codon": "Proline",
-  //     "Hue": 344,
-  //     "Alpha": 0.1,
-  //     "Histocount": 0,
-  //   },
-  //   {
-  //     "DNA": "CCG",
-  //     "Codon": "Proline",
-  //     "Hue": 344,
-  //     "Alpha": 0.1,
-  //     "Histocount": 0,
-  //   },
-  //   {
-  //     "DNA": "CCT",
-  //     "Codon": "Proline",
-  //     "Hue": 344,
-  //     "Alpha": 0.1,
-  //     "Histocount": 0,
-  //   },
-  //   {
-  //     "DNA": "CGA",
-  //     "Codon": "Arginine",
-  //     "Hue": 297,
-  //     "Alpha": 0.1,
-  //     "Histocount": 0,
-  //   },
-  //   {
-  //     "DNA": "CGC",
-  //     "Codon": "Arginine",
-  //     "Hue": 297,
-  //     "Alpha": 0.1,
-  //     "Histocount": 0,
-  //   },
-  //   {
-  //     "DNA": "CGG",
-  //     "Codon": "Arginine",
-  //     "Hue": 297,
-  //     "Alpha": 0.1,
-  //     "Histocount": 0,
-  //   },
-  //   {
-  //     "DNA": "CGT",
-  //     "Codon": "Arginine",
-  //     "Hue": 297,
-  //     "Alpha": 0.1,
-  //     "Histocount": 0,
-  //   },
-  //   {
-  //     "DNA": "CTA",
-  //     "Codon": "Leucine",
-  //     "Hue": 141,
-  //     "Alpha": 0.1,
-  //     "Histocount": 0,
-  //   },
-  //   {
-  //     "DNA": "CTC",
-  //     "Codon": "Leucine",
-  //     "Hue": 141,
-  //     "Alpha": 0.1,
-  //     "Histocount": 0,
-  //   },
-  //   {
-  //     "DNA": "CTG",
-  //     "Codon": "Leucine",
-  //     "Hue": 141,
-  //     "Alpha": 0.1,
-  //     "Histocount": 0,
-  //   },
-  //   {
-  //     "DNA": "CTT",
-  //     "Codon": "Leucine",
-  //     "Hue": 141,
-  //     "Alpha": 0.1,
-  //     "Histocount": 0,
-  //   },
-  //   {
-  //     "DNA": "GAA",
-  //     "Codon": "Glutamic acid",
-  //     "Hue": 16,
-  //     "Alpha": 0.1,
-  //     "Histocount": 0,
-  //   },
-  //   {
-  //     "DNA": "GAC",
-  //     "Codon": "Aspartic acid",
-  //     "Hue": 31,
-  //     "Alpha": 0.1,
-  //     "Histocount": 0,
-  //   },
-  //   {
-  //     "DNA": "GAG",
-  //     "Codon": "Glutamic acid",
-  //     "Hue": 16,
-  //     "Alpha": 0.1,
-  //     "Histocount": 0,
-  //   },
-  //   {
-  //     "DNA": "GAT",
-  //     "Codon": "Aspartic acid",
-  //     "Hue": 31,
-  //     "Alpha": 0.1,
-  //     "Histocount": 0,
-  //   },
-  //   {
-  //     "DNA": "GCA",
-  //     "Codon": "Alanine",
-  //     "Hue": 94,
-  //     "Alpha": 0.1,
-  //     "Histocount": 0,
-  //   },
-  //   {
-  //     "DNA": "GCC",
-  //     "Codon": "Alanine",
-  //     "Hue": 94,
-  //     "Alpha": 0.1,
-  //     "Histocount": 0,
-  //   },
-  //   {
-  //     "DNA": "GCG",
-  //     "Codon": "Alanine",
-  //     "Hue": 94,
-  //     "Alpha": 0.1,
-  //     "Histocount": 0,
-  //   },
-  //   {
-  //     "DNA": "GCT",
-  //     "Codon": "Alanine",
-  //     "Hue": 94,
-  //     "Alpha": 0.1,
-  //     "Histocount": 0,
-  //   },
-  //   {
-  //     "DNA": "GGA",
-  //     "Codon": "Glycine",
-  //     "Hue": 78,
-  //     "Alpha": 0.1,
-  //     "Histocount": 0,
-  //   },
-  //   {
-  //     "DNA": "GGC",
-  //     "Codon": "Glycine",
-  //     "Hue": 78,
-  //     "Alpha": 0.1,
-  //     "Histocount": 0,
-  //   },
-  //   {
-  //     "DNA": "GGG",
-  //     "Codon": "Glycine",
-  //     "Hue": 78,
-  //     "Alpha": 0.1,
-  //     "Histocount": 0,
-  //   },
-  //   {
-  //     "DNA": "GGT",
-  //     "Codon": "Glycine",
-  //     "Hue": 78,
-  //     "Alpha": 0.1,
-  //     "Histocount": 0,
-  //   },
-  //   {
-  //     "DNA": "GTA",
-  //     "Codon": "Valine",
-  //     "Hue": 125,
-  //     "Alpha": 0.1,
-  //     "Histocount": 0,
-  //   },
-  //   {
-  //     "DNA": "GTC",
-  //     "Codon": "Valine",
-  //     "Hue": 125,
-  //     "Alpha": 0.1,
-  //     "Histocount": 0,
-  //   },
-  //   {
-  //     "DNA": "GTG",
-  //     "Codon": "Valine",
-  //     "Hue": 125,
-  //     "Alpha": 0.1,
-  //     "Histocount": 0,
-  //   },
-  //   {
-  //     "DNA": "GTT",
-  //     "Codon": "Valine",
-  //     "Hue": 125,
-  //     "Alpha": 0.1,
-  //     "Histocount": 0,
-  //   },
-  //   {
-  //     "DNA": "TAA",
-  //     "Codon": "Ochre",
-  //     "Hue": 0,
-  //     "Alpha": 1,
-  //     "Histocount": 0,
-  //   },
-  //   {
-  //     "DNA": "TAC",
-  //     "Codon": "Tyrosine",
-  //     "Hue": 282,
-  //     "Alpha": 0.1,
-  //     "Histocount": 0,
-  //   },
-  //   {
-  //     "DNA": "TAG",
-  //     "Codon": "Amber",
-  //     "Hue": 47,
-  //     "Alpha": 1,
-  //     "Histocount": 0,
-  //   },
-  //   {
-  //     "DNA": "TAT",
-  //     "Codon": "Tyrosine",
-  //     "Hue": 282,
-  //     "Alpha": 0.1,
-  //     "Histocount": 0,
-  //   },
-  //   {
-  //     "DNA": "TCA",
-  //     "Codon": "Serine",
-  //     "Hue": 203,
-  //     "Alpha": 0.1,
-  //     "Histocount": 0,
-  //   },
-  //   {
-  //     "DNA": "TCC",
-  //     "Codon": "Serine",
-  //     "Hue": 203,
-  //     "Alpha": 0.1,
-  //     "Histocount": 0,
-  //   },
-  //   {
-  //     "DNA": "TCG",
-  //     "Codon": "Serine",
-  //     "Hue": 203,
-  //     "Alpha": 0.1,
-  //     "Histocount": 0,
-  //   },
-  //   {
-  //     "DNA": "TCT",
-  //     "Codon": "Serine",
-  //     "Hue": 203,
-  //     "Alpha": 0.1,
-  //     "Histocount": 0,
-  //   },
-  //   {
-  //     "DNA": "TGA",
-  //     "Codon": "Opal",
-  //     "Hue": 240,
-  //     "Alpha": 1,
-  //     "Histocount": 0,
-  //   },
-  //   {
-  //     "DNA": "TGC",
-  //     "Codon": "Cysteine",
-  //     "Hue": 63,
-  //     "Alpha": 0.1,
-  //     "Histocount": 0,
-  //   },
-  //   {
-  //     "DNA": "TGG",
-  //     "Codon": "Tryptophan",
-  //     "Hue": 188,
-  //     "Alpha": 0.1,
-  //     "Histocount": 0,
-  //   },
-  //   {
-  //     "DNA": "TGT",
-  //     "Codon": "Cysteine",
-  //     "Hue": 63,
-  //     "Alpha": 0.1,
-  //     "Histocount": 0,
-  //   },
-  //   {
-  //     "DNA": "TTA",
-  //     "Codon": "Leucine",
-  //     "Hue": 141,
-  //     "Alpha": 0.1,
-  //     "Histocount": 0,
-  //   },
-  //   {
-  //     "DNA": "TTC",
-  //     "Codon": "Phenylalanine",
-  //     "Hue": 172,
-  //     "Alpha": 0.1,
-  //     "Histocount": 0,
-  //   },
-  //   {
-  //     "DNA": "TTG",
-  //     "Codon": "Leucine",
-  //     "Hue": 141,
-  //     "Alpha": 0.1,
-  //     "Histocount": 0,
-  //   },
-  //   {
-  //     "DNA": "TTT",
-  //     "Codon": "Phenylalanine",
-  //     "Hue": 172,
-  //     "Alpha": 0.1,
-  //     "Histocount": 0,
-  //   },
-  //   {
-  //     "DNA": "NNN",
-  //     "Codon": "Non-coding",
-  //     "Hue": 120,
-  //     "Alpha": 1.0,
-  //     "Histocount": 0,
-  //   },
-  //   {
-  //     "DNA": "",
-  //     "Codon": "NoMatchError",
-  //     "Hue": 120,
-  //     "Alpha": 0,
-  //     "Histocount": 0,
-  //   }
-  // ]
-  // ;
+      var max = Math.max(r, g, b), min = Math.min(r, g, b);
+      var h, s, v = max;
 
-
-
-  /**
-  * Converts an RGB color value to HSL. Conversion formula
-  * adapted from http://en.wikipedia.org/wiki/HSL_color_space.
-  * Assumes r, g, and b are contained in the set [0, 255] and
-  * returns h, s, and l in the set [0, 1].
-  *
-  * @param   Number  r       The red color value
-  * @param   Number  g       The green color value
-  * @param   Number  b       The blue color value
-  * @return  Array           The HSL representation
-  */
-  function rgbToHsl(r, g, b) {
-    r /= 255, g /= 255, b /= 255;
-
-    var max = Math.max(r, g, b), min = Math.min(r, g, b);
-    var hue, s, l = (max + min) / 2;
-
-    if (max == min) {
-      hue = s = 0; // achromatic
-    } else {
       var d = max - min;
-      s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+      s = max == 0 ? 0 : d / max;
 
-      switch (max) {
-        case r: hue = (g - b) / d + (g < b ? 6 : 0); break;
-        case g: hue = (b - r) / d + 2; break;
-        case b: hue = (r - g) / d + 4; break;
-      }
-
-      hue /= 6;
-    }
-
-    return [ hue, s, l ];
-  }
-
-  /**
-  * Converts an HSL color value to RGB. Conversion formula
-  * adapted from http://en.wikipedia.org/wiki/HSL_color_space.
-  * Assumes h, s, and l are contained in the set [0, 1] and
-  * returns r, g, and b in the set [0, 255].
-  *
-  * @param   Number  h       The hue
-  * @param   Number  s       The saturation
-  * @param   Number  l       The lightness
-  * @return  Array           The RGB representation
-  */
-  function hslToRgb(hue, s, l) {
-    var r, g, b;
-
-    if (s == 0) {
-      r = g = b = l; // achromatic
-    } else {
-      function hue2rgb(p, q, t) {
-        if (t < 0) t += 1;
-        if (t > 1) t -= 1;
-        if (t < 1/6) return p + (q - p) * 6 * t;
-        if (t < 1/2) return q;
-        if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
-        return p;
-      }
-
-      var q = l < 0.5 ? l * (1 + s) : l + s - l * s;
-      var p = 2 * l - q;
-
-      r = hue2rgb(p, q, hue + 1/3);
-      g = hue2rgb(p, q, hue);
-      b = hue2rgb(p, q, hue - 1/3);
-    }
-
-    return [ r * 255, g * 255, b * 255 ];
-  }
-
-  /**
-  * Converts an RGB color value to HSV. Conversion formula
-  * adapted from http://en.wikipedia.org/wiki/HSV_color_space.
-  * Assumes r, g, and b are contained in the set [0, 255] and
-  * returns h, s, and v in the set [0, 1].
-  *
-  * @param   Number  r       The red color value
-  * @param   Number  g       The green color value
-  * @param   Number  b       The blue color value
-  * @return  Array           The HSV representation
-  */
-  function rgbToHsv(r, g, b) {
-    r /= 255, g /= 255, b /= 255;
-
-    var max = Math.max(r, g, b), min = Math.min(r, g, b);
-    var h, s, v = max;
-
-    var d = max - min;
-    s = max == 0 ? 0 : d / max;
-
-    if (max == min) {
-      h = 0; // achromatic
-    } else {
-      switch (max) {
-        case r: h = (g - b) / d + (g < b ? 6 : 0); break;
-        case g: h = (b - r) / d + 2; break;
-        case b: h = (r - g) / d + 4; break;
-      }
-
-      h /= 6;
-    }
-
-    return [ h, s, v ];
-  }
-
-  /**
-  * Converts an HSV color value to RGB. Conversion formula
-  * adapted from http://en.wikipedia.org/wiki/HSV_color_space.
-  * Assumes h, s, and v are contained in the set [0, 1] and
-  * returns r, g, and b in the set [0, 255].
-  *
-  * @param   Number  h       The hue
-  * @param   Number  s       The saturation
-  * @param   Number  v       The value
-  * @return  Array           The RGB representation
-  */
-  function hsvToRgb(h, s, v) {
-    var r, g, b;
-
-    var i = Math.floor(h * 6);
-    var f = h * 6 - i;
-    var p = v * (1 - s);
-    var q = v * (1 - f * s);
-    var t = v * (1 - (1 - f) * s);
-
-    switch (i % 6) {
-      case 0: r = v, g = t, b = p; break;
-      case 1: r = q, g = v, b = p; break;
-      case 2: r = p, g = v, b = t; break;
-      case 3: r = p, g = q, b = v; break;
-      case 4: r = t, g = p, b = v; break;
-      case 5: r = v, g = p, b = q; break;
-    }
-
-    return [ Math.round(r * 255), Math.round(g * 255), Math.round(b * 255) ];
-  }
-
-  // source: https://github.com/oliver-moran/jimp/blob/master/packages/core/src/index.js#L117
-  // function isRawRGBAData(obj) {
-  //   return (
-  //     obj &&
-  //     typeof obj === 'object' &&
-  //     typeof obj.width === 'number' &&
-  //     typeof obj.height === 'number' &&
-  //     (Buffer.isBuffer(obj.data) ||
-  //     obj.data instanceof Uint8Array ||
-  //     (typeof Uint8ClampedArray === 'function' &&
-  //     obj.data instanceof Uint8ClampedArray)) &&
-  //     (obj.data.length === obj.width * obj.height * 4 ||
-  //       obj.data.length === obj.width * obj.height * 3)
-  //     );
-  //   }
-
-
-  //PARSE SOURCE CODE
-  // https://www.npmjs.com/package/parse-apache-directory-index
-
-  function testParse() {
-    console.log(parse(`
-      <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
-      <html>
-      <head>
-      <title>Index of /foo/bar</title>
-      </head>
-      <body>
-      <h1>Index of /foo/bar</h1>
-      <table><tr><th><img src="/icons/blank.gif" alt="[ICO]"></th><th><a href="?C=N;O=D">Name</a></th><th><a href="?C=M;O=A">Last modified</a></th><th><a href="?C=S;O=A">Size</a></th><th><a href="?C=D;O=A">Description</a></th></tr><tr><th colspan="5"><hr></th></tr>
-      <tr><td valign="top"><img src="/icons/folder.gif" alt="[DIR]"></td><td><a href="beep/">beep/</a>           </td><td align="right">25-May-2016 11:53  </td><td align="right">  - </td><td>&nbsp;</td></tr>
-      <tr><td valign="top"><img src="/icons/folder.gif" alt="[DIR]"></td><td><a href="boop20160518/">boop20160518/</a>        </td><td align="right">19-May-2016 17:57  </td><td align="right">  - </td><td>&nbsp;</td></tr>
-      <tr><td valign="top"><img src="/icons/folder.gif" alt="[DIR]"></td><td><a href="jazz20160518/">jazz20160518/</a>         </td><td align="right">19-May-2016 19:04  </td><td align="right">  - </td><td>&nbsp;</td></tr>
-      <tr><td valign="top"><img src="/icons/folder.gif" alt="[DIR]"></td><td><a href="punk20160518/">punk20160518/</a>    </td><td align="right">19-May-2016 17:47  </td><td align="right">  - </td><td>&nbsp;</td></tr>
-      <tr><td valign="top"><img src="/icons/folder.gif" alt="[DIR]"></td><td><a href="space20160518/">space20160518/</a>       </td><td align="right">19-May-2016 19:03  </td><td align="right">  - </td><td>&nbsp;</td></tr>
-      <tr><th colspan="5"><hr></th></tr>
-      </table>
-      </body></html>`));
-
-    }
-
-    const siteDescription = `A unique visualisation of DNA or RNA residing in text files, AminoSee is a way to render huge genomics files into a PNG image using an infinite space filling curve from 18th century! Computation is done locally, and the files do not leave your machine. A back-end terminal daemon cli command that can be scripted is combined with a front-end GUI in Electron, AminoSee features asynchronous streaming processing enabling arbitrary size files to be processed. It has been tested with files in excess of 4 GB and does not need the whole file in memory at any time. Due to issues with the 'aminosee *' command, a batch script is provided for bulk rendering in the dna/ folder. Alertively use the GUI to Drag and drop files to render a unique colour view of RNA or DNA stored in text files, output to PNG graphics file, then launches an WebGL browser that projects the image onto a 3D Hilbert curve for immersive viewing, using THREEjs. Command line options alow one to filter by peptide.`;
-
-    const radMessage =
-    terminalRGB(`
-      ╔═╗┌┬┐┬┌┐┌┌─┐╔═╗┌─┐┌─┐  ╔╦╗╔╗╔╔═╗  ╦  ╦┬┌─┐┬ ┬┌─┐┬─┐
-      ╠═╣││││││││ │╚═╗├┤ ├┤    ║║║║║╠═╣  ╚╗╔╝│├┤ │││├┤ ├┬┘
-      ╩ ╩┴ ┴┴┘└┘└─┘╚═╝└─┘└─┘  ═╩╝╝╚╝╩ ╩   ╚╝ ┴└─┘└┴┘└─┘┴└─
-      by Tom Atkinson          aminosee.funk.nz
-      ah-mee no-see         "I See It Now - I AminoSee it!"
-      `, 96, 64, 245);
-
-      const lineBreak = `
-      `;
-      // “I have not failed. I've just found 10,000 ways that won't work.”
-
-
-
-      // source: https://gist.github.com/rjz/9501304
-
-      // Depends on `through`
-      //
-      //     $ npm install through
-      //
-      // Usage:
-      //
-      //     $ echo 'hello' | node stdin-and-fs-stream.js
-      //     $ echo 'hello' > tmp && node stdin-and-fs-stream.js tmp
-
-      // let fs = require('fs'),
-      // let through = require('through');
-      //
-      // var tr = through(function (buf) {
-      //   console.log(` [process.argv.length: ${process.argv.length}  process.argv[2]: ${process.argv[2]} ] buf.toString(): ${buf.toString()} `);
-      // });
-      //
-      //
-      // var stream;
-      //
-      // if (process.argv.length > 2) {
-      //   stream = fs.createReadStream(process.argv[2]);
-      // }
-      // else {
-      //   stream = process.stdin;
-      //   setImmediate(function () {
-      //     stream.push(null);
-      //   });
-      // }
-
-      // stream.pipe(tr).pipe(process.stdout);
-      /** https://stackoverflow.com/questions/13786160/copy-folder-recursively-in-node-js/26038979
-      * Look ma, it's cp -R.
-      * @param {string} src The path to the thing to copy.
-      * @param {string} dest The path to the new copy.
-      */
-      function copyRecursiveSync(src, dest) {
-        log(`Will try to recursive copy from ${src} to ${dest}`)
-        var exists = doesFileExist(src);
-        var stats = exists && fs.statSync(src);
-        var isDirectory = exists && stats.isDirectory();
-        var existsDest = doesFileExist(dest);
-        if (existsDest) {
-          log(`Remove the ${dest} folder or file, then I can rebuild the web-server`);
-          return false;
+      if (max == min) {
+        h = 0; // achromatic
+      } else {
+        switch (max) {
+          case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+          case g: h = (b - r) / d + 2; break;
+          case b: h = (r - g) / d + 4; break;
         }
-        if (exists && isDirectory) {
-          var exists = doesFileExist(dest);
-          if (exists) {
-            log("Remove the /public/ folder and also /index.html, then I can rebuild the web-server");
+
+        h /= 6;
+      }
+
+      return [ h, s, v ];
+    }
+
+    /**
+    * Converts an HSV color value to RGB. Conversion formula
+    * adapted from http://en.wikipedia.org/wiki/HSV_color_space.
+    * Assumes h, s, and v are contained in the set [0, 1] and
+    * returns r, g, and b in the set [0, 255].
+    *
+    * @param   Number  h       The hue
+    * @param   Number  s       The saturation
+    * @param   Number  v       The value
+    * @return  Array           The RGB representation
+    */
+    function hsvToRgb(h, s, v) {
+      var r, g, b;
+
+      var i = Math.floor(h * 6);
+      var f = h * 6 - i;
+      var p = v * (1 - s);
+      var q = v * (1 - f * s);
+      var t = v * (1 - (1 - f) * s);
+
+      switch (i % 6) {
+        case 0: r = v, g = t, b = p; break;
+        case 1: r = q, g = v, b = p; break;
+        case 2: r = p, g = v, b = t; break;
+        case 3: r = p, g = q, b = v; break;
+        case 4: r = t, g = p, b = v; break;
+        case 5: r = v, g = p, b = q; break;
+      }
+
+      return [ Math.round(r * 255), Math.round(g * 255), Math.round(b * 255) ];
+    }
+
+    // source: https://github.com/oliver-moran/jimp/blob/master/packages/core/src/index.js#L117
+    // function isRawRGBAData(obj) {
+    //   return (
+    //     obj &&
+    //     typeof obj === 'object' &&
+    //     typeof obj.width === 'number' &&
+    //     typeof obj.height === 'number' &&
+    //     (Buffer.isBuffer(obj.data) ||
+    //     obj.data instanceof Uint8Array ||
+    //     (typeof Uint8ClampedArray === 'function' &&
+    //     obj.data instanceof Uint8ClampedArray)) &&
+    //     (obj.data.length === obj.width * obj.height * 4 ||
+    //       obj.data.length === obj.width * obj.height * 3)
+    //     );
+    //   }
+
+
+    //PARSE SOURCE CODE
+    // https://www.npmjs.com/package/parse-apache-directory-index
+
+    function testParse() {
+      console.log(parse(`
+        <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+        <html>
+        <head>
+        <title>Index of /foo/bar</title>
+        </head>
+        <body>
+        <h1>Index of /foo/bar</h1>
+        <table><tr><th><img src="/icons/blank.gif" alt="[ICO]"></th><th><a href="?C=N;O=D">Name</a></th><th><a href="?C=M;O=A">Last modified</a></th><th><a href="?C=S;O=A">Size</a></th><th><a href="?C=D;O=A">Description</a></th></tr><tr><th colspan="5"><hr></th></tr>
+        <tr><td valign="top"><img src="/icons/folder.gif" alt="[DIR]"></td><td><a href="beep/">beep/</a>           </td><td align="right">25-May-2016 11:53  </td><td align="right">  - </td><td>&nbsp;</td></tr>
+        <tr><td valign="top"><img src="/icons/folder.gif" alt="[DIR]"></td><td><a href="boop20160518/">boop20160518/</a>        </td><td align="right">19-May-2016 17:57  </td><td align="right">  - </td><td>&nbsp;</td></tr>
+        <tr><td valign="top"><img src="/icons/folder.gif" alt="[DIR]"></td><td><a href="jazz20160518/">jazz20160518/</a>         </td><td align="right">19-May-2016 19:04  </td><td align="right">  - </td><td>&nbsp;</td></tr>
+        <tr><td valign="top"><img src="/icons/folder.gif" alt="[DIR]"></td><td><a href="punk20160518/">punk20160518/</a>    </td><td align="right">19-May-2016 17:47  </td><td align="right">  - </td><td>&nbsp;</td></tr>
+        <tr><td valign="top"><img src="/icons/folder.gif" alt="[DIR]"></td><td><a href="space20160518/">space20160518/</a>       </td><td align="right">19-May-2016 19:03  </td><td align="right">  - </td><td>&nbsp;</td></tr>
+        <tr><th colspan="5"><hr></th></tr>
+        </table>
+        </body></html>`));
+
+      }
+
+      const siteDescription = `A unique visualisation of DNA or RNA residing in text files, AminoSee is a way to render huge genomics files into a PNG image using an infinite space filling curve from 18th century! Computation is done locally, and the files do not leave your machine. A back-end terminal daemon cli command that can be scripted is combined with a front-end GUI in Electron, AminoSee features asynchronous streaming processing enabling arbitrary size files to be processed. It has been tested with files in excess of 4 GB and does not need the whole file in memory at any time. Due to issues with the 'aminosee *' command, a batch script is provided for bulk rendering in the dna/ folder. Alertively use the GUI to Drag and drop files to render a unique colour view of RNA or DNA stored in text files, output to PNG graphics file, then launches an WebGL browser that projects the image onto a 3D Hilbert curve for immersive viewing, using THREEjs. Command line options alow one to filter by peptide.`;
+
+      const radMessage =
+      terminalRGB(`
+        ╔═╗┌┬┐┬┌┐┌┌─┐╔═╗┌─┐┌─┐  ╔╦╗╔╗╔╔═╗  ╦  ╦┬┌─┐┬ ┬┌─┐┬─┐
+        ╠═╣││││││││ │╚═╗├┤ ├┤    ║║║║║╠═╣  ╚╗╔╝│├┤ │││├┤ ├┬┘
+        ╩ ╩┴ ┴┴┘└┘└─┘╚═╝└─┘└─┘  ═╩╝╝╚╝╩ ╩   ╚╝ ┴└─┘└┴┘└─┘┴└─
+        by Tom Atkinson          aminosee.funk.nz
+        ah-mee no-see         "I See It Now - I AminoSee it!"
+        `, 96, 64, 245);
+
+        const lineBreak = `
+        `;
+        // “I have not failed. I've just found 10,000 ways that won't work.”
+
+
+
+        // source: https://gist.github.com/rjz/9501304
+
+        // Depends on `through`
+        //
+        //     $ npm install through
+        //
+        // Usage:
+        //
+        //     $ echo 'hello' | node stdin-and-fs-stream.js
+        //     $ echo 'hello' > tmp && node stdin-and-fs-stream.js tmp
+
+        // let fs = require('fs'),
+        // let through = require('through');
+        //
+        // var tr = through(function (buf) {
+        //   console.log(` [process.argv.length: ${process.argv.length}  process.argv[2]: ${process.argv[2]} ] buf.toString(): ${buf.toString()} `);
+        // });
+        //
+        //
+        // var stream;
+        //
+        // if (process.argv.length > 2) {
+        //   stream = fs.createReadStream(process.argv[2]);
+        // }
+        // else {
+        //   stream = process.stdin;
+        //   setImmediate(function () {
+        //     stream.push(null);
+        //   });
+        // }
+
+        // stream.pipe(tr).pipe(process.stdout);
+        /** https://stackoverflow.com/questions/13786160/copy-folder-recursively-in-node-js/26038979
+        * Look ma, it's cp -R.
+        * @param {string} src The path to the thing to copy.
+        * @param {string} dest The path to the new copy.
+        */
+        function copyRecursiveSync(src, dest) {
+          log(`Will try to recursive copy from ${src} to ${dest}`)
+          var exists = doesFileExist(src);
+          var stats = exists && fs.statSync(src);
+          var isDirectory = exists && stats.isDirectory();
+          var existsDest = doesFileExist(dest);
+          if (existsDest) {
+            log(`Remove the ${dest} folder or file, then I can rebuild the web-server`);
             return false;
-          } else {
-            fs.mkdirSync(dest);
           }
-          fs.readdirSync(src).forEach(function(childItemName) {
-            log(childItemName);
-            copyRecursiveSync(path.join(src, childItemName),
-            path.join(dest, childItemName));
+          if (exists && isDirectory) {
+            var exists = doesFileExist(dest);
+            if (exists) {
+              log("Remove the /public/ folder and also /index.html, then I can rebuild the web-server");
+              return false;
+            } else {
+              fs.mkdirSync(dest);
+            }
+            fs.readdirSync(src).forEach(function(childItemName) {
+              log(childItemName);
+              copyRecursiveSync(path.join(src, childItemName),
+              path.join(dest, childItemName));
+            });
+          } else {
+            fs.linkSync(src, dest);
+          }
+        };
+
+
+        function imageStack(histogramJson) {
+          mode('imageStack')
+          let html = " ";
+          let summary = histogramJson.summary;
+          let pepTable = histogramJson.pepTable;
+          let name = summary.name;
+          let refimage = summary.refimage;
+          let linearimage = summary.linearimage;
+          html += `<div id="stackOimages">
+          <a href="images/${name}" class="imgstack"><img src="images/${name}" id="stack_reference" width="256" height="256" style="z-index: ${999}; position: absolute; top: 0px; left: 0px;" alt="${refimage}" title="${refimage}" onmouseover="mover()" onmouseout="mout()"></a>`;
+          histogramJson.pepTable.forEach(function(item) {
+            log(item.index);
+            let thePep = item.Codon;
+            let theHue = item.Hue;
+            let c =      hsvToRgb( theHue/360, 0.5, 1.0 );
+            let z =      item.z;
+            let i =      item.index + 1;
+            let src =    item.src;
+            bugtxt( src );
+            if (thePep == "Start Codons" || thePep == "Stop Codons" || thePep == "Non-coding NNN") {
+              html += `<!-- ${thePep.Codon} -->`;
+            } else {
+              html += `
+              <a href="images/${src}" class="imgstack"><img src="images/${src}" id="stack_${i}" width="256" height="256" style="z-index: 99; position: absolute; top: ${i*2*mouseX}px; left: ${i*32*mouseY}px;" alt="${thePep}" title="${item.Description}" onmouseover="mover(${i})" onmouseout="mout(${i})"></a>`;
+            }
           });
-        } else {
-          fs.linkSync(src, dest);
+          html += `</div> <!--  id="stackOimages -- >`;
+          return html;
         }
-      };
-
-
-      function imageStack(histogramJson) {
-        mode('imageStack')
-        let html = " ";
-        let summary = histogramJson.summary;
-        let name = summary.name;
-        let refimage = summary.refimage;
-        let linearimage = summary.linearimage;
-        html += `<div id="stackOimages">
-        <a href="images/${name}" class="imgstack"><img src="images/${name}" id="stack_reference" width="256" height="256" style="z-index: ${999}; position: absolute; top: 0px; left: 0px;" alt="${refimage}" title="${refimage}" onmouseover="mover()" onmouseout="mout()"></a>`;
-        histogramJson.pepTable.forEach(function(item) {
-          log(item.index);
-          let thePep = item.Codon;
-          let theHue = item.Hue;
-          let c =      hsvToRgb( theHue/360, 0.5, 1.0 );
-          let z =      item.z;
-          let i =      item.index + 1;
-          currentPeptide = thePep;
-          item.src = aminoFilenameIndex(item.index);
-          let src =    item.src;
-          bugtxt( src );
-          if (thePep == "Start Codons" || thePep == "Stop Codons" || thePep == "Non-coding NNN") {
-            html += `<!-- ${thePep.Codon} -->`;
-          } else {
-            html += `<a href="images/${src}" class="imgstack"><img src="images/${src}" id="stack_${i}" width="256" height="256" style="z-index: 99; position: absolute; top: ${i*2*mouseX}px; left: ${i*32*mouseY}px;" alt="${thePep}" title="${item.Description}" onmouseover="mover(${i})" onmouseout="mout(${i})"></a>`;
-          }
-        });
-        html += `</div> <!--  id="stackOimages -- >`;
-        return html;
-      }

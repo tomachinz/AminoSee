@@ -4,21 +4,20 @@ const path = require('path');
 const os = require("os");
 let aminosee = require('./aminosee-cli');
 
-let options = {
-  port: 4321
-}
+let port = 4321;
+
 function startServeHandler() {
   const handler = require('serve-handler');
   const http = require('http');
   // let www =  path.normalize( path.join(os.homedir() ,  outFoldername));
-  let www = path.resolve(os.homedir() + "/AminoSee_Output");
+  let www = path.resolve(outputPath);
   console.log(`www = ${www}`);
   const serveHandler = http.createServer((request, response) => {
     // You pass two more arguments for config and middleware
     // More details here: https://github.com/zeit/serve-handler#options
     let options = {
       public: www,
-      port: 4321,
+      port: port,
       trailingSlash: true,
       renderSingle: true,
       cleanUrls: true,
@@ -36,20 +35,7 @@ function startServeHandler() {
     console.log(`Running at ` + chalk.underline(getServerURL()));
   });
 }
-function getServerURL(path) {
-  return 'http://127.0.0.1:8081';
 
-  let internalIp = require('internal-ip');
-  let port = 4321;
-  if (path == undefined) {
-    path = "/megabase";
-  } else {
-    path = `${outFoldername}/${path}`;
-  }
-  serverURL = `http://${internalIp.v4.sync()}:${port}${path}`;
-  console.log(`serverURL ${serverURL}`);
-  return serverURL;
-}
 
 module.exports = (options) => {
 
@@ -117,14 +103,13 @@ module.exports.open = function (relative) {
   console.log("Opening page: " + relative);
 }
 module.exports.getServerURL = function (path) {
-  return 'http://127.0.0.1:8081';
+  // return 'http://127.0.0.1:8081';
 
   let internalIp = require('internal-ip');
-  let port = 4321;
   if (path == undefined) {
-    path = "/megabase";
+    path = "/megabase/main.html";
   } else {
-    path = `${outFoldername}/${path}`;
+    path = `/${path}/main.html`;
   }
   serverURL = `http://${internalIp.v4.sync()}:${port}${path}`;
   console.log(`serverURL ${serverURL}`);
