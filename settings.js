@@ -13,20 +13,24 @@ let packagefile = base + '/package.json';
 
 function gracefulShutdown() {
   aminosee.log("[custom sigterm received] @Aminosee settings.js");
+
   aminosee.gracefulQuit();
   // process.exit(); // now the "exit" event will fire
 }
 process.on("SIGTERM", () => {
   aminosee.log('SIGTERM');
-  gracefulShutdown();
+  aminosee.gracefulQuit();
+
+  // aminosee.quit(130, 'SIGTERM');
+  // quit();
   process.exit(); // now the "exit" event will fire
 });
 process.on("SIGINT", function() {
   aminosee.log('SIGINT');
-  gracefulShutdown();
-  process.exit(); // now the "exit" event will fire
-});
+  aminosee.gracefulQuit();
+  // aminosee.quit(130, 'SIGINT');
 
+});
 
 // module.exports = function getSettings() {
 //   const settings = {
