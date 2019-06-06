@@ -1880,6 +1880,9 @@ function showCountdown() {
   countdown(`Built-in webserver: ${server.getServerURL()}   [ stop server with Control-C | run in background with [S] | will shutdown in ${humanizeDuration(max32bitInteger)}`);
 }
 function blockingServer() {
+
+  setupProject();
+  setupOutPaths();
   buildServer();  // copyGUI();  // startHttpServer()
   server.startServeHandler();
   setTimeout(()=> {

@@ -9,31 +9,6 @@
 const { app, BrowserWindow, Menu, dialog, ipcRenderer } = require('electron'); // Modules to control application life and create native browser window
 
 
-
-console.log(ipcRenderer.sendSync('synchronous-message', 'ping')) // prints "pong"
-ipcRenderer.on('asynchronous-reply', (event, arg) => {
-  console.log(`asynchronous: ${arg}`) // prints "pong"
-})
-ipcRenderer.send('asynchronous-message', 'ping sent from renderer')
-
-
-
-
-
-
-dialog.showOpenDialog((filenames) => {
-  if (filesNames === undefined ) {
-    console.log("no files were selected");
-    return;
-  } else {
-    console.log(`Renderer thread got: ${filesNames}`);
-
-  }
-
-} )
-document.getElementById('choosefiles').addEventListener('change', filesIpc, false);
-
-
 if (window.addEventListener) {
   window.addEventListener('load',pageLoaded,false); //W3C
 } else {
@@ -98,6 +73,33 @@ function pageLoaded() {
   //   togglePause(); // done twice to re-trigger the autopause
   // }
 }
+
+console.log(ipcRenderer.sendSync('synchronous-message', 'ping')) // prints "pong"
+ipcRenderer.on('asynchronous-reply', (event, arg) => {
+  console.log(`asynchronous: ${arg}`) // prints "pong"
+})
+ipcRenderer.send('asynchronous-message', 'ping sent from renderer')
+
+
+
+
+
+
+dialog.showOpenDialog((filenames) => {
+  if (filesNames === undefined ) {
+    console.log("no files were selected");
+    return;
+  } else {
+    console.log(`Renderer thread got: ${filesNames}`);
+
+  }
+
+} )
+document.getElementById('choosefiles').addEventListener('change', filesIpc, false);
+
+
+
+
 
 // function setupColorPicker() {
 //

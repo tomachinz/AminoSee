@@ -9,8 +9,8 @@ let port = 4321;
 function startServeHandler() {
   const handler = require('serve-handler');
   const http = require('http');
-  // let www =  path.normalize( path.join(os.homedir() ,  outFoldername));
-  let www = path.resolve(outputPath);
+  let www =  path.resolve(os.homedir() + "/AminoSee_Output");
+  // let www = path.resolve(outputPath);
   console.log(`www = ${www}`);
   const serveHandler = http.createServer((request, response) => {
     // You pass two more arguments for config and middleware
@@ -95,7 +95,10 @@ module.exports.close = function() {
   }
 
 };
-
+module.exports.setOutputPath = function(o) {
+  outputPath = o;
+  console.log(o);
+};
 module.exports.stop = function() {
   console.log("Stoping server");
 };
