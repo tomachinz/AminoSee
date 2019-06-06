@@ -207,13 +207,14 @@ function resized(tx, ty) {
   drawHistogram();
 }
 function getRenderObject() { // return part of the histogramJson obj
-  calculateShrinkage();
+  // calculateShrinkage();
   log(`codonsPerPixelHILBERT inside getRenderObject is ${codonsPerPixelHILBERT}`)
 
   for (h=0; h<pepTable.length; h++) {
     pep =  pepTable[h];
     currentPeptide = pep.Codon;
     pepTable[h].src = aminoFilenameIndex(h);
+    console.log(pepTable[h].src);
   }
 
   // pepTable.forEach(pep)
@@ -312,6 +313,13 @@ function setupPrefs() {
     file: path.join(os.homedir(), obviousFoldername +  '/aminosee.conf'),
     format: 'yaml'
   });
+
+  // userprefs = new Preferences('nz.funk.aminosee.user',{}, {
+  //   encrypt: false,
+  //   file: path.join(os.homedir(), obviousFoldername +  '/aminosee.conf'),
+  //   format: 'yaml'
+  // });     ~/.config/preferences/com.foo.bar.pref
+
   userprefs = new Preferences('nz.funk.aminosee.user', {
     aminosee: {
       cliruns: 0,
@@ -319,6 +327,10 @@ function setupPrefs() {
       gbprocessed: 0,
       outputPath: outputPath
     }
+  }, {
+    encrypt: false,
+    file: path.resolve(os.homedir(), '.config/preferences/nz.funk.aminosee.conf'),
+    format: 'yaml'
   });
   // Preferences can be accessed directly
   userprefs.aminosee.cliruns++; // increment run counter. for a future high score table stat and things maybe.
@@ -328,51 +340,51 @@ function setupPrefs() {
   bugtxt(`AminoSee has been run ${cliruns} times and processed ${gbprocessed.toLocaleString()}  GB`);
 }
 function serverLock(cb) {
-    const outski = "Server started at " + server.getServerURL();
-    fileWrite(
-      filenameServerLock,
-      lockFileMessage + ` ${version} ${timestamp} ${hostname}
-      ${asciiart}
-      Input: ${filename}
-      Your output path : ${outputPath}
-      ${outski}`,
-      cb
-    );
-    term.saveCursor()
-    term.moveTo(3, term.height - 6);
-    console.log()
-    console.log(outski)
-    console.log()
-    term.restoreCursor()
+  const outski = "Server started at " + server.getServerURL();
+  fileWrite(
+    filenameServerLock,
+    lockFileMessage + ` ${version} ${timestamp} ${hostname}
+    ${asciiart}
+    Input: ${filename}
+    Your output path : ${outputPath}
+    ${outski}`,
+    cb
+  );
+  term.saveCursor()
+  term.moveTo(3, term.height - 6);
+  console.log()
+  console.log(outski)
+  console.log()
+  term.restoreCursor()
 }
 function setupApp() { // do stuff aside from creating any changes. eg if you just run "aminosee" by itself.
-  red = 0;
-  green = 0;
-  blue = 0;
-  alpha = 0;
-  charClock = 0; // its 'i' from the main loop
-  errorClock = 0; // increment each non DNA, such as line break. is reset after each codon
-  breakClock = 0;
-  streamLineNr = 0;
-  genomeSize = 1;
-  msElapsed = runningDuration = charClock = percentComplete = genomeSize = pixelClock = opacity = 0;
-  setupOutPaths();
+red = 0;
+green = 0;
+blue = 0;
+alpha = 0;
+charClock = 0; // its 'i' from the main loop
+errorClock = 0; // increment each non DNA, such as line break. is reset after each codon
+breakClock = 0;
+streamLineNr = 0;
+genomeSize = 1;
+msElapsed = runningDuration = charClock = percentComplete = genomeSize = pixelClock = opacity = 0;
+setupOutPaths();
 
-  filenameServerLock = path.resolve(`${outputPath}/aminosee_server_lock.txt`);
+filenameServerLock = path.resolve(`${outputPath}/aminosee_server_lock.txt`);
 
 
-  // console.log(`stdin pipe: ${pipeInstance.checkIsPipeActive()}`);
-  // const stdin = pipeInstance.stdinLineByLine();
-  // stdin.on('line', console.log);
-  startDate = new Date(); // required for touch locks.
-  started = startDate.getTime(); // required for touch locks.
-  termSize();
-  setupPrefs();
+// console.log(`stdin pipe: ${pipeInstance.checkIsPipeActive()}`);
+// const stdin = pipeInstance.stdinLineByLine();
+// stdin.on('line', console.log);
+startDate = new Date(); // required for touch locks.
+started = startDate.getTime(); // required for touch locks.
+termSize();
+setupPrefs();
 
-  if (!doesFileExist(filenameServerLock)) {
-    killServersOnExit = false;
-    serverLock(launchNonBlockingServer)
-  }
+if (!doesFileExist(filenameServerLock)) {
+  killServersOnExit = false;
+  serverLock(launchNonBlockingServer)
+}
 }
 function setupProject() { // returns progress bar.
   setupOutPaths();
@@ -1547,7 +1559,7 @@ function streamStarted() {
       drawHistogram()
       progUpdate({ title: 'DNA File Render step 1/3', items: howMany, syncMode: true })
     }
-    manageLocks(5000)
+    manageLocks(15000)
   } else {
     error('Not rendering (bug? or is your computer like.... the hulk and somehow finished that quick.)');
   }
@@ -1735,14 +1747,14 @@ function highlightFilename() {
   let ret = "";
   // log(``)
   if ( isHighlightSet == false) {
-    ret += `-reference`;
+    ret += `-Reference`;
   } else {
     if ( currentTriplet.toLowerCase() != "none" || triplet.toLowerCase() != "none") {
       ret += `_${spaceTo_(currentTriplet).toUpperCase()}`;
     } else if (currentPeptide != "none") {
       ret += `_${spaceTo_( tidyPeptideName( peptide ) )}`;
     } else {
-      ret += `-reference`;
+      ret += `-Reference`;
     }
   }
   // log(`ret: ${ret} currentTriplet: ${currentTriplet} currentPeptide ${currentPeptide}`);
@@ -1884,7 +1896,9 @@ function blockingServer() {
   setupProject();
   setupOutPaths();
   buildServer();  // copyGUI();  // startHttpServer()
-  server.startServeHandler();
+  // server.startServeHandler();
+  startCrossSpawnHttp(); // requires http-server be installed globally
+
   setTimeout(()=> {
     output("AminoSee built-in web server started")
     showCountdown();
@@ -1982,7 +1996,8 @@ function startCrossSpawnHttp() {
 
   // Spawn NPM asynchronously
   // const evilSpawn = spawn('npm', ['list', '-g', '-depth', '0'], { stdio: 'inherit' });
-  const evilSpawn = spawn('http-server', [server.getServerURL(justNameOfDNA), '--port', port, '0'], { stdio: 'pipe' });
+  // const evilSpawn = spawn('http-server', [server.getServerURL(justNameOfDNA), '--port', port, '0'], { stdio: 'pipe' });
+  const evilSpawn = spawn('http-server', ['--directory', outputPath,  '--port', port, '0'], { stdio: 'pipe' });
   evilSpawn.stdout.on('data', (data) => {
     console.log(`${chalk.inverse('aminosee serve')}${chalk(': ')}${data}`);
   });
@@ -2138,7 +2153,7 @@ function saveDocsSync() {
   output(chalk.rgb(80,80,120).bgBlue.inverse(    fixedWidth(debugColumns*2, `${filenameTouch.substring(filenameTouch.length -24, -1)} LOCKFILE`)));
 
 
-  async.parallel( [
+  async.series( [
     function( cb ) {
       savePNG();
       setImmediate(() => {
@@ -2971,7 +2986,7 @@ style="z-index: ${1000+i}; position: absolute; top: ${i*2}px; left: ${i*12}px;"
 html += `</div>
 
 <br /><br />
-http://localhost:8888/aminosee/output/50KB_TestPattern/50KB_TestPattern.txt_linear-reference_c1_sci.png
+http://localhost:8888/aminosee/output/50KB_TestPattern/50KB_TestPattern.txt_linear-Reference_c1_sci.png
 <table>
 <thead>
 <tr>

@@ -45,7 +45,7 @@ mkdir -p $TARGET/dna
 echo COPYING LIBRARIES INTO /dist/*
 mkdir -p $TARGET/dist
 mkdir -p $TARGET/dist/root
-cp -r -v dist/root/* $TARGET/dist/root
+# cp -r -v dist/root/* $TARGET/dist/root
 
 
 cp -v -r dna/megabase.fa $TARGET/dna
@@ -55,6 +55,9 @@ cp -r lib $TARGET
 cp -r bin $TARGET
 cp -r aminosee-cli.js $TARGET
 cp -r aminosee-gui-web.js $TARGET
+cp -r aminosee-server.js $TARGET
+cp -r settings.js $TARGET
+cp -r data.js $TARGET
 cp -r bundle.js $TARGET
 cp -r package.json $TARGET
 cp -r README.md $TARGET
@@ -64,24 +67,24 @@ cp -r index.html $TARGET
 cp -r console.js $TARGET
 cp -r favicon.ico $TARGET
 cp -r favicon.png $TARGET
-cp -r -v dist $TARGET
+cp -r -v dist/root/* $TARGET
 
 echo COPY AND RENAME package-electron.json $TARGET/package.json
 cp -v package-electron.json $TARGET/package.json
 cp -v electron.html $TARGET
 cp -v main.js $TARGET
 cp -v renderer.js $TARGET
-cp -r node_modules $TARGET
+# cp -r node_modules $TARGET
 
 mkdir "build/THIS FOLDER IS AUTOMATICALLY WIPED BY SCRIPTS"
 
 cd $TARGET
 pwd
-# npm install -v
+npm install -v
 # npm install pkg
 # npm update
 # npm run gui &
-cp -r ../dist .
+# cp -r ../dist .
 electron .
 # npm run electron
 # RUN ELECTRON BUILD BEFORE COPYING THE DIST SHELLS, AND TESTING

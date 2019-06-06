@@ -15,24 +15,25 @@ function startServeHandler() {
   const serveHandler = http.createServer((request, response) => {
     // You pass two more arguments for config and middleware
     // More details here: https://github.com/zeit/serve-handler#options
-    let options = {
-      public: www,
-      port: port,
-      trailingSlash: true,
-      renderSingle: true,
-      cleanUrls: true,
-      symlinks: true,
-      directoryListing: true,
-      unlisted: [
-        ".DS_Store",
-        ".git"
-      ],
-    }
+
     response.write('bloody hell');
     return handler(request, response);//, options);
   })
+  let options = {
+    public: www,
+    port: port,
+    trailingSlash: true,
+    renderSingle: true,
+    cleanUrls: true,
+    symlinks: true,
+    directoryListing: true,
+    unlisted: [
+      ".DS_Store",
+      ".git"
+    ],
+  }
   serveHandler.listen(options, () => {
-    console.log(`Running at ` + chalk.underline(getServerURL()));
+    console.log(`Running at ` + chalk.underline(this.getServerURL()));
   });
 }
 
