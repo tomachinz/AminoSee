@@ -2360,8 +2360,8 @@ function lookForWork(reason) { // move on to the next file via pollForStream. on
     bugtxt(`thread re-entry`);
     return false;
   }
-  pollForStream();
-  return false;
+  // pollForStream();
+  // return false;
   if (skipExistingFile(filenamePNG)) {
     clout(`Skipping render of ${justNameOfPNG} due to file exists`);
     pollForStream();
@@ -3301,7 +3301,7 @@ function saveHilbert(cb) {
     // setTimeout( () => {
     isDiskFinHilbert = true;
     // }, raceDelay)
-    if (cb) { cb() }
+    // if (cb) { cb() }
     return false;
   }
   mode('save hilbert');
