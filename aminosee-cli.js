@@ -2326,7 +2326,6 @@ function lookForWork(reason) { // move on to the next file via pollForStream. on
   //   return false;
   // }
 
-  // pollForStream();
   // return false;
 
   // log( popAndLock());
@@ -2338,7 +2337,7 @@ function lookForWork(reason) { // move on to the next file via pollForStream. on
     quit(1, status)
     return false;
   }
-
+  pollForStream();
   // log(`Idle, waiting on: ${storage()}`);
   if (howMany == -1) {
     output('Shutdown in progress');
