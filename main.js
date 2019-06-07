@@ -70,7 +70,7 @@ function log(txt) {
   let a = 'a';// app.remote.process.argv;
   console.log(process.argv)
 
-  console.log(` [${d}] txt: ${txt} argv: ${a} `);
+  console.log(` main.js [${d}] txt: ${txt} argv: ${a} `);
 }
 
 function showOpenDialog() {

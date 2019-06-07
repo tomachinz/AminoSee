@@ -9,6 +9,14 @@ module.exports.gracefulQuit = gracefulQuit;
 module.exports.quit = quit;
 module.exports.log = log;
 module.exports.bugtxt = bugtxt;
+module.exports.doesFileExist = doesFileExist;
+module.exports.blurb = blurb;
+module.exports.fileWrite = fileWrite;
+let outputPath = `/AminoSee_Output`;
+let settings = require('./settings.js');
+const version = require('./lib/version');
+module.exports.version = version;
+module.exports.outputPath = outputPath
 const funknzLabel = "aminosee.funk.nz"
 process.title = funknzLabel;
 const extensions = [ "txt", "fa", "mfa", "gbk", "dna", "fasta", "fna", "fsa", "mpfa", "gb", "gff"];
@@ -38,13 +46,10 @@ let killServersOnExit = true;
 // let data = require('./data.js');
 // let pepTable = data.pepTable;
 
-let settings = require('./settings.js');
-const version = require('./lib/version');
-// let version =  require('./settings.js').version; //  settings.version;
+
 
 // OPEN SOURCE PACKAGES FROM NPM
 const spawn = require('cross-spawn');
-const httpserver = require('http-server'); // cant have - in js
 const stream = require('stream');
 const util = require('util');
 const path = require('path');
@@ -78,8 +83,10 @@ const appPath = path.normalize(appFilename.substring(0, appFilename.length-15));
 const hostname = os.hostname();
 const clog = console.log;
 const chalk = require('chalk');
-const obviousFoldername = `/AminoSee_Output`; // descriptive for users
+const obviousFoldername = outputPath; // descriptive for users
 const netFoldername = `/output`; // descriptive for users
+
+
 const clusterPath = path.normalize(path.resolve(process.cwd() + netFoldername)); // legacy foldername CLUTER IS FOR NETWORK SHARES
 const homedirPath =  path.normalize(path.resolve(os.homedir() + obviousFoldername)); // SINGLE USER MODE
 const defaultFilename = "dna/megabase.fa"; // for some reason this needs to be here. hopefully the open source community can come to rescue and fix this Kludge.
@@ -132,7 +139,6 @@ let codonsPerSec = cliruns = gbprocessed = opens = 0;
 let peakRed = peakGreen = peakBlue = 0.123455;
 let rawDNA ="@loading DNA Stream..."; // debug
 let status = "load";
-let outputPath = obviousFoldername;
 let debugColumns = 0; debugColumns = setDebugCols(); // why?
 let howMany = 1;
 // let StdInPipe = require('./stdinpipe');
@@ -339,52 +345,34 @@ function setupPrefs() {
   mode('setupPrefs ' + cliruns);
   bugtxt(`AminoSee has been run ${cliruns} times and processed ${gbprocessed.toLocaleString()}  GB`);
 }
-function serverLock(cb) {
-  const outski = "Server started at " + server.getServerURL();
-  fileWrite(
-    filenameServerLock,
-    lockFileMessage + ` ${version} ${timestamp} ${hostname}
-    ${asciiart}
-    Input: ${filename}
-    Your output path : ${outputPath}
-    ${outski}`,
-    cb
-  );
-  term.saveCursor()
-  term.moveTo(3, term.height - 6);
-  console.log()
-  console.log(outski)
-  console.log()
-  term.restoreCursor()
-}
+
 function setupApp() { // do stuff aside from creating any changes. eg if you just run "aminosee" by itself.
-red = 0;
-green = 0;
-blue = 0;
-alpha = 0;
-charClock = 0; // its 'i' from the main loop
-errorClock = 0; // increment each non DNA, such as line break. is reset after each codon
-breakClock = 0;
-streamLineNr = 0;
-genomeSize = 1;
-msElapsed = runningDuration = charClock = percentComplete = genomeSize = pixelClock = opacity = 0;
-setupOutPaths();
-
-filenameServerLock = path.resolve(`${outputPath}/aminosee_server_lock.txt`);
+  red = 0;
+  green = 0;
+  blue = 0;
+  alpha = 0;
+  charClock = 0; // its 'i' from the main loop
+  errorClock = 0; // increment each non DNA, such as line break. is reset after each codon
+  breakClock = 0;
+  streamLineNr = 0;
+  genomeSize = 1;
+  msElapsed = runningDuration = charClock = percentComplete = genomeSize = pixelClock = opacity = 0;
+  setupOutPaths();
 
 
-// console.log(`stdin pipe: ${pipeInstance.checkIsPipeActive()}`);
-// const stdin = pipeInstance.stdinLineByLine();
-// stdin.on('line', console.log);
-startDate = new Date(); // required for touch locks.
-started = startDate.getTime(); // required for touch locks.
-termSize();
-setupPrefs();
 
-if (!doesFileExist(filenameServerLock)) {
-  killServersOnExit = false;
-  serverLock(launchNonBlockingServer)
-}
+  // console.log(`stdin pipe: ${pipeInstance.checkIsPipeActive()}`);
+  // const stdin = pipeInstance.stdinLineByLine();
+  // stdin.on('line', console.log);
+  startDate = new Date(); // required for touch locks.
+  started = startDate.getTime(); // required for touch locks.
+  termSize();
+  setupPrefs();
+
+  // killServersOnExit = false;
+  // server.start(outputPath);
+  // server.serverLock(launchNonBlockingServer)
+
 }
 function setupProject() { // returns progress bar.
   setupOutPaths();
@@ -501,7 +489,7 @@ module.exports = () => {
       } else {
         error("That's weird. Couldn't create a writable output folder at: " + outputPath + " maybe try not using custom flag? --output");
         outputPath = homedirPath;
-        quit(1, `cant create output folder`);
+        quit(0, `cant create output folder`);
         // return false;
       }
     }
@@ -819,18 +807,15 @@ module.exports = () => {
       output(`Try running  --->>>        aminosee help`); //" Closing in 2 seconds.")
       output(`usage        --->>>        aminosee [*/dna-file.txt] [--help|--test|--demo|--force|--html|--image|--keyboard]     `); //" Closing in 2 seconds.")
       askUserForDNA()
-      // log(`your cmd: ${currentFile} howMany ${howMany}`);
-      // progato.stop()
-      // quit(0, status);
 
       if (verbose == true && !quiet) {
         helpCmd();
       } else if (!quiet) {
         redoLine('Closing in ')
-        countdown('Closing in ', 3000, gracefulQuit);
+        countdown('Closing in ', 500, gracefulQuit);
       } else {
         console.log();
-        countdown(' ', 2000, gracefulQuit);
+        countdown(' ', 50, gracefulQuit);
       }
       return true;
     } else {
@@ -894,8 +879,10 @@ function setupKeyboardUI() {
       } else {
         removeLocks();
       }
+      killServersOnExit = true;
+      server.stop();
       setImmediate(() => {
-        gracefulQuit();
+        gracefulQuit(130);
       })
     }
     if (key && key.name == 'q') {
@@ -1011,7 +998,8 @@ function toggleUpdates() {
 
   }
 }
-function gracefulQuit() {
+function gracefulQuit(code) {
+  if (code == undefined) { code = 0; }
   mode( "Graceful shutdown in progress...");
   bugtxt(status);
   bugtxt("webserverEnabled: " + webserverEnabled + " killServersOnExit: "+ killServersOnExit)
@@ -1020,7 +1008,7 @@ function gracefulQuit() {
   nextFile = "shutdown";
   removeLocks();
   calcUpdate();
-  quit(0, 'graceful')
+  quit(code, 'graceful')
 }
 function background(callback) {
   // const spawn = require('cross-spawn');
@@ -1322,7 +1310,7 @@ function pollForStream() { // render lock must be off before calling. aim: start
   bugtxt(` [polling ${nicePercent()} ${status} ${new Date()}`);
     bugtxt(` [ howMany  ${howMany} ${status} ${filename} ${currentFile}]`);
     if (currentFile == undefined) {
-      quit(3, 'currentFile is undefined')
+      quit(1, 'currentFile is undefined')
       return false;
     }
 
@@ -1902,7 +1890,7 @@ function blockingServer() {
   setTimeout(()=> {
     output("AminoSee built-in web server started")
     showCountdown();
-  }, 3000);
+  }, max32bitInteger);
 }
 function buildServer() {
   openHtml = true;
@@ -1915,28 +1903,25 @@ function buildServer() {
     { "source": appPath + '/public/favicon.ico',"dest": outputPath + '/favicon.ico' },
   ];
   sFiles.forEach(function(element) {
-    console.log('buildling ' + element);
+    log('buildling ' + element.toString());
     createSymlink(path.normalize(path.resolve(element.source)), path.normalize(path.resolve(element.dest)));
   });
 }
 function launchNonBlockingServer(path, cb) {
-  if (doesFileExist(filenameServerLock)) {
-    log('Server already running at: ' + server.getServerURL())
-    return false;
-  }
+
 
   buildServer();  // copyGUI();  // startHttpServer()
-  startCrossSpawnHttp(); // requires http-server be installed globally
-  // selfSpawn();
+  // startCrossSpawnHttp(); // requires http-server be installed globally
+  selfSpawn();
   showCountdown();
   return true;
 
 
-  // server.start();
+  // server.start(outputPath);
   //
   return true;
 
-  let handler = server.start();//
+  let handler = server.start(outputPath);//
   serverURL =  server.getServerURL(path);
   printRadMessage([
     `Interactive keyboard mode ENABLED`,
@@ -2020,7 +2005,7 @@ function startCrossSpawnHttp() {
   // websocket: 'src/websocket-server.js'
 
   stat("Personal mini-Webserver starting up around now (hopefully) on port ${port}");
-  stat(`visit ${server.getServerURL()} in your browser to see 3D WebGL visualisation`);
+  // stat(`visit ${server.getServerURL()} in your browser to see 3D WebGL visualisation`);
   log(terminalRGB("ONE DAY this will serve up a really cool WebGL visualisation of your DNA PNG. That day.... is not today though.", 255, 240,10));
   log(terminalRGB("IDEA: Maybe send some bitcoin to the under-employed creator tom@funk.co.nz to convince him to work on it?", 240, 240,200));
   stat("Control-C to quit. This requires http-server, install that with:");
@@ -2097,7 +2082,7 @@ function helpCmd(args) {
     openHtml = true;
     openImage = true;
     openFileExplorer = true;
-    countdown('Press [Q] to quit now, [S] to launch (another) web server in background thread or wait ', 4000, launchNonBlockingServer);
+    countdown('Press [Q] to quit now, [S] to launch a web server in background thread or wait ', 4000, launchNonBlockingServer);
     // setTimeout( () => {
     //   output("Closing in 2 minutes.")
     //   countdown("Closing in " , 120000, gracefulQuit );
@@ -2296,23 +2281,27 @@ function tLock(cb) {
   console.log()
   term.restoreCursor()
 }
-function removeLocks() { // just remove the lock files.
+function deleteFile(file) {
+  try {
+    fs.unlinkSync(file, (err) => {
+      bugtxt("Removing file OK...")
+      if (err) { bugtxt('ish'); bugtxt(err);  }
+    });
+  } catch (err) {
+    bugtxt("No file to remove: " + err);
+  }
+}
+module.exports.deleteFile = deleteFile;
+
+function removeLocks(filenameTouch) { // just remove the lock files.
   mode('Cleaning up.');
   bugtxt('Cleaning up. ' + howMany + ' files in queue.')
   clearTimeout(updatesTimer)
   clearTimeout(progTimer)
-  try {
-    fs.unlinkSync(filenameTouch, (err) => {
-      bugtxt("Removing locks OK...")
-      if (err) { log('ish'); console.warn(err);  }
-    });
-  } catch (err) {
-    bugtxt("No locks to remove: " + err);
-  }
-  renderLock = false;
-  howMany--;
+  deleteFile(filenameTouch)
+  renderLock = false
+  howMany--
 }
-
 // start or poll.
 function lookForWork(reason) { // move on to the next file via pollForStream. only call from early parts prio to render.
   mode(`lookForWork ${reason}`);
@@ -2327,8 +2316,9 @@ function lookForWork(reason) { // move on to the next file via pollForStream. on
     return false;
   }
   if (howMany <= 0) {
-    log('Happiness.');
-    // quit(130, status)
+    mode('Happiness.');
+    log(status);
+    quit(0, status)
     return false;
   }
   // if (currentFile == undefined) {
@@ -2352,7 +2342,7 @@ function lookForWork(reason) { // move on to the next file via pollForStream. on
   // log(`Idle, waiting on: ${storage()}`);
   if (howMany == -1) {
     output('Shutdown in progress');
-    quit(1, status)
+    quit(0, status)
     return false;
   }
 
@@ -2360,47 +2350,62 @@ function lookForWork(reason) { // move on to the next file via pollForStream. on
     bugtxt(`thread re-entry`);
     return false;
   }
-  // pollForStream();
-  // return false;
-  if (skipExistingFile(filenamePNG)) {
-    clout(`Skipping render of ${justNameOfPNG} due to file exists`);
-    pollForStream();
-    return false;
-  }
-  if (checkFileExtension(filename)) {
-    log(`Queued render job for: ${chalk.inverse(fixedWidth(24, currentFile))}`)
-    if (renderLock == false) {
-      setNextFile();
-      if (checkLocks(filenameTouch)) {
-        log("Render already in progress by another thread. Either use --force or delete this file: ");
-        log(chalk.underline(filenameTouch));
-        resetAndMaybe(); // <---  another node maybe working on, NO RENDER
-      } else {
-        out("Lock OK proceeding to render...");
-        if (!renderLock) {
-          touchLockAndStartStream(); // <--- THIS IS WHERE MAGIC STARTS
-        }
-        log('polling end');
-      }
-    } else { output('already rendering')}
-    return false;
-  } else {
-    clout(`Skipping render of: ${chalk.inverse(fixedWidth(24, currentFile))} due to wrong format`);
-    pollForStream();
-    return false;
-  }
-  if (howMany > 0) {
-    log(`Starting in ${raceDelay}ms ${howMany} files remain, next is ${maxWidth(32, nextFile)}`);
-    setTimeout(() => {
-      if (!renderLock) {
-        touchLockAndStartStream(); // <--- THIS IS WHERE MAGIC STARTS
-      }
-    }, raceDelay);
-  } else {
-    mode("...and thats's all she wrote folks, outa jobs.");
-    quit(0, status);
-    return true;
-  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  // if (skipExistingFile(filenamePNG)) {
+  //   clout(`Skipping render of ${justNameOfPNG} due to file exists`);
+  //   pollForStream();
+  //   return false;
+  // }
+  // if (checkFileExtension(filename)) {
+  //   log(`Queued render job for: ${chalk.inverse(fixedWidth(24, currentFile))}`)
+  //   if (renderLock == false) {
+  //     setNextFile();
+  //     if (checkLocks(filenameTouch)) {
+  //       log("Render already in progress by another thread. Either use --force or delete this file: ");
+  //       log(chalk.underline(filenameTouch));
+  //       resetAndMaybe(); // <---  another node maybe working on, NO RENDER
+  //     } else {
+  //       out("Lock OK proceeding to render...");
+  //       if (!renderLock) {
+  //         touchLockAndStartStream(); // <--- THIS IS WHERE MAGIC STARTS
+  //       }
+  //       log('polling end');
+  //     }
+  //   } else { output('already rendering')}
+  //   return false;
+  // } else {
+  //   clout(`Skipping render of: ${chalk.inverse(fixedWidth(24, currentFile))} due to wrong format`);
+  //   pollForStream();
+  //   return false;
+  // }
+  // if (howMany > 0) {
+  //   log(`Starting in ${raceDelay}ms ${howMany} files remain, next is ${maxWidth(32, nextFile)}`);
+  //   setTimeout(() => {
+  //     if (!renderLock) {
+  //       touchLockAndStartStream(); // <--- THIS IS WHERE MAGIC STARTS
+  //     }
+  //   }, raceDelay);
+  // } else {
+  //   mode("...and thats's all she wrote folks, outa jobs.");
+  //   quit(0, status);
+  //   return true;
+  // }
 }
 function popAndLock() {
   let result = 'no result';
@@ -2492,10 +2497,6 @@ function checkFileExtension(f) {
 
 function quit(n, txt) {
   if (n == undefined) { n = 0 }
-
-  if (n < -1 ) { n = 130 }
-  if (howMany < -1 ) { n = 130 }
-  if (txt == undefined) { txt = 'have a nice day' }
   if ( renderLock == true ) {
     error("still rendering") // maybe this happens during gracefull shutdown
     return true;
@@ -2505,27 +2506,16 @@ function quit(n, txt) {
       error("still rendering") // maybe this happens during gracefull shutdown
       return false;
     }
-  } else {
-    log('Storage busy, not quitting')
   }
   if (howMany > 0 ) {
     bugtxt(`There is more work (${howMany}) . Rendering: ${renderLock} Load: ${os.loadavg()}`);
-    // lookForWork('quit')
+    lookForWork('quit')
     return true;
-  } else {
-    log(`Quitting soon - no more work. Currently: ${busy()}`);
   }
-  if (txt == undefined) { txt = status }
-
-
-  bugtxt("######################################################")
-  bugtxt("######################################################")
   log("############### RECEIVED quit code: " + n)
-  bugtxt("######################################################")
-  bugtxt("############### " + txt)
 
   if (killServersOnExit == true) {
-    if (webserverEnabled == true ) {
+    if (webserverEnabled == true && n == 130) { // control-c kills server
       console.log("ISSUING 'killall node' use 'Q' key to quit without killing all node processes.")
       renderLock = false;
       const killServe = spawn('nice', ['killall', 'node', '', '0'], { stdio: 'pipe' });
@@ -2572,13 +2562,12 @@ function quit(n, txt) {
     removeLocks();
   }
   term.eraseDisplayBelow();
-  printRadMessage([ ` ${(killServersOnExit ?  ' AminoSee has shutdown' : 'Webserver will be left running in background. ' )}`, `Exit code: ${n}`,  (killServersOnExit == false ? server.getServerURL() : ' '), howMany ]);
+  printRadMessage([ ` ${(killServersOnExit ?  ' AminoSee has shutdown' : 'Webserver will be left running in background. ' )}`, `${(verbose ?  ' Exit code: '+n : '' )}`,  (killServersOnExit == false ? server.getServerURL() : ' '), howMany ]);
   process.exitCode = 0;
   if (keyboard == true) {
-    process.stdin.pause();
   }
   term.processExit(n);
-  if (n = 69) {
+  if (n == 69 || n == 130) {
     process.exit()
   }
 }
@@ -3182,16 +3171,18 @@ function doesFolderExist(f) {
   // bugtxt(`doesFolderExist ${replaceoutputPathFileName(f)} returns: ${ret}`)
   return ret;
 }
+// module.exports.doesFileExist = function(f) {
 
 function doesFileExist(f) {
-  if (f == undefined) { return false; }
+  if (f == undefined) { return false; } // adds stability to this rickety program!
   f = path.resolve(f);
   try {
-    if (fs.existsSync(f)) {
-      log(fixedWidth(debugColumns*2, fs.existsSync(f)+ " FILE EXISTS: " + f ))
+    let result = fs.existsSync(f);
+    if (result==true) {
+      log(fixedWidth(debugColumns*2, result + " FILE EXISTS: " + f ))
       return true;
     } else {
-      log(fixedWidth(debugColumns*2, fs.existsSync(f) + " FILE EXISTS: " + f ))
+      log(fixedWidth(debugColumns*2, result + " FILE EXISTS: " + f ))
       return false;
     }
   } catch(err) {
@@ -5313,7 +5304,7 @@ function clout(txt) {
           html += `<div id="stackOimages">
           <a href="images/${name}" class="imgstack"><img src="images/${name}" id="stack_reference" width="256" height="256" style="z-index: ${999}; position: absolute; top: 0px; left: 0px;" alt="${refimage}" title="${refimage}" onmouseover="mover()" onmouseout="mout()"></a>`;
           histogramJson.pepTable.forEach(function(item) {
-            log(item.index);
+            log(item.toString());
             let thePep = item.Codon;
             let theHue = item.Hue;
             let c =      hsvToRgb( theHue/360, 0.5, 1.0 );

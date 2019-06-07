@@ -1,10 +1,18 @@
+const aminosee = require('./aminosee-cli');
 const http = require('http');
 const chalk = require('chalk');
 const path = require('path');
 const os = require("os");
-let aminosee = require('./aminosee-cli');
-
-let port = 4321;
+const httpserver = require('http-server'); // cant have - in js
+const lockFileMessage = `
+aminosee.funk.nz DNA Viewer by Tom Atkinson.
+This is a temporary lock file, so I dont start too many servers. Its safe to erase these files, and I've made a script in /dna/ to batch delete them all in one go. Normally these are deleted when render is complete, or with Control-C and graceful shutdown.`;
+const version = aminosee.version;
+let outputPath = aminosee.outputPath;//path.normalize(path.resolve(os.homedir + outFoldername))  // default location after checking overrides
+let filenameServerLock = outputPath
+setOutputPath(outputPath)
+// let port = 4321;
+let port = 43210;
 
 function startServeHandler() {
   const handler = require('serve-handler');
@@ -16,7 +24,7 @@ function startServeHandler() {
     // You pass two more arguments for config and middleware
     // More details here: https://github.com/zeit/serve-handler#options
 
-    response.write('bloody hell');
+    response.write('struth!');
     return handler(request, response);//, options);
   })
   let options = {
@@ -32,9 +40,16 @@ function startServeHandler() {
       ".git"
     ],
   }
-  serveHandler.listen(options, () => {
-    console.log(`Running at ` + chalk.underline(this.getServerURL()));
-  });
+  try {
+    serveHandler.listen(options, () => {
+      console.log(`Running at ` + chalk.underline(getServerURL()));
+    });
+    return true
+  } catch(err) {
+    aminosee.log(`Caught err while trying to start server. Probably already running.`)
+    aminosee.bugtxt(err)
+    return false
+  }
 }
 
 
@@ -77,13 +92,31 @@ module.exports = (options) => {
     });
   }).listen(options.port);
 }
-module.exports.start = function() {
-  console.log("Starting server");
+function start(outputPath) {
+  this.outputPath = outputPath;
+  if (serverLock()) {
+    console.log("Server already started. If you think this is not true, remove the lock file: " + filenameServerLock);
+    return false
+  } else {
+    console.log("Starting server");
+    return startServeHandler();
+  }
+};
+module.exports.start = start;
+function stop() {
+  this.outputPath = outputPath;
+  if (serverLock()) {
+    console.log("Server already started. If you think this is not true, remove the lock file: " + filenameServerLock);
+  } else {
+    console.log("Starting server");
+  }
   return startServeHandler();
 };
+module.exports.stop = stop;
+
 module.exports.startServeHandler = startServeHandler;
 
-module.exports.close = function() {
+function close() {
   try {
     if (serveHandler != undefined) {
       console.log("Stoping server");
@@ -94,20 +127,25 @@ module.exports.close = function() {
   } catch(e) {
     aminosee.bugtxt(e);
   }
+} module.exports.close = close
 
-};
-module.exports.setOutputPath = function(o) {
-  outputPath = o;
+function setOutputPath(o) {
+  this.outputPath = o;
+  this.filenameServerLock = path.resolve(`${outputPath}/aminosee_server_lock.txt`);
   console.log(o);
-};
-module.exports.stop = function() {
+} module.exports.setOutputPath = setOutputPath
+
+function stop() {
   console.log("Stoping server");
-};
+  aminosee.deleteFile(filenameServerLock);
+} module.exports.stop = stop;
+
 module.exports.open = function (relative) {
   console.log("Opening page: " + relative);
 }
-module.exports.getServerURL = function (path) {
-  // return 'http://127.0.0.1:8081';
+// module.exports.getServerURL = function (path) {
+function getServerURL(path) {
+  return '?';
 
   let internalIp = require('internal-ip');
   if (path == undefined) {
@@ -116,6 +154,15 @@ module.exports.getServerURL = function (path) {
     path = `/${path}/main.html`;
   }
   serverURL = `http://${internalIp.v4.sync()}:${port}${path}`;
-  console.log(`serverURL ${serverURL}`);
+  // console.log(`serverURL ${serverURL}`);
   return serverURL;
+}
+module.exports.getServerURL = getServerURL;
+
+// module.exports.serverLock = function(cb) {
+function serverLock() {
+  if (aminosee.doesFileExist(filenameServerLock)) {
+    log('Server already running ');
+    return true;
+  } else { return false }
 }
