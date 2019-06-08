@@ -2679,6 +2679,7 @@ function quit(n, txt) {
   // printRadMessage([ ` ${(killServersOnQuit ?  ' AminoSee has shutdown' : 'Webserver will be left running in background. ' )}`, `${(verbose ?  ' Exit code: '+n : '' )}`,  (killServersOnQuit == false ? server.getServerURL() : ' '), howMany ]);
 
   // if (n == 69 || n == 130 || n == 7) {
+  output("exiting")
     process.exitCode = 0;
     term.processExit(n);
     process.exit()
