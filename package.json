@@ -12,6 +12,7 @@
     "productName": "aminosee",
     "appId": "nz.funk.aminosee",
     "copyright": "Copyright © 2018-2019 Tom Atkinson",
+    "icon": "favicon.ico",
     "directories": [
       "public/**",
       "dist/root/**"
@@ -87,7 +88,7 @@
     "genversion": "genversion lib/version.js",
     "browserify": "browserify bin/aminosee.js -o public/bundle.js",
     "minify": "uglify public/bundle.js -o public/bundle.min.js",
-    "electron": "electron-packager ./bin/aminosee.js --platform=darwin --arch=x64 --prune --overwrite  --output ./dist/",
+    "electron": "electron-packager ./bin/aminosee.js --platform=darwin --arch=x64 --prune --overwrite  --output ./dist/AminoSee_macos",
     "electron-all": "electron-packager ./ --platform=darwin,win32,linux --arch=x64 --prune --overwrite  --output ./dist/",
     "gui": "electron .",
     "guidev": "electron . --devmode --remote-debugging-port 8315 --host-rules='MAP * 127.0.0.1'",

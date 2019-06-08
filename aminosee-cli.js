@@ -24,9 +24,10 @@ class AminoSee {
     log('Received gracefull quit message.')
     gracefulQuit();
   }
-}
-// const aminosee = new AminoSee();
-// console.log(square.area); // 100
+};  module.exports.AminoSee = AminoSee;
+
+const aminosee = new AminoSee('test');
+console.log(aminosee.getArgs); // 100
 
 
 //
@@ -59,8 +60,11 @@ module.exports.doesFileExist = doesFileExist;
 module.exports.blurb = blurb;
 module.exports.fileWrite = fileWrite;
 let outputPath = `/AminoSee_Output`;
-let settings = require('./settings.js');
+const electron = require('./main'); // electron app!
+const settings = require('./settings');
 const version = require('./lib/version');
+const server = require('./aminosee-server');
+
 module.exports.version = version;
 module.exports.outputPath = outputPath
 const funknzLabel = "aminosee.funk.nz"
@@ -86,7 +90,6 @@ const max32bitInteger = 2147483647;
 // const fileDialog = require('file-dialog')
 
 // AMINOSEE OWN IMPORTS:
-const server = require('./aminosee-server');
 let webserverEnabled = false;
 let killServersOnQuit = true;
 // let data = require('./data.js');
@@ -181,8 +184,8 @@ let isDiskFinLinear = true; // flag shows if saving png is complete
 let isDiskFinHilbert = true; // flag shows if saving hilbert png is complete
 let isDiskFinHTML = true; // flag shows if saving html is complete
 let willRecycleSavedImage = false; // allows all the regular processing to mock the DNA render stage
-let codonsPerSec = cliruns = gbprocessed = opens = 0;
-let peakRed = peakGreen = peakBlue = 0.123455;
+let codonsPerSec = 0;
+let peakRed = 0.123455;
 let rawDNA ="@loading DNA Stream..."; // debug
 let status = "load";
 let debugColumns = 0; debugColumns = setDebugCols(); // why?
@@ -200,7 +203,7 @@ output(logo());
 
 let runningDuration = 1; // ms
 let interactiveKeysGuide = "";
-let progTimer, hilbertImage, keyboard, filenameTouch, filenameServerLock, estimatedPixels, args, filenamePNG, extension, reader, hilbertPoints, herbs, levels, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, textFile, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, fileUploadShowing, testColors, chunksMax, chunksize, chunksizeBytes, cpu, subdivisions, contextBitmap, aminoacid, pixelClock, start, updateClock, bytesPerMs, pixelStacking, isHighlightCodon, justNameOfPNG, justNameOfHILBERT, sliceDNA, filenameHTML, msElapsed, bytesRemain, width, triplet, updatesTimer, pngImageFlags, codonsPerPixel, codonsPerPixelHILBERT, CRASH, red, green, blue, alpha, errorClock, breakClock, streamLineNr, opacity, codonRGBA, geneRGBA, currentTriplet, currentPeptide, shrinkFactor, reg, image, loopCounter, percentComplete, charClock, baseChars, bigIntFileSize, currentPepHighlight, justNameOfCurrentFile, openHtml, openFileExplorer, pixelStream, startPeptideIndex, stopPeptideIndex, flags, loadavg, platform, totalmem, correction, aspect, debugFreq, help, tx, ty, lockTimer;
+let charClock, genomeSize, cliruns, gbprocessed, progTimer, hilbertImage, keyboard, filenameTouch, filenameServerLock, estimatedPixels, args, filenamePNG, extension, reader, hilbertPoints, herbs, levels, mouseX, mouseY, windowHalfX, windowHalfY, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, fileUploadShowing, testColors, chunksMax, chunksize, chunksizeBytes, cpu, subdivisions, contextBitmap, aminoacid, pixelClock, start, updateClock, bytesPerMs, pixelStacking, isHighlightCodon, justNameOfPNG, justNameOfHILBERT, sliceDNA, filenameHTML, msElapsed, bytesRemain, width, triplet, updatesTimer, pngImageFlags, codonsPerPixel, codonsPerPixelHILBERT, CRASH, red, green, blue, alpha, errorClock, breakClock, streamLineNr, opacity, codonRGBA, geneRGBA, currentTriplet, currentPeptide, shrinkFactor, reg, image, loopCounter, percentComplete, baseChars, bigIntFileSize, currentPepHighlight, justNameOfCurrentFile, openHtml, openFileExplorer, pixelStream, startPeptideIndex, stopPeptideIndex, flags, loadavg, platform, totalmem, correction, aspect, debugFreq, help, tx, ty, lockTimer, opens;
 BigInt.prototype.toJSON = function() { return this.toString(); }; // shim for big int
 BigInt.prototype.toBSON = function() { return this.toString(); }; // Add a `toBSON()` function to enable MongoDB to store BigInts as strings
 let data = require('./data.js');
@@ -336,7 +339,6 @@ function getRenderObject() { // return part of the histogramJson obj
 }
 
 
-charClock = baseChars = genomeSize = 1;
 percentComplete = 0;
 // const public = path.join(__dirname, './public'); // include the webserver files in exe
 // const xdg = path.join(__dirname, './xdg-open'); // include the webserver files in exe
@@ -406,16 +408,16 @@ function setupPrefs() {
 }
 
 function setupApp() { // do stuff aside from creating any changes. eg if you just run "aminosee" by itself.
-red = 0;
-green = 0;
-blue = 0;
-alpha = 0;
-charClock = 0; // its 'i' from the main loop
-errorClock = 0; // increment each non DNA, such as line break. is reset after each codon
-breakClock = 0;
-streamLineNr = 0;
-genomeSize = 1;
-msElapsed = runningDuration = charClock = percentComplete = genomeSize = pixelClock = opacity = 0;
+  red = 0;
+  green = 0;
+  blue = 0;
+  alpha = 0;
+  charClock = 0; // its 'i' from the main loop
+  errorClock = 0; // increment each non DNA, such as line break. is reset after each codon
+  breakClock = 0;
+  streamLineNr = 0;
+  genomeSize = 1;
+  msElapsed = 0; runningDuration = 0; charClock = 0; percentComplete = 0; genomeSize = 0; pixelClock = 0; opacity = 0;
 setupOutPaths();
 
 
@@ -434,6 +436,12 @@ setupPrefs();
 
 }
 function setupProject() { // returns progress bar.
+  codonsPerSec = cliruns = gbprocessed = opens = 0;
+  charClock = baseChars = genomeSize = 1;
+
+  peakRed = red;
+  peakGreen = green;
+  peakBlue = blue;
   setupOutPaths();
   if (verbose == true && devmode == true) {
     let lines = 7
@@ -4064,6 +4072,7 @@ function output(txt) {
   if (quiet == true) { return false; }
   term.eraseLine();
   console.log(txt);
+  // electron.receieveLogs(txt)
   if (updates == true && renderLock == true) {
     term.right(termMarginLeft);
   }

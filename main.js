@@ -1,57 +1,16 @@
 // import
-// const aminosee = require('./aminosee-cli.js')()
+const aminosee = require('./aminosee-cli.js')
 const server = require('./aminosee-server')
 const { app, BrowserWindow, Menu, dialog, ipcMain } = require('electron') // Modules to control application life and create native browser window
 const extensions = [ "txt", "fa", "mfa", "gbk", "dna"] // replace with that from data.js
 const path = require('path')
 const spawn = require('cross-spawn');
 let threads = [ ]; // these will be threads from spawn
-pushCli('serve');
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
-// Some APIs can only be used after this event occurs.
-
-
-app.on('ready', function() {
-  createWindow();
-  pushCli(`help`)
-})
-
-// Quit when all windows are closed.
-app.on('window-all-closed', function () {
-  // On OS X it is common for applications and their menu bar
-  // to stay active until the user quits explicitly with Cmd + Q
-  // if (process.platform !== 'darwin') {
-  app.quit()
-  // }
-})
-
-app.on('activate', function () {
-  // On OS X it's common to re-create a window in the app when the
-  // dock icon is clicked and there are no other windows open.
-  if (mainWindow === null) {
-    createWindow()
-  }
-})
-
-// In this file you can include the rest of your app's specific main process
-// code. You can also put them in separate files and require them here.
-
-
-ipcMain.on('asynchronous-message', (event, arg) => {
-  console.log(`asynchronous: ${arg}`) // prints "ping"
-  event.reply('asynchronous-reply', 'pong')
-})
-ipcMain.on('synchronous-message', (event, arg) => {
-  console.log(`synchronous: ${arg}`) // prints "ping"
-  event.returnValue = 'pong'
-})
+let mainWindow, devmode
 
 
 
-let mainWindow
 
-let devmode = true
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 // app.commandLine.appendSwitch('remote-debugging-port', '8315')
@@ -105,40 +64,41 @@ function pushCli(commandString) {
   // threads.push( spawn('aminosee'  , [commandString, '--no-gui'], { stdio: 'pipe' }) );
   console.log(`Starting AminoSee now with CLI:`);
   commandString = `aminosee ${commandString} --html`;
-  setTimeout(() => {
-    console.log(`!random!`);
-    pushCli('w hi')
-
-  }, Math.random() * 30000)
-  // threads.push( spawn('aminosee'  , [commandString, '--html'], { stdio: 'pipe' }) );
-  threads.push( spawn('w'  , ['hi'], { stdio: 'pipe' }) );
-
-  threads[0].stdout.on('data', (data) => {
-    console.log(`aminosee main.js [ ${data} ]`);
-  });
-  threads[0].stderr.on('data', (data) => {
-    console.log(`aminosee main.js [ ${data} ]`);
-  });
-  threads[0].on('close', (code) => {
-    // console.log(`aminosee main.js [ ${data} ]`);
-    console.log(`child process exited with code ${code}`);
-    threads.pop();
-  });
   console.log(`commandString: [${commandString}]`);
-  console.log(`threads.length: [ ${threads.length}]`);
-  console.log(`process.title: [ ${threads.title}]`);
+
+  // aminosee.cli(commandString)
+  // setTimeout(() => {
+  //   console.log(`!random!`);
+  //   pushCli('w hi')
+  // }, Math.random() * 30000)
+  // threads.push( spawn('aminosee'  , [commandString, '--html'], { stdio: 'pipe' }) );
+  // threads.push( spawn('w'  , ['hi'], { stdio: 'pipe' }) );
+  //
+  // threads[0].stdout.on('data', (data) => {
+  //   console.log(`aminosee main.js [ ${data} ]`);
+  // });
+  // threads[0].stderr.on('data', (data) => {
+  //   console.log(`aminosee main.js [ ${data} ]`);
+  // });
+  // threads[0].on('close', (code) => {
+  //   // console.log(`aminosee main.js [ ${data} ]`);
+  //   console.log(`child process exited with code ${code}`);
+  //   threads.pop();
+  // });
+  // console.log(`threads.length: [ ${threads.length}]`);
+  // console.log(`process.title: [ ${threads.title}]`);
 }
 function createWindow () {
   const electron = require('electron');
   const {width, height} = electron.screen.getPrimaryDisplay().workAreaSize
   // Create the browser window.
-  mainWindow = new BrowserWindow({show: false, width: width-256, height: height, title: "AminoSee", backgroundColor: '#011224', x: 0, y:0, icon: 'favicon.png' })
+  mainWindow = new BrowserWindow({show: false, width: Math.round(width*0.6), height:  Math.round(height*0.4), title: "AminoSee", backgroundColor: '#011224', x: 0, y:0, icon: 'favicon.png' })
 
   // mainWindow.setSize(dispWidth-256, dispHeight);
-// , type: 'desktop' , vibrancy: 'light' , titleBarStyle: 'default', fullscreenWindowTitle: false
-  let consoleWindow = new BrowserWindow({parent: mainWindow, width: 256, height: height, title: "Console Output",  backgroundColor: '#011224', frame: true, icon: 'favicon.png', x: width-256, y: 0})
+  // , type: 'desktop' , vibrancy: 'light' , titleBarStyle: 'default', fullscreenWindowTitle: false
+  let consoleWindow = new BrowserWindow({parent: mainWindow, width: 640, height: 400, title: "Console Output",  backgroundColor: '#011224', frame: true, icon: 'favicon.png', x: width-256, y: 0})
   // , type: 'toolbar'
-// , type: 'toolbar'
+  // , type: 'toolbar'
 
   mainWindow.once('ready-to-show', () => {
     mainWindow.show()
@@ -146,7 +106,7 @@ function createWindow () {
 
   // and load the index.html of the app.
   mainWindow.loadFile('electron.html')
-  // consoleWindow.loadFile('console.html')
+  consoleWindow.loadFile('console.html')
 
   // Emitted when the window is closed.
   mainWindow.on('closed', function () {
@@ -156,11 +116,40 @@ function createWindow () {
     mainWindow = null
   })
   buildMenus()
+  // setupEvents()
 }
+// module.exports.receieveLogs = function (txt) { //receieveLogs
+//   ipcMain.send('logs', txt)
+// }
+
+function setupEvents() {
+  ipcMain.on('asynchronous-message', (event, arg) => {
+    console.log(`asynchronous: ${arg}`) // prints "ping"
+    event.reply('asynchronous-reply', 'pong')
+  })
+  ipcMain.on('synchronous-message', (event, arg) => {
+    console.log(`synchronous: ${arg}`) // prints "ping"
+    event.returnValue = 'pong'
+  })
+  ipcMain.on('asynchronous-message', (event, arg) => {
+    console.log(arg) // prints "ping"
+    event.sender.send('asynchronous-reply', 'pong')
+  })
+  ipcMain.on('synchronous-message', (event, arg) => {
+    console.log(arg) // prints "ping"
+    event.returnValue = 'pong'
+  })
+  ipcMain.on('ondragstart', (event, filePath) => {
+    event.sender.startDrag({
+      file: filePath,
+      icon: 'favicon.png'
+    })
+  })
+}
+
 function buildMenus() {
   // const theMenu = BrowserWindow.menu
   // toggleDevmode();
-
   const template = [
     {
       label: 'File',
@@ -231,7 +220,7 @@ function buildMenus() {
         {
           label: 'Toggle Developer Tools',
           accelerator:
-            process.platform == 'darwin' ? 'Alt+Command+I' : 'Ctrl+Shift+I',
+          process.platform == 'darwin' ? 'Alt+Command+I' : 'Ctrl+Shift+I',
           click() {
             toggleDevmode();
           }
@@ -239,7 +228,6 @@ function buildMenus() {
       ]
     }
   ]
-
   if (process.platform === 'darwin') {
     template.unshift({
       label: app.getName(),
@@ -255,7 +243,6 @@ function buildMenus() {
         {role: 'quit'}
       ]
     })
-
     // Edit menu
     template[2].submenu.push(
       {type: 'separator'},
@@ -267,7 +254,6 @@ function buildMenus() {
         ]
       }
     )
-
     // Window menu
     template[4].submenu = [
       {role: 'close'},
@@ -277,24 +263,33 @@ function buildMenus() {
       {role: 'front'}
     ]
   }
-
   const menu = Menu.buildFromTemplate(template)
   Menu.setApplicationMenu(menu)
-  // createWindow()
-  ipcMain.on('asynchronous-message', (event, arg) => {
-    console.log(arg) // prints "ping"
-    event.sender.send('asynchronous-reply', 'pong')
-  })
-
-  ipcMain.on('synchronous-message', (event, arg) => {
-    console.log(arg) // prints "ping"
-    event.returnValue = 'pong'
-  })
-
-  ipcMain.on('ondragstart', (event, filePath) => {
-    event.sender.startDrag({
-      file: filePath,
-      icon: 'favicon.png'
-    })
-  })
 }
+
+
+
+
+
+
+app.on('ready', function() {
+  createWindow();
+  pushCli(`help`)
+})
+
+// Quit when all windows are closed.
+app.on('window-all-closed', function () {
+  // On OS X it is common for applications and their menu bar
+  // to stay active until the user quits explicitly with Cmd + Q
+  // if (process.platform !== 'darwin') {
+  app.quit()
+  // }
+})
+
+app.on('activate', function () {
+  // On OS X it's common to re-create a window in the app when the
+  // dock icon is clicked and there are no other windows open.
+  if (mainWindow === null) {
+    createWindow()
+  }
+})
