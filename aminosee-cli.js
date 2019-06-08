@@ -142,11 +142,11 @@ let currentFile = funknzLabel;
 let nextFile = funknzLabel;
 let filename = funknzLabel;
 let browser = 'firefox';
-let msPerUpdate = 300; // min milliseconds per update
 const minUpdateTime = 200;
+let msPerUpdate = minUpdateTime; // min milliseconds per update its increased for long renders
 let now = new Date();
 let maxMsPerUpdate = 30000; // milliseconds per updatelet maxpix = targetPixels; // maxpix can be changed downwards by algorithm for small genomes in order to zoom in
-let timeRemain = 5001;
+let timeRemain = 1;
 let debugGears = 1;
 let termDisplayHeight = 31;
 let termStatsHeight = 9;
@@ -200,7 +200,7 @@ output(logo());
 
 let runningDuration = 1; // ms
 let interactiveKeysGuide = "";
-let progTimer, hilbertImage, keyboard, filenameTouch, filenameServerLock, estimatedPixels, args, filenamePNG, extension, reader, hilbertPoints, herbs, levels, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, textFile, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, fileUploadShowing, testColors, chunksMax, chunksize, chunksizeBytes, cpu, subdivisions, contextBitmap, aminoacid, pixelClock, start, updateClock, bytesPerMs, pixelStacking, isHighlightCodon, justNameOfPNG, justNameOfHILBERT, sliceDNA, filenameHTML, msElapsed, bytesRemain, width, triplet, updatesTimer, pngImageFlags, codonsPerPixel, codonsPerPixelHILBERT, CRASH, red, green, blue, alpha, errorClock, breakClock, streamLineNr, opacity, codonRGBA, geneRGBA, currentTriplet, currentPeptide, shrinkFactor, reg, image, loopCounter, percentComplete, charClock, baseChars, bigIntFileSize, currentPepHighlight, justNameOfCurrentFile, openHtml, openFileExplorer, pixelStream, startPeptideIndex, stopPeptideIndex, flags, loadavg, platform, totalmem, correction, aspect, debugFreq, help;
+let progTimer, hilbertImage, keyboard, filenameTouch, filenameServerLock, estimatedPixels, args, filenamePNG, extension, reader, hilbertPoints, herbs, levels, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, textFile, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, fileUploadShowing, testColors, chunksMax, chunksize, chunksizeBytes, cpu, subdivisions, contextBitmap, aminoacid, pixelClock, start, updateClock, bytesPerMs, pixelStacking, isHighlightCodon, justNameOfPNG, justNameOfHILBERT, sliceDNA, filenameHTML, msElapsed, bytesRemain, width, triplet, updatesTimer, pngImageFlags, codonsPerPixel, codonsPerPixelHILBERT, CRASH, red, green, blue, alpha, errorClock, breakClock, streamLineNr, opacity, codonRGBA, geneRGBA, currentTriplet, currentPeptide, shrinkFactor, reg, image, loopCounter, percentComplete, charClock, baseChars, bigIntFileSize, currentPepHighlight, justNameOfCurrentFile, openHtml, openFileExplorer, pixelStream, startPeptideIndex, stopPeptideIndex, flags, loadavg, platform, totalmem, correction, aspect, debugFreq, help, tx, ty;
 BigInt.prototype.toJSON = function() { return this.toString(); }; // shim for big int
 BigInt.prototype.toBSON = function() { return this.toString(); }; // Add a `toBSON()` function to enable MongoDB to store BigInts as strings
 let data = require('./data.js');
@@ -228,19 +228,28 @@ function termSize() {
   termPixels = (tx) * (ty-8);
 }
 function resized(tx, ty) {
+  clearCheck();
   termSize();
   setDebugCols();
+  output(`Terminal resized to (${tx},${ty})`);
+
   // Enough to fill screen starting from underneath the histogram:
   if (tx == undefined) { tx = term.width; ty = term.height } else {
-    log(`Terminal resized: ${tx} x ${ty} and has at least ${termPixels} chars`)
     // clearCheck();
   }
+  log(`Terminal resized: ${tx} x ${ty} and has at least ${termPixels} chars`)
+
   debugColumns = setDebugCols(); // Math.round(term.width / 3);
   msPerUpdate = minUpdateTime;
 
   if (updates == true) {
     // cover entire screen!
-    termMarginLeft = debugColumns;
+    if (tx > 400) {
+      termMarginLeft = debugColumns;
+
+    } else {
+      termMarginLeft = 2;
+    }
     msPerUpdate = minUpdateTime
   } else {
     termMarginLeft = 0;
@@ -255,7 +264,7 @@ function resized(tx, ty) {
       termMarginTop = 0;
     }
   }
-  clearCheck();
+  // clearCheck();
   drawHistogram();
 }
 function cli(argumentsArray) {
@@ -270,7 +279,7 @@ function getRenderObject() { // return part of the histogramJson obj
     pep =  pepTable[h];
     currentPeptide = pep.Codon;
     pepTable[h].src = aminoFilenameIndex(h);
-    console.log(pepTable[h].src);
+    log(pepTable[h].src);
   }
 
   // pepTable.forEach(pep)
@@ -777,7 +786,7 @@ module.exports = () => {
     clear = false;
     termDisplayHeight--;
   }
-  if (args.updates || args.u || updates) {
+  if (args.updates || args.u) {
     log("statistics updates enabled");
     updates = true;
   } else {
@@ -920,9 +929,9 @@ function destroyKeyboardUI() {
 function setupKeyboardUI() {
   interactiveKeysGuide += `
   Interactive control:    D            (devmode)  Q   (graceful quit next save)
-  V       (verbose mode)  B (dnabg DNA to screen)  Control-C      (instant quit)
+  V       (verbose mode)  B (dnabg DNA to screen)  Control-C      (fast quit)
   S    (start webserver)  W (toggle screen clear) U       (stats update on/off)
-  Esc     (graceful quit)`;
+  Esc     (graceful quit) O (toggle show files after in GUI)`;
 
   // make `process.stdin` begin emitting "keypress" events
   keypress(process.stdin);
@@ -930,12 +939,14 @@ function setupKeyboardUI() {
   // listen for the "keypress" event
   process.stdin.on('keypress', function (ch, key) {
     log('got "keypress"', key);
-    // clearCheck();
+    if (key && key.name == 'c') {
+      clearCheck();
+    }
     if (key && key.ctrl && key.name == 'c') {
       process.stdin.pause();
       status = "TERMINATED WITH CONTROL-C";
       log(status);
-      updates = false;
+      // updates = false;
       args = [];
       if (devmode == true) {
         output(`Because you are using --devmode, the lock file is not deleted. This is useful during development because I can quickly test new code by starting then interupting the render with Control-c. Then, when I use 'aminosee * -f -d' I can have new versions rendered but skip super large genomes that would take 5 mins or more to render. I like to see that they begin to render then break and retry; this way AminoSee will skip the large genome becauyse it has a lock file, saving me CPU during development. Lock files are safe to delete.`)
@@ -943,7 +954,7 @@ function setupKeyboardUI() {
         removeLocks();
       }
       killServersOnQuit = true;
-      server.stop();
+      // server.stop();
       setImmediate(() => {
         gracefulQuit(130);
       })
@@ -951,7 +962,7 @@ function setupKeyboardUI() {
     if (key && key.name == 'q') {
       killServersOnQuit = false;
       gracefulQuit();
-      quit(7, 'leaving webserver running in background')
+      quit(7, 'Q - leaving webserver running in background')
     }
     if (key && key.name == 'b') {
       clearCheck();
@@ -966,11 +977,15 @@ function setupKeyboardUI() {
     }
     if (key && key.name == 'd') {
       clearCheck();
-      toggleDevmode();
+      toggleDebug();
     }
     if (key && key.name == 'v') {
       clearCheck();
       toggleVerbose();
+    }
+    if (key && key.name == 'o') {
+      clearCheck();
+      toggleOpen();
     }
     if (key && key.name == 'w') {
       toggleClearScreen();
@@ -1002,7 +1017,17 @@ function setupKeyboardUI() {
   }
   // process.stdin.resume(); // DONT
 }
-
+function toggleOpen() {
+  openHtml = !openHtml;
+  if (openHtml) {
+    openImage = true;
+    openFileExplorer = true;
+  } else {
+    openImage = false;
+    openFileExplorer = false;
+  }
+  out(`Will ${( openHtml ? '' : 'not ' )} open images, reports and file explorer when done.`);
+}
 function toggleVerbose() {
   verbose = !verbose;
   out(`verbose mode ${verbose}`);
@@ -1017,7 +1042,11 @@ function togglednabg() {
 }
 function toggleServer() {
   webserverEnabled = true;
+  out('start server')
   launchNonBlockingServer();
+}
+function toggleDevmode() {
+  debug = !debug;
 }
 function toggleDevmode() {
   devmode = !devmode;
@@ -1191,6 +1220,7 @@ function downloadMegabase(cb) {
 }
 function setupOutPaths() {
   log(os.platform())
+  log(os.homedir)
   let clusterRender = false;
   outFoldername = obviousFoldername;
 
@@ -1489,8 +1519,8 @@ function initStream() {
   mode("initStream");
   output(status);
 
-  if (renderLock == false ) {
-    error("RENDER LOCK FAILED. This is an error I'd like reported. Please run with --devmode option enabled and send the logs to aminosee@funk.co.nz");
+  if (renderLock == false) {
+    bugtxt("RENDER LOCK FAILED. This is an error I'd like reported. Please run with --devmode option enabled and send the logs to aminosee@funk.co.nz");
     // quit(4, 'Render lock failed');
     // resetAndMaybe();
     // lookForWork('render lock failed inside initStream')
@@ -1604,7 +1634,7 @@ function initStream() {
   // term.up(termStatsHeight);
   clearCheck();
 
-  // term.eraseDisplayBelow();
+  term.eraseDisplayBelow();
   // postRenderPoll('delete me');
 }
 function streamStarted() {
@@ -1624,21 +1654,13 @@ function streamStarted() {
 function manageLocks(time) {
   setTimeout( () => {
     if (renderLock == true ) {
-      // debug = true;
       fastUpdate();
-      // calcUpdate();
-      output();
       if (percentComplete < 0.5) { // helps to eliminate concurrency issues
         tLock();
         manageLocks(time*2)
       } else {
         log('No more updates scheduled after 50%. Current at ' + nicePercent())
       }
-    } else {
-      setTimeout(() => {
-        // postRenderPoll('not rendering.... but there is work to do sucka!')
-      }, raceDelay)
-
     }
   }, time);
 }
@@ -2032,7 +2054,7 @@ function launchNonBlockingServer(path, cb) {
 function selfSpawn() {
   const evilSpawn = spawn('aminosee', ['serve', '', '', '0'], { stdio: 'pipe' });
   evilSpawn.stdout.on('data', (data) => {
-    console.log(`${chalk.inverse('aminosee serve')}${chalk(': ')}${data}`);
+    console.log(`${chalk.inverse('aminosee serve')}${chalk(': ')}${data}  ${evilSpawn.name}`);
   });
 
   evilSpawn.stderr.on('data', (data) => {
@@ -2186,6 +2208,8 @@ function mkRenderFolders() {
 }
 function saveDocsSync() {
   mode('saveDocsSync');
+  term.eraseDisplayBelow();
+
   if (!renderLock) {
     error("How is this even possible. renderLock should be true until all storage is complete");
   }
@@ -2349,7 +2373,9 @@ function tLock(cb) {
   term.saveCursor()
   term.moveTo(3, term.height - 6);
   console.log()
-  console.log(outski)
+  console.log(chalk.bgWhite.rgb().inverse(outski));
+
+  // console.log(chalk.bgGrey.orange(outski) )
   console.log()
   term.restoreCursor()
 }
@@ -2641,9 +2667,9 @@ function quit(n, txt) {
   if (keyboard == true) {
   }
   if (n == 69 || n == 130) {
-    // process.exitCode = 0;
-    // term.processExit(n);
-    // process.exit()
+    process.exitCode = 0;
+    term.processExit(n);
+    process.exit()
   }
 }
 function processLine(l) {
@@ -3293,7 +3319,7 @@ function makeWide(txt) {
   return txt
 }
 function hilDecode(i, dimension) {
-  // output(`i, dimension  ${i} ${dimension}`)
+  bugtxt(`i, dimension  ${i} ${dimension}`)
   let x, y;
   [x, y] = MyManHilbert.decode(16,i); // <-- THIS IS WHERE THE MAGIC HILBERT HAPPENS
   // ROTATE IMAGE CLOCKWISE 90 DEGREES IF DIMENSION IS EVEN NUMBER FRAMES
@@ -3331,7 +3357,7 @@ function calculateShrinkage() { // danger: can change filenames of Hilbert image
   hilbertImage = [hilpix*4];
   shrinkFactor = linearpix / hilpix;//  array.length / 4;
   codonsPerPixelHILBERT = codonsPerPixel / shrinkFactor;
-  output(`Linear pix: ${linearpix.toLocaleString()} > Reduction: X${shrinkFactor} = ${hilbPixels[dimension].toLocaleString()} pixels ${dimension}th dimension hilbert curve`);
+  log(`Linear pix: ${linearpix.toLocaleString()} > Reduction: X${shrinkFactor} = ${hilbPixels[dimension].toLocaleString()} pixels ${dimension}th dimension hilbert curve`);
   bugtxt(`shrinkFactor pre ${shrinkFactor} = linearpix ${linearpix } /  hilpix ${hilpix}  `);
   // dimension; // for filenames
   // codonsPerPixelHILBERT = twosigbitsTolocale( codonsPerPixel*shrinkFactor );
@@ -3348,14 +3374,14 @@ function saveHilbert(cb) {
   if (isHilbertPossible == true) {
     log("projecting linear array to 2D hilbert curve");
   } else {
-    output("Cant output hilbert image when using artistic mode");
+    log("Cant output hilbert image when using artistic mode");
     // isDiskFinHilbert = true; // doesnt trigger a re-poll.
     hilbertFinished();
     cb();
     return false;
   }
   // clearCheck();
-  // term.eraseDisplayBelow();
+  term.eraseDisplayBelow();
   if (skipExistingFile(filenameHILBERT)) {
     log("Existing hilbert image found - skipping projection " + filenameHILBERT);
     // if (openImage) {
@@ -4040,6 +4066,11 @@ function bugtxt(txt) { // full debug output
   }
 }
 function setDebugCols() {
+  if (term.width > 200) {
+
+  } else {
+    debugColumns = term.width - 2;
+  }
   debugColumns = Math.round(term.width  / 3)-1;
   return Math.round(term.width / 3);
 }
@@ -4052,6 +4083,7 @@ function log(txt) {
       // output(txt);
     }
   } else if (!quiet){
+    redoLine(txt)
     wTitle(txt)
   }
 }
@@ -4141,6 +4173,8 @@ function clout(txt) {
       process.stdout.write('[nc]');
       term.eraseDisplayBelow();
     }
+    msPerUpdate = minUpdateTime; // update the displays faster
+    if (renderLock) { drawHistogram() }
   }
   function clearScreen() {
     term.clear();
@@ -4215,7 +4249,7 @@ function clout(txt) {
   }
   function calcUpdate() { // DONT ROUND KEEP PURE NUMBERS
     if (percentComplete == 1) {
-      timeRemain = 0;
+      timeRemain = 1;
     } else {
       fastUpdate();
 
@@ -4319,7 +4353,7 @@ function clout(txt) {
     return number;
   }
   function drawHistogram() {
-    if (!renderLock) { error("render lock failed"); rawDNA = "!"; return false; }
+    if (!renderLock) { bugtxt("render lock failed inside drawHistogram"); rawDNA = "!"; return false; }
     if (!updates) { bugtxt("updates disabled"); return false; }
     // let tb = new term.TextBuffer( )
     // let textBuffer = "";
@@ -4604,7 +4638,7 @@ function clout(txt) {
               // log(`isHighlightSet    ${isHighlightSet}   aminoacid ${aminoacid}  peptide ${peptide}`)
               // log(alpha);
             } else {
-              alpha = 0;
+              alpha = 128;
               // log(alpha);
             }
           } else {
@@ -5376,7 +5410,8 @@ function clout(txt) {
           let refimage = summary.refimage;
           let linearimage = summary.linearimage;
           html += `<div id="stackOimages">
-          <a href="images/${name}" class="imgstack"><img src="images/${name}" id="stack_reference" width="256" height="256" style="z-index: ${999}; position: absolute; top: 0px; left: 0px;" alt="${refimage}" title="${refimage}" onmouseover="mover()" onmouseout="mout()"></a>`;
+          <a href="images/${name}" class="imgstack"><img src="images/${name}" id="stack_reference" width="256" height="256" style="z-index: ${999}; position: absolute; top: 0px; left: 0px;" alt="${refimage}" title="${refimage}" onmouseover="mover()" onmouseout="mout()">Reference</a>`;
+
           histogramJson.pepTable.forEach(function(item) {
             log(item.toString());
             let thePep = item.Codon;
@@ -5386,11 +5421,12 @@ function clout(txt) {
             let i =      item.index + 1;
             let src =    item.src;
             bugtxt( src );
+            html +=  i +". ";
             if (thePep == "Start Codons" || thePep == "Stop Codons" || thePep == "Non-coding NNN") {
               html += `<!-- ${thePep.Codon} -->`;
             } else {
               html += `
-              <a href="images/${src}" class="imgstack"><img src="images/${src}" id="stack_${i}" width="256" height="256" style="z-index: 99; position: absolute; top: ${i*2*mouseX}px; left: ${i*32*mouseY}px;" alt="${thePep}" title="${item.Description}" onmouseover="mover(${i})" onmouseout="mout(${i})"></a>`;
+              ${i}. <a href="images/${src}" class="imgstack"><img src="images/${src}" id="stack_${i}" width="256" height="256" style="z-index: 99; position: absolute; top: ${i*2*mouseX}px; left: ${i*32*mouseY}px;" alt="${thePep}" title="${item.Description}" onmouseover="mover(${i})" onmouseout="mout(${i})">${thePep}</a>`;
             }
           });
           html += `</div> <!--  id="stackOimages -- >`;

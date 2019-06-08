@@ -9,3 +9,7 @@ console.log = function(message) {
   $('#debugDiv').append('<p>' + message + '</p>');
 };
 console.error = console.debug = console.info =  console.log
+
+
+
+console.log("hello world")
