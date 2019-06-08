@@ -13,7 +13,7 @@ let mainWindow, devmode
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
-app.commandLine.appendSwitch('remote-debugging-port', '8315')
+// app.commandLine.appendSwitch('remote-debugging-port', '8315')
 app.commandLine.appendSwitch('host-rules', 'MAP * 127.0.0.1')
 app.commandLine.appendSwitch('devmode', 'true')
 // require('electron').remote.process.argv;

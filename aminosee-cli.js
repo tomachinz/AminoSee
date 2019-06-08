@@ -203,7 +203,7 @@ output(logo());
 
 let runningDuration = 1; // ms
 let interactiveKeysGuide = "";
-let charClock, genomeSize, cliruns, gbprocessed, progTimer, hilbertImage, keyboard, filenameTouch, filenameServerLock, estimatedPixels, args, filenamePNG, extension, reader, hilbertPoints, herbs, levels, mouseX, mouseY, windowHalfX, windowHalfY, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, fileUploadShowing, testColors, chunksMax, chunksize, chunksizeBytes, cpu, subdivisions, contextBitmap, aminoacid, pixelClock, start, updateClock, bytesPerMs, pixelStacking, isHighlightCodon, justNameOfPNG, justNameOfHILBERT, sliceDNA, filenameHTML, msElapsed, bytesRemain, width, triplet, updatesTimer, pngImageFlags, codonsPerPixel, codonsPerPixelHILBERT, CRASH, red, green, blue, alpha, errorClock, breakClock, streamLineNr, opacity, codonRGBA, geneRGBA, currentTriplet, currentPeptide, shrinkFactor, reg, image, loopCounter, percentComplete, baseChars, bigIntFileSize, currentPepHighlight, justNameOfCurrentFile, openHtml, openFileExplorer, pixelStream, startPeptideIndex, stopPeptideIndex, flags, loadavg, platform, totalmem, correction, aspect, debugFreq, help, tx, ty, lockTimer, opens;
+let previousImage, charClock, genomeSize, cliruns, gbprocessed, progTimer, hilbertImage, keyboard, filenameTouch, filenameServerLock, estimatedPixels, args, filenamePNG, extension, reader, hilbertPoints, herbs, levels, mouseX, mouseY, windowHalfX, windowHalfY, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, fileUploadShowing, testColors, chunksMax, chunksize, chunksizeBytes, cpu, subdivisions, contextBitmap, aminoacid, pixelClock, start, updateClock, bytesPerMs, pixelStacking, isHighlightCodon, justNameOfPNG, justNameOfHILBERT, sliceDNA, filenameHTML, msElapsed, bytesRemain, width, triplet, updatesTimer, pngImageFlags, codonsPerPixel, codonsPerPixelHILBERT, CRASH, red, green, blue, alpha, errorClock, breakClock, streamLineNr, opacity, codonRGBA, geneRGBA, currentTriplet, currentPeptide, shrinkFactor, reg, image, loopCounter, percentComplete, baseChars, bigIntFileSize, currentPepHighlight, justNameOfCurrentFile, openHtml, openFileExplorer, pixelStream, startPeptideIndex, stopPeptideIndex, flags, loadavg, platform, totalmem, correction, aspect, debugFreq, help, tx, ty, lockTimer, opens;
 BigInt.prototype.toJSON = function() { return this.toString(); }; // shim for big int
 BigInt.prototype.toBSON = function() { return this.toString(); }; // Add a `toBSON()` function to enable MongoDB to store BigInts as strings
 let data = require('./data.js');
@@ -962,10 +962,11 @@ function setupKeyboardUI() {
         removeLocks();
       }
       killServersOnQuit = true;
-
       server.stop();
+      destroyKeyboardUI();
+      gracefulQuit();
       setImmediate(() => {
-        gracefulQuit(130);
+        quit(130)
       })
     }
     if (key && key.name == 'q') {
@@ -1461,6 +1462,7 @@ function pollForStream() { // render lock must be off before calling. aim: start
       } else {
         log('use --image to open in viewer')
       }
+      termDrawImage(filenamePNG)
       // popAndLock();
       lookForWork(`skipExistingFile ${filenamePNG}`);
       return false;
@@ -2219,7 +2221,9 @@ function mkRenderFolders() {
 function saveDocsSync() {
   mode('saveDocsSync');
   term.eraseDisplayBelow();
-
+  percentComplete = 1;
+  calcUpdate();
+  computerWants = idealDimension(pixelClock);
   if (!renderLock) {
     error("How is this even possible. renderLock should be true until all storage is complete");
   }
@@ -2254,7 +2258,9 @@ function saveDocsSync() {
     function ( cb ) {
       saveHilbert( cb )
       setImmediate(() => {
-        // cb()
+        setTimeout(() => {
+          cb()
+        }, raceDelay)
       })
     },
     function ( cb ) {
@@ -2295,9 +2301,9 @@ function saveHTML(cb) {
     return false;
   }
   mode("save HTML");
-  percentComplete = 1;
-  calcUpdate();
-  computerWants = idealDimension(pixelClock);
+
+
+
   bugtxt( pepTable.sort( compareHistocount ) ); // least common amino acids in front
   let histogramJson =  getRenderObject();
   bugtxt(histogramJson);
@@ -2370,6 +2376,9 @@ function blurb() {
 }
 function tLock(cb) {
   calcUpdate();
+  if (previousImage !== undefined) {
+    termDrawImage();
+  }
   const outski = " " + blurb();
   fileWrite(
     filenameTouch,
@@ -2384,6 +2393,9 @@ function tLock(cb) {
   term.moveTo(0, term.height - 6);
   console.log()
   console.log(chalk.bgWhite.rgb(64,64,64).inverse(`
+
+
+
 
 
 
@@ -2658,14 +2670,13 @@ function quit(n, txt) {
   destroyKeyboardUI();
   destroyProgress();
   calcUpdate();
-
   log(chalk.bgWhite.red(`process.exit going on. last file: ${filename} percent complete ${percentComplete}`));
   args._ = [];
   if (keyboard == true) {
     try {
       // process.stdin.on('keypress', null);
-      process.stdin.setRawMode(false);
-      process.stdin.resume();
+      // process.stdin.setRawMode(false);
+      // process.stdin.resume();
     } catch(e) { error( e ) }
   } else {
     log("Not in keyboard mode.")
@@ -2676,14 +2687,17 @@ function quit(n, txt) {
     removeLocks();
   }
   term.eraseDisplayBelow();
-  // printRadMessage([ ` ${(killServersOnQuit ?  ' AminoSee has shutdown' : 'Webserver will be left running in background. ' )}`, `${(verbose ?  ' Exit code: '+n : '' )}`,  (killServersOnQuit == false ? server.getServerURL() : ' '), howMany ]);
-
-  // if (n == 69 || n == 130 || n == 7) {
-  output("exiting")
-    process.exitCode = 0;
-    term.processExit(n);
-    process.exit()
-  // }
+  printRadMessage([ ` ${(killServersOnQuit ?  'AminoSee has shutdown' : 'Webserver will be left running in background. ' )}`, `${(verbose ?  ' Exit code: '+n : '' )}`,  (killServersOnQuit == false ? server.getServerURL() : ' '), howMany ]);
+  redoLine("exiting in "+ humanizeDuration(raceDelay * 2) )
+  setImmediate(() => {
+    redoLine("exiting in "+ humanizeDuration(raceDelay * 2) )
+    setTimeout( () => {
+      redoLine("exiting")
+      process.exitCode = 0;
+      term.processExit(n);
+      process.exit()
+    }, raceDelay * 2)
+  })
 }
 function processLine(l) {
   status = "stream";
@@ -3492,13 +3506,27 @@ function htmlFinished() {
   setTimeout( () => {
     postRenderPoll('htmlFinished');
   }, raceDelay)
-
 }
 function hilbertFinished() {
   isDiskFinHilbert = true;
   mode(`Hilbert curve done. Waiting on (${storage()})`);
+  let previousImage = filenameHILBERT;
   setTimeout( () => {
     postRenderPoll('hilbertFinished');
+    termDrawImage( filenameHILBERT )
+  }, raceDelay)
+}
+function termDrawImage(fullpath) {
+  if (fullpath === undefined) { fullpath = previousImage }
+  previousImage = fullpath;
+  setTimeout( () => {
+    postRenderPoll('hilbertFinished');
+    term.saveCursor()
+    term.moveTo(0, term.height - 6);
+    console.log()
+    term.moveTo(term.width - debugColumns, term.height - 6);
+    term.drawImage( previousImage , { shrink: { width: Math.round(term.width/2), height: Math.round(term.height/2) } } )
+    term.restoreCursor()
   }, raceDelay)
 }
 function linearFinished() {
@@ -3507,6 +3535,7 @@ function linearFinished() {
   if (test == true) { return false; } else {
     setTimeout( () => {
       postRenderPoll('linearFinished');
+      // termDrawImage( filenamePNG )
     }, raceDelay)
   }
 }
@@ -4409,6 +4438,8 @@ function clout(txt) {
       term.moveTo(1 + termMarginLeft,1);
       console.log("     To disable real-time DNA background use any of --no-dnabg --no-updates --quiet -q");
       // }
+    } else {
+
     }
 
     rawDNA = funknzLabel;
