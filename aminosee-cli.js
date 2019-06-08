@@ -5,6 +5,52 @@
 //       ╩ ╩┴ ┴┴┘└┘└─┘╚═╝└─┘└─┘  ═╩╝╝╚╝╩ ╩   ╚╝ ┴└─┘└┴┘└─┘┴└─
 //       by Tom Atkinson            aminosee.funk.nz
 //        ah-mee no-see       "I See It Now - I AminoSee it!"
+class AminoSee {
+  constructor(commandArray) { // CLI commands, filenames, *
+    this.argv = commandArray;
+  }
+  set setArgs(commandArray) {
+    this.argv = commandArray;
+  }
+  // Getter
+  get getArgs() {
+    return this.argv;
+  }
+  setArgv(incomingArgs) {
+    this.argv = incomingArgs;
+  }
+  // Method
+  gracefulQuit() {
+    log('Received gracefull quit message.')
+    gracefulQuit();
+  }
+}
+// const aminosee = new AminoSee();
+// console.log(square.area); // 100
+
+
+//
+//
+// Object.defineProperty(this, 'commandArray', {
+// get: function() {
+//   console.log('get commandArray');
+//   return this.argsv;
+// },
+// set: function(value) {
+//   console.log('set commandArray '+value);
+//   this.argsv = value;
+//   // archive.push({ val: temperature });
+// }
+// });
+//
+//
+//
+
+
+
+
+
+
 module.exports.gracefulQuit = gracefulQuit;
 module.exports.quit = quit;
 module.exports.log = log;
@@ -21,7 +67,7 @@ const funknzLabel = "aminosee.funk.nz"
 process.title = funknzLabel;
 const extensions = [ "txt", "fa", "mfa", "gbk", "dna", "fasta", "fna", "fsa", "mpfa", "gb", "gff"];
 const refimage = "Reference image - all amino acids blended together"
-const closeBrowser = "If the process apears frozen, it's waiting for your browser or image viewer to exit. Escape with [ CONTROL-C ] or use --no-image --no-html";
+const closeBrowser = "If the process apears frozen, it's waiting for your browser or image viewer to quit. Escape with [ CONTROL-C ] or use --no-image --no-html";
 const lockFileMessage = `
 aminosee.funk.nz DNA Viewer by Tom Atkinson.
 This is a temporary lock file, placed during rendering to enable parallel cluster rendering over LAN networks, if this is here after processing has completerd it usually it means an AminoSee was quit before finishing or had crashed. Its safe to erase these files, and I've made a script in /dna/ to batch delete them all in one go. Normally these are deleted when render is complete, or with Control-C and graceful shutdown.`;
@@ -42,7 +88,7 @@ const max32bitInteger = 2147483647;
 // AMINOSEE OWN IMPORTS:
 const server = require('./aminosee-server');
 let webserverEnabled = false;
-let killServersOnExit = true;
+let killServersOnQuit = true;
 // let data = require('./data.js');
 // let pepTable = data.pepTable;
 
@@ -351,31 +397,31 @@ function setupPrefs() {
 }
 
 function setupApp() { // do stuff aside from creating any changes. eg if you just run "aminosee" by itself.
-  red = 0;
-  green = 0;
-  blue = 0;
-  alpha = 0;
-  charClock = 0; // its 'i' from the main loop
-  errorClock = 0; // increment each non DNA, such as line break. is reset after each codon
-  breakClock = 0;
-  streamLineNr = 0;
-  genomeSize = 1;
-  msElapsed = runningDuration = charClock = percentComplete = genomeSize = pixelClock = opacity = 0;
-  setupOutPaths();
+red = 0;
+green = 0;
+blue = 0;
+alpha = 0;
+charClock = 0; // its 'i' from the main loop
+errorClock = 0; // increment each non DNA, such as line break. is reset after each codon
+breakClock = 0;
+streamLineNr = 0;
+genomeSize = 1;
+msElapsed = runningDuration = charClock = percentComplete = genomeSize = pixelClock = opacity = 0;
+setupOutPaths();
 
 
 
-  // console.log(`stdin pipe: ${pipeInstance.checkIsPipeActive()}`);
-  // const stdin = pipeInstance.stdinLineByLine();
-  // stdin.on('line', console.log);
-  startDate = new Date(); // required for touch locks.
-  started = startDate.getTime(); // required for touch locks.
-  termSize();
-  setupPrefs();
+// console.log(`stdin pipe: ${pipeInstance.checkIsPipeActive()}`);
+// const stdin = pipeInstance.stdinLineByLine();
+// stdin.on('line', console.log);
+startDate = new Date(); // required for touch locks.
+started = startDate.getTime(); // required for touch locks.
+termSize();
+setupPrefs();
 
-  // killServersOnExit = false;
-  // server.start(outputPath);
-  // server.serverLock(launchNonBlockingServer)
+// killServersOnQuit = false;
+// server.start(outputPath);
+// server.serverLock(launchNonBlockingServer)
 
 }
 function setupProject() { // returns progress bar.
@@ -826,11 +872,13 @@ module.exports = () => {
       if (verbose == true && !quiet) {
         helpCmd();
       } else if (!quiet) {
+        console.log();
+
         redoLine('Closing in ')
-        countdown('Closing in ', 500, gracefulQuit);
+        countdown('Closing in ', 2000, gracefulQuit);
       } else {
         console.log();
-        countdown(' ', 50, gracefulQuit);
+        countdown('Closing in ', 50, gracefulQuit);
       }
       return true;
     } else {
@@ -882,7 +930,7 @@ function setupKeyboardUI() {
   // listen for the "keypress" event
   process.stdin.on('keypress', function (ch, key) {
     log('got "keypress"', key);
-    clearCheck();
+    // clearCheck();
     if (key && key.ctrl && key.name == 'c') {
       process.stdin.pause();
       status = "TERMINATED WITH CONTROL-C";
@@ -894,30 +942,34 @@ function setupKeyboardUI() {
       } else {
         removeLocks();
       }
-      killServersOnExit = true;
+      killServersOnQuit = true;
       server.stop();
       setImmediate(() => {
         gracefulQuit(130);
       })
     }
     if (key && key.name == 'q') {
-      killServersOnExit = false;
+      killServersOnQuit = false;
       gracefulQuit();
       quit(7, 'leaving webserver running in background')
     }
     if (key && key.name == 'b') {
+      clearCheck();
       togglednabg();
     }
     if (key && key.name == 's') {
+      clearCheck();
       toggleServer();
     }
     if (key && key.name == 'f') {
       toggleForce();
     }
     if (key && key.name == 'd') {
+      clearCheck();
       toggleDevmode();
     }
     if (key && key.name == 'v') {
+      clearCheck();
       toggleVerbose();
     }
     if (key && key.name == 'w') {
@@ -927,6 +979,7 @@ function setupKeyboardUI() {
     //   linearpixbert();
     // }
     if (key && key.name == 'Space' || key.name == 'Enter') {
+      clearCheck();
       msPerUpdate = 200;
     }
     if (key && key.name == 'u') {
@@ -939,6 +992,7 @@ function setupKeyboardUI() {
         drawHistogram();
       }
     }
+    drawHistogram();
   });
 
   try {
@@ -1017,7 +1071,7 @@ function gracefulQuit(code) {
   if (code == undefined) { code = 0; }
   mode( "Graceful shutdown in progress...");
   bugtxt(status);
-  bugtxt("webserverEnabled: " + webserverEnabled + " killServersOnExit: "+ killServersOnExit)
+  bugtxt("webserverEnabled: " + webserverEnabled + " killServersOnQuit: "+ killServersOnQuit)
   args._ = [];
   howMany = -1;
   nextFile = "shutdown";
@@ -1037,7 +1091,7 @@ function background(callback) {
   //   console.log(`${chalk.inverse('aminosee error')}${chalk(': ')}${data}`);
   // });
   // evilSpawn.on('close', (code) => {
-  //   console.log(`child process exited with code ${code}`);
+  //   console.log(`child process quit with code ${code}`);
   // });
 }
 function* generatorOpen(file, options) {
@@ -1523,7 +1577,7 @@ function initStream() {
       readStream.pause(); // pause the readstream during processing
       streamLineNr++;
       processLine(line); // process line here and call readStream.resume() when ready
-      readStream.resume();
+      // readStream.resume();
     })
     .on('start', function(err){
       mode("streaming");
@@ -1986,7 +2040,7 @@ function selfSpawn() {
   });
 
   evilSpawn.on('close', (code) => {
-    console.log(`child process exited with code ${code}`);
+    console.log(`child process quit with code ${code}`);
   });
 
 }
@@ -2007,7 +2061,7 @@ function startCrossSpawnHttp() {
   });
 
   evilSpawn.on('close', (code) => {
-    console.log(`child process exited with code ${code}`);
+    console.log(`child process quit with code ${code}`);
   });
 
   // port: port,
@@ -2098,9 +2152,9 @@ function helpCmd(args) {
     openHtml = true;
     openImage = true;
     openFileExplorer = true;
-    // setupKeyboardUI();
+    setupKeyboardUI();
 
-    // countdown('Press [Q] to quit now, [S] to launch a web server in background thread or wait ', 4000, launchNonBlockingServer);
+    countdown('Press [Q] to quit now, [S] to launch a web server in background thread or wait ', 4000, blockingServer());
     // setTimeout( () => {
     //   output("Closing in 2 minutes.")
     //   countdown("Closing in " , 120000, gracefulQuit );
@@ -2534,7 +2588,7 @@ function quit(n, txt) {
   }
   output("############### RECEIVED quit code: " + n)
 
-  if (killServersOnExit == true) {
+  if (killServersOnQuit == true) {
     if (webserverEnabled == true && n == 130) { // control-c kills server
       console.log("ISSUING 'killall node' use 'Q' key to quit without killing all node processes.")
       renderLock = false;
@@ -2568,7 +2622,7 @@ function quit(n, txt) {
   destroyProgress();
   calcUpdate();
 
-  bugtxt(`process.exit going on. last file: ${filename} percent complete ${percentComplete}`);
+  log(chalk.bgWhite.red(`process.exit going on. last file: ${filename} percent complete ${percentComplete}`));
   args._ = [];
   if (keyboard == true) {
     try {
@@ -2583,13 +2637,13 @@ function quit(n, txt) {
     removeLocks();
   }
   term.eraseDisplayBelow();
-  printRadMessage([ ` ${(killServersOnExit ?  ' AminoSee has shutdown' : 'Webserver will be left running in background. ' )}`, `${(verbose ?  ' Exit code: '+n : '' )}`,  (killServersOnExit == false ? server.getServerURL() : ' '), howMany ]);
+  printRadMessage([ ` ${(killServersOnQuit ?  ' AminoSee has shutdown' : 'Webserver will be left running in background. ' )}`, `${(verbose ?  ' Exit code: '+n : '' )}`,  (killServersOnQuit == false ? server.getServerURL() : ' '), howMany ]);
   if (keyboard == true) {
   }
   if (n == 69 || n == 130) {
-    process.exitCode = 0;
-    term.processExit(n);
-    process.exit()
+    // process.exitCode = 0;
+    // term.processExit(n);
+    // process.exit()
   }
 }
 function processLine(l) {
@@ -3561,7 +3615,6 @@ function bothKindsTestPattern() {
     } else {
       error(`MEGA FAIL: TOO MANY ARRAY PIXELS NOT ENOUGH IMAGE SIZE: array pixels: ${pixels} <  width x height = ${width*height}`);
       quit(6, 'Failed to allocate correct image size (doh!)');
-      // process.exit();
     }
 
     var img_data = Uint8ClampedArray.from(rgbArray);
@@ -3685,7 +3738,7 @@ function mkdir(relative) { // returns true if a fresh dir was created
     bugtxt(`Directory ${relative} already exists - This is normal`)
     return false;
   }
-  console.warn("Exiting due to lack of permissions in this directory");
+  console.warn("Quiting due to lack of permissions in this directory");
   howMany = 0;
   bugtxt(`outputPath: ${outputPath}`);
 
@@ -3768,11 +3821,11 @@ return true;
 function testStop () {
   // destroyProgress()
   percentComplete = 1;
-  genomeSize = 1;
-  baseChars = 1;
+  genomeSize = 0;
+  baseChars = 0;
   charClock = -1; // gets around zero length check
   pixelClock = -1; // gets around zero length check
-  quit(1);
+  quit(0);
 }
 function testInit (magnitude) {
   dimension = magnitude;

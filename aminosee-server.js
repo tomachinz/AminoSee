@@ -148,7 +148,7 @@ function setOutputPath(o) {
 
 function stop() {
   console.log("Stoping server");
-  aminosee.deleteFile(filenameServerLock);
+  // aminosee.deleteFile(filenameServerLock);
 } module.exports.stop = stop;
 
 module.exports.open = function (relative) {

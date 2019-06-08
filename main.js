@@ -105,16 +105,24 @@ function pushCli(commandString) {
   // threads.push( spawn('aminosee'  , [commandString, '--no-gui'], { stdio: 'pipe' }) );
   console.log(`Starting AminoSee now with CLI:`);
   commandString = `aminosee ${commandString} --html`;
-  threads.push( spawn('aminosee'  , [commandString, '--html'], { stdio: 'pipe' }) );
+  setTimeout(() => {
+    console.log(`!random!`);
+    pushCli('w hi')
+
+  }, Math.random() * 30000)
+  // threads.push( spawn('aminosee'  , [commandString, '--html'], { stdio: 'pipe' }) );
+  threads.push( spawn('w'  , ['hi'], { stdio: 'pipe' }) );
 
   threads[0].stdout.on('data', (data) => {
-    console.log(`${chalk.inverse('aminosee serve')}${chalk(': ')}${data}`);
+    console.log(`aminosee main.js [ ${data} ]`);
   });
   threads[0].stderr.on('data', (data) => {
-    console.log(`${chalk.inverse('aminosee error')}${chalk(': ')}${data}`);
+    console.log(`aminosee main.js [ ${data} ]`);
   });
   threads[0].on('close', (code) => {
+    // console.log(`aminosee main.js [ ${data} ]`);
     console.log(`child process exited with code ${code}`);
+    threads.pop();
   });
   console.log(`commandString: [${commandString}]`);
   console.log(`threads.length: [ ${threads.length}]`);

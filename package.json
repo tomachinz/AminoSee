@@ -93,10 +93,14 @@
     "guidev": "electron . --devmode --remote-debugging-port 8315 --host-rules='MAP * 127.0.0.1'",
     "pkg": "npm run macos; npm run win32; npm run win64; npm run linux;",
     "runmac": "open ./dist/AminoSee_macos/aminosee-macos",
-    "macos": "echo MACOS ; pkg . --targets macos   --output ./dist/AminoSee_macos/aminosee-macos   ; zip -8 -r ./dist/AminoSee_macos.zip ./dist/AminoSee_macos",
+    "macos": "echo MACOS ; pkg . --targets macos   --output ./dist/AminoSee_macos/aminosee   ; zip -8 -r ./dist/AminoSee_macos.zip ./dist/AminoSee_mac",
     "win32": "echo WIN32 ; pkg . --targets win-x86 --output ./dist/AminoSee_win/aminosee-win32.exe ;",
-    "win64": "echo WIN64 ; pkg . --targets win-x64 --output ./dist/AminoSee_win/aminosee-win64.exe ; zip -8 -r ./dist/AminoSee_win.zip ./dist/AminoSee_win",
-    "linux": "echo LINUX ; pkg . --targets linux   --output ./dist/AminoSee_linux/aminosee-linux   ; zip -8 -r ./dist/AminoSee_linux.zip ./dist/AminoSee_linux"
+    "win64": "echo WIN64 ; pkg . --targets win-x64 --output ./dist/AminoSee_win/aminosee.exe ; zip -8 -r ./dist/AminoSee_win.zip ./dist/AminoSee_win",
+    "linux": "echo LINUX ; pkg . --targets linux   --output ./dist/AminoSee_linux/aminosee   ; zip -8 -r ./dist/AminoSee_linux.zip ./dist/AminoSee_linux",
+    "_macos": "echo MACOS ; pkg . --targets macos   --output ./dist/AminoSee_macos/aminosee-macos   ; zip -8 -r ./dist/AminoSee_macos.zip ./dist/AminoSee_macos",
+    "_win32": "echo WIN32 ; pkg . --targets win-x86 --output ./dist/AminoSee_win/aminosee-win32.exe ;",
+    "_win64": "echo WIN64 ; pkg . --targets win-x64 --output ./dist/AminoSee_win/aminosee-win64.exe ; zip -8 -r ./dist/AminoSee_win.zip ./dist/AminoSee_win",
+    "_linux": "echo LINUX ; pkg . --targets linux   --output ./dist/AminoSee_linux/aminosee-linux   ; zip -8 -r ./dist/AminoSee_linux.zip ./dist/AminoSee_linux"
   },
   "keywords": [
     "dna",

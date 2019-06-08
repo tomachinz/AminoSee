@@ -1,7 +1,7 @@
 #!/bin/sh
 aminosee_do () {
   echo $1 $2 $3 $4 $5 $6 $7
-  nice aminosee  $1 $2 $3 $4 $5 $6 $7 --no-explorer -q
+  nice aminosee  $1 $2 $3 $4 $5 $6 $7 --no-gui -q
 }
 best_way () {
   nice aminosee $1 $2 $3 $4 $5 $6 $7
@@ -63,7 +63,6 @@ parallel_peptides () {
   aminosee_do $1 $2 $3 $4  --peptide=Arginine &
   aminosee_do $1 $2 $3 $4  --peptide=Lysine
   nice aminosee $1 $2 $3 $4 $5 $6 $7  --peptide=Histidine
-  sleep 15
   echo "                                         =///"
   echo "-------------------------------------------"
   echo FINISHED TWIN THREAD DECODE FOR $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11
@@ -128,7 +127,6 @@ echo $1 $2 $3 $4 $5 $6 $7
 # parallel_peptides 50KB_TestPattern.txt  megabase.fa
 
 parallel_peptides $1 $2 $3 $4 $5 $6 $7
-sleep 600
 find_way_peptides $1 $2 $3 $4 $5 $6 $7
 # parallel_peptides  --reg $1 $2 $3 $4 $5 $6 $7
 # find_way_peptides  --reg
