@@ -2218,9 +2218,9 @@ function saveDocsSync() {
       })
     },
     function ( cb ) {
-      saveHilbert( )
+      saveHilbert( cb )
       setImmediate(() => {
-        cb()
+        // cb()
       })
     },
     function ( cb ) {
