@@ -145,7 +145,7 @@ function initVariables() {
   stat("initialisation: zoom levels distance subdivisions " +   zoom + ", " +  levels  + ", " + distance);
   // window.addEventListener('devicemotion', listener);
   // window.addEventListener('deviceorientation', listener);
-  document.addEventListener( 'mousemove', onDocumentMouseMove, false );
+  document.addEventListener( 'mousemove', onDocumentMouseMove, true );
   document.addEventListener( 'touchstart', onDocumentTouchStart, false );
   document.addEventListener( 'touchmove', onDocumentTouchMove, false );
   document.addEventListener( 'keypress', onKeyPress, false );
@@ -1281,7 +1281,7 @@ function testParse() {
     mouseX = event.clientX - windowHalfX;
     mouseY = event.clientY - windowHalfY;
     console.log("Position", mouseX, mouseY);
-    alert("deleteme")
+    // alert("deleteme")
     // if (page == "report") {
       // buildPage();
     // }
@@ -1536,20 +1536,39 @@ function imageStack(histogramJson) {
   let linearimage = summary.linearimage;
   hhh += `<div id="stackOimages">
   <a href="images/${name}" onmouseover="mover()" onmouseout="mout()"><img  src="images/${name}" id="stack_reference" width="256" height="256" style="z-index: ${999}; position: absolute; top: 0px; left: 0px;" alt="${refimage}" title="${refimage}"></a>`;
-  histogramJson.pepTable.forEach(function(item) {
-    log(item);
-    let thePep = item.Codon;
-    let theHue = item.Hue;
+
+
+
+
+  for (i=0; i<pepTable.length; i++) {
+    let thePep = spaceTo_( pepTable[i].Codon );
+    let theHue = pepTable[i].Hue;
     let c =      hsvToRgb( theHue/360, 0.5, 1.0 );
-    let src =    item.src;
-    let z =      item.z;
-    let i =      item.index + 1;
-    if (thePep == "Start Codons" || thePep == "Stop Codons" || thePep == "Non-coding NNN") {
-      html += `<!-- ${thePep.Codon} -->`;
+
+    if (thePep != "Non-coding_NNN"  && thePep != "Start_Codons" && thePep != "Stop_Codons") {
+      hhh += `<a href="${aminoFilenameIndex(i)}" onmouseover="mover(${i})" onmouseout="mout(${i})"><img src="${aminoFilenameIndex(i)}" id="stack_${i}" width="256" height="256" style="z-index: ${1000+i}; position: absolute; top: ${i*2}px; left: ${i*12}px;" alt="${pepTable[i].Codon}" title="${pepTable[i].Codon}"></a>`;
     } else {
-      hhh += `<a href="images/${src}" onmouseover="mover(${i})" onmouseout="mout(${i})"><img src="images/${src}" id="stack_${i}" width="256" height="256" style="z-index: 99; position: absolute; top: 64px; left: 64px;" alt="${thePep}" title="${item.Description}"></a>`;
+      log("non-coding nnn image not output");
     }
-  });
+  }
+
+
+
+  //
+  // histogramJson.pepTable.forEach(function(item) {
+  //   log(item);
+  //   let thePep = item.Codon;
+  //   let theHue = item.Hue;
+  //   let c =      hsvToRgb( theHue/360, 0.5, 1.0 );
+  //   let src =    item.src;
+  //   let z =      item.z;
+  //   let i =      item.index + 1;
+  //   if (thePep == "Start Codons" || thePep == "Stop Codons" || thePep == "Non-coding NNN") {
+  //     html += `<!-- ${thePep.Codon} -->`;
+  //   } else {
+  //     hhh += `<a href="images/${src}" onmouseover="mover(${i})" onmouseout="mout(${i})"><img src="images/${src}" id="stack_${i}" width="256" height="256" style="z-index: 99; position: absolute; top: 64px; left: 64px;" alt="${thePep}" title="${item.Description}"></a>`;
+  //   }
+  // });
   hhh += `</div> <!--  id="stackOimages -- >`;
   return hhh;
 }

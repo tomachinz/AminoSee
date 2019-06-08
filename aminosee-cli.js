@@ -451,16 +451,16 @@ function setupProject() { // returns progress bar.
     }
   }
 
-  // if (updates == true) {
-  //   progato = term.progressBar({
-  //     width: term.width - 20,
-  //     title: `Booting up at ${formatAMPM( new Date())} on ${hostname}`,
-  //     eta: true,
-  //     percent: true,
-  //     inline: true
-  //   });
-  //   drawProgress();
-  // }
+  if (updates == true) {
+    progato = term.progressBar({
+      width: term.width - 20,
+      title: `Booting up at ${formatAMPM( new Date())} on ${hostname}`,
+      eta: true,
+      percent: true,
+      inline: true
+    });
+    drawProgress();
+  }
 
 
 }
@@ -468,9 +468,9 @@ function destroyProgress() { // now thats a fucking cool function name if ever t
   if (howMany == -1) {
   }
   if (updates == true) {
-    // if (progato != undefined) {
-    //   progato.stop();
-    // }
+    if (progato != undefined) {
+      progato.stop();
+    }
   }
   clearTimeout(updatesTimer);
   clearTimeout(progTimer);
@@ -478,7 +478,7 @@ function destroyProgress() { // now thats a fucking cool function name if ever t
 function progUpdate(obj) {  // allows to disable all the prog bars in one place
   bugtxt(`progress dummy function: ${obj}`)
   if (updates == true) {
-    // progato.update(obj);
+    progato.update(obj);
   }
 }
 
@@ -851,8 +851,8 @@ module.exports = () => {
     // cmd = 'serve';
     if (!webserverEnabled){ // stops it launching twice with --serve
       webserverEnabled = true;
-      blockingServer();
-      // launchNonBlockingServer();
+      // blockingServer();
+      launchNonBlockingServer();
     }
     break;
 
@@ -961,6 +961,8 @@ function setupKeyboardUI() {
       } else {
         removeLocks();
       }
+      debug = true;
+      devmode = true;
       killServersOnQuit = true;
       server.stop();
       destroyKeyboardUI();
@@ -1387,9 +1389,9 @@ function pollForStream() { // render lock must be off before calling. aim: start
   filename = path.resolve(currentFile);  // not thread safe after here!
   if (checkFileExtension(currentFile) == false) {
     clout("File Format not supported: " + chalk.inverse(getFileExtension(currentFile)));
-    setTimeout( () => {
+    // setTimeout( () => {
       lookForWork();
-    }, raceDelay)
+    // }, raceDelay)
     return false;
   }
   setupProject();
@@ -1433,9 +1435,9 @@ function pollForStream() { // render lock must be off before calling. aim: start
     if (doesFileExist(filename)) {
       log('DNA Found OK');
     } else {
-      setTimeout( () => {
+      // setTimeout( () => {
         lookForWork('Skipping non-existent DNA file: ' + filename);
-      }, raceDelay)
+      // }, raceDelay)
       return false;
     }
     if (filename == defaultFilename) { // maybe this is to get past my lack of understanding of processing of args.
@@ -1667,7 +1669,7 @@ function manageLocks(time) {
   lockTimer = setTimeout( () => {
     if (renderLock == true ) {
       fastUpdate();
-      if (percentComplete < 0.5) { // helps to eliminate concurrency issues
+      if (percentComplete < 0.8 && timeRemain > 30000 ) { // helps to eliminate concurrency issues
         tLock();
         manageLocks(time*2)
       } else {
@@ -2014,8 +2016,8 @@ function launchNonBlockingServer(path, cb) {
 
 
   buildServer();  // copyGUI();  // startHttpServer()
-  // startCrossSpawnHttp(); // requires http-server be installed globally
-  selfSpawn();
+  startCrossSpawnHttp(); // requires http-server be installed globally
+  // selfSpawn();
   showCountdown();
   return true;
 
@@ -2392,16 +2394,10 @@ function tLock(cb) {
   term.saveCursor()
   term.moveTo(0, term.height - 6);
   console.log()
-  console.log(chalk.bgWhite.rgb(64,64,64).inverse(`
-
-
-
-
-
-
-
-    `));
-    term.moveTo(3, term.height - 6);
+  console.log(chalk.bgWhite.rgb(64,64,64).inverse(`------------------------`));
+  console.log(chalk.bgWhite.rgb(64,64,64).inverse(`------------------------`));
+  console.log(chalk.bgWhite.rgb(64,64,64).inverse(`------------------------`));
+  term.moveTo(0, term.height - 5);
 
   console.log(chalk.bgWhite.rgb(48,48,48).inverse(outski));
   console.log()
@@ -2460,7 +2456,7 @@ function lookForWork(reason) { // move on to the next file via pollForStream. on
   } catch(e) {
     mode(`lookForWork caught error: ${e}`);
     bugtxt(status)
-    quit(1, status)
+    quit(0, status)
     return false;
   }
   pollForStream();
@@ -3485,9 +3481,7 @@ function saveHilbert(cb) {
 
   hilbert_img_png.data = Buffer.from(hilbert_img_data);
   let wstream = fs.createWriteStream(filenameHILBERT);
-  // progato = null;
-  // hilbertFinished(); // does re-poll    return false;
-  // cb();
+  progato = null;
 
 
   new Promise(resolve => {
@@ -3518,16 +3512,19 @@ function hilbertFinished() {
 }
 function termDrawImage(fullpath) {
   if (fullpath === undefined) { fullpath = previousImage }
+  if (fullpath === undefined) { return false }
   previousImage = fullpath;
   setTimeout( () => {
     postRenderPoll('hilbertFinished');
     term.saveCursor()
-    term.moveTo(0, term.height - 6);
+    // term.moveTo(0, term.height - 6);
+//    console.log()
+    term.moveTo(0,0);
     console.log()
-    term.moveTo(term.width - debugColumns, term.height - 6);
-    term.drawImage( previousImage , { shrink: { width: Math.round(term.width/2), height: Math.round(term.height/2) } } )
+    term.drawImage( previousImage , { shrink: {  height: term.height } } )
+    output(replaceoutputPathFileName(previousImage))
     term.restoreCursor()
-  }, raceDelay)
+  }, raceDelay*2)
 }
 function linearFinished() {
   isDiskFinLinear = true;
@@ -3535,7 +3532,9 @@ function linearFinished() {
   if (test == true) { return false; } else {
     setTimeout( () => {
       postRenderPoll('linearFinished');
-      // termDrawImage( filenamePNG )
+      if (artistic) {
+        termDrawImage( filenamePNG )
+      }
     }, raceDelay)
   }
 }
@@ -3740,8 +3739,8 @@ function openOutputs() {
   if (openHtml == true) {
     output(`Opening ${justNameOfHTML} DNA render summary HTML report.`);
     // bgOpen(filenameHTML, {app: 'firefox', wait: false} );
+    launchNonBlockingServer(justNameOfDNA);
     setTimeout( () => {
-      // launchNonBlockingServer(justNameOfDNA);
       opens++;
       // open( server.getServerURL(justNameOfDNA), {app: 'firefox', wait: false} );
       open( server.getServerURL(justNameOfDNA), {wait: false} );
@@ -3837,7 +3836,7 @@ function generateTestPatterns(cb) {
 
   output("output test patterns to /calibration/ folder. filename: " + filename);
   mkdir('calibration');
-  if (howMany == -1) { quit(1); return false;}
+  if (howMany == -1) { quit(0); return false;}
   // if (magnitude > 8) { magnitude = 8}
   // if (howMany == -1) { return false } // for gracefull quit feature
   output(`TEST PATTERNS GENERATION    m${magnitude} c${codonsPerPixel}`);
@@ -3867,7 +3866,7 @@ function runCycle(cb) {
   if (loopCounter+1 > magnitude) {
     testStop();
     if ( cb ) { cb() }
-    quit(1);
+    quit(0);
     // saveHTML(cb);
     // openOutputs();
     return false;
@@ -4339,7 +4338,7 @@ function clout(txt) {
           if (percentComplete < 0.99 && timeRemain > 2001) {
             drawProgress();
           } else {
-            // progato.stop();
+            progato.stop();
           }
         }, 500);
       }
@@ -4439,7 +4438,7 @@ function clout(txt) {
       console.log("     To disable real-time DNA background use any of --no-dnabg --no-updates --quiet -q");
       // }
     } else {
-
+      if (pixelClock % 4 == 0) { termDrawImage() }
     }
 
     rawDNA = funknzLabel;
@@ -5455,7 +5454,7 @@ function clout(txt) {
           let refimage = summary.refimage;
           let linearimage = summary.linearimage;
           html += `<div id="stackOimages">
-          <a href="images/${name}" class="imgstack"><img src="images/${name}" id="stack_reference" width="256" height="256" style="z-index: ${999}; position: absolute; top: 0px; left: 0px;" alt="${refimage}" title="${refimage}" onmouseover="mover()" onmouseout="mout()">Reference</a>`;
+          <a href="images/${name}" class="imgstack"><img src="images/${name}" id="stack_reference" width="256" height="256" style="z-index: ${999}; position: fixed; top: 50%; left: 50%; transform translate(${(i*8)-80},${(i*8)-80})" alt="${refimage}" title="${refimage}" onmouseover="mover(this)" onmouseout="mout(this)">Reference</a>`;
 
           histogramJson.pepTable.forEach(function(item) {
             log(item.toString());
