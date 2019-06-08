@@ -2640,11 +2640,8 @@ function quit(n, txt) {
         log("closing server")
         server.close();
       } else {
-        bugtxt("no server running")
+        bugtxt("no server running?")
       }
-    }
-    if (n = 130) {
-
       try {
         fs.unlinkSync(filenameServerLock, (err) => {
           bugtxt("Removing server locks OK...")
@@ -2653,9 +2650,7 @@ function quit(n, txt) {
       } catch (err) {
         bugtxt("No server locks to remove: " + err);
       }
-
     }
-
   } else if (webserverEnabled == true){
     console.log("If you get a lot of servers running, use Control-C instead of [Q] to issues a 'killall node' command to kill all of them")
   }
@@ -2671,7 +2666,9 @@ function quit(n, txt) {
       // process.stdin.on('keypress', null);
       process.stdin.setRawMode(false);
       process.stdin.resume();
-    } catch(e) { log( e ) }
+    } catch(e) { error( e ) }
+  } else {
+    log("Not in keyboard mode.")
   }
   if (devmode == true) {
     output("Because you are using --devmode, the lock file is not deleted. This is useful during development because I can quickly test new code by starting then interupting the render with Control-c. Then, when I use 'aminosee * -f -d' I can have new versions rendered but skip super large genomes that would take 5 mins or more to render. I like to see that they begin to render then break and retry.")
@@ -2680,13 +2677,12 @@ function quit(n, txt) {
   }
   term.eraseDisplayBelow();
   // printRadMessage([ ` ${(killServersOnQuit ?  ' AminoSee has shutdown' : 'Webserver will be left running in background. ' )}`, `${(verbose ?  ' Exit code: '+n : '' )}`,  (killServersOnQuit == false ? server.getServerURL() : ' '), howMany ]);
-  if (keyboard == true) {
-  }
-  if (n == 69 || n == 130 || n == 7) {
+
+  // if (n == 69 || n == 130 || n == 7) {
     process.exitCode = 0;
     term.processExit(n);
     process.exit()
-  }
+  // }
 }
 function processLine(l) {
   status = "stream";
