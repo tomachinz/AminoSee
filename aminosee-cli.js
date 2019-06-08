@@ -212,6 +212,10 @@ function resized(tx, ty) {
   clearCheck();
   drawHistogram();
 }
+function cli(argumentsArray) {
+  console.log(`cli argumentsArray [${argumentsArray.toString()}]`)
+}; module.exports.cli = cli;
+
 function getRenderObject() { // return part of the histogramJson obj
   // calculateShrinkage();
   log(`codonsPerPixelHILBERT inside getRenderObject is ${codonsPerPixelHILBERT}`)
@@ -439,6 +443,7 @@ module.exports = () => {
     boolean: [ 'recycle' ],
     boolean: [ 'quiet' ],
     boolean: [ 'serve' ],
+    boolean: [ 'gui' ],
     string: [ 'codons'],
     string: [ 'magnitude'],
     string: [ 'outpath'],
@@ -448,7 +453,7 @@ module.exports = () => {
     string: [ 'width'],
     unknown: [ true ],
     alias: { a: 'artistic', b: 'dnabg', c: 'codons', d: 'devmode', f: 'force', h: 'help', k: 'keyboard', m: 'magnitude', o: 'outpath', out: 'outpath', output: 'outpath', p: 'peptide', i: 'image', t: 'triplet', q: 'quiet', r: 'reg', w: 'width', v: 'verbose', x: 'explorer', finder: 'explorer'  },
-    default: { updates: true, dnabg: false, clear: true, explorer: false, quiet: false }
+    default: { updates: true, dnabg: false, clear: true, explorer: false, quiet: false, gui: true }
   });
   setupApp(); // do stuff that is needed even just to run "aminosee" with no options.
   let cmd = args._[0];
@@ -742,6 +747,16 @@ module.exports = () => {
     generateTestPatterns();
   } else {
     test = false;
+  }
+  if (args.gui) {
+    // default was always fairly graphical :)
+  } else {
+    output("Disabled the graphical user interface")
+    openFile = false;
+    openHtml = false;
+    openLocalHtml = false;
+    openFileExplorer = false;
+    openImage = false;
   }
   if (args.quiet || args.q) { // needs to be at top so changes can be overridden! but after debug.
     log("quiet mode enabled.");
@@ -2024,7 +2039,6 @@ function helpCmd(args) {
 
   output(chalk.bgBlue(`Welcome to the AminoSeeNoEvil DNA Viewer!`));
   output(siteDescription);
-  setupKeyboardUI();
   output(chalk.bgBlue(`USAGE:`));
   output('    aminosee [files/*] --flags            (to process all files');
   output(terminalRGB('TIP: if you need some DNA in a hurry try this random clipping of 1MB human DNA:', 255,255,200));
@@ -2062,9 +2076,11 @@ function helpCmd(args) {
   output('  --firefox --chrome --safari changes default browser to open images');
   output('  --clear');
   output('  --html --no-html             open HTML report when done');
-  output('  --updates --no-updates             turn off stats display');
-  output('  --image    open image when done');
+  output('  --updates --no-updates           turn off stats display');
+  output('  --image                            open image when done');
   output('  --explorer  --file open file explorer / Finder to view files');
+  output('  --no-gui               disables all GUI except terminal');
+  output('  --quiet  -q               full quiet mode / server mode');
   output(chalk.bgBlue(`EXAMPLES:`));
   output('     aminosee Human-Chromosome-DNA.txt --force overwrite w/ fresh render');
   output('     aminosee chr1.fa -m 8                  render at 2048x2048');
@@ -2082,14 +2098,16 @@ function helpCmd(args) {
     openHtml = true;
     openImage = true;
     openFileExplorer = true;
-    countdown('Press [Q] to quit now, [S] to launch a web server in background thread or wait ', 4000, launchNonBlockingServer);
+    // setupKeyboardUI();
+
+    // countdown('Press [Q] to quit now, [S] to launch a web server in background thread or wait ', 4000, launchNonBlockingServer);
     // setTimeout( () => {
     //   output("Closing in 2 minutes.")
     //   countdown("Closing in " , 120000, gracefulQuit );
     // }, 4000)
   } else {
     output('This is a terminal CLI (command line interface) program. Run it from the DOS prompt / Terminal.app / shell.');
-    countdown('Press [Q] to quit now, closing in ', 4000, gracefulQuit);
+    // countdown('Press [Q] to quit now, closing in ', 4000, gracefulQuit);
   }
 }
 function countdown(text, timeMs, cb) {
@@ -2296,9 +2314,9 @@ module.exports.deleteFile = deleteFile;
 function removeLocks(filenameTouch) { // just remove the lock files.
   mode('Cleaning up.');
   bugtxt('Cleaning up. ' + howMany + ' files in queue.')
-  clearTimeout(updatesTimer)
-  clearTimeout(progTimer)
-  deleteFile(filenameTouch)
+  clearTimeout(updatesTimer);
+  clearTimeout(progTimer);
+  deleteFile(filenameTouch);
   renderLock = false
   howMany--
 }
@@ -2511,7 +2529,10 @@ function quit(n, txt) {
     lookForWork('quit')
     return true;
   }
-  log("############### RECEIVED quit code: " + n)
+  if (n == 0) {
+    return true;
+  }
+  output("############### RECEIVED quit code: " + n)
 
   if (killServersOnExit == true) {
     if (webserverEnabled == true && n == 130) { // control-c kills server
@@ -2546,6 +2567,7 @@ function quit(n, txt) {
   destroyKeyboardUI();
   destroyProgress();
   calcUpdate();
+
   bugtxt(`process.exit going on. last file: ${filename} percent complete ${percentComplete}`);
   args._ = [];
   if (keyboard == true) {
@@ -2562,11 +2584,11 @@ function quit(n, txt) {
   }
   term.eraseDisplayBelow();
   printRadMessage([ ` ${(killServersOnExit ?  ' AminoSee has shutdown' : 'Webserver will be left running in background. ' )}`, `${(verbose ?  ' Exit code: '+n : '' )}`,  (killServersOnExit == false ? server.getServerURL() : ' '), howMany ]);
-  process.exitCode = 0;
   if (keyboard == true) {
   }
-  term.processExit(n);
   if (n == 69 || n == 130) {
+    process.exitCode = 0;
+    term.processExit(n);
     process.exit()
   }
 }

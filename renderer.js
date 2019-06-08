@@ -154,14 +154,11 @@ function filesIpc(evt) {
   document.getElementById('cancel').classList.remove('hidden');
   // alert(evt.toString());
   let choosefiles = evt.target.files;
+  let commandString = " --html ";
   for (i=0; i<choosefiles.length; i++) {
     // alert(choosefiles[i].toString());
-    ipcRenderer.send('do_LoadFile', {
-      aTopic: 'do_LoadURL',
-      filename: choosefiles[i].toString(),
-      url: choosefiles[i],
-      type: 'text/plain'
-    })
+    commandString += choosefiles[i].toString();
+
     // downloader.postMessage({
     //   aTopic: 'do_LoadURL',
     //   filename: choosefiles[i],
@@ -169,6 +166,12 @@ function filesIpc(evt) {
     //   type: 'text/plain'
     // });
   }
+  ipcRenderer.send('do_LoadFile', {
+    aTopic: 'do_LoadURL',
+    filename: commandString,
+    url: choosefiles[i],
+    type: 'text/plain'
+  })
 };
 function cancel() {
   // worker.terminate();

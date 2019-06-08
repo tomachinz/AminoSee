@@ -1,10 +1,12 @@
 // import
-const aminosee = require('./aminosee-cli.js')()
+// const aminosee = require('./aminosee-cli.js')()
 const server = require('./aminosee-server')
 const { app, BrowserWindow, Menu, dialog, ipcMain } = require('electron') // Modules to control application life and create native browser window
 const extensions = [ "txt", "fa", "mfa", "gbk", "dna"] // replace with that from data.js
 const path = require('path')
-
+const spawn = require('cross-spawn');
+let threads = [ ]; // these will be threads from spawn
+pushCli('serve');
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
@@ -12,6 +14,7 @@ const path = require('path')
 
 app.on('ready', function() {
   createWindow();
+  pushCli(`help`)
 })
 
 // Quit when all windows are closed.
@@ -68,14 +71,12 @@ function toggleDevmode() {
 function log(txt) {
   let d = new Date().getTime();
   let a = 'a';// app.remote.process.argv;
-  console.log(process.argv)
-
-  console.log(` main.js [${d}] txt: ${txt} argv: ${a} `);
+  console.log(`process.argv: [${process.argv}]`)
+  console.log(`main.js: [${d} txt: ${txt} argv: ${a}]`);
 }
 
 function showOpenDialog() {
   // defaultPath: '~',
-
   const options = {
     title: 'Open multiple DNA files or folders',
     buttonLabel: 'Convert DNA to Image with AminoSee',
@@ -95,7 +96,29 @@ function showOpenDialog() {
     message: 'Any text file containing ASCII base pairs like: ACGTUacgtu'
   };
   const selectedPaths = dialog.showOpenDialog();
-  console.log(selectedPaths);
+  pushCli(selectedPaths);
+  // threads.push(selectedPaths);
+  // aminosee.cli([commandString, '-v', '', '0']);
+}
+function pushCli(commandString) {
+  // let threads = [ spawn('aminosee'  , ['serve', '', '', '0'], { stdio: 'pipe' }) ];
+  // threads.push( spawn('aminosee'  , [commandString, '--no-gui'], { stdio: 'pipe' }) );
+  console.log(`Starting AminoSee now with CLI:`);
+  commandString = `aminosee ${commandString} --html`;
+  threads.push( spawn('aminosee'  , [commandString, '--html'], { stdio: 'pipe' }) );
+
+  threads[0].stdout.on('data', (data) => {
+    console.log(`${chalk.inverse('aminosee serve')}${chalk(': ')}${data}`);
+  });
+  threads[0].stderr.on('data', (data) => {
+    console.log(`${chalk.inverse('aminosee error')}${chalk(': ')}${data}`);
+  });
+  threads[0].on('close', (code) => {
+    console.log(`child process exited with code ${code}`);
+  });
+  console.log(`commandString: [${commandString}]`);
+  console.log(`threads.length: [ ${threads.length}]`);
+  console.log(`process.title: [ ${threads.title}]`);
 }
 function createWindow () {
   const electron = require('electron');

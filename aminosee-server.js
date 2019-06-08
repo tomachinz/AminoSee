@@ -103,16 +103,27 @@ function start(outputPath) {
   }
 };
 module.exports.start = start;
+
 function stop() {
-  this.outputPath = outputPath;
   if (serverLock()) {
-    console.log("Server already started. If you think this is not true, remove the lock file: " + filenameServerLock);
-  } else {
-    console.log("Starting server");
+    const killServe = spawn('nice', ['killall', 'node', '', '0'], { stdio: 'pipe' });
+    const killAminosee = spawn('nice', ['killall', 'aminosee.funk.nz', '', '0'], { stdio: 'pipe' });
+    if (server != undefined) {
+      log("closing server")
+      server.close();
+    } else {
+      bugtxt("no server running")
+    }
   }
-  return startServeHandler();
-};
-module.exports.stop = stop;
+  try {
+    fs.unlinkSync(filenameServerLock, (err) => {
+      bugtxt("Removing server locks OK...")
+      if (err) { log('ish'); console.warn(err);  }
+    });
+  } catch (err) {
+    bugtxt("No server locks to remove: " + err);
+  }
+}; module.exports.stop = stop;
 
 module.exports.startServeHandler = startServeHandler;
 
