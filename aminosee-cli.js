@@ -200,7 +200,7 @@ output(logo());
 
 let runningDuration = 1; // ms
 let interactiveKeysGuide = "";
-let progTimer, hilbertImage, keyboard, filenameTouch, filenameServerLock, estimatedPixels, args, filenamePNG, extension, reader, hilbertPoints, herbs, levels, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, textFile, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, fileUploadShowing, testColors, chunksMax, chunksize, chunksizeBytes, cpu, subdivisions, contextBitmap, aminoacid, pixelClock, start, updateClock, bytesPerMs, pixelStacking, isHighlightCodon, justNameOfPNG, justNameOfHILBERT, sliceDNA, filenameHTML, msElapsed, bytesRemain, width, triplet, updatesTimer, pngImageFlags, codonsPerPixel, codonsPerPixelHILBERT, CRASH, red, green, blue, alpha, errorClock, breakClock, streamLineNr, opacity, codonRGBA, geneRGBA, currentTriplet, currentPeptide, shrinkFactor, reg, image, loopCounter, percentComplete, charClock, baseChars, bigIntFileSize, currentPepHighlight, justNameOfCurrentFile, openHtml, openFileExplorer, pixelStream, startPeptideIndex, stopPeptideIndex, flags, loadavg, platform, totalmem, correction, aspect, debugFreq, help, tx, ty;
+let progTimer, hilbertImage, keyboard, filenameTouch, filenameServerLock, estimatedPixels, args, filenamePNG, extension, reader, hilbertPoints, herbs, levels, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, textFile, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, fileUploadShowing, testColors, chunksMax, chunksize, chunksizeBytes, cpu, subdivisions, contextBitmap, aminoacid, pixelClock, start, updateClock, bytesPerMs, pixelStacking, isHighlightCodon, justNameOfPNG, justNameOfHILBERT, sliceDNA, filenameHTML, msElapsed, bytesRemain, width, triplet, updatesTimer, pngImageFlags, codonsPerPixel, codonsPerPixelHILBERT, CRASH, red, green, blue, alpha, errorClock, breakClock, streamLineNr, opacity, codonRGBA, geneRGBA, currentTriplet, currentPeptide, shrinkFactor, reg, image, loopCounter, percentComplete, charClock, baseChars, bigIntFileSize, currentPepHighlight, justNameOfCurrentFile, openHtml, openFileExplorer, pixelStream, startPeptideIndex, stopPeptideIndex, flags, loadavg, platform, totalmem, correction, aspect, debugFreq, help, tx, ty, lockTimer;
 BigInt.prototype.toJSON = function() { return this.toString(); }; // shim for big int
 BigInt.prototype.toBSON = function() { return this.toString(); }; // Add a `toBSON()` function to enable MongoDB to store BigInts as strings
 let data = require('./data.js');
@@ -954,7 +954,8 @@ function setupKeyboardUI() {
         removeLocks();
       }
       killServersOnQuit = true;
-      // server.stop();
+
+      server.stop();
       setImmediate(() => {
         gracefulQuit(130);
       })
@@ -1652,7 +1653,8 @@ function streamStarted() {
   }
 }
 function manageLocks(time) {
-  setTimeout( () => {
+  if (lockTimer === undefined) { clearTimeout(lockTimer) }
+  lockTimer = setTimeout( () => {
     if (renderLock == true ) {
       fastUpdate();
       if (percentComplete < 0.5) { // helps to eliminate concurrency issues
@@ -1975,8 +1977,8 @@ function blockingServer() {
   setupProject();
   setupOutPaths();
   buildServer();  // copyGUI();  // startHttpServer()
-  // server.startServeHandler();
-  startCrossSpawnHttp(); // requires http-server be installed globally
+  server.startServeHandler();
+  // startCrossSpawnHttp(); // requires http-server be installed globally
 
   setTimeout(()=> {
     output("AminoSee built-in web server started")
@@ -2371,11 +2373,17 @@ function tLock(cb) {
     cb
   );
   term.saveCursor()
-  term.moveTo(3, term.height - 6);
+  term.moveTo(0, term.height - 6);
   console.log()
-  console.log(chalk.bgWhite.rgb().inverse(outski));
+  console.log(chalk.bgWhite.rgb(64,64,64).inverse(`
 
-  // console.log(chalk.bgGrey.orange(outski) )
+
+
+
+    `));
+    term.moveTo(3, term.height - 6);
+
+  console.log(chalk.bgWhite.rgb(48,48,48).inverse(outski));
   console.log()
   term.restoreCursor()
 }
@@ -2663,10 +2671,10 @@ function quit(n, txt) {
     removeLocks();
   }
   term.eraseDisplayBelow();
-  printRadMessage([ ` ${(killServersOnQuit ?  ' AminoSee has shutdown' : 'Webserver will be left running in background. ' )}`, `${(verbose ?  ' Exit code: '+n : '' )}`,  (killServersOnQuit == false ? server.getServerURL() : ' '), howMany ]);
+  // printRadMessage([ ` ${(killServersOnQuit ?  ' AminoSee has shutdown' : 'Webserver will be left running in background. ' )}`, `${(verbose ?  ' Exit code: '+n : '' )}`,  (killServersOnQuit == false ? server.getServerURL() : ' '), howMany ]);
   if (keyboard == true) {
   }
-  if (n == 69 || n == 130) {
+  if (n == 69 || n == 130 || n == 7) {
     process.exitCode = 0;
     term.processExit(n);
     process.exit()
@@ -4353,6 +4361,7 @@ function clout(txt) {
     return number;
   }
   function drawHistogram() {
+    if (updatesTimer) { clearTimeout(updatesTimer)};
     if (!renderLock) { bugtxt("render lock failed inside drawHistogram"); rawDNA = "!"; return false; }
     if (!updates) { bugtxt("updates disabled"); return false; }
     // let tb = new term.TextBuffer( )
@@ -4418,7 +4427,6 @@ function clout(txt) {
     term.up(termDisplayHeight)
     // } // stuff will come out just under the main HUD
     if (renderLock == true && howMany >= 0 ) { // dont update if not rendering
-      if (updatesTimer) { clearTimeout(updatesTimer)};
       if (msPerUpdate < maxMsPerUpdate) {
         msPerUpdate += 200; // updates will slow over time on big jobs
         if (devmode == true) {
