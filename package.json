@@ -92,7 +92,7 @@
     "electron-all": "electron-packager ./ --platform=darwin,win32,linux --arch=x64 --prune --overwrite  --output ./dist/electron",
     "gui": "electron .",
     "guidev": "electron . --devmode --remote-debugging-port 8315 --host-rules='MAP * 127.0.0.1'",
-    "pkg": "nice npm run macos & ; nice npm run win32 & ; nice npm run win64 & ; nice npm run linux",
+    "pkg": "nice npm run macos &amp;  nice npm run win32 &amp; nice npm run win64 &amp; nice npm run linux",
     "zip": "nice zip -8 -r ./dist/AminoSee_macos.zip ./dist/AminoSee_macos & ; nice zip -8 -r ./dist/AminoSee_win.zip ./dist/AminoSee_win & ; nice zip -8 -r ./dist/AminoSee_linux.zip ./dist/AminoSee_linux",
     "runmac": "open ./dist/AminoSee_macos/aminosee-macos",
     "macos": "echo MACOS ; pkg . --targets macos   --output ./dist/AminoSee_macos/aminosee",
