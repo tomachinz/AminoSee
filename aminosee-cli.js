@@ -1577,7 +1577,7 @@ function initStream() {
       readStream.pause(); // pause the readstream during processing
       streamLineNr++;
       processLine(line); // process line here and call readStream.resume() when ready
-      // readStream.resume();
+      readStream.resume();
     })
     .on('start', function(err){
       mode("streaming");
@@ -3223,7 +3223,7 @@ function skipExistingFile (fizzle) { // skip the file if TRUE render it if FALSE
   if (force == true) { return false; } // true means to skip render
   let result = doesFileExist(fizzle);
   bugtxt('skipExistingFile ' + fizzle + "force: " + force + " result: " + result)
-  output(`The file is: ${fizzle} which ${( result ? 'DOES' : 'does NOT')} exist`)
+  log(`The file is: ${fizzle} which ${( result ? 'DOES' : 'does NOT')} exist`)
 
   return result;
 }
@@ -4040,7 +4040,7 @@ function bugtxt(txt) { // full debug output
   }
 }
 function setDebugCols() {
-  debugColumns = Math.round(term.width  / 3);
+  debugColumns = Math.round(term.width  / 3)-1;
   return Math.round(term.width / 3);
 }
 function log(txt) {

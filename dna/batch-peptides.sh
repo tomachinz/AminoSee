@@ -1,7 +1,7 @@
 #!/bin/sh
 aminosee_do () {
   echo $1 $2 $3 $4 $5 $6 $7
-  nice aminosee  $1 $2 $3 $4 $5 $6 $7 --no-gui -q
+  nice aminosee  $1 $2 $3 $4 $5 $6 $7
 }
 best_way () {
   nice aminosee $1 $2 $3 $4 $5 $6 $7
@@ -85,12 +85,12 @@ find_way_peptides () {
     echo linux
     DASHF=" "
   fi
-  find $DASHF *.fa *.mfa *.gbk *.txt -exec  best_way $1 $2 $3 $4  "{}" \;
+  find $DASHF *.fa *.mfa *.gbk *.txt -exec nice aminosee $1 $2 $3 $4 $5 $6 $7 "{}" \;
 
 
 
   #
-  # find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee $1 $2   $3 $4 $5 $6 $7 "{}" \;
+  # find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee $1 $2 $3 $4 $5 $6 $7 "{}" \;
   # find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee $1 $2   --peptide="Glutamic acid" $3 $4 $5 $6 $7 "{}" \;
   # find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee $1 $2   --peptide="Aspartic acid" $3 $4 $5 $6 $7 "{}" \;
   # # find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee $1 $2   --peptide="Start Codons" $3 $4 $5 $6 $7 "{}" \;
