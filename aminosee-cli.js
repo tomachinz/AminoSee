@@ -1435,20 +1435,20 @@ function pollForStream() { // render lock must be off before calling. aim: start
     bugtxt( " currentFile is " + currentFile   + args)
     output(`>>> PREFLIGHT <<< ${howMany} ${fixedWidth(24,  currentFile)} then ${fixedWidth(24,  nextFile)}`);
 
-
-    if (doesFileExist(filename)) {
-      log('DNA Found OK');
-    } else {
-      // setTimeout( () => {
-        lookForWork('Skipping non-existent DNA file: ' + filename);
-      // }, raceDelay)
-      return false;
-    }
-    if (filename == defaultFilename) { // maybe this is to get past my lack of understanding of processing of args.
-      bugtxt("skipping default: " + defaultFilename); // it was rendered same file twice i think
-      // quit();
-      return false;
-    }
+    //
+    // if (doesFileExist(filename)) {
+    //   log('DNA Found OK');
+    // } else {
+    //   // setTimeout( () => {
+    //     lookForWork('Skipping non-existent DNA file: ' + filename);
+    //   // }, raceDelay)
+    //   return false;
+    // }
+    // if (filename == defaultFilename) { // maybe this is to get past my lack of understanding of processing of args.
+    //   bugtxt("skipping default: " + defaultFilename); // it was rendered same file twice i think
+    //   // quit();
+    //   return false;
+    // }
 
     log(`analyse: ${chalk.inverse(currentFile)} storage: ${chalk.inverse(storage())} Fullpath: ${filename}`);
 
@@ -2456,7 +2456,7 @@ function lookForWork(reason) { // move on to the next file via pollForStream. on
   if (howMany <= 0) {
     mode('Happiness.');
     log(status);
-    quit(0, status)
+    // quit(0, status)
     return false;
   }
   // if (currentFile == undefined) {
@@ -2577,7 +2577,7 @@ function postRenderPoll(reason) { // make sure all disks and images saved before
     removeLocks();
     setImmediate(() => {
       setTimeout(() => {
-        if (howMany > -1 ) {
+        if (howMany > 0 ) {
           lookForWork('removeLocks unlinkSync success'); // <<--- render queue proceeds through here and lookForWork()
         }
       }, raceDelay)
