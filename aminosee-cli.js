@@ -25,6 +25,7 @@ class AminoSee {
     gracefulQuit();
   }
 };  module.exports.AminoSee = AminoSee;
+const targetPixels = 9000000; // for big genomes use setting flag -c 1 to achieve highest resolution and bypass this taret max render size
 
 const aminosee = new AminoSee('test');
 console.log(aminosee.getArgs); // 100
@@ -75,7 +76,6 @@ const closeBrowser = "If the process apears frozen, it's waiting for your browse
 const lockFileMessage = `
 aminosee.funk.nz DNA Viewer by Tom Atkinson.
 This is a temporary lock file, placed during rendering to enable parallel cluster rendering over LAN networks, if this is here after processing has completerd it usually it means an AminoSee was quit before finishing or had crashed. Its safe to erase these files, and I've made a script in /dna/ to batch delete them all in one go. Normally these are deleted when render is complete, or with Control-C and graceful shutdown.`;
-const targetPixels = 5000000; // for big genomes use setting flag -c 1 to achieve highest resolution and bypass this taret max render size
 const defaultC = 1; // back when it could not handle 3+GB files.
 const artisticHighlightLength = 18; // px only use in artistic mode. must be 6 or 12 currently
 const defaultMagnitude = 8; // max for auto setting
@@ -158,7 +158,7 @@ let suopIters = 0;
 let termMarginLeft = (term.width - 100) / 3;
 let termMarginTop = (term.height - termDisplayHeight - termStatsHeight) / 3;
 let maxpix = targetPixels;
-let raceDelay = 169; // so i learnt a lot on this project. one day this line shall disappear replaced by promises.
+let raceDelay = 1; // so i learnt a lot on this project. one day this line shall disappear replaced by promises.
 let dimension = defaultMagnitude; // var that the hilbert projection is be downsampled to
 let darkenFactor = 0.25; // if user has chosen to highlight an amino acid others are darkened
 let highlightFactor = 4.0; // highten brightening.
@@ -465,8 +465,8 @@ function setupProject() { // returns progress bar.
 
 }
 function destroyProgress() { // now thats a fucking cool function name if ever there was!
-  if (howMany == -1) {
-  }
+  // if (howMany == -1) {
+  // }
   if (updates == true) {
     if (progato != undefined) {
       progato.stop();
@@ -538,6 +538,7 @@ module.exports = () => {
     output("recycle mode enabled. (experimental)");
     recycEnabled = true;
   } else { recycEnabled = false }
+
   if (args.outpath || args.output || args.out || args.o) {
     usersOutpath = path.normalize(path.resolve(args.outpath));
     usersOutpath = usersOutpath.replace("~", os.homedir);
@@ -695,10 +696,11 @@ module.exports = () => {
     users = args.peptide || args.p;
     peptide = tidyPeptideName(users);
     // output(`Users peptide: ${users}  peptide: ${peptide}`);
-    if (peptide != "none") { // this colour is a flag for error
+    if (peptide != "none" || peptide == "") { // this colour is a flag for error
       isHighlightSet = true;
     } else {
       error(`could not lookup peptide: ${users} using ${peptide}`);
+
     }
 
   } else {
@@ -951,7 +953,7 @@ function setupKeyboardUI() {
       clearCheck();
     }
     if (key && key.ctrl && key.name == 'c') {
-      process.stdin.pause();
+      // process.stdin.pause();
       status = "TERMINATED WITH CONTROL-C";
       log(status);
       // updates = false;
@@ -1422,6 +1424,8 @@ function pollForStream() { // render lock must be off before calling. aim: start
     bugtxt(` [ howMany  ${howMany} ${status} ${filename} ${currentFile}]`);
     if (currentFile == undefined) {
       quit(1, 'currentFile is undefined')
+      error('currentFile is undefined')
+      resetAndMaybe();
       return false;
     }
 
@@ -1652,24 +1656,25 @@ function initStream() {
 }
 function streamStarted() {
   mode('streamStarted');
-  // setTimeout(() => {
+  setTimeout(() => {
   if (renderLock == true ) {
     if (updates == true) {
       output('Starting prgress monitors');
       drawHistogram()
       progUpdate({ title: 'DNA File Render step 1/3', items: howMany, syncMode: true })
     }
-    manageLocks(15000)
+    manageLocks(5000)
   } else {
     error('Not rendering (bug? or is your computer like.... the hulk and somehow finished that quick.)');
   }
+}, raceDelay);
 }
 function manageLocks(time) {
   if (lockTimer === undefined) { clearTimeout(lockTimer) }
   lockTimer = setTimeout( () => {
     if (renderLock == true ) {
       fastUpdate();
-      if (percentComplete < 0.8 && timeRemain > 30000 ) { // helps to eliminate concurrency issues
+      if (percentComplete < 0.9 && timeRemain > 15000 ) { // helps to eliminate concurrency issues
         tLock();
         manageLocks(time*2)
       } else {
@@ -1681,8 +1686,8 @@ function manageLocks(time) {
 function streamStopped() {
   log("Stream ending event");
   if(!renderLock) {
-    error(`Unexpected state of renderlock`);
-    blueBlack(`Unexpected state of renderlock`)
+    error(`Unexpected state of renderlock, putting the locks back on`);
+    blueBlack(`Unexpected state of renderlock, putting the locks back on`)
     renderLock = true;
   }
   destroyProgress();
@@ -1854,7 +1859,7 @@ function highlightFilename() {
   return ret;
 }
 
-function setupFNames() {
+function setupFNames() { // must not be called during creation of hilbert image
   mode("setupFNames " + currentFile);
   // calculateShrinkage(); // REQUIRES INFO FROM HERE FOR HILBERT FILENAME. BUT THAT INFO NOT EXIST UNTIL WE KNOW HOW MANY PIXELS CAME OUT OF THE DNA!
   filename = path.resolve(currentFile);
@@ -1871,7 +1876,10 @@ function setupFNames() {
   filenameTouch = generateFilenameTouch();
   filenameHTML =  `${outputPath}/${justNameOfDNA}/${generateFilenameHTML()}`;
   filenamePNG =     `${outputPath}/${justNameOfDNA}/images/${generateFilenamePNG()}`;
-  filenameHILBERT = `${outputPath}/${justNameOfDNA}/images/${generateFilenameHilbert()}`;
+
+  filenameHILBERT = `${outputPath}/${justNameOfDNA}/images/CantCalcHilbertUntilDNARendered`;
+
+
   bugtxt(`current ${currentFile} next ${nextFile}`);
   bugtxt(`outputPath is totally: ${outputPath}`);
   bugtxt(`f: ${currentFile}`)
@@ -2222,25 +2230,31 @@ function mkRenderFolders() {
 }
 function saveDocsSync() {
   mode('saveDocsSync');
-  term.eraseDisplayBelow();
-  percentComplete = 1;
-  calcUpdate();
-  computerWants = idealDimension(pixelClock);
+
   if (!renderLock) {
     error("How is this even possible. renderLock should be true until all storage is complete");
+    resetAndMaybe(); return false;
   }
-  if (rgbArray.length < 10) { error(`Not enough DNA in this file (${currentFile}) `); resetAndMaybe(); return false;}
-  printRadMessage(['Finished linear render of '+ justNameOfDNA, 'Saving docs out', storage(), `${howMany} files to go`, outputPath]);
+  if (rgbArray.length < 64) { error(`Not enough DNA in this file (${currentFile}) `); resetAndMaybe(); return false;}
+
+  percentComplete = 1;
+  term.eraseDisplayBelow();
+  computerWants = idealDimension(pixelClock);
+  calculateShrinkage();
+
   percentComplete = 1; // to be sure it shows 100% complete
   isDiskFinHTML = false;
   isDiskFinHilbert = false;
   isDiskFinLinear = false;
-  // clearCheck(); // term.eraseDisplayBelow();
-  destroyProgress();
-  calcUpdate();
   userprefs.aminosee.cliruns++; // increment run counter. for a future high score table stat and things maybe.
   userprefs.aminosee.gbprocessed += baseChars / 1024 / 1024 / 1024; // increment disk counter.
   done++;
+
+  calcUpdate();
+  clearCheck();
+  printRadMessage(['Finished linear render of '+ justNameOfDNA, 'Saving docs out', storage(), `${howMany} files to go`, outputPath]);
+  term.eraseDisplayBelow();
+  destroyProgress();
 
   output();
   output(chalk.rgb(255, 255, 255).inverse(fixedWidth(debugColumns*2, `Input DNA File: ${filename}`)));
@@ -2248,7 +2262,6 @@ function saveDocsSync() {
   output(chalk.rgb(150,150,150).inverse(  fixedWidth(debugColumns*2, `Hilbert PNG: ${justNameOfHILBERT}`)));
   output(chalk.rgb(100,100,180).inverse(  fixedWidth(debugColumns*2, `HTML ${justNameOfHTML}`)));
   output(chalk.rgb(80,80,120).bgBlue.inverse(    fixedWidth(debugColumns*2, `${filenameTouch.substring(filenameTouch.length -24, -1)} LOCKFILE`)));
-
 
   async.series( [
     function( cb ) {
@@ -2261,15 +2274,15 @@ function saveDocsSync() {
       saveHilbert( cb )
       setImmediate(() => {
         setTimeout(() => {
-          cb()
+          // cb()
         }, raceDelay)
       })
     },
     function ( cb ) {
-      saveHTML( );
-      openOutputs();
       setImmediate(() => {
-        cb()
+        saveHTML( cb );
+        openOutputs();
+        // cb()
       })
     }
   ])
@@ -2359,11 +2372,14 @@ function fileWrite(file, contents, cb) {
 }
 function touchLockAndStartStream() { // saves CPU waste. delete lock when all files are saved, not just the png.
   mode("touchLockAndStartStream");
+  if (renderLock) { error('Thread tried to re-enter stream. No Matter we good. '); return false; }
   renderLock = true;
   startDate = new Date(); // required for touch locks.
   started = startDate.getTime(); // required for touch locks.
   autoconfCodonsPerPixel();
   setupFNames();
+  rgbArray = [];
+
   clearCheck();
   setImmediate( () => { // time for the locks to go down
     output("Start")
@@ -2628,7 +2644,7 @@ function quit(n, txt) {
       return false;
     }
   }
-  if (howMany > 0 ) {
+  if (howMany > -1 ) {
     bugtxt(`There is more work (${howMany}) . Rendering: ${renderLock} Load: ${os.loadavg()}`);
     lookForWork('quit')
     return true;
@@ -2952,7 +2968,7 @@ function aminoFilenameIndex(id) { // return the filename for this amino acid for
   let backupHighlight = isHighlightSet;
   if (id == undefined || id == -1) { // for the reference image
     currentPepHighlight = false;
-    currentPeptide = "";
+    currentPeptide = "none";
     isHighlightSet = false; //currentPepHighlight;
   } else {
     currentPepHighlight = true;
@@ -3381,19 +3397,20 @@ function calculateShrinkage() { // danger: can change filenames of Hilbert image
   shrinkFactor = linearpix / hilpix;//  array.length / 4;
   codonsPerPixelHILBERT = codonsPerPixel / shrinkFactor;
   log(`Linear pix: ${linearpix.toLocaleString()} > Reduction: X${shrinkFactor} = ${hilbPixels[dimension].toLocaleString()} pixels ${dimension}th dimension hilbert curve`);
-  bugtxt(`shrinkFactor pre ${shrinkFactor} = linearpix ${linearpix } /  hilpix ${hilpix}  `);
   // dimension; // for filenames
   // codonsPerPixelHILBERT = twosigbitsTolocale( codonsPerPixel*shrinkFactor );
   codonsPerPixelHILBERT = codonsPerPixel*shrinkFactor;
-  setupFNames();
+  // setupFNames(); // <<--- this is bad.
+  filenameHILBERT = `${outputPath}/${justNameOfDNA}/images/${generateFilenameHilbert()}`;
+
+  bugtxt(`shrinkFactor pre ${shrinkFactor} = linearpix ${linearpix } /  hilpix ${hilpix}  `);
   bugtxt(`filenameHILBERT after shrinking: ${filenameHILBERT} dimension: ${dimension} shrinkFactor post ${twosigbitsTolocale(shrinkFactor)} codonsPerPixel ${codonsPerPixel} codonsPerPixelHILBERT ${codonsPerPixelHILBERT}`);
 }
 
 
 // resample the large 760px wide linear image into a smaller square hilbert curve
 function saveHilbert(cb) {
-  mode('maybe save hilbert if file not found');
-  calculateShrinkage();
+  mode('maybe save hilbert');
   if (isHilbertPossible == true) {
     log("projecting linear array to 2D hilbert curve");
   } else {
@@ -3403,8 +3420,7 @@ function saveHilbert(cb) {
     cb();
     return false;
   }
-  // clearCheck();
-  term.eraseDisplayBelow();
+
   if (skipExistingFile(filenameHILBERT)) {
     log("Existing hilbert image found - skipping projection " + filenameHILBERT);
     // if (openImage) {
@@ -3419,6 +3435,12 @@ function saveHilbert(cb) {
     // if (cb) { cb() }
     return false;
   }
+  // clearCheck();
+
+
+  term.eraseDisplayBelow();
+
+
   mode('save hilbert');
   log("Getting in touch with my man from 1891... Hilbert. In the " + dimension + "th dimension and reduced by " + threesigbitsTolocale(shrinkFactor) + "X  ----> " + justNameOfHILBERT);
   output("    ॐ    ");
@@ -3427,9 +3449,13 @@ function saveHilbert(cb) {
   // output(status);
   let hilpix = hilbPixels[dimension];;
   let height, width;
+
+
   resampleByFactor(shrinkFactor);
   width = Math.sqrt(hilpix);
   height = width;
+
+
   percentComplete = 0;
   debugFreq = Math.round(hilpix / 100);
   progUpdate({ title: 'Hilbert Curve', items: howMany, syncMode: true })
@@ -3627,17 +3653,17 @@ function bothKindsTestPattern() {
     if (pixelClock == 0) {
       error("No DNA or RNA in this file sorry?! You sure you gave a file with sequences? Like: GCCTCTATGACTGACGTA" + filename);
       isDiskFinHTML = isDiskFinLinear = isDiskFinHilbert = true;
-      renderLock = false;
       lookForWork('No DNA or RNA in this file sorry?!');
       // linearFinished();
       // hilbertFinished();
       // htmlFinished();
-      if (cb != undefined ) { cb( ) }
-      // resetAndMaybe();
+      // if (cb != undefined ) { cb( ) }
+      resetAndMaybe();
       return false;
     } else if (pixelClock == -1) {
       output("Cant save " + filename);
       if (cb) { cb() }
+      resetAndMaybe();
       return false;
     }
 
@@ -5454,7 +5480,7 @@ function clout(txt) {
           let refimage = summary.refimage;
           let linearimage = summary.linearimage;
           html += `<div id="stackOimages">
-          <a href="images/${name}" class="imgstack"><img src="images/${name}" id="stack_reference" width="256" height="256" style="z-index: ${999}; position: fixed; top: 50%; left: 50%; transform translate(${(i*8)-80},${(i*8)-80})" alt="${refimage}" title="${refimage}" onmouseover="mover(this)" onmouseout="mout(this)">Reference</a>`;
+          <a href="images/${name}" class="imgstack"><img src="images/${name}" id="stack_reference" width="256" height="256" style="z-index: ${i}; position: fixed; top: 50%; left: 50%; transform: translate(${(i*4)-40},${(i*4)-40})" alt="${refimage}" title="${refimage}" onmouseover="mover(this)" onmouseout="mout(this)">Reference</a>`;
 
           histogramJson.pepTable.forEach(function(item) {
             log(item.toString());
