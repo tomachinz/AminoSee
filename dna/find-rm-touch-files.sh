@@ -19,7 +19,7 @@ echo find $DASHF . -name $LOCKFILES
 echo "About to delete these touch files matching: $LOCKFILES"
 sleep 5
 echo "Deleting these touch files: $LOCKFILES"
-    find $DASHF . -name '$LOCKFILES' -exec rm -v {} \;
+    find $DASHF . -name $LOCKFILES -exec rm -v {} \;
 sleep 2
 
  # fnd -f .  -name '*_LOCK*.aminosee.touch'
