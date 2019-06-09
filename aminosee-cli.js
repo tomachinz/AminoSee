@@ -1428,7 +1428,7 @@ function pollForStream() { // render lock must be off before calling. aim: start
     if (currentFile == undefined) {
       quit(1, 'currentFile is undefined')
       error('currentFile is undefined')
-      resetAndMaybe();
+      // resetAndMaybe();
       return false;
     }
 
@@ -1480,8 +1480,8 @@ function pollForStream() { // render lock must be off before calling. aim: start
     if (checkLocks(filenameTouch)) {
       log("Render already in progress by another thread. Either use --force or delete this file: ");
       log(chalk.underline(filenameTouch));
-      resetAndMaybe(); // <---  another node maybe working on, NO RENDER
-      // return false;
+      // resetAndMaybe(); // <---  another node maybe working on, NO RENDER
+      return false;
     } else {
       out("Lock OK proceeding to render...");
       setTimeout(() => {
@@ -2238,7 +2238,7 @@ function saveDocsSync() {
   //   error("How is this even possible. renderLock should be true until all storage is complete");
   //   resetAndMaybe(); return false;
   // }
-  if (rgbArray.length < 64) { error(`Not enough DNA in this file (${currentFile}) `); resetAndMaybe(); return false;}
+  if (rgbArray.length < 64) { error(`Not enough DNA in this file (${currentFile}) `);  return false;}
 
   percentComplete = 1;
   term.eraseDisplayBelow();
