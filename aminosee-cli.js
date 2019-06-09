@@ -158,7 +158,7 @@ let suopIters = 0;
 let termMarginLeft = (term.width - 100) / 3;
 let termMarginTop = (term.height - termDisplayHeight - termStatsHeight) / 3;
 let maxpix = targetPixels;
-let raceDelay = 1; // so i learnt a lot on this project. one day this line shall disappear replaced by promises.
+let raceDelay = 69; // so i learnt a lot on this project. one day this line shall disappear replaced by promises.
 let dimension = defaultMagnitude; // var that the hilbert projection is be downsampled to
 let darkenFactor = 0.25; // if user has chosen to highlight an amino acid others are darkened
 let highlightFactor = 4.0; // highten brightening.
@@ -476,9 +476,12 @@ function destroyProgress() { // now thats a fucking cool function name if ever t
   clearTimeout(progTimer);
 }
 function progUpdate(obj) {  // allows to disable all the prog bars in one place
-  bugtxt(`progress dummy function: ${obj}`)
   if (updates == true) {
-    progato.update(obj);
+    if (progato !== undefined && obj !== undefined) {
+      progato.update(obj);
+    } else {
+      bugtxt(`progress dummy function: ${obj}`)
+    }
   }
 }
 
@@ -1018,7 +1021,7 @@ function setupKeyboardUI() {
         clearTimeout(updatesTimer);
       } else {
         updates = true;
-        drawHistogram();
+        // drawHistogram();
       }
     }
     drawHistogram();
@@ -1690,7 +1693,7 @@ function streamStopped() {
     blueBlack(`Unexpected state of renderlock, putting the locks back on`)
     renderLock = true;
   }
-  destroyProgress();
+  // destroyProgress();
   percentComplete = 1;
   calcUpdate();
   percentComplete = 1;
@@ -2231,10 +2234,10 @@ function mkRenderFolders() {
 function saveDocsSync() {
   mode('saveDocsSync');
 
-  if (!renderLock) {
-    error("How is this even possible. renderLock should be true until all storage is complete");
-    resetAndMaybe(); return false;
-  }
+  // if (!renderLock) {
+  //   error("How is this even possible. renderLock should be true until all storage is complete");
+  //   resetAndMaybe(); return false;
+  // }
   if (rgbArray.length < 64) { error(`Not enough DNA in this file (${currentFile}) `); resetAndMaybe(); return false;}
 
   percentComplete = 1;
@@ -3358,7 +3361,7 @@ function makeWide(txt) {
   return txt
 }
 function hilDecode(i, dimension) {
-  bugtxt(`i, dimension  ${i} ${dimension}`)
+  // bugtxt(`i, dimension  ${i} ${dimension}`)
   let x, y;
   [x, y] = MyManHilbert.decode(16,i); // <-- THIS IS WHERE THE MAGIC HILBERT HAPPENS
   // ROTATE IMAGE CLOCKWISE 90 DEGREES IF DIMENSION IS EVEN NUMBER FRAMES
@@ -3507,7 +3510,7 @@ function saveHilbert(cb) {
 
   hilbert_img_png.data = Buffer.from(hilbert_img_data);
   let wstream = fs.createWriteStream(filenameHILBERT);
-  progato = null;
+  // progato = null;
 
 
   new Promise(resolve => {
