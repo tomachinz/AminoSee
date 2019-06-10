@@ -5,32 +5,31 @@
 //       ╩ ╩┴ ┴┴┘└┘└─┘╚═╝└─┘└─┘  ═╩╝╝╚╝╩ ╩   ╚╝ ┴└─┘└┴┘└─┘┴└─
 //       by Tom Atkinson            aminosee.funk.nz
 //        ah-mee no-see       "I See It Now - I AminoSee it!"
-class AminoSeeNoEvil {
-  constructor(moreargs) { // CLI commands, filenames, *
-    console.log('constructed '+moreargs)
-    // this.argv = commandArray;
-  }
-  set setArgs(commandArray) {
-    // console.log(commandArray.toString())
-    this.argv = commandArray;
-  }
+// class AminoSeeNoEvil {
+//   constructor(moreargs) { // CLI commands, filenames, *
+//     console.log('constructed '+moreargs)
+//     // this.argv = commandArray;
+//   }
+//   set setArgs(commandArray) {
+//     // console.log(commandArray.toString())
+//     this.argv = commandArray;
+//   }
+//
+//   get getArgs() {  // Getter
+//     return this.argv;
+//   }
+//   setArgv(incomingArgs) {
+//     this.argv = incomingArgs;
+//   }
+//
+//   gracefulQuit() {
+//     log('Received gracefull quit message.')
+//     gracefulQuit();
+//   }
+// };  module.exports.AminoSeeNoEvil = AminoSeeNoEvil;
 
-  get getArgs() {  // Getter
-    return this.argv;
-  }
-  setArgv(incomingArgs) {
-    this.argv = incomingArgs;
-  }
-
-  gracefulQuit() {
-    log('Received gracefull quit message.')
-    gracefulQuit();
-  }
-};  module.exports.AminoSeeNoEvil = AminoSeeNoEvil;
-const targetPixels = 9000000; // for big genomes use setting flag -c 1 to achieve highest resolution and bypass this taret max render size
-
-const aminosee = new AminoSeeNoEvil();
-aminosee.setArgv('-v')
+// const aminosee = new AminoSeeNoEvil();
+// aminosee.setArgv('-v')
 // console.log(`aminosee.getArgs  ${aminosee.getArgs}`); // 100
 
 
@@ -56,6 +55,7 @@ aminosee.setArgv('-v')
 
 
 
+const targetPixels = 9000000; // for big genomes use setting flag -c 1 to achieve highest resolution and bypass this taret max render size
 
 // const electron = require('./main'); // electron app!
 const settings = require('./settings');
@@ -486,8 +486,8 @@ function progUpdate(obj) {  // allows to disable all the prog bars in one place
     bugtxt(`progress dummy function: ${obj}`)
   }
 }
-
-module.exports = (moreargs) => {
+// function aminosee() {
+  module.exports = (moreargs) => {
   if (moreargs !== undefined) { output(moreargs) }
   // version = require('./lib/version');
   status = "exports";
@@ -1138,14 +1138,14 @@ function gracefulQuit(code) {
   bugtxt(status);
   bugtxt("webserverEnabled: " + webserverEnabled + " killServersOnQuit: "+ killServersOnQuit)
   args._ = [];
-  howMany = -1;
+  // howMany = -1;
   nextFile = "shutdown";
-  removeLocks();
+  // removeLocks();
   calcUpdate();
   // if (code = 130) {
   //   destroyProgress();
   // }
-  quit(code, 'graceful')
+  // quit(code, 'graceful')
 }
 function background(callback) {
   // const spawn = require('cross-spawn');
@@ -2674,14 +2674,21 @@ function checkFileExtension(f) {
 function quit(n, txt) {
   if (n == undefined) { n = 0 }
   if ( renderLock == true ) {
-    error("still rendering") // maybe this happens during gracefull shutdown
+    if (nextFile == "shutdown") {
+      log("will finish this render then exit")
+    } else {
+      error("still rendering") // maybe this happens during gracefull shutdown
+    }
     return true;
   }
   if (isDiskFinLinear && isDiskFinHilbert && isDiskFinHTML) {
     if (renderLock == true ) {
-      error("still rendering") // maybe this happens during gracefull shutdown
+      log("still rendering") // maybe this happens during gracefull shutdown
       return false;
     }
+  } else {
+    log("still saving to storage") // maybe this happens during gracefull shutdown
+
   }
   if (howMany > 0 ) {
     bugtxt(`There is more work (${howMany}) . Rendering: ${renderLock} Load: ${os.loadavg()}`);
@@ -2692,7 +2699,7 @@ function quit(n, txt) {
     output("Orderly exit.")
     // return true;
   }
-
+  mode('quit');
   log(chalk.bgWhite.red(`process.exit going on. last file: ${filename} percent complete ${percentComplete}`));
   destroyKeyboardUI();
   destroyProgress();
@@ -4167,7 +4174,9 @@ function setDebugCols() {
   return Math.round(term.width / 3);
 }
 function log(txt) {
-  wTitle(txt)
+  if (!quiet) {
+    wTitle(txt)
+  }
 
   if (devmode || debug) {
     console.log(txt);
@@ -4550,7 +4559,7 @@ function clout(txt) {
       return twosigbitsTolocale(l0) + " / " + twosigbitsTolocale(l1) + " / " + twosigbitsTolocale(l2);
     }
     function highlightOrNothin() { // no highlight, no return!
-      return (isHighlightSet ?  peptideOrNothing() + tripletOrNothing()  : " " )
+      return (isHighlightSet ?  peptideOrNothing() + tripletOrNothing()  : "" )
     }
     function peptideOrNothing() {
       return (peptide == "none" ? "" : peptide )
@@ -5528,10 +5537,37 @@ function clout(txt) {
           html += `</div> <!--  id="stackOimages -- >`;
           return html;
         }
+        process.on("SIGTERM", () => {
+          // aminosee.log('SIGTERM');
+          // aminosee.gracefulQuit();
 
-        module.exports.gracefulQuit = gracefulQuit;
+          // aminosee.quit(130, 'SIGTERM');
+          quit();
+          process.exitCode = 130;
+          // process.exit(); // now the "exit" event will fire
+        });
+        process.on("SIGINT", function() {
+          // aminosee.log('SIGINT');
+          gracefulQuit();
+          // aminosee.quit(130, 'SIGINT');
+
+        });
+
+        // module.exports = {
+        //     aminosee,
+        //     gracefulQuit,
+        //     log
+        // }
+
+        // module.exports.gracefulQuit = gracefulQuit;
+        // module.exports.gracefulQuit = (code) => { gracefulQuit(code) }
+
         module.exports.quit = quit;
-        module.exports.log = log;
+        // module.exports.log = (txt) => { log(txt) }
+        // module.exports.log = () => {
+          // log("hellow world")
+        // }
+
         module.exports.bugtxt = bugtxt;
         module.exports.doesFileExist = doesFileExist;
         module.exports.blurb = blurb;

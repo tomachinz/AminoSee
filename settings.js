@@ -1,8 +1,9 @@
-let aminosee = require('./aminosee-cli');
+const aminosee = require('./aminosee-cli');
+
 // let pjson = require('../package.json');
 let fs = require('fs');
 let path = require('path');
-
+// let log = aminosee.log;
 // module.exports.settings = settings;
 
 // console.log(pjson.version); // This will print the version
@@ -18,16 +19,17 @@ function gracefulShutdown() {
   // process.exit(); // now the "exit" event will fire
 }
 process.on("SIGTERM", () => {
-  aminosee.log('SIGTERM');
-  aminosee.gracefulQuit();
+  // aminosee.log('SIGTERM');
+  // aminosee.gracefulQuit();
 
   // aminosee.quit(130, 'SIGTERM');
   // quit();
+  process.exitCode = 130;
   process.exit(); // now the "exit" event will fire
 });
 process.on("SIGINT", function() {
-  aminosee.log('SIGINT');
-  aminosee.gracefulQuit();
+  // aminosee.log('SIGINT');
+  // aminosee.gracefulQuit();
   // aminosee.quit(130, 'SIGINT');
 
 });
