@@ -1157,7 +1157,7 @@ function gracefulQuit(code) {
     removeLocks(quit);
 
     // setTimeout(()=> {
-    //   quit(130, 'graceful')
+      quit(130, 'graceful')
     // }, 1000)
   }
 }
