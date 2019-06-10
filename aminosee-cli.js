@@ -171,7 +171,7 @@ let dnabg = false; // firehose your screen with DNA!
 let report = true; // html reports can be dynamically disabled
 let test = false;
 let updates = true;
-let updateProgress = true;
+let updateProgress = false;
 let stats = true;
 let recycEnabled = false; // bummer had to disable it
 let renderLock = false; // not rendering right now obviously
@@ -183,6 +183,7 @@ let isHilbertPossible = true; // set false if -c flags used.
 let isDiskFinLinear = true; // flag shows if saving png is complete
 let isDiskFinHilbert = true; // flag shows if saving hilbert png is complete
 let isDiskFinHTML = true; // flag shows if saving html is complete
+let isStorageBusy = false; // true just after render while saving to disk. helps percent show 100% etc.
 let willRecycleSavedImage = false; // allows all the regular processing to mock the DNA render stage
 let codonsPerSec = 0;
 let peakRed = 0.123455;
@@ -435,9 +436,10 @@ function setupApp() { // do stuff aside from creating any changes. eg if you jus
       title: `Booting up at ${formatAMPM( new Date())} on ${hostname}`,
       eta: true,
       percent: true,
-      inline: true
+      inline: false
     });
-    drawProgress();
+    // term.moveTo(1 + termMarginLeft,1 + termMarginTop);
+    // drawProgress();
   }
   // killServersOnQuit = false;
   // server.start(outputPath);
@@ -901,11 +903,11 @@ function progUpdate(obj) {  // allows to disable all the prog bars in one place
         helpCmd();
       } else if (!quiet) {
         console.log();
-        redoLine('Closing in ')
-        countdown('Closing in ', 2000, gracefulQuit);
+        // redoLine('Closing in ')
+        // countdown('Closing in ', 2000, gracefulQuit);
       } else {
-        console.log();
-        countdown('Closing in ', 50, gracefulQuit);
+        // console.log();
+        // countdown('Closing in ', 50, gracefulQuit);
       }
       return true;
     } else {
@@ -946,12 +948,15 @@ function askUserForDNA() {
 
 }
 function destroyKeyboardUI() {
+  process.stdin.pause(); // stop eating the keyboard!
+  keypress.disableMouse(process.stdout);
+
   try {
-    process.stdin.setRawMode(false);
+    process.stdin.setRawMode(false); // back to cooked mode
   } catch(err) {
-    log(`Could not disable interactive keyboard: ${err}`)
+    log(`Could not disable raw mode keyboard: ${err}`)
   }
-  // process.stdin.resume(); // DONT
+  // process.stdin.resume(); // DONT EVEN THINK ABOUT IT.
 }
 function setupKeyboardUI() {
   interactiveKeysGuide += `
@@ -962,9 +967,18 @@ function setupKeyboardUI() {
 
   // make `process.stdin` begin emitting "keypress" events
   keypress(process.stdin);
-  //
+  keypress.enableMouse(process.stdout); // wow mouse events in the term?
+  process.stdin.on('mousepress', function (info) {
+    console.log('got "mousepress" event at %d x %d', info.x, info.y);
+  });
+  try {
+    process.stdin.setRawMode(true);
+  } catch(err) {
+    output(`Could not use interactive keyboard due to: ${err} press enter after each key mite help`)
+  }
+  // process.stdin.resume(); // DONT THIS ALWAYS WORKS OUT BAD
   // listen for the "keypress" event
-  process.stdin.on('keypress', function (ch, key) {
+  process.stdin.once('keypress', function (ch, key) {
     log('got "keypress"', key);
     if (key && key.name == 'c') {
       clearCheck();
@@ -972,28 +986,30 @@ function setupKeyboardUI() {
     if (key && key.ctrl && key.name == 'c') {
       // process.stdin.pause();
       status = "TERMINATED WITH CONTROL-C";
-      log(status);
-      // updates = false;
-      args = [];
       if (devmode == true) {
-        output(`Because you are using --devmode, the lock file is not deleted. This is useful during development because I can quickly test new code by starting then interupting the render with Control-c. Then, when I use 'aminosee * -f -d' I can have new versions rendered but skip super large genomes that would take 5 mins or more to render. I like to see that they begin to render then break and retry; this way AminoSee will skip the large genome becauyse it has a lock file, saving me CPU during development. Lock files are safe to delete.`)
+        setTimeout(()=> {
+          output(`Because you are using --devmode, the lock file is not deleted. This is useful during development because I can quickly test new code by starting then interupting the render with Control-c. Then, when I use 'aminosee * -f -d' I can have new versions rendered but skip super large genomes that would take 5 mins or more to render. I like to see that they begin to render then break and retry; this way AminoSee will skip the large genome becauyse it has a lock file, saving me CPU during development. Lock files are safe to delete.`)
+        }, 1000)
       } else {
         removeLocks();
       }
+      log(status);
+      // updates = false;
+      args = [];
+
       debug = true;
       devmode = true;
       killServersOnQuit = true;
       server.stop();
       destroyKeyboardUI();
-      gracefulQuit();
-      setImmediate(() => {
-        quit(130)
-      })
+      setTimeout(()=> {
+        gracefulQuit(130);
+      }, 2000)
     }
-    if (key && key.name == 'q') {
+    if (key && key.name == 'q' || key.name == 'escape') {
       killServersOnQuit = false;
       gracefulQuit();
-      quit(7, 'Q - leaving webserver running in background')
+      // quit(7, 'Q / Escape - leaving webserver running in background')
     }
     if (key && key.name == 'b') {
       clearCheck();
@@ -1041,12 +1057,7 @@ function setupKeyboardUI() {
     drawHistogram();
   });
 
-  try {
-    process.stdin.setRawMode(true);
-  } catch(err) {
-    output(`Could not use interactive keyboard due to: ${err}`)
-  }
-  // process.stdin.resume(); // DONT
+
 }
 function toggleOpen() {
   openHtml = !openHtml;
@@ -1138,14 +1149,17 @@ function gracefulQuit(code) {
   bugtxt(status);
   bugtxt("webserverEnabled: " + webserverEnabled + " killServersOnQuit: "+ killServersOnQuit)
   args._ = [];
-  // howMany = -1;
+  // howMany = 0;
   nextFile = "shutdown";
-  // removeLocks();
   calcUpdate();
-  // if (code = 130) {
-  //   destroyProgress();
-  // }
-  // quit(code, 'graceful')
+  if (code = 130) {
+    destroyProgress();
+    removeLocks(quit);
+
+    // setTimeout(()=> {
+    //   quit(130, 'graceful')
+    // }, 1000)
+  }
 }
 function background(callback) {
   // const spawn = require('cross-spawn');
@@ -1899,6 +1913,16 @@ function highlightFilename() {
 
 function setupFNames() { // must not be called during creation of hilbert image
   mode("setupFNames " + currentFile);
+  output("SETUP FILENAMES");
+  output("SETUP FILENAMES");
+  output("SETUP FILENAMES");
+  output("SETUP FILENAMES");
+  output("SETUP FILENAMES");
+  output("SETUP FILENAMES");
+  output("SETUP FILENAMES");
+  output("SETUP FILENAMES");
+  output("SETUP FILENAMES");
+  output("SETUP FILENAMES");
   // calculateShrinkage(); // REQUIRES INFO FROM HERE FOR HILBERT FILENAME. BUT THAT INFO NOT EXIST UNTIL WE KNOW HOW MANY PIXELS CAME OUT OF THE DNA!
   filename = path.resolve(currentFile);
   justNameOfCurrentFile = replaceoutputPathFileName( filename );
@@ -2268,16 +2292,16 @@ function mkRenderFolders() {
 }
 function saveDocsSync() {
   mode('saveDocsSync');
-
-  // if (!renderLock) {
-  //   error("How is this even possible. renderLock should be true until all storage is complete");
-  //   resetAndMaybe(); return false;
-  // }
+  isStorageBusy = true;
+  if (!renderLock) {
+    error("How is this even possible. renderLock should be true until all storage is complete");
+    return false;
+  }
   if (rgbArray.length < 64) {
     log(`Not enough DNA in this file (${currentFile}) `);
-    setTimeout(() => {
+    // setTimeout(() => {
       resetAndMaybe();
-    }, raceDelay)
+    // }, raceDelay)
     return false;
   }
 
@@ -2292,6 +2316,8 @@ function saveDocsSync() {
   isDiskFinLinear = false;
   userprefs.aminosee.cliruns++; // increment run counter. for a future high score table stat and things maybe.
   userprefs.aminosee.gbprocessed += baseChars / 1024 / 1024 / 1024; // increment disk counter.
+  cliruns = userprefs.aminosee.cliruns
+  gbprocessed = userprefs.aminosee.gbprocessed;
   done++;
 
   calcUpdate();
@@ -2313,21 +2339,20 @@ function saveDocsSync() {
       setImmediate(() => {
         setTimeout(() => {
           cb();
-
         }, raceDelay)
       })
     },
     function( cb ) {
       log('async save png')
-      savePNG();
-      setImmediate(() => {
-        cb()
-      })
+      savePNG(cb);
+      // setImmediate(() => {
+      //   cb()
+      // })
     },
     function ( cb ) {
       saveHilbert( cb )
-      setImmediate(() => {
-      })
+      // setImmediate(() => {
+      // })
     },
     function ( cb ) {
       setImmediate(() => {
@@ -2418,15 +2443,17 @@ function fileWrite(file, contents, cb) {
 function touchLockAndStartStream() { // saves CPU waste. delete lock when all files are saved, not just the png.
   mode("touchLockAndStartStream");
   if (renderLock) { error('Thread tried to re-enter stream. No Matter we good. '); return false; }
-  renderLock = true;
-  startDate = new Date(); // required for touch locks.
-  started = startDate.getTime(); // required for touch locks.
-  autoconfCodonsPerPixel();
-  setupFNames();
-  rgbArray = [];
+
 
   clearCheck();
   setImmediate( () => { // time for the locks to go down
+    if (renderLock) { error('Thread tried to re-enter stream. No Matter we good. '); return false; }
+    renderLock = true;
+    startDate = new Date(); // required for touch locks.
+    started = startDate.getTime(); // required for touch locks.
+    autoconfCodonsPerPixel();
+    setupFNames();
+    rgbArray = [];
     output("Start")
     tLock();
     initStream()
@@ -2468,26 +2495,32 @@ function tLock(cb) {
 
 
 }
+function fileBug(err) {
+   bugtxt(err + " the file was: " + currentFile);
+}
 function deleteFile(file) {
   try {
     fs.unlinkSync(file, (err) => {
       bugtxt("Removing file OK...")
-      if (err) { bugtxt('ish'); bugtxt(err);  }
+      if (err) { fileBug(err)  }
     });
   } catch (err) {
-    bugtxt("No file to remove: " + err);
+    fileBug(err)
   }
 }
 module.exports.deleteFile = deleteFile;
 
-function removeLocks(filenameTouch) { // just remove the lock files.
+function removeLocks(cb) { // just remove the lock files.
   mode('remove locks');
-  bugtxt('remove locks' + howMany + ' files in queue.')
+  bugtxt('remove locks with ' + howMany + ' files in queue. filenameTouch: ' + filenameTouch)
   clearTimeout(updatesTimer);
   clearTimeout(progTimer);
   deleteFile(filenameTouch);
   renderLock = false
   howMany--
+  setTimeout(() => {
+    if ( cb ) { cb() }
+  }, raceDelay)
 }
 // start or poll.
 function lookForWork(reason) { // move on to the next file via pollForStream. only call from early parts prio to render.
@@ -2608,19 +2641,8 @@ function postRenderPoll(reason) { // make sure all disks and images saved before
   output(chalk.inverse(fixedWidth(24, justNameOfDNA))  + " postRenderPoll reason: " + reason);
   if (isDiskFinLinear == true && isDiskFinHilbert == true  && isDiskFinHTML == true ) {
     log(` [ storage threads ready: ${chalk.inverse(storage())} ] `);
-    removeLocks();
-    setImmediate(() => {
-      setTimeout(() => {
-        if (howMany > 0 && renderLock == false) {
-          pollForStream();
-          // lookForWork('removeLocks unlinkSync success'); // <<--- render queue proceeds through here and lookForWork()
-        } else {
-          log('thread finish')
-          quit(0,'thread finish')
-          // lookForWork('post render poll');
-        }
-      }, raceDelay)
-    })
+    removeLocks(pollForStream);
+    isStorageBusy = false;
   } else {
     log(` [ wait on storage: ${chalk.inverse(storage())} reason: ${reason}] `);
   }
@@ -2700,7 +2722,13 @@ function quit(n, txt) {
     // return true;
   }
   mode('quit');
-  log(chalk.bgWhite.red(`process.exit going on. last file: ${filename} percent complete ${percentComplete}`));
+  log(chalk.bgWhite.red(`process.exit going on. last file: ${filename}`));
+  if (devmode == true && debug == false) {
+    output("Because you are using --devmode without --debug, the lock file is not deleted. This is useful during development because I can quickly test new code by starting then interupting the render with Control-c. Then, when I use 'aminosee * -f -d' I can have new versions rendered but skip super large genomes that would take 5 mins or more to render. I like to see that they begin to render then break and retry.")
+  } else {
+    removeLocks();
+  }
+  bugtxt(`percent complete ${percentComplete}`);
   destroyKeyboardUI();
   destroyProgress();
   calcUpdate();
@@ -2731,18 +2759,14 @@ function quit(n, txt) {
   args._ = [];
   if (keyboard == true) {
     try {
-      process.stdin.on('keypress', null);
+      // process.stdin.on('keypress', null);
       process.stdin.setRawMode(false);
       // process.stdin.resume();
-    } catch(e) { error( e ) }
+    } catch(e) { error( "Issue with keyboard mode: " + e ) }
   } else {
     log("Not in keyboard mode.")
   }
-  if (devmode == true) {
-    output("Because you are using --devmode, the lock file is not deleted. This is useful during development because I can quickly test new code by starting then interupting the render with Control-c. Then, when I use 'aminosee * -f -d' I can have new versions rendered but skip super large genomes that would take 5 mins or more to render. I like to see that they begin to render then break and retry.")
-  } else {
-    removeLocks();
-  }
+
   term.eraseDisplayBelow();
   // printRadMessage([ ` ${(killServersOnQuit ?  'AminoSee has shutdown' : 'Webserver will be left running in background. ' )}`, `${(verbose ?  ' Exit code: '+n : '' )}`,  (killServersOnQuit == false ? server.getServerURL() : ' '), howMany ]);
   redoLine("exiting in "+ humanizeDuration(raceDelay * 2) )
@@ -3476,6 +3500,7 @@ function saveHilbert(cb) {
       log("Use --image to open in default browser")
     }
     isDiskFinHilbert = true;
+    cb();
     return false;
   }
   term.eraseDisplayBelow();
@@ -4345,6 +4370,9 @@ function clout(txt) {
     runningDuration = (present - started) + 1; // avoid division by zero
     msElapsed  = deresSeconds(runningDuration); // ??!! ah i see
 
+    if (isStorageBusy == true) { // render just finished so make percent 100% etc
+      percentComplete = 1;
+    }
     if (charClock == 0 || baseChars == 0) {
       percentComplete = 0.0169;//((charClock+1) / (baseChars+1)); // avoid div by zero below a lot
     } else {
@@ -4359,7 +4387,6 @@ function clout(txt) {
   }
   function calcUpdate() { // DONT ROUND KEEP PURE NUMBERS
     fastUpdate();
-
     bytesRemain = (baseChars - charClock);
     bytesPerMs = Math.round( (charClock) / runningDuration );
     codonsPerSec = (genomeSize+1) / (runningDuration*1000);
@@ -4500,13 +4527,8 @@ function clout(txt) {
     } else {
       if (pixelClock % 8 == 0) { termDrawImage() }
     }
-
     rawDNA = funknzLabel;
-
-    // if (clear == true) {
     term.moveTo(1 + termMarginLeft,1 + termMarginTop);
-    // }
-
     printRadMessage(array);
     // term.right(termMarginLeft);
     output(`Done: ${chalk.rgb(128, 255, 128).inverse( nicePercent() )} Elapsed: ${ fixedWidth(12, humanizeDuration(msElapsed )) } Remain: ${humanizeDuration(timeRemain)}  |  Lifetime values: Processed ${twosigbitsTolocale(gbprocessed)} GB Runs: ${cliruns.toLocaleString()} UID: ${timestamp} on ${hostname} `);
@@ -5538,19 +5560,13 @@ function clout(txt) {
           return html;
         }
         process.on("SIGTERM", () => {
-          // aminosee.log('SIGTERM');
-          // aminosee.gracefulQuit();
-
-          // aminosee.quit(130, 'SIGTERM');
-          quit();
+          destroyProgress();
           process.exitCode = 130;
+          quit(130);
           // process.exit(); // now the "exit" event will fire
         });
         process.on("SIGINT", function() {
-          // aminosee.log('SIGINT');
-          gracefulQuit();
-          // aminosee.quit(130, 'SIGINT');
-
+          gracefulQuit(130);
         });
 
         // module.exports = {
