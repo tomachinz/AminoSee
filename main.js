@@ -1,5 +1,6 @@
 // import
-const aminosee = require('./aminosee-cli.js')
+// const aminosee = require('./aminosee-cli.js')
+const AminoSeeNoEvil = require('./aminosee-cli.js')
 const server = require('./aminosee-server')
 const { app, BrowserWindow, Menu, dialog, ipcMain } = require('electron') // Modules to control application life and create native browser window
 const extensions = [ "txt", "fa", "mfa", "gbk", "dna"] // replace with that from data.js
@@ -65,7 +66,8 @@ function pushCli(commandString) {
   console.log(`Starting AminoSee now with CLI:`);
   commandString = `aminosee ${commandString} --html`;
   console.log(`commandString: [${commandString}]`);
-
+  let aWeeJobby = AminoSeeNoEvil('demo');
+  aminosee.addJob(commandString)
   // aminosee.cli(commandString)
   // setTimeout(() => {
   //   console.log(`!random!`);
@@ -116,7 +118,7 @@ function createWindow () {
     mainWindow = null
   })
   buildMenus()
-  // setupEvents()
+  setupEvents()
 }
 // module.exports.receieveLogs = function (txt) { //receieveLogs
 //   ipcMain.send('logs', txt)
@@ -274,7 +276,7 @@ function buildMenus() {
 
 app.on('ready', function() {
   createWindow();
-  // pushCli(`help`)
+  pushCli(`help`)
 })
 
 // Quit when all windows are closed.

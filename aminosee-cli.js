@@ -5,30 +5,33 @@
 //       ╩ ╩┴ ┴┴┘└┘└─┘╚═╝└─┘└─┘  ═╩╝╝╚╝╩ ╩   ╚╝ ┴└─┘└┴┘└─┘┴└─
 //       by Tom Atkinson            aminosee.funk.nz
 //        ah-mee no-see       "I See It Now - I AminoSee it!"
-class AminoSee {
-  constructor(commandArray) { // CLI commands, filenames, *
-    this.argv = commandArray;
+class AminoSeeNoEvil {
+  constructor(moreargs) { // CLI commands, filenames, *
+    console.log('constructed '+moreargs)
+    // this.argv = commandArray;
   }
   set setArgs(commandArray) {
+    // console.log(commandArray.toString())
     this.argv = commandArray;
   }
-  // Getter
-  get getArgs() {
+
+  get getArgs() {  // Getter
     return this.argv;
   }
   setArgv(incomingArgs) {
     this.argv = incomingArgs;
   }
-  // Method
+
   gracefulQuit() {
     log('Received gracefull quit message.')
     gracefulQuit();
   }
-};  module.exports.AminoSee = AminoSee;
+};  module.exports.AminoSeeNoEvil = AminoSeeNoEvil;
 const targetPixels = 9000000; // for big genomes use setting flag -c 1 to achieve highest resolution and bypass this taret max render size
 
-const aminosee = new AminoSee('test');
-console.log(aminosee.getArgs); // 100
+const aminosee = new AminoSeeNoEvil();
+aminosee.setArgv('-v')
+// console.log(`aminosee.getArgs  ${aminosee.getArgs}`); // 100
 
 
 //
@@ -39,7 +42,7 @@ console.log(aminosee.getArgs); // 100
 //   return this.argsv;
 // },
 // set: function(value) {
-//   console.log('set commandArray '+value);
+//   zconsole.log('set commandArray '+value);
 //   this.argsv = value;
 //   // archive.push({ val: temperature });
 // }
@@ -53,21 +56,13 @@ console.log(aminosee.getArgs); // 100
 
 
 
-module.exports.gracefulQuit = gracefulQuit;
-module.exports.quit = quit;
-module.exports.log = log;
-module.exports.bugtxt = bugtxt;
-module.exports.doesFileExist = doesFileExist;
-module.exports.blurb = blurb;
-module.exports.fileWrite = fileWrite;
-let outputPath = `/AminoSee_Output`;
+
 // const electron = require('./main'); // electron app!
 const settings = require('./settings');
 const version = require('./lib/version');
 const server = require('./aminosee-server');
 
-module.exports.version = version;
-module.exports.outputPath = outputPath
+
 const funknzLabel = "aminosee.funk.nz"
 process.title = funknzLabel;
 const extensions = [ "txt", "fa", "mfa", "gbk", "dna", "fasta", "fna", "fsa", "mpfa", "gb", "gff"];
@@ -132,14 +127,18 @@ const appPath = path.normalize(appFilename.substring(0, appFilename.length-15));
 const hostname = os.hostname();
 const clog = console.log;
 const chalk = require('chalk');
-const obviousFoldername = outputPath; // descriptive for users
-const netFoldername = `/output`; // descriptive for users
 
 
-const clusterPath = path.normalize(path.resolve(process.cwd() + netFoldername)); // legacy foldername CLUTER IS FOR NETWORK SHARES
-const homedirPath =  path.normalize(path.resolve(os.homedir() + obviousFoldername)); // SINGLE USER MODE
+
+
 const defaultFilename = "dna/megabase.fa"; // for some reason this needs to be here. hopefully the open source community can come to rescue and fix this Kludge.
 const testFilename = "AminoSeeTestPatterns"; // for some reason this needs to be here. hopefully the open source community can come to rescue and fix this Kludge.
+let outFoldername = `AminoSee_Output`;
+let outputPath = outFoldername;
+const obviousFoldername = "/" + outputPath; // descriptive for users
+const netFoldername = `/output`; // descriptive for users
+const clusterPath = path.normalize(path.resolve(process.cwd() + netFoldername)); // legacy foldername CLUTER IS FOR NETWORK SHARES
+const homedirPath =  path.normalize(path.resolve(os.homedir() + obviousFoldername)); // SINGLE USER MODE
 let justNameOfDNA = 'aminosee-is-looking-for-files-containing-ascii-DNA.txt';
 let currentFile = funknzLabel;
 let nextFile = funknzLabel;
@@ -204,7 +203,7 @@ output(logo());
 
 let runningDuration = 1; // ms
 let interactiveKeysGuide = "";
-let previousImage, charClock, genomeSize, cliruns, gbprocessed, progTimer, hilbertImage, keyboard, filenameTouch, filenameServerLock, estimatedPixels, args, filenamePNG, extension, reader, hilbertPoints, herbs, levels, mouseX, mouseY, windowHalfX, windowHalfY, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, fileUploadShowing, testColors, chunksMax, chunksize, chunksizeBytes, cpu, subdivisions, contextBitmap, aminoacid, pixelClock, start, updateClock, bytesPerMs, pixelStacking, isHighlightCodon, justNameOfPNG, justNameOfHILBERT, sliceDNA, filenameHTML, msElapsed, bytesRemain, width, triplet, updatesTimer, pngImageFlags, codonsPerPixel, codonsPerPixelHILBERT, CRASH, red, green, blue, alpha, errorClock, breakClock, streamLineNr, opacity, codonRGBA, geneRGBA, currentTriplet, currentPeptide, shrinkFactor, reg, image, loopCounter, percentComplete, baseChars, bigIntFileSize, currentPepHighlight, justNameOfCurrentFile, openHtml, openFileExplorer, pixelStream, startPeptideIndex, stopPeptideIndex, flags, loadavg, platform, totalmem, correction, aspect, debugFreq, help, tx, ty, lockTimer, opens;
+let peakGreen, peakBlue, progato, userCPP, startDate, started, previousImage, charClock, genomeSize, cliruns, gbprocessed, progTimer, hilbertImage, keyboard, filenameTouch, filenameServerLock, estimatedPixels, args, filenamePNG, extension, reader, hilbertPoints, herbs, levels, mouseX, mouseY, windowHalfX, windowHalfY, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, fileUploadShowing, testColors, chunksMax, chunksize, chunksizeBytes, cpu, subdivisions, contextBitmap, aminoacid, pixelClock, start, updateClock, bytesPerMs, pixelStacking, isHighlightCodon, justNameOfPNG, justNameOfHILBERT, sliceDNA, filenameHTML, msElapsed, bytesRemain, width, triplet, updatesTimer, pngImageFlags, codonsPerPixel, codonsPerPixelHILBERT, CRASH, red, green, blue, alpha, errorClock, breakClock, streamLineNr, opacity, codonRGBA, geneRGBA, currentTriplet, currentPeptide, shrinkFactor, reg, image, loopCounter, percentComplete, baseChars, bigIntFileSize, currentPepHighlight, justNameOfCurrentFile, openHtml, openFileExplorer, pixelStream, startPeptideIndex, stopPeptideIndex, flags, loadavg, platform, totalmem, correction, aspect, debugFreq, help, tx, ty, lockTimer, opens;
 BigInt.prototype.toJSON = function() { return this.toString(); }; // shim for big int
 BigInt.prototype.toBSON = function() { return this.toString(); }; // Add a `toBSON()` function to enable MongoDB to store BigInts as strings
 let data = require('./data.js');
@@ -411,50 +410,24 @@ function setupPrefs() {
 }
 
 function setupApp() { // do stuff aside from creating any changes. eg if you just run "aminosee" by itself.
-red = 0;
-green = 0;
-blue = 0;
-alpha = 0;
-charClock = 0; // its 'i' from the main loop
-errorClock = 0; // increment each non DNA, such as line break. is reset after each codon
-breakClock = 0;
-streamLineNr = 0;
-genomeSize = 1;
-msElapsed = 0; runningDuration = 0; charClock = 0; percentComplete = 0; genomeSize = 0; pixelClock = 0; opacity = 0;
-setupOutPaths();
-
-
-
-// console.log(`stdin pipe: ${pipeInstance.checkIsPipeActive()}`);
-// const stdin = pipeInstance.stdinLineByLine();
-// stdin.on('line', console.log);
-startDate = new Date(); // required for touch locks.
-started = startDate.getTime(); // required for touch locks.
-termSize();
-setupPrefs();
-
-// killServersOnQuit = false;
-// server.start(outputPath);
-// server.serverLock(launchNonBlockingServer)
-
-}
-function setupProject() { // returns progress bar.
-  if (renderLock == true ) {
-    error(`Renderlock failed in setupProject ${currentFile} ${nextFile}`)
-    return false;
-  }
-  baseChars = genomeSize = charClock = codonsPerSec = cliruns = gbprocessed = opens = red = green = blue = 0;
-  peakRed = red;
-  peakGreen = green;
-  peakBlue = blue;
+  red = 0;
+  green = 0;
+  blue = 0;
+  alpha = 0;
+  charClock = 0; // its 'i' from the main loop
+  errorClock = 0; // increment each non DNA, such as line break. is reset after each codon
+  breakClock = 0;
+  streamLineNr = 0;
+  genomeSize = 1;
+  msElapsed = 0; runningDuration = 0; charClock = 0; percentComplete = 0; genomeSize = 0; pixelClock = 0; opacity = 0;
   setupOutPaths();
-  if (verbose == true && devmode == true) {
-    let lines = 7
-    while (lines > 0) { // this is to help find the starts when scrolling in the terminal
-      output('................................');
-      lines--;
-    }
-  }
+  // console.log(`stdin pipe: ${pipeInstance.checkIsPipeActive()}`);
+  // const stdin = pipeInstance.stdinLineByLine();
+  // stdin.on('line', console.log);
+  startDate = new Date(); // required for touch locks.
+  started = startDate.getTime(); // required for touch locks.
+  termSize();
+  setupPrefs();
 
   if (updateProgress == true) {
     progato = term.progressBar({
@@ -465,6 +438,29 @@ function setupProject() { // returns progress bar.
       inline: true
     });
     drawProgress();
+  }
+  // killServersOnQuit = false;
+  // server.start(outputPath);
+  // server.serverLock(launchNonBlockingServer)
+
+}
+function setupProject() { // blank all the variables
+  if (renderLock == true ) {
+    error(`Renderlock failed in setupProject ${currentFile} ${nextFile}`)
+    return false;
+  }
+  baseChars = genomeSize = charClock = codonsPerSec = cliruns = gbprocessed = opens = red = green = blue = 0;
+  peakRed = red;
+  peakGreen = green;
+  peakBlue = blue;
+  percentComplete = 0;
+  setupOutPaths();
+  if (verbose == true && devmode == true) {
+    let lines = 7
+    while (lines > 0) { // this is to help find the starts when scrolling in the terminal
+      output('................................');
+      lines--;
+    }
   }
 
 
@@ -485,13 +481,14 @@ function progUpdate(obj) {  // allows to disable all the prog bars in one place
   if (updateProgress == true) {
     if (progato !== undefined && obj !== undefined) {
       progato.update(obj);
-    } else {
-      bugtxt(`progress dummy function: ${obj}`)
     }
+  } else {
+    bugtxt(`progress dummy function: ${obj}`)
   }
 }
 
-module.exports = () => {
+module.exports = (moreargs) => {
+  if (moreargs !== undefined) { output(moreargs) }
   // version = require('./lib/version');
   status = "exports";
   args = minimist(process.argv.slice(2), {
@@ -528,6 +525,8 @@ module.exports = () => {
     default: { updates: true, dnabg: false, clear: true, explorer: false, quiet: false, gui: true }
   });
   setupApp(); // do stuff that is needed even just to run "aminosee" with no options.
+  // addJob('megabase.fa')
+  // addJob('help')
   let cmd = args._[0];
   howMany = args._.length;
   if (args.debug) {
@@ -912,7 +911,7 @@ module.exports = () => {
     } else {
       filename =  path.resolve( cmd );
       currentFile = args._[0].toString();
-      setupApp();
+      // setupApp();
       setupProject();
       log("Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω " + filename)
       mode("Ω first command " + howMany + " " + currentFile);
@@ -933,6 +932,15 @@ module.exports = () => {
   out(".")
   // clout(".");
 }
+function addJob(cmd) {
+  output(chalk.inverse(`ADD JOB CALLED: `) + cmd)
+  args._.push(cmd);
+  setupApp();
+  setupProject();
+  lookForWork();
+} module.exports.addJob = addJob;
+
+
 function askUserForDNA() {
 
 
@@ -1398,19 +1406,7 @@ function pollForStream() { // render lock must be off before calling. aim: start
     return false;
   }
   mode(`pollForStream`)
-  percentComplete = 0;
-  popAndLock(); // renderock is now on!
-  setNextFile();
-  howMany = args._.length;
-  filename = path.resolve(currentFile);  // not thread safe after here!
-  if (checkFileExtension(currentFile) == false) {
-    redoLine("File Format not supported: " + chalk.inverse(getFileExtension(currentFile)));
-    renderLock = false;
-    // setTimeout( () => {
-    lookForWork('inside poll for stream. file format not support. ' + fixedWidth(24, currentFile) );
-    // }, raceDelay)
-    return false;
-  }
+
   setupProject();
   bugtxt(fixedWidth(64, "Now >>   " + currentFile + " then " + nextFile));
   bugtxt(`Now -->>  ( ${currentFile} )  then -->> ${nextFile} analyse: ${chalk.inverse(currentFile)} storage: ${chalk.inverse(storage())}`);
@@ -1430,6 +1426,22 @@ function pollForStream() { // render lock must be off before calling. aim: start
   bugtxt("****************************************")
   bugtxt("next ***   " + nextFile)
   bugtxt("current ***   " + currentFile);
+
+
+  popAndLock(); // renderock is now on!
+  setNextFile();
+  howMany = args._.length;
+  filename = path.resolve(currentFile);  // not thread safe after here!
+  if (checkFileExtension(currentFile) == false) {
+    redoLine("File Format not supported: " + chalk.inverse(getFileExtension(currentFile)));
+    renderLock = false;
+    // setTimeout( () => {
+    pollForStream()
+    // lookForWork('inside poll for stream. file format not support. ' + fixedWidth(24, currentFile) );
+    // }, raceDelay)
+    return false;
+  }
+
 
   setupFNames();
 
@@ -1600,10 +1612,10 @@ function initStream() {
   log(status);
 
   // args._.push(currentFile); // could never figure out how those args were getting done
-  if (!checkFileExtension(currentFile)) {
-    removeLocks();
-    return false;
-  }
+  // if (!checkFileExtension(currentFile)) {
+  //   removeLocks();
+  //   return false;
+  // }
   setupOutPaths();
   autoconfCodonsPerPixel();
   setupFNames();
@@ -1687,9 +1699,9 @@ function streamStarted() {
         drawHistogram()
         progUpdate({ title: 'DNA File Render step 1/3', items: howMany, syncMode: true })
       }
-      manageLocks(5000)
-    } else {
-      error('Not rendering (bug? or is your computer like.... the hulk and somehow finished that quick.)');
+      setTimeout(() => {
+        manageLocks(1000)
+      }, 1000);
     }
   }, raceDelay);
 }
@@ -1909,7 +1921,7 @@ function setupFNames() { // must not be called during creation of hilbert image
   bugtxt(`current ${currentFile} next ${nextFile}`);
   bugtxt(`outputPath is totally: ${outputPath}`);
   bugtxt(`f: ${currentFile}`)
-  bugtxt(`ext: ${highlightFilename() + ext} pep ${peptide} status ${status} outputPath ${outputPath} isHighlightSet ${isHighlightSet} filenameTouch ${filenameTouch}`);
+  // bugtxt(`ext: ${highlightFilename() + ext} pep ${peptide} status ${status} outputPath ${outputPath} isHighlightSet ${isHighlightSet} filenameTouch ${filenameTouch}`);
 }
 
 
@@ -2262,7 +2274,7 @@ function saveDocsSync() {
   //   resetAndMaybe(); return false;
   // }
   if (rgbArray.length < 64) {
-    error(`Not enough DNA in this file (${currentFile}) `);
+    log(`Not enough DNA in this file (${currentFile}) `);
     setTimeout(() => {
       resetAndMaybe();
     }, raceDelay)
@@ -2344,35 +2356,38 @@ function saveHTML(cb) {
   // if ( isHilbertPossible ) { htmlFinished(); cb(); return false; }
   if (willRecycleSavedImage == true && recycEnabled) {
     log("Didnt save HTML report because the linear file was recycled. Use --html to enable and auto open when done.");
-    htmlFinished();
+    isDiskFinHTML = true;
+    // htmlFinished();
     if (cb) { cb() }
     return false;
   }
   if (report == false) {
     log("Didnt save HTML report because reports = false they were disabled. Use --html to enable and auto open when done.");
-    htmlFinished();
+    isDiskFinHTML = true;
+    // htmlFinished();
     if (cb) { cb() }
     return false;
   }
   mode("save HTML");
   let histogramJson =  getRenderObject();
   let histogramFile = path.normalize( path.resolve(`${outputPath}/${justNameOfDNA}/aminosee_histogram.json`) );
-  let hypertext = htmlTemplate(histogramJson);
+  let hypertext
   if (test === true ) {
     hypertext = htmlTemplate(testSummary());
+  } else {
+    hypertext = htmlTemplate(histogramJson);
   }
-  // bugtxt( pepTable.sort( compareHistocount ) ); // least common amino acids in front
-  // bugtxt(histogramJson);
+
   let histotext = JSON.stringify(histogramJson);
   fileWrite(filenameHTML, hypertext );
   fileWrite(histogramFile, histotext );
   fileWrite(`${outputPath}/${justNameOfDNA}/main.html`, hypertext, cb);
   setTimeout( () => {
-
     htmlFinished();
     if (cb) { cb() }
-
   }, raceDelay)
+  // bugtxt( pepTable.sort( compareHistocount ) ); // least common amino acids in front
+  // bugtxt(histogramJson);
 }
 function fileWrite(file, contents, cb) {
   mkRenderFolders();
@@ -2466,8 +2481,8 @@ function deleteFile(file) {
 module.exports.deleteFile = deleteFile;
 
 function removeLocks(filenameTouch) { // just remove the lock files.
-  mode('Cleaning up.');
-  bugtxt('Cleaning up. ' + howMany + ' files in queue.')
+  mode('remove locks');
+  bugtxt('remove locks' + howMany + ' files in queue.')
   clearTimeout(updatesTimer);
   clearTimeout(progTimer);
   deleteFile(filenameTouch);
@@ -2583,10 +2598,8 @@ function popAndLock() {
 function postRenderPoll(reason) { // make sure all disks and images saved before dicking with global filenames
   if (test) { return false; }
   if (renderLock != true) { // re-entrancy filter
-    error("Not rendering (may halt), but entered postRenderPoll: " + reason)
+    log("Not rendering (may halt), but entered postRenderPoll: " + reason)
     return true
-  } else {
-    log('saving')
   }
   // try to avoid messing with globals of a already running render!
   // sort through and load a file into "nextFile"
@@ -4193,6 +4206,7 @@ function clout(txt) {
       console.log();
     }
     mode(`error: ${e}`)
+    process.exit();
   }
 
   // remove anything that isn't ATCG, convert U to T
@@ -5514,3 +5528,13 @@ function clout(txt) {
           html += `</div> <!--  id="stackOimages -- >`;
           return html;
         }
+
+        module.exports.gracefulQuit = gracefulQuit;
+        module.exports.quit = quit;
+        module.exports.log = log;
+        module.exports.bugtxt = bugtxt;
+        module.exports.doesFileExist = doesFileExist;
+        module.exports.blurb = blurb;
+        module.exports.fileWrite = fileWrite;
+        module.exports.version = version;
+        module.exports.outputPath = outputPath;
