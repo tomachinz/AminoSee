@@ -31,6 +31,43 @@ best_way () {
   aminosee_do $1 $2 $3 $4  --peptide=Lysine &
   nice aminosee $1 $2 $3 $4 --peptide=Histidine
 }
+series_peptides () {
+  echo "                                         =///"
+  echo "-------------------------------------------"
+  echo STARTING MULTI-THREAD DECODE FOR $1 $2 $3 $4 $5 $6 $7
+  echo "-------------------------------------------"
+  echo "                                         =///"
+  aminosee_do $1 $2 $3 $4 $5 $6 $7
+  aminosee_do $1 $2 $3 $4  --peptide="Glutamic acid"
+  aminosee_do $1 $2 $3 $4  --peptide="Aspartic acid"
+  aminosee_do $1 $2 $3 $4  --peptide=Ochre
+  aminosee_do $1 $2 $3 $4  --peptide=Amber
+  aminosee_do $1 $2 $3 $4  --peptide=Opal
+  aminosee_do $1 $2 $3 $4  --peptide=Methionine
+  aminosee_do $1 $2 $3 $4  --peptide=Cysteine
+  aminosee_do $1 $2 $3 $4  --peptide=Glycine
+  aminosee_do $1 $2 $3 $4  --peptide=Alanine
+  aminosee_do $1 $2 $3 $4  --peptide=Valine
+  aminosee_do $1 $2 $3 $4  --peptide=Leucine
+  aminosee_do $1 $2 $3 $4  --peptide=Isoleucine
+  aminosee_do $1 $2 $3 $4  --peptide=Phenylalanine
+  aminosee_do $1 $2 $3 $4  --peptide=Proline
+  aminosee_do $1 $2 $3 $4  --peptide=Tryptophan
+  aminosee_do $1 $2 $3 $4  --peptide=Serine
+  aminosee_do $1 $2 $3 $4  --peptide=Threonine
+  aminosee_do $1 $2 $3 $4  --peptide=Glutamine
+  aminosee_do $1 $2 $3 $4  --peptide=Asparagine
+  aminosee_do $1 $2 $3 $4  --peptide=Tyrosine
+  aminosee_do $1 $2 $3 $4  --peptide=Arginine
+  aminosee_do $1 $2 $3 $4  --peptide=Lysine
+  aminosee_do $1 $2 $3 $4  --peptide=Histidine
+  echo "                                         =///"
+  echo "-------------------------------------------"
+  echo FINISHED TWIN THREAD DECODE FOR $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11
+  echo "-------------------------------------------"
+  echo "                                         =///"
+}
+
 parallel_peptides () {
   echo "                                         =///"
   echo "-------------------------------------------"
@@ -126,6 +163,8 @@ find_way_peptides () {
 echo $1 $2 $3 $4 $5 $6 $7
 # parallel_peptides 50KB_TestPattern.txt  megabase.fa
 
+series_peptides $1 $2 $3 $4 $5 $6 $7 --keyboard
+series_peptides * $1 $2 $3 $4 $5 $6 $7 --keyboard
 parallel_peptides $1 $2 $3 $4 $5 $6 $7
 find_way_peptides $1 $2 $3 $4 $5 $6 $7
 # parallel_peptides  --reg $1 $2 $3 $4 $5 $6 $7
