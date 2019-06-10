@@ -18,21 +18,7 @@ function gracefulShutdown() {
   aminosee.gracefulQuit();
   // process.exit(); // now the "exit" event will fire
 }
-process.on("SIGTERM", () => {
-  // aminosee.log('SIGTERM');
-  // aminosee.gracefulQuit();
 
-  // aminosee.quit(130, 'SIGTERM');
-  // quit();
-  process.exitCode = 130;
-  process.exit(); // now the "exit" event will fire
-});
-process.on("SIGINT", function() {
-  // aminosee.log('SIGINT');
-  // aminosee.gracefulQuit();
-  // aminosee.quit(130, 'SIGINT');
-
-});
 
 // module.exports = function getSettings() {
 //   const settings = {

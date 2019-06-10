@@ -1,6 +1,7 @@
 // import
 // const aminosee = require('./aminosee-cli.js')
 const AminoSeeNoEvil = require('./aminosee-cli.js')
+const aminosee = require('./aminosee-cli.js')
 const server = require('./aminosee-server')
 const { app, BrowserWindow, Menu, dialog, ipcMain } = require('electron') // Modules to control application life and create native browser window
 const extensions = [ "txt", "fa", "mfa", "gbk", "dna"] // replace with that from data.js
@@ -64,10 +65,14 @@ function pushCli(commandString) {
   // let threads = [ spawn('aminosee'  , ['serve', '', '', '0'], { stdio: 'pipe' }) ];
   // threads.push( spawn('aminosee'  , [commandString, '--no-gui'], { stdio: 'pipe' }) );
   console.log(`Starting AminoSee now with CLI:`);
-  commandString = `aminosee ${commandString} --html`;
+  commandString = `${commandString} --html`;
+
+  let commandArray = commandString.split("\\s+");
+
   console.log(`commandString: [${commandString}]`);
-  let aWeeJobby = AminoSeeNoEvil('demo');
-  aminosee.addJob(commandString)
+  let aWeeJobby = AminoSeeNoEvil('test');
+  // aWeeJobby.addJob('demo');
+  aminosee.addJob(commandArray)
   // aminosee.cli(commandString)
   // setTimeout(() => {
   //   console.log(`!random!`);

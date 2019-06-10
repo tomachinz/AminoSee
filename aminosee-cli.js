@@ -5,28 +5,32 @@
 //       ╩ ╩┴ ┴┴┘└┘└─┘╚═╝└─┘└─┘  ═╩╝╝╚╝╩ ╩   ╚╝ ┴└─┘└┴┘└─┘┴└─
 //       by Tom Atkinson            aminosee.funk.nz
 //        ah-mee no-see       "I See It Now - I AminoSee it!"
-// class AminoSeeNoEvil {
-//   constructor(moreargs) { // CLI commands, filenames, *
-//     console.log('constructed '+moreargs)
-//     // this.argv = commandArray;
-//   }
-//   set setArgs(commandArray) {
-//     // console.log(commandArray.toString())
-//     this.argv = commandArray;
-//   }
-//
-//   get getArgs() {  // Getter
-//     return this.argv;
-//   }
-//   setArgv(incomingArgs) {
-//     this.argv = incomingArgs;
-//   }
-//
-//   gracefulQuit() {
-//     log('Received gracefull quit message.')
-//     gracefulQuit();
-//   }
-// };  module.exports.AminoSeeNoEvil = AminoSeeNoEvil;
+class AminoSeeNoEvil {
+  constructor(moreargs) { // CLI commands, filenames, *
+    console.log('constructed with: ' + argv[0] +  argv[1] +  moreargs)
+
+
+    // process.argv.slice(2)
+
+    this.argv = [argv[0], argv[1], moreargs];
+  }
+  set setArgs(commandArray) {
+    // console.log(commandArray.toString())
+    this.argv = commandArray;
+  }
+
+  get getArgs() {  // Getter
+    return this.argv;
+  }
+  setArgv(incomingArgs) {
+    this.argv = incomingArgs;
+  }
+
+  gracefulQuit() {
+    log('Received gracefull quit message.')
+    gracefulQuit();
+  }
+};  module.exports.AminoSeeNoEvil = AminoSeeNoEvil;
 
 // const aminosee = new AminoSeeNoEvil();
 // aminosee.setArgv('-v')
@@ -130,7 +134,7 @@ const chalk = require('chalk');
 
 
 
-
+let electron = true;
 const defaultFilename = "dna/megabase.fa"; // for some reason this needs to be here. hopefully the open source community can come to rescue and fix this Kludge.
 const testFilename = "AminoSeeTestPatterns"; // for some reason this needs to be here. hopefully the open source community can come to rescue and fix this Kludge.
 let outFoldername = `AminoSee_Output`;
@@ -232,6 +236,7 @@ function termSize() {
   termPixels = (tx) * (ty-8);
 }
 function resized(tx, ty) {
+  term.clear();
   clearCheck();
   termSize();
   setDebugCols();
@@ -934,12 +939,14 @@ function progUpdate(obj) {  // allows to disable all the prog bars in one place
   out(".")
   // clout(".");
 }
-function addJob(cmd) {
-  output(chalk.inverse(`ADD JOB CALLED: `) + cmd)
-  args._.push(cmd);
+function addJob(commandArray) {
+  output(chalk.inverse(`ADD JOB CALLED: `) + commandArray.toString())
+  args._ = [];
+  args._.push(commandArray);
   setupApp();
   setupProject();
-  lookForWork();
+  touchLockAndStartStream();
+  // pollForStream();
 } module.exports.addJob = addJob;
 
 
@@ -984,7 +991,7 @@ function setupKeyboardUI() {
       clearCheck();
     }
     if (key && key.ctrl && key.name == 'c') {
-      // process.stdin.pause();
+      // process.stdin.pause(); // stop sending control-c here, send now to parent, which is gonna kill us on the second go with control-c
       status = "TERMINATED WITH CONTROL-C";
       if (devmode == true) {
         setTimeout(()=> {
@@ -1007,6 +1014,7 @@ function setupKeyboardUI() {
       }, 2000)
     }
     if (key && key.name == 'q' || key.name == 'escape') {
+      output("Gracefull Shutdown in progress... will finish this render then quit.")
       killServersOnQuit = false;
       gracefulQuit();
       // quit(7, 'Q / Escape - leaving webserver running in background')
@@ -1035,6 +1043,7 @@ function setupKeyboardUI() {
       toggleOpen();
     }
     if (key && key.name == 'w') {
+      term.clear();
       toggleClearScreen();
     }
     // if (key && key.name == 't') {
@@ -1056,7 +1065,11 @@ function setupKeyboardUI() {
     }
     drawHistogram();
   });
-
+  process.on('exit', function () {
+    // disable mouse on exit, so that the state
+    // is back to normal for the terminal
+    keypress.disableMouse(process.stdout);
+  });
 
 }
 function toggleOpen() {
@@ -1148,14 +1161,16 @@ function gracefulQuit(code) {
   mode( "Graceful shutdown in progress...");
   bugtxt(status);
   bugtxt("webserverEnabled: " + webserverEnabled + " killServersOnQuit: "+ killServersOnQuit)
-  args._ = [];
-  // howMany = 0;
+
   nextFile = "shutdown";
-  calcUpdate();
+
   if (code = 130) {
+    args._ = [];
+    howMany = 0;
+
+    calcUpdate();
     destroyProgress();
     removeLocks(quit);
-
     // setTimeout(()=> {
       quit(130, 'graceful')
     // }, 1000)
@@ -1448,7 +1463,9 @@ function pollForStream() { // render lock must be off before calling. aim: start
   filename = path.resolve(currentFile);  // not thread safe after here!
   if (checkFileExtension(currentFile) == false) {
     redoLine("File Format not supported: " + chalk.inverse(getFileExtension(currentFile)));
+    popAndLock();
     renderLock = false;
+
     // setTimeout( () => {
     pollForStream()
     // lookForWork('inside poll for stream. file format not support. ' + fixedWidth(24, currentFile) );
@@ -1668,12 +1685,12 @@ function initStream() {
       readStream.pause(); // pause the readstream during processing
       streamLineNr++;
       processLine(line); // process line here and call readStream.resume() when ready
-      if (renderLock == true) {
-
-      } else {
-        error('Unexpected halt to render')
-        quit(4, 'Render lock failed during stream');
-        return false;
+      if (renderLock != true) {
+        if (nextFile = "shutdown") {
+          log('Unexpected halt to render')
+        } else {
+          error('Unexpected halt to render')
+        }
       }
       readStream.resume();
     })
@@ -2718,8 +2735,12 @@ function quit(n, txt) {
     return true;
   }
   if (n == 0) {
+    if (electron == true){
+      output("Electron mode.")
+
+      return true;
+    }
     output("Orderly exit.")
-    // return true;
   }
   mode('quit');
   log(chalk.bgWhite.red(`process.exit going on. last file: ${filename}`));
@@ -4539,6 +4560,12 @@ function clout(txt) {
     console.log();
 
     console.log(histogram(aacdata, { bar: '/', width: debugColumns*2, sort: true, map: aacdata.Histocount} ));
+    output();
+    output();
+    output(interactiveKeysGuide);
+    output(interactiveKeysGuide);
+    output(interactiveKeysGuide);
+    term.up(5);
     output(interactiveKeysGuide);
     output(`Last Red: ${peakRed} Last Green: ${peakGreen} Last Blue: ${peakBlue}`)
     // log(    isDiskFinHTML, isDiskFinHilbert, isDiskFinLinear);
@@ -5566,7 +5593,7 @@ function clout(txt) {
           // process.exit(); // now the "exit" event will fire
         });
         process.on("SIGINT", function() {
-          gracefulQuit(130);
+          gracefulQuit();
         });
 
         // module.exports = {
