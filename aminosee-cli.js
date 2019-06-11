@@ -494,8 +494,8 @@ function progUpdate(obj) {  // allows to disable all the prog bars in one place
   if (moreargs !== undefined) { output(`moreargs inside CLI: [${moreargs}]`) }
   // version = require('./lib/version');
   status = "exports";
-  console.log(process.argv.toString())
-  error('stopped.')
+  log(process.argv.toString())
+  // error('stopped.')
   args = minimist(process.argv.slice(2), {
     boolean: [ 'artistic' ],
     boolean: [ 'devmode' ],
@@ -1601,6 +1601,7 @@ function resetAndMaybe(){
 function initStream() {
   mode("initStream");
   output(status);
+  log("isElectron: " + isElectron  );
   if (isShuttingDown) { output("Sorry shutting down."); return false;}
   if (renderLock == false) {
     bugtxt("RENDER LOCK FAILED. This is an error I'd like reported. Please run with --devmode option enabled and send the logs to aminosee@funk.co.nz");
@@ -3586,7 +3587,7 @@ function saveHilbert(cb) {
   var hilbert_img_data = Uint8ClampedArray.from(hilbertImage);
   var hilbert_img_png = new PNG({
     width: hWidth,
-    height: hHeight ,
+    height: hHeight,
     colorType: 6,
     bgColor: {
       red: 0,
@@ -3660,7 +3661,7 @@ function bothKindsTestPattern() {
   let hilbertImage = [hilpix*4];
   rgbArray = [linearpix*4];
   hWidth = Math.round(Math.sqrt(hilpix));
-  height = width;
+  hHeight = hWidth;
   const linearWidth = Math.round(Math.sqrt(hilpix));
   const linearHeight = linearWidth;
 

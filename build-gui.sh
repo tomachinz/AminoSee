@@ -12,9 +12,9 @@ echo Requires: npm, electron, electron-packager
 echo Requires: npm, electron, electron-packager
 
 echo "And now some bloated electron stuff"
-mkdir -p dist/root/node_modules/electron
-mkdir -p dist/root/node_modules/electron/dist
-cp -r node_modules/electron/dist/*  dist/root/node_modules/electron/dist
+# mkdir -p dist/root/node_modules/electron
+# mkdir -p dist/root/node_modules/electron/dist
+# cp -r node_modules/electron/dist/*  dist/root/node_modules/electron/dist
 
 #
 
@@ -42,8 +42,8 @@ cp -r node_modules/electron/dist/*  dist/root/node_modules/electron/dist
 
 
 echo "Move a bunch of files into $TARGET then run pkg on it"
-mkdir build
-mkdir $TARGET
+mkdir -p build
+mkdir -p $TARGET
 mkdir -p $TARGET/dna
 
 echo COPYING LIBRARIES INTO /dist/*
@@ -53,6 +53,8 @@ mkdir -p $TARGET/dist/root
 
 
 cp -v -r dna/megabase.fa $TARGET/dna
+cp -v -r dna/1KB_TestPattern.txt $TARGET/dna
+cp -v -r dna/3MB_TestPattern.fa $TARGET/dna
 cp -r images $TARGET
 cp -r imports $TARGET
 cp -r lib $TARGET
