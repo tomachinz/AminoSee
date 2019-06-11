@@ -1,4 +1,4 @@
-// "use strict";
+"use strict";
 //       MADE IN NEW ZEALAND
 //       ╔═╗┌┬┐┬┌┐┌┌─┐╔═╗┌─┐┌─┐  ╔╦╗╔╗╔╔═╗  ╦  ╦┬┌─┐┬ ┬┌─┐┬─┐
 //       ╠═╣││││││││ │╚═╗├┤ ├┤    ║║║║║╠═╣  ╚╗╔╝│├┤ │││├┤ ├┬┘
@@ -78,7 +78,7 @@ const chalk = require('chalk');
 // let gui = require('./public/aminosee-gui-web.js');
 // let imageStack = gui.imageStack;
 // let imageStack = require('./public/aminosee-gui-web.js').imageStack;
-let projectprefs, userprefs, eakGreen, peakBlue, progato, userCPP, startDate, started, previousImage, charClock, genomeSize, cliruns, gbprocessed, progTimer, hilbertImage, keyboard, filenameTouch, filenameServerLock, estimatedPixels, args, filenamePNG, extension, reader, hilbertPoints, herbs, levels, mouseX, mouseY, windowHalfX, windowHalfY, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, fileUploadShowing, testColors, chunksMax, chunksize, chunksizeBytes, cpu, subdivisions, contextBitmap, aminoacid, pixelClock, start, updateClock, bytesPerMs, pixelStacking, isHighlightCodon, justNameOfPNG, justNameOfHILBERT, sliceDNA, filenameHTML, msElapsed, bytesRemain, width, triplet, updatesTimer, pngImageFlags, codonsPerPixel, codonsPerPixelHILBERT, CRASH, red, green, blue, alpha, errorClock, breakClock, streamLineNr, opacity, codonRGBA, geneRGBA, currentTriplet, currentPeptide, shrinkFactor, reg, image, loopCounter, percentComplete, baseChars, bigIntFileSize, currentPepHighlight, justNameOfCurrentFile, openHtml, openFileExplorer, pixelStream, startPeptideIndex, stopPeptideIndex, flags, loadavg, platform, totalmem, correction, aspect, debugFreq, help, tx, ty, lockTimer, opens, instanceCLI;
+let height, mixRGBA, rgbArray,  isStreamingPipe,  filenameHILBERT, justNameOfHTML,  users, present, peptide, ratio, magnitude, openImage, usersOutpath, projectprefs, userprefs, eakGreen,  progato, userCPP, startDate, started, previousImage, charClock, genomeSize, cliruns, gbprocessed, progTimer, hilbertImage, keyboard, filenameTouch, filenameServerLock, estimatedPixels, args, filenamePNG, extension, reader, hilbertPoints, herbs, levels, mouseX, mouseY, windowHalfX, windowHalfY, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, fileUploadShowing, testColors, chunksMax, chunksize, chunksizeBytes, cpu, subdivisions, contextBitmap, aminoacid, pixelClock, start, updateClock, bytesPerMs, pixelStacking, isHighlightCodon, justNameOfPNG, justNameOfHILBERT, sliceDNA, filenameHTML, msElapsed, bytesRemain, width, triplet, updatesTimer, pngImageFlags, codonsPerPixel, codonsPerPixelHILBERT, CRASH, red, green, blue, alpha, errorClock, breakClock, streamLineNr, opacity, codonRGBA, geneRGBA, currentTriplet, currentPeptide, shrinkFactor, reg, image, loopCounter, percentComplete, baseChars, bigIntFileSize, currentPepHighlight, justNameOfCurrentFile, openHtml, openFileExplorer, pixelStream, startPeptideIndex, stopPeptideIndex, flags, loadavg, platform, totalmem, correction, aspect, debugFreq, help, tx, ty, lockTimer, opens, instanceCLI;
 
 BigInt.prototype.toJSON = function() { return this.toString(); }; // shim for big int
 BigInt.prototype.toBSON = function() { return this.toString(); }; // Add a `toBSON()` function to enable MongoDB to store BigInts as strings
@@ -166,7 +166,9 @@ let isStorageBusy = false; // true just after render while saving to disk. helps
 let isShuttingDown = false; // this is the way to solve race cond.
 let willRecycleSavedImage = false; // allows all the regular processing to mock the DNA render stage
 let codonsPerSec = 0;
-let peakRed = 0.123455;
+let peakRed = 0.1234556789;
+let peakGreen = 0.1234556789;
+let peakBlue = 0.1234556789;
 let rawDNA ="@loading DNA Stream..."; // debug
 let status = "load";
 let debugColumns = 0; debugColumns = setDebugCols(); // why?
@@ -179,7 +181,7 @@ let pepTable = data.pepTable;
 let dnaTriplets = data.dnaTriplets;
 // let extensions = data.extensions;
 let asciiart = data.asciiart;
-// for (h=0; h<pepTable.length; h++) { // update pepTable
+// for (let let h=0; h<pepTable.length; h++) { // update pepTable
 //   if (pepTable[h].Codon == "Start Codons") {
 //     startPeptideIndex = h;
 //   }
@@ -248,7 +250,7 @@ function getRenderObject() { // return part of the histogramJson obj
   // calculateShrinkage();
   bugtxt(`codonsPerPixelHILBERT inside getRenderObject is ${codonsPerPixelHILBERT}`)
 
-  for (h=0; h<pepTable.length; h++) {
+  for (let h=0; h<pepTable.length; h++) {
     pep =  pepTable[h];
     currentPeptide = pep.Codon;
     pepTable[h].src = aminoFilenameIndex(h);
@@ -282,7 +284,7 @@ function getRenderObject() { // return part of the histogramJson obj
     overSampleFactor: overSampleFactor,
     opacity: opacity,
     magnitude: magnitude,
-    computerWants: computerWants,
+    optimumDimension: optimumDimension (estimatedPixels),
     darkenFactor: darkenFactor,
     highlightFactor: highlightFactor,
     correction: 'Ceiling',
@@ -342,70 +344,68 @@ function setupPrefs() {
 
 function setupApp() { // do stuff aside from creating any changes. eg if you just run "aminosee" by itself.
 
-
-
-webserverEnabled = false;
-killServersOnQuit = true;
-electron = true;
-outFoldername = `AminoSee_Output`;
-outputPath = outFoldername;
-justNameOfDNA = 'aminosee-is-looking-for-files-containing-ascii-DNA.txt';
-currentFile = funknzLabel;
-nextFile = funknzLabel;
-filename = funknzLabel;
-browser = 'firefox';
-msPerUpdate = minUpdateTime; // min milliseconds per update its increased for long renders
-now = new Date();
-maxMsPerUpdate = 30000; // milliseconds per updatelet maxpix = targetPixels; // maxpix can be changed downwards by algorithm for small genomes in order to zoom in
-timeRemain = 1;
-debugGears = 1;
-termDisplayHeight = 31;
-termStatsHeight = 9;
-done = 0;
-suopIters = 0;
-termMarginLeft = (term.width - 100) / 3;
-termMarginTop = (term.height - termDisplayHeight - termStatsHeight) / 3;
-maxpix = targetPixels;
-raceDelay = 69; // so i learnt a lot on this project. one day this line shall disappear replaced by promises.
-dimension = defaultMagnitude; // var that the hilbert projection is be downsampled to
-darkenFactor = 0.25; // if user has chosen to highlight an amino acid others are darkened
-highlightFactor = 4.0; // highten brightening.
-devmode = false; // kills the auto opening of reports etc
-quiet = false;
-verbose = false; // not recommended. will slow down due to console.
-debug = false; // not recommended. will slow down due to console.
-force = false; // force overwrite existing PNG and HTML reports
-artistic = false; // for Charlie
-dnabg = false; // firehose your screen with DNA!
-report = true; // html reports can be dynamically disabled
-test = false;
-updates = true;
-updateProgress = false;
-stats = true;
-recycEnabled = false; // bummer had to disable it
-renderLock = false; // not rendering right now obviously
-clear = true; // clear the terminal screen while running
-openLocalHtml = true; // its better to use the built-in server due to CORS
-highlightTriplets = [];
-isHighlightSet = false;
-isHilbertPossible = true; // set false if -c flags used.
-isDiskFinLinear = true; // flag shows if saving png is complete
-isDiskFinHilbert = true; // flag shows if saving hilbert png is complete
-isDiskFinHTML = true; // flag shows if saving html is complete
-isStorageBusy = false; // true just after render while saving to disk. helps percent show 100% etc.
-willRecycleSavedImage = false; // allows all the regular processing to mock the DNA render stage
-codonsPerSec = 0;
-peakRed = 0.123455;
-rawDNA ="@loading DNA Stream..."; // debug
-status = "load";
-debugColumns = 0; debugColumns = setDebugCols(); // why?
-howMany = 1;
-termPixels = Math.round(((term.width-5) * (term.height-5))/4);
-runningDuration = 1; // ms
-interactiveKeysGuide = "";
-pepTable = data.pepTable;
-dnaTriplets = data.dnaTriplets;
-asciiart = data.asciiart;
+  webserverEnabled = false;
+  killServersOnQuit = true;
+  isElectron = true;
+  outFoldername = `AminoSee_Output`;
+  outputPath = outFoldername;
+  justNameOfDNA = 'aminosee-is-looking-for-files-containing-ascii-DNA.txt';
+  currentFile = funknzLabel;
+  nextFile = funknzLabel;
+  filename = funknzLabel;
+  browser = 'firefox';
+  msPerUpdate = minUpdateTime; // min milliseconds per update its increased for long renders
+  now = new Date();
+  maxMsPerUpdate = 30000; // milliseconds per updatelet maxpix = targetPixels; // maxpix can be changed downwards by algorithm for small genomes in order to zoom in
+  timeRemain = 1;
+  debugGears = 1;
+  termDisplayHeight = 31;
+  termStatsHeight = 9;
+  done = 0;
+  suopIters = 0;
+  termMarginLeft = (term.width - 100) / 3;
+  termMarginTop = (term.height - termDisplayHeight - termStatsHeight) / 3;
+  maxpix = targetPixels;
+  raceDelay = 69; // so i learnt a lot on this project. one day this line shall disappear replaced by promises.
+  dimension = defaultMagnitude; // var that the hilbert projection is be downsampled to
+  darkenFactor = 0.25; // if user has chosen to highlight an amino acid others are darkened
+  highlightFactor = 4.0; // highten brightening.
+  devmode = false; // kills the auto opening of reports etc
+  quiet = false;
+  verbose = false; // not recommended. will slow down due to console.
+  debug = false; // not recommended. will slow down due to console.
+  force = false; // force overwrite existing PNG and HTML reports
+  artistic = false; // for Charlie
+  dnabg = false; // firehose your screen with DNA!
+  report = true; // html reports can be dynamically disabled
+  test = false;
+  updates = true;
+  updateProgress = false;
+  stats = true;
+  recycEnabled = false; // bummer had to disable it
+  renderLock = false; // not rendering right now obviously
+  clear = true; // clear the terminal screen while running
+  openLocalHtml = true; // its better to use the built-in server due to CORS
+  highlightTriplets = [];
+  isHighlightSet = false;
+  isHilbertPossible = true; // set false if -c flags used.
+  isDiskFinLinear = true; // flag shows if saving png is complete
+  isDiskFinHilbert = true; // flag shows if saving hilbert png is complete
+  isDiskFinHTML = true; // flag shows if saving html is complete
+  isStorageBusy = false; // true just after render while saving to disk. helps percent show 100% etc.
+  willRecycleSavedImage = false; // allows all the regular processing to mock the DNA render stage
+  codonsPerSec = 0;
+  peakRed = 0.123455;
+  rawDNA ="@loading DNA Stream..."; // debug
+  status = "load";
+  debugColumns = 0; debugColumns = setDebugCols(); // why?
+  howMany = 1;
+  termPixels = Math.round(((term.width-5) * (term.height-5))/4);
+  runningDuration = 1; // ms
+  interactiveKeysGuide = "";
+  pepTable = data.pepTable;
+  dnaTriplets = data.dnaTriplets;
+  asciiart = data.asciiart;
 
 
 
@@ -704,13 +704,13 @@ function progUpdate(obj) {  // allows to disable all the prog bars in one place
     triplet = "none";
   }
   if (args.peptide || args.p) {
-    users = args.peptide || args.p;
-    peptide = tidyPeptideName(users);
-    // output(`Users peptide: ${users}  peptide: ${peptide}`);
+    let usersPeptide = args.peptide || args.p;
+    peptide = tidyPeptideName(usersPeptide);
+    // output(`Users peptide: ${usersPeptide}  peptide: ${peptide}`);
     if (peptide != "none" || peptide == "") { // this colour is a flag for error
       isHighlightSet = true;
     } else {
-      error(`could not lookup peptide: ${users} using ${peptide}`);
+      error(`could not lookup peptide: ${usersPeptide} using ${peptide}`);
 
     }
 
@@ -1632,12 +1632,12 @@ function initStream() {
   isDiskFinHTML = false;
   isDiskFinHilbert = false;
   isDiskFinLinear = false;
-  for (h=0; h<pepTable.length; h++) {
+  for (let h=0; h<pepTable.length; h++) {
     pepTable[h].Histocount = 0;
     pepTable[h].z = h;
     pepTable[h].src = aminoFilenameIndex(h);
   }
-  for (h=0; h<dnaTriplets.length; h++) {
+  for (let h=0; h<dnaTriplets.length; h++) {
     dnaTriplets[h].Histocount = 0;
   }
 
@@ -1709,8 +1709,8 @@ function initStream() {
     })
     .on('error', function(err){
       mode("stream error");
-      error('while starting stream: ' + filename);
       output(err)
+      error('while starting stream: ' + filename);
       bugout(`renderLock: ${renderLock}`);
       streamStopped();
     })
@@ -1846,7 +1846,7 @@ function autoconfCodonsPerPixel() {
   } else { // use a file
     isStreamingPipe = false; // cat Human.genome | aminosee
     estimatedPixels = baseChars / 3; // divide by 4 times 3
-    dimension = idealDimension(estimatedPixels);
+    dimension = optimumDimension (estimatedPixels);
   }
 
 
@@ -2327,7 +2327,7 @@ function saveDocsSync() {
 
   percentComplete = 1;
   term.eraseDisplayBelow();
-  computerWants = idealDimension(pixelClock);
+  const computerWants = optimumDimension (pixelClock);
   calculateShrinkage();
 
   percentComplete = 1; // to be sure it shows 100% complete
@@ -2815,7 +2815,7 @@ function processLine(l) {
   currentTriplet = "none";
   isHighlightCodon = false;
   CRASH = false;
-  for (column=0; column<lineLength; column++) {
+  for (let column=0; column<lineLength; column++) {
     // build a three digit codon
     let c = cleanChar(l.charAt(column)); // has to be ATCG or a . for cleaned chars and line breaks
     charClock++;
@@ -3238,7 +3238,7 @@ http://localhost:8888/aminosee/output/50KB_TestPattern/50KB_TestPattern.txt_line
 
 `;
 // pepTable   = [Codon, Description, Hue, Alpha, Histocount]
-for (i=0; i<pepTable.length; i++) {
+for (let i=0; i<pepTable.length; i++) {
   let thePep = pepTable[i];
   let theHue = thePep.Hue;
   let c =      hsvToRgb( theHue / 360, 0.5, 1.0 );
@@ -3339,8 +3339,8 @@ function decodePNG(file, callback) {
   }))
   .on('parsed', function() {
     rgbArray = [this.length];
-    for (var y = 0; y < this.height; y++) {
-      for (var x = 0; x < this.width; x++) {
+    for (let  y = 0; y < this.height; y++) {
+      for (let  x = 0; x < this.width; x++) {
         var idx = (this.width * y + x) << 2;
 
 
@@ -3431,7 +3431,7 @@ function stat(txt) {
 function toBuffer(ab) {
   var buf = new Buffer(ab.byteLength);
   var view = new Uint8Array(ab);
-  for (var i = 0; i < buf.length; ++i) {
+  for (let  i = 0; i < buf.length; ++i) {
     buf[i] = view[i];
   }
   return buf;
@@ -3467,7 +3467,7 @@ function hilDecode(i, dimension) {
 function calculateShrinkage() { // danger: can change filenames of Hilbert images!
 
   let linearpix = rgbArray.length / 4;
-  let computerWants = idealDimension(linearpix);
+  let computerWants = optimumDimension (linearpix);
   log(`Ideal magnitude: ${computerWants} (new) previous magnitude: ${dimension}`);
 
   if ( computerWants > defaultMagnitude ) {
@@ -3546,7 +3546,7 @@ function saveHilbert(cb) {
   percentComplete = 0;
   debugFreq = Math.round(hilpix / 100);
   progUpdate({ title: 'Hilbert Curve', items: howMany, syncMode: true })
-  for (i = 0; i < hilpix; i++) {
+  for (let i = 0; i < hilpix; i++) {
     if ( i%debugFreq == 0) {
       percentComplete = i/hilpix;
       progUpdate(percentComplete)
@@ -3658,8 +3658,8 @@ function bothKindsTestPattern() {
   rgbArray = [linearpix*4];
   width = Math.round(Math.sqrt(hilpix));
   height = width;
-  linearWidth = Math.round(Math.sqrt(hilpix));
-  linearHeight = linearWidth;
+  const linearWidth = Math.round(Math.sqrt(hilpix));
+  const linearHeight = linearWidth;
 
   if (howMany == -1) {
     log("Error -1: no remaining files to process");
@@ -3671,7 +3671,7 @@ function bothKindsTestPattern() {
   bugtxt(filenameHILBERT);
   percentComplete = 0;
   let d = Math.round(hilpix/100);
-  for (i = 0; i < hilpix; i++) {
+  for (let i = 0; i < hilpix; i++) {
     let hilbX, hilbY;
     [hilbX, hilbY] = hilDecode(i, dimension, h);
     let cursorLinear  = 4 * i ;
@@ -3895,7 +3895,7 @@ function getRegmarks() {
 }
 function mkdir(relative) { // returns true if a fresh dir was created
   if (!relative) { relative = ''}
-  dir2make = path.resolve( `${outputPath}/${relative}` );
+  let dir2make = path.resolve( `${outputPath}/${relative}` );
   if (doesFolderExist(outputPath) == false) {
     try {
       fs.mkdirSync(outputPath, function (err, result) {
@@ -4082,7 +4082,7 @@ function resampleByFactor(shrinkFactor) {
   debugFreq = Math.round(downsampleSize/100);
   // SHRINK LINEAR IMAGE:
   progUpdate({ title: 'Resample by X'+shrinkFactor, items: howMany, syncMode: true })
-  for (z = 0; z<downsampleSize; z++) { // 2x AA pixelClock is the number of pixels in linear
+  for (let z = 0; z<downsampleSize; z++) { // 2x AA pixelClock is the number of pixels in linear
     if ( z % debugFreq == 0) {
       percentComplete = z/downsampleSize;
       progUpdate(percentComplete)
@@ -4106,14 +4106,14 @@ function resampleByFactor(shrinkFactor) {
   }
   rgbArray = antiAliasArray;
 }
-function idealDimension(pix) { // give it pix it returns a magnitude that fits inside it
-  mode('idealDimension');
+function optimumDimension (pix) { // give it pix it returns a magnitude that fits inside it
+  mode('optimumDimension ');
   let dim = 0;
   let rtxt = `[HILBERT] Calculating largest Hilbert curve image that can fit inside ${twosigbitsTolocale(pix)} pixels, and over sampling factor of ${overSampleFactor}: `;
   while (pix > (hilbPixels[dim] * overSampleFactor)) {
     // rtxt += ` dim ${dim}: ${hilbPixels[dim]} `;
     if (dim % 666 == 0 && dim > 666) {
-      // rtxt+= (`ERROR idealDimension [${hilbPixels[dim]}] pix ${pix} dim ${dim} `);
+      // rtxt+= (`ERROR optimumDimension  [${hilbPixels[dim]}] pix ${pix} dim ${dim} `);
     }
     if (dim > defaultMagnitude) {
       if (magnitude && dim > theoreticalMaxMagnitude ) {
@@ -4282,7 +4282,7 @@ function clout(txt) {
 
   // remove anything that isn't ATCG, convert U to T
   function cleanChar(c) {
-    char = c.toUpperCase();
+    let char = c.toUpperCase();
     if (char == "A" || char == "C" || char == "G" || char == "T" || char == "U") {
       if (char == "U") {
         return "T"; // convert RNA into DNA
@@ -4300,7 +4300,7 @@ function clout(txt) {
     let ret = "";
     s = removeLineBreaks(s);
 
-    for (i=0; i< s.length; i++) {
+    for (let i=0; i< s.length; i++) {
       ret += cleanChar(s.charAt(i));
     }
     return ret;
@@ -4529,13 +4529,12 @@ function clout(txt) {
     termSize();
     let text = " ";
     let aacdata = [];
-    load = loadAverages();
 
-    for (h=0;h<pepTable.length;h++) {       // OPTIMISE i should not be creating a new array each frame!
+    for (let h=0;h<pepTable.length;h++) {       // OPTIMISE i should not be creating a new array each frame!
       aacdata[pepTable[h].Codon] = pepTable[h].Histocount ;
     }
     let array = [
-      `| Load: ${load}  Files to go: ${howMany}`,
+      `| Load: ${loadAverages()}  Files to go: ${howMany}`,
       `| File:  ${chalk.inverse(fixedWidth(40, justNameOfDNA))}.${extension} ${chalk.inverse(highlightOrNothin())}`,
       `| @i${fixedWidth(10, charClock.toLocaleString())} Breaks:${ fixedWidth(6, breakClock.toLocaleString())} Filesize:${fixedWidth(7, bytes(baseChars))}`,
       `| Next update: ${fixedWidth(5, msPerUpdate.toLocaleString())}ms Codon Opacity: ${twosigbitsTolocale(opacity*100)}%`,
@@ -4622,9 +4621,9 @@ function clout(txt) {
       return memReturn + " ] ";
     }
     function loadAverages() {
-      l0 = os.loadavg()[0];
-      l1 = os.loadavg()[1];
-      l2 = os.loadavg()[2];
+      const l0 = os.loadavg()[0];
+      const l1 = os.loadavg()[1];
+      const l2 = os.loadavg()[2];
       return twosigbitsTolocale(l0) + " / " + twosigbitsTolocale(l1) + " / " + twosigbitsTolocale(l2);
     }
     function highlightOrNothin() { // no highlight, no return!
@@ -4767,13 +4766,13 @@ function clout(txt) {
       debugFreq = throttledFreq(3);
 
       let theMatch = dnaTriplets.find(isTriplet).DNA
-      for (z=0; z<dnaTriplets.length; z++) {
+      for (let z=0; z<dnaTriplets.length; z++) {
         if (cod == dnaTriplets[z].DNA) { // SUCCESSFUL MATCH (convert to map)
           aminoacid = dnaTriplets[z].Codon;
           dnaTriplets[z].Histocount++;
           dot(genomeSize, debugFreq, `z = ${z} theMatch ${theMatch} <==> ${cod} ${aminoacid}`); // show each 10,000th (or so) base pair.
 
-          for (h=0; h<pepTable.length; h++) { // update pepTable
+          for (let h=0; h<pepTable.length; h++) { // update pepTable
             if (aminoacid == pepTable[h].Codon) {
               pepTable[h].Histocount++;
               // pepTable[h].Histocount++;

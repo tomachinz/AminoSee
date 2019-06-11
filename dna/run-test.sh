@@ -1,34 +1,35 @@
 #!/bin/sh
 # test should run quickly and quit.
 w
+npm run genversion
 aminosee
 aminosee -f
 aminosee -v
-6='50KB_TestPattern.txt'
+FAST='50KB_TestPattern.txt'
 # echo 'nice aminosee $1 $2 $3 $4 $5 $6   --peptide="aspartic ACID"'
-nice aminosee $1 $2 $3 $4 $5 $6  --peptide="aspartic ACID"
+nice aminosee $FAST $1 $2 $3 $4 $5 $6  --peptide="aspartic ACID"
 
 # echo 'doing   $1 $2 $3 $4 $5 $6  --peptide="gluTAMIC aCID"'
-nice aminosee       $1 $2 $3 $4 $5 $6 -f --peptide="gluTAMIC aCID"
+nice aminosee  $FAST      $1 $2 $3 $4 $5 $6 -f --peptide="gluTAMIC aCID"
 
 # echo "nice aminosee $1 $2 $3 $4 $5 $6 --triplet ggg --ratio=sqr"
-nice aminosee       $1 $2 $3 $4 $5 $6 --triplet ggg --ratio=sqr
+nice aminosee   $FAST     $1 $2 $3 $4 $5 $6 --triplet ggg --ratio=sqr
 
 # echo "nice aminosee $1 $2 $3 $4 $5 $6 -m5 --ratio=gol"
-nice aminosee       $1 $2 $3 $4 $5 $6 -m5 --ratio=gol
+nice aminosee   $FAST     $1 $2 $3 $4 $5 $6 -m5 --ratio=gol
 
 echo nice aminosee  $1 $2 $3 $4 $5 $6 -c100 --ratio=sqr
-nice aminosee  $1 $2 $3 $4 $5 $6 -c100 --ratio=sqr
+nice aminosee  $FAST $1 $2 $3 $4 $5 $6 -c100 --ratio=sqr
 
 echo KEYBOARD MODE TEST
 echo "nice aminosee $1 $2 $3 $4 $5 $6 -f --ratio=gol --peptide=Ochre --keyboard"
-nice aminosee       $1 $2 $3 $4 $5 $6 -f --ratio=gol --peptide=Ochre --keyboard
+nice aminosee  $FAST      $1 $2 $3 $4 $5 $6 -f --ratio=gol --peptide=Ochre --keyboard
 
 # echo "nice aminosee $1 $2 $3 $4 $5 $6 -f --no-updates -m7 --ratio=sqr --peptide=Amber"
-nice aminosee       $1 $2 $3 $4 $5 $6 -f --no-updates -m7 --ratio=sqr --peptide=Amber
+nice aminosee  $FAST      $1 $2 $3 $4 $5 $6 -f --no-updates -m7 --ratio=sqr --peptide=Amber
 
 # echo "nice aminosee $1 $2 $3 $4 $5 $6 --no-updates -m5 --peptide=Methionine --ratio=sqr"
-nice aminosee       $1 $2 $3 $4 $5 $6 --no-updates -m5 --peptide=Methionine --ratio=sqr
+nice aminosee  $FAST     $1 $2 $3 $4 $5 $6 --no-updates -m5 --peptide=Methionine --ratio=sqr
 
 # echo "nice aminosee $1 $2 $3 $4 $5 $6 -m 8 --peptide=Cysteine"
 nice aminosee       $1 $2 $3 $4 $5 $6 -m 8 --peptide=Cysteine
