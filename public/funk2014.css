@@ -1,0 +1,689 @@
+/* CSS Document */
+body {
+  background-color: #efefef;
+}
+
+html, body, form, input, textarea, a, p, h1, h2, h3, h4, h5, h6, div, input[type="button"i], input[type="submit"i], input[type="reset"i], input[type="file"i]::-webkit-file-upload-button, button {
+  font-family: "Yanone Kaffeesatz";
+}
+
+form, input, textarea, p, div {
+  /* font-weight: 300; */
+  font-size: 22px;
+  line-height: 32px;
+}
+
+#handylinks a, #handylinks p, a.roundbox, #handylinks a.roundbox {
+  font-weight: bold;
+}
+
+#handylinks a {
+  text-decoration: none;
+  background-color: black;
+}
+
+#handylinks a:hover {
+  text-decoration: underline;
+}
+
+#handylinks strong {
+  display: block;
+  width: 100%;
+}
+
+img.blackback {
+  background: black;
+  border: 2px black solid;
+}
+
+img.bands {
+  width: 64px;
+  height: 64px;
+  border: 2px black solid;
+}
+
+#handylinks a {
+  /* background-color: #fefefe; */
+  background-color: rgba(255, 255, 255, 0.25);
+  /* border: 1px solid black; */
+  /* border-radius: 4px; */
+  color: white;
+  margin-right: 8px;
+  margin-bottom: 8px;
+  padding: 16px 16px 8px 16px;
+  padding: 8px 8px 4px 8px;
+}
+
+.big_art_margins {
+  margin-left: 20%;
+  margin-right: 20%;
+  text-align: center;
+  width: 60%;
+  max-width: 640px;
+}
+
+.center {
+  text-align: center;
+}
+
+.left {
+  text-align: left;
+}
+
+.wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.bootynav {
+  position: fixed;
+  top: 5%;
+  /* bottom:  50%; */
+  right: 1rem;
+  z-index: 4;
+}
+
+input.gsc-input {
+  /* padding: 1px 6px; */
+  /* border: 1px solid #DDD; */
+  width: 256px;
+}
+
+.gsc-control-cse {
+  width: 256px;
+}
+
+#gsc-control-cse {
+  /* position: fixed; */
+  top: 0;
+  right: 0;
+  z-index: 0;
+  width: 256px;
+  /* max-width: 256px; */
+  /* min-width: 64px; */
+  /* max-height: 64px; */
+  /* padding: 1em; */
+  /* background-color: red; */
+  background-color: rgba(255, 255, 255, 0.5);
+  text-align: center;
+}
+
+#gsc-control-cse {
+  position: inline;
+}
+
+.gs-title, a.gs-title {
+  font-size: 18px;
+}
+
+.gsc-control-cse .gs-spelling, .gsc-control-cse .gs-result, .gsc-control-cse .gs-result, a.gs-result {
+  font-size: 12px;
+  padding: 0;
+  margin: 0;
+}
+
+div.alignright {
+  float: right;
+  padding: 16px;
+}
+
+.alignright {
+  text-align: left;
+}
+
+p.wp-caption-text, span.postedby, a.postedby, span.postedby a {
+  /* font-size: 18px; */
+  font-size: 0.8rem;
+  font-weight: bold;
+}
+
+body {
+  padding: 0px 0;
+}
+
+body.white {
+  background: #eeeeee;
+}
+
+body.black {
+  background-color: black;
+  color: white;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.tracingpane {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 32px;
+  /* margin: 32px; */
+  border: 4px solid rgba(0, 0, 0, 0.4);
+  border-radius: 5px;
+  margin-bottom: 2em;
+}
+
+.container {}
+
+.container>div {
+  /* background-color: red; */
+}
+
+.container>div {
+  /* background-color: rgb(89, 161, 175); */
+  border-radius: 5px;
+  padding: 10px;
+  color: #fff;
+  font-weight: bold;
+}
+
+#handylink {
+  column-width: 250px;
+  column-gap: 20px;
+  padding: 10px;
+}
+
+.multicol div {
+  column-width: 256px;
+  column-gap: 32px;
+  /* padding: 10px; */
+}
+
+.multicol p {
+  margin: 0 0 1em 0;
+}
+
+.flex {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.flex>* {
+  flex: 1 1 250px;
+  margin: 10px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  grid-gap: 20px;
+  padding: 10px;
+}
+
+.row {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+  flex-basis: 100%;
+}
+
+.item {
+  /* background-color: orange; */
+  height: 100px;
+  display: flex;
+  flex-direction: column;
+  flex-basis: 100%;
+}
+
+@media screen and (min-width: 800px) {
+  .column {
+    flex: 1
+  }
+
+  .double-column {
+    flex: 2
+  }
+}
+
+.item {
+  max-width: 256px;
+  max-height: 512px;
+  /* min-width: 128px; */
+  /* min-height: 128px; */
+  /* display: flex; */
+  display: inline-flex;
+  flex-wrap: wrap;
+  flex-flow: column wrap;
+  flex-direction: row;
+  order: 1 1 1;
+  flex-grow: 1 1 1;
+}
+
+div.entry-content {
+  vertical-align: top;
+  padding: 2rem;
+}
+
+h1, h2, h3, h4, h5, h6, h1 a {
+  font-weight: 500;
+  /* margin: 8px; */
+}
+
+#header h1 {
+  font-size: 30px;
+  text-decoration: none;
+}
+
+#header a:hover {
+  background: black;
+  color: white;
+}
+
+#header h2, h2.header {
+  font-size: 16px;
+  margin-bottom: 8px;
+  font-weight: 100;
+  background-color: white;
+}
+
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(4, 2fr);
+  grid-column-gap: 32px;
+  grid-template-rows: 40% 60%;
+}
+
+.grid-item {
+  display: inline-grid;
+  grid-column: span 2;
+}
+
+#content {
+  margin: 32px 10% 0 20%;
+  /* margin-top: 16px; */
+}
+
+#content h1, #content h1>a {}
+
+.ads {
+  margin-top: 128px;
+}
+
+#handylinks p {
+  /* font-size: 0.9rem; */
+}
+
+h1, h1 a {
+  font-size: 2.3rem;
+}
+
+h2 {
+  font-size: 2.1rem;
+}
+
+h3 {
+  font-size: 1.9rem;
+}
+
+h4 {
+  font-size: 1.7rem;
+}
+
+h5 {
+  font-size: 1.5rem;
+}
+
+h6 {
+  font-size: 1.3rem;
+}
+
+.nav-previous a, .nav-next a {
+  display: block;
+  background: grey;
+  background: rgba(255, 255, 200, 0.3);
+  overflow-x: hidden;
+  padding: 16px;
+  margin: 0;
+  text-decoration: none;
+  font-weight: 400;
+  font-size: 16px;
+  /* line-height: 26px; */
+  white-space: nowrap;
+}
+
+.nav-previous a:hover, .nav-next a:hover {
+  background: teal;
+  color: white;
+  text-decoration: underline;
+}
+
+.nav-previous a, .nav-next a, .css-truncate.css-truncate-target,
+.css-truncate .css-truncate-target {
+  display: inline-block;
+  max-width: 50px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: top
+}
+
+.nav-previous a, .nav-next a {
+  max-width: 25% !important
+}
+
+.css-truncate.expandable.css-truncate-target,
+.css-truncate.expandable.css-truncate-target,
+.css-truncate.expandable:hover .css-truncate-target,
+.css-truncate.expandable:hover.css-truncate-target {
+  max-width: 10000px !important
+}
+
+form.roundbox, .roundbox, div.roundbox {
+  text-align: top;
+  background: -moz-linear-gradient(bottom, #CCCCCC, #EEEEEE 175px);
+  background: linear-gradient(bottom, #CCCCCC, #EEEEEE 175px);
+  background-color: white;
+  color: black;
+  text-decoration: none;
+  -webkit-border-radius: 10px;
+  -moz-border-radius: 10px;
+  border-radius: 10px;
+  padding: 10px;
+  border: 1px solid #999;
+  border: inset 1px solid #333;
+  top: 22px;
+}
+
+p.roundbox, div.roundbox {
+  color: black;
+  background-color: white;
+  font-weight: bold;
+}
+
+a.roundbox, a.roundbox:visited, a.roundbox:-webkit-any-link {
+  color: #000066;
+  font-weight: bold;
+}
+
+.ui-resizable-helper {
+  border: 1px dotted gray;
+}
+
+.resizable {
+  display: block;
+  padding: 30px;
+  border: 2px solid gray;
+  overflow: hidden;
+  position: relative;
+}
+
+textarea, input {
+  border: 1px solid #999;
+}
+
+textarea:focus, input:focus {
+  border: 1px solid #000;
+}
+
+input.button {
+  /* width:100px; */
+  /* right:20px; */
+  /* bottom:20px; */
+  /* height:30px; */
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+  border: 10px solid #999;
+}
+
+input.button:hover {
+  background: #fff;
+  color: #09C;
+}
+
+p.weight1, form {
+  font-family: "Yanone Kaffeesatz";
+  font-weight: 300;
+  font-style: normal;
+  /* font-size: 36px; */
+}
+
+p.weight2 {
+  font-family: "Yanone Kaffeesatz";
+  font-weight: 300;
+  font-style: normal;
+  /* font-size: 36px; */
+}
+
+p.weight3 {
+  font-family: "Yanone Kaffeesatz";
+  font-weight: 400;
+  font-style: normal;
+  /* font-size: 36px; */
+}
+
+p.weight4 {
+  font-family: "Yanone Kaffeesatz";
+  font-weight: 700;
+  font-style: normal;
+  /* font-size: 36px; */
+}
+
+p.weights {
+  letter-spacing: 2px;
+  color: rgba(173, 173, 173, 1);
+  margin-bottom: 35px;
+  border-width: 0px 0px 1px 0px;
+  border-style: dotted;
+  margin-top: 45px;
+}
+
+p.pullquote {
+  /* font-size: 17px; */
+  margin-bottom: 35px;
+  padding-left: 15px;
+  border-width: 0px 0px 0px 3px;
+  border-style: solid;
+}
+
+p.map {
+  font-weight: 400;
+  font-style: normal;
+  margin-bottom: 0px;
+  text-align: justify;
+  /* font-size: 27px; */
+  margin-top: 0px;
+}
+
+p.heading {
+  letter-spacing: 2px;
+  /* font-size: 13px; */
+  margin-bottom: 35px;
+  border-width: 0px 0px 1px 0px;
+  border-style: dotted;
+  margin-top: 45px;
+  color: rgba(0, 0, 0, 1);
+}
+
+p.intro {
+  margin-bottom: 35px;
+  /* font-size: 20px; */
+}
+
+p.inverse-big {
+  background-color: rgba(51, 51, 51, 1);
+  color: rgba(255, 255, 255, 1);
+  padding: 30px;
+  margin-bottom: 0px;
+}
+
+p.inverse-med {
+  background-color: rgba(51, 51, 51, 1);
+  color: rgba(255, 255, 255, 1);
+  padding: 30px;
+  margin-bottom: 0px;
+  padding-top: 0px;
+  /* font-size: 15px; */
+}
+
+p.inverse-small {
+  padding-top: 0px;
+  padding-left: 30px;
+  padding-right: 30px;
+  padding-bottom: 30px;
+  background-color: rgba(51, 51, 51, 1);
+  color: rgba(255, 255, 255, 1);
+  /* font-size: 13px; */
+}
+
+p.inverse-heading {
+  background-color: rgba(51, 51, 51, 1);
+  color: rgba(255, 255, 255, 1);
+  padding: 30px;
+  margin-bottom: 0px;
+  padding-bottom: 0px;
+  /* font-size: 15px; */
+  letter-spacing: 2px;
+  margin-top: 50px;
+}
+
+/* AMU CSS BLOCK */
+/* FUNK STYLE SHEET - AUCKLAND MUSIC UPDATE
+funk.co.nz
+Tom Atkinson
+2010
+*/
+.wintickets {
+  background: #FFFF66;
+  outline-style: dotted;
+  outline-width: 1px;
+  padding: 3px;
+}
+
+.response {
+  background: #FFFF33;
+  color: #FF3300;
+  padding: 20px;
+  border: thick, dashed;
+}
+
+.bandiplayfor {
+  color: #990000
+}
+
+.bandilike, a.bandilike:link, a.bandilike:visited, a.bandilike:hover {
+  color: #997700
+}
+
+.interestingevent, a.interestingevent:link, a.interestingevent:visited, a.interestingevent:hover {
+  color: #007700
+}
+
+a.bandiplayfor:active, a.bandilike:active, a.interestingevent:active {
+  color: red;
+}
+
+/* small text is made smaller and grey */
+.fineprint {
+  /* font-size: 0.7rem; */
+  font-size: 14px;
+  color: #555555;
+  white-space: nowrap;
+  line-height: 16px;
+}
+
+/*- DREAMWEAVER STYLES DUMPED IN  */
+.excel1 {
+  padding-top: 1px;
+  padding-right: 1px;
+  padding-left: 1px;
+  color: black;
+  font-weight: 400;
+  font-style: normal;
+  text-decoration: none;
+  font-family: Arial;
+  text-align: general;
+  vertical-align: bottom;
+  border: none;
+  white-space: nowrap;
+}
+
+.excel2 {
+  padding-top: 1px;
+  padding-right: 1px;
+  padding-left: 1px;
+  font-weight: 400;
+  font-style: normal;
+  text-decoration: none;
+  font-family: Arial;
+  text-align: general;
+  vertical-align: bottom;
+  border: none;
+  white-space: nowrap;
+}
+
+.whitetext, span.whitetext, div.whitetext, p.whitetext {
+  color: white;
+}
+
+.small, button.small, form.small, input.small, textarea.small, a.small, p.small, div.small, span.small {
+  margin: 0;
+  padding: 0;
+}
+
+@media (orientation: portrait) {
+  body {
+    /* background-color: yellow; */
+  }
+}
+
+/*
+@media (max-width: 1000px) {
+  #gsc-control-cse {
+    display: inline;
+    position: inherit;
+  }
+
+  .hidable {
+    visibility: hidden;
+    display: none;
+  }
+} */
+@media	only screen and (-webkit-max-device-pixel-ratio: 1.3),
+only screen and (-o-max-device-pixel-ratio: 13/10),
+only screen and (max-resolution: 120dpi) {}
+
+@media (orientation: portrait) and (min-height: 950px) {}
+
+@media (orientation: portrait) and (max-height: 950px) {}
+
+/* PORTRAIT MOBILE PHONES Extra Scrunch!!! THE ORANGE PROFILE  */
+@media (orientation: portrait) and (max-height: 530px) {}
+
+@media (orientation: landscape) and (min-aspect-ratio: 2/1) {}
+
+/**************** LANDSCAPE / WIDESCREEN ********** */
+@media (orientation: landscape) {}
+
+/* HIGH RES SCREENS OVER 1600PX USE FULL HEIGHT */
+@media (orientation: landscape) and (min-width: 1600px) {}
+
+/*PHOTOGRAPHIC RATIO BOUNDARY @ 134/100 - SWITCH TO FULL WIDTH */
+@media (orientation: landscape) and (min-aspect-ratio: 134/100) {}
+
+/*PHOTOGRAPHIC RATIO BOUNDARY @ 134/100 - SWITCH TO FULL HEIGHT */
+@media (orientation: landscape) and (max-aspect-ratio: 134/100) {}
+
+@media (orientation: landscape) {}
+
+/* ULTRA severely small screens*/
+/* @media (orientation: landscape) and (max-height: 376px) {} */
+/* QUITE WIDESCREEN DESKTOP */
+/*PHOTOGRAPHIC RATIO BOUNDARY @ 134/100 - SWITCH TO FULL WIDTH */
+/* @media (orientation: landscape) and (max-aspect-ratio: 134/100) {} */
+/*4K ULTRA HD DISPLAYS */
+/* @media (min-width: 2600px) {} */
+/* THIS IS WHERE THE HOMEPAGEHEADING DISAPPEARS! */
+/* TINY SCREEN IPHONE 4 LANDSCAPE  MOBILE PHONES */
+/* @media (orientation: landscape) and (max-device-width: 900px), (orientation: landscape) and (max-width: 1020px) {} */
+/* WIDESCREEN PHONES */
+/* @media (orientation: landscape) and (min-height: 321px) and (min-width: 578px) and (max-width: 1600px) {} */
+/* landscape crossover ratio: 1.34 or*/
+/* SUPER WIDE SCREENS GET FULL WIDTH */

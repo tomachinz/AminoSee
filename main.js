@@ -70,7 +70,7 @@ function pushCli(commandString) {
   let commandArray = commandString.split("\\s+");
 
   console.log(`commandString: [${commandString}]`);
-  let aWeeJobby = AminoSeeNoEvil('test');
+  // let aWeeJobby = AminoSeeNoEvil('test');
   // aWeeJobby.addJob('demo');
   aminosee.addJob(commandArray)
   // aminosee.cli(commandString)
@@ -281,7 +281,7 @@ function buildMenus() {
 
 app.on('ready', function() {
   createWindow();
-  pushCli(`help`)
+  // pushCli(`help`)
 })
 
 // Quit when all windows are closed.

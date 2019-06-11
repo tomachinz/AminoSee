@@ -12,7 +12,7 @@ class AminoSeeNoEvil {
 
     // process.argv.slice(2)
 
-    this.argv = [argv[0], argv[1], moreargs];
+    // this.argv = [argv[0], argv[1], moreargs];
   }
   set setArgs(commandArray) {
     // console.log(commandArray.toString())
@@ -32,41 +32,59 @@ class AminoSeeNoEvil {
   }
 };  module.exports.AminoSeeNoEvil = AminoSeeNoEvil;
 
-// const aminosee = new AminoSeeNoEvil();
-// aminosee.setArgv('-v')
-// console.log(`aminosee.getArgs  ${aminosee.getArgs}`); // 100
-
-
-//
-//
-// Object.defineProperty(this, 'commandArray', {
-// get: function() {
-//   console.log('get commandArray');
-//   return this.argsv;
-// },
-// set: function(value) {
-//   zconsole.log('set commandArray '+value);
-//   this.argsv = value;
-//   // archive.push({ val: temperature });
-// }
-// });
-//
-//
-//
-
-
-
-
-
-
-const targetPixels = 9000000; // for big genomes use setting flag -c 1 to achieve highest resolution and bypass this taret max render size
-
-// const electron = require('./main'); // electron app!
 const settings = require('./settings');
 const version = require('./lib/version');
 const server = require('./aminosee-server');
+const data = require('./data');
+
+// OPEN SOURCE PACKAGES FROM NPM
+const spawn = require('cross-spawn');
+const stream = require('stream');
+const util = require('util');
+const path = require('path');
+const async = require('async-kit'); // amazing lib
+const term = require('terminal-kit').terminal;
+const MyManHilbert = require('hilbert-2d'); // also contains magic
+const Readable = require('stream').Readable
+const Writable = require('stream').Writable
+const Transform = require('stream').Transform
+const es = require('event-stream');
+const minimist = require('minimist')
+const highland = require('highland')
+const fetch = require("node-fetch");
+const keypress = require('keypress');
+const open = require('open'); //path-to-executable/xdg-open
+const parse = require('parse-apache-directory-index');
+const fs = require('fs-extra'); // drop in replacement = const fs = require('fs')
+const request = require('request');
+const histogram = require('ascii-histogram');
+const bytes = require('bytes');
+const PNG = require('pngjs').PNG;
+const os = require("os");
+const humanizeDuration = require('humanize-duration')
+let PNGReader = require('png.js');
+let express = require('express');
+let bodyParser = require('body-parser');
+const appFilename = require.main.filename; //     /bin/aminosee.js is 11 chars
+const appPath = path.normalize(appFilename.substring(0, appFilename.length-15));// cut 4 off to remove /dna
+const hostname = os.hostname();
+const clog = console.log;
+const chalk = require('chalk');
+// const gv = require('genversion');
+// const Jimp = require('jimp');
+// const electron = require('./main'); // electron app!
+// const fileDialog = require('file-dialog')
+// let StdInPipe = require('./stdinpipe');
+// let gui = require('./public/aminosee-gui-web.js');
+// let imageStack = gui.imageStack;
+// let imageStack = require('./public/aminosee-gui-web.js').imageStack;
+let projectprefs, userprefs, eakGreen, peakBlue, progato, userCPP, startDate, started, previousImage, charClock, genomeSize, cliruns, gbprocessed, progTimer, hilbertImage, keyboard, filenameTouch, filenameServerLock, estimatedPixels, args, filenamePNG, extension, reader, hilbertPoints, herbs, levels, mouseX, mouseY, windowHalfX, windowHalfY, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, fileUploadShowing, testColors, chunksMax, chunksize, chunksizeBytes, cpu, subdivisions, contextBitmap, aminoacid, pixelClock, start, updateClock, bytesPerMs, pixelStacking, isHighlightCodon, justNameOfPNG, justNameOfHILBERT, sliceDNA, filenameHTML, msElapsed, bytesRemain, width, triplet, updatesTimer, pngImageFlags, codonsPerPixel, codonsPerPixelHILBERT, CRASH, red, green, blue, alpha, errorClock, breakClock, streamLineNr, opacity, codonRGBA, geneRGBA, currentTriplet, currentPeptide, shrinkFactor, reg, image, loopCounter, percentComplete, baseChars, bigIntFileSize, currentPepHighlight, justNameOfCurrentFile, openHtml, openFileExplorer, pixelStream, startPeptideIndex, stopPeptideIndex, flags, loadavg, platform, totalmem, correction, aspect, debugFreq, help, tx, ty, lockTimer, opens, instanceCLI;
+
+BigInt.prototype.toJSON = function() { return this.toString(); }; // shim for big int
+BigInt.prototype.toBSON = function() { return this.toString(); }; // Add a `toBSON()` function to enable MongoDB to store BigInts as strings
 
 
+const targetPixels = 9000000; // for big genomes use setting flag -c 1 to achieve highest resolution and bypass this taret max render size
 const funknzLabel = "aminosee.funk.nz"
 process.title = funknzLabel;
 const extensions = [ "txt", "fa", "mfa", "gbk", "dna", "fasta", "fna", "fsa", "mpfa", "gb", "gff"];
@@ -86,55 +104,12 @@ const widthMax = 960; // i wanted these to be tall and slim kinda like the most 
 const timestamp = Math.round(+new Date()/1000);
 const port = 4321;
 const max32bitInteger = 2147483647;
-// const fileDialog = require('file-dialog')
-
 // AMINOSEE OWN IMPORTS:
 let webserverEnabled = false;
 let killServersOnQuit = true;
 // let data = require('./data.js');
 // let pepTable = data.pepTable;
-
-
-
-// OPEN SOURCE PACKAGES FROM NPM
-const spawn = require('cross-spawn');
-const stream = require('stream');
-const util = require('util');
-const path = require('path');
-const async = require('async-kit'); // amazing lib
-const term = require('terminal-kit').terminal;
-// const gv = require('genversion');
-const MyManHilbert = require('hilbert-2d'); // also contains magic
-const Readable = require('stream').Readable
-const Writable = require('stream').Writable
-const Transform = require('stream').Transform
-const es = require('event-stream');
-const minimist = require('minimist')
-const highland = require('highland')
-const fetch = require("node-fetch");
-const keypress = require('keypress');
-const open = require('open'); //path-to-executable/xdg-open
-const parse = require('parse-apache-directory-index');
-const fs = require('fs-extra'); // drop in replacement = const fs = require('fs')
-const request = require('request');
-const histogram = require('ascii-histogram');
-const bytes = require('bytes');
-// const Jimp = require('jimp');
-const PNG = require('pngjs').PNG;
-const os = require("os");
-const humanizeDuration = require('humanize-duration')
-let PNGReader = require('png.js');
-let express = require('express');
-let bodyParser = require('body-parser');
-const appFilename = require.main.filename; //     /bin/aminosee.js is 11 chars
-const appPath = path.normalize(appFilename.substring(0, appFilename.length-15));// cut 4 off to remove /dna
-const hostname = os.hostname();
-const clog = console.log;
-const chalk = require('chalk');
-
-
-
-let electron = true;
+let isElectron = true;
 const defaultFilename = "dna/megabase.fa"; // for some reason this needs to be here. hopefully the open source community can come to rescue and fix this Kludge.
 const testFilename = "AminoSeeTestPatterns"; // for some reason this needs to be here. hopefully the open source community can come to rescue and fix this Kludge.
 let outFoldername = `AminoSee_Output`;
@@ -161,7 +136,7 @@ let suopIters = 0;
 let termMarginLeft = (term.width - 100) / 3;
 let termMarginTop = (term.height - termDisplayHeight - termStatsHeight) / 3;
 let maxpix = targetPixels;
-let raceDelay = 69; // so i learnt a lot on this project. one day this line shall disappear replaced by promises.
+let raceDelay = 1; // so i learnt a lot on this project. one day this line shall disappear replaced by promises.
 let dimension = defaultMagnitude; // var that the hilbert projection is be downsampled to
 let darkenFactor = 0.25; // if user has chosen to highlight an amino acid others are darkened
 let highlightFactor = 4.0; // highten brightening.
@@ -188,6 +163,7 @@ let isDiskFinLinear = true; // flag shows if saving png is complete
 let isDiskFinHilbert = true; // flag shows if saving hilbert png is complete
 let isDiskFinHTML = true; // flag shows if saving html is complete
 let isStorageBusy = false; // true just after render while saving to disk. helps percent show 100% etc.
+let isShuttingDown = false; // this is the way to solve race cond.
 let willRecycleSavedImage = false; // allows all the regular processing to mock the DNA render stage
 let codonsPerSec = 0;
 let peakRed = 0.123455;
@@ -195,29 +171,12 @@ let rawDNA ="@loading DNA Stream..."; // debug
 let status = "load";
 let debugColumns = 0; debugColumns = setDebugCols(); // why?
 let howMany = 1;
-// let StdInPipe = require('./stdinpipe');
 // let pipeInstance = new StdInPipe();
-
 let termPixels = Math.round(((term.width-5) * (term.height-5))/4);
-
-function logo() {
-  return `${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196).inverse("See")}${chalk.rgb(128,128,128).inverse("No")}${chalk.grey.inverse("Evil")}       v${chalk.rgb(255,255,0).inverse(version)}`;
-  // process.stdout.write(`v${chalk.rgb(255,255,0).bgBlue(version)}`);
-}
-output(logo());
-
 let runningDuration = 1; // ms
 let interactiveKeysGuide = "";
-let peakGreen, peakBlue, progato, userCPP, startDate, started, previousImage, charClock, genomeSize, cliruns, gbprocessed, progTimer, hilbertImage, keyboard, filenameTouch, filenameServerLock, estimatedPixels, args, filenamePNG, extension, reader, hilbertPoints, herbs, levels, mouseX, mouseY, windowHalfX, windowHalfY, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, fileUploadShowing, testColors, chunksMax, chunksize, chunksizeBytes, cpu, subdivisions, contextBitmap, aminoacid, pixelClock, start, updateClock, bytesPerMs, pixelStacking, isHighlightCodon, justNameOfPNG, justNameOfHILBERT, sliceDNA, filenameHTML, msElapsed, bytesRemain, width, triplet, updatesTimer, pngImageFlags, codonsPerPixel, codonsPerPixelHILBERT, CRASH, red, green, blue, alpha, errorClock, breakClock, streamLineNr, opacity, codonRGBA, geneRGBA, currentTriplet, currentPeptide, shrinkFactor, reg, image, loopCounter, percentComplete, baseChars, bigIntFileSize, currentPepHighlight, justNameOfCurrentFile, openHtml, openFileExplorer, pixelStream, startPeptideIndex, stopPeptideIndex, flags, loadavg, platform, totalmem, correction, aspect, debugFreq, help, tx, ty, lockTimer, opens;
-BigInt.prototype.toJSON = function() { return this.toString(); }; // shim for big int
-BigInt.prototype.toBSON = function() { return this.toString(); }; // Add a `toBSON()` function to enable MongoDB to store BigInts as strings
-let data = require('./data.js');
 let pepTable = data.pepTable;
 let dnaTriplets = data.dnaTriplets;
-// let gui = require('./public/aminosee-gui-web.js');
-// let imageStack = gui.imageStack;
-// let imageStack = require('./public/aminosee-gui-web.js').imageStack;
-
 // let extensions = data.extensions;
 let asciiart = data.asciiart;
 // for (h=0; h<pepTable.length; h++) { // update pepTable
@@ -235,8 +194,13 @@ function termSize() {
   ty = term.height
   termPixels = (tx) * (ty-8);
 }
+function logo() {
+  return `${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196).inverse("See")}${chalk.rgb(128,128,128).inverse("No")}${chalk.grey.inverse("Evil")}       v${chalk.rgb(255,255,0).inverse(version)}`;
+  // process.stdout.write(`v${chalk.rgb(255,255,0).bgBlue(version)}`);
+}
+output(logo());
 function resized(tx, ty) {
-  term.clear();
+  // term.clear();
   clearCheck();
   termSize();
   setDebugCols();
@@ -291,15 +255,7 @@ function getRenderObject() { // return part of the histogramJson obj
     // bugtxt(pepTable[h].src);
   }
 
-  // pepTable.forEach(pep)
-  // pepTable.forEach(function(item) {
-  //   log(item);
-  //   currentPeptide = item.Codon;
-  //   justNameOfHILBERT = generateFilenameHilbert();
-  //   item.src = justNameOfHILBERT;
-  // });
-
-  // bugtxt( pepTable.sort( compareHistocount ) ); // least common amino acids in front
+  bugtxt( pepTable.sort( compareHistocount ) ); // least common amino acids in front
 
   let zumari = {
     maxpix: maxpix,
@@ -345,38 +301,7 @@ function getRenderObject() { // return part of the histogramJson obj
 }
 
 
-percentComplete = 0;
-// const public = path.join(__dirname, './public'); // include the webserver files in exe
-// const xdg = path.join(__dirname, './xdg-open'); // include the webserver files in exe
-// const pos = path.join(__dirname, './pos.node'); // cursor position
-// const { Transform } = require('stream');
 
-// class AminoSeeFloatToPNG extends Transform {
-// const options = {[
-//   highWaterMark: 4096,
-//   objectMode: true,
-//   transform: _transform,
-//   destroy: _final,
-// ]}
-//   constructor(options) {
-//     super(options);
-//
-//   }
-//    _transform(chunk, encoding, callback) {
-//       this.push(chunk);
-//       log(`_transform chunk: ${chunk}`);
-//       callback();
-//
-//   // Custom Transform implementations may implement the transform._flush() method. This will be called when there is no more written data to be consumed, but before the 'end' event is emitted signaling the end of the Readable stream.
-//      _flush(callback) {
-//       log(` function _flush `)
-//     }
-//      _final() {
-//       log(`    function _final `);
-//     }
-//
-// }
-let projectprefs, userprefs;
 // cliruns = "!";
 // gbprocessed = "!";
 // cliruns = userprefs.aminosee.cliruns;
@@ -416,6 +341,76 @@ function setupPrefs() {
 }
 
 function setupApp() { // do stuff aside from creating any changes. eg if you just run "aminosee" by itself.
+
+
+
+webserverEnabled = false;
+killServersOnQuit = true;
+electron = true;
+outFoldername = `AminoSee_Output`;
+outputPath = outFoldername;
+justNameOfDNA = 'aminosee-is-looking-for-files-containing-ascii-DNA.txt';
+currentFile = funknzLabel;
+nextFile = funknzLabel;
+filename = funknzLabel;
+browser = 'firefox';
+msPerUpdate = minUpdateTime; // min milliseconds per update its increased for long renders
+now = new Date();
+maxMsPerUpdate = 30000; // milliseconds per updatelet maxpix = targetPixels; // maxpix can be changed downwards by algorithm for small genomes in order to zoom in
+timeRemain = 1;
+debugGears = 1;
+termDisplayHeight = 31;
+termStatsHeight = 9;
+done = 0;
+suopIters = 0;
+termMarginLeft = (term.width - 100) / 3;
+termMarginTop = (term.height - termDisplayHeight - termStatsHeight) / 3;
+maxpix = targetPixels;
+raceDelay = 69; // so i learnt a lot on this project. one day this line shall disappear replaced by promises.
+dimension = defaultMagnitude; // var that the hilbert projection is be downsampled to
+darkenFactor = 0.25; // if user has chosen to highlight an amino acid others are darkened
+highlightFactor = 4.0; // highten brightening.
+devmode = false; // kills the auto opening of reports etc
+quiet = false;
+verbose = false; // not recommended. will slow down due to console.
+debug = false; // not recommended. will slow down due to console.
+force = false; // force overwrite existing PNG and HTML reports
+artistic = false; // for Charlie
+dnabg = false; // firehose your screen with DNA!
+report = true; // html reports can be dynamically disabled
+test = false;
+updates = true;
+updateProgress = false;
+stats = true;
+recycEnabled = false; // bummer had to disable it
+renderLock = false; // not rendering right now obviously
+clear = true; // clear the terminal screen while running
+openLocalHtml = true; // its better to use the built-in server due to CORS
+highlightTriplets = [];
+isHighlightSet = false;
+isHilbertPossible = true; // set false if -c flags used.
+isDiskFinLinear = true; // flag shows if saving png is complete
+isDiskFinHilbert = true; // flag shows if saving hilbert png is complete
+isDiskFinHTML = true; // flag shows if saving html is complete
+isStorageBusy = false; // true just after render while saving to disk. helps percent show 100% etc.
+willRecycleSavedImage = false; // allows all the regular processing to mock the DNA render stage
+codonsPerSec = 0;
+peakRed = 0.123455;
+rawDNA ="@loading DNA Stream..."; // debug
+status = "load";
+debugColumns = 0; debugColumns = setDebugCols(); // why?
+howMany = 1;
+termPixels = Math.round(((term.width-5) * (term.height-5))/4);
+runningDuration = 1; // ms
+interactiveKeysGuide = "";
+pepTable = data.pepTable;
+dnaTriplets = data.dnaTriplets;
+asciiart = data.asciiart;
+
+
+
+
+
   red = 0;
   green = 0;
   blue = 0;
@@ -495,7 +490,8 @@ function progUpdate(obj) {  // allows to disable all the prog bars in one place
 }
 // function aminosee() {
   module.exports = (moreargs) => {
-  if (moreargs !== undefined) { output(moreargs) }
+  isElectron = false;
+  if (moreargs !== undefined) { output(`moreargs inside CLI: [${moreargs}]`) }
   // version = require('./lib/version');
   status = "exports";
   args = minimist(process.argv.slice(2), {
@@ -529,7 +525,7 @@ function progUpdate(obj) {  // allows to disable all the prog bars in one place
     string: [ 'width'],
     unknown: [ true ],
     alias: { a: 'artistic', b: 'dnabg', c: 'codons', d: 'devmode', f: 'force', h: 'help', k: 'keyboard', m: 'magnitude', o: 'outpath', out: 'outpath', output: 'outpath', p: 'peptide', i: 'image', t: 'triplet', q: 'quiet', r: 'reg', w: 'width', v: 'verbose', x: 'explorer', finder: 'explorer'  },
-    default: { updates: true, dnabg: false, clear: true, explorer: false, quiet: false, gui: true }
+    default: { updates: true, dnabg: false, clear: true, explorer: false, quiet: false, gui: true, keyboard: false }
   });
   setupApp(); // do stuff that is needed even just to run "aminosee" with no options.
   // addJob('megabase.fa')
@@ -538,7 +534,7 @@ function progUpdate(obj) {  // allows to disable all the prog bars in one place
   howMany = args._.length;
   if (args.debug) {
     debug = true;
-    log('DEBUG MODE ENABLED');
+    output('DEBUG MODE ENABLED');
   } else {
     debug = false;
   }
@@ -908,11 +904,11 @@ function progUpdate(obj) {  // allows to disable all the prog bars in one place
         helpCmd();
       } else if (!quiet) {
         console.log();
-        // redoLine('Closing in ')
-        // countdown('Closing in ', 2000, gracefulQuit);
+        redoLine('Closing in ')
+        countdown('Closing in ', 2000, gracefulQuit);
       } else {
-        // console.log();
-        // countdown('Closing in ', 50, gracefulQuit);
+        console.log();
+        countdown('Closing in ', 50, gracefulQuit);
       }
       return true;
     } else {
@@ -941,8 +937,16 @@ function progUpdate(obj) {  // allows to disable all the prog bars in one place
 }
 function addJob(commandArray) {
   output(chalk.inverse(`ADD JOB CALLED: `) + commandArray.toString())
-  args._ = [];
-  args._.push(commandArray);
+  if (args === undefined) {
+    let args = {
+      _: commandArray
+    }
+  } else {
+    output("Maybe running outside electron?")
+    args._ = [];
+    args._.push(commandArray);
+  }
+
   setupApp();
   setupProject();
   touchLockAndStartStream();
@@ -976,14 +980,14 @@ function setupKeyboardUI() {
   keypress(process.stdin);
   keypress.enableMouse(process.stdout); // wow mouse events in the term?
   process.stdin.on('mousepress', function (info) {
-    console.log('got "mousepress" event at %d x %d', info.x, info.y);
+    bugout('got "mousepress" event at %d x %d', info.x, info.y);
   });
   try {
     process.stdin.setRawMode(true);
   } catch(err) {
     output(`Could not use interactive keyboard due to: ${err} press enter after each key mite help`)
   }
-  // process.stdin.resume(); // DONT THIS ALWAYS WORKS OUT BAD
+  process.stdin.resume(); // means start consuming
   // listen for the "keypress" event
   process.stdin.once('keypress', function (ch, key) {
     log('got "keypress"', key);
@@ -993,6 +997,7 @@ function setupKeyboardUI() {
     if (key && key.ctrl && key.name == 'c') {
       // process.stdin.pause(); // stop sending control-c here, send now to parent, which is gonna kill us on the second go with control-c
       status = "TERMINATED WITH CONTROL-C";
+      isShuttingDown = true;
       if (devmode == true) {
         setTimeout(()=> {
           output(`Because you are using --devmode, the lock file is not deleted. This is useful during development because I can quickly test new code by starting then interupting the render with Control-c. Then, when I use 'aminosee * -f -d' I can have new versions rendered but skip super large genomes that would take 5 mins or more to render. I like to see that they begin to render then break and retry; this way AminoSee will skip the large genome becauyse it has a lock file, saving me CPU during development. Lock files are safe to delete.`)
@@ -1003,7 +1008,6 @@ function setupKeyboardUI() {
       log(status);
       // updates = false;
       args = [];
-
       debug = true;
       devmode = true;
       killServersOnQuit = true;
@@ -1163,17 +1167,14 @@ function gracefulQuit(code) {
   bugtxt("webserverEnabled: " + webserverEnabled + " killServersOnQuit: "+ killServersOnQuit)
 
   nextFile = "shutdown";
+  howMany = 0;
 
   if (code = 130) {
     args._ = [];
-    howMany = 0;
-
     calcUpdate();
     destroyProgress();
-    removeLocks(quit);
-    // setTimeout(()=> {
-      quit(130, 'graceful')
-    // }, 1000)
+    removeLocks(process.exit());
+
   }
 }
 function background(callback) {
@@ -1537,7 +1538,9 @@ function pollForStream() { // render lock must be off before calling. aim: start
       output("Render already in progress by another thread.");
       log("Either use --force or delete this file: ");
       log(chalk.underline(filenameTouch));
-      resetAndMaybe(); // <---  another node maybe working on, NO RENDER
+      renderLock = false;
+      lookForWork();
+      // resetAndMaybe(); // <---  another node maybe working on, NO RENDER
     } else {
       out("Lock OK proceeding to render...");
       setTimeout(() => {
@@ -1687,9 +1690,16 @@ function initStream() {
       processLine(line); // process line here and call readStream.resume() when ready
       if (renderLock != true) {
         if (nextFile = "shutdown") {
-          log('Unexpected halt to render')
+          log('Unexpected halt to render while ' + busy())
+          gracefulQuit(130)
+
         } else {
-          error('Unexpected halt to render')
+          error('Unexpected halt to render while ' + busy())
+          gracefulQuit(130)
+
+          setTimeout(()=> {
+            process.exit();
+          }, raceDelay*2)
         }
       }
       readStream.resume();
@@ -1930,16 +1940,6 @@ function highlightFilename() {
 
 function setupFNames() { // must not be called during creation of hilbert image
   mode("setupFNames " + currentFile);
-  output("SETUP FILENAMES");
-  output("SETUP FILENAMES");
-  output("SETUP FILENAMES");
-  output("SETUP FILENAMES");
-  output("SETUP FILENAMES");
-  output("SETUP FILENAMES");
-  output("SETUP FILENAMES");
-  output("SETUP FILENAMES");
-  output("SETUP FILENAMES");
-  output("SETUP FILENAMES");
   // calculateShrinkage(); // REQUIRES INFO FROM HERE FOR HILBERT FILENAME. BUT THAT INFO NOT EXIST UNTIL WE KNOW HOW MANY PIXELS CAME OUT OF THE DNA!
   filename = path.resolve(currentFile);
   justNameOfCurrentFile = replaceoutputPathFileName( filename );
@@ -2069,10 +2069,9 @@ function startHttpServer() {
   }, 10000) // keeps node open a little.
 }
 function showCountdown() {
-  countdown(`Built-in webserver: ${server.getServerURL()}   [ stop server with Control-C | run in background with [S] | will shutdown in ${humanizeDuration(max32bitInteger)}`);
+  countdown(`Built-in webserver: ${server.getServerURL()}   [ stop server with Control-C | run in background with [S] | will shutdown in ${humanizeDuration(max32bitInteger)}`, 3000);
 }
 function blockingServer() {
-
   setupProject();
   setupOutPaths();
   buildServer();  // copyGUI();  // startHttpServer()
@@ -2104,6 +2103,7 @@ function launchNonBlockingServer(path, cb) {
 
   buildServer();  // copyGUI();  // startHttpServer()
   startCrossSpawnHttp(); // requires http-server be installed globally
+  // server.startCrossSpawnHttp(); // requires http-server be installed globally
   // selfSpawn();
   showCountdown();
   return true;
@@ -2155,11 +2155,11 @@ function launchNonBlockingServer(path, cb) {
 function selfSpawn() {
   const evilSpawn = spawn('aminosee', ['serve', '', '', '0'], { stdio: 'pipe' });
   evilSpawn.stdout.on('data', (data) => {
-    console.log(`${chalk.inverse('aminosee serve')}${chalk(': ')}${data}  ${evilSpawn.name}`);
+    console.log(`${chalk.inverse('aminosee-cli serve')}${chalk(': ')}${data}  ${evilSpawn.name}`);
   });
 
   evilSpawn.stderr.on('data', (data) => {
-    console.log(`${chalk.inverse('aminosee error')}${chalk(': ')}${data}`);
+    console.log(`${chalk.inverse('aminosee-cli error')}${chalk(': ')}${data}`);
   });
 
   evilSpawn.on('close', (code) => {
@@ -2275,16 +2275,19 @@ function helpCmd(args) {
     openHtml = true;
     openImage = true;
     openFileExplorer = true;
-    setupKeyboardUI();
+    if (keyboard == false) { // this not need done twice
+      setupKeyboardUI();
+    }
 
-    countdown('Press [Q] to quit now, [S] to launch a web server in background thread or wait ', 4000, blockingServer());
+    // countdown('Press [Q] to quit now, [S] to launch a web server in background thread or wait ', 4000, blockingServer());
+    countdown('Press [S] to launch a web server in background thread or quit in ', 4000);
     // setTimeout( () => {
     //   output("Closing in 2 minutes.")
     //   countdown("Closing in " , 120000, gracefulQuit );
     // }, 4000)
   } else {
-    output('This is a terminal CLI (command line interface) program. Run it from the DOS prompt / Terminal.app / shell.');
-    // countdown('Press [Q] to quit now, closing in ', 4000, gracefulQuit);
+    // output('This is a terminal CLI (command line interface) program. Run it from the DOS prompt / Terminal.app / shell.', 4000);
+    countdown('Press [Q] to quit now, closing in ', 4000, gracefulQuit);
   }
 }
 function countdown(text, timeMs, cb) {
@@ -2447,7 +2450,7 @@ function fileWrite(file, contents, cb) {
             bugtxt('Could not set permission for file: ' + file + ' due to ' + e);
           }
         }
-        log('¢');
+        log('¢ ' + file.substring(file.length-12, file.length));
         if (cb) { cb() }
       });
       log('$');
@@ -2557,7 +2560,7 @@ function lookForWork(reason) { // move on to the next file via pollForStream. on
     mode('Happiness.');
     log(status);
     printRadMessage(status)
-    quit(0, status)
+    quit(130, status)
     return false;
   }
   if (currentFile == undefined) {
@@ -2588,11 +2591,11 @@ function lookForWork(reason) { // move on to the next file via pollForStream. on
     return false;
   }
 
-  // if (skipExistingFile(filenamePNG)) {
-  //   clout(`Skipping render of ${justNameOfPNG} due to file exists`);
-  //   pollForStream();
-  //   return false;
-  // }
+  if (skipExistingFile(filenamePNG)) {
+    clout(`Skipping render of ${justNameOfPNG} due to file exists`);
+    pollForStream();
+    return false;
+  }
   // if (checkFileExtension(filename)) {
   //   log(`Queued render job for: ${chalk.inverse(fixedWidth(24, currentFile))}`)
   //   if (renderLock == false) {
@@ -2627,6 +2630,7 @@ function lookForWork(reason) { // move on to the next file via pollForStream. on
   //   quit(0, status);
   //   return true;
   // }
+
   pollForStream();
 }
 function popAndLock() {
@@ -2727,20 +2731,19 @@ function quit(n, txt) {
     }
   } else {
     log("still saving to storage") // maybe this happens during gracefull shutdown
-
   }
-  if (howMany > 0 ) {
+  if (howMany > 1 ) {
     bugtxt(`There is more work (${howMany}) . Rendering: ${renderLock} Load: ${os.loadavg()}`);
-    lookForWork('quit')
+    // lookForWork('quit')
     return true;
   }
   if (n == 0) {
-    if (electron == true){
-      output("Electron mode.")
-
+    if (isElectron == true){
+      output("Electron mode. Clean exit.")
       return true;
+    } else {
+      output("CLI mode. Clean. exit.")
     }
-    output("Orderly exit.")
   }
   mode('quit');
   log(chalk.bgWhite.red(`process.exit going on. last file: ${filename}`));
@@ -3421,7 +3424,7 @@ function doesFileExist(f) {
   return false;
 }
 function stat(txt) {
-  console.log(txt);
+  console.log(`stat: ${txt}`);
 }
 
 function toBuffer(ab) {
@@ -3599,25 +3602,39 @@ function saveHilbert(cb) {
     .on('finish', (err) => {
       bugtxt("HILBERT Save OK " + storage());
       hilbertFinished();
+      if (cb) { cb() }
+
     })
-    if (cb) { cb() }
   }).then( bugtxt('HILBERT then') ).catch( bugtxt('HILBERT catch') );
 }
 function htmlFinished() {
-  isDiskFinHTML = true;
   mode(`HTML done. Waiting on (${storage()})`);
   setTimeout( () => {
+    isDiskFinHTML = true;
     postRenderPoll('htmlFinished');
   }, raceDelay)
 }
 function hilbertFinished() {
-  isDiskFinHilbert = true;
   mode(`Hilbert curve done. Waiting on (${storage()})`);
   let previousImage = filenameHILBERT;
+  termDrawImage( filenameHILBERT )
   setTimeout( () => {
+    isDiskFinHilbert = true;
     postRenderPoll('hilbertFinished');
-    termDrawImage( filenameHILBERT )
   }, raceDelay)
+}
+
+function linearFinished() {
+  mode(`DNA linear render done. Waiting on (${storage()})`);
+  if (test == true) { isDiskFinLinear = true; return false; } else {
+    setTimeout( () => {
+      isDiskFinLinear = true;
+      postRenderPoll('linearFinished');
+      if (artistic) {
+        termDrawImage( filenamePNG )
+      }
+    }, raceDelay)
+  }
 }
 function termDrawImage(fullpath) {
   if (fullpath === undefined) { fullpath = previousImage }
@@ -3631,18 +3648,6 @@ function termDrawImage(fullpath) {
     term.drawImage( previousImage , { shrink: { width: term.width/2,  height: term.height/2 } } )
     output(replaceoutputPathFileName(previousImage))
     // term.restoreCursor()
-}
-function linearFinished() {
-  isDiskFinLinear = true;
-  mode(`DNA linear render done. Waiting on (${storage()})`);
-  if (test == true) { return false; } else {
-    setTimeout( () => {
-      postRenderPoll('linearFinished');
-      if (artistic) {
-        termDrawImage( filenamePNG )
-      }
-    }, raceDelay)
-  }
 }
 function bothKindsTestPattern() {
   let h = require('hilbert-2d');
@@ -4185,7 +4190,7 @@ function bugout(txt) {
   term.eraseLine();
   console.log(splitScreen);
   term.
-  splitScreen += chalk.gray.inverse( fixedWidth(debugColumns - 10, `Cpp: ${codonsPerPixel}  G: ${genomeSize.toLocaleString()} Est: ${onesigbitTolocale(estimatedPixels/1000000)} megapixels ${bytes( baseChars )} RunID: ${timestamp} H dim: ${hilbPixels[dimension]}]  ${formatAMPM(now)} and ${formatMs(now)}ms`));
+  splitScreen = chalk.gray.inverse( fixedWidth(debugColumns - 10, `Cpp: ${codonsPerPixel}  G: ${genomeSize.toLocaleString()} Est: ${onesigbitTolocale(estimatedPixels/1000000)} megapixels ${bytes( baseChars )} RunID: ${timestamp} H dim: ${hilbPixels[dimension]}]  ${formatAMPM(now)} and ${formatMs(now)}ms`));
 
   term.down(1);
   term.eraseLine();
@@ -4198,17 +4203,24 @@ function redoLine(txt) {
   term.up( 1 ) ;
 }
 function output(txt) {
-  if (txt == undefined) { txt = ( debug ? status : ' ') }
-  if (quiet == true) { return false; }
+  if (txt == undefined) { return false }
+  if (quiet == true) { return false }
   term.eraseLine();
-  console.log(txt);
+  if (debug) {
+    bugtxt(txt)
+  } else {
+    console.log(txt);
+
+  }
+  // term.eraseLine();
+  // term.up(1)
   if (updates == true && renderLock == true) {
     term.right(termMarginLeft);
   }
 }
 function bugtxt(txt) { // full debug output
   if (debug == true) {
-    output(txt);
+    bugout(txt);
   }
 }
 function setDebugCols() {
@@ -4233,6 +4245,9 @@ function log(txt) {
   }
 }
 function out(txt) {
+output(txt);
+return true;
+
   if (txt == undefined || quiet == true) { return false;}
   term.eraseDisplayBelow;
   // process.stdout.write(`[${txt}] `);
@@ -4326,7 +4341,7 @@ function clout(txt) {
   }
   function clearScreen() {
     term.clear();
-    // process.stdout.write("\x1Bc");
+    process.stdout.write("\x1Bc");
     // process.stdout.write("\x1B[2J"); // THIS SHRINKS MY FONTS!! wtf?
     // process.stdout.write('\033c'); // <-- maybe best for linux? clears the screen. ALSD SHRINKS MY FONTS
   }
@@ -4558,20 +4573,24 @@ function clout(txt) {
     output();
     term.left(termMarginLeft);
     console.log();
+    if (term.height > termStatsHeight + termDisplayHeight) {
+      console.log(histogram(aacdata, { bar: '/', width: debugColumns*2, sort: true, map: aacdata.Histocount} ));
+      output();
+      output();
+      output(interactiveKeysGuide);
+      output(interactiveKeysGuide);
+      output(interactiveKeysGuide);
+      term.up(5);
+      output(interactiveKeysGuide);
+      output(`Last Red: ${peakRed} Last Green: ${peakGreen} Last Blue: ${peakBlue}`)
+      // log(    isDiskFinHTML, isDiskFinHilbert, isDiskFinLinear);
+      term.up(termDisplayHeight - 2)
+    } else {
+      output();
+      output(`Increase the height of your terminal for realtime histogram. Genome size: ${genomeSize}`);
+      output();
+    }
 
-    console.log(histogram(aacdata, { bar: '/', width: debugColumns*2, sort: true, map: aacdata.Histocount} ));
-    output();
-    output();
-    output(interactiveKeysGuide);
-    output(interactiveKeysGuide);
-    output(interactiveKeysGuide);
-    term.up(5);
-    output(interactiveKeysGuide);
-    output(`Last Red: ${peakRed} Last Green: ${peakGreen} Last Blue: ${peakBlue}`)
-    // log(    isDiskFinHTML, isDiskFinHilbert, isDiskFinLinear);
-    // if (clear == true) {
-    term.up(termDisplayHeight - 2)
-    // } // stuff will come out just under the main HUD
     if (renderLock == true && howMany >= 0 ) { // dont update if not rendering
       if (msPerUpdate < maxMsPerUpdate) {
         msPerUpdate += 200; // updates will slow over time on big jobs
@@ -5587,6 +5606,7 @@ function clout(txt) {
           return html;
         }
         process.on("SIGTERM", () => {
+          gracefulQuit();
           destroyProgress();
           process.exitCode = 130;
           quit(130);
@@ -5594,6 +5614,11 @@ function clout(txt) {
         });
         process.on("SIGINT", function() {
           gracefulQuit();
+          destroyProgress();
+          process.exitCode = 130;
+          quit(130);
+
+
         });
 
         // module.exports = {

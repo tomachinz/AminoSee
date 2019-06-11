@@ -4,7 +4,7 @@ w
 aminosee
 aminosee -f
 aminosee -v
-
+6='50KB_TestPattern.txt'
 # echo 'nice aminosee $1 $2 $3 $4 $5 $6   --peptide="aspartic ACID"'
 nice aminosee $1 $2 $3 $4 $5 $6  --peptide="aspartic ACID"
 
@@ -20,8 +20,9 @@ nice aminosee       $1 $2 $3 $4 $5 $6 -m5 --ratio=gol
 echo nice aminosee  $1 $2 $3 $4 $5 $6 -c100 --ratio=sqr
 nice aminosee  $1 $2 $3 $4 $5 $6 -c100 --ratio=sqr
 
-# echo "nice aminosee $1 $2 $3 $4 $5 $6 -f --ratio=gol --peptide=Ochre"
-nice aminosee       $1 $2 $3 $4 $5 $6 -f --ratio=gol --peptide=Ochre
+echo KEYBOARD MODE TEST
+echo "nice aminosee $1 $2 $3 $4 $5 $6 -f --ratio=gol --peptide=Ochre --keyboard"
+nice aminosee       $1 $2 $3 $4 $5 $6 -f --ratio=gol --peptide=Ochre --keyboard
 
 # echo "nice aminosee $1 $2 $3 $4 $5 $6 -f --no-updates -m7 --ratio=sqr --peptide=Amber"
 nice aminosee       $1 $2 $3 $4 $5 $6 -f --no-updates -m7 --ratio=sqr --peptide=Amber
@@ -32,18 +33,18 @@ nice aminosee       $1 $2 $3 $4 $5 $6 --no-updates -m5 --peptide=Methionine --ra
 # echo "nice aminosee $1 $2 $3 $4 $5 $6 -m 8 --peptide=Cysteine"
 nice aminosee       $1 $2 $3 $4 $5 $6 -m 8 --peptide=Cysteine
 
-# echo "nice aminosee $1 $2 $3 $4 $5 $6 --no-updates -c 500 --ratio=GOLDEN --peptide=Tryptophan"
+# echo nice aminosee       $1 $2 $3 $4 $5 $6 --no-updates -c 500 --ratio=GOLDEN --peptide=Tryptophan
 nice aminosee       $1 $2 $3 $4 $5 $6 --no-updates -c 500 --ratio=GOLDEN --peptide=Tryptophan
 
-aminosee 27MB_TestPattern.txt  3MB_TestPattern.txt -c10 -f --no-updates --no-clear -v --debug
-
-aminosee 27MB_TestPattern.txt  3MB_TestPattern.txt -c10
+aminosee 27MB_TestPattern.txt  3MB_TestPattern.txt *  -c10 -q -v --debug $1 $2 $3 $4
+aminosee 3MB_TestPattern.txt *  50KB_TestPattern.txt --keyboard $1 $2 $3 $4
+aminosee *  27MB_TestPattern.txt  3MB_TestPattern.txt -c10 -k $1 $2 $3 $4
 
 # sleep 2
 #
 # echo 'nice aminosee *'
 nice aminosee *  $1 $2 $3 $4 $5 $6   &
-sleep 2
+sleep 8
 
 echo
 # echo "-------------------------------------------"
@@ -54,7 +55,7 @@ echo
 
 
 # echo "nice aminosee $1 $2 $3 $4 $5 $6 -f --no-updates --ratio=fix --peptide=Arginine --html &"
-# nice aminosee       $1 $2 $3 $4 $5 $6 -f --no-updates --ratio=fix --peptide=Arginine --html &
+nice aminosee   $1 $2 $3 $4 $5 $6 -q --ratio=fix --peptide=Arginine --html &
 
 # echo "nice aminosee $1 $2 $3 $4 $5 $6  test --image --ratio square &"
 # nice aminosee       $1 $2 $3 $4 $5 $6  test --image --ratio square &
@@ -66,11 +67,11 @@ sleep 1
 
 
 # echo background demo
-nice aminosee demo   $1 $2 $3 $4 $5 $6  --no-html --no-image &
+nice aminosee demo   $1 $2 $3 $4 $5 $6  --no-html --image &
 sleep 1
 
 # echo "doing aminosee serve and opening a file"
-nice aminosee serve  $1 $2 $3 $4 $5 $6  --no-html &
+nice aminosee serve 3MB_TestPattern.txt  $1 $2 $3 $4 $5 $6  --no-html --explorer &
 # echo only works on linux:
 # open http://127.0.0.1:8081 &
 sleep 1

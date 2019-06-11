@@ -14,6 +14,31 @@ setOutputPath(outputPath)
 // let port = 4321;
 let port = 43210;
 
+function startCrossSpawnHttp() {
+  // Spawn background server
+  // const evilSpawn = spawn('npm', ['list', '-g', '-depth', '0'], { stdio: 'inherit' });
+  // const evilSpawn = spawn('http-server', [server.getServerURL(justNameOfDNA), '--port', port, '0'], { stdio: 'pipe' });
+  const evilSpawn = spawn('http-server', ['--directory', outputPath,  '--port', port, '0'], { stdio: 'pipe' });
+  evilSpawn.stdout.on('data', (data) => {
+    console.log(`${chalk.inverse('aminosee-server')}${chalk(': ')}${data}`);
+  });
+
+  evilSpawn.stderr.on('data', (data) => {
+    console.log(`${chalk.inverse('aminosee-server error')}${chalk(': ')}${data}`);
+  });
+
+  evilSpawn.on('close', (code) => {
+    console.log(`child process quit with code ${code}`);
+  });
+
+  stat("Personal mini-Webserver starting up around now (hopefully) on port ${port}");
+  // stat(`visit ${server.getServerURL()} in your browser to see 3D WebGL visualisation`);
+  log(terminalRGB("ONE DAY this will serve up a really cool WebGL visualisation of your DNA PNG. That day.... is not today though.", 255, 240,10));
+  log(terminalRGB("IDEA: Maybe send some bitcoin to the under-employed creator tom@funk.co.nz to convince him to work on it?", 240, 240,200));
+  stat("Control-C to quit. This requires http-server, install that with:");
+  stat("sudo npm install --global http-server");
+}
+
 function startServeHandler() {
   const handler = require('serve-handler');
   const http = require('http');
@@ -47,13 +72,15 @@ function startServeHandler() {
     return true
   } catch(err) {
     aminosee.log(`Caught err while trying to start server. Probably already running.`)
-    aminosee.bugtxt(err)
+    // aminosee.bugtxt(err)
     return false
   }
 }
 
 
+// function aminoseeServer(){
 module.exports = (options) => {
+
 
   http.createServer((request, response) => {
     const { headers, method, url } = request;
@@ -98,7 +125,7 @@ function start(outputPath) {
     console.log("Server already started. If you think this is not true, remove the lock file: " + filenameServerLock);
     return false
   } else {
-    console.log("Starting server");
+    console.log("No locks found, Starting server");
     return startServeHandler();
   }
 };
@@ -136,27 +163,27 @@ function close() {
       console.log("no server");
     }
   } catch(e) {
-    aminosee.bugtxt(e);
+    // aminosee.bugtxt(e);
   }
-} module.exports.close = close
+}
 
 function setOutputPath(o) {
   this.outputPath = o;
   this.filenameServerLock = path.resolve(`${outputPath}/aminosee_server_lock.txt`);
   console.log(o);
-} module.exports.setOutputPath = setOutputPath
+}
 
 function stop() {
   console.log("Stoping server");
   // aminosee.deleteFile(filenameServerLock);
-} module.exports.stop = stop;
+}
 
-module.exports.open = function (relative) {
+function open(relative) {
   console.log("Opening page: " + relative);
 }
 // module.exports.getServerURL = function (path) {
 function getServerURL(path) {
-  return '?';
+  return '? its a bug';
 
   let internalIp = require('internal-ip');
   if (path == undefined) {
@@ -168,7 +195,6 @@ function getServerURL(path) {
   // console.log(`serverURL ${serverURL}`);
   return serverURL;
 }
-module.exports.getServerURL = getServerURL;
 
 // module.exports.serverLock = function(cb) {
 function serverLock() {
@@ -177,3 +203,12 @@ function serverLock() {
     return true;
   } else { return false }
 }
+
+module.exports.getServerURL = () => { getServerURL() }
+module.exports.startServeHandler = () => { startServeHandler() }
+module.exports.startCrossSpawnHttp = () => { startCrossSpawnHttp() }
+module.exports.open = open
+module.exports.stop = stop
+module.exports.start = start
+module.exports.setOutputPath = setOutputPath
+module.exports.close = close
