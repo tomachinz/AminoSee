@@ -2593,6 +2593,7 @@ function lookForWork(reason) { // move on to the next file via pollForStream. on
 
   if (skipExistingFile(filenamePNG)) {
     clout(`Skipping render of ${justNameOfPNG} due to file exists`);
+    // popAndLock();
     pollForStream();
     return false;
   }
@@ -4188,9 +4189,9 @@ function bugout(txt) {
   splitScreen += chalk.rgb(64,64,64).inverse(fixedWidth(debugColumns - 10,  `[Jbs: ${howMany}  Crrnt: ${maxWidth(12, currentFile)} Nxt: ${maxWidth(12, nextFile)} ${nicePercent()} ${busy()} ${storage()} Stat: ${status} Highlt${(isHighlightSet ? peptide + " " : " ")} >>>    `));
   splitScreen += fixedWidth(debugColumns,` ${txt} `);
   term.eraseLine();
-  console.log(splitScreen);
-  term.
+  process.stdout.write(splitScreen);
   splitScreen = chalk.gray.inverse( fixedWidth(debugColumns - 10, `Cpp: ${codonsPerPixel}  G: ${genomeSize.toLocaleString()} Est: ${onesigbitTolocale(estimatedPixels/1000000)} megapixels ${bytes( baseChars )} RunID: ${timestamp} H dim: ${hilbPixels[dimension]}]  ${formatAMPM(now)} and ${formatMs(now)}ms`));
+  console.log(splitScreen);
 
   term.down(1);
   term.eraseLine();
