@@ -44,7 +44,7 @@
     "keypress": "^0.2.1",
     "local-web-server": "^2.6.1",
     "minimist": "^1.2.0",
-    "nexe": "^3.2.1",
+    "nexe": "^3.2.2",
     "node-fetch": "^2.6.0",
     "node-gyp": "^4.0.0",
     "npm-merge-driver": "^2.3.5",
