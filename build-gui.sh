@@ -3,9 +3,9 @@ ERASED="build"
 BUILDFOLDER="build/AminoSee_build_"
 TIMESTAMP=$(date +%s)
 TARGET="$BUILDFOLDER$TIMESTAMP"
-echo open ./build-cli.sh
+echo open ./build-lib.sh
 sleep 1
-open ./build-cli.sh
+open ./build-lib.sh
 
 echo Requires: npm, electron, electron-packager
 echo Requires: npm, electron, electron-packager
