@@ -1,7 +1,7 @@
 // import
 // const aminosee = require('./aminosee-cli.js')
-const AminoSeeNoEvil = require('./aminosee-cli.js')
-const aminosee = require('./aminosee-cli.js')
+// const AminoSeeNoEvil = require('./aminosee-cli.js')
+const aminosee = require('./aminosee-cli');
 const server = require('./aminosee-server')
 const { app, BrowserWindow, Menu, dialog, ipcMain } = require('electron') // Modules to control application life and create native browser window
 const extensions = [ "txt", "fa", "mfa", "gbk", "dna"] // replace with that from data.js

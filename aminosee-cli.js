@@ -8,10 +8,7 @@
 class AminoSeeNoEvil {
   constructor(moreargs) { // CLI commands, filenames, *
     console.log('constructed with: ' + argv[0] +  argv[1] +  moreargs)
-
-
     // process.argv.slice(2)
-
     // this.argv = [argv[0], argv[1], moreargs];
   }
   set setArgs(commandArray) {
@@ -26,10 +23,7 @@ class AminoSeeNoEvil {
     this.argv = incomingArgs;
   }
 
-  gracefulQuit() {
-    log('Received gracefull quit message.')
-    gracefulQuit();
-  }
+
 };  module.exports.AminoSeeNoEvil = AminoSeeNoEvil;
 
 const settings = require('./aminosee-settings');
@@ -78,7 +72,7 @@ const chalk = require('chalk');
 // let gui = require('./public/aminosee-gui-web.js');
 // let imageStack = gui.imageStack;
 // let imageStack = require('./public/aminosee-gui-web.js').imageStack;
-let height, mixRGBA, rgbArray,  isStreamingPipe,  filenameHILBERT, justNameOfHTML,  users, present, peptide, ratio, magnitude, openImage, usersOutpath, projectprefs, userprefs, eakGreen,  progato, userCPP, startDate, started, previousImage, charClock, genomeSize, cliruns, gbprocessed, progTimer, hilbertImage, keyboard, filenameTouch, filenameServerLock, estimatedPixels, args, filenamePNG, extension, reader, hilbertPoints, herbs, levels, mouseX, mouseY, windowHalfX, windowHalfY, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, fileUploadShowing, testColors, chunksMax, chunksize, chunksizeBytes, cpu, subdivisions, contextBitmap, aminoacid, pixelClock, start, updateClock, bytesPerMs, pixelStacking, isHighlightCodon, justNameOfPNG, justNameOfHILBERT, sliceDNA, filenameHTML, msElapsed, bytesRemain, width, triplet, updatesTimer, pngImageFlags, codonsPerPixel, codonsPerPixelHILBERT, CRASH, red, green, blue, alpha, errorClock, breakClock, streamLineNr, opacity, codonRGBA, geneRGBA, currentTriplet, currentPeptide, shrinkFactor, reg, image, loopCounter, percentComplete, baseChars, bigIntFileSize, currentPepHighlight, justNameOfCurrentFile, openHtml, openFileExplorer, pixelStream, startPeptideIndex, stopPeptideIndex, flags, loadavg, platform, totalmem, correction, aspect, debugFreq, help, tx, ty, lockTimer, opens, instanceCLI;
+let height, mixRGBA, rgbArray,  isStreamingPipe,  filenameHILBERT, justNameOfHTML,  users, present, peptide, ratio, magnitude, openImage, usersOutpath, projectprefs, userprefs, eakGreen,  progato, userCPP, startDate, started, previousImage, charClock, genomeSize, cliruns, gbprocessed, progTimer, hilbertImage, keyboard, filenameTouch, filenameServerLock, estimatedPixels, args, filenamePNG, extension, reader, hilbertPoints, herbs, levels, mouseX, mouseY, windowHalfX, windowHalfY, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, fileUploadShowing, testColors, chunksMax, chunksize, chunksizeBytes, cpu, subdivisions, contextBitmap, aminoacid, pixelClock, start, updateClock, bytesPerMs, pixelStacking, isHighlightCodon, justNameOfPNG, justNameOfHILBERT, sliceDNA, filenameHTML, msElapsed, bytesRemain, width, triplet, updatesTimer, pngImageFlags, codonsPerPixel, codonsPerPixelHILBERT, CRASH, red, green, blue, alpha, errorClock, breakClock, streamLineNr, opacity, codonRGBA, geneRGBA, currentTriplet, currentPeptide, shrinkFactor, reg, image, loopCounter, percentComplete, baseChars, bigIntFileSize, currentPepHighlight, justNameOfCurrentFile, openHtml, openFileExplorer, pixelStream, startPeptideIndex, stopPeptideIndex, flags, loadavg, platform, totalmem, correction, aspect, debugFreq, help, tx, ty, lockTimer, opensFile, opensImage, opensHtml, instanceCLI;
 
 BigInt.prototype.toJSON = function() { return this.toString(); }; // shim for big int
 BigInt.prototype.toBSON = function() { return this.toString(); }; // Add a `toBSON()` function to enable MongoDB to store BigInts as strings
@@ -96,7 +90,7 @@ This is a temporary lock file, placed during rendering to enable parallel cluste
 const defaultC = 1; // back when it could not handle 3+GB files.
 const artisticHighlightLength = 18; // px only use in artistic mode. must be 6 or 12 currently
 const defaultMagnitude = 8; // max for auto setting
-const theoreticalMaxMagnitude = 12; // max for auto setting
+const theoreticalMaxMagnitude = 10; // max for auto setting
 const overSampleFactor = 2; // your linear image needs to be 2 megapixels to make 1 megapixel hilbert
 const maxCanonical = 32; // max length of canonical name
 const hilbPixels = [ 64, 256, 1024, 4096, 16384, 65536, 262144, 1048576, 4194304, 16777216, 67108864 ]; // I've personally never seen a mag 9 or 10 image, cos my computer breaks down. 67 Megapixel hilbert curve!! the last two are breaking nodes heap and call stack both.
@@ -136,7 +130,7 @@ let suopIters = 0;
 let termMarginLeft = (term.width - 100) / 3;
 let termMarginTop = (term.height - termDisplayHeight - termStatsHeight) / 3;
 let maxpix = targetPixels;
-let raceDelay = 69; // so i learnt a lot on this project. one day this line shall disappear replaced by promises.
+let raceDelay = 269; // so i learnt a lot on this project. one day this line shall disappear replaced by promises.
 let dimension = defaultMagnitude; // var that the hilbert projection is be downsampled to
 let darkenFactor = 0.25; // if user has chosen to highlight an amino acid others are darkened
 let highlightFactor = 4.0; // highten brightening.
@@ -191,344 +185,53 @@ let asciiart = data.asciiart;
 // }
 
 // let mouseCooler = " ";//null;
-function termSize() {
-  tx = term.width;
-  ty = term.height
-  termPixels = (tx) * (ty-8);
-}
-function logo() {
-  return `${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196).inverse("See")}${chalk.rgb(128,128,128).inverse("No")}${chalk.grey.inverse("Evil")}       v${chalk.rgb(255,255,0).inverse(version)}`;
-  // process.stdout.write(`v${chalk.rgb(255,255,0).bgBlue(version)}`);
-}
-output(logo());
-function resized(tx, ty) {
-  // term.clear();
-  clearCheck();
-  termSize();
-  setDebugCols();
-  output(`Terminal resized to (${tx},${ty})`);
 
-  // Enough to fill screen starting from underneath the histogram:
-  if (tx == undefined) { tx = term.width; ty = term.height } else {
-    // clearCheck();
-  }
-  log(`Terminal resized: ${tx} x ${ty} and has at least ${termPixels} chars`)
-
-  debugColumns = setDebugCols(); // Math.round(term.width / 3);
-  msPerUpdate = minUpdateTime;
-
-  if (updates == true) {
-    // cover entire screen!
-    if (tx > 400) {
-      termMarginLeft = debugColumns;
-
-    } else {
-      termMarginLeft = 2;
-    }
-    msPerUpdate = minUpdateTime
-  } else {
-    termMarginLeft = 0;
-    msPerUpdate = maxMsPerUpdate;
-  }
-  if (dnabg == true) {
-    termMarginTop = Math.round(((term.height - termDisplayHeight) - termStatsHeight) / 3);
-  } else {
-    if (clear == true) {
-      termMarginTop = Math.round(((term.height - termDisplayHeight) - termStatsHeight) / 3);
-    } else {
-      termMarginTop = 0;
-    }
-  }
-  // clearCheck();
-  drawHistogram();
-}
-function cli(argumentsArray) {
-  console.log(`cli argumentsArray [${argumentsArray.toString()}]`)
-}; module.exports.cli = cli;
-
-function getRenderObject() { // return part of the histogramJson obj
-  // calculateShrinkage();
-  bugtxt(`codonsPerPixelHILBERT inside getRenderObject is ${codonsPerPixelHILBERT}`)
-
-  for (let h=0; h<pepTable.length; h++) {
-    const pep =  pepTable[h];
-    currentPeptide = pep.Codon;
-    pepTable[h].src = aminoFilenameIndex(h);
-    // bugtxt(pepTable[h].src);
-  }
-
-  bugtxt( pepTable.sort( compareHistocount ) ); // least common amino acids in front
-
-  let zumari = {
-    maxpix: maxpix,
-    name: justNameOfDNA,
-    refimage: justNameOfHILBERT,
-    linearimage: justNameOfPNG,
-    runid: timestamp,
-    cliruns: cliruns,
-    gbprocessed: gbprocessed,
-    hostname: os.hostname(),
-    version: version,
-    flags: (  force ? "F" : ""    )+(  userCPP == "auto"  ? `C${userCPP}` : ""    )+(  devmode ? "D" : ""    )+(  args.ratio || args.r ? `${ratio}` : "   "    )+(  args.magnitude || args.m ? `M${dimension}` : "   "    ),
-    aspect: ratio,
-    bytes: baseChars,
-    estimatedPixels: estimatedPixels,
-    genomeSize: genomeSize,
-    accuracy: estimatedPixels / genomeSize,
-    noncoding:  errorClock,
-    codonsPerPixel:  codonsPerPixel,
-    codonsPerPixelHILBERT: codonsPerPixelHILBERT,
-    pixelClock: pixelClock,
-    pixhilbert: hilbPixels[dimension],
-    shrinkFactor: shrinkFactor,
-    overSampleFactor: overSampleFactor,
-    opacity: opacity,
-    magnitude: magnitude,
-    optimumDimension: optimumDimension (estimatedPixels),
-    darkenFactor: darkenFactor,
-    highlightFactor: highlightFactor,
-    correction: 'Ceiling',
-    finish: new Date(),
-    blurb: blurb(),
-    runningDuration: runningDuration,
-    totalmem: os.totalmem(),
-    platform: os.platform(),
-    loadavg: os.loadavg()
-  }
-  let histogramJson = {
-    pepTable: pepTable,
-    summary: zumari
-  }
-  return histogramJson;
-}
-
-
-
-// cliruns = "!";
-// gbprocessed = "!";
-// cliruns = userprefs.aminosee.cliruns;
-// gbprocessed = userprefs.aminosee.gbprocessed;
-function setupPrefs() {
-  var Preferences = require("preferences");
-  projectprefs = new Preferences('nz.funk.aminosee.project',{}, {
-    encrypt: false,
-    file: path.join(os.homedir(), obviousFoldername +  '/aminosee.conf'),
-    format: 'yaml'
-  });
-
-  // userprefs = new Preferences('nz.funk.aminosee.user',{}, {
-  //   encrypt: false,
-  //   file: path.join(os.homedir(), obviousFoldername +  '/aminosee.conf'),
-  //   format: 'yaml'
-  // });     ~/.config/preferences/com.foo.bar.pref
-
-  userprefs = new Preferences('nz.funk.aminosee.user', {
-    aminosee: {
-      cliruns: 0,
-      guiruns: 0,
-      gbprocessed: 0,
-      outputPath: outputPath
-    }
-  }, {
-    encrypt: false,
-    file: path.resolve(os.homedir(), '.config/preferences/nz.funk.aminosee.conf'),
-    format: 'yaml'
-  });
-  // Preferences can be accessed directly
-  userprefs.aminosee.cliruns++; // increment run counter. for a future high score table stat and things maybe.
-  cliruns = userprefs.aminosee.cliruns;
-  gbprocessed = userprefs.aminosee.gbprocessed;
-  mode('setupPrefs ' + cliruns);
-  bugtxt(`AminoSee has been run ${cliruns} times and processed ${gbprocessed.toLocaleString()}  GB`);
-}
-
-function setupApp() { // do stuff aside from creating any changes. eg if you just run "aminosee" by itself.
-
-  webserverEnabled = false;
-  killServersOnQuit = true;
-  isElectron = true;
-  outFoldername = `AminoSee_Output`;
-  outputPath = outFoldername;
-  justNameOfDNA = 'aminosee-is-looking-for-files-containing-ascii-DNA.txt';
-  currentFile = funknzLabel;
-  nextFile = funknzLabel;
-  filename = funknzLabel;
-  browser = 'firefox';
-  msPerUpdate = minUpdateTime; // min milliseconds per update its increased for long renders
-  now = new Date();
-  maxMsPerUpdate = 30000; // milliseconds per updatelet maxpix = targetPixels; // maxpix can be changed downwards by algorithm for small genomes in order to zoom in
-  timeRemain = 1;
-  debugGears = 1;
-  termDisplayHeight = 31;
-  termStatsHeight = 9;
-  done = 0;
-  suopIters = 0;
-  termMarginLeft = (term.width - 100) / 3;
-  termMarginTop = (term.height - termDisplayHeight - termStatsHeight) / 3;
-  maxpix = targetPixels;
-  raceDelay = 69; // so i learnt a lot on this project. one day this line shall disappear replaced by promises.
-  dimension = defaultMagnitude; // var that the hilbert projection is be downsampled to
-  darkenFactor = 0.25; // if user has chosen to highlight an amino acid others are darkened
-  highlightFactor = 4.0; // highten brightening.
-  devmode = false; // kills the auto opening of reports etc
-  quiet = false;
-  verbose = false; // not recommended. will slow down due to console.
-  debug = false; // not recommended. will slow down due to console.
-  force = false; // force overwrite existing PNG and HTML reports
-  artistic = false; // for Charlie
-  dnabg = false; // firehose your screen with DNA!
-  report = true; // html reports can be dynamically disabled
-  test = false;
-  updates = true;
-  updateProgress = false;
-  stats = true;
-  recycEnabled = false; // bummer had to disable it
-  renderLock = false; // not rendering right now obviously
-  clear = true; // clear the terminal screen while running
-  openLocalHtml = true; // its better to use the built-in server due to CORS
-  highlightTriplets = [];
-  isHighlightSet = false;
-  isHilbertPossible = true; // set false if -c flags used.
-  isDiskFinLinear = true; // flag shows if saving png is complete
-  isDiskFinHilbert = true; // flag shows if saving hilbert png is complete
-  isDiskFinHTML = true; // flag shows if saving html is complete
-  isStorageBusy = false; // true just after render while saving to disk. helps percent show 100% etc.
-  willRecycleSavedImage = false; // allows all the regular processing to mock the DNA render stage
-  codonsPerSec = 0;
-  peakRed = 0.123455;
-  rawDNA ="@loading DNA Stream..."; // debug
-  status = "load";
-  debugColumns = 0; debugColumns = setDebugCols(); // why?
-  howMany = 1;
-  termPixels = Math.round(((term.width-5) * (term.height-5))/4);
-  runningDuration = 1; // ms
-  interactiveKeysGuide = "";
-  pepTable = data.pepTable;
-  dnaTriplets = data.dnaTriplets;
-  asciiart = data.asciiart;
-
-
-
-
-
-  red = 0;
-  green = 0;
-  blue = 0;
-  alpha = 0;
-  charClock = 0; // its 'i' from the main loop
-  errorClock = 0; // increment each non DNA, such as line break. is reset after each codon
-  breakClock = 0;
-  streamLineNr = 0;
-  genomeSize = 1;
-  msElapsed = 0; runningDuration = 0; charClock = 0; percentComplete = 0; genomeSize = 0; pixelClock = 0; opacity = 0;
-  setupOutPaths();
-  // console.log(`stdin pipe: ${pipeInstance.checkIsPipeActive()}`);
-  // const stdin = pipeInstance.stdinLineByLine();
-  // stdin.on('line', console.log);
-  startDate = new Date(); // required for touch locks.
-  started = startDate.getTime(); // required for touch locks.
-  termSize();
-  setupPrefs();
-
-  if (updateProgress == true) {
-    progato = term.progressBar({
-      width: term.width - 20,
-      title: `Booting up at ${formatAMPM( new Date())} on ${hostname}`,
-      eta: true,
-      percent: true,
-      inline: false
-    });
-    // term.moveTo(1 + termMarginLeft,1 + termMarginTop);
-    // drawProgress();
-  }
-  // killServersOnQuit = false;
-  // server.start(outputPath);
-  // server.serverLock(launchNonBlockingServer)
-
-}
-function setupProject() { // blank all the variables
-  if (renderLock == true ) {
-    error(`Renderlock failed in setupProject ${currentFile} ${nextFile}`)
-    return false;
-  }
-  baseChars = genomeSize = charClock = codonsPerSec = cliruns = gbprocessed = opens = red = green = blue = 0;
-  peakRed = red;
-  peakGreen = green;
-  peakBlue = blue;
-  percentComplete = 0;
-  setupOutPaths();
-  if (verbose == true && devmode == true) {
-    let lines = 7
-    while (lines > 0) { // this is to help find the starts when scrolling in the terminal
-      output('................................');
-      lines--;
-    }
-  }
-
-
-}
-function destroyProgress() { // now thats a fucking cool function name if ever there was!
-  // if (howMany == -1) {
-  // }
-  if (updateProgress == true) {
-    // if (progato !== undefined) {
-      // progato.stop();
-    // }
-  }
-  clearTimeout(updatesTimer);
-  clearTimeout(progTimer);
-  clearTimeout(lockTimer);
-}
-function progUpdate(obj) {  // allows to disable all the prog bars in one place
-  if (updateProgress == true) {
-    if (progato !== undefined && obj !== undefined) {
-      progato.update(obj);
-    }
-  } else {
-    bugtxt(`progress dummy function: ${obj}`)
-  }
-}
 // function aminosee() {
-  module.exports = (moreargs) => {
+module.exports = (moreargs) => {
   isElectron = false;
   if (moreargs !== undefined) { output(`moreargs inside CLI: [${moreargs}]`) }
   // version = require('./lib/version');
   status = "exports";
   log(process.argv.toString())
   // error('stopped.')
-  args = minimist(process.argv.slice(2), {
-    boolean: [ 'artistic' ],
-    boolean: [ 'devmode' ],
-    boolean: [ 'debug' ],
-    boolean: [ 'clear' ],
-    boolean: [ 'html' ],
-    boolean: [ 'updates' ],
-    boolean: [ 'force' ],
-    boolean: [ 'dnabg' ],
-    boolean: [ 'test' ],
-    boolean: [ 'verbose' ],
-    boolean: [ 'reg' ],
-    boolean: [ 'image' ],
-    boolean: [ 'file' ],
-    boolean: [ 'explorer' ],
-    boolean: [ 'firefox' ],
-    boolean: [ 'chrome' ],
-    boolean: [ 'safari' ],
-    boolean: [ 'recycle' ],
-    boolean: [ 'quiet' ],
-    boolean: [ 'serve' ],
-    boolean: [ 'gui' ],
-    string: [ 'codons'],
-    string: [ 'magnitude'],
-    string: [ 'outpath'],
-    string: [ 'triplet'],
-    string: [ 'peptide'],
-    string: [ 'ratio'],
-    string: [ 'width'],
-    unknown: [ true ],
-    alias: { a: 'artistic', b: 'dnabg', c: 'codons', d: 'devmode', f: 'force', h: 'help', k: 'keyboard', m: 'magnitude', o: 'outpath', out: 'outpath', output: 'outpath', p: 'peptide', i: 'image', t: 'triplet', q: 'quiet', r: 'reg', w: 'width', v: 'verbose', x: 'explorer', finder: 'explorer'  },
-    default: { updates: true, dnabg: false, clear: true, explorer: false, quiet: false, gui: true, keyboard: false }
-  });
+
+  if (isElectron) {
+    args = moreargs;
+  } else {
+    args = minimist(process.argv.slice(2), {
+      boolean: [ 'artistic' ],
+      boolean: [ 'devmode' ],
+      boolean: [ 'debug' ],
+      boolean: [ 'clear' ],
+      boolean: [ 'html' ],
+      boolean: [ 'updates' ],
+      boolean: [ 'force' ],
+      boolean: [ 'dnabg' ],
+      boolean: [ 'test' ],
+      boolean: [ 'verbose' ],
+      boolean: [ 'reg' ],
+      boolean: [ 'image' ],
+      boolean: [ 'file' ],
+      boolean: [ 'explorer' ],
+      boolean: [ 'firefox' ],
+      boolean: [ 'chrome' ],
+      boolean: [ 'safari' ],
+      boolean: [ 'recycle' ],
+      boolean: [ 'quiet' ],
+      boolean: [ 'serve' ],
+      boolean: [ 'gui' ],
+      string: [ 'codons'],
+      string: [ 'magnitude'],
+      string: [ 'outpath'],
+      string: [ 'triplet'],
+      string: [ 'peptide'],
+      string: [ 'ratio'],
+      string: [ 'width'],
+      unknown: [ true ],
+      alias: { a: 'artistic', b: 'dnabg', c: 'codons', d: 'devmode', f: 'force', h: 'help', k: 'keyboard', m: 'magnitude', o: 'outpath', out: 'outpath', output: 'outpath', p: 'peptide', i: 'image', t: 'triplet', q: 'quiet', r: 'reg', w: 'width', v: 'verbose', x: 'explorer', finder: 'explorer'  },
+      default: { image: true, updates: true, dnabg: false, clear: true, explorer: false, quiet: false, gui: true, keyboard: false }
+    });
+  }
   setupApp(); // do stuff that is needed even just to run "aminosee" with no options.
   // addJob('megabase.fa')
   // addJob('help')
@@ -780,12 +483,13 @@ function progUpdate(obj) {  // allows to disable all the prog bars in one place
     force = true;
   }
   if (args.file || args.explorer || args.x || args.finder) {
-    log("will open folder in File Manager / Finder / File Explorer when done.");
+    output("will open folder in File Manager / Finder / File Explorer when done.");
     openFileExplorer = true;
     if (cmd == 'calibration' || cmd == 'test' || cmd == 'open' || cmd == 'help') {
       openOutputs();
     }
   } else {
+    log("will not open folder in File Manager / Finder / File Explorer when done.");
     openFileExplorer = false;
   }
   if (args.help || args.h) {
@@ -948,13 +652,336 @@ function addJob(commandArray) {
     args._ = [];
     args._.push(commandArray);
   }
-
+  generateArgs();
   setupApp();
   setupProject();
   touchLockAndStartStream();
   // pollForStream();
 } module.exports.addJob = addJob;
+function termSize() {
+  tx = term.width;
+  ty = term.height
+  termPixels = (tx) * (ty-8);
+}
+function logo() {
+  return `${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196).inverse("See")}${chalk.rgb(128,128,128).inverse("No")}${chalk.grey.inverse("Evil")}       v${chalk.rgb(255,255,0).inverse(version)}`;
+  // process.stdout.write(`v${chalk.rgb(255,255,0).bgBlue(version)}`);
+}
+output(logo());
+function resized(tx, ty) {
+  // term.clear();
+  clearCheck();
+  termSize();
+  setDebugCols();
+  output(`Terminal resized to (${tx},${ty})`);
 
+  // Enough to fill screen starting from underneath the histogram:
+  if (tx == undefined) { tx = term.width; ty = term.height } else {
+    // clearCheck();
+  }
+  log(`Terminal resized: ${tx} x ${ty} and has at least ${termPixels} chars`)
+
+  debugColumns = setDebugCols(); // Math.round(term.width / 3);
+  msPerUpdate = minUpdateTime;
+
+  if (updates == true) {
+    // cover entire screen!
+    if (tx > 400) {
+      termMarginLeft = debugColumns;
+
+    } else {
+      termMarginLeft = 2;
+    }
+    msPerUpdate = minUpdateTime
+  } else {
+    termMarginLeft = 0;
+    msPerUpdate = maxMsPerUpdate;
+  }
+  if (dnabg == true) {
+    termMarginTop = Math.round(((term.height - termDisplayHeight) - termStatsHeight) / 3);
+  } else {
+    if (clear == true) {
+      termMarginTop = Math.round(((term.height - termDisplayHeight) - termStatsHeight) / 3);
+    } else {
+      termMarginTop = 0;
+    }
+  }
+  // clearCheck();
+  drawHistogram();
+}
+function cli(argumentsArray) {
+  console.log(`cli argumentsArray [${argumentsArray.toString()}]`)
+}; module.exports.cli = cli;
+
+function getRenderObject() { // return part of the histogramJson obj
+  // calculateShrinkage();
+  bugtxt(`codonsPerPixelHILBERT inside getRenderObject is ${codonsPerPixelHILBERT}`)
+
+  for (let h=0; h<pepTable.length; h++) {
+    const pep =  pepTable[h];
+    currentPeptide = pep.Codon;
+    pepTable[h].src = aminoFilenameIndex(h);
+    // bugtxt(pepTable[h].src);
+  }
+
+  bugtxt( pepTable.sort( compareHistocount ) ); // least common amino acids in front
+
+  let zumari = {
+    maxpix: maxpix,
+    name: justNameOfDNA,
+    refimage: justNameOfHILBERT,
+    linearimage: justNameOfPNG,
+    runid: timestamp,
+    cliruns: cliruns,
+    gbprocessed: gbprocessed,
+    hostname: os.hostname(),
+    version: version,
+    flags: (  force ? "F" : ""    )+(  userCPP == "auto"  ? `C${userCPP}` : ""    )+(  devmode ? "D" : ""    )+(  args.ratio || args.r ? `${ratio}` : "   "    )+(  args.magnitude || args.m ? `M${dimension}` : "   "    ),
+    aspect: ratio,
+    bytes: baseChars,
+    estimatedPixels: estimatedPixels,
+    genomeSize: genomeSize,
+    accuracy: estimatedPixels / genomeSize,
+    noncoding:  errorClock,
+    codonsPerPixel:  codonsPerPixel,
+    codonsPerPixelHILBERT: codonsPerPixelHILBERT,
+    pixelClock: pixelClock,
+    pixhilbert: hilbPixels[dimension],
+    shrinkFactor: shrinkFactor,
+    overSampleFactor: overSampleFactor,
+    opacity: opacity,
+    magnitude: magnitude,
+    optimumDimension: optimumDimension (estimatedPixels),
+    darkenFactor: darkenFactor,
+    highlightFactor: highlightFactor,
+    correction: 'Ceiling',
+    finish: new Date(),
+    blurb: blurb(),
+    runningDuration: runningDuration,
+    totalmem: os.totalmem(),
+    platform: os.platform(),
+    loadavg: os.loadavg()
+  }
+  let histogramJson = {
+    pepTable: pepTable,
+    summary: zumari
+  }
+  return histogramJson;
+}
+
+
+
+// cliruns = "!";
+// gbprocessed = "!";
+// cliruns = userprefs.aminosee.cliruns;
+// gbprocessed = userprefs.aminosee.gbprocessed;
+function setupPrefs() {
+  var Preferences = require("preferences");
+  projectprefs = new Preferences('nz.funk.aminosee.project',{}, {
+    encrypt: false,
+    file: path.join(os.homedir(), obviousFoldername +  '/aminosee.conf'),
+    format: 'yaml'
+  });
+
+  // userprefs = new Preferences('nz.funk.aminosee.user',{}, {
+  //   encrypt: false,
+  //   file: path.join(os.homedir(), obviousFoldername +  '/aminosee.conf'),
+  //   format: 'yaml'
+  // });     ~/.config/preferences/com.foo.bar.pref
+
+  userprefs = new Preferences('nz.funk.aminosee.user', {
+    aminosee: {
+      cliruns: 0,
+      guiruns: 0,
+      gbprocessed: 0,
+      outputPath: outputPath
+    }
+  }, {
+    encrypt: false,
+    file: path.resolve(os.homedir(), '.config/preferences/nz.funk.aminosee.conf'),
+    format: 'yaml'
+  });
+  // Preferences can be accessed directly
+  userprefs.aminosee.cliruns++; // increment run counter. for a future high score table stat and things maybe.
+  cliruns = userprefs.aminosee.cliruns;
+  gbprocessed = userprefs.aminosee.gbprocessed;
+  mode('setupPrefs ' + cliruns);
+  bugtxt(`AminoSee has been run ${cliruns} times and processed ${gbprocessed.toLocaleString()}  GB`);
+}
+
+function setupApp() { // do stuff aside from creating any changes. eg if you just run "aminosee" by itself.
+
+webserverEnabled = false;
+killServersOnQuit = true;
+isElectron = true;
+outFoldername = `AminoSee_Output`;
+outputPath = outFoldername;
+justNameOfDNA = 'aminosee-is-looking-for-files-containing-ascii-DNA.txt';
+currentFile = funknzLabel;
+nextFile = funknzLabel;
+filename = funknzLabel;
+browser = 'firefox';
+msPerUpdate = minUpdateTime; // min milliseconds per update its increased for long renders
+now = new Date();
+maxMsPerUpdate = 30000; // milliseconds per updatelet maxpix = targetPixels; // maxpix can be changed downwards by algorithm for small genomes in order to zoom in
+timeRemain = 1;
+debugGears = 1;
+termDisplayHeight = 31;
+termStatsHeight = 9;
+done = 0;
+suopIters = 0;
+termMarginLeft = (term.width - 100) / 3;
+termMarginTop = (term.height - termDisplayHeight - termStatsHeight) / 3;
+maxpix = targetPixels;
+raceDelay = 69; // so i learnt a lot on this project. one day this line shall disappear replaced by promises.
+dimension = defaultMagnitude; // var that the hilbert projection is be downsampled to
+darkenFactor = 0.25; // if user has chosen to highlight an amino acid others are darkened
+highlightFactor = 4.0; // highten brightening.
+devmode = false; // kills the auto opening of reports etc
+quiet = false;
+verbose = false; // not recommended. will slow down due to console.
+debug = false; // not recommended. will slow down due to console.
+force = false; // force overwrite existing PNG and HTML reports
+artistic = false; // for Charlie
+dnabg = false; // firehose your screen with DNA!
+report = true; // html reports can be dynamically disabled
+test = false;
+updates = true;
+updateProgress = false;
+stats = true;
+recycEnabled = false; // bummer had to disable it
+renderLock = false; // not rendering right now obviously
+clear = true; // clear the terminal screen while running
+openLocalHtml = true; // its better to use the built-in server due to CORS
+highlightTriplets = [];
+isHighlightSet = false;
+isHilbertPossible = true; // set false if -c flags used.
+isDiskFinLinear = true; // flag shows if saving png is complete
+isDiskFinHilbert = true; // flag shows if saving hilbert png is complete
+isDiskFinHTML = true; // flag shows if saving html is complete
+isStorageBusy = false; // true just after render while saving to disk. helps percent show 100% etc.
+willRecycleSavedImage = false; // allows all the regular processing to mock the DNA render stage
+codonsPerSec = 0;
+peakRed = 0.123455;
+rawDNA ="@loading DNA Stream..."; // debug
+status = "load";
+debugColumns = 0; debugColumns = setDebugCols(); // why?
+howMany = 1;
+termPixels = Math.round(((term.width-5) * (term.height-5))/4);
+runningDuration = 1; // ms
+interactiveKeysGuide = "";
+pepTable = data.pepTable;
+dnaTriplets = data.dnaTriplets;
+asciiart = data.asciiart;
+
+red = 0;
+green = 0;
+blue = 0;
+alpha = 0;
+charClock = 0; // its 'i' from the main loop
+errorClock = 0; // increment each non DNA, such as line break. is reset after each codon
+breakClock = 0;
+streamLineNr = 0;
+genomeSize = 1;
+msElapsed = 0; runningDuration = 0; charClock = 0; percentComplete = 0; genomeSize = 0; pixelClock = 0; opacity = 0;
+setupOutPaths();
+// console.log(`stdin pipe: ${pipeInstance.checkIsPipeActive()}`);
+// const stdin = pipeInstance.stdinLineByLine();
+// stdin.on('line', console.log);
+startDate = new Date(); // required for touch locks.
+started = startDate.getTime(); // required for touch locks.
+termSize();
+setupPrefs();
+
+if (updateProgress == true) {
+  progato = term.progressBar({
+    width: term.width - 20,
+    title: `Booting up at ${formatAMPM( new Date())} on ${hostname}`,
+    eta: true,
+    percent: true,
+    inline: false
+  });
+  // term.moveTo(1 + termMarginLeft,1 + termMarginTop);
+  // drawProgress();
+}
+// killServersOnQuit = false;
+// server.start(outputPath);
+// server.serverLock(launchNonBlockingServer)
+
+}
+function setupProject() { // blank all the variables
+  if (renderLock == true ) {
+    error(`Renderlock failed in setupProject ${currentFile} ${nextFile}`)
+    return false;
+  }
+  baseChars = genomeSize = charClock = codonsPerSec = cliruns = gbprocessed = opensFile = red = green = blue = 0;
+  peakRed = red;
+  peakGreen = green;
+  peakBlue = blue;
+  percentComplete = 0;
+  setupOutPaths();
+}
+//
+// "a": "artistic",
+// "b": "dnabg",
+// c": "codons, d": "devmode, f": "force, h": "help, k": "keyboard, m": "magnitude, o": "outpath, out": "outpath, output": "outpath, p": "peptide, i": "image, t": "triplet, q": "quiet, r": "reg, w": "width, v": "verbose, x": "explorer, finder": "explorer,
+// default": "{ updates": "true, dnabg": "false, clear": "true, explorer": "false, quiet": "false, gui": "true, keyboard": "false
+
+function generateArgs() { // returns fake args array
+  args = {
+    "artistic": true,
+    "devmode": true,
+    "debug": true,
+    "clear": true,
+    "keyboard": "false",
+    "html": true,
+    "updates": true,
+    "force": true,
+    "dnabg": "false",
+    "test": true,
+    "verbose": true,
+    "reg": true,
+    "image": true,
+    "file": true,
+    "explorer": "false",
+    "firefox": true,
+    "chrome": true,
+    "safari": true,
+    "recycle": true,
+    "quiet": "false",
+    "serve": true,
+    "gui": true,
+    "codons": "2",
+    "magnitude": "4",
+    "outpath": "2",
+    "triplet": "2",
+    "peptide": "2",
+    "ratio": "fix",
+    "width": "false"
+  }
+
+}
+function destroyProgress() { // now thats a fucking cool function name if ever there was!
+  // if (howMany == -1) {
+  // }
+  if (updateProgress == true) {
+    // if (progato !== undefined) {
+    // progato.stop();
+    // }
+  }
+  clearTimeout(updatesTimer);
+  clearTimeout(progTimer);
+  clearTimeout(lockTimer);
+}
+function progUpdate(obj) {  // allows to disable all the prog bars in one place
+  if (updateProgress == true) {
+    if (progato !== undefined && obj !== undefined) {
+      progato.update(obj);
+    }
+  } else {
+    bugtxt(`progress dummy function: ${obj}`)
+  }
+}
 
 function askUserForDNA() {
 
@@ -1132,13 +1159,13 @@ function toggleDevmode() {
     openImage = false;
     openFileExplorer = false;
     termDisplayHeight++;
-    raceDelay += 500; // this helps considerably!
+    raceDelay += 1500; // this helps considerably!
     if (debug == true) {
-      raceDelay += 500; // this helps considerably!
+      raceDelay += 1500; // this helps considerably!
     }
     output("AminoSee has been slowed to " + raceDelay)
   } else {
-    raceDelay -= 500; // if you turn devmode on and off a lot it will slow down
+    raceDelay -= 1000; // if you turn devmode on and off a lot it will slow down
     verbose = false;
     updates = true;
     clear = true;
@@ -1447,23 +1474,7 @@ function pollForStream() { // render lock must be off before calling. aim: start
   bugtxt(fixedWidth(64, "Now >>   " + currentFile + " then " + nextFile));
   bugtxt(`Now -->>  ( ${currentFile} )  then -->> ${nextFile} analyse: ${chalk.inverse(currentFile)} storage: ${chalk.inverse(storage())}`);
   mode('starting ' + howMany);
-  bugtxt("****************************************")
-  bugtxt("****************************************")
-  bugtxt("****************************************")
-  bugtxt("****************************************")
-  bugtxt("****************************************")
-  bugtxt("****************************************")
-  bugtxt("****************************************")
-  bugtxt("****************************************")
-  bugtxt("****************************************")
-  bugtxt("****************************************")
-  bugtxt("****************************************")
-  log   ("             starting render            ")
-  bugtxt("****************************************")
-  bugtxt("next ***   " + nextFile)
-  bugtxt("current ***   " + currentFile);
-
-
+  log   ("***************   starting render  *************** next " + nextFile)
   popAndLock(); // renderock is now on!
   setNextFile();
   howMany = args._.length;
@@ -1472,122 +1483,117 @@ function pollForStream() { // render lock must be off before calling. aim: start
     redoLine("File Format not supported: " + chalk.inverse(getFileExtension(currentFile)));
     popAndLock();
     renderLock = false;
-
-    // setTimeout( () => {
     pollForStream()
     // lookForWork('inside poll for stream. file format not support. ' + fixedWidth(24, currentFile) );
-    // }, raceDelay)
+    return false;
+  }
+  setupFNames();
+  bugtxt("PNG: " + justNameOfPNG);
+  bugtxt(`[ polling ${nicePercent()} ${status} ${new Date()} ]`);
+  bugtxt(`[ howMany  ${howMany} ${status} ${filename} ${currentFile} ]`);
+  if (currentFile == undefined) {
+    // quit(1, 'currentFile is undefined')
+    error('currentFile is undefined')
+    // resetAndMaybe();
+    renderLock = false;
     return false;
   }
 
-
-  setupFNames();
-
-  bugtxt("PNG: " + justNameOfPNG);
-  bugtxt(` [polling ${nicePercent()} ${status} ${new Date()}`);
-    bugtxt(` [ howMany  ${howMany} ${status} ${filename} ${currentFile}]`);
-    if (currentFile == undefined) {
-      // quit(1, 'currentFile is undefined')
-      error('currentFile is undefined')
-      // resetAndMaybe();
-      renderLock = false;
-      return false;
-    }
-
-    bugtxt("currentFile: " + filename)
-    let pollAgainFlag = false;
-    let willStart = true;
-    bugtxt( " currentFile is " + currentFile   + args)
-    log(`>>> PREFLIGHT <<< ${howMany} ${fixedWidth(24,  currentFile)} then ${fixedWidth(24,  nextFile)}`);
+  bugtxt("currentFile: " + filename)
+  let pollAgainFlag = false;
+  let willStart = true;
+  bugtxt( " currentFile is " + currentFile   + args)
+  if (howMany < 1) { isShuttingDown = true;}
+  if (howMany < 0) { gracefulQuit(130) }
+  log(`>>> PREFLIGHT <<< ${howMany} ${fixedWidth(24,  currentFile)} then ${fixedWidth(24,  nextFile)}`);
 
 
-    // if (doesFileExist(filenamePNG)) {
-    //   log('DNA Found OK');
-    // } else {
-    //   // setTimeout( () => {
-    //     lookForWork('Skipping non-existent DNA file: ' + filename);
-    //   // }, raceDelay)
-    //   return false;
-    // }
-    if (currentFile == defaultFilename) { // maybe this is to get past my lack of understanding of processing of args.
-      bugtxt("skipping default: " + defaultFilename); // it was rendered same file twice i think
-      // quit();
-      return false;
-    }
+  // if (doesFileExist(filenamePNG)) {
+  //   log('DNA Found OK');
+  // } else {
+  //   // setTimeout( () => {
+  //     lookForWork('Skipping non-existent DNA file: ' + filename);
+  //   // }, raceDelay)
+  //   return false;
+  // }
+  if (currentFile == defaultFilename) { // maybe this is to get past my lack of understanding of processing of args.
+    bugtxt("skipping default: " + defaultFilename); // it was rendered same file twice i think
+    // quit();
+    return false;
+  }
 
-    log(`analyse: ${chalk.inverse(currentFile)} storage: ${chalk.inverse(storage())} Fullpath: ${filename}`);
+  ///////////////// BEGIN PARSING DNA FILE //////////////////////////////
+  ///////////////// Check if it's been rendered etc
+  mode('parsing');
+  bugtxt(`analyse: ${chalk.inverse(currentFile)} storage: ${chalk.inverse(storage())} Fullpath: ${filename}`)
+  autoconfCodonsPerPixel();
+  setupFNames(); // will have incorrect Hilbert file name. Need to wait until after render to check if exists.
+  bugtxt(`Polling filenameTouch ${filenameTouch} willStart   ${willStart}  pollAgainFlag ${pollAgainFlag}  defaultFilename  ${defaultFilename}  ${filename}  howMany   ${howMany}   status ${status}`);
 
-    ///////////////// BEGIN PARSING DNA FILE //////////////////////////////
-    ///////////////// Check if it's been rendered etc
-    mode('parsing');
-    autoconfCodonsPerPixel();
-    setupFNames(); // will have incorrect Hilbert file name. Need to wait until after render to check if exists.
-    bugtxt(`Polling filenameTouch ${filenameTouch} willStart   ${willStart}  pollAgainFlag ${pollAgainFlag}  defaultFilename  ${defaultFilename}  ${filename}  howMany   ${howMany}   status ${status}`);
-
-    if (skipExistingFile(filenamePNG)) {
-      output(`Skipping render due to FILE EXISTING ALREADY (${howMany} files to go) ${filenamePNG}`);
-      log("use --force to overwrite  --image to automatically open   ");
-      if (openHtml == true || openImage == true || args.image == true) {
-        log("use --no-image suppress automatic opening of the image.")
-        openOutputs();
-      } else {
-        log('use --image to open in viewer')
-      }
-      termDrawImage(filenamePNG)
-      renderLock = false;
-// pollForStream()
-      lookForWork(`skipExistingFile ${filenamePNG}`);
-      return false;
-    } else { log('Not skipping') }
-
-    if (checkLocks(filenameTouch)) {
-      output("Render already in progress by another thread.");
-      log("Either use --force or delete this file: ");
-      log(chalk.underline(filenameTouch));
-      renderLock = false;
-      lookForWork();
-      // resetAndMaybe(); // <---  another node maybe working on, NO RENDER
+  if (skipExistingFile(filenamePNG)) {
+    output(`Already rendered ${fixedWidth(24, filenamePNG)} (${howMany} files to go) use --explorer to show files`);
+    log("use --force to overwrite  --image to automatically open   ");
+    if (openHtml == true || openImage == true || openFileExplorer == true) {
+      log("use --no-image suppress automatic opening of the image.")
+      openOutputs();
     } else {
-      out("Lock OK proceeding to render...");
-      setTimeout(() => {
-        renderLock = false;
-        touchLockAndStartStream(); // <--- THIS IS WHERE MAGIC STARTS
-        log('polling end');
-      }, raceDelay);
+      log('use --image to open in viewer')
     }
+    termDrawImage(filenamePNG)
+    renderLock = false;
+    mode('skip existing')
+    pollForStream()
+    // lookForWork(`skipExistingFile ${filenamePNG}`);
+    return false;
+  } else { log('Not skipping') }
+  if (checkLocks(filenameTouch)) {
+    output("Render already in progress by another thread.");
+    log("Either use --force or delete this file: ");
+    log(chalk.underline(filenameTouch));
+    renderLock = false;
+    lookForWork();
+    // resetAndMaybe(); // <---  another node maybe working on, NO RENDER
+  } else {
+    mode("Lock OK proceeding to render...");
+    // setTimeout(() => {
+    renderLock = false;
+    touchLockAndStartStream(); // <--- THIS IS WHERE MAGIC STARTS
+    log('polling end');
+    // }, raceDelay);
   }
+}
 
-  function firstRun() {
-    output(chalk.bgRed("First run demo!"));
-    output(chalk.bgYellow("First run demo!"));
-    output(chalk.bgGreen("First run demo!"));
-    runDemo();
-  }
-  function startStreamingPng() {
-    pixelStream = pStream(); // readable stream
-    pixelStream.pipe(new PNG({
-      width: 960,
-      inputHasAlpha: true
-    }))
-    .on('parsed', function() {
-      this.pack().pipe(fs.createWriteStream('streaming-out.png'));
-    });
-  }
-  function pStream() { // returns require('module');adable to push pixels into
-  const through2 = require('through2');
-  const Readable = require('readable-stream').Readable;
-  const stream = Readable({objectMode: true});   /* 1 */
-  stream._read = () => {};                       /* 2 */
-  // setInterval(() => {                            /* 3 */
-  //   stream.push({
-  //     x: Math.random()
-  //   });
-  // }, 100);
-  const getX = through2.obj((data, enc, cb) => { /* 4 */
-    cb(null, `${data.x.toString()}\n`);
+function firstRun() {
+  output(chalk.bgRed("First run demo!"));
+  output(chalk.bgYellow("First run demo!"));
+  output(chalk.bgGreen("First run demo!"));
+  runDemo();
+}
+function startStreamingPng() {
+  pixelStream = pStream(); // readable stream
+  pixelStream.pipe(new PNG({
+    width: 960,
+    inputHasAlpha: true
+  }))
+  .on('parsed', function() {
+    this.pack().pipe(fs.createWriteStream('streaming-out.png'));
   });
-  stream.pipe(getX).pipe(process.stdout);        /* 5 */
-  return stream
+}
+function pStream() { // returns require('module');adable to push pixels into
+const through2 = require('through2');
+const Readable = require('readable-stream').Readable;
+const stream = Readable({objectMode: true});   /* 1 */
+stream._read = () => {};                       /* 2 */
+// setInterval(() => {                            /* 3 */
+//   stream.push({
+//     x: Math.random()
+//   });
+// }, 100);
+const getX = through2.obj((data, enc, cb) => { /* 4 */
+  cb(null, `${data.x.toString()}\n`);
+});
+stream.pipe(getX).pipe(process.stdout);        /* 5 */
+return stream
 }
 function resetAndMaybe(){
   bugtxt(`RESET.   Storage: (${storage()} ${busy()}) CurrentFile: ${currentFile} Next: ${nextFile}`);
@@ -1948,6 +1954,12 @@ function highlightFilename() {
 
 function setupFNames() { // must not be called during creation of hilbert image
   mode("setupFNames " + currentFile);
+  log(`isShuttingDown: [${isShuttingDown}]`)
+  if (renderLock) {
+    if (isStorageBusy) { error('thread re-entry inside setupFNames due to storage busy') }
+  } else {
+    error('thread re-entry inside setupFNames due to IDLE??!')
+  }
   // calculateShrinkage(); // REQUIRES INFO FROM HERE FOR HILBERT FILENAME. BUT THAT INFO NOT EXIST UNTIL WE KNOW HOW MANY PIXELS CAME OUT OF THE DNA!
   filename = path.resolve(currentFile);
   justNameOfCurrentFile = replaceoutputPathFileName( filename );
@@ -2328,7 +2340,7 @@ function saveDocsSync() {
   if (rgbArray.length < 64) {
     log(`Not enough DNA in this file (${currentFile}) `);
     // setTimeout(() => {
-      resetAndMaybe();
+    resetAndMaybe();
     // }, raceDelay)
     return false;
   }
@@ -2453,7 +2465,8 @@ function fileWrite(file, contents, cb) {
         } else {
           try {
             bugtxt('Set permissions for file: ' + file);
-            fs.chmodSync(file, 0o777);
+            // fs.chmodSync(file, 0o777); // not work with strict mode
+            fs.chmodSync(file, '0777');
           } catch(e) {
             bugtxt('Could not set permission for file: ' + file + ' due to ' + e);
           }
@@ -2470,22 +2483,17 @@ function fileWrite(file, contents, cb) {
 }
 function touchLockAndStartStream() { // saves CPU waste. delete lock when all files are saved, not just the png.
   mode("touchLockAndStartStream");
+
   if (renderLock) { error('Thread tried to re-enter stream. No Matter we good. '); return false; }
-
-
-  clearCheck();
-  setImmediate( () => { // time for the locks to go down
-    if (renderLock) { error('Thread tried to re-enter stream. No Matter we good. '); return false; }
-    renderLock = true;
-    startDate = new Date(); // required for touch locks.
-    started = startDate.getTime(); // required for touch locks.
-    autoconfCodonsPerPixel();
-    setupFNames();
-    rgbArray = [];
-    output("Start")
-    tLock();
-    initStream()
-  })
+  renderLock = true;
+  startDate = new Date(); // required for touch locks.
+  started = startDate.getTime(); // required for touch locks.
+  autoconfCodonsPerPixel();
+  setupFNames();
+  rgbArray = [];
+  output("Start")
+  tLock(initStream);
+  // initStream()
 }
 function blurb() {
   return `Started DNA render ${currentFile} at ${formatAMPM(startDate)}, and after ${humanizeDuration(runningDuration)} completed ${nicePercent()} of the ${bytes(baseChars)} file at ${bytes(bytesPerMs*1000)} per second. Estimated ${humanizeDuration(timeRemain)} to go with ${genomeSize.toLocaleString()} r/DNA base pair triplets decoded, and ${pixelClock.toLocaleString()} pixels painted so far.
@@ -2495,7 +2503,7 @@ function blurb() {
 function tLock(cb) {
   calcUpdate();
   if (previousImage !== undefined) {
-    termDrawImage();
+    termDrawImage(path.resolve(previousImage));
   }
   const outski = " " + blurb();
   fileWrite(
@@ -2524,7 +2532,7 @@ function tLock(cb) {
 
 }
 function fileBug(err) {
-   bugtxt(err + " the file was: " + currentFile);
+  bugtxt(err + " the file was: " + currentFile);
 }
 function deleteFile(file) {
   try {
@@ -2627,18 +2635,19 @@ function lookForWork(reason) { // move on to the next file via pollForStream. on
   //   pollForStream();
   //   return false;
   // }
-  // if (howMany > 0) {
-  //   log(`Starting in ${raceDelay}ms ${howMany} files remain, next is ${maxWidth(32, nextFile)}`);
-  //   setTimeout(() => {
-  //     if (!renderLock) {
-  //       touchLockAndStartStream(); // <--- THIS IS WHERE MAGIC STARTS
-  //     }
-  //   }, raceDelay);
-  // } else {
-  //   mode("...and thats's all she wrote folks, outa jobs.");
-  //   quit(0, status);
-  //   return true;
-  // }
+  if (howMany > 0) {
+    log(`Starting in ${raceDelay}ms ${howMany} files remain, next is ${maxWidth(32, nextFile)}`);
+    setTimeout(() => {
+      if (!renderLock) {
+        touchLockAndStartStream(); // <--- THIS IS WHERE MAGIC STARTS
+      }
+    }, raceDelay);
+  } else {
+    mode("...and thats's all she wrote folks, outa jobs.");
+    isShuttingDown = true;
+    quit(0, status);
+    return true;
+  }
 
   pollForStream();
 }
@@ -3646,15 +3655,15 @@ function linearFinished() {
 function termDrawImage(fullpath) {
   if (fullpath === undefined) { fullpath = previousImage }
   if (fullpath === undefined) { return false }
-  if (force == true) { return false }
+  // if (force == true) { return false }
   if (verbose != true || quiet == true) { return false }
   previousImage = fullpath;
-    // term.saveCursor()
-    // term.moveTo(0,0);
-    console.log()
-    term.drawImage( previousImage , { shrink: { width: term.width/2,  height: term.height/2 } } )
-    output(replaceoutputPathFileName(previousImage))
-    // term.restoreCursor()
+  // term.saveCursor()
+  // term.moveTo(0,0);
+  bugout(previousImage)
+  term.drawImage( previousImage , { shrink: { width: term.width/2,  height: term.height/2 } } )
+  output(replaceoutputPathFileName(previousImage))
+  // term.restoreCursor()
 }
 function bothKindsTestPattern() {
   let h = require('hilbert-2d');
@@ -3842,15 +3851,29 @@ function openOutputs() {
     log('Will not open the output');
     return false;
   }
-  if (opens > 3) {
-    log('3 opens, will not open more windows')
+  if (opensFile > 2) {
+    log('will not open more windows')
+    opensFile = 0;
+    openFile = false;
+    return false;
+  }
+  if (opensImage > 2) {
+    log('will not open more windows')
+    opensImage = 0;
+    openImage = false;
+    return false;
+  }
+  if (opensHtml > 2) {
+    log('will not open more windows')
+    opensHtml = 0;
+    openHtml = false;
     return false;
   }
   bugtxt(`openHtml, openImage, openFileExplorer`, openHtml, openImage, openFileExplorer);
   if (openFileExplorer === true) {
     output(`Opening render output folder in File Manager ${outputPath}`);
     open(outputPath).then(() => {
-      opens++;
+      opensFile++;
       log("file manager closed");
     }).catch(function () { error(`open(${outputPath})`)});
   }
@@ -3858,13 +3881,10 @@ function openOutputs() {
     output(`Opening ${justNameOfHTML} DNA render summary HTML report.`);
     // bgOpen(filenameHTML, {app: 'firefox', wait: false} );
     launchNonBlockingServer(justNameOfDNA);
-    setTimeout( () => {
-      opens++;
-      // open( server.getServerURL(justNameOfDNA), {app: 'firefox', wait: false} );
-      open( server.getServerURL(justNameOfDNA), {wait: false} );
-    }, raceDelay);
+    opensHtml++;
+    open( server.getServerURL(justNameOfDNA), { wait: false } );
     // if (openLocalHtml == true) {
-    //   opens++;
+    //   opensFile++;
     //   open(filenameHTML, {app: 'firefox', wait: false}).then(() => {
     //     log("browser closed");
     //   }).catch(function () { error("open(filenameHTML)")});
@@ -3873,14 +3893,14 @@ function openOutputs() {
   if (isHilbertPossible === true && openImage === true) {
     output(`Opening ${justNameOfHILBERT} 2D hilbert space-filling image.`);
     // bgOpen(filenameHILBERT)
-    opens++;
+    opensImage++;
     open(filenameHILBERT).then(() => {
       log("hilbert image closed");
     }).catch(function () { error("open(filenameHILBERT)") });
   } else if (openImage === true) {
     output(`Opening ${justNameOfPNG} 1D linear projection image.`);
     // bgOpen(filenamePNG)
-    opens++;
+    opensImage++;
     open(filenamePNG).then(() => {
       log("regular png image closed");
     }).catch(function () { error("open(filenamePNG)") });
@@ -3893,7 +3913,6 @@ function openOutputs() {
   } else {
     out("Not opening anything");
   }
-  // });
   log("Thats us cousin'! Sweet as a Kina in a creek as they say (in NZ).");
 }
 function getRegmarks() {
@@ -4226,8 +4245,10 @@ function output(txt) {
   }
 }
 function bugtxt(txt) { // full debug output
-  if (debug == true) {
+  if (debug == true && devmode == true && verbose == true) {
     bugout(txt);
+  } else {
+    redoLine(txt);
   }
 }
 function setDebugCols() {
@@ -4240,20 +4261,20 @@ function setDebugCols() {
 }
 function log(txt) {
   if (!quiet) {
-    wTitle(txt)
-  }
+    wTitle(txt) // put it on the terminal windowbar or in tmux
+    redoLine(txt)
 
-  if (devmode == true || debug == true) {
-    console.log(txt);
+  }
+  if (devmode == true || debug == true || verbose == true) {
+    output(txt);
   } else {
-    if (!quiet){
-      redoLine(txt)
-    }
+    // if (!quiet){
+    // }
   }
 }
 function out(txt) {
-output(txt);
-return true;
+  output(txt);
+  return true;
 
   if (txt == undefined || quiet == true) { return false;}
   term.eraseDisplayBelow;
@@ -4272,7 +4293,6 @@ function clout(txt) {
   if (txt.substring(0,5) == 'error' && !quiet) {
     console.warn(`[ ${txt} ] `);
   } else {
-    // console.log(`-`);
     redoLine(chalk.rgb(red, green, blue)(`[ `) + chalk(txt)  + chalk.rgb(red, green, blue)(`[ `))
     }
   }
@@ -4566,8 +4586,6 @@ function clout(txt) {
       term.moveTo(1 + termMarginLeft,1);
       console.log("     To disable real-time DNA background use any of --no-dnabg --no-updates --quiet -q");
       // }
-    } else {
-      if (pixelClock % 8 == 0) { termDrawImage() }
     }
     rawDNA = funknzLabel;
     term.moveTo(1 + termMarginLeft,1 + termMarginTop);
@@ -4848,474 +4866,6 @@ function clout(txt) {
 
       return "\x1b[38;2;" + _r + ";" + _g + ";" + _b + "m" + _text + "\x1b[0m";
     };
-
-    // let dnaTriplets = [
-    //   {
-    //     "DNA": "AAA",
-    //     "Codon": "Lysine",
-    //     "Hue": 313,
-    //     "Alpha": 0.1,
-    //     "Histocount": 0,
-    //   },
-    //   {
-    //     "DNA": "AAC",
-    //     "Codon": "Asparagine",
-    //     "Hue": 266,
-    //     "Alpha": 0.1,
-    //     "Histocount": 0,
-    //   },
-    //   {
-    //     "DNA": "AAG",
-    //     "Codon": "Lysine",
-    //     "Hue": 313,
-    //     "Alpha": 0.1,
-    //     "Histocount": 0,
-    //   },
-    //   {
-    //     "DNA": "AAT",
-    //     "Codon": "Asparagine",
-    //     "Hue": 266,
-    //     "Alpha": 0.1,
-    //     "Histocount": 0,
-    //   },
-    //   {
-    //     "DNA": "ACA",
-    //     "Codon": "Threonine",
-    //     "Hue": 219,
-    //     "Alpha": 0.1,
-    //     "Histocount": 0,
-    //   },
-    //   {
-    //     "DNA": "ACC",
-    //     "Codon": "Threonine",
-    //     "Hue": 219,
-    //     "Alpha": 0.1,
-    //     "Histocount": 0,
-    //   },
-    //   {
-    //     "DNA": "ACG",
-    //     "Codon": "Threonine",
-    //     "Hue": 219,
-    //     "Alpha": 0.1,
-    //     "Histocount": 0,
-    //   },
-    //   {
-    //     "DNA": "ACT",
-    //     "Codon": "Threonine",
-    //     "Hue": 219,
-    //     "Alpha": 0.1,
-    //     "Histocount": 0,
-    //   },
-    //   {
-    //     "DNA": "AGA",
-    //     "Codon": "Arginine",
-    //     "Hue": 297,
-    //     "Alpha": 0.1,
-    //     "Histocount": 0,
-    //   },
-    //   {
-    //     "DNA": "AGC",
-    //     "Codon": "Serine",
-    //     "Hue": 203,
-    //     "Alpha": 0.1,
-    //     "Histocount": 0,
-    //   },
-    //   {
-    //     "DNA": "AGG",
-    //     "Codon": "Arginine",
-    //     "Hue": 297,
-    //     "Alpha": 0.1,
-    //     "Histocount": 0,
-    //   },
-    //   {
-    //     "DNA": "AGT",
-    //     "Codon": "Serine",
-    //     "Hue": 203,
-    //     "Alpha": 0.1,
-    //     "Histocount": 0,
-    //   },
-    //   {
-    //     "DNA": "ATA",
-    //     "Codon": "Isoleucine",
-    //     "Hue": 157,
-    //     "Alpha": 0.1,
-    //     "Histocount": 0,
-    //   },
-    //   {
-    //     "DNA": "ATC",
-    //     "Codon": "Isoleucine",
-    //     "Hue": 157,
-    //     "Alpha": 0.1,
-    //     "Histocount": 0,
-    //   },
-    //   {
-    //     "DNA": "ATG",
-    //     "Codon": "Methionine",
-    //     "Hue": 110,
-    //     "Alpha": 1,
-    //     "Histocount": 0,
-    //   },
-    //   {
-    //     "DNA": "ATT",
-    //     "Codon": "Isoleucine",
-    //     "Hue": 157,
-    //     "Alpha": 0.1,
-    //     "Histocount": 0,
-    //   },
-    //   {
-    //     "DNA": "CAA",
-    //     "Codon": "Glutamine",
-    //     "Hue": 250,
-    //     "Alpha": 0.1,
-    //     "Histocount": 0,
-    //   },
-    //   {
-    //     "DNA": "CAC",
-    //     "Codon": "Histidine",
-    //     "Hue": 329,
-    //     "Alpha": 0.1,
-    //     "Histocount": 0,
-    //   },
-    //   {
-    //     "DNA": "CAG",
-    //     "Codon": "Glutamine",
-    //     "Hue": 250,
-    //     "Alpha": 0.1,
-    //     "Histocount": 0,
-    //   },
-    //   {
-    //     "DNA": "CAT",
-    //     "Codon": "Histidine",
-    //     "Hue": 329,
-    //     "Alpha": 0.1,
-    //     "Histocount": 0,
-    //   },
-    //   {
-    //     "DNA": "CCA",
-    //     "Codon": "Proline",
-    //     "Hue": 344,
-    //     "Alpha": 0.1,
-    //     "Histocount": 0,
-    //   },
-    //   {
-    //     "DNA": "CCC",
-    //     "Codon": "Proline",
-    //     "Hue": 344,
-    //     "Alpha": 0.1,
-    //     "Histocount": 0,
-    //   },
-    //   {
-    //     "DNA": "CCG",
-    //     "Codon": "Proline",
-    //     "Hue": 344,
-    //     "Alpha": 0.1,
-    //     "Histocount": 0,
-    //   },
-    //   {
-    //     "DNA": "CCT",
-    //     "Codon": "Proline",
-    //     "Hue": 344,
-    //     "Alpha": 0.1,
-    //     "Histocount": 0,
-    //   },
-    //   {
-    //     "DNA": "CGA",
-    //     "Codon": "Arginine",
-    //     "Hue": 297,
-    //     "Alpha": 0.1,
-    //     "Histocount": 0,
-    //   },
-    //   {
-    //     "DNA": "CGC",
-    //     "Codon": "Arginine",
-    //     "Hue": 297,
-    //     "Alpha": 0.1,
-    //     "Histocount": 0,
-    //   },
-    //   {
-    //     "DNA": "CGG",
-    //     "Codon": "Arginine",
-    //     "Hue": 297,
-    //     "Alpha": 0.1,
-    //     "Histocount": 0,
-    //   },
-    //   {
-    //     "DNA": "CGT",
-    //     "Codon": "Arginine",
-    //     "Hue": 297,
-    //     "Alpha": 0.1,
-    //     "Histocount": 0,
-    //   },
-    //   {
-    //     "DNA": "CTA",
-    //     "Codon": "Leucine",
-    //     "Hue": 141,
-    //     "Alpha": 0.1,
-    //     "Histocount": 0,
-    //   },
-    //   {
-    //     "DNA": "CTC",
-    //     "Codon": "Leucine",
-    //     "Hue": 141,
-    //     "Alpha": 0.1,
-    //     "Histocount": 0,
-    //   },
-    //   {
-    //     "DNA": "CTG",
-    //     "Codon": "Leucine",
-    //     "Hue": 141,
-    //     "Alpha": 0.1,
-    //     "Histocount": 0,
-    //   },
-    //   {
-    //     "DNA": "CTT",
-    //     "Codon": "Leucine",
-    //     "Hue": 141,
-    //     "Alpha": 0.1,
-    //     "Histocount": 0,
-    //   },
-    //   {
-    //     "DNA": "GAA",
-    //     "Codon": "Glutamic acid",
-    //     "Hue": 16,
-    //     "Alpha": 0.1,
-    //     "Histocount": 0,
-    //   },
-    //   {
-    //     "DNA": "GAC",
-    //     "Codon": "Aspartic acid",
-    //     "Hue": 31,
-    //     "Alpha": 0.1,
-    //     "Histocount": 0,
-    //   },
-    //   {
-    //     "DNA": "GAG",
-    //     "Codon": "Glutamic acid",
-    //     "Hue": 16,
-    //     "Alpha": 0.1,
-    //     "Histocount": 0,
-    //   },
-    //   {
-    //     "DNA": "GAT",
-    //     "Codon": "Aspartic acid",
-    //     "Hue": 31,
-    //     "Alpha": 0.1,
-    //     "Histocount": 0,
-    //   },
-    //   {
-    //     "DNA": "GCA",
-    //     "Codon": "Alanine",
-    //     "Hue": 94,
-    //     "Alpha": 0.1,
-    //     "Histocount": 0,
-    //   },
-    //   {
-    //     "DNA": "GCC",
-    //     "Codon": "Alanine",
-    //     "Hue": 94,
-    //     "Alpha": 0.1,
-    //     "Histocount": 0,
-    //   },
-    //   {
-    //     "DNA": "GCG",
-    //     "Codon": "Alanine",
-    //     "Hue": 94,
-    //     "Alpha": 0.1,
-    //     "Histocount": 0,
-    //   },
-    //   {
-    //     "DNA": "GCT",
-    //     "Codon": "Alanine",
-    //     "Hue": 94,
-    //     "Alpha": 0.1,
-    //     "Histocount": 0,
-    //   },
-    //   {
-    //     "DNA": "GGA",
-    //     "Codon": "Glycine",
-    //     "Hue": 78,
-    //     "Alpha": 0.1,
-    //     "Histocount": 0,
-    //   },
-    //   {
-    //     "DNA": "GGC",
-    //     "Codon": "Glycine",
-    //     "Hue": 78,
-    //     "Alpha": 0.1,
-    //     "Histocount": 0,
-    //   },
-    //   {
-    //     "DNA": "GGG",
-    //     "Codon": "Glycine",
-    //     "Hue": 78,
-    //     "Alpha": 0.1,
-    //     "Histocount": 0,
-    //   },
-    //   {
-    //     "DNA": "GGT",
-    //     "Codon": "Glycine",
-    //     "Hue": 78,
-    //     "Alpha": 0.1,
-    //     "Histocount": 0,
-    //   },
-    //   {
-    //     "DNA": "GTA",
-    //     "Codon": "Valine",
-    //     "Hue": 125,
-    //     "Alpha": 0.1,
-    //     "Histocount": 0,
-    //   },
-    //   {
-    //     "DNA": "GTC",
-    //     "Codon": "Valine",
-    //     "Hue": 125,
-    //     "Alpha": 0.1,
-    //     "Histocount": 0,
-    //   },
-    //   {
-    //     "DNA": "GTG",
-    //     "Codon": "Valine",
-    //     "Hue": 125,
-    //     "Alpha": 0.1,
-    //     "Histocount": 0,
-    //   },
-    //   {
-    //     "DNA": "GTT",
-    //     "Codon": "Valine",
-    //     "Hue": 125,
-    //     "Alpha": 0.1,
-    //     "Histocount": 0,
-    //   },
-    //   {
-    //     "DNA": "TAA",
-    //     "Codon": "Ochre",
-    //     "Hue": 0,
-    //     "Alpha": 1,
-    //     "Histocount": 0,
-    //   },
-    //   {
-    //     "DNA": "TAC",
-    //     "Codon": "Tyrosine",
-    //     "Hue": 282,
-    //     "Alpha": 0.1,
-    //     "Histocount": 0,
-    //   },
-    //   {
-    //     "DNA": "TAG",
-    //     "Codon": "Amber",
-    //     "Hue": 47,
-    //     "Alpha": 1,
-    //     "Histocount": 0,
-    //   },
-    //   {
-    //     "DNA": "TAT",
-    //     "Codon": "Tyrosine",
-    //     "Hue": 282,
-    //     "Alpha": 0.1,
-    //     "Histocount": 0,
-    //   },
-    //   {
-    //     "DNA": "TCA",
-    //     "Codon": "Serine",
-    //     "Hue": 203,
-    //     "Alpha": 0.1,
-    //     "Histocount": 0,
-    //   },
-    //   {
-    //     "DNA": "TCC",
-    //     "Codon": "Serine",
-    //     "Hue": 203,
-    //     "Alpha": 0.1,
-    //     "Histocount": 0,
-    //   },
-    //   {
-    //     "DNA": "TCG",
-    //     "Codon": "Serine",
-    //     "Hue": 203,
-    //     "Alpha": 0.1,
-    //     "Histocount": 0,
-    //   },
-    //   {
-    //     "DNA": "TCT",
-    //     "Codon": "Serine",
-    //     "Hue": 203,
-    //     "Alpha": 0.1,
-    //     "Histocount": 0,
-    //   },
-    //   {
-    //     "DNA": "TGA",
-    //     "Codon": "Opal",
-    //     "Hue": 240,
-    //     "Alpha": 1,
-    //     "Histocount": 0,
-    //   },
-    //   {
-    //     "DNA": "TGC",
-    //     "Codon": "Cysteine",
-    //     "Hue": 63,
-    //     "Alpha": 0.1,
-    //     "Histocount": 0,
-    //   },
-    //   {
-    //     "DNA": "TGG",
-    //     "Codon": "Tryptophan",
-    //     "Hue": 188,
-    //     "Alpha": 0.1,
-    //     "Histocount": 0,
-    //   },
-    //   {
-    //     "DNA": "TGT",
-    //     "Codon": "Cysteine",
-    //     "Hue": 63,
-    //     "Alpha": 0.1,
-    //     "Histocount": 0,
-    //   },
-    //   {
-    //     "DNA": "TTA",
-    //     "Codon": "Leucine",
-    //     "Hue": 141,
-    //     "Alpha": 0.1,
-    //     "Histocount": 0,
-    //   },
-    //   {
-    //     "DNA": "TTC",
-    //     "Codon": "Phenylalanine",
-    //     "Hue": 172,
-    //     "Alpha": 0.1,
-    //     "Histocount": 0,
-    //   },
-    //   {
-    //     "DNA": "TTG",
-    //     "Codon": "Leucine",
-    //     "Hue": 141,
-    //     "Alpha": 0.1,
-    //     "Histocount": 0,
-    //   },
-    //   {
-    //     "DNA": "TTT",
-    //     "Codon": "Phenylalanine",
-    //     "Hue": 172,
-    //     "Alpha": 0.1,
-    //     "Histocount": 0,
-    //   },
-    //   {
-    //     "DNA": "NNN",
-    //     "Codon": "Non-coding",
-    //     "Hue": 120,
-    //     "Alpha": 1.0,
-    //     "Histocount": 0,
-    //   },
-    //   {
-    //     "DNA": "",
-    //     "Codon": "NoMatchError",
-    //     "Hue": 120,
-    //     "Alpha": 0,
-    //     "Histocount": 0,
-    //   }
-    // ]
-    // ;
-
-
 
     /**
     * Converts an RGB color value to HSL. Conversion formula
@@ -5640,7 +5190,7 @@ function clout(txt) {
         module.exports.quit = quit;
         // module.exports.log = (txt) => { log(txt) }
         // module.exports.log = () => {
-          // log("hellow world")
+        // log("hellow world")
         // }
 
         module.exports.bugtxt = bugtxt;

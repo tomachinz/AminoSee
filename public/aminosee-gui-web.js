@@ -1,9 +1,11 @@
 // "use strict";
 
-let reader, hilbertPoints, herbs, zoom, progress, status, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, textFile, dna, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, justNameOfFile, filename, verbose, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, devmode, fileUploadShowing, maxcolorpix, nextColors, selectedGenom, chunksMax, chunksize, chunksizeBytes, codonsPerPixel, basepairs, cpu, subdivisions, userFeedback, contextBitmap, pauseIntent, linewidth, fileTones;
+let reader, hilbertPoints, herbs, zoom, progress, status, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, textFile, dna, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, justNameOfFile, filename, verbose, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, devmode, fileUploadShowing, maxcolorpix, nextColors, selectedGenom, chunksMax, chunksize, chunksizeBytes, codonsPerPixel, basepairs, cpu, subdivisions, userFeedback, contextBitmap, pauseIntent, linewidth, fileTones, isElectron;
 pauseIntent = false;
 maxcolorpix = 262144; // for large genomes
 linewidth = 8;
+( window.location.toString().indexOf('electron') ==-1 ? isElectron = false : isElectron = true )
+log('Electron mode: ' + isElectron + " window.location: " + window.location);
 let autostopdelay = 300; // seconds
 let downloaderDisabled;
 let levels = 2; // default 2
@@ -205,8 +207,8 @@ function getParameterFromURL() {
     // alert(href)
     return href;
   } else {
-    // alert("output/Chimp_Clint_chrY/images/Chimp_Clint_chrY.gbk_linear-Reference_c10_sci.pngng")
-    return `output/Chimp_Clint_chrY/images/Chimp_Clint_chrY.gbk_linear-Reference_c10_sci.pngng`;
+    // alert("output/Chimp_Clint_chrY/images/Chimp_Clint_chrY.gbk_linear-Reference_c10_sci.png")
+    return `output/Chimp_Clint_chrY/images/Chimp_Clint_chrY.gbk_linear-Reference_c10_sci.png`;
   }
 }
 function parseApache() {
