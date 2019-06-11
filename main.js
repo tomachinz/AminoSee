@@ -98,8 +98,19 @@ function pushCli(commandString) {
 function createWindow () {
   const electron = require('electron');
   const {width, height} = electron.screen.getPrimaryDisplay().workAreaSize
+
+
   // Create the browser window.
-  mainWindow = new BrowserWindow({show: false, width: Math.round(width*0.6), height:  Math.round(height*0.4), title: "AminoSee", backgroundColor: '#011224', x: 0, y:0, icon: 'favicon.png' })
+  mainWindow = new BrowserWindow({
+    show: false,
+    width: Math.round(width*0.6),
+    height:  Math.round(height*0.4),
+    title: "AminoSee",
+    backgroundColor: '#011224',
+    x: 0,
+    y:0,
+    icon: path.join(__dirname, 'public/favicon.png')
+  })
 
   // mainWindow.setSize(dispWidth-256, dispHeight);
   // , type: 'desktop' , vibrancy: 'light' , titleBarStyle: 'default', fullscreenWindowTitle: false

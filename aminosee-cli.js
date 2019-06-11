@@ -32,7 +32,7 @@ class AminoSeeNoEvil {
   }
 };  module.exports.AminoSeeNoEvil = AminoSeeNoEvil;
 
-const settings = require('./settings');
+const settings = require('./aminosee-settings');
 const version = require('./lib/version');
 const server = require('./aminosee-server');
 const data = require('./data');
@@ -4193,10 +4193,10 @@ function bugout(txt) {
   splitScreen = chalk.gray.inverse( fixedWidth(debugColumns - 10, `Cpp: ${codonsPerPixel}  G: ${genomeSize.toLocaleString()} Est: ${onesigbitTolocale(estimatedPixels/1000000)} megapixels ${bytes( baseChars )} RunID: ${timestamp} H dim: ${hilbPixels[dimension]}]  ${formatAMPM(now)} and ${formatMs(now)}ms`));
   console.log(splitScreen);
 
-  term.down(1);
-  term.eraseLine();
-  console.log();
-  term.up(1);
+  // term.down(1);
+  // term.eraseLine();
+  // console.log();
+  // term.up(1);
 }
 function redoLine(txt) {
   term.eraseLine();

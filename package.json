@@ -76,7 +76,7 @@
     "genversion": "^2.1.1"
   },
   "scripts": {
-    "credits": "npm list | wc -l > credits.txt ; echo ' open source packages used. ' >> credits.txt; echo >> credits.txt; npm list >> credits.txt; cat credits.txt",
+    "credits": "./build-credits.sh",
     "crash": "node --inspect 27MB_TestPattern.txt --peptide=Ochre 3MB_TestPattern.txt 50KB_TestPattern.txt batch-peptides.sh batch-process.sh Gorilla_gorGor4_chr2B.fa",
     "test": "echo 'requires cli program time' ; time dna/run-test.sh ; vows --spec --isolate",
     "start": "node bin/aminosee",
@@ -86,7 +86,7 @@
     "build-all": "./build-lib.sh ; npm run build-web ; npm run pkg; npm run zip",
     "build-web": "npm run genversion  &amp;  npm run browserify  &amp; npm run minify",
     "genversion": "genversion lib/version.js",
-    "browserify": "browserify bin/aminosee.js -o public/bundle.js",
+    "browserify": "echo this not working ; browserify bin/aminosee.js -o public/bundle.js",
     "minify": "uglify public/bundle.js -o public/bundle.min.js",
     "electron": "electron-packager ./bin/aminosee.js --platform=darwin --arch=x64 --prune --overwrite  --output ./dist/electron",
     "electron-all": "electron-packager ./ --platform=darwin,win32,linux --arch=x64 --prune --overwrite  --output ./dist/electron",
