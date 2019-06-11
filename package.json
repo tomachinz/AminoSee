@@ -142,8 +142,9 @@
       "bin/**",
       "index.html",
       "index.php",
-      "favicon.ico",
       "aminosee-cli.js",
+      "aminosee-settings.js",
+      "aminosee-server.js",
       "public/**",
       "package.json",
       "dna/megabase.fa"

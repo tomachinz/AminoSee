@@ -251,7 +251,7 @@ function getRenderObject() { // return part of the histogramJson obj
   bugtxt(`codonsPerPixelHILBERT inside getRenderObject is ${codonsPerPixelHILBERT}`)
 
   for (let h=0; h<pepTable.length; h++) {
-    pep =  pepTable[h];
+    const pep =  pepTable[h];
     currentPeptide = pep.Codon;
     pepTable[h].src = aminoFilenameIndex(h);
     // bugtxt(pepTable[h].src);
@@ -993,6 +993,10 @@ function setupKeyboardUI() {
   // listen for the "keypress" event
   process.stdin.once('keypress', function (ch, key) {
     log('got "keypress"', key);
+    if (key && key.name == 't') {
+      mode('pushing test onto render queue')
+      args._.push('test');
+    }
     if (key && key.name == 'c') {
       clearCheck();
     }
@@ -3033,7 +3037,7 @@ function processLine(l) {
             blue = mixRGBA[2];
             paintPixel(); // <<--- Full colour pixel! from here it fades out
 
-            for( ac = 0; ac < artisticHighlightLength - 5; ac++ ) { // Subtract the four pix above and the one below
+            for(let ac = 0; ac < artisticHighlightLength - 5; ac++ ) { // Subtract the four pix above and the one below
               red = red / 1.2;
               green = green / 1.2;
               blue = blue / 1.2;
@@ -3173,8 +3177,6 @@ ${renderObjToString(histogramJson)}
 </pre>
 </div>
 
-style="z-index: ${1000+i}; position: absolute; top: ${i*2}px; left: ${i*12}px;"
-
 
 <a href="#scrollLINEAR" class="button" title"Click To Scroll Down To See LINEAR"><br />
 <img width="128" height="128" style="border: 4px black; background: black;" src="images/${justNameOfPNG}">
@@ -3242,7 +3244,7 @@ http://localhost:8888/aminosee/output/50KB_TestPattern/50KB_TestPattern.txt_line
 
 `;
 // pepTable   = [Codon, Description, Hue, Alpha, Histocount]
-for (let i=0; i<pepTable.length; i++) {
+for (let i = 0; i < pepTable.length; i++) {
   let thePep = pepTable[i];
   let theHue = thePep.Hue;
   let c =      hsvToRgb( theHue / 360, 0.5, 1.0 );
@@ -5586,6 +5588,7 @@ function clout(txt) {
           let name = summary.name;
           let refimage = summary.refimage;
           let linearimage = summary.linearimage;
+          let i = 0;
           html += `<div id="stackOimages">
           <a href="images/${name}" class="imgstack"><img src="images/${name}" id="stack_reference" width="256" height="256" style="z-index: ${i}; position: fixed; top: 50%; left: 50%; transform: translate(${(i*4)-40},${(i*4)-40})" alt="${refimage}" title="${refimage}" onmouseover="mover(this)" onmouseout="mout(this)">Reference</a>`;
 
