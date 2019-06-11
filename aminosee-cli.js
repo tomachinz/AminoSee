@@ -2457,7 +2457,7 @@ function saveHTML(cb) {
 function fileWrite(file, contents, cb) {
   mkRenderFolders();
 
-  setImmediate( () => {
+  // setImmediate( () => {
     try {
       fs.writeFile(file, contents, 'utf8', function (err, cb) {
         if (err) {
@@ -2479,7 +2479,7 @@ function fileWrite(file, contents, cb) {
       error(`[catch] Issue with saving: ${file} ${err}`);
       if (cb) { cb() }
     }
-  });
+  // });
 }
 function touchLockAndStartStream() { // saves CPU waste. delete lock when all files are saved, not just the png.
   mode("touchLockAndStartStream");
