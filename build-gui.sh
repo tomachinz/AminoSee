@@ -89,6 +89,9 @@ electron .
 # npm run electron
 # RUN ELECTRON BUILD BEFORE COPYING THE DIST SHELLS, AND TESTING
 
+electron-packager ./ --platform=darwin,win32,linux --arch=x64 --prune --overwrite  --output ./dist/electron
+
+
 # npm run start --no-image
 # npm run start megabase.fa --image
 
