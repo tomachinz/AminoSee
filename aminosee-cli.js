@@ -1126,9 +1126,9 @@ function toggleDevmode() {
     openImage = false;
     openFileExplorer = false;
     termDisplayHeight++;
-    raceDelay += 2000; // this helps considerably!
+    raceDelay += 500; // this helps considerably!
     if (debug == true) {
-      raceDelay += 2000; // this helps considerably!
+      raceDelay += 500; // this helps considerably!
     }
     output("AminoSee has been slowed to " + raceDelay)
   } else {
@@ -1431,7 +1431,7 @@ function setNextFile() {
 }
 function pollForStream() { // render lock must be off before calling. aim: start the render, or look for work
   mode('pre-polling ' + howMany);
-  if (renderLock == true ) {
+  if (renderLock == true || howMany == -1) {
     error(`thread re-entry running stream: ${justNameOfDNA}`);
     return false;
   }
@@ -1599,7 +1599,7 @@ function resetAndMaybe(){
 function initStream() {
   mode("initStream");
   output(status);
-
+  if (isShuttingDown) { output("Sorry shutting down."); return false;}
   if (renderLock == false) {
     bugtxt("RENDER LOCK FAILED. This is an error I'd like reported. Please run with --devmode option enabled and send the logs to aminosee@funk.co.nz");
     // quit(4, 'Render lock failed');
@@ -1748,6 +1748,7 @@ function streamStarted() {
 }
 function manageLocks(time) {
   if (lockTimer === undefined) { clearTimeout(lockTimer) }
+  if (isShuttingDown) { return false }
   lockTimer = setTimeout( () => {
     if (renderLock == true ) {
       fastUpdate();
@@ -3536,12 +3537,12 @@ function saveHilbert(cb) {
   // term.up(1);
   // output(status);
   let hilpix = hilbPixels[dimension];;
-  let height, width;
+  let hHeight , hWidth;
 
 
   resampleByFactor(shrinkFactor);
-  width = Math.sqrt(hilpix);
-  height = width;
+  hWidth = Math.sqrt(hilpix);
+  hHeight  = hWidth;
   hilbertImage = []; // wipe the memory
   percentComplete = 0;
   debugFreq = Math.round(hilpix / 100);
@@ -3555,7 +3556,7 @@ function saveHilbert(cb) {
     let hilbX, hilbY;
     [hilbX, hilbY] = hilDecode(i, dimension, MyManHilbert);
     let cursorLinear  = 4 * i ;
-    let hilbertLinear = 4 * ((hilbX % width) + (hilbY * width));
+    let hilbertLinear = 4 * ((hilbX % hWidth) + (hilbY * hWidth));
     // percentComplete = i / hilpix;
     // if ((Math.round(percentComplete * 1000) % 100) === 0) {
     // clout(i, debugFreq, "Space filling " + nicePercent() + " of " + hilpix.toLocaleString());
@@ -3582,8 +3583,8 @@ function saveHilbert(cb) {
 
   var hilbert_img_data = Uint8ClampedArray.from(hilbertImage);
   var hilbert_img_png = new PNG({
-    width: width,
-    height: height,
+    width: hWidth,
+    height: hHeight ,
     colorType: 6,
     bgColor: {
       red: 0,
@@ -3656,7 +3657,7 @@ function bothKindsTestPattern() {
   let linearpix = hilpix;// * 4;
   let hilbertImage = [hilpix*4];
   rgbArray = [linearpix*4];
-  width = Math.round(Math.sqrt(hilpix));
+  hWidth = Math.round(Math.sqrt(hilpix));
   height = width;
   const linearWidth = Math.round(Math.sqrt(hilpix));
   const linearHeight = linearWidth;
@@ -4342,7 +4343,7 @@ function clout(txt) {
   }
   function clearScreen() {
     term.clear();
-    process.stdout.write("\x1Bc");
+    // process.stdout.write("\x1Bc");
     // process.stdout.write("\x1B[2J"); // THIS SHRINKS MY FONTS!! wtf?
     // process.stdout.write('\033c'); // <-- maybe best for linux? clears the screen. ALSD SHRINKS MY FONTS
   }
