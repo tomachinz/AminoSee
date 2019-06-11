@@ -10,6 +10,7 @@ const spawn = require('cross-spawn');
 let threads = [ ]; // these will be threads from spawn
 let mainWindow, devmode
 
+console.log(process.argv.toString())
 
 
 
@@ -123,8 +124,9 @@ function createWindow () {
   })
 
   // and load the index.html of the app.
-  mainWindow.loadFile('electron.html')
-  consoleWindow.loadFile('console.html')
+  // mainWindow.loadFile('console.html')
+  mainWindow.loadFile('public/electron.html')
+  consoleWindow.loadFile('public/console.html')
 
   // Emitted when the window is closed.
   mainWindow.on('closed', function () {

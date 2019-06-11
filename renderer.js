@@ -7,6 +7,8 @@
 // const { ipcRenderer } = require('electron')
 // const { dialog } = require('electron').remote;
 const { app, BrowserWindow, Menu, dialog, ipcRenderer } = require('electron'); // Modules to control application life and create native browser window
+// import { app, BrowserWindow, Menu, dialog, ipcRenderer } from('electron'); // Modules to control application life and create native browser window
+// console.log(process.argv.toString())
 
 
 if (window.addEventListener) {
@@ -50,7 +52,6 @@ function pageLoaded() {
   supercontainer.ondrop = (evt) => {
     supercontainer.classList.remove('showdropzone')
     evt.preventDefault();
-
     for (let f of evt.dataTransfer.files) {
       console.log('File(s) you dragged here: ', f.path)
     }
@@ -58,12 +59,12 @@ function pageLoaded() {
   };
 
 
-  // initBitmap();
-  // init3D();
-  // setScene();
-  // setupFNames();
+  initBitmap();
+  init3D();
+  setScene();
+  setupFNames();
   //
-  // animate();
+  animate();
   // // setupColorPicker();
   // stat("[pageLoaded] Welcome to the Amino See DNA viewer");
   // if (devmode) {

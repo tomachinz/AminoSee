@@ -136,7 +136,7 @@ let suopIters = 0;
 let termMarginLeft = (term.width - 100) / 3;
 let termMarginTop = (term.height - termDisplayHeight - termStatsHeight) / 3;
 let maxpix = targetPixels;
-let raceDelay = 1; // so i learnt a lot on this project. one day this line shall disappear replaced by promises.
+let raceDelay = 69; // so i learnt a lot on this project. one day this line shall disappear replaced by promises.
 let dimension = defaultMagnitude; // var that the hilbert projection is be downsampled to
 let darkenFactor = 0.25; // if user has chosen to highlight an amino acid others are darkened
 let highlightFactor = 4.0; // highten brightening.
@@ -494,6 +494,8 @@ function progUpdate(obj) {  // allows to disable all the prog bars in one place
   if (moreargs !== undefined) { output(`moreargs inside CLI: [${moreargs}]`) }
   // version = require('./lib/version');
   status = "exports";
+  console.log(process.argv.toString())
+  error('stopped.')
   args = minimist(process.argv.slice(2), {
     boolean: [ 'artistic' ],
     boolean: [ 'devmode' ],
@@ -4238,7 +4240,7 @@ function log(txt) {
     wTitle(txt)
   }
 
-  if (devmode || debug) {
+  if (devmode == true || debug == true) {
     console.log(txt);
   } else {
     if (!quiet){

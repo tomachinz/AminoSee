@@ -108,19 +108,14 @@ function jsonTest() {
   });
 }
 function initVariables() {
-  // DO THIS ONCE!
   filename = getParameterFromURL('selectedGenome');
   // create a simple instance
   // by default, it only adds horizontal recognizers
   hammerIt(document.getElementById('canvas'));
-
-  // ******* COLOR ARRAYS
   testTones = [];
   spectrumLines = [];
   spectrumCurves = [];
   nextColors = [];
-
-
   colorArray = []; // an array of color maps
   windowHalfX = window.innerWidth / 2;
   windowHalfY = window.innerHeight / 2;
@@ -136,7 +131,6 @@ function initVariables() {
   } else {
     stat('The File APIs are not fully supported in this browser. They are needed for loading the super massive DNA text files.');
   }
-
   if ( WEBGL.isWebGLAvailable() === false ) {
     document.body.appendChild( WEBGL.getWebGLErrorMessage() );
     stat(WEBGL.getWebGLErrorMessage());
@@ -211,8 +205,8 @@ function getParameterFromURL() {
     // alert(href)
     return href;
   } else {
-    // alert("output/Brown_Kiwi_013982187v1.fa_linear_leucine_c123.6_sci.png")
-    return `output/Brown_Kiwi_013982187v1.fa_linear_leucine_c123.6_sci.png`;
+    // alert("output/Chimp_Clint_chrY/images/Chimp_Clint_chrY.gbk_linear-Reference_c10_sci.pngng")
+    return `output/Chimp_Clint_chrY/images/Chimp_Clint_chrY.gbk_linear-Reference_c10_sci.pngng`;
   }
 }
 function parseApache() {
