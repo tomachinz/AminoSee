@@ -66,14 +66,13 @@ function pushCli(commandString) {
   // let threads = [ spawn('aminosee'  , ['serve', '', '', '0'], { stdio: 'pipe' }) ];
   // threads.push( spawn('aminosee'  , [commandString, '--no-gui'], { stdio: 'pipe' }) );
   console.log(`Starting AminoSee now with CLI:`);
-  commandString = `${commandString} --html`;
-
+  commandString = `${commandString} --html --image`;
   let commandArray = commandString.split("\\s+");
-
   console.log(`commandString: [${commandString}]`);
+  aminosee.addJob(commandArray)
   // let aWeeJobby = AminoSeeNoEvil('test');
   // aWeeJobby.addJob('demo');
-  aminosee.addJob(commandArray)
+
   // aminosee.cli(commandString)
   // setTimeout(() => {
   //   console.log(`!random!`);
@@ -294,7 +293,7 @@ function buildMenus() {
 
 app.on('ready', function() {
   createWindow();
-  // pushCli(`help`)
+  pushCli(`demo`)
 })
 
 // Quit when all windows are closed.

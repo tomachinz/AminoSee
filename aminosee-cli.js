@@ -80,7 +80,13 @@ BigInt.prototype.toBSON = function() { return this.toString(); }; // Add a `toBS
 
 const targetPixels = 9000000; // for big genomes use setting flag -c 1 to achieve highest resolution and bypass this taret max render size
 const funknzLabel = "aminosee.funk.nz"
-process.title = funknzLabel;
+console.log(`process.name: [${process.name}]`)
+console.log(`process.title: [${process.title}]`)
+// process.title = funknzLabel;
+process.name = funknzLabel;
+// console.log(`NEW process.title: [${process.title}]`)
+console.log(`NEW process.name: [${process.name}]`)
+
 const extensions = [ "txt", "fa", "mfa", "gbk", "dna", "fasta", "fna", "fsa", "mpfa", "gb", "gff"];
 const refimage = "Reference image - all amino acids blended together"
 const closeBrowser = "If the process apears frozen, it's waiting for your browser or image viewer to quit. Escape with [ CONTROL-C ] or use --no-image --no-html";
@@ -620,8 +626,7 @@ module.exports = (moreargs) => {
     } else {
       filename =  path.resolve( cmd );
       currentFile = args._[0].toString();
-      // setupApp();
-      setupProject();
+      setupApp();
       log("Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω " + filename)
       mode("Ω first command " + howMany + " " + currentFile);
       log(filename)
@@ -1469,12 +1474,7 @@ function pollForStream() { // render lock must be off before calling. aim: start
     return false;
   }
   mode(`pollForStream`)
-
   setupProject();
-  bugtxt(fixedWidth(64, "Now >>   " + currentFile + " then " + nextFile));
-  bugtxt(`Now -->>  ( ${currentFile} )  then -->> ${nextFile} analyse: ${chalk.inverse(currentFile)} storage: ${chalk.inverse(storage())}`);
-  mode('starting ' + howMany);
-  log   ("***************   starting render  *************** next " + nextFile)
   popAndLock(); // renderock is now on!
   setNextFile();
   howMany = args._.length;
@@ -1531,7 +1531,7 @@ function pollForStream() { // render lock must be off before calling. aim: start
   bugtxt(`Polling filenameTouch ${filenameTouch} willStart   ${willStart}  pollAgainFlag ${pollAgainFlag}  defaultFilename  ${defaultFilename}  ${filename}  howMany   ${howMany}   status ${status}`);
 
   if (skipExistingFile(filenamePNG)) {
-    output(`Already rendered ${fixedWidth(24, filenamePNG)} (${howMany} files to go) use --explorer to show files`);
+    output(`Already rendered ${fixedWidth(32, filenamePNG)} (${howMany} files to go) use --explorer to show files`);
     log("use --force to overwrite  --image to automatically open   ");
     if (openHtml == true || openImage == true || openFileExplorer == true) {
       log("use --no-image suppress automatic opening of the image.")
@@ -3547,13 +3547,11 @@ function saveHilbert(cb) {
   mode('save hilbert');
   log("Getting in touch with my man from 1891... Hilbert. In the " + dimension + "th dimension and reduced by " + threesigbitsTolocale(shrinkFactor) + "X  ----> " + justNameOfHILBERT);
   output("    ॐ    ");
-  log(justNameOfDNA);
+  bugtxt(justNameOfDNA);
   // term.up(1);
   // output(status);
   let hilpix = hilbPixels[dimension];;
-  let hHeight , hWidth;
-
-
+  let hHeight, hWidth;
   resampleByFactor(shrinkFactor);
   hWidth = Math.sqrt(hilpix);
   hHeight  = hWidth;
@@ -3671,6 +3669,7 @@ function bothKindsTestPattern() {
   let linearpix = hilpix;// * 4;
   let hilbertImage = [hilpix*4];
   rgbArray = [linearpix*4];
+  console.log(chalk.bgWhite(`Math.sqrt(hilpix): [${Math.sqrt(hilpix)}])`));
   hWidth = Math.round(Math.sqrt(hilpix));
   hHeight = hWidth;
   const linearWidth = Math.round(Math.sqrt(hilpix));
@@ -4003,9 +4002,9 @@ function runCycle(cb) {
   if (loopCounter+1 > magnitude) {
     testStop();
     if ( cb ) { cb() }
+    saveHTML(cb);
+    openOutputs();
     quit(0);
-    // saveHTML(cb);
-    // openOutputs();
     return false;
   }
   output('test cycle');
@@ -4017,11 +4016,11 @@ function runCycle(cb) {
     setTimeout( (cb) => {
       runCycle(cb)
     }, raceDelay  * loopCounter);
+    });
   });
-});
-return true;
-
+  return true;
 }
+
 function testStop () {
   percentComplete = 1;
   genomeSize = 0;
@@ -4052,15 +4051,12 @@ function testInit (magnitude) {
   report = false;
   justNameOfPNG = `${justNameOfDNA}_LINEAR_${ magnitude }.png`;
   justNameOfHILBERT = `${justNameOfDNA}_HILBERT_${ magnitude }.png`;
-
   filenameHTML    = testPath + "/" + justNameOfDNA + ".html";
   filenamePNG     = testPath + "/" + justNameOfPNG;
   filenameHILBERT = testPath + "/" + justNameOfHILBERT;
   filenameTouch   = testPath + "/" + justNameOfDNA + "_LOCK.touch";
-
   filename = filenameHILBERT;
   currentFile = justNameOfHILBERT;
-
   baseChars = hilbPixels[ magnitude ];
   maxpix = hilbPixels[defaultMagnitude+1];
   genomeSize = baseChars;
@@ -4075,10 +4071,8 @@ function testInit (magnitude) {
 
 function paintRegMarks(hilbertLinear, hilbertImage, percentComplete) {
   let thinWhiteSlice = (Math.round(percentComplete * 1000 )) % 250; // 1% white bands at 0%, 25%, 50%, 75%, 100%
-
   if (thinWhiteSlice < 1) { // 5 one out of 10,000
     // paintRegMarks(hilbertLinear, hilbertImage, percentComplete);
-
     hilbertImage[hilbertLinear+0] = 255 - (hilbertImage[hilbertLinear+0]);
     hilbertImage[hilbertLinear+1] = 255 - (hilbertImage[hilbertLinear+1]);
     hilbertImage[hilbertLinear+2] = 255 - (hilbertImage[hilbertLinear+2]);
