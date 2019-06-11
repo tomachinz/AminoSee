@@ -7,6 +7,10 @@ echo open ./build-cli.sh
 sleep 1
 open ./build-cli.sh
 
+echo Requires: npm, electron, electron-packager
+echo Requires: npm, electron, electron-packager
+echo Requires: npm, electron, electron-packager
+
 echo "And now some bloated electron stuff"
 mkdir -p dist/root/node_modules/electron
 mkdir -p dist/root/node_modules/electron/dist
