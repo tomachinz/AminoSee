@@ -24,12 +24,12 @@ let stateObj = { foo: "bar" };
 let histogramJson = { foo: "bar " };
 let peptide = "none";
 let stackOimages = document.getElementById('stackOimages');
-//
-// if(window.addEventListener) {
-//   window.addEventListener('load',pageLoaded,false); //W3C
-// } else {
-//   window.attachEvent('onload',pageLoaded); //IE
-// }
+
+if(window.addEventListener) {
+  window.addEventListener('load',pageLoaded,false); //W3C
+} else {
+  window.attachEvent('onload',pageLoaded); //IE
+}
 // let page = "report";
 
 function mover(i) {
@@ -83,7 +83,7 @@ function buildPage(histogramJson) {
 
 }
 function pageLoaded() {
-  loadHistogramJson();
+  // loadHistogramJson();
   initVariables();
   sceneCameraSetup();
   setScene();
@@ -180,9 +180,9 @@ function addOffscreenImage() {
   }
 }
 function init2D() {
-  // sceneCameraSetup();
-  // addSpriteToScene();
-  // addOffscreenImage();
+  sceneCameraSetup();
+  addSpriteToScene();
+  addOffscreenImage();
 }
 
 
@@ -207,8 +207,8 @@ function getParameterFromURL() {
     // alert(href)
     return href;
   } else {
-    // alert("output/Chimp_Clint_chrY/images/Chimp_Clint_chrY.gbk_linear-Reference_c10_sci.png")
-    return `output/Chimp_Clint_chrY/images/Chimp_Clint_chrY.gbk_linear-Reference_c10_sci.png`;
+    // alert("output/Chimp_Clint_chrY/images/Chimp_Clint_chrY.gbk_linear-Reference_c1.2_sci.png")
+    return `output/Chimp_Clint_chrY/images/Chimp_Clint_chrY.gbk_linear-Reference_c1.2_sci.png`;
   }
 }
 function parseApache() {
@@ -1568,3 +1568,4 @@ function imageStack(histogramJson) {
   hhh += `</div> <!--  id="stackOimages -- >`;
   return hhh;
 }
+// pageLoaded();

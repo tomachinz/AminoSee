@@ -4,7 +4,7 @@
 	<title>AminoSee DNA Viewer :: WebGL 3D DNA Visualisation Pseudo-Hilbert Curve Projection :: Funk NZ</title>
 	<meta name="description" content="A new way to view DNA that attributes a colour hue to each Amino acid codon triplet">
 	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-	<meta http-equiv="Content-Security-Policy" content="default-src http://localhost:8888 http://127.0.0.1:8888  http://127.0.0.1:35729  http://10.0.0.5:8888   http://127.0.0.1:8888 http://*.funk.co.nz  https://*.funk.co.nz https://www.funk.co.nz  http://www.funk.co.nz * data: blob: 'unsafe-inline' 'unsafe-eval' ws: wss:;">
+	<meta http-equiv="Content-Security-Policy" content="default-src http://localhost:8888 http://127.0.0.1:8888  http://127.0.0.1:35729  http://10.0.0.5:8888   http://127.0.0.1:8888 http://*.funk.co.nz  https://*.funk.co.nz https://www.funk.co.nz  http://www.funk.co.nz http://dev.funk.co.nz  * data: blob: 'unsafe-inline' 'unsafe-eval' ws: wss:;">
 	<!-- <script src="node_modules/three/build/three.min.js"></script> -->
 	<script src="public/three.min.js"></script>
 	<!-- <script src="node_modules/jquery/dist/jquery.min.js"></script> -->
@@ -39,4 +39,4 @@
 
 <body id="webgl" class="black nocse">
 	<?php include '../includes/menu.php';?>
-	<?php include 'index.html';?>
+	<?php include 'public/home.html';?>

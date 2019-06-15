@@ -7,11 +7,11 @@ best_way () {
   nice aminosee $1 $2 $3 $4 $5 $6 $7
   # aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide="Start Codons"
   # aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide="Stop Codons"
-  aminosee $1    $2 $3 $4 --peptide="Glutamic acid" &
+  aminosee $1    $2 $3 $4  --peptide="Glutamic acid" &
   aminosee $1    $2 $3 $4  --peptide="Aspartic acid"
   aminosee_do $1 $2 $3 $4  --peptide=Ochre &
   aminosee_do $1 $2 $3 $4  --peptide=Amber &
-  aminosee_do $1 $2 $3 $4   --peptide=Opal
+  aminosee_do $1 $2 $3 $4  --peptide=Opal
   aminosee_do $1 $2 $3 $4  --peptide=Methionine &
   aminosee_do $1 $2 $3 $4  --peptide=Cysteine &
   aminosee_do $1 $2 $3 $4  --peptide=Glycine &
