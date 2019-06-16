@@ -1,6 +1,6 @@
 {
   "name": "aminosee",
-  "version": "1.16.0",
+  "version": "1.16.2",
   "owner": "Thomas Bieder Atkinson",
   "description": "Allows genomics researchers to convert any file containing ASCII blocks of DNA (Fasta, GBK, .txt) into an image. A unique visualisation of DNA / RNA residing in text files, AminoSee is a way to render arbitrarily large files - due to support for streamed processing - into a static size PNG image using a pseudo-Hilbert infinite space filling curve written in the 18th century! Computation is done locally, and the files do not leave your machine. A back-end terminal daemon cli command that can be scripted is combined with a front-end GUI in Electron, AminoSee features asynchronous streaming processing enabling arbitrary size files to be processed. It has been tested with files in excess of 4 GB and does not need the whole file in memory at any time. In a diectory with DNA files try running aminosee *. Alternatively use the GUI to Drag and drop files to render a unique colour view of RNA or DNA stored in text files, output to PNG graphics file, then launches an WebGL browser that projects the image onto a 3D Hilbert curve for immersive viewing, using THREEjs. Command line options alow one to filter by peptide.",
   "bin": {
@@ -85,7 +85,7 @@
     "build": "./build-lib.sh ; nice time npm run build-web ; nice time npm run pkg",
     "build-all": "./build-lib.sh ; npm run build-web ; npm run pkg; npm run zip",
     "build-web": "npm run genversion  &amp;  npm run browserify  &amp; npm run minify ; npm run credits",
-    "genversion": "genversion lib/version.js",
+    "genversion": "genversion aminosee-version.js",
     "browserify": "browserify bin/aminosee.js -o public/bundle.js",
     "minify": "uglify public/bundle.js -o public/bundle.min.js",
     "electron": "electron-packager ./bin/aminosee.js --platform=darwin --arch=x64 --prune --overwrite  --out ./dist/electron",
@@ -111,7 +111,10 @@
     "renderer",
     "genetics",
     "bioinformatics",
-    "bionode"
+    "bionode",
+    "amino acids",
+    "peptides",
+    "codons"
   ],
   "author": "Tom Atkinson <tom@funk.co.nz>",
   "website": "http://aminosee.funk.nz",
@@ -135,13 +138,14 @@
       "node_modules/electron/dists/**",
       "node_modules/terminal-kit/**",
       "node_modules/get-cursor-position/**",
-      "lib/**",
       "bin/**",
       "index.html",
       "index.php",
       "aminosee-cli.js",
+      "aminosee-data.js",
       "aminosee-settings.js",
       "aminosee-server.js",
+      "aminosee-version.js",
       "public/**",
       "package.json",
       "dna/megabase.fa"

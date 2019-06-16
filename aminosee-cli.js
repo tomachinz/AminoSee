@@ -12,12 +12,13 @@ Interactive control:    D            (devmode)  Q   (graceful quit next save)
 V       ( this.verbose this.mode)  B ( this.dnabg DNA to screen)  Control-C      (fast quit)
 S    (start webserver)  W (toggle screen this.clear) U       (stats update on/off)
 Esc     (graceful quit) O (toggle show files after in GUI)`;
-const Preferences = require("preferences");
 const settings = require('./aminosee-settings');
-const version = require('./lib/version');
+const version = require('./aminosee-version');
 const server = require('./aminosee-server');
-const data = require('./data');
+const data = require('./aminosee-data');
+let saySomethingEpic = data.saySomethingEpic;
 // OPEN SOURCE PACKAGES FROM NPM
+const Preferences = require("preferences");
 const spawn = require('cross-spawn');
 const stream = require('stream');
 const util = require('util');
@@ -129,6 +130,9 @@ class AminoSeeNoEvil {
   }
   get getArgs() {  // Getter
     return this.argv;
+  }
+  get percentComplete() {
+    return this.percentComplete
   }
   setArgv(incomingArgs) {
     this.argv = incomingArgs;
@@ -3686,7 +3690,7 @@ openOutputs() {
   } else {
     this.out("Not opening anything");
   }
-  this.log("Thats us cousin'! Sweet as a Kina in a creek as they say (in NZ).");
+  // this.log(");
 }
 getRegmarks() {
   return ( this.reg == true ? "_reg" : "" )
@@ -4592,40 +4596,7 @@ clout(txt) {
 
 
 
-    // “I have not failed. I've just found 10,000 ways that won't work.”
 
-
-
-    // source: https://gist.github.com/rjz/9501304
-
-    // Depends on `through`
-    //
-    //     $ npm install through
-    //
-    // Usage:
-    //
-    //     $ echo 'hello' | node stdin-and-fs-stream.js
-    //     $ echo 'hello' > tmp && node stdin-and-fs-stream.js tmp
-
-    // let fs = require('fs'),
-    // let through = require('through');
-    //
-    // var tr = through(function (buf) {
-    //   console.log(` [process.argv.length: ${process.argv.length}  process.argv[2]: ${process.argv[2]} ] buf.toString(): ${buf.toString()} `);
-    // });
-    //
-    //
-    // var stream;
-    //
-    // if (process.argv.length > 2) {
-    //   stream = fs.createReadStream(process.argv[2]);
-    // }
-    // else {
-    //   stream = process.stdin;
-    //   setImmediate(function () {
-    //     stream.push(null);
-    //   });
-    // }
 
     // stream.pipe(tr).pipe(process.stdout);
     /** https://stackoverflow.com/questions/13786160/copy-folder-recursively-in-node-js/26038979

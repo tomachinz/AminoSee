@@ -82,6 +82,19 @@ function buildPage(histogramJson) {
   // stackOimages.innerHTML = imageStack();
 
 }
+function toggleDevmode() {
+  devmode = !devmode;
+  if (devmode) {
+    stat("devmode");
+    togglePause();
+    toggleSpin();
+    togglePause(); // done twice to re-trigger the autopause
+  } else {
+    togglePause();
+    toggleSpin();
+    togglePause(); // done twice to re-trigger the autopause
+  }
+}
 function pageLoaded() {
   // loadHistogramJson();
   initVariables();
@@ -92,12 +105,8 @@ function pageLoaded() {
   animate();
   // setupColorPicker();
   stat("[pageLoaded] Welcome to the Amino See DNA viewer");
-  if (devmode) {
-    stat("devmode");
-    togglePause();
-    toggleSpin();
-    togglePause(); // done twice to re-trigger the autopause
-  }
+  toggleDevmode();
+
   // parseApache()
 }
 function jsonTest() {
@@ -380,9 +389,16 @@ function testParse() {
   }
   function setScene() {
 
+    var geometry = new THREE.CircleGeometry( 5, 32 );
+    var material = new THREE.MeshBasicMaterial( { color: 0xffff00 } );
+    var circle = new THREE.Mesh( geometry, material );
+    scene.add( circle );
+
     if ( cubes == 0 ) {
+      // 1
       geometry2 = new THREE.BufferGeometry(); // bottom row with curves
-      geometry5 = new THREE.BufferGeometry(); // top row with straight lines
+      // 3
+      // geometry5 = new THREE.BufferGeometry(); // top row with straight lines
     } else if ( cubes == 1 ) {
       geometry1 = new THREE.BufferGeometry(); // bottom row with curves
       geometry2 = new THREE.BufferGeometry(); // bottom row with curves
@@ -391,8 +407,9 @@ function testParse() {
       geometry1 = new THREE.BufferGeometry(); // bottom row with curves
       geometry2 = new THREE.BufferGeometry(); // bottom row with curves
       geometry3 = new THREE.BufferGeometry(); // bottom row with curves
+
       geometry4 = new THREE.BufferGeometry(); // top row with straight lines
-      geometry5 = new THREE.BufferGeometry(); // top row with straight lines
+      // geometry5 = new THREE.BufferGeometry(); // top row with straight lines
       geometry6 = new THREE.BufferGeometry(); // top row with straight lines
     }
 
@@ -429,7 +446,6 @@ function testParse() {
     } else if (cubes == 0) {
       var parameters =  [
         [ material, scale * 1.5, [ 0, - d / 2, 0 ], geometry2 ],
-        [ material, scale * 1.5, [   0, d / 2, 0 ], geometry5 ],
       ];
     }
 
@@ -534,18 +550,12 @@ function testParse() {
 
     if ( cubes == 0 ) {
       geometry2.addAttribute( 'position', new THREE.Float32BufferAttribute( vertices, 3 ) );
-      geometry5.addAttribute( 'position', new THREE.Float32BufferAttribute( straightVertices, 3 ) );
-
       if (colorsReady !== true) { // USER THE USERS COLORS
         nextColors = spectrumLines;
         geometry2.addAttribute( 'color', new THREE.Float32BufferAttribute( spectrumCurves, 3 ) );
-        geometry5.addAttribute( 'color', new THREE.Float32BufferAttribute( spectrumLines, 3 ) );
       } else {
         geometry2.addAttribute( 'color', new THREE.Float32BufferAttribute( nextColors, 3 ) );
-        geometry5.addAttribute( 'color', new THREE.Float32BufferAttribute( spectrumLines, 3 ) );
       }
-
-
     } else if ( cubes == 1 ) {
       geometry1.addAttribute( 'position', new THREE.Float32BufferAttribute( vertices, 3 ) );
       geometry2.addAttribute( 'position', new THREE.Float32BufferAttribute( vertices, 3 ) );
@@ -568,7 +578,7 @@ function testParse() {
       geometry2.addAttribute( 'color', new THREE.Float32BufferAttribute( testTones, 3 ) );
       geometry3.addAttribute( 'color', new THREE.Float32BufferAttribute( spectrumCurves, 3 ) );
       geometry4.addAttribute( 'color', new THREE.Float32BufferAttribute( spectrumLines, 3 ) );
-      geometry5.addAttribute( 'color', new THREE.Float32BufferAttribute( spectrumLines, 3 ) );
+      geometry5.addAttribute( 'color', new THREE.Float32BufferAttribute( spectrumLines, 3 ) ); // geometry5.addAttribute( 'position', new THREE.Float32BufferAttribute( straightVertices, 3 ) );
       geometry6.addAttribute( 'color', new THREE.Float32BufferAttribute( spectrumLines, 3 ) );
     }
   }

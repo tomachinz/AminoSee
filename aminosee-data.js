@@ -32,7 +32,14 @@ const asciiart = `
 // 130 - Script terminated by Control-C
 // 255\* - Exit status out of range
 const extensions = [ "txt", "fa", "mfa", "gbk", "dna", "fasta", "fna", "fsa", "mpfa", "gb", "gff"];
-
+const epicQuotes = [
+  `I have not failed. I've just found 10,000 ways that won't work!`,
+  `Amino dont see nothing...    ...wait, I think I can see it now! I can AminoSEE it!!`,
+  `Thats us we outa here cousin! Sweet-as-a-Kina-in-a-creek (as they say in NZ)`
+]
+function saySomethingEpic() {
+  return epicQuotes[Math.floor( Math.random() * epicQuotes.length )]
+}
 let dnaTriplets = [
   {
     "DNA": "AAA",
@@ -844,3 +851,4 @@ function helpCmd(args) {
           module.exports.asciiart = asciiart;
           module.exports.extensions = extensions;
           module.exports.dnaTriplets = dnaTriplets;
+          module.exports.saySomethingEpic = saySomethingEpic;
