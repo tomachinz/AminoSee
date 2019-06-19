@@ -46,7 +46,7 @@
     "minimist": "^1.2.0",
     "nexe": "^3.2.1",
     "node-fetch": "^2.6.0",
-    "node-gyp": "^4.0.0",
+    "node-gyp": "^5.0.0",
     "npm-merge-driver": "^2.3.5",
     "open": "^6.3.0",
     "parse-apache-directory-index": "^1.2.1",
