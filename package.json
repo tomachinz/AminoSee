@@ -71,7 +71,7 @@
     "xterm": "^3.14.2"
   },
   "devDependencies": {
-    "electron": "^5.0.2",
+    "electron": "^5.0.4",
     "electron-rebuild": "^1.8.5",
     "genversion": "^2.1.1"
   },
