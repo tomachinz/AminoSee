@@ -299,19 +299,19 @@ class AminoSeeNoEvil {
           if (doesFileExist(usersOutpath)) {
             if (fs.statSync(usersOutpath).isDirectory == true) {
               output(`Using custom output path ${usersOutpath}`);
-              outputPath = this.usersOutpath;
+              this.outputPath = this.usersOutpath;
             } else {
               this.error(`${usersOutpath} is not a directory`);
             }
           } else {
             this.usersOutpath = path.resolve(path.normalize( this.args.outpath));
             this.error(`Could not find output path: ${usersOutpath}, creating it this.now`);
-            outputPath = this.usersOutpath;
+            this.outputPath = this.usersOutpath;
             if ( this.mkdir() ) {
               this.log('Success');
             } else {
-              this.error("That's weird. Couldn't create a writable output folder at: " + outputPath + " maybe try not using custom flag? --output");
-              outputPath = homedirPath;
+              this.error("That's weird. Couldn't create a writable output folder at: " + this.outputPath + " maybe try not using custom flag? --output");
+              this.outputPath = homedirPath;
               this.quit(0, `cant create output folder`);
               // return false;
             }
@@ -319,7 +319,7 @@ class AminoSeeNoEvil {
         } else {
           this.usersOutpath = false;
         }
-        // this.bugtxt(`cmd ${cmd}  ${( this.usersOutpath ? 'usersOutpath' + this.usersOutpath : ' ')} outputPath ${ this.outputPath }`);
+        // this.bugtxt(`cmd ${cmd}  ${( this.usersOutpath ? 'usersOutpath' + this.usersOutpath : ' ')} this.outputPath ${ this.outputPath }`);
         if ( this.args.keyboard || this.args.k || this.keyboard) {
           this.keyboard = true;
           this.termDisplayHeight += 4; // display bigger
@@ -674,7 +674,7 @@ class AminoSeeNoEvil {
         }
 
 
-        // server.start(outputPath);
+        // server.start(this.outputPath);
         // server.serverLock(launchNonBlockingServer)
   }
   setupProgress() {
@@ -1208,16 +1208,16 @@ try {
     // this way you can create a network cluster quickly by just creating a folder called 'output' in the dna folder
     // then to cease work in the cluster, move the files to your homedir, and delete/shift the output folder in the share
     // here im enforcing a folder structure = benefit is automatic cluster sync!
-    if (        this.doesFolderExist(path.normalize(path.resolve(process.cwd()  + obviousFoldername)))) {
+    if (        this.doesFolderExist(path.resolve(process.cwd()  + obviousFoldername))) {
       clusterRender = true;
       this.outFoldername = obviousFoldername;
-    } else if ( this.doesFolderExist(path.normalize(path.resolve(process.cwd() + netFoldername)))) {
+    } else if ( this.doesFolderExist(path.resolve(process.cwd() + netFoldername))) {
       clusterRender = true;
       this.outFoldername = netFoldername;
-    } else if ( this.doesFolderExist(path.normalize(path.resolve(os.homedir  + obviousFoldername)))) {
+    } else if ( this.doesFolderExist(path.resolve(os.homedir  + obviousFoldername))) {
       clusterRender = false;
       this.outFoldername = obviousFoldername;
-    } else if ( this.doesFolderExist(path.normalize(path.resolve(os.homedir  + netFoldername)))) {
+    } else if ( this.doesFolderExist(path.resolve(os.homedir  + netFoldername))) {
       clusterRender = false;
       this.outFoldername = netFoldername;
     }
@@ -1727,9 +1727,9 @@ autoconfCodonsPerPixel() {
   if ( this.estimatedPixels < 1843200 && !this.args.ratio && !this.args.r) { // if user has not set aspect, small bacteria and virus will be square this.ratio. big stuff is fixed.
     this.ratio = 'sqr'; // small genomes like "the flu" look better square.
     if ( this.verbose == true) {
-      this.log('For genomes smaller than 1843200 codons, I switched to square this.ratio for better comparison to the Hilbert images. Use --ratio=fixed or --ratio=golden to avoid this. C. Elegans worm is big enough, but not Influenza.')
+      this.bugtxt('For genomes smaller than 1843200 codons, I switched to square this.ratio for better comparison to the Hilbert images. Use --ratio=fixed or --ratio=golden to avoid this. C. Elegans worm is big enough, but not Influenza.')
     } else {
-      this.log('Genomes <  1840000 codons. square this.ratio enabled')
+      this.bugtxt('Genomes <  1840000 codons. square this.ratio enabled')
     }
   } else {
     this.ratio = 'fix'; // small genomes like "the flu" look better square.
@@ -1805,26 +1805,26 @@ setupFNames() { // must not be called during creation of hilbert image
 
 
 copyGUI(cb) { // does:  ln -s /Users.....AminoSee/public, /Users.....currentWorkingDir/output/public
-  // outputPath = appPath;
+  // this.outputPath = appPath;
   this.mkRenderFolders();
   this.mkdir('public')
 
 
   let fullSrc, fullDest;
   fullSrc = path.normalize( path.resolve(appPath + '/public') );
-  fullDest = path.normalize( path.resolve(outputPath + '/public') );
+  fullDest = path.normalize( path.resolve(this.outputPath + '/public') );
   copyRecursiveSync(fullSrc, fullDest );
   fullSrc = path.normalize( path.resolve(appPath + '/public/index.html') );
-  fullDest = path.normalize( path.resolve(outputPath + '/index.html') ); // Protects users privacy in current working directory
+  fullDest = path.normalize( path.resolve(this.outputPath + '/index.html') ); // Protects users privacy in current working directory
   copyRecursiveSync(fullSrc, fullDest );
   // fullSrc = path.normalize( path.resolve(appPath + '/public/index.html') );
-  // fullDest = path.normalize( path.resolve(outputPath + '/main.html') ); // Protects users privacy in current working directory
+  // fullDest = path.normalize( path.resolve(this.outputPath + '/main.html') ); // Protects users privacy in current working directory
   // copyRecursiveSync(fullSrc, fullDest );
   fullSrc = path.normalize( path.resolve(appPath + '/public/favicon.ico') );
-  fullDest = path.normalize( path.resolve(outputPath + '/favicon.ico') ); // MOVES INTO ROOT
+  fullDest = path.normalize( path.resolve(this.outputPath + '/favicon.ico') ); // MOVES INTO ROOT
   copyRecursiveSync(fullSrc, fullDest );
   // fullSrc = path.normalize( path.resolve(appPath + '/aminosee-gui-web.js') );
-  // fullDest = path.normalize( path.resolve(outputPath + '/aminosee-gui-web.js') );
+  // fullDest = path.normalize( path.resolve(this.outputPath + '/aminosee-gui-web.js') );
   // copyRecursiveSync(fullSrc, fullDest );
   if (cb != undefined) {
     cb();
@@ -1836,16 +1836,16 @@ symlinkGUI(cb) { // does:  ln -s /Users.....AminoSee/public, /Users.....currentW
   this.mkdir('public')
   let fullSrc, fullDest;
   fullSrc = path.normalize( path.resolve(appPath + '/public') );
-  fullDest = path.normalize( path.resolve(outputPath + '/public') );
+  fullDest = path.normalize( path.resolve(this.outputPath + '/public') );
   createSymlink(fullSrc, fullDest);
   fullSrc = path.normalize( path.resolve(appPath + '/aminosee-gui-web.js') );
-  fullDest = path.normalize( path.resolve(outputPath + '/aminosee-gui-web.js') );
+  fullDest = path.normalize( path.resolve(this.outputPath + '/aminosee-gui-web.js') );
   createSymlink(fullSrc  , fullDest);
   fullSrc = path.normalize( path.resolve(appPath + '/public/index.html') );
-  fullDest = path.normalize( path.resolve(outputPath + '/main.html') ); // Protects users privacy in current working directory
+  fullDest = path.normalize( path.resolve(this.outputPath + '/main.html') ); // Protects users privacy in current working directory
   createSymlink(fullSrc, fullDest);
   fullSrc = path.normalize( path.resolve(appPath + '/node_modules') );
-  fullDest = path.normalize( path.resolve(outputPath + '/node_modules') ); // MOVES INTO ROOT
+  fullDest = path.normalize( path.resolve(this.outputPath + '/node_modules') ); // MOVES INTO ROOT
   createSymlink(fullSrc, fullDest);
   if (cb !== undefined) {
     cb();
@@ -1926,9 +1926,9 @@ buildServer() {
   setupKeyboardUI();
   setupOutPaths();
   let sFiles = [
-    { "source": appPath + '/public',            "dest": outputPath + '/public' },
-    { "source": appPath + '/public/home.html', "dest": outputPath + '/home.html' },
-    { "source": appPath + '/public/favicon.ico',"dest": outputPath + '/favicon.ico' },
+    { "source": appPath + '/public',            "dest": this.outputPath + '/public' },
+    { "source": appPath + '/public/home.html', "dest": this.outputPath + '/home.html' },
+    { "source": appPath + '/public/favicon.ico',"dest": this.outputPath + '/favicon.ico' },
   ];
   sFiles.forEach(function(element) {
     this.log('buildling ' + element.toString());
@@ -1946,17 +1946,17 @@ static launchNonBlockingServer(path, cb) {
   return true;
 
 
-  // server.start(outputPath);
+  // server.start(this.outputPath);
   //
   return true;
 
-  let handler = server.start(outputPath);//
+  let handler = server.start(this.outputPath);//
   serverURL =  server.getServerURL(path);
   this.printRadMessage([
     `Interactive this.keyboard this.mode ENABLED`,
     `use this.keyboard to control AminoSee`,
     `local webserver is running from:`,
-    chalk.underline(outputPath),
+    chalk.underline(this.outputPath),
     `${serverURL} <-- only your LAN  http://localhost:${port} <-- only your machine`,
     'use Control-C to stop'
   ]);
@@ -2011,7 +2011,7 @@ startCrossSpawnHttp() {
   // Spawn NPM asynchronously
   // const evilSpawn = spawn('npm', ['list', '-g', '-depth', '0'], { stdio: 'inherit' });
   // const evilSpawn = spawn('http-server', [server.getServerURL( this.justNameOfDNA), '--port', port, '0'], { stdio: 'pipe' });
-  const evilSpawn = spawn('http-server', ['--directory', outputPath,  '--port', port, '0'], { stdio: 'pipe' });
+  const evilSpawn = spawn('http-server', ['--directory', this.outputPath,  '--port', port, '0'], { stdio: 'pipe' });
   evilSpawn.stdout.on('data', (data) => {
     console.log(`${chalk.inverse('aminosee serve')}${chalk(': ')}${data}`);
   });
@@ -2029,7 +2029,7 @@ startCrossSpawnHttp() {
   // log: ({
   // format: 'stats'
   // }),
-  // directory: outputPath,
+  // directory: this.outputPath,
   // sp a: 'index.html',
   // websocket: 'src/websocket-server.js'
 
@@ -3195,41 +3195,74 @@ skipExistingFile (fizzle) { // skip the file if TRUE render it if FALSE
 }
 doesFolderExist(f) {
   let ret = false;
+  let folder = f; // path.resolve(f);
+
   try {
-    ret = fs.existsSync(f);
-  } catch(e) {
-    this.bugtxt(e)
+      // Query the entry
+      stats = fs.lstatSync(folder);
+
+      // Is it a directory?
+      if (stats.isDirectory()) {
+          // Yes it is
+          return true;
+      }
   }
+  catch (e) {
+      // ...
+      return true;
+  }
+
+  return false;
+
+  //
+  // try {
+  //   ret = fs.existsSync(f);
+  // } catch(e) {
+  //   this.bugtxt(e)
+  // }
   // try {
   //   ret = fs.lstatSync(f).isDirectory;
   // } catch(e) {
   //   this.bugtxt(e)
   // }
-  if ( ret == undefined) {
-    this.error("ret was undef");
-    ret = false;
-  }
+  // if ( ret == undefined) {
+  //   this.error("ret was undef");
+  //   ret = false;
+  // }
   // this.bugtxt(`doesFolderExist ${replaceoutputPathFileName(f)} returns: ${ret}`)
-  return ret;
+  // return ret;
 }
 // module.exports.doesFileExist = function(f) {
 
 doesFileExist(f) {
   if (f == undefined) { return false; } // adds stability to this rickety program!
   f = path.resolve(f);
+
+
   try {
-    let result = fs.existsSync(f);
-    if (result==true) {
-      this.log( fixedWidth( this.debugColumns*2, result + " FILE EXISTS: " + f ))
+    if (fs.existsSync(f)) {
+      //file exists
       return true;
-    } else {
-      this.log( fixedWidth( this.debugColumns*2, result + " FILE EXISTS: " + f ))
-      return false;
     }
   } catch(err) {
-    this.bugtxt(err);
+    // console.error(err)
+    return false;
   }
-  return false;
+
+  //
+  // try {
+  //   let result = fs.existsSync(f);
+  //   if (result==true) {
+  //     this.log( fixedWidth( this.debugColumns*2, result + " FILE EXISTS: " + f ))
+  //     return true;
+  //   } else {
+  //     this.log( fixedWidth( this.debugColumns*2, result + " FILE EXISTS: " + f ))
+  //     return false;
+  //   }
+  // } catch(err) {
+  //   this.bugtxt(err);
+  // }
+  // return false;
 }
 stat(txt) {
   console.log(`stat: ${txt}`);
@@ -3656,7 +3689,7 @@ openOutputs() {
   this.bugtxt(` this.openHtml, this.openImage, this.openFileExplorer `, this.openHtml, this.openImage, this.openFileExplorer );
   if ( this.openFileExplorer === true) {
     output(`Opening render output folder in File Manager ${ this.outputPath }`);
-    open(outputPath).then(() => {
+    open(this.outputPath).then(() => {
        this.opensFile++;
       this.log("file manager closed");
     }).catch(function () {  this.error(`open(${ this.outputPath })`)});
@@ -3704,9 +3737,9 @@ getRegmarks() {
 mkdir(relative) { // returns true if a fresh dir was created
   if (!relative) { relative = ''}
   let dir2make = path.resolve( `${ this.outputPath }/${relative}` );
-  if ( this.doesFolderExist(outputPath) == false) {
+  if ( this.doesFolderExist(this.outputPath) == false) {
     try {
-      fs.mkdirSync(outputPath, function (err, result) {
+      fs.mkdirSync(this.outputPath, function (err, result) {
         // if (result) { this.log(`Success: ${result}`) }
         // if (err) { this.bugtxt(`Couldnts create output folder: ${err}`) }
       });
@@ -3729,7 +3762,7 @@ mkdir(relative) { // returns true if a fresh dir was created
   }
   console.warn("Quiting due to lack of permissions in this directory");
   this.howMany = 0;
-  this.bugtxt(`outputPath: ${ this.outputPath }`);
+  this.bugtxt(`this.outputPath: ${ this.outputPath }`);
 
   return false;
 }
@@ -3777,7 +3810,7 @@ generateTestPatterns(cb) {
   }
 
   this.log(`done with JUST ONE CYCLE OF this.generateTestPatterns(). this.filenames:`);
-  this.log(outputPath);
+  this.log(this.outputPath);
   this.log( this.filenameTouch);
   this.log( this.filenamePNG );
   this.log( this.filenameHILBERT);
@@ -3820,7 +3853,7 @@ testStop () {
 testInit ( magnitude) {
   this.dimension =  magnitude;
 
-  let testPath = outputPath + "/calibration"; //
+  let testPath = this.outputPath + "/calibration"; //
   let regmarks = this.getRegmarks();
   let highlight = "";
   if ( this.peptide == "Opal" || this.peptide == " this.blue ") {
@@ -3986,9 +4019,9 @@ bugout(txt) {
   console.log(splitScreen);
 }
 redoLine(txt) {
-  term.up( 1 ) ;
   term.eraseLine();
   console.log(maxWidth( this.tx - 1, txt));
+  term.up( 1 ) ;
 }
 
 
@@ -4004,7 +4037,7 @@ log(txt) {
   this.wTitle(txt) // put it on the terminal windowbar or in tmux
   if (this.quiet == false && this.devmode == true && this.debug == true && this.verbose == true ) {
     output(txt);
-  } else {
+  } else if (this.quiet == false){
     this.redoLine(txt);
   }
 }
@@ -4121,7 +4154,7 @@ clout(txt) {
   returnRadMessage(array) {
     let returnText = "";
     if (array == undefined) {
-      array = ["    ________", "    ________", "    ________", "    ________", "    ________", "", "Output path:", outputPath ];
+      array = ["    ________", "    ________", "    ________", "    ________", "    ________", "", "Output path:", this.outputPath ];
       // array = [ "    ________", "    ________", "    ________", "    ________", "    ________", "", "Output path:"," " ];
     }
     while ( array.length < 8 ) {
@@ -4140,7 +4173,7 @@ clout(txt) {
   printRadMessage(array) {
     // console.log( returnRadMessage(array) );
     if (array == undefined) {
-      array = ["    ________", "    ________", "    ________", "    ________", "    ________", "", "Output path:", outputPath ];
+      array = ["    ________", "    ________", "    ________", "    ________", "    ________", "", "Output path:", this.outputPath ];
       // array = [ "    ________", "    ________", "    ________", "    ________", "    ________", "", "Output path:"," " ];
     }
     while ( array.length < 8 ) {
@@ -4283,7 +4316,7 @@ clout(txt) {
     this.printRadMessage(array);
     // term.right( this.termMarginLeft );
     output(`Done: ${chalk.rgb(128, 255, 128).inverse( this.nicePercent() )} Elapsed: ${ fixedWidth(12, humanizeDuration( this.msElapsed )) } Remain: ${humanizeDuration( this.timeRemain)}  |  Lifetime values: Processed ${ twosigbitsTolocale( gbprocessed )} GB Runs: ${ cliruns.toLocaleString()} UID: ${ this.timestamp } on ${hostname} `);
-    output(`Output path: ${chalk.underline(outputPath)}`)
+    output(`Output path: ${chalk.underline(this.outputPath)}`)
     this.progUpdate(  this.percentComplete);
     output();
     term.left( this.termMarginLeft );
@@ -5093,14 +5126,14 @@ function addJob(commandArray) {
 
   // module.exports.quit = (code) => { this.quit(code) }
   // module.exports.doesFileExist = (file) => { this.doesFileExist(file) }
-  // module.exports.outputPath = () => { this.outputPath }
+  // module.exports.this.outputPath = () => { this.outputPath }
   //
   //
   // module.exports.doesFileExist = this.doesFileExist;
   // module.exports.blurb = this.blurb;
   // module.exports.fileWrite = this.fileWrite;
   // module.exports.version = this.version;
-  // module.exports.outputPath = this.outputPath;
+  // module.exports.this.outputPath = this.outputPath;
   // module.exports.AminoSeeNoEvil = () => { AminoSeeNoEvil() }
 
   module.exports.AminoSeeNoEvil = AminoSeeNoEvil;
