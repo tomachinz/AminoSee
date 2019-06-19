@@ -112,7 +112,7 @@ module.exports = () => {
     cliInstance.log(`aminosee-cli.js process.argv.toString(): [${process.argv.toString()}]`)
   }
 }
-// let radMessage, opensExplorer, debugColumns, height,  this.mixRGBA, this.rgbArray,  isStreamingPipe,  filenameHILBERT,  this.justNameOfHTML,  users, present, peptide, ratio,  this.magnitude,  this.openImage, usersOutpath, projectprefs, userprefs, eak this.green ,   this.progato, userCPP, startDate, started, this.previousImage, this.charClock,  this.genomeSize, cliruns,  gbprocessed , progTimer, this.hilbertImage, keyboard, filenameTouch, filenameServerLock, estimatedPixels, args, filenamePNG, extension, reader, hilbertPoints, herbs, levels, mouseX, mouseY, windowHalfX, windowHalfY, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, fileUploadShowing, testColors, chunksMax, chunksize, chunksizeBytes, cpu, subdivisions, contextBitmap, this.aminoacid, pixelClock, start, updateClock, bytesPerMs,  this.pixelStacking, this.isHighlightCodon,  this.justNameOfPNG,  this.justNameOfHILBERT, sliceDNA, filenameHTML, msElapsed, bytesRemain, width, triplet, updatesTimer, pngImageFlags, codonsPerPixel, codonsPerPixelHILBERT, this.red, this.green, this.blue, this.alpha,  errorClock, this.breakClock, this.streamLineNr,  this.opacity , this.codonRGBA, currentTriplet,  this.currentPeptide,  this.shrinkFactor, reg, image, this.loopCounter,  this.percentComplete,  this.baseChars, bigIntFileSize, currentPepHighlight, justNameOfCurrentFile ,  this.openHtml,  this.openFileExplorer , pixelStream, startPeptideIndex, stopPeptideIndex, flags, loadavg, platform, totalmem, correction, aspect, this.debugFreq, help, tx, ty, this.lockTimer,  this.opensFile,  this.opensImage,  this.opensHtml, instanceCLI;
+// let radMessage, opensExplorer, this.debugColumns, height,  this.mixRGBA, this.rgbArray,  isStreamingPipe,  filenameHILBERT,  this.justNameOfHTML,  users, present, peptide, ratio,  this.magnitude,  this.openImage, usersOutpath, projectprefs, userprefs, eak this.green ,   this.progato, userCPP, startDate, started, this.previousImage, this.charClock,  this.genomeSize, cliruns,  gbprocessed , progTimer, this.hilbertImage, keyboard, filenameTouch, filenameServerLock, estimatedPixels, args, filenamePNG, extension, reader, hilbertPoints, herbs, levels, mouseX, mouseY, windowHalfX, windowHalfY, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, fileUploadShowing, testColors, chunksMax, chunksize, chunksizeBytes, cpu, subdivisions, contextBitmap, this.aminoacid, pixelClock, start, updateClock, bytesPerMs,  this.pixelStacking, this.isHighlightCodon,  this.justNameOfPNG,  this.justNameOfHILBERT, sliceDNA, filenameHTML, msElapsed, bytesRemain, width, triplet, updatesTimer, pngImageFlags, codonsPerPixel, codonsPerPixelHILBERT, this.red, this.green, this.blue, this.alpha,  errorClock, this.breakClock, this.streamLineNr,  this.opacity , this.codonRGBA, currentTriplet,  this.currentPeptide,  this.shrinkFactor, reg, image, this.loopCounter,  this.percentComplete,  this.baseChars, bigIntFileSize, currentPepHighlight, justNameOfCurrentFile ,  this.openHtml,  this.openFileExplorer , pixelStream, startPeptideIndex, stopPeptideIndex, flags, loadavg, platform, totalmem, correction, aspect, this.debugFreq, help, tx, ty, this.lockTimer,  this.opensFile,  this.opensImage,  this.opensHtml, instanceCLI;
 
 
 
@@ -165,7 +165,7 @@ class AminoSeeNoEvil {
         this.args = minimist(procArgv.slice(2), {
           boolean: [ 'artistic' ],
           boolean: [ 'devmode' ],
-          boolean: [ 'debug' ],
+          boolean: [ 'this.debug' ],
           boolean: [ 'clear' ],
           boolean: [ 'html' ],
           boolean: [ 'updates' ],
@@ -247,7 +247,7 @@ class AminoSeeNoEvil {
         this.peakRed  = 0.1010101010;
         this.peakGreen  = 0.1010101010;
         this.peakBlue  = 0.1010101010;
-        this.rawDNA ="@loading DNA Stream..."; // debug
+        this.rawDNA ="@loading DNA Stream..."; // this.debug
         this.status = "load";
         this.outFoldername = `/AminoSee_Output`;
         this.justNameOfDNA = 'aminosee-is-looking-for-files-containing-ascii-DNA.txt';
@@ -277,18 +277,18 @@ class AminoSeeNoEvil {
 
         if ( this.args.debug) {
           this.debug = true;
-          console.log('DEBUG this.mode ENABLED');
+          console.log('this.debug this.mode ENABLED');
         } else {
           this.debug = false;
         }
 
 
         this.devmode = false;
-        if ( this.args.devmode || this.args.d) { // needs to be at top sochanges can be overridden! but after debug.
+        if ( this.args.devmode || this.args.d) { // needs to be at top sochanges can be overridden! but after this.debug.
           output("devmode enabled.");
           this.toggleDevmode();
         }
-        if ( this.args.recycle) { // needs to be at top so  changes can be overridden! but after debug.
+        if ( this.args.recycle) { // needs to be at top so  changes can be overridden! but after this.debug.
           output("recycle this.mode enabled. (experimental)");
           this.recycEnabled = true;
         } else { this.recycEnabled = false }
@@ -469,13 +469,14 @@ class AminoSeeNoEvil {
           this.report = false; // disable html report
         }
         if ( this.args.artistic || this.args.art || this.args.a) {
-          output(`this.artistic enabled. Start (Methione =  this.green ) and Stop codons (Amber, Ochre, Opal) interupt the pixel timing creating columns. protein coding codons are diluted they are made ${ twosigbitsTolocale( this.opacity *100)}% translucent and ${ twosigbitsTolocale( this.codonsPerPixel )} of them are blended together to make one colour that is then faded across ${this.artisticHighlightLength} pixels horizontally. The start/stop codons get a whole pixel to themselves, and are faded across ${ this.highlightFactor} pixels horizontally.`);
+          output(`this.artistic enabled. Start (Methione =  this.green ) and Stop codons (Amber, Ochre, Opal) interupt the pixel timing creating columns. protein coding codons are diluted they are made ${ twosigbitsTolocale( this.opacity *100)}% translucent and ${ twosigbitsTolocale( this.codonsPerPixel )} of them are blended together to make one colour that is then faded across ${artisticHighlightLength} pixels horizontally. The start/stop codons get a whole pixel to themselves, and are faded across ${ this.highlightFactor} pixels horizontally.`);
           this.artistic = true;
           // isHilbertPossible = false;
           this.pngImageFlags += "_art";
           this.peptide = "none";
           this.triplet = "none";
           this.isHighlightSet = false;
+          this.codonsPerPixel = artisticHighlightLength;
           if  ( this.args.ratio)  {
             output("this.artistic this.mode is best used with fixed width this.ratio, but lets see")
           } else {
@@ -575,7 +576,7 @@ class AminoSeeNoEvil {
           this.openFileExplorer = false;
           this.openImage = false;
         }
-        if ( this.args.quiet || this.args.q) { // needs to be at top so changes can be overridden! but after debug.
+        if ( this.args.quiet || this.args.q) { // needs to be at top so changes can be overridden! but after this.debug.
           this.log("quiet this.mode enabled.");
           this.quiet = true;
           this.verbose = false;
@@ -690,7 +691,7 @@ class AminoSeeNoEvil {
       this.drawProgress();
     }
   }
-  bugtxt(txt) { // full debug output
+  bugtxt(txt) { // full this.debug output
     if (this.quiet == false && this.debug == true && this.devmode == true && this.verbose == true)  {
       this.bugout(txt);
     } else {
@@ -872,7 +873,7 @@ class AminoSeeNoEvil {
     args = {
       "this.artistic": true,
       "devmode": true,
-      "debug": true,
+      "this.debug": true,
       "clear": true,
       "keyboard": "false",
       "html": true,
@@ -964,7 +965,7 @@ class AminoSeeNoEvil {
         that.log(status);
         // that.updates = false;
         args = [];
-        that.debug = true;
+        that.this.debug = true;
         that.devmode = true;
         killServersOnQuit = true;
         server.stop();
@@ -1061,7 +1062,7 @@ class AminoSeeNoEvil {
     launchNonBlockingServer();
   }
   toggleDebug() {
-    debug = !debug;
+    this.debug = !this.debug;
     if (this.debug == true) {
       this.raceDelay  += 1000; // this helps considerably!
     }
@@ -1299,7 +1300,7 @@ try {
     })
   }
 
-  mode(txt) { // good for debugging
+  mode(txt) { // good for this.debugging
     this.status = txt;
     this.wTitle(txt);
     if (this.debug && this.verbose) {
@@ -1389,9 +1390,9 @@ try {
     ///////////////// BEGIN PARSING DNA FILE //////////////////////////////
     ///////////////// Check if it's been rende this.red  etc
     this.mode('parsing');
-    // this.bugtxt(`analyse: ${chalk.inverse( this.currentFile)} storage: ${chalk.inverse( this.storage() )} Fullpath: ${ this.filename }`)
     this.autoconfCodonsPerPixel();
     this.setupFNames(); // will have incorrect Hilbert file name. Need to wait until after render to check if exists.
+    // this.bugtxt(`analyse: ${chalk.inverse( this.currentFile)} storage: ${chalk.inverse( this.storage() )} Fullpath: ${ this.filename }`)
     // this.bugtxt(`Parsing ${ this.justNameOfDNA }  defaultFilename  ${defaultFilename}  ${ this.filename }  this.howMany   ${this.howMany}   status ${status}`);
 
     if ( this.skipExistingFile( this.filenamePNG ) ) {
@@ -1412,7 +1413,7 @@ try {
       return false;
     } else { this.log('Not skipping') }
 
-    this.termDrawImage();
+    // this.termDrawImage();
 
     if ( this.checkLocks( this.filenameTouch)) {
       output("Render already in progress by another thread.");
@@ -1575,13 +1576,13 @@ streamStarted() {
       }
       that.progUpdate({ title: 'DNA File Render step 1/3', items: that.howMany, syncMode: true })
       setTimeout(() => {
-        that.manageLocks(1000)
-      }, 1000);
+        that.manageLocks(5000)
+      }, 2000);
     }
   }, that.raceDelay );
 }
 manageLocks(time) {
-  if (this.lockTimer === undefined) { clearTimeout(this.lockTimer) }
+  if (this.lockTimer !== undefined) { clearTimeout(this.lockTimer) }
   if ( this.isShuttingDown) { return false }
   var that = this;
 
@@ -1671,10 +1672,10 @@ autoconfCodonsPerPixel() {
     process.exit();
 
     this.isStreamingPipe = true; // cat Human.genome | aminosee
-    this.estimatedPixels = 696969; // 696969 flags a missing value in debug
+    this.estimatedPixels = 696969; // 696969 flags a missing value in this.debug
     this.magnitude = this.dimension = 6; // close to 69
     this.log("Could not get filesize, setting for image size of 696,969 pixels, maybe use --codons 1 this is rende this.red  with --codons 696");
-    this.baseChars = 696969; // 696969 flags a missing value in debug
+    this.baseChars = 696969; // 696969 flags a missing value in this.debug
     this.codonsPerPixel = 696; // small images with _c69 in this.filename
     return true;
   } else { // use a file
@@ -1719,7 +1720,7 @@ autoconfCodonsPerPixel() {
     this.codonsPerPixel = defaultC;
   }
   if ( this.artistic == true) {
-    this.codonsPerPixel *= this.artisticHighlightLength;
+    this.codonsPerPixel *= artisticHighlightLength;
     this.log(`Using ${ this.codonsPerPixel } this.codonsPerPixel for art this.mode`);
   }
   ///////// ok i stopped messing with this.codonsPerPixel this.now
@@ -2510,7 +2511,7 @@ getFilesizeInBytes(file) {
 //     return  this.baseChars;
 //   }
 //   this.log(`f ${path}  this.baseChars ${ this.baseChars} file: ${file} big int filesize: ${bigIntFileSize}`);
-//   return  this.baseChars; // debug flag. basically i should never see -69 appearing in  this.error logs
+//   return  this.baseChars; // this.debug flag. basically i should never see -69 appearing in  this.error logs
 // }
 getFileExtension(f) {
   if (!f) { return "none" }
@@ -2557,8 +2558,8 @@ quit(n, txt) {
   }
   this.mode('quit');
   this.log(chalk.bgWhite.red (`process.exit going on. last file: ${ this.filename }`));
-  if (this.devmode == true && debug == false) {
-    output("Because you are using --devmode without --debug, the lock file is not deleted. This is useful during development because I can quickly this.test new code by starting then interupting the render with Control-c. Then, when I use 'aminosee * -f -d' I can have new versions rende this.red  but skip super large genomes that would take 5 mins or more to render. I like to see that they begin to render then break and retry.")
+  if (this.devmode == true && this.debug == false) {
+    output("Because you are using --devmode without --this.debug, the lock file is not deleted. This is useful during development because I can quickly this.test new code by starting then interupting the render with Control-c. Then, when I use 'aminosee * -f -d' I can have new versions rende this.red  but skip super large genomes that would take 5 mins or more to render. I like to see that they begin to render then break and retry.")
   } else {
     this.removeLocks();
   }
@@ -2734,7 +2735,7 @@ processLine(l) {
         } else {
           // ************ ARTISTIC this.mode
           if (this.isHighlightCodon) {
-            if ( this.artisticHighlightLength >= 12) {
+            if ( artisticHighlightLength >= 12) {
               this.red  =  this.mixRGBA[0]/12;
               this.green  =  this.mixRGBA[1]/12;
               this.blue  =  this.mixRGBA[2]/12;
@@ -2837,7 +2838,7 @@ processLine(l) {
             this.blue  =  this.mixRGBA[2];
             this.paintPixel(); // <<--- Full colour pixel! from here it fades out
 
-            for(let ac = 0; ac < this.artisticHighlightLength - 5; ac++ ) { // Subtract the four pix above and the one below
+            for(let ac = 0; ac < artisticHighlightLength - 5; ac++ ) { // Subtract the four pix above and the one below
               this.red  =  this.red  / 1.2;
               this.green  =  this.green  / 1.2;
               this.blue  =  this.blue  / 1.2;
@@ -2893,7 +2894,7 @@ getImageType() {
 }
 generateFilenameTouch() { // we need the *fullpath* of this one
   this.filenameTouch = path.resolve(`${ this.outputPath }/${ this.justNameOfDNA}/AminoSee_BUSY_LOCK_${ this.extension }${ this.highlightFilename() }_c${ onesigbitTolocale( this.codonsPerPixel )}${ this.getImageType() }.txt`);
-  // this.bugtxt(`debug for generateFilenameTouch: ${ this.filenameTouch }`);
+  // this.bugtxt(`this.debug for generateFilenameTouch: ${ this.filenameTouch }`);
   return                this.filenameTouch;
 }
 generateFilenamePNG() {
@@ -3236,19 +3237,20 @@ doesFolderExist(f) {
 
 doesFileExist(f) {
   if (f == undefined) { return false; } // adds stability to this rickety program!
-  f = path.resolve(f);
-
+  // f = path.resolve(f);
 
   try {
     if (fs.existsSync(f)) {
       //file exists
       return true;
+    } else {
+      return false;
     }
   } catch(err) {
-    // console.error(err)
+    console.error(err)
     return false;
   }
-  return true;
+  return false;
   //
   // try {
   //   let result = fs.existsSync(f);
@@ -3365,7 +3367,7 @@ saveHilbert(cb) {
     }
     this.isDiskFinHilbert = true;
     this.previousImage = this.filenameHILBERT;
-    this.termDrawImage();
+    // this.termDrawImage();
     cb();
     return false;
   }
@@ -3985,7 +3987,7 @@ dot(i, x, t) {
     if (!t) {
       t = `[${i}]`;
     }
-    // if ( this.verbose && devmode && debug) {
+    // if ( this.verbose && devmode && this.debug) {
     // output(t);
     // } else {
     this.clout(t);
