@@ -3654,7 +3654,7 @@ bothKindsTestPattern() {
     } catch(err) {
       this.log("Something odd happened trying to save the linear PNG file: " + err)
     }
-    
+
 
 
   if (cb != undefined ) { cb( ) }
@@ -4293,7 +4293,7 @@ clout(txt) {
       `| Load: ${ this.loadAverages()}  Files to go: ${this.howMany}`,
       `| File:  ${chalk.inverse( fixedWidth(40, this.justNameOfDNA))}.${ this.extension } ${chalk.inverse( this.highlightOrNothin())}`,
       `| @i${ fixedWidth(10, this.charClock.toLocaleString())} Breaks:${ fixedWidth(6, this.breakClock.toLocaleString())} Filesize:${ fixedWidth(7, bytes(  this.baseChars ))}`,
-      `| Next update: ${ fixedWidth(5,  this.msPerUpdate .toLocaleString())}ms Codon Opacity: ${ twosigbitsTolocale( this.opacity *100)}%`,
+      `| Next update:${ fixedWidth(6,  this.msPerUpdate .toLocaleString())}ms Codon Opacity: ${ twosigbitsTolocale( this.opacity *100)}%`,
       `| CPU:${ fixedWidth(10, bytes( this.bytesPerMs*1000))}/s ${ fixedWidth(5, this.codonsPerSec.toLocaleString())}K acids/s`,
       ` Next file >>> ${maxWidth(24, this.nextFile)}`,
       `| Codons:${ fixedWidth(14, " " +  this.genomeSize.toLocaleString())} Pixels:${ fixedWidth(10, " " + this.pixelClock.toLocaleString())} Last Acid: ${chalk.inverse.rgb(ceiling( this.red ), ceiling( this.green ), ceiling( this.blue )).bgWhite.bold( fixedWidth(16, "  " + this.aminoacid + "   ") ) } Host: ${hostname}`,
