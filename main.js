@@ -14,8 +14,9 @@ console.log(`main.js process.argv.toString(): [${process.argv.toString()}]`)
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 // app.commandLine.appendSwitch('remote-debugging-port', '8315')
-app.commandLine.appendSwitch('host-rules', 'MAP * 127.0.0.1')
-app.commandLine.appendSwitch('devmode', 'true')
+// app.commandLine.appendSwitch('host-rules', 'MAP * 127.0.0.1')
+// app.commandLine.appendSwitch('devmode', 'true')
+// app.commandLine.appendSwitch('devmode', 'true')
 function updateProgress(number) {
   mainWindow.setProgressBar(number); // -1 remove progress, 0-1 is percentage, 2+ means show indeterminate
 }
@@ -51,7 +52,7 @@ function showOpenDialog() {
     ],
     buttonLabel : "Artistic",
     defaultPath : "dna",
-    properties: ['openFile', 'openDirectory', 'multiSelections'],
+    properties: [ 'openFile', 'openDirectory', 'multiSelections' ],
     message: 'Any text file containing ASCII base pairs like: ACGTUacgtu'
   };
   const selectedPaths = dialog.showOpenDialog();
@@ -99,7 +100,6 @@ function pushCli(commandString) {
 function createWindow () {
   const electron = require('electron');
   const {width, height} = electron.screen.getPrimaryDisplay().workAreaSize
-
 
   // Create the browser window.
   mainWindow = new BrowserWindow({
@@ -186,6 +186,11 @@ function buildMenus() {
         {
           label: 'Settings',
           accelerator: 'CmdOrCtrl+,',
+          role: 't'
+        },
+        {
+          label: 'Test',
+          accelerator: 'CmdOrCtrl+T',
           role: 'options'
         }
       ]
@@ -287,30 +292,20 @@ function buildMenus() {
   Menu.setApplicationMenu(menu)
 }
 
-
 function manageThreads(time) {
   if (lockTimer === undefined) { clearTimeout(lockTimer) }
   if ( this.isShuttingDown) { return false }
   var that = this;
-
   log( threads[0].percentComplete() )
-
   this.lockTimer = setTimeout( () => {
-      that.fastUpdate();
-      if (  that.percentComplete < 0.9 &&  that.timeRemain > 20000 ) { // helps to eliminate concurrency issues
-        that.tLock();
-        that.manageLocks(time*1.618)
-      } else {
-        that.log('No more this.updates scheduled after 90% with less than 20 seconds to go. Current at ' + that.nicePercent() + ' time remain: ' + humanizeDuration( that.timeRemain))
-      }
-  }, time);
+    log( threads[0].percentComplete() )
+    manageThreads(time * 1.618)
+  }, time );
 }
-
-
 
 app.on('ready', function() {
   createWindow();
-  // pushCli(`demo`)
+  pushCli(`help`)
 })
 
 // Quit when all windows are closed.

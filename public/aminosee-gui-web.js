@@ -389,7 +389,7 @@ function testParse() {
   }
   function setScene() {
 
-    var geometry = new THREE.CircleGeometry( 5, 32 );
+    var geometry = new THREE.CircleGeometry( 150, 64 );
     var material = new THREE.MeshBasicMaterial( { color: 0xffff00 } );
     var circle = new THREE.Mesh( geometry, material );
     scene.add( circle );

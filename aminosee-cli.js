@@ -16,6 +16,7 @@ const settings = require('./aminosee-settings');
 const version = require('./aminosee-version');
 const server = require('./aminosee-server');
 const data = require('./aminosee-data');
+// const main = require('./main');
 let saySomethingEpic = data.saySomethingEpic;
 // OPEN SOURCE PACKAGES FROM NPM
 const Preferences = require("preferences");
@@ -101,8 +102,8 @@ module.exports = () => {
   // version = require('./lib/version');
   status = "exports";
 
-  console.log(`isElectron: [${isElectron}]`)
-  if (isElectron) {
+  // this.bugtxt(`isElectron: [${isElectron}]`)
+  if (isElectron == true) {
     // this.args = generateArgs(classyArgv)
     output("Not populating until addJob is called")
   } else {
@@ -117,8 +118,8 @@ module.exports = () => {
 
 class AminoSeeNoEvil {
   constructor(classyArgv = ['node', 'aminosee.js', 'demo']) { // CLI commands, this.filenames, *
-    console.log(logo());
-    console.log();
+    // console.log(logo());
+    // console.log();
     this.log(`constructed with: [${classyArgv.toString()}] [${classyArgv[1]}] [${classyArgv[2]}]  this.genomeSize: [${ this.genomeSize}]`)
     const asciiart = data.asciiart;
     const clusterPath = path.normalize(path.resolve(process.cwd() + netFoldername)); // legacy foldername CLUTER IS FOR NETWORK SHARES
@@ -131,9 +132,9 @@ class AminoSeeNoEvil {
   get getArgs() {  // Getter
     return this.argv;
   }
-  get percentComplete() {
-    return this.percentComplete
-  }
+  // get percentComplete() {
+  //   return this.percentComplete
+  // }
   setArgv(incomingArgs) {
     this.argv = incomingArgs;
   }
@@ -318,7 +319,7 @@ class AminoSeeNoEvil {
         } else {
           this.usersOutpath = false;
         }
-        this.bugtxt(`cmd ${cmd}  ${( this.usersOutpath ? 'usersOutpath' + this.usersOutpath : ' ')} outputPath ${ this.outputPath }`);
+        // this.bugtxt(`cmd ${cmd}  ${( this.usersOutpath ? 'usersOutpath' + this.usersOutpath : ' ')} outputPath ${ this.outputPath }`);
         if ( this.args.keyboard || this.args.k || this.keyboard) {
           this.keyboard = true;
           this.termDisplayHeight += 4; // display bigger
@@ -826,7 +827,8 @@ class AminoSeeNoEvil {
     this.peakRed  =  this.red ;
     this.peakGreen  =  this.green ;
     this.peakBlue  =  this.blue ;
-    this.percentComplete = this.pixelClock = 0;
+    this.percentComplete = 0;
+    this.pixelClock = 0;
     this.currentTriplet = "none";
     this.breakClock = 0;
     this.msElapsed = this.runningDuration = this.charClock =  this.percentComplete =  this.genomeSize = this.pixelClock = this.opacity  = 0;
@@ -921,9 +923,8 @@ class AminoSeeNoEvil {
     } else {
       this.bugtxt(`progress dummy function: ${obj}`)
     }
+    // main.updatePercent(this.percentComplete)
   }
-
-
 
   setupKeyboardUI() {
     // make `process.stdin` begin emitting "keypress" events
@@ -1117,22 +1118,31 @@ class AminoSeeNoEvil {
   }
   gracefulQuit(code) {
     if (code == undefined) { code = 0; }
-    // this.mode( "Graceful shutdown in progress...");
+    this.mode( "Graceful shutdown in progress...");
     var that = this;
-    // that.bugtxt(status);
-    // that.bugtxt("webserverEnabled: " + webserverEnabled + " killServersOnQuit: "+ killServersOnQuit)
+    that.bugtxt(status);
+    that.bugtxt("webserverEnabled: " + webserverEnabled + " killServersOnQuit: "+ killServersOnQuit)
 
-    // that.nextFile = "shutdown";
-    // that.howMany = 0;
-    // that.removeLocks(process.exit());
+try {
+  that.nextFile = "shutdown";
+  that.howMany = 0;
+  that.removeLocks(process.exit());
+} catch(e) {
 
-    // if (code = 130) {
-    //   that.args._ = [];
-    //   that.calcUpdate();
-    //   that.destroyProgress();
-    //   that.removeLocks(process.exit());
-    //
-    // }
+}
+
+try {
+  if (code = 130) {
+    that.args._ = [];
+    that.calcUpdate();
+    that.destroyProgress();
+    that.removeLocks(process.exit());
+
+  }
+} catch(e) {
+
+}
+
   }
   background(callback) {
     // const spawn = require('cross-spawn');
@@ -1317,6 +1327,11 @@ class AminoSeeNoEvil {
   pollForStream() { // render lock must be off before calling. aim: start the render, or look for work
     // this.mode('pre-polling ' + this.howMany);
     var that = this;
+    // if (!checkFileExtension( this.currentFile)) {
+    //   this.removeLocks();
+    //   return false;
+    // }
+
     if ( !this ) { return }
     if ( this && this.renderLock == true ) {
       that.log(`thread re-entry running stream: ${ that.justNameOfDNA}`);
@@ -1349,12 +1364,9 @@ class AminoSeeNoEvil {
       return false;
     }
     this.setupFNames();
-    this.bugtxt("PNG: " + this.justNameOfPNG);
-    this.bugtxt(`[ polling ${ this.nicePercent()} ${status} ${new Date()} ]`);
-    this.bugtxt(`[ this.howMany  ${this.howMany} ${status} ${ this.filename } ${ this.currentFile } ]`);
-
-
-
+    // this.bugtxt("PNG: " + this.justNameOfPNG);
+    // this.bugtxt(`[ polling ${ this.nicePercent()} ${status} ${new Date()} ]`);
+    // this.bugtxt(`[ this.howMany  ${this.howMany} ${status} ${ this.filename } ${ this.currentFile } ]`);
     // this.bugtxt( "this.currentFile is " + this.currentFile   + this.args)
     if (this.howMany < 1) { this.isShuttingDown = true;}
     if (this.howMany < 0) { this.gracefulQuit(130) }
@@ -1369,7 +1381,7 @@ class AminoSeeNoEvil {
       return false;
     }
     if ( this.currentFile == defaultFilename) { // maybe this is to get past my lack of understanding of processing of this.args.
-      this.bugtxt("skipping default: " + defaultFilename); // it was rende this.red  same file twice i think
+      // this.bugtxt("skipping default: " + defaultFilename); // it was rende this.red  same file twice i think
       this.resetAndMaybe();
       return false;
     }
@@ -1377,10 +1389,10 @@ class AminoSeeNoEvil {
     ///////////////// BEGIN PARSING DNA FILE //////////////////////////////
     ///////////////// Check if it's been rende this.red  etc
     this.mode('parsing');
-    this.bugtxt(`analyse: ${chalk.inverse( this.currentFile)} storage: ${chalk.inverse( this.storage() )} Fullpath: ${ this.filename }`)
+    // this.bugtxt(`analyse: ${chalk.inverse( this.currentFile)} storage: ${chalk.inverse( this.storage() )} Fullpath: ${ this.filename }`)
     this.autoconfCodonsPerPixel();
     this.setupFNames(); // will have incorrect Hilbert file name. Need to wait until after render to check if exists.
-    this.bugtxt(`Parsing ${ this.justNameOfDNA }  defaultFilename  ${defaultFilename}  ${ this.filename }  this.howMany   ${this.howMany}   status ${status}`);
+    // this.bugtxt(`Parsing ${ this.justNameOfDNA }  defaultFilename  ${defaultFilename}  ${ this.filename }  this.howMany   ${this.howMany}   status ${status}`);
 
     if ( this.skipExistingFile( this.filenamePNG ) ) {
       output(`Already rendered this.${ fixedWidth(32, this.filenamePNG)} (${this.howMany} files to go) use --explorer to show files`);
@@ -1392,7 +1404,6 @@ class AminoSeeNoEvil {
         this.log('use --image to open in viewer')
       }
       this.previousImage = this.filenamePNG;
-      this.termDrawImage();
       this.mode('skip existing')
       this.popAndLock();
       this.howMany--;
@@ -1401,7 +1412,7 @@ class AminoSeeNoEvil {
       return false;
     } else { this.log('Not skipping') }
 
-
+    this.termDrawImage();
 
     if ( this.checkLocks( this.filenameTouch)) {
       output("Render already in progress by another thread.");
@@ -1473,22 +1484,16 @@ initStream() {
     // this.quit(4, 'Render lock failed');
     // resetAndMaybe();
     // lookForWork('render lock failed inside initStream')
-    // return false;
+    return false;
   } else { this.log('Begin') }
   termSize();
   this.resized();
-
-
 
   this.mode("Ω first command " + this.howMany + " " + this.currentFile);
   this.log( this.filename )
   this.log(status);
 
-  // this.args._.push( this.currentFile); // could never figure out how those args were getting done
-  // if (!checkFileExtension( this.currentFile)) {
-  //   this.removeLocks();
-  //   return false;
-  // }
+
   this.setupOutPaths();
   this.autoconfCodonsPerPixel();
   this.setupFNames();
@@ -1726,6 +1731,8 @@ autoconfCodonsPerPixel() {
     } else {
       this.log('Genomes <  1840000 codons. square this.ratio enabled')
     }
+  } else {
+    this.ratio = 'fix'; // small genomes like "the flu" look better square.
   }
 
   this.opacity  = 1 / this.codonsPerPixel;
@@ -1742,7 +1749,6 @@ autoconfCodonsPerPixel() {
   } else if ( this.codonsPerPixel > 64 ) {
     this.highlightFactor = 16 + ( 255 / this.codonsPerPixel) ;
   }
-
   return this.codonsPerPixel;
 }
 
@@ -3355,7 +3361,7 @@ saveHilbert(cb) {
     [hilbX, hilbY] = hilDecode(i, this.dimension, MyManHilbert);
     let cursorLinear  = 4 * i ;
     let hilbertLinear = 4 * ((hilbX % hWidth) + (hilbY * hWidth));
-     this.percentComplete = i / hilpix;
+    this.percentComplete = i / hilpix;
     // if ((Math.round(  this.percentComplete * 1000) % 100) === 0) {
     //   this.clout(i, this.debugFreq, "Space filling " + this.nicePercent() + " of " + hilpix.toLocaleString());
     // }
@@ -3858,7 +3864,7 @@ paintRegMarks(hilbertLinear, hilbertImage,  percentComplete) {
     this.hilbertImage[hilbertLinear+1] = 255 - ( this.hilbertImage[hilbertLinear+1]);
     this.hilbertImage[hilbertLinear+2] = 255 - ( this.hilbertImage[hilbertLinear+2]);
     this.hilbertImage[hilbertLinear+3] = 128;
-    if (i%2) {
+    if (thinWhiteSlice % 2) {
       this.hilbertImage[hilbertLinear+0] = 255;
       this.hilbertImage[hilbertLinear+1] = 255;
       this.hilbertImage[hilbertLinear+2] = 255;
@@ -4211,19 +4217,19 @@ clout(txt) {
 
   drawProgress() {
     this.fastUpdate();
-    // if ( this.updates == true) {
-     this.progato.update(  this.percentComplete ) ;
+    this.progato.update(  this.percentComplete ) ;
+
     if (this.howMany >= 0 ) {
       clearTimeout( this.progTimer)
       this.progTimer = setTimeout(() => {
         if (  this.percentComplete < 0.99 &&  this.timeRemain > 2001) {
           this.drawProgress();
+          electron.updatePercent( this.percentComplete )
         } else {
            this.progato.stop();
         }
       }, 500);
     }
-    // }
   }
 
 
@@ -5057,8 +5063,9 @@ function addJob(commandArray) {
 
   // AminoSeeNoEvil.setupApp(commandArray);
 }
+  var that = this;
   process.on("SIGTERM", () => {
-    this.removeLocks();
+    that.removeLocks();
     // this.gracefulQuit();
     this.destroyProgress();
     process.exitCode = 130;
@@ -5066,7 +5073,7 @@ function addJob(commandArray) {
     // process.exit(); // this.now the "exit" event will fire
   });
   process.on("SIGINT", function() {
-    this.removeLocks();
+    that.removeLocks();
     // this.gracefulQuit();
     this.destroyProgress();
     process.exitCode = 130;
@@ -5083,10 +5090,7 @@ function addJob(commandArray) {
   // module.exports.log = () => {
   // this.log("hellow world")
   // }
-  // module.exports.this.bugtxt = (txt) => { this.bugtxt(txt) }
-  // module.exports.this.bugtxt = (txt) => { this.bugtxt(txt) }
-  // module.exports.this.bugtxt = (txt) => { this.bugtxt(txt) }
-  // module.exports.this.bugtxt = (txt) => { this.bugtxt(txt) }
+
   // module.exports.quit = (code) => { this.quit(code) }
   // module.exports.doesFileExist = (file) => { this.doesFileExist(file) }
   // module.exports.outputPath = () => { this.outputPath }
