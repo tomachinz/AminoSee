@@ -3639,16 +3639,22 @@ bothKindsTestPattern() {
       }
     })
     img_png.data = Buffer.from(img_data);
-    let wstream = fs.createWriteStream( this.filenamePNG );
-    var that = this;
-    new Promise(resolve => {
-      img_png.pack()
-      .pipe(wstream)
-      .on('finish', () => {
-        that.linearFinished();
-      })
+
+    try {
+      let wstream = fs.createWriteStream( this.filenamePNG );
+      var that = this;
+      new Promise(resolve => {
+        img_png.pack()
+        .pipe(wstream)
+        .on('finish', () => {
+          that.linearFinished();
+        })
+      }
+      ).then( that.log('PNG then') ).catch( this.log('PNG catch promise') );
+    } catch(err) {
+      this.log("Something odd happened trying to save the linear PNG file: " + err)
     }
-  ).then( that.log('PNG then') ).catch( this.log('PNG catch promise') );
+    
 
 
   if (cb != undefined ) { cb( ) }
