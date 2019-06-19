@@ -1,8 +1,8 @@
 Thanks to Christos Georghiou who designed the 'See No Evil Hear No Evil Monkeys' http://christosgeorghiou.com/
-    1936
+    1947
  open source node npm packages used. 
 
-aminosee@1.16.2 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
+aminosee@1.16.3 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
 ├─┬ ascii-histogram@1.2.1
 │ └── printf@0.1.3
 ├─┬ async-kit@2.2.4
@@ -410,7 +410,7 @@ aminosee@1.16.2 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
 │ ├─┬ electron-download@4.1.1
 │ │ ├─┬ debug@3.2.6
 │ │ │ └── ms@2.1.1 deduped
-│ │ ├── env-paths@1.0.0
+│ │ ├── env-paths@1.0.0 deduped
 │ │ ├─┬ fs-extra@4.0.3
 │ │ │ ├── graceful-fs@4.1.15 deduped
 │ │ │ ├── jsonfile@4.0.0 deduped
@@ -517,7 +517,20 @@ aminosee@1.16.2 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
 │ │ └── universalify@0.1.2 deduped
 │ ├─┬ node-abi@2.8.0
 │ │ └── semver@5.6.0 deduped
-│ ├── node-gyp@4.0.0 deduped
+│ ├─┬ node-gyp@4.0.0
+│ │ ├── glob@7.1.3 deduped
+│ │ ├── graceful-fs@4.1.15 deduped
+│ │ ├── mkdirp@0.5.1 deduped
+│ │ ├── nopt@3.0.6 deduped
+│ │ ├── npmlog@4.1.2 deduped
+│ │ ├─┬ osenv@0.1.5
+│ │ │ ├── os-homedir@1.0.2 deduped
+│ │ │ └── os-tmpdir@1.0.2
+│ │ ├── request@2.88.0 deduped
+│ │ ├── rimraf@2.6.3 deduped
+│ │ ├── semver@5.3.0
+│ │ ├── tar@4.4.10 deduped
+│ │ └── which@1.3.1 deduped
 │ ├─┬ ora@3.4.0
 │ │ ├── chalk@2.4.2 deduped
 │ │ ├─┬ cli-cursor@2.1.0
@@ -1539,7 +1552,8 @@ aminosee@1.16.2 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
 │ └─┬ rimraf@2.6.3
 │   └── glob@7.1.3 deduped
 ├── node-fetch@2.6.0
-├─┬ node-gyp@4.0.0
+├─┬ node-gyp@5.0.0
+│ ├── env-paths@1.0.0
 │ ├── glob@7.1.3 deduped
 │ ├── graceful-fs@4.1.15 deduped
 │ ├── mkdirp@0.5.1 deduped
@@ -1573,13 +1587,10 @@ aminosee@1.16.2 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
 │ │ │ └─┬ wide-align@1.1.3
 │ │ │   └── string-width@1.0.2 deduped
 │ │ └── set-blocking@2.0.0 deduped
-│ ├─┬ osenv@0.1.5
-│ │ ├── os-homedir@1.0.2 deduped
-│ │ └── os-tmpdir@1.0.2
 │ ├── request@2.88.0 deduped
 │ ├── rimraf@2.6.3 deduped
 │ ├── semver@5.3.0
-│ ├─┬ tar@4.4.8
+│ ├─┬ tar@4.4.10
 │ │ ├── chownr@1.1.1
 │ │ ├─┬ fs-minipass@1.2.6
 │ │ │ └── minipass@2.3.5 deduped
@@ -1928,7 +1939,7 @@ aminosee@1.16.2 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
 │ │ └── setimmediate@1.0.5
 │ ├── string-kit@0.9.4
 │ └── tree-kit@0.6.1
-├── three@0.105.1
+├── three@0.105.2
 ├── through@2.3.8
 ├── uniq@1.0.1
 ├─┬ vows@0.8.2
