@@ -3248,7 +3248,7 @@ doesFileExist(f) {
     // console.error(err)
     return false;
   }
-
+  return true;
   //
   // try {
   //   let result = fs.existsSync(f);
