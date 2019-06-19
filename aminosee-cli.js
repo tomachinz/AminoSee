@@ -75,7 +75,7 @@ const lockFileMessage = `
 aminosee.funk.nz DNA Viewer by Tom Atkinson.
 This is a temporary lock file, placed during rendering to enable parallel cluster rendering over LAN networks, if this is here after processing has completerd it usually it means an AminoSee was quit before finishing or had crashed. Its safe to erase these files, and I've made a script in /dna/ to batch delete them all in one go. Normally these are deleted when render is complete, or with Control-C and graceful shutdown.`;
 const defaultC = 1; // back when it could not handle 3+GB files.
-const artisticHighlightLength = 18; // px only use in this.artistic this.mode. must be 6 or 12 currently
+const artisticHighlightLength = 12; // px only use in artistic this.mode. must be 6 or 12 currently
 const defaultMagnitude = 8; // max for auto setting
 const theoreticalMaxMagnitude = 10; // max for auto setting
 const overSampleFactor = 2; // your linear image needs to be 2 megapixels to make 1 megapixel hilbert
@@ -109,7 +109,7 @@ module.exports = () => {
   } else {
     cliInstance = new AminoSeeNoEvil();
     cliInstance.addJob(process.argv); // do stuff that is needed even just to run "aminosee" with no options.
-    cliInstance.log(`aminosee-cli.js process.argv.toString(): [${process.argv.toString()}]`)
+    cliInstance.log(`aminosee-cli.js cliInstance.log() process.argv.toString(): [${process.argv.toString()}]`)
   }
 }
 // let radMessage, opensExplorer, this.debugColumns, height,  this.mixRGBA, this.rgbArray,  isStreamingPipe,  filenameHILBERT,  this.justNameOfHTML,  users, present, peptide, ratio,  this.magnitude,  this.openImage, usersOutpath, projectprefs, userprefs, eak this.green ,   this.progato, userCPP, startDate, started, this.previousImage, this.charClock,  this.genomeSize, cliruns,  gbprocessed , progTimer, this.hilbertImage, keyboard, filenameTouch, filenameServerLock, estimatedPixels, args, filenamePNG, extension, reader, hilbertPoints, herbs, levels, mouseX, mouseY, windowHalfX, windowHalfY, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, fileUploadShowing, testColors, chunksMax, chunksize, chunksizeBytes, cpu, subdivisions, contextBitmap, this.aminoacid, pixelClock, start, updateClock, bytesPerMs,  this.pixelStacking, this.isHighlightCodon,  this.justNameOfPNG,  this.justNameOfHILBERT, sliceDNA, filenameHTML, msElapsed, bytesRemain, width, triplet, updatesTimer, pngImageFlags, codonsPerPixel, codonsPerPixelHILBERT, this.red, this.green, this.blue, this.alpha,  errorClock, this.breakClock, this.streamLineNr,  this.opacity , this.codonRGBA, currentTriplet,  this.currentPeptide,  this.shrinkFactor, reg, image, this.loopCounter,  this.percentComplete,  this.baseChars, bigIntFileSize, currentPepHighlight, justNameOfCurrentFile ,  this.openHtml,  this.openFileExplorer , pixelStream, startPeptideIndex, stopPeptideIndex, flags, loadavg, platform, totalmem, correction, aspect, this.debugFreq, help, tx, ty, this.lockTimer,  this.opensFile,  this.opensImage,  this.opensHtml, instanceCLI;
@@ -148,7 +148,8 @@ class AminoSeeNoEvil {
   }
 
   setupApp(procArgv) { // do stuff aside from creating any changes. eg if you just run "aminosee" by itself.
-      // for each render job, run setupProject but setupApp() only once.
+      // for each render batch sent through addJob, here is where "this" be instantiated once per addJob
+      // for each DNA file, run setupProject
 
       const radMessage =
       this.terminalRGB(`
@@ -469,7 +470,7 @@ class AminoSeeNoEvil {
           this.report = false; // disable html report
         }
         if ( this.args.artistic || this.args.art || this.args.a) {
-          output(`this.artistic enabled. Start (Methione =  this.green ) and Stop codons (Amber, Ochre, Opal) interupt the pixel timing creating columns. protein coding codons are diluted they are made ${ twosigbitsTolocale( this.opacity *100)}% translucent and ${ twosigbitsTolocale( this.codonsPerPixel )} of them are blended together to make one colour that is then faded across ${artisticHighlightLength} pixels horizontally. The start/stop codons get a whole pixel to themselves, and are faded across ${ this.highlightFactor} pixels horizontally.`);
+          output(`artistic enabled. Start (Methione =  green ) and Stop codons (Amber, Ochre, Opal) interupt the pixel timing creating columns. protein coding codons are diluted they are made ${ twosigbitsTolocale( this.opacity *100)}% translucent and ${ twosigbitsTolocale( this.codonsPerPixel )} of them are blended together to make one colour that is then faded across ${artisticHighlightLength} pixels horizontally. The start/stop codons get a whole pixel to themselves, and are faded across ${ this.highlightFactor} pixels horizontally.`);
           this.artistic = true;
           // isHilbertPossible = false;
           this.pngImageFlags += "_art";
@@ -478,12 +479,12 @@ class AminoSeeNoEvil {
           this.isHighlightSet = false;
           this.codonsPerPixel = artisticHighlightLength;
           if  ( this.args.ratio)  {
-            output("this.artistic this.mode is best used with fixed width this.ratio, but lets see")
+            output("artistic mode is best used with fixed width ratio, but lets see")
           } else {
             this.ratio = "fix"
           }
         } else {
-          this.log("1:1 science this.mode enabled.");
+          this.log("1:1 science mode enabled.");
           this.artistic = false;
         }
 
@@ -630,9 +631,6 @@ class AminoSeeNoEvil {
           this.isDiskFinHTML = this.isDiskFinHilbert = this.isDiskFinLinear = true;
           this.howMany = this.args._.length
 
-
-
-
           if (cmd == undefined) {
             this.mode("no command ");
             if ( cliruns < 3) {
@@ -666,7 +664,7 @@ class AminoSeeNoEvil {
             this.started = this.startDate.getTime(); // requi this.red  for touch locks.
             this.setupProject();
             // this.touchLockAndStartStream();
-            this.pollForStream();
+            this.pollForStream('Ω first command');
             return true;
           }
           status = "leaving switch";
@@ -860,7 +858,6 @@ class AminoSeeNoEvil {
     this.setupOutPaths();
     this.setNextFile();
     this.autoconfCodonsPerPixel();
-    // this.setupFNames();
     termSize();
 }
   //
@@ -1175,7 +1172,7 @@ try {
     this.currentFile = 'megabase.fa';
     let promiseMegabase = new Promise(function(resolve,reject) {
       try {
-        var exists = this.doesFileExist( this.currentFile);
+        var exists = doesFileExist( this.currentFile);
       } catch(err) {
         this.out(maxWidth(5, "e:" + err));
       }
@@ -1325,7 +1322,7 @@ try {
       return false;
     } else { return true; }
   }
-  pollForStream() { // render lock must be off before calling. aim: start the render, or look for work
+  pollForStream(reason) { // render lock must be off before calling. aim: start the render, or look for work
     // this.mode('pre-polling ' + this.howMany);
     var that = this;
     // if (!checkFileExtension( this.currentFile)) {
@@ -1335,7 +1332,7 @@ try {
 
     if ( !this ) { return }
     if ( this && this.renderLock == true ) {
-      that.log(`thread re-entry running stream: ${ that.justNameOfDNA}`);
+      that.log(`thread re-entry inside pollForStream: ${ that.justNameOfDNA} ${ this.busy()} ${this.storage()} reason: ${reason}`);
       return false;
     }
 
@@ -1344,11 +1341,12 @@ try {
       return false;
     }
     this.setupProject(); // renderlock must be false
-    this.mode(`pollForStream`)
+    this.mode(`pollForStream ${reason}`)
     //////////////////////
     let result = this.popAndLock(); // renderock is on from touchLock
+
     //////////////////////
-    output(`File: ${ this.howMany } popAndLock result: ${ result } ${ this.currentFile}`);
+    output(`File: ${ this.howMany } popAndLock result: ${ result } ${ this.currentFile} reason: ${reason}`);
     this.howMany = this.args._.length + 1;
     this.filename = path.resolve( this.currentFile);  // not thread safe after here!
     if ( this.currentFile == undefined) {
@@ -1357,14 +1355,18 @@ try {
       output("currentFile is undefined")
       return false;
     }
+    // this.renderLock = false;
+    this.setupFNames();
+    this.renderLock = true;
+
     if ( this.checkFileExtension( this.currentFile) == false) {
       this.redoLine("File Format not supported: " + chalk.inverse( this.getFileExtension( this.currentFile)));
-      this.popAndLock();
-      this.pollForStream()
+      // this.popAndLock();
+      this.renderLock = false;
+      this.pollForStream('File Format not supported')
       // lookForWork('inside poll for stream. file format not support. ' + fixedWidth(24, this.currentFile) );
       return false;
     }
-    this.setupFNames();
     // this.bugtxt("PNG: " + this.justNameOfPNG);
     // this.bugtxt(`[ polling ${ this.nicePercent()} ${status} ${new Date()} ]`);
     // this.bugtxt(`[ this.howMany  ${this.howMany} ${status} ${ this.filename } ${ this.currentFile } ]`);
@@ -1374,7 +1376,7 @@ try {
     this.log(`>>> PREFLIGHT <<< ${this.howMany} ${ fixedWidth(24,  this.currentFile)} then ${ fixedWidth(24,  this.nextFile)}`);
 
 
-    if ( this.doesFileExist( this.filename )) {
+    if ( doesFileExist( this.filename )) {
       this.log('DNA Found OK');
     } else {
       pollForStream();
@@ -1489,12 +1491,10 @@ initStream() {
   } else { this.log('Begin') }
   termSize();
   this.resized();
-
   this.mode("Ω first command " + this.howMany + " " + this.currentFile);
   this.log( this.filename )
   this.log(status);
-
-
+  this.setIsDiskBusy( false );
   this.setupOutPaths();
   this.autoconfCodonsPerPixel();
   this.setupFNames();
@@ -1568,10 +1568,10 @@ initStream() {
 streamStarted() {
   this.mode('streamStarted');
   var that = this;
+  output('Started render');
   setTimeout(() => {
     if ( that.renderLock == true ) {
       if ( that.updates == true) {
-        output('Starting prgress monitors');
         that.drawHistogram()
       }
       that.progUpdate({ title: 'DNA File Render step 1/3', items: that.howMany, syncMode: true })
@@ -1879,27 +1879,7 @@ symlinkGUI(cb) { // does:  ln -s /Users.....AminoSee/public, /Users.....currentW
 // });
 // }
 // }
-createSymlink(src, dest) { // source is the original, dest is the symlink
-  this.log(src, " --> " , dest);
-  try { // the idea is to copy the GUI into the output folder to.... well enable it to render cos its a web app!
-    let existing = this.doesFileExist(dest);
-    if (existing == true) {
-      this.log(`symlink already appears to be in place at: ${dest}`);
-      return false;
-    } else {
-      // fs.symlink(src, dest, function (err, this.result) {
-      //   if (err) { console.warn(`Just a slight issue creating a symlink: ${err}`)}
-      //   if (result) { this.log(`Great Symlink Success ${result}`)}
-      // });
-      fs.symlinkSync(src, dest, function (err, result) {
-        if (err) { console.warn(`Just a slight issue creating a symlink: ${err}`)}
-        if (result) { this.log(`Great Symlink Success ${result}`)}
-      });
-    }
-  } catch(e) {
-    this.log("Symlink ${} could not created. Probably not an  this.error. " + maxWidth(12, "*" + e));
-  }
-}
+
 startHttpServer() {
   httpserver.createServer();
   this.log('server started')
@@ -1912,7 +1892,7 @@ showCountdown() {
 }
 blockingServer() {
   setupProject();
-  buildServer();  // copyGUI();  // startHttpServer()
+  cliInstance.buildServer();  // copyGUI();  // startHttpServer()
   server.startServeHandler();
   // startCrossSpawnHttp(); // requires http-server be installed globally
 
@@ -1921,55 +1901,8 @@ blockingServer() {
     showCountdown();
   }, max32bitInteger);
 }
-buildServer() {
-  this.openHtml = true;
-  webserverEnabled = true;
-  setupKeyboardUI();
-  setupOutPaths();
-  let sFiles = [
-    { "source": appPath + '/public',            "dest": this.outputPath + '/public' },
-    { "source": appPath + '/public/home.html', "dest": this.outputPath + '/home.html' },
-    { "source": appPath + '/public/favicon.ico',"dest": this.outputPath + '/favicon.ico' },
-  ];
-  sFiles.forEach(function(element) {
-    this.log('buildling ' + element.toString());
-    createSymlink(path.normalize(path.resolve(element.source)), path.normalize(path.resolve(element.dest)));
-  });
-}
-static launchNonBlockingServer(path, cb) {
 
 
-  buildServer();  // copyGUI();  // startHttpServer()
-  startCrossSpawnHttp(); // requires http-server be installed globally
-  // server.startCrossSpawnHttp(); // requires http-server be installed globally
-  // selfSpawn();
-  showCountdown();
-  return true;
-
-
-  // server.start(this.outputPath);
-  //
-  return true;
-
-  let handler = server.start(this.outputPath);//
-  serverURL =  server.getServerURL(path);
-  this.printRadMessage([
-    `Interactive this.keyboard this.mode ENABLED`,
-    `use this.keyboard to control AminoSee`,
-    `local webserver is running from:`,
-    chalk.underline(this.outputPath),
-    `${serverURL} <-- only your LAN  http://localhost:${port} <-- only your machine`,
-    'use Control-C to stop'
-  ]);
-  if (path == undefined) { path = "/" }
-  setupKeyboardUI();
-  // copyGUI();
-  // symlinkGUI();
-  if ( this.openHtml == true) {
-    openMiniWebsite(path);
-  }
-  // if (cb) { cb() }
-}
 
 // directoryListing: [
 //   "./*",
@@ -1991,6 +1924,7 @@ static launchNonBlockingServer(path, cb) {
 //   directoryListing: true
 // }
 selfSpawn() {
+
   const evilSpawn = spawn('aminosee', ['serve', '', '', '0'], { stdio: 'pipe' });
   evilSpawn.stdout.on('data', (data) => {
     console.log(`${chalk.inverse('aminosee-cli serve')}${chalk(': ')}${data}  ${evilSpawn.name}`);
@@ -2007,6 +1941,7 @@ selfSpawn() {
 }
 
 startCrossSpawnHttp() {
+  const spawn = require('cross-spawn');
 
 
   // Spawn NPM asynchronously
@@ -2034,12 +1969,12 @@ startCrossSpawnHttp() {
   // sp a: 'index.html',
   // websocket: 'src/websocket-server.js'
 
-  stat("Personal mini-Webserver starting up around this.now (hopefully) on port ${port}");
-  // stat(`visit ${server.getServerURL()} in your this.browser to see 3D WebGL visualisation`);
-  this.log( this.terminalRGB("ONE DAY this will serve up a really cool WebGL visualisation of your DNA PNG. That day.... is not today though.", 255, 240,10));
-  this.log( this.terminalRGB("IDEA: Maybe send some bitcoin to the under-employed creator tom@funk.co.nz to convince him to work on it?", 240, 240,200));
-  stat("Control-C to quit. This requires http-server, install that with:");
-  stat("sudo npm install --global http-server");
+  log("Personal mini-Webserver starting up around this.now (hopefully) on port ${port}");
+  // log(`visit ${server.getServerURL()} in your this.browser to see 3D WebGL visualisation`);
+  log( this.terminalRGB("ONE DAY this will serve up a really cool WebGL visualisation of your DNA PNG. That day.... is not today though.", 255, 240,10));
+  log( this.terminalRGB("IDEA: Maybe send some bitcoin to the under-employed creator tom@funk.co.nz to convince him to work on it?", 240, 240,200));
+  log("Control-C to quit. This requires http-server, install that with:");
+  log("sudo npm install --global http-server");
 }
 openMiniWebsite(path) {
   this.out(`Opening URL: ${server.getServerURL()}`)
@@ -2144,39 +2079,60 @@ countdown(text, timeMs, cb) {
   }
 }
 mkRenderFolders() {
+  this.log(`Making render folders for ${ this.justNameOfDNA}`)
   this.mkdir(); // create the output dir if it not exist
   this.mkdir( this.justNameOfDNA); // render dir
   this.mkdir(`${ this.justNameOfDNA}/images`);
 }
 fancyFilenames() {
   term.eraseDisplayBelow();
-  output();
+  output(chalk.bold(`Render Filenames for ${ this.justNameOfDNA}: ${this.pixelClock.toLocaleString()} pixels`));
   output(chalk.rgb(255, 255, 255).inverse( fixedWidth( this.debugColumns*2, `Input DNA File: ${ this.filename }`)));
   output(chalk.rgb(200,200,200).inverse(  fixedWidth( this.debugColumns*2, `Linear PNG: ${ this.justNameOfPNG }`)));
   output(chalk.rgb(150,150,150).inverse(  fixedWidth( this.debugColumns*2, `Hilbert PNG: ${ this.justNameOfHILBERT }`)));
-  output(chalk.rgb(100,100,180).inverse(  fixedWidth( this.debugColumns*2, `HTML ${ this.justNameOfHTML }`)));
+  output(chalk.rgb(100,100,180).inverse.underline(  fixedWidth( this.debugColumns*2, `HTML ${ this.filenameHTML }`)));
   output(chalk.rgb(80,80,120).bgBlue.inverse(fixedWidth( this.debugColumns*2, `${ this.filenameTouch.substring( this.filenameTouch.length -24, -1) } LOCKFILE`)));
 }
-saveDocsSync() {
-  this.mode('saveDocsSync');
-  this.isStorageBusy = true;
-  this.isDiskFinHTML = false;
-  this.isDiskFinHilbert = false;
-  this.isDiskFinLinear = false;
-
-  if ( this.renderLock == false) {
-    output("How is this even possible. this.renderLock should be true until all storage is complete");
-    // return false;
+setIsDiskBusy(boolean) {
+  if (boolean) { // busy!
+    this.isStorageBusy = true;
+    this.isDiskFinHTML = false;
+    this.isDiskFinHilbert = false;
+    this.isDiskFinLinear = false;
+  } else { // free!
+    this.isStorageBusy = false;
+    this.isDiskFinHTML = true;
+    this.isDiskFinHilbert = true;
+    this.isDiskFinLinear = true;
   }
-
-  if ( this.rgbArray.length < 64) {
-    this.log(`Not enough DNA in this file (${ this.currentFile }) `);
-    // setTimeout(() => {
-    this.resetAndMaybe();
-    // }, this.raceDelay )
+}
+saveDocsSync() {
+  let pixels, height, width = 0;
+  this.mode('saveDocsSync');
+  if ( this.renderLock == false) {
+    this.error("How is this even possible. this.renderLock should be true until all storage is complete");
     return false;
   }
-
+  try {
+    pixels = ( this.rgbArray.length / 4);
+  }
+  catch (err) {
+    this.error(`EXCEPTION DURING this.rgbArray.length / 4 = ${err}`);
+    setTimeout(() => {
+      this.resetAndMaybe();
+    }, this.raceDelay )
+    return false;
+  }
+  if ( pixels < 64) {
+    output(`Not enough DNA in this file (${ this.currentFile }) ONLY RENDERED ${pixels} pixels`);
+    setTimeout(() => {
+      this.resetAndMaybe();
+    }, this.raceDelay )
+    return false;
+  }
+  this.setIsDiskBusy( true );
+  output(chalk.inverse(`Finished linear render of ${ this.justNameOfDNA} ${ pixels } = ${ this.pixelClock }`))
+  this.mkRenderFolders(); // create /images etc
   this.percentComplete = 1;
   term.eraseDisplayBelow();
   const computerWants = this.optimumDimension (this.pixelClock);
@@ -2188,7 +2144,6 @@ saveDocsSync() {
   gbprocessed  = userprefs.aminosee.gbprocessed ;
   this.calcUpdate();
   this.clearCheck();
-  output(chalk.inverse(`Finished linear render of ${ this.justNameOfDNA} Saving docs out, waiting on ${ this.storage()} ${this.howMany} files to go`));
   this.fancyFilenames();
   var that = this; // closure
 
@@ -2210,7 +2165,7 @@ saveDocsSync() {
       that.saveHTML( );
 
       setTimeout(() => {
-cb ()
+        cb ()
         that.openOutputs();
       }, that.raceDelay)
     }
@@ -2269,11 +2224,10 @@ saveHTML(cb) {
 fileWrite(file, contents, cb) {
   this.mkRenderFolders();
   var that = this;
-  // setTimeout(()=> {
     try {
       fs.writeFile(file, contents, 'utf8', function (err, cb) {
         if (err) {
-          // this.error(`[FileWrite] Issue with saving: ${ file } ${err}`)
+          that.bugtxt(`[FileWrite] Issue with saving: ${ file } ${err}`)
         } else {
           try {
             that.bugtxt('Set permissions for file: ' + file);
@@ -2283,7 +2237,7 @@ fileWrite(file, contents, cb) {
             that.bugtxt('Could not set permission for file: ' + file + ' due to ' + e);
           }
         }
-        that.log('¢ ' + file.substring(file.length-12, file.length));
+        that.log('¢ ' + file);
         if (cb) { cb() }
       });
       console.log('$');
@@ -2291,9 +2245,6 @@ fileWrite(file, contents, cb) {
       that.log(`[catch] Issue with saving: ${file} ${err}`);
       if (cb) { cb() }
     }
-  // }, this.raceDelay * 3)
-
-
 }
 touchLockAndStartStream() { // saves CPU waste. delete lock when all files are saved, not just the png.
   this.mode("touchLockAndStartStream");
@@ -2460,8 +2411,9 @@ popAndLock() {
   return 'success';
 }
 postRenderPoll(reason) { // renderLock on late, off early
+  output(chalk.inverse(`Saving docs out, waiting on ${ this.storage()} ${this.howMany} files to go. This: [${reason}]`));
   if ( this.test) { return false; }
-  if ( this.renderLock != true) { // re-entrancy filter
+  if ( this.renderLock !== true) { // re-entrancy filter
     this.error("Not rendering (may halt), but ente this.red  postRenderPoll: " + reason)
     return true
   }
@@ -2472,7 +2424,7 @@ postRenderPoll(reason) { // renderLock on late, off early
   this.log(chalk.inverse( fixedWidth(24, this.justNameOfDNA))  + " postRenderPoll reason: " + reason);
   if ( this.isDiskFinLinear == true && this.isDiskFinHilbert == true  && this.isDiskFinHTML == true ) {
     this.log(` [ storage threads ready: ${chalk.inverse( this.storage() )} ] `);
-    this.isStorageBusy = false;
+    this.setIsDiskBusy( false );
     setTimeout( () => {
       var cb = this.pollForStream;
       this.removeLocks(cb);
@@ -2534,7 +2486,7 @@ checkFileExtension(f) {
 
 quit(n, txt) {
   if (n == undefined) { n = 0 }
-
+  output("Received quit()");
   if ( this.isDiskFinLinear && this.isDiskFinHilbert && this.isDiskFinHTML) {
     if ( this.renderLock == true ) {
       this.log("still rendering") // maybe this happens during gracefull shutdown
@@ -2817,39 +2769,39 @@ processLine(l) {
              this.mixRGBA[1] =   0;
              this.mixRGBA[2] =   0;
             //
-          } else { // non highlight pixel
+          } else { // non highlight pixel end // ARTISTIC MODE BELOW
             this.red  = 0;
             this.green  = 0;
             this.blue  = 0;
-            this.alpha = 255; //Full black
-            this.paintPixel(); // START WITH BLACK
+            this.alpha = 255; // Full black
+            this.paintPixel(); // 1. START WITH BLACK
             this.red  =  this.mixRGBA[0]/2;
             this.green  =  this.mixRGBA[1]/2;
             this.blue  =  this.mixRGBA[2]/2;
             this.alpha = 128; // HALF TRANSLUCENT GLINT
-            this.paintPixel();
+            this.paintPixel(); // 2.
             this.red  += 99; // <-- THIS IS THE WHITE GLINT
             this.green  += 99; // <-- THIS IS THE WHITE GLINT
             this.blue  += 99; // <-- THIS IS THE WHITE GLINT
             this.alpha = 255; // fully opaque from here
-            this.paintPixel();
+            this.paintPixel(); // 3.
             this.red  =  this.mixRGBA[0];
             this.green  =  this.mixRGBA[1];
             this.blue  =  this.mixRGBA[2];
-            this.paintPixel(); // <<--- Full colour pixel! from here it fades out
+            this.paintPixel(); // 4. <<--- Full colour pixel! from here it fades out
 
             for(let ac = 0; ac < artisticHighlightLength - 5; ac++ ) { // Subtract the four pix above and the one below
               this.red  =  this.red  / 1.2;
               this.green  =  this.green  / 1.2;
               this.blue  =  this.blue  / 1.2;
-              this.paintPixel();
+              this.paintPixel(); // 12 - 4 = 7 cycles hopefully
             }
 
             this.red  =  this.red  / 1.1;
             this.green  =  this.green  / 1.1;
             this.blue  =  this.blue  / 1.1;
             this.alpha = 128;
-            this.paintPixel();
+            this.paintPixel(); // 12th.
             // reset inks:
              this.pixelStacking = 0;
              this.mixRGBA[0] =   0;
@@ -2889,7 +2841,7 @@ getImageType() {
   if ( this.args.ratio) {
     t += `_${ this.ratio }`;
   }
-  ( this.artistic ? t += "_this.artistic" : t += "_sci")
+  ( this.artistic ? t += "_artistic" : t += "_sci")
   return t;
 }
 generateFilenameTouch() { // we need the *fullpath* of this one
@@ -3181,14 +3133,14 @@ recycleOldImage(pngfile) {
     output(`Failure during recycling: ${e} will poll for work`);
     this.isDiskFinHilbert = true;
     // this.lookForWork(`recycle fail`);
-    this.pollForStream()
+    this.pollForStream(`recycle fail`)
     return false;
   }
 }
 
 skipExistingFile (fizzle) { // skip the file if TRUE render it if FALSE
   if ( this.force == true) { return false; } // true means to skip render
-  let result = this.doesFileExist(fizzle);
+  let result = doesFileExist(fizzle);
   this.bugtxt('skipExistingFile ' + fizzle + "force: " + this.force + " result: " + result)
   this.bugtxt(`The file is: ${fizzle} which ${( result ? 'DOES' : 'does NOT')} exist`)
 
@@ -3235,37 +3187,7 @@ doesFolderExist(f) {
 }
 // module.exports.doesFileExist = function(f) {
 
-doesFileExist(f) {
-  if (f == undefined) { return false; } // adds stability to this rickety program!
-  // f = path.resolve(f);
 
-  try {
-    if (fs.existsSync(f)) {
-      //file exists
-      return true;
-    } else {
-      return false;
-    }
-  } catch(err) {
-    console.error(err)
-    return false;
-  }
-  return false;
-  //
-  // try {
-  //   let result = fs.existsSync(f);
-  //   if (result==true) {
-  //     this.log( fixedWidth( this.debugColumns*2, result + " FILE EXISTS: " + f ))
-  //     return true;
-  //   } else {
-  //     this.log( fixedWidth( this.debugColumns*2, result + " FILE EXISTS: " + f ))
-  //     return false;
-  //   }
-  // } catch(err) {
-  //   this.bugtxt(err);
-  // }
-  // return false;
-}
 stat(txt) {
   console.log(`stat: ${txt}`);
 }
@@ -3336,7 +3258,6 @@ calculateShrinkage() { // danger: can change this.filenames of Hilbert images!
   // this.dimension; // for this.filenames
   // this.codonsPerPixelHILBERT = twosigbitsTolocale( this.codonsPerPixel* this.shrinkFactor );
   this.codonsPerPixelHILBERT = this.codonsPerPixel* this.shrinkFactor;
-  // setupFNames(); // <<--- this is bad.
   this.filenameHILBERT = `${ this.outputPath }/${ this.justNameOfDNA}/images/${ this.generateFilenameHilbert() }`;
 
   this.bugtxt(` this.shrinkFactor pre ${  this.shrinkFactor } = linearpix ${linearpix } /  hilpix ${hilpix}  `);
@@ -3350,7 +3271,7 @@ saveHilbert(cb) {
   if ( this.isHilbertPossible  == true) {
     this.log("projecting linear array to 2D hilbert curve");
   } else {
-    this.log("Cant output hilbert image when using this.artistic this.mode");
+    this.log("Cant output hilbert image when using artistic mode");
     this.isDiskFinHilbert = true; // doesnt trigger a re-poll.
     // hilbertFinished();
     cb();
@@ -3481,7 +3402,7 @@ termDrawImage(fullpath) {
   this.bugout(this.previousImage)
   term.moveTo( 0, 0 );
   term.drawImage( this.previousImage , { shrink: { width: term.width,  height: term.height } } )
-  output(replaceoutputPathFileName(this.previousImage))
+  output("Previous image: " +  replaceoutputPathFileName(this.previousImage))
   // term.restoreCursor()
 }
 bothKindsTestPattern() {
@@ -3567,21 +3488,6 @@ bothKindsTestPattern() {
     }
     catch (err) {
       this.error(`NOT ENOUGH PIXELS ${err}`);
-      resetAndMaybe();
-      return false;
-    }
-
-    if ( this.pixelClock == 0) {
-      this.error("No DNA or RNA in this file sorry?! You sure you gave a file with sequences? Like: GCCTCTATGACTGACGTA" + this.filename);
-      this.isDiskFinHTML = this.isDiskFinLinear = this.isDiskFinHilbert = true;
-      // this.lookForWork('No DNA or RNA in this file sorry?!');
-      // this.pollForStream();
-      resetAndMaybe();
-      if (cb != undefined ) { cb( ) }
-      return false;
-    } else if ( this.pixelClock == -1) {
-      output("Cant save " + this.filename);
-      if (cb) { cb() }
       resetAndMaybe();
       return false;
     }
@@ -3743,7 +3649,7 @@ getRegmarks() {
   return ( this.reg == true ? "_reg" : "" )
 }
 mkdir(relative) { // returns true if a fresh dir was created
-  if (!relative) { relative = ''}
+  if ( relative === undefined) { relative = ''}
   let dir2make = path.resolve( `${ this.outputPath }/${relative}` );
   if ( this.doesFolderExist(this.outputPath) == false) {
     try {
@@ -4028,11 +3934,9 @@ bugout(txt) {
 }
 redoLine(txt) {
   term.eraseLine();
-  console.log(maxWidth( this.tx - 1, txt));
+  console.log(maxWidth( this.tx - 2, txt));
   term.up( 1 ) ;
 }
-
-
 setDebugCols() {
   if (term.width > 200) {
   } else {
@@ -4653,16 +4557,16 @@ clout(txt) {
     */
     copyRecursiveSync(src, dest) {
       this.log(`Will try to recursive copy from ${src} to ${dest}`)
-      var exists = this.doesFileExist(src);
+      var exists = doesFileExist(src);
       var stats = exists && fs.statSync(src);
       var isDirectory = exists && stats.isDirectory();
-      var existsDest = this.doesFileExist(dest);
+      var existsDest = doesFileExist(dest);
       if (existsDest) {
         this.log(`Remove the ${dest} folder or file, then I can rebuild the web-server`);
         return false;
       }
       if (exists && isDirectory) {
-        var exists = this.doesFileExist(dest);
+        var exists = doesFileExist(dest);
         if (exists) {
           this.log("Remove the /public/ folder and also /index.html, then I can rebuild the web-server");
           return false;
@@ -5101,12 +5005,106 @@ function addJob(commandArray) {
   // this.log(chalk.inverse(`ADD JOB CALLED: `) + commandArray.toString() + ` isElectron: [${isElectron}]`)
   let thread = new AminoSeeNoEvil();
   thread.addJob(commandArray);
-
-  // AminoSeeNoEvil.setupApp(commandArray);
 }
+function  launchNonBlockingServer(path, cb) {
+
+
+  buildServer();  // copyGUI();  // startHttpServer()
+  log("Personal mini-Webserver starting up around this.now (hopefully) on port ${port}.");
+  cliInstance.startCrossSpawnHttp(); // requires http-server be installed globally
+  server.startCrossSpawnHttp(); // requires http-server be installed globally
+  // selfSpawn();
+  showCountdown();
+  return true;
+
+
+  // server.start(this.outputPath);
+  //
+  return true;
+
+  let handler = server.start(this.outputPath);//
+  serverURL =  server.getServerURL(path);
+  this.printRadMessage([
+    `Interactive this.keyboard this.mode ENABLED`,
+    `use this.keyboard to control AminoSee`,
+    `local webserver is running from:`,
+    chalk.underline(this.outputPath),
+    `${serverURL} <-- only your LAN  http://localhost:${port} <-- only your machine`,
+    'use Control-C to stop'
+  ]);
+  if (path == undefined) { path = "/" }
+  cliInstance.setupKeyboardUI();
+  // copyGUI();
+  // symlinkGUI();
+  if ( this.openHtml == true) {
+    openMiniWebsite(path);
+  }
+  // if (cb) { cb() }
+}
+
+function buildServer() {
+  // this.openHtml = true;
+  webserverEnabled = true;
+  cliInstance.setupKeyboardUI();
+  cliInstance.setupOutPaths();
+
+  let sFiles = [
+    { "source": appPath + '/public',            "dest": cliInstance.outputPath + '/public' },
+    { "source": appPath + '/public/home.html', "dest": cliInstance.outputPath + '/home.html' },
+    { "source": appPath + '/public/favicon.ico',"dest": cliInstance.outputPath + '/favicon.ico' },
+  ];
+  sFiles.forEach(function(element) {
+    log('buildling ' + element.toString());
+    createSymlink(path.normalize(path.resolve(element.source)), path.normalize(path.resolve(element.dest)));
+  });
+}
+function log(txt) {
+  cliInstance.log(txt)
+}
+function createSymlink(src, dest) { // source is the original, dest is the symlink
+  log(src, " --> " , dest);
+  try { // the idea is to copy the GUI into the output folder to.... well enable it to render cos its a web app!
+    let existing = doesFileExist(dest);
+    if (existing == true) {
+      log(`symlink already appears to be in place at: ${dest}`);
+      return false;
+    } else {
+      // fs.symlink(src, dest, function (err, this.result) {
+      //   if (err) { console.warn(`Just a slight issue creating a symlink: ${err}`)}
+      //   if (result) { this.log(`Great Symlink Success ${result}`)}
+      // });
+      fs.symlinkSync(src, dest, function (err, result) {
+        if (err) { console.warn(`Just a slight issue creating a symlink: ${err}`)}
+        if (result) { log(`Great Symlink Success ${result}`)}
+      });
+    }
+  } catch(e) {
+    log("Symlink ${} could not created. Probably not an  this.error. " + maxWidth(12, "*" + e));
+  }
+}
+function doesFileExist(f) {
+  if (f == undefined) { return false; } // adds stability to this rickety program!
+  f = path.resolve(f);
+  let result = false;
+  try {
+    result = fs.existsSync(f);
+    if (result == true ) {
+      log( fixedWidth( term.width/2, result + " FILE EXISTS: " + f ))
+      return true; //file exists
+    } else {
+      result = false;
+    }
+  } catch(err) {
+    console.error(err)
+    result = false;
+  }
+  log( fixedWidth( term.width/2, result + " NOT EXISTS: " + f ))
+  return result;
+}
+
   var that = this;
   process.on("SIGTERM", () => {
-    that.removeLocks();
+    // that.removeLocks();
     // this.gracefulQuit();
     this.destroyProgress();
     process.exitCode = 130;
@@ -5114,7 +5112,7 @@ function addJob(commandArray) {
     // process.exit(); // this.now the "exit" event will fire
   });
   process.on("SIGINT", function() {
-    that.removeLocks();
+    // that.removeLocks();
     // this.gracefulQuit();
     this.destroyProgress();
     process.exitCode = 130;
@@ -5128,16 +5126,17 @@ function addJob(commandArray) {
   // module.exports.gracefulQuit = gracefulQuit;
   // module.exports.gracefulQuit = (code) => { this.gracefulQuit(code) }
   // module.exports.log = (txt) => { this.log(txt) }
-  // module.exports.log = () => {
+  module.exports.log = log;
+  module.exports.output = output;
   // this.log("hellow world")
   // }
 
   // module.exports.quit = (code) => { this.quit(code) }
-  // module.exports.doesFileExist = (file) => { this.doesFileExist(file) }
+  // module.exports.doesFileExist = (file) => { doesFileExist(file) }
   // module.exports.this.outputPath = () => { this.outputPath }
   //
   //
-  // module.exports.doesFileExist = this.doesFileExist;
+  module.exports.doesFileExist = doesFileExist;
   // module.exports.blurb = this.blurb;
   // module.exports.fileWrite = this.fileWrite;
   // module.exports.version = this.version;

@@ -8,7 +8,7 @@ const extensions = [ "txt", "fa", "mfa", "gbk", "dna"] // replace with that from
 const path = require('path')
 const spawn = require('cross-spawn');
 let threads = [ ]; // these will be threads from spawn
-let mainWindow, devmode, thread;
+let mainWindow, devmode;
 console.log(`main.js process.argv.toString(): [${process.argv.toString()}]`)
 
 // Keep a global reference of the window object, if you don't, the window will
@@ -64,8 +64,7 @@ function pushCli(commandString) {
   console.log(`commandString: [${commandString}]`);
   commandString = `node aminosee ${commandString} --html --image`;
   let commandArray = commandString.split("\\s+");
-
-  thread = aminosee();
+  let thread = aminosee();
   thread = aminosee.addJob( commandArray );
   threads.push( thread );
 
