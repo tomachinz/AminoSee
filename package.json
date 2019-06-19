@@ -62,7 +62,7 @@
     "sliced": "^1.0.1",
     "spdy": "^4.0.0",
     "stream-file": "^0.2.4",
-    "terminal-kit": "^1.28.0",
+    "terminal-kit": "^1.28.1",
     "three": "^0.105.2",
     "through": "^2.3.8",
     "uniq": "^1.0.1",
