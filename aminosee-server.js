@@ -5,7 +5,6 @@ const path = require('path');
 const os = require("os");
 const httpserver = require('http-server'); // cant have - in js
 const spawn = require('cross-spawn');
-
 const lockFileMessage = `
 aminosee.funk.nz DNA Viewer by Tom Atkinson.
 This is a temporary lock file, so I dont start too many servers. Its safe to erase these files, and I've made a script in /dna/ to batch delete them all in one go. Normally these are deleted when render is complete, or with Control-C and graceful shutdown.`;
@@ -92,7 +91,7 @@ module.exports = (options) => {
     const { headers, method, url } = request;
     let body = [];
     request.on('error', (err) => {
-      console.error(err);
+      console.error(`err from createServer ${createServer}`);
     }).on('data', (chunk) => {
       console.log('data from web');
       body.push(chunk);
@@ -173,9 +172,10 @@ function close() {
 }
 
 function setOutputPath(o) {
+  aminosee.outputPath;
   this.outputPath = o;
   this.filenameServerLock = path.resolve(`${outputPath}/aminosee_server_lock.txt`);
-  console.log(o);
+  // console.log(`o ` + this.outputPath);
 }
 
 function stop() {
@@ -212,6 +212,7 @@ function log(txt) {
   console.log(txt)
   // aminosee.output(txt)
 }
+
 function output(txt) {
   console.log(txt)
   // aminosee.output(txt)

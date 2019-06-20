@@ -9,7 +9,7 @@ const path = require('path')
 const spawn = require('cross-spawn');
 let threads = [ ]; // these will be threads from spawn
 let mainWindow, devmode;
-console.log(`main.js process.argv.toString(): [${process.argv.toString()}]`)
+// console.log(`main.js process.argv.toString(): [${process.argv.toString()}]`)
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -67,34 +67,6 @@ function pushCli(commandString) {
   let thread = aminosee();
   thread = aminosee.addJob( commandArray );
   threads.push( thread );
-
-  //
-  // var cliInstance = new AminoSeeNoEvil();
-  // cliInstance.addJob(process.argv);
-
-  // let aWeeJobby = AminoSeeNoEvil('test');
-  // aWeeJobby.addJob('demo');
-
-  // aminosee.cli(commandString)
-  // setTimeout(() => {
-  //   console.log(`!random!`);
-  //   pushCli('w hi')
-  // }, Math.random() * 30000)
-  // threads.push( spawn('aminosee'  , [commandString, '--html'], { stdio: 'pipe' }) );
-  //
-  // threads[0].stdout.on('data', (data) => {
-  //   console.log(`aminosee main.js [ ${data} ]`);
-  // });
-  // threads[0].stderr.on('data', (data) => {
-  //   console.log(`aminosee main.js [ ${data} ]`);
-  // });
-  // threads[0].on('close', (code) => {
-  //   // console.log(`aminosee main.js [ ${data} ]`);
-  //   console.log(`child process exited with code ${code}`);
-  //   threads.pop();
-  // });
-  // console.log(`threads.length: [ ${threads.length}]`);
-  // console.log(`process.title: [ ${threads.title}]`);
 }
 function createWindow () {
   const electron = require('electron');
@@ -151,11 +123,11 @@ function setupEvents() {
     event.returnValue = 'pong'
   })
   ipcMain.on('asynchronous-message', (event, arg) => {
-    console.log(arg) // prints "ping"
+    console.log(`asynchronous msg: ${arg}`) // prints "ping"
     event.sender.send('asynchronous-reply', 'pong')
   })
   ipcMain.on('synchronous-message', (event, arg) => {
-    console.log(arg) // prints "ping"
+    console.log(`synchronous msg: ${arg}`) // prints "ping"
     event.returnValue = 'pong'
   })
   ipcMain.on('ondragstart', (event, filePath) => {
