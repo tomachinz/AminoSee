@@ -10,10 +10,12 @@ const lockFileMessage = `
 aminosee.funk.nz DNA Viewer by Tom Atkinson.
 This is a temporary lock file, so I dont start too many servers. Its safe to erase these files, and I've made a script in /dna/ to batch delete them all in one go. Normally these are deleted when render is complete, or with Control-C and graceful shutdown.`;
 const version = aminosee.version;
+// let terminalRGB = function (txt) { aminosee.terminalRGB(txt) }
+// let terminalRGB = require('./aminosee-cli').terminalRGB;
 let outputPath = aminosee.outputPath;//path.normalize(path.resolve(os.homedir + outFoldername))  // default location after checking overrides
 let filenameServerLock = outputPath
 
-let log = aminosee.output;
+// let output = aminosee.output;
 setOutputPath(outputPath)
 // let port = 4321;
 let port = 43210;
@@ -35,12 +37,12 @@ function startCrossSpawnHttp() {
     console.log(`child process quit with code ${code}`);
   });
 
-   log("Personal mini-Webserver starting up around now (hopefully) on port ${port}");
+  log("Personal mini-Webserver starting up around now (hopefully) on port ${port}");
   //  log(`visit ${server.getServerURL()} in your browser to see 3D WebGL visualisation`);
   log(terminalRGB("ONE DAY this will serve up a really cool WebGL visualisation of your DNA PNG. That day.... is not today though.", 255, 240,10));
   log(terminalRGB("IDEA: Maybe send some bitcoin to the under-employed creator tom@funk.co.nz to convince him to work on it?", 240, 240,200));
-   log("Control-C to quit. This requires http-server, install that with:");
-   log("sudo npm install --global http-server");
+  log("Control-C to quit. This requires http-server, install that with:");
+  log("sudo npm install --global http-server");
 }
 
 function startServeHandler() {
@@ -156,7 +158,6 @@ function stop() {
   }
 }; module.exports.stop = stop;
 
-module.exports.startServeHandler = startServeHandler;
 
 function close() {
   try {
@@ -207,7 +208,23 @@ function serverLock() {
     return true;
   } else { return false }
 }
+function log(txt) {
+  console.log(txt)
+  // aminosee.output(txt)
+}
+function output(txt) {
+  console.log(txt)
+  // aminosee.output(txt)
+}
+// module.exports.startServeHandler = startServeHandler;
+function terminalRGB(_text, _r, _g, _b) {
+    return chalk.rgb(_r,_g,_b)(_text);
 
+    if (_r+_g+_b >= 256.0) {
+      _text += "\x1b[44m"; // add some black background if its a light colour
+    }
+    return "\x1b[38;2;" + _r + ";" + _g + ";" + _b + "m" + _text + "\x1b[0m";
+  };
 module.exports.getServerURL = () => { getServerURL() }
 module.exports.startServeHandler = () => { startServeHandler() }
 module.exports.startCrossSpawnHttp = () => { startCrossSpawnHttp() }
