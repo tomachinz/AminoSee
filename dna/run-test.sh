@@ -12,6 +12,9 @@ nice aminosee $FAST $1 $2 $3 $4 $5 $6  --peptide="aspartic ACID"
 # echo 'doing   $1 $2 $3 $4 $5 $6  --peptide="gluTAMIC aCID"'
 nice aminosee  $FAST      $1 $2 $3 $4 $5 $6 -f --peptide="gluTAMIC aCID"
 
+echo TESTING GARBAGE FILENAMES FUZZING THAT KINDA THING
+nice aminosee 27MB_TestPattern.txt asdfadsf 50KB_TestPattern.txt * qwert  1KB_TestPattern.txt
+
 # echo "nice aminosee $1 $2 $3 $4 $5 $6 --triplet ggg --ratio=sqr"
 nice aminosee   $FAST     $1 $2 $3 $4 $5 $6 --triplet ggg --ratio=sqr
 
