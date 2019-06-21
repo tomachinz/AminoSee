@@ -112,7 +112,7 @@ module.exports = () => {
     cliInstance.log(`aminosee-cli.js cliInstance.log() process.argv.toString(): [${process.argv.toString()}]`)
   }
 }
-// let radMessage, opensExplorer, this.debugColumns, height,  this.mixRGBA, this.rgbArray,  isStreamingPipe,  filenameHILBERT,  this.justNameOfHTML,  users, present, peptide, ratio,  this.magnitude,  this.openImage, usersOutpath, projectprefs, userprefs, eak this.green ,   cliInstance.progato, userCPP, startDate, started, this.previousImage, this.charClock,  this.genomeSize, cliruns,  gbprocessed , progTimer, this.hilbertImage, keyboard, filenameTouch, filenameServerLock, estimatedPixels, args, filenamePNG, extension, reader, hilbertPoints, herbs, levels, mouseX, mouseY, windowHalfX, windowHalfY, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, fileUploadShowing, testColors, chunksMax, chunksize, chunksizeBytes, cpu, subdivisions, contextBitmap, this.aminoacid, pixelClock, start, updateClock, bytesPerMs,  this.pixelStacking, this.isHighlightCodon,  this.justNameOfPNG,  this.justNameOfHILBERT, sliceDNA, filenameHTML, msElapsed, bytesRemain, width, triplet, updatesTimer, pngImageFlags, codonsPerPixel, codonsPerPixelHILBERT, this.red, this.green, this.blue, this.alpha,  errorClock, this.breakClock, this.streamLineNr,  this.opacity , this.codonRGBA, currentTriplet,  this.currentPeptide,  this.shrinkFactor, reg, image, this.loopCounter,  this.percentComplete,  this.baseChars, bigIntFileSize, currentPepHighlight, justNameOfCurrentFile ,  this.openHtml,  this.openFileExplorer , pixelStream, startPeptideIndex, stopPeptideIndex, flags, loadavg, platform, totalmem, correction, aspect, this.debugFreq, help, tx, ty, this.lockTimer,  this.opensFile,  this.opensImage,  this.opensHtml, instanceCLI;
+// let radMessage, opensExplorer, this.debugColumns, height,  this.mixRGBA, this.rgbArray,  isStreamingPipe,  filenameHILBERT,  this.justNameOfHTML,  users, present, peptide, ratio,  this.magnitude,  this.openImage, usersOutpath, projectprefs, userprefs, eak this.green ,   this.progato, userCPP, startDate, started, this.previousImage, this.charClock,  this.genomeSize, cliruns,  gbprocessed , progTimer, this.hilbertImage, keyboard, filenameTouch, filenameServerLock, estimatedPixels, args, filenamePNG, extension, reader, hilbertPoints, herbs, levels, mouseX, mouseY, windowHalfX, windowHalfY, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, fileUploadShowing, testColors, chunksMax, chunksize, chunksizeBytes, cpu, subdivisions, contextBitmap, this.aminoacid, pixelClock, start, updateClock, bytesPerMs,  this.pixelStacking, this.isHighlightCodon,  this.justNameOfPNG,  this.justNameOfHILBERT, sliceDNA, filenameHTML, msElapsed, bytesRemain, width, triplet, updatesTimer, pngImageFlags, codonsPerPixel, codonsPerPixelHILBERT, this.red, this.green, this.blue, this.alpha,  errorClock, this.breakClock, this.streamLineNr,  this.opacity , this.codonRGBA, currentTriplet,  this.currentPeptide,  this.shrinkFactor, reg, image, this.loopCounter,  this.percentComplete,  this.baseChars, bigIntFileSize, currentPepHighlight, justNameOfCurrentFile ,  this.openHtml,  this.openFileExplorer , pixelStream, startPeptideIndex, stopPeptideIndex, flags, loadavg, platform, totalmem, correction, aspect, this.debugFreq, help, tx, ty, this.lockTimer,  this.opensFile,  this.opensImage,  this.opensHtml, instanceCLI;
 
 
 
@@ -684,7 +684,7 @@ class AminoSeeNoEvil {
   }
   setupProgress() {
     if ( this.updateProgress == true) {
-      cliInstance.progato = term.progressBar({
+      this.progato = term.progressBar({
         width: term.width - 20,
         title: `Booting up at ${ this.formatAMPM( new Date())} on ${hostname}`,
         eta: true,
@@ -694,6 +694,19 @@ class AminoSeeNoEvil {
       term.moveTo(1 + this.termMarginLeft,1 + this.termMarginTop);
       this.drawProgress();
     }
+  }
+  destroyProgress() { // this.now thats a fucking cool name if ever there was!
+    // if (this.howMany == -1) {
+    // }
+    if ( this.updateProgress == true) {
+      if ( this.progato !== undefined) {
+        this.progato.stop();
+        //  this.progato = null;
+      }
+    }
+    clearTimeout( this.updatesTimer);
+    clearTimeout( this.progTimer);
+    clearTimeout( this.lockTimer);
   }
   bugtxt(txt) { // full this.debug output
     if (this.quiet == false && this.debug == true && this.devmode == true && this.verbose == true)  {
@@ -911,7 +924,7 @@ class AminoSeeNoEvil {
 
   progUpdate(obj) {  // allows to disable all the prog bars in one place
     if ( this.updateProgress == true) {
-      if ( cliInstance.progato !== undefined && obj !== undefined) {
+      if ( this.progato !== undefined && obj !== undefined) {
         this.progato.update(obj);
       }
     } else {
@@ -2529,7 +2542,7 @@ class AminoSeeNoEvil {
     }
     this.bugtxt(`percent complete ${  this.percentComplete}`);
     destroyKeyboardUI();
-    destroyProgress();
+    this.destroyProgress();
     this.calcUpdate();
     if (killServersOnQuit == true) {
       if (webserverEnabled == true && n == 130) { // control-c kills server
@@ -4137,7 +4150,7 @@ clout(txt) {
   drawHistogram() {
     if ( this.updatesTimer) { clearTimeout( this.updatesTimer)};
     if ( this.renderLock == false ) { this.bugtxt("render lock failed inside drawHistogram"); this.rawDNA = "!"; return false; }
-    if ( this.updateProgress) {  this.fastUpdate();   this.progUpdate(  this.percentComplete); }
+    if ( this.updateProgress == true) {  this.fastUpdate();   this.progUpdate(  this.percentComplete); }
     if ( !this.updates) { this.bugtxt("updates disabled"); return false; }
     // let tb = new term.TextBuffer( )
     // let textBuffer = "";
@@ -5140,19 +5153,7 @@ function doesFolderExist(f) {
   output(`${(folder)}`)
   return ret;
 }
-function destroyProgress() { // this.now thats a fucking cool name if ever there was!
-  // if (this.howMany == -1) {
-  // }
-  if ( this.updateProgress == true) {
-    if ( this.progato !== undefined) {
-      this.progato.stop();
-      //  cliInstance.progato = null;
-    }
-  }
-  clearTimeout( this.updatesTimer);
-  clearTimeout( this.progTimer);
-  clearTimeout( this.lockTimer);
-}
+
 function streamingZip(f) {
   zipfile = path.resolve(f);
   fs.createReadStream(zipfile)
@@ -5180,7 +5181,7 @@ var that = this;
 process.on("SIGTERM", () => {
   // that.removeLocks();
   // this.gracefulQuit();
-  // destroyProgress();
+  // this.destroyProgress();
   process.exitCode = 130;
   this.quit(130);
   // process.exit(); // this.now the "exit" event will fire
@@ -5188,7 +5189,7 @@ process.on("SIGTERM", () => {
 process.on("SIGINT", function() {
   // that.removeLocks();
   // this.gracefulQuit();
-  // destroyProgress();
+  // this.destroyProgress();
   process.exitCode = 130;
   // this.quit(130);
 });
