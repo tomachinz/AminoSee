@@ -203,7 +203,7 @@ class AminoSeeNoEvil {
       string: [ 'width'],
       unknown: [ true ],
       alias: { a: 'artistic', b: 'dnabg', c: 'codons', d: 'devmode', f: 'force', h: 'help', k: 'keyboard', m: ' magnitude', o: 'outpath', out: 'outpath', output: 'outpath', p: 'peptide', i: 'image', t: 'triplet', q: 'quiet', r: 'reg', w: 'width', v: 'verbose', x: 'explorer', finder: 'explorer'  },
-      default: { image: true, updates: true, dnabg: true, clear: false, explorer: false, quiet: false, gui: true, keyboard: true, progress: true }
+      default: { image: true, updates: true, dnabg: false, clear: false, explorer: false, quiet: false, gui: true, keyboard: false, progress: false }
     });
 
     let cmd = this.args._[0];
@@ -672,21 +672,21 @@ class AminoSeeNoEvil {
         return true;
       } else {
         this.currentFile = this.args._[0].toString();
-        // output('Loading: '+ this.currentFile )
-        // try {
-        //   this.filename =  path.resolve( this.currentFile );
-        // } catch(e) {
-        //   this.lookForWork('first command ' + e)
-        //   return false;
-        // }
+        output('Loading: '+ this.currentFile )
+        try {
+          this.filename =  path.resolve( this.currentFile );
+        } catch(e) {
+          this.lookForWork('first command ' + e)
+          return false;
+        }
         this.log("Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω " + this.currentFile)
         mode("Ω first command " + this.howMany + " " + this.currentFile);
         this.startDate = new Date(); // requi this.red  for touch locks.
         this.started = this.startDate.getTime(); // requi this.red  for touch locks.
         this.setupProject();
         // this.touchLockAndStartStream();
-        this.lookForWork('Ω first command');
-        // this.pollForStream('Ω first command');
+        // this.lookForWork('Ω first command');
+        this.pollForStream('Ω first command');
         return true;
       }
       status = "leaving switch";
@@ -1367,6 +1367,7 @@ class AminoSeeNoEvil {
       this.log(`outa work`)
       return false;
     }
+    this.setupProject(); // renderlock must be false
     mode(`pollForStream ${reason}`)
     //////////////////////
     let result = this.popAndLock(); // renderock is on from touchLock
@@ -1382,6 +1383,11 @@ class AminoSeeNoEvil {
     }
     if ( this.currentFile == undefined) {
       output("currentFile is undefined")
+      this.resetAndMaybe();
+      return false;
+    }
+    if (doesFileExist(this.filename) == false) {
+      output("currentFile is not exist")
       this.resetAndMaybe();
       return false;
     }
@@ -4205,7 +4211,7 @@ clout(txt) {
         term.moveTo(1,1);
       }
       this.rawDNA = this.rawDNA.substring(0, termPixels);
-      output(chalk.inverse.grey.bgBlack(rawDNA));
+      output(chalk.inverse.grey.bgBlack( this.rawDNA));
       // term.up(rawDNA.length/term.width);
       // if ( this.clear== true) {
       term.moveTo(1 + this.termMarginLeft,1);

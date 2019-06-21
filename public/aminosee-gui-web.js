@@ -9,7 +9,9 @@ log('Electron mode: ' + isElectron + " window.location: " + window.location);
 let autostopdelay = 300; // seconds
 let downloaderDisabled;
 let levels = 2; // default 2
-let cubes = 0; // 1 gives just the row of three at bottom. 2 gives two rows for 6 boxes.
+// let cubes = 0; // 1 gives just the row of three at bottom. 2 gives two rows for 6 boxes.
+// let cubes = 0; // 1 gives just the row of three at bottom. 2 gives two rows for 6 boxes.
+let cubes = 2; // 1 gives just the row of three at bottom. 2 gives two rows for 6 boxes.
 verbose = false;
 filename = getParameterFromURL('selectedGenome');
 fileUploadShowing = false;
@@ -354,39 +356,6 @@ function testParse() {
     return buf;
   }
 
-
-
-  function destroyScene() {
-    // THIS WILL WIPE THE GEOMS:
-    if ( cubes == 0 ) {
-      geometry2 = new THREE.BufferGeometry(); // bottom row with curves
-      geometry5 = new THREE.BufferGeometry(); // top row with straight lines
-    } else if ( cubes == 1 ) {
-      geometry1 = new THREE.BufferGeometry(); // bottom row with curves
-      geometry2 = new THREE.BufferGeometry(); // bottom row with curves
-      geometry3 = new THREE.BufferGeometry(); // bottom row with curves
-    } else if ( cubes == 2 ) {
-      geometry1 = new THREE.BufferGeometry(); // bottom row with curves
-      geometry2 = new THREE.BufferGeometry(); // bottom row with curves
-      geometry3 = new THREE.BufferGeometry(); // bottom row with curves
-      geometry4 = new THREE.BufferGeometry(); // top row with straight lines
-      geometry5 = new THREE.BufferGeometry(); // top row with straight lines
-      geometry6 = new THREE.BufferGeometry(); // top row with straight lines
-    }
-    for (let i = scene.children.length - 1; i >= 0; i--) {
-      const object = scene.children[i];
-      if (object.type === 'Mesh') {
-        removeEntity(object);
-        object.geometry.dispose();
-        object.material.dispose();
-        // scene.remove(object);
-      }
-    }
-    render();
-
-    scene = new THREE.Scene();
-
-  }
   function setScene() {
 
     var geometry = new THREE.CircleGeometry( 150, 64 );
@@ -398,7 +367,7 @@ function testParse() {
       // 1
       geometry2 = new THREE.BufferGeometry(); // bottom row with curves
       // 3
-      // geometry5 = new THREE.BufferGeometry(); // top row with straight lines
+      geometry5 = new THREE.BufferGeometry(); // top row with straight lines
     } else if ( cubes == 1 ) {
       geometry1 = new THREE.BufferGeometry(); // bottom row with curves
       geometry2 = new THREE.BufferGeometry(); // bottom row with curves
@@ -446,6 +415,8 @@ function testParse() {
     } else if (cubes == 0) {
       var parameters =  [
         [ material, scale * 1.5, [ 0, - d / 2, 0 ], geometry2 ],
+        [ material, scale * 1.5, [   0, d / 2, 0 ], geometry5 ],
+
       ];
     }
 
@@ -460,6 +431,39 @@ function testParse() {
       scene.add( line );
     }
   }
+
+  function destroyScene() {
+    // THIS WILL WIPE THE GEOMS:
+    if ( cubes == 0 ) {
+      geometry2 = new THREE.BufferGeometry(); // bottom row with curves
+      geometry5 = new THREE.BufferGeometry(); // top row with straight lines
+    } else if ( cubes == 1 ) {
+      geometry1 = new THREE.BufferGeometry(); // bottom row with curves
+      geometry2 = new THREE.BufferGeometry(); // bottom row with curves
+      geometry3 = new THREE.BufferGeometry(); // bottom row with curves
+    } else if ( cubes == 2 ) {
+      geometry1 = new THREE.BufferGeometry(); // bottom row with curves
+      geometry2 = new THREE.BufferGeometry(); // bottom row with curves
+      geometry3 = new THREE.BufferGeometry(); // bottom row with curves
+      geometry4 = new THREE.BufferGeometry(); // top row with straight lines
+      geometry5 = new THREE.BufferGeometry(); // top row with straight lines
+      geometry6 = new THREE.BufferGeometry(); // top row with straight lines
+    }
+    for (let i = scene.children.length - 1; i >= 0; i--) {
+      const object = scene.children[i];
+      if (object.type === 'Mesh') {
+        removeEntity(object);
+        object.geometry.dispose();
+        object.material.dispose();
+        // scene.remove(object);
+      }
+    }
+    render();
+
+    scene = new THREE.Scene();
+
+  }
+
   function sceneCameraSetup() {
 
 
