@@ -16,6 +16,8 @@ const settings = require('./aminosee-settings');
 const version = require('./aminosee-version');
 const server = require('./aminosee-server');
 const data = require('./aminosee-data');
+const StdInPipe = require('./aminosee-stdinpipe');
+
 // const main = require('./main');
 let saySomethingEpic = data.saySomethingEpic;
 // OPEN SOURCE PACKAGES FROM NPM
@@ -58,7 +60,6 @@ let bodyParser = require('body-parser');
 // const Jimp = require('jimp');
 // const electron = require('./main'); // electron app!
 // const fileDialog = require('file-dialog')
-// let StdInPipe = require('./stdinpipe');
 // let gui = require('./public/aminosee-gui-web.js');
 // let imageStack = gui.imageStack;
 // let imageStack = require('./public/aminosee-gui-web.js').imageStack;
@@ -980,7 +981,7 @@ class AminoSeeNoEvil {
         that.gracefulQuit(130);
         // }, 500)
       }
-      if (key && key.name == 'q' || key.name == 'escape') {
+      if (key && key.name == 'q' || key.name == 'Escape') {
         console.log("Gracefull Shutdown in progress... will finish this render then quit.")
         killServersOnQuit = false;
         that.gracefulQuit();
@@ -1213,19 +1214,6 @@ class AminoSeeNoEvil {
     // if not found setup and use local home folder ~/AminoSee_Output
     // this way you can create a network cluster quickly by just moving your ~/AminoSee_Output into the same folder as your DNA files
     // next time you run, it will put the render in same folder
-    console.log("*****************************");
-    console.log("*****************************");
-    console.log("*****************************");
-    console.log("*****************************");
-    console.log("*****************************");
-    console.log("*****************************");
-    console.log("*****************************");
-    console.log("*****************************");
-    console.log("*****************************");
-    console.log("*****************************");
-    console.log("*****************************");
-    console.log("*****************************");
-    console.log("*****************************");
     this.log(os.platform())
     this.log(os.homedir)
     let outpath, clusterRender;
@@ -1237,7 +1225,6 @@ class AminoSeeNoEvil {
       this.outputPath = path.normalize(path.resolve(os.homedir + this.outFoldername))  // default location after checking overrides
       this.clusterRender = false;
     }
-    // this.fancyFilenames();
     this.log(  this.outputPath )
 
     this.outFoldername = obviousFoldername;
@@ -1841,6 +1828,11 @@ class AminoSeeNoEvil {
   }
 
   setupFNames() { // must not be called during creation of hilbert image
+    if ( this.renderLock == true) {
+      output('thread re-entry inside setupFNames')
+      return false;
+    }
+
     mode("setupFNames " + this.currentFile);
     this.setupOutPaths();
 
@@ -1850,11 +1842,8 @@ class AminoSeeNoEvil {
     this.log( this.filenameHILBERT);
     this.log( this.filenameHTML);
 
-    // this.log(`isShuttingDown: [${ this.isShuttingDown }]`)
-    if ( this.renderLock == true) {
-      output('thread re-entry inside setupFNames')
-      return false;
-    }
+    if (this.isShuttingDown) {     this.log(`isShuttingDown: [${ this.isShuttingDown }]`)  }
+
     // this.calculateShrinkage(); // REQUIRES INFO FROM HERE FOR HILBERT this.filename. BUT THAT INFO NOT EXIST UNTIL WE KNOW HOW MANY PIXELS CAME OUT OF THE DNA!
     this.filename = path.resolve(this.currentFile);
     this.justNameOfCurrentFile  = replaceoutputPathFileName( this.filename );
@@ -3208,6 +3197,7 @@ calculateShrinkage() { // danger: can change this.filenames of Hilbert images!
 
   } else if (computerWants < 0) {
     this.dimension = 0; // its an array index
+    this.error(`That image is way too small to make an image out of?`);
   } else {
     this.dimension = computerWants; // give him what he wants
   }
@@ -5112,12 +5102,13 @@ clout(txt) {
 function doesFolderExist(f) {
   let ret = false;
   let folder = path.resolve(f);
-  output(`doesFolderExist ${folder}`)
   try {
     ret = fs.existsSync(folder);
   } catch(e) {
     output(e)
   }
+  output(`${ret} doesFolderExist ${folder}`)
+
   try {
     stats = fs.lstatSync(folder).isDirectory; // Query the entry
     if ( stats ) {   // Is it a directory?

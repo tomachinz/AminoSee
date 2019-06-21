@@ -24,7 +24,7 @@ vows.describe('http-server').addBatch({
     },
     'it should serve files from root directory': {
       topic: function () {
-        request('http://localhost:43212/rhino.jpg', this.callback);
+        request('http://localhost:43212/favicon.ico', this.callback);
       },
       'status code should be 200': function (res) {
         assert.equal(res.statusCode, 200);
