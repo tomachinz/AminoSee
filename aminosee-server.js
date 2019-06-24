@@ -11,12 +11,9 @@ This is a temporary lock file, so I dont start too many servers. Its safe to era
 const version = aminosee.version;
 // let terminalRGB = function (txt) { aminosee.terminalRGB(txt) }
 // let terminalRGB = require('./aminosee-cli').terminalRGB;
-let outputPath = aminosee.outputPath;//path.normalize(path.resolve(os.homedir + outFoldername))  // default location after checking overrides
-let filenameServerLock = outputPath
+let outputPath, filenameServerLock;
 
-// let output = aminosee.output;
-setOutputPath(outputPath)
-// let port = 4321;
+
 let port = 43210;
 
 function startCrossSpawnHttp() {
@@ -25,15 +22,15 @@ function startCrossSpawnHttp() {
   // const evilSpawn = spawn('http-server', [server.getServerURL(justNameOfDNA), '--port', port, '0'], { stdio: 'pipe' });
   const evilSpawn = spawn('http-server', ['--directory', outputPath,  '--port', port, '0'], { stdio: 'pipe' });
   evilSpawn.stdout.on('data', (data) => {
-    console.log(`${chalk.inverse('aminosee-server')}${chalk(': ')}${data}`);
+    output(`${chalk.inverse('aminosee-server')}${chalk(': ')}${data}`);
   });
 
   evilSpawn.stderr.on('data', (data) => {
-    console.log(`${chalk.inverse('aminosee-server error')}${chalk(': ')}${data}`);
+    output(`${chalk.inverse('aminosee-server error')}${chalk(': ')}${data}`);
   });
 
   evilSpawn.on('close', (code) => {
-    console.log(`child process quit with code ${code}`);
+    output(`child process quit with code ${code}`);
   });
 
   log("Personal mini-Webserver starting up around now (hopefully) on port ${port}");
@@ -45,11 +42,13 @@ function startCrossSpawnHttp() {
 }
 
 function startServeHandler() {
+  setOutputPath()
+
   const handler = require('serve-handler');
   const http = require('http');
   let www =  path.resolve(os.homedir() + "/AminoSee_Output");
   // let www = path.resolve(outputPath);
-  console.log(`www = ${www}`);
+  output(`www = ${www}`);
   const serveHandler = http.createServer((request, response) => {
     // You pass two more arguments for config and middleware
     // More details here: https://github.com/zeit/serve-handler#options
@@ -72,7 +71,7 @@ function startServeHandler() {
   }
   try {
     serveHandler.listen(options, () => {
-      console.log(`Running at ` + chalk.underline(getServerURL()));
+      output(`Running at ` + chalk.underline(getServerURL()));
     });
     return true
   } catch(err) {
@@ -93,7 +92,7 @@ module.exports = (options) => {
     request.on('error', (err) => {
       console.error(`err from createServer ${createServer}`);
     }).on('data', (chunk) => {
-      console.log('data from web');
+      output('data from web');
       body.push(chunk);
     }).on('end', () => {
       body = Buffer.concat(body).toString();
@@ -124,13 +123,13 @@ module.exports = (options) => {
     });
   }).listen(options.port);
 }
-function start(outputPath) {
-  this.outputPath = outputPath;
+function start(o) {
+  outputPath = o;
   if (serverLock()) {
-    console.log("Server already started. If you think this is not true, remove the lock file: " + filenameServerLock);
+    output("Server already started. If you think this is not true, remove the lock file: " + filenameServerLock);
     return false
   } else {
-    console.log("No locks found, Starting server");
+    output("No locks found, Starting server");
     return startServeHandler();
   }
 };
@@ -161,10 +160,10 @@ function stop() {
 function close() {
   try {
     if (serveHandler != undefined) {
-      console.log("Stoping server");
+      output("Stoping server");
       serveHandler.close();
     } else {
-      console.log("no server");
+      output("no server");
     }
   } catch(e) {
     // aminosee.bugtxt(e);
@@ -172,19 +171,19 @@ function close() {
 }
 
 function setOutputPath(o) {
-  aminosee.outputPath;
-  this.outputPath = o;
-  this.filenameServerLock = path.resolve(`${outputPath}/aminosee_server_lock.txt`);
-  // console.log(`o ` + this.outputPath);
+  if (o === undefined) { o = aminosee.outputPath }
+  outputPath = o;
+  filenameServerLock = path.resolve(`${outputPath}/aminosee_server_lock.txt`);
+  output(`(server) im planning to run server at: ` + outputPath);
 }
 
 function stop() {
-  console.log("Stoping server");
+  output("Stoping server");
   // aminosee.deleteFile(filenameServerLock);
 }
 
 function open(relative) {
-  console.log("Opening page: " + relative);
+  output("Opening page: " + relative);
 }
 // module.exports.getServerURL = function (path) {
 function getServerURL(path) {
@@ -197,7 +196,7 @@ function getServerURL(path) {
     path = `/${path}/main.html`;
   }
   serverURL = `http://${internalIp.v4.sync()}:${port}${path}`;
-  // console.log(`serverURL ${serverURL}`);
+  // output(`serverURL ${serverURL}`);
   return serverURL;
 }
 
@@ -209,12 +208,12 @@ function serverLock() {
   } else { return false }
 }
 function log(txt) {
-  console.log(txt)
+  output(txt)
   // aminosee.output(txt)
 }
 
 function output(txt) {
-  console.log(txt)
+  console.log(`server: ${txt} (server)`);
   // aminosee.output(txt)
 }
 // module.exports.startServeHandler = startServeHandler;

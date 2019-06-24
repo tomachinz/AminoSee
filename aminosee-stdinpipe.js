@@ -13,7 +13,7 @@ var fs = require('fs'),
     through = require('through');
 
 var tr = through(function (buf) {
-  console.log(buf.toString());
+  // console.log(`through: [${ buf.toString()} ] (through)`); // will also cat all the CLI files contents hmmmm 
 });
 
 

@@ -65,7 +65,7 @@ const getData = async url => {
     const json = await response.json();
     console.log(json.version +  " github latest version");
   } catch (error) {
-    console.log(error);
+    console.log(`settings: ${error}`);
   }
 };
 // getData(url);

@@ -3,8 +3,13 @@
 w
 npm run genversion
 aminosee
+sleep 1
 aminosee -f
+sleep 1
 aminosee -v
+sleep 1
+aminosee -q
+sleep 1
 FAST='50KB_TestPattern.txt'
 # echo 'nice aminosee $1 $2 $3 $4 $5 $6   --peptide="aspartic ACID"'
 nice aminosee $FAST $1 $2 $3 $4 $5 $6  --peptide="aspartic ACID"

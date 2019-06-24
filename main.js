@@ -17,6 +17,27 @@ let mainWindow, devmode;
 // app.commandLine.appendSwitch('host-rules', 'MAP * 127.0.0.1')
 // app.commandLine.appendSwitch('devmode', 'true')
 // app.commandLine.appendSwitch('devmode', 'true')
+app.on('ready', function() {
+  createWindow();
+  pushCli(`help`)
+})
+
+// Quit when all windows are closed.
+app.on('window-all-closed', function () {
+  // On OS X it is common for applications and their menu bar
+  // to stay active until the user quits explicitly with Cmd + Q
+  // if (process.platform !== 'darwin') {
+  app.quit()
+  // }
+})
+
+app.on('activate', function () {
+  // On OS X it's common to re-create a window in the app when the
+  // dock icon is clicked and there are no other windows open.
+  if (mainWindow === null) {
+    createWindow()
+  }
+})
 function updateProgress(number) {
   mainWindow.setProgressBar(number); // -1 remove progress, 0-1 is percentage, 2+ means show indeterminate
 }
@@ -64,8 +85,8 @@ function pushCli(commandString) {
   console.log(`commandString: [${commandString}]`);
   commandString = `node aminosee ${commandString} --html --image`;
   let commandArray = commandString.split("\\s+");
-  let thread = aminosee();
-  thread = aminosee.addJob( commandArray );
+  let thread = aminosee().addJob( commandArray );
+  // thread = aminosee.addJob( commandArray );
   threads.push( thread );
 }
 function createWindow () {
@@ -274,25 +295,5 @@ function manageThreads(time) {
   }, time );
 }
 
-app.on('ready', function() {
-  createWindow();
-  pushCli(`help`)
-})
 
-// Quit when all windows are closed.
-app.on('window-all-closed', function () {
-  // On OS X it is common for applications and their menu bar
-  // to stay active until the user quits explicitly with Cmd + Q
-  // if (process.platform !== 'darwin') {
-  app.quit()
-  // }
-})
-
-app.on('activate', function () {
-  // On OS X it's common to re-create a window in the app when the
-  // dock icon is clicked and there are no other windows open.
-  if (mainWindow === null) {
-    createWindow()
-  }
-})
 module.exports.updateProgress = updateProgress;
