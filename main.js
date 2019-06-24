@@ -1,6 +1,6 @@
 // import
 // const aminosee = require('./aminosee-cli.js')
-const AminoSeeNoEvil = require('./aminosee-cli')
+// const AminoSeeNoEvil = require('./aminosee-cli')
 const aminosee = require('./aminosee-cli');
 const server = require('./aminosee-server')
 const { app, BrowserWindow, Menu, dialog, ipcMain } = require('electron') // Modules to control application life and create native browser window
@@ -82,11 +82,11 @@ function showOpenDialog() {
 }
 function pushCli(commandString) {
   console.log(`Starting AminoSee now with CLI:`);
+  commandString = `node aminosee ${commandString} --verbose --html --image`;
   console.log(`commandString: [${commandString}]`);
-  commandString = `node aminosee ${commandString} --html --image`;
   let commandArray = commandString.split("\\s+");
-  let thread = aminosee().addJob( commandArray );
-  // thread = aminosee.addJob( commandArray );
+  let thread = aminosee.addJob( commandArray );
+    // thread = aminosee.addJob( commandArray );
   threads.push( thread );
 }
 function createWindow () {

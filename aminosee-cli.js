@@ -98,14 +98,13 @@ let debug = false; // should be false for PRODUCTION
 
 module.exports = () => {
   isElectron = false;
-  setupPrefs();
   status = "exports";
   log(`isElectron: [${isElectron}]`)
   if (isElectron == true) {
     // this.args = generateArgs(classyArgv)
     output("Electron mode enabled")
   } else {
-    cliInstance = new AminoSeeNoEvil();
+    // cliInstance = new AminoSeeNoEvil();
     // cliInstance.addJob(process.argv); // do stuff that is needed even just to run "aminosee" with no options.
     addJob(process.argv); // do stuff that is needed even just to run "aminosee" with no options.
     bugtxt(`process.argv.toString(): [${process.argv.toString()}]`)
@@ -4903,6 +4902,8 @@ clout(txt) {
 
 
     function addJob(commandArray) {
+      setupPrefs();
+
       log(chalk.inverse(`ADD JOB CALLED: `) + commandArray.toString() + ` isElectron: [${isElectron}]`)
 
       cliInstance = new AminoSeeNoEvil();
@@ -5150,8 +5151,7 @@ clout(txt) {
   // module.exports.fileWrite = this.fileWrite;
   // module.exports.version = this.version;
   // module.exports.this.outputPath = this.outputPath;
-  // module.exports.AminoSeeNoEvil = () => { AminoSeeNoEvil() }
-
+  // module.exports.aminosee = aminosee;
   module.exports.AminoSeeNoEvil = AminoSeeNoEvil;
   module.exports.addJob = addJob;
   module.exports.pushCli = pushCli;
