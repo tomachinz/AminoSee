@@ -172,9 +172,10 @@ class AminoSeeNoEvil {
         string: [ 'width'],
         unknown: [ unknownOption ],
         alias: { a: 'artistic', b: 'dnabg', c: 'codons', d: 'devmode', f: 'force', h: 'help', k: 'keyboard', m: ' magnitude', o: 'outpath', out: 'outpath', output: 'outpath', p: 'peptide', i: 'image', t: 'triplet', q: 'quiet', r: 'reg', w: 'width', v: 'verbose', x: 'explorer', finder: 'explorer'  },
-        default: { image: true, updates: true, dnabg: false, clear: false, explorer: true, quiet: false, gui: true, keyboard: false, progress: true },
+        default: { image: true, updates: true, dnabg: false, clear: true, explorer: false, quiet: false, gui: true, keyboard: false, progress: false },
         stopEarly: false
       }
+
       this.args = minimist(procArgv.slice(2), options);
       args = this.args;
 
@@ -714,7 +715,7 @@ class AminoSeeNoEvil {
       for (let h=0; h< this.pepTable.length; h++) {
         const pep =  this.pepTable[h];
         this.currentPeptide = pep.Codon;
-        this.pepTable[h].src = this.aminoFilenameIndex(h);
+        this.pepTable[h].src = this.aminoFilenameIndex(h)[0];
         // this.bugtxt( this.pepTable[h].src);
       }
       this.pepTable.sort( this.compareHistocount )
@@ -806,7 +807,7 @@ class AminoSeeNoEvil {
       for (let h=0; h< this.pepTable.length; h++) {
         this.pepTable[h].Histocount = 0;
         this.pepTable[h].z = h;
-        this.pepTable[h].src = this.aminoFilenameIndex(h);
+        this.pepTable[h].src = this.aminoFilenameIndex(h)[0];
       }
       for (let h=0; h < dnaTriplets.length; h++) {
         dnaTriplets[h].Histocount = 0;
@@ -1371,7 +1372,7 @@ class AminoSeeNoEvil {
         return false;
       } else { log('Not skipping') }
 
-      this.termDrawImage();
+      // this.termDrawImage();
 
       if ( this.checkLocks( this.filenameTouch)) {
         output("Render already in progress by another thread for: " + this.justNameOfPNG);
@@ -2288,7 +2289,9 @@ class AminoSeeNoEvil {
       ${outski}`,
       cb
     );
-    this.termDrawImage();
+    if ( this.msElapsed > 5000) {
+      this.termDrawImage();
+    }
 
     if ( !this.quiet ) {
       term.saveCursor()
@@ -2886,7 +2889,7 @@ class AminoSeeNoEvil {
     'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
   })(window,document,'script','dataLayer','GTM-P8JX');</script>
   <!-- End Google Tag Manager -->
-
+<nav> <a href="../../">AminoSee Home</a> | <a href="../../">Parent</a>  </nav>
   <h1>AminoSee DNA Render Summary for ${ this.currentFile }</h1>
   <h2>${ this.justNameOfDNA}</h2>
   ${( this.test ? " this.test " : this.imageStack(histogramJson))}
@@ -4592,8 +4595,10 @@ bothKindsTestPattern(cb) {
         let refimage = summary.refimage;
         let linearimage = summary.linearimage;
         let i = 0;
+        let quant = pepTable.length;
         html += `<div id="stackOimages">
-        <a href="images/${name}" class="imgstack"><img src="images/${name}" id="stack_reference" width="256" height="256" style="z-index: ${i}; position: fixed; top: 50%; left: 50%; transform: translate(${(i*4)-40},${(i*4)-40})" alt="${refimage}" title="${refimage}" onmouseover="mover(this)" onmouseout="mout(this)">Reference</a>`;
+        <a href="images/${name}" class="imgstack">
+        <img src="images/${name}" id="stack_reference" width="256" height="256" style="z-index: ${i}; position: fixed; top: 50%; left: 50%; transform: translate(${(i*4)-40},${(i*4)-40})" alt="${refimage}" title="${refimage}" onmouseover="mover(this)" onmouseout="mout(this)">Reference</a>`;
 
         histogramJson.pepTable.forEach(function(item) {
           // log(item.toString());
@@ -4603,13 +4608,15 @@ bothKindsTestPattern(cb) {
           let z =      item.z;
           let i =      item.index + 1;
           let src =    item.src;
+          let vector = i - (quant/2);
           // this.bugtxt( src );
           html +=  i +". ";
           if (thePep == "Start Codons" || thePep == "Stop Codons" || thePep == "Non-coding NNN") {
             html += `<!-- ${thePep.Codon} -->`;
           } else {
             html += `
-            ${i}. <a href="images/${src}" class="imgstack"><img src="images/${src}" id="stack_${i}" width="256" height="256" style="z-index: 99; position: absolute; top: ${i*2}px; left: ${i*32}px;" alt="${thePep}" title="${item.Description}" onmouseover="mover(${i})" onmouseout="mout(${i})">${thePep}</a>`;
+            <a href="images/${src}" class="imgstack">${i}. ${thePep} <br/>
+            <img src="images/${src}" id="stack_${i}" width="256" height="256" style="z-index: 99; position: absolute; top: ${i*2}px; left: ${i*32}px;" alt="${thePep}" title="${item.Description}" onmouseover="mover(${i})" onmouseout="mout(${i})"></a>`;
           }
         });
         html += `</div> <!--  id="stackOimages -- >`;
