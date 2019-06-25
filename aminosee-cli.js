@@ -238,7 +238,7 @@ class AminoSeeNoEvil {
       this.outFoldername = `/AminoSee_Output`;
       this.justNameOfDNA = 'aminosee-is-looking-for-files-containing-ascii-DNA.txt';
       this.browser = 'firefox';
-      this.currentFile = "";//funknzLabel;
+      this.currentFile = funknzLabel;
       this.nextFile = funknzLabel;
       this.dimension = defaultMagnitude; // var that the hilbert projection is be downsampled to
       this.msPerUpdate  = minUpdateTime; // min milliseconds per update its increased for long renders
@@ -3126,7 +3126,7 @@ recycleOldImage(pngfile) {
 }
 
 skipExistingFile (fizzle) { // skip the file if TRUE render it if FALSE
-  if ( this.force == true) { return false; } // true means to skip render
+  if ( this.force == true && this.currentFile == funknzLabel ) {  return false; } // true means to skip render
   let result = doesFileExist(fizzle);
   this.bugtxt('skipExistingFile ' + fizzle + "force: " + this.force + " result: " + result)
   this.bugtxt(`The file is: ${fizzle} which ${( result ? 'DOES' : 'does NOT')} exist`)
