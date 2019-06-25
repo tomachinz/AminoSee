@@ -507,8 +507,8 @@ class AminoSeeNoEvil {
       }
       if ( args.serve || args.s) {
         webserverEnabled = true;
-        // launchNonBlockingServer();
-        blockingServer();
+        launchNonBlockingServer();
+        // this.blockingServer();
       }
       if ( args.clear || args.c) {
         log("screen this.clearing enabled.");
@@ -1001,7 +1001,7 @@ class AminoSeeNoEvil {
       webserverEnabled = true;
       log('start server')
       // launchNonBlockingServer(this);
-      blockingServer();
+      this.blockingServer();
     }
     toggleDebug() {
       this.debug = !this.debug;
@@ -1635,6 +1635,7 @@ class AminoSeeNoEvil {
     // therefore if filesize = -1 then streaming pipe mode is enabled.
     // the goal is to set this.codonsPerPixel
     //
+    if (this.filename  = funknzLabel) { log('no'); return false; }
 
     this.baseChars = this.getFilesizeInBytes( this.filename );
     if ( this.baseChars < 0) { // switch to streaming pipe this.mode,
@@ -1893,8 +1894,8 @@ class AminoSeeNoEvil {
   }
 
   blockingServer() {
-    setupProject();
-    setupKeyboardUI();
+    this.setupProject();
+    this.setupKeyboardUI();
     server.buildServer();  // copyGUI();  // startHttpServer()
     server.startServeHandler();
     // startCrossSpawnHttp(); // requires http-server be installed globally
