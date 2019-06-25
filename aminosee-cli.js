@@ -2819,10 +2819,11 @@ class AminoSeeNoEvil {
       this.isHighlightSet = true; //currentPepHighlight;
     }
     this.peptide = this.currentPeptide; // bad use of globals i agree, well i aint getting paid for this, i do it for the love, so yeah
-    let ret = this.generateFilenameHilbert(); // this.isHighlightSet needs to be false for reference
+    let returnedHil = this.generateFilenameHilbert(); // this.isHighlightSet needs to be false for reference
+    let returnedPNG = this.generateFilenamePNG(); // this.isHighlightSet needs to be false for reference
     this.peptide = backupPeptide;
     this.isHighlightSet = backupHighlight;
-    return ret;
+    return [ returnedHil, returnedPNG ];
   }
   getImageType() {
     let t = "";
@@ -2945,6 +2946,7 @@ class AminoSeeNoEvil {
   <th>Count</th>
   <th>Description</th>
   <th>Hilbert PNG</th>
+  <th>Linear PNG</th>
   </tr>
   </thead>
   <tbody>
@@ -2958,20 +2960,25 @@ class AminoSeeNoEvil {
   <td>${ this.genomeSize}</td>
   <td>n/a</td>
   <td style="background-color: white;">
-  <a href="images/${ this.justNameOfHILBERT}" class="button" title="Reference Image"><img width="48" height="16" class="blackback" src="images/${ this.justNameOfHILBERT}" alt="Reference Hilbert Image ${ this.justNameOfDNA}"></a>
+  <a href="images/${ this.justNameOfHILBERT}" class="button" title="Reference Hilbert Image"><img width="48" height="16" class="blackback" src="images/${ this.justNameOfHILBERT}" alt="AminoSee Reference Hilbert Image ${ this.justNameOfDNA}"></a>
+  </td>
+  <td style="background-color: white;">
+  <a href="images/${ this.justNameOfPNG}" class="button" title="Reference Linear Image"><img width="48" height="16" class="blackback" src="images/${ this.justNameOfPNG}" alt="Reference Linear Image ${ this.justNameOfDNA}"></a>
   </td>
   </tr>
 
   `;
   // this.pepTable   = [Codon, Description, Hue, Alpha, Histocount]
   for (let i = 0; i < this.pepTable.length; i++) {
-    let thePep = this.pepTable[i];
-    let theHue = thePep.Hue;
+    let thePep = this.pepTable[i].Codon;
+    let theHue = this.pepTable[i].Hue;
     let c =      hsvToRgb( theHue / 360, 0.5, 1.0 );
     let lightC = hsvToRgb( theHue / 360, 0.95, 0.75 );
-    // log(thePep, theHue, c);
-    if (thePep.Codon == "Start Codons" || thePep.Codon == "Stop Codons" || thePep.Codon == "Non-coding NNN") {
-      html += `<!-- ${thePep.Codon} -->`;
+    let imghil = this.aminoFilenameIndex(i)[0]; // first elemewnt in array is the hilbert image
+    let imglin = this.aminoFilenameIndex(i)[1]; // second element is linear
+
+    if (thePep == "Start Codons" || thePep == "Stop Codons" || thePep == "Non-coding NNN") {
+      html += `<!-- ${thePep} -->`;
     } else {
       html += `
       <tr style="background-color: hsl( ${theHue} , 50%, 100%);" onmouseover="mover(${i})" onmouseout="mout(${i})">
@@ -2983,7 +2990,10 @@ class AminoSeeNoEvil {
       <td>${ this.pepTable[i].Histocount.toLocaleString()}</td>
       <td>${ this.pepTable[i].Description}</td>
       <td style="background-color: white;">
-      <a href="images/${ this.aminoFilenameIndex(i)}" class="button" title="Amino filter: ${spaceTo_( this.pepTable[i].Codon)}"><img width="48" height="16" class="blackback" src="images/${ this.aminoFilenameIndex(i)}" alt="${spaceTo_( this.pepTable[i].Codon)}"></a>
+      <a href="images/${ imghil }" class="button" title="Amino filter: ${ thePep }"><img width="48" height="16" class="blackback" src="images/${ imghil }" alt="${ this.justNameOfDNA } ${ thePep }"></a>
+      </td>
+      <td style="background-color: white;">
+      <a href="images/${ imglin }" class="button" title="Amino filter: ${ thePep }"><img width="48" height="16" class="blackback" src="images/${ imglin }" alt="${ this.justNameOfDNA } ${ thePep }"></a>
       </td>
       </tr>
       `

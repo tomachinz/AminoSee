@@ -10,8 +10,8 @@ let autostopdelay = 300; // seconds
 let downloaderDisabled;
 let levels = 2; // default 2
 // let cubes = 0; // 1 gives just the row of three at bottom. 2 gives two rows for 6 boxes.
-// let cubes = 0; // 1 gives just the row of three at bottom. 2 gives two rows for 6 boxes.
-let cubes = 2; // 1 gives just the row of three at bottom. 2 gives two rows for 6 boxes.
+let cubes = 1; // 1 gives just the row of three at bottom. 2 gives two rows for 6 boxes.
+// let cubes = 2; // 1 gives just the row of three at bottom. 2 gives two rows for 6 boxes.
 verbose = false;
 filename = getParameterFromURL('selectedGenome');
 fileUploadShowing = false;
@@ -169,11 +169,12 @@ function initVariables() {
 }
 
 function addSpriteToScene() {
-  var spriteMap = new THREE.TextureLoader().load( "output/Caenorhabdihromosome-V.fa_linear_reg_c1.7_fix_sci.png" );
+  var spriteMap = new THREE.TextureLoader().load( "output/Brown_Kiwi_NW_013982187v1/images/Brown_Kiwi_NW_013982187v1.fa_HILBERT-Reference_m7_c397.2.png" );
   var spriteMaterial = new THREE.SpriteMaterial( { map: spriteMap, color: 0xffffff } );
   var sprite = new THREE.Sprite( spriteMaterial );
-  sprite.scale.set(400,400, -200.000);
+  sprite.scale.set(400,400, -2000.000);
   scene.add( sprite );
+
 }
 function addOffscreenImage() {
   var img = document.getElementById('current_image');
@@ -218,8 +219,8 @@ function getParameterFromURL() {
     // alert(href)
     return href;
   } else {
-    // alert("output/Chimp_Clint_chrY/images/Chimp_Clint_chrY.gbk_linear-Reference_c1.2_sci.png")
-    return `output/Chimp_Clint_chrY/images/Chimp_Clint_chrY.gbk_linear-Reference_c1.2_sci.png`;
+    // alert("output/Brown_Kiwi_NW_013982187v1/images/Brown_Kiwi_NW_013982187v1.fa_HILBERT-Reference_m7_c397.2.png")
+    return `output/Brown_Kiwi_NW_013982187v1/images/Brown_Kiwi_NW_013982187v1.fa_HILBERT-Reference_m7_c397.2.png`;
   }
 }
 function parseApache() {
