@@ -12,47 +12,47 @@ aminosee -q
 sleep 1
 FAST='50KB_TestPattern.txt'
 # echo 'nice aminosee $1 $2 $3 $4 $5 $6   --peptide="aspartic ACID"'
-nice aminosee $FAST $1 $2 $3 $4 $5 $6  --peptide="aspartic ACID"
+nice aminosee $FAST $1 $2 $3 $4 $5 $6  --peptide="aspartic ACID" --no-image --no-html --no-explorer
 
 # echo 'doing   $1 $2 $3 $4 $5 $6  --peptide="gluTAMIC aCID"'
-nice aminosee  $FAST      $1 $2 $3 $4 $5 $6 -f --peptide="gluTAMIC aCID"
+nice aminosee  $FAST      $1 $2 $3 $4 $5 $6 -f --peptide="gluTAMIC aCID"  --no-image --no-html --no-explorer
 
 echo TESTING GARBAGE FILENAMES FUZZING THAT KINDA THING
-nice aminosee 27MB_TestPattern.txt asdfadsf 50KB_TestPattern.txt * qwert  1KB_TestPattern.txt
+nice aminosee 27MB_TestPattern.txt asdfadsf 50KB_TestPattern.txt * qwert  1KB_TestPattern.txt  --no-image --no-html --no-explorer
 
 # echo "nice aminosee $1 $2 $3 $4 $5 $6 --triplet ggg --ratio=sqr"
-nice aminosee   $FAST     $1 $2 $3 $4 $5 $6 --triplet ggg --ratio=sqr
+nice aminosee   $FAST     $1 $2 $3 $4 $5 $6 --triplet ggg --ratio=sqr  --no-image --no-html --no-explorer
 
 # echo "nice aminosee $1 $2 $3 $4 $5 $6 -m5 --ratio=gol"
-nice aminosee   $FAST     $1 $2 $3 $4 $5 $6 -m5 --ratio=gol
+nice aminosee   $FAST     $1 $2 $3 $4 $5 $6 -m5 --ratio=gol  --no-image --no-html --no-explorer
 
 echo nice aminosee  $1 $2 $3 $4 $5 $6 -c100 --ratio=sqr
-nice aminosee  $FAST $1 $2 $3 $4 $5 $6 -c100 --ratio=sqr
+nice aminosee  $FAST $1 $2 $3 $4 $5 $6 -c100 --ratio=sqr  --no-image --no-html --no-explorer
 
 echo KEYBOARD MODE TEST
 echo "nice aminosee $1 $2 $3 $4 $5 $6 -f --ratio=gol --peptide=Ochre --keyboard"
-nice aminosee  $FAST      $1 $2 $3 $4 $5 $6 -f --ratio=gol --peptide=Ochre --keyboard
+nice aminosee  $FAST      $1 $2 $3 $4 $5 $6 -f --ratio=gol --peptide=Ochre --keyboard --no-image --no-html --no-explorer
 
 # echo "nice aminosee $1 $2 $3 $4 $5 $6 -f --no-updates -m7 --ratio=sqr --peptide=Amber"
-nice aminosee  $FAST      $1 $2 $3 $4 $5 $6 -f --no-updates -m7 --ratio=sqr --peptide=Amber
+nice aminosee  $FAST      $1 $2 $3 $4 $5 $6 -f --no-updates -m7 --ratio=sqr --peptide=Amber --no-image --no-html --no-explorer
 
 # echo "nice aminosee $1 $2 $3 $4 $5 $6 --no-updates -m5 --peptide=Methionine --ratio=sqr"
-nice aminosee  $FAST     $1 $2 $3 $4 $5 $6 --no-updates -m5 --peptide=Methionine --ratio=sqr
+nice aminosee  $FAST     $1 $2 $3 $4 $5 $6 --no-updates -m5 --peptide=Methionine --ratio=sqr --no-image --no-html --no-explorer
 
 # echo "nice aminosee $1 $2 $3 $4 $5 $6 -m 8 --peptide=Cysteine"
-nice aminosee       $1 $2 $3 $4 $5 $6 -m 8 --peptide=Cysteine
+nice aminosee       $1 $2 $3 $4 $5 $6 -m 8 --peptide=Cysteine --no-image --no-html --no-explorer
 
 # echo nice aminosee       $1 $2 $3 $4 $5 $6 --no-updates -c 500 --ratio=GOLDEN --peptide=Tryptophan
-nice aminosee       $1 $2 $3 $4 $5 $6 --no-updates -c 500 --ratio=GOLDEN --peptide=Tryptophan
+nice aminosee       $1 $2 $3 $4 $5 $6 --no-updates -c 500 --ratio=GOLDEN --peptide=Tryptophan --no-image --no-html --no-explorer
 
-aminosee 27MB_TestPattern.txt  3MB_TestPattern.txt *  -c10 -q -v --debug $1 $2 $3 $4
-aminosee 3MB_TestPattern.txt *  50KB_TestPattern.txt --keyboard $1 $2 $3 $4
-aminosee *  27MB_TestPattern.txt  3MB_TestPattern.txt -c10 -k $1 $2 $3 $4
+aminosee 27MB_TestPattern.txt  3MB_TestPattern.txt *  -c10 -q -v --debug $1 $2 $3 $4 --no-image --no-html --no-explorer
+aminosee 3MB_TestPattern.txt *  50KB_TestPattern.txt --keyboard $1 $2 $3 $4 --no-image --no-html --no-explorer
+aminosee *  27MB_TestPattern.txt  3MB_TestPattern.txt -c10 -k $1 $2 $3 $4 --no-image --no-html --no-explorer
 
 # sleep 2
 #
 # echo 'nice aminosee *'
-nice aminosee *  $1 $2 $3 $4 $5 $6   &
+nice aminosee *  $1 $2 $3 $4 $5 $6  --no-image --no-html --no-explorer   &
 sleep 8
 
 echo
@@ -71,7 +71,7 @@ nice aminosee   $1 $2 $3 $4 $5 $6 -q --ratio=fix --peptide=Arginine --html &
 sleep 1
 
 # echo "nice aminosee help &"
-nice aminosee help  $1 $2 $3 $4 $5 $6 --no-html  &
+nice aminosee help  $1 $2 $3 $4 $5 $6  --no-image &
 sleep 1
 
 
