@@ -279,7 +279,7 @@ class AminoSeeNoEvil {
         output("devmode enabled.");
         this.toggleDevmode();
       }
-      if ( args.recycle) { // needs to be at top so  changes can be overridden! but after this.debug.
+      if ( args.recycle ) { // needs to be at top so  changes can be overridden! but after this.debug.
         output("recycle mode enabled. (experimental)");
         this.recycEnabled = true;
       } else { this.recycEnabled = false }
@@ -587,9 +587,9 @@ class AminoSeeNoEvil {
         listDNA();
       }
 
-      if ( this.howMany > 0) {
+      if ( this.howMany > 0 ) {
         this.currentFile = args._[0]
-        if ( !this.chartAtCheck() ) { this.quit(); return false }
+        if ( !this.chartAtCheck() ||  this.currentFile == funknzLabel ) { this.quit(); return false }
         this.filename =  path.resolve( this.currentFile );
         log("Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω " + this.currentFile)
         mode("Ω first command " + this.howMany + " " + this.currentFile);
@@ -1983,7 +1983,7 @@ class AminoSeeNoEvil {
   openMiniWebsite(path) {
     log(`Opening URL: ${server.getServerURL()}`)
     try {
-      open(server.getServerURL());
+      // open(server.getServerURL());
     } catch(e) {
       this.error(`during openMiniWebsite: ${e} URL: ${server.getServerURL()}`);
     }
@@ -2349,6 +2349,10 @@ class AminoSeeNoEvil {
       // this.quit(1, status)
       return false;
     }
+    if ( this.currentFile == funknzLabel ) {
+      this.popAndResolve();
+    }
+
     if (!doesFileExist(path.resolve(this.currentFile))) {
       mode(`file not existing, trying next one`);
       this.pollForStream();
@@ -3606,6 +3610,7 @@ bothKindsTestPattern(cb) {
   }
 
   openOutputs(that) {
+    if ( this.currentFile == funknzLabel ) { return false }
     // return true;
     status ="open files";
     // if (that.devmode == true)  { this.bugtxt(renderObjToString()); }
@@ -5178,11 +5183,6 @@ bothKindsTestPattern(cb) {
       }
       function terminalRGB(_text, _r, _g, _b) {
         return chalk.rgb(_r,_g,_b)(_text);
-
-        if (_r+_g+_b >= 256.0) {
-          _text += "\x1b[44m"; // add some black background if its a light colour
-        }
-        return "\x1b[38;2;" + _r + ";" + _g + ";" + _b + "m" + _text + "\x1b[0m";
       };
       function showCountdown() {
         countdown(`Built-in webserver: ${server.getServerURL()}   [ stop server with Control-C | run in background with [S] | will shutdown in ${humanizeDuration(max32bitInteger)}`, 3000);
@@ -5224,8 +5224,10 @@ bothKindsTestPattern(cb) {
       output(`[ ${commandString} ]`);
       commandString = `node aminosee ${commandString} --html --image`;
       let commandArray = commandString.split("\\s+");
-      let thread = aminosee();
-      thread = aminosee.addJob( commandArray );
+
+      let thread = addJob(commandArray)
+
+      // thread = aminosee.addJob( commandArray );
       threads.push( thread );
     }
 
@@ -5258,7 +5260,7 @@ bothKindsTestPattern(cb) {
       output( chalk.inverse('Unknown option: ') +  unknown);
       output( chalk.inverse('Unknown option: ') +  unknown);
     }
-    function   formatAMPM(date) { // nice time output
+    function formatAMPM(date) { // nice time output
       var hours = date.getHours();
       var minutes = date.getMinutes();
       var secs   = date.getSeconds();
@@ -5279,7 +5281,7 @@ bothKindsTestPattern(cb) {
     var that = this;
     process.on("SIGTERM", () => {
       cliInstance.removeLocks();
-      // this.gracefulQuit();
+      cliInstance.gracefulQuit();
       // this.destroyProgress();
       process.exitCode = 130;
       cliInstance.quit(130);
@@ -5287,34 +5289,16 @@ bothKindsTestPattern(cb) {
     });
     process.on("SIGINT", function() {
       cliInstance.removeLocks();
-      // this.gracefulQuit();
+      cliInstance.gracefulQuit();
       // this.destroyProgress();
       process.exitCode = 130;
       cliInstance.quit(130);
       process.exit(); // this.now the "exit" event will fire
     });
-    // module.exports = {
-    //     aminosee,
-    //     this.gracefulQuit,
-    //     log
-    // }
-    // module.exports.gracefulQuit = gracefulQuit;
-    // module.exports.gracefulQuit = (code) => { this.gracefulQuit(code) }
-    // module.exports.log = (txt) => { log(txt) }
+
     module.exports.log = log;
-    // }
     module.exports.output = output;
-    // module.exports.output = (txt) => { output(txt) }
-    // module.exports.doesFileExist = (file) => { doesFileExist(file) }
-    // module.exports.this.outputPath = () => { this.outputPath }
-    //
-    //
     module.exports.doesFileExist = doesFileExist;
-    // module.exports.blurb = this.blurb;
-    // module.exports.fileWrite = this.fileWrite;
-    // module.exports.version = this.version;
-    // module.exports.this.outputPath = this.outputPath;
-    // module.exports.aminosee = aminosee;
     module.exports.AminoSeeNoEvil = AminoSeeNoEvil;
     module.exports.addJob = addJob;
     module.exports.pushCli = pushCli;
