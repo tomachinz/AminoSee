@@ -1321,11 +1321,12 @@ class AminoSeeNoEvil {
       if (this.howMany < 1) { this.isShuttingDown = true;}
       if (this.howMany < 0) { this.gracefulQuit(130) }
 
-      if ( this.currentFile == defaultFilename) { // maybe this is to get past my lack of understanding of processing of this.args.
+      if ( this.currentFile == funknzLabel) { // maybe this is to get past my lack of understanding of processing of this.args.
         // this.bugtxt("skipping default: " + defaultFilename); // it was rendered same file twice i think
         this.resetAndMaybe();
         return false;
       }
+
       if (doesFileExist(this.filenamePNG) && this.force == false) {
         let msg = `Already rendered ${chalk.bgBlue.white(this.justNameOfPNG)}. `
 
