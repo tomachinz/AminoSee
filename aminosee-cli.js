@@ -238,7 +238,7 @@ class AminoSeeNoEvil {
       this.outFoldername = `/AminoSee_Output`;
       this.justNameOfDNA = 'aminosee-is-looking-for-files-containing-ascii-DNA.txt';
       this.browser = 'firefox';
-      this.currentFile = funknzLabel;
+      this.currentFile = "";//funknzLabel;
       this.nextFile = funknzLabel;
       this.dimension = defaultMagnitude; // var that the hilbert projection is be downsampled to
       this.msPerUpdate  = minUpdateTime; // min milliseconds per update its increased for long renders
@@ -593,9 +593,10 @@ class AminoSeeNoEvil {
         this.filename =  path.resolve( this.currentFile );
         log("Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω " + this.currentFile)
         mode("Ω first command " + this.howMany + " " + this.currentFile);
+        // this.lookForWork('Ω first command ॐ')
+        this.popAndResolve();
         this.setupProject();
-        this.lookForWork('Ω first command ॐ')
-        // this.pollForStream('Ω first command ॐ');
+        this.pollForStream('Ω first command ॐ');
         bugtxt( `appPath ${appPath}` )
       } else {
         mode("no command ");
@@ -1275,7 +1276,7 @@ class AminoSeeNoEvil {
       //////////////////////
       bugtxt(`File: ${ this.howMany } popAndLock result: ${ result } ${ this.currentFile} reason: ${reason}`);
       this.howMany = this.args._.length + 1;
-      log(`>>> PREFLIGHT <<< ${ this.howMany } ${ fixedWidth(24,  this.currentFile)} then ${ fixedWidth(24,  this.nextFile)} reason: ${reason}`);
+      output(`>>> PREFLIGHT <<< ${ this.howMany } ${ fixedWidth(24,  this.currentFile)} then ${ fixedWidth(24,  this.nextFile)} reason: ${reason}`);
 
 
       if ( this.howMany < 0) {
@@ -1322,7 +1323,7 @@ class AminoSeeNoEvil {
       if (this.howMany < 0) { this.gracefulQuit(130) }
 
       if ( this.currentFile == funknzLabel) { // maybe this is to get past my lack of understanding of processing of this.args.
-        // this.bugtxt("skipping default: " + defaultFilename); // it was rendered same file twice i think
+        this.popAndResolve();
         this.resetAndMaybe();
         return false;
       }
@@ -1333,9 +1334,9 @@ class AminoSeeNoEvil {
         if ( this.openImage === true) {
           msg += chalk.gray(`Opening image now. Use --no-image to prevent. `)
           this.opensImage++;
-          open( this.filenamePNG ).then(() => {
-            log("image browser closed");
-          }).catch(function () {  bugtxt("open( this.filenamePNG )") });
+          // open( this.filenamePNG ).then(() => {
+          //   log("image browser closed");
+          // }).catch(function () {  bugtxt("open( this.filenamePNG )") });
         } else {
           msg += chalk.gray(`Use --image to automatically open files after render. `)
         }
@@ -1636,7 +1637,7 @@ class AminoSeeNoEvil {
     // therefore if filesize = -1 then streaming pipe mode is enabled.
     // the goal is to set this.codonsPerPixel
     //
-    if (this.filename  = funknzLabel) { log('no'); return false; }
+    if (this.filename  == funknzLabel) { log('no'); return false; }
 
     this.baseChars = this.getFilesizeInBytes( this.filename );
     if ( this.baseChars < 0) { // switch to streaming pipe this.mode,
