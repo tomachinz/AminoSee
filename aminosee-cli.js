@@ -8,8 +8,8 @@
 const siteDescription = `A unique visualisation of DNA or RNA residing in text files, AminoSee is a way to render huge genomics files into a PNG image using an infinite space filling curve from 18th century! Computation is done locally, and the files do not leave your machine. A back-end terminal daemon cli command that can be scripted is combined with a front-end GUI in Electron, AminoSee features asynchronous streaming processing enabling arbitrary size files to be processed. It has been tested with files in excess of 4 GB and does not need the whole file in memory at any time. Due to issues with the 'aminosee *' command, a batch script is provided for bulk rendering in the dna/ folder. Alertively use the GUI to Drag and drop files to render a unique colour view of RNA or DNA stoRed in text files, output to PNG graphics file, then launches an WebGL this.browser that projects the image onto a 3D Hilbert curve for immersive viewing, using THREEjs. Command line options alow one to filter by this.peptide.`;
 const interactiveKeysGuide = `
 Interactive control:    D            (devmode)  Q   (graceful quit next save)
-V       ( this.verbose this.mode)  B ( this.dnabg DNA to screen)  Control-C      (fast quit)
-S    (start webserver)  W (toggle screen this.clear) U       (stats update on/off)
+V       ( verbose mode)  B ( live DNA to screen)  Control-C      (fast quit)
+S    (start webserver)  W (toggle screen clear) U       (stats update on/off)
 Esc     (graceful quit) O (toggle show files after in GUI)`;
 const lineBreak = `
 `;
@@ -20,7 +20,7 @@ const data = require('./aminosee-data');
 // const StdInPipe = require('./aminosee-stdinpipe');
 const asciiart = data.asciiart;
 let saySomethingEpic = data.saySomethingEpic;
-let debug = false; // should be false for PRODUCTION
+const debug = false; // should be false for PRODUCTION
 
 
 // OPEN SOURCE PACKAGES FROM NPM
@@ -108,11 +108,73 @@ module.exports = () => {
   }
 }
 // let radMessage, opensExplorer, this.debugColumns, height,  this.mixRGBA, this.rgbArray,  isStreamingPipe,  filenameHILBERT,  this.justNameOfHTML,  users, present, peptide, ratio,  this.magnitude,  this.openImage, usersOutpath, projectprefs, userprefs, eak this.green ,   this.progato, userCPP, startDate, started, this.previousImage, this.charClock,  this.genomeSize, cliruns,  gbprocessed , progTimer, this.hilbertImage, keyboard, filenameTouch, filenameServerLock, estimatedPixels, args, filenamePNG, extension, reader, hilbertPoints, herbs, levels, mouseX, mouseY, windowHalfX, windowHalfY, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, fileUploadShowing, testColors, chunksMax, chunksize, chunksizeBytes, cpu, subdivisions, contextBitmap, this.aminoacid, pixelClock, start, updateClock, bytesPerMs,  this.pixelStacking, this.isHighlightCodon,  this.justNameOfPNG,  this.justNameOfHILBERT, sliceDNA, filenameHTML, msElapsed, bytesRemain, width, triplet, updatesTimer, pngImageFlags, codonsPerPixel, codonsPerPixelHILBERT, this.red, this.green, this.blue, this.alpha,  errorClock, this.breakClock, this.streamLineNr,  this.opacity , this.codonRGBA, currentTriplet,  this.currentPeptide,  this.shrinkFactor, reg, image, this.loopCounter,  this.percentComplete,  this.baseChars, bigIntFileSize, currentPepHighlight, justNameOfCurrentFile ,  this.openHtml,  this.openFileExplorer , pixelStream, startPeptideIndex, stopPeptideIndex, flags, loadavg, platform, totalmem, correction, aspect, this.debugFreq, help, tx, ty, this.lockTimer,  this.opensFile,  this.opensImage,  this.opensHtml, instanceCLI;
+function populateArgs(procArgv) { // returns args
+  const options = {
+    boolean: [ 'artistic' ],
+    boolean: [ 'clear' ],
+    boolean: [ 'chrome' ],
+    boolean: [ 'devmode' ],
+    boolean: [ 'debug' ],
+    boolean: [ 'demo' ],
+    boolean: [ 'dnabg' ],
+    boolean: [ 'explorer' ],
+    boolean: [ 'file' ],
+    boolean: [ 'force' ],
+    boolean: [ 'firefox' ],
+    boolean: [ 'gui' ],
+    boolean: [ 'html' ],
+    boolean: [ 'image' ],
+    boolean: [ 'keyboard' ],
+    boolean: [ 'progress' ],
+    boolean: [ 'quiet' ],
+    boolean: [ 'reg' ],
+    boolean: [ 'recycle' ],
+    boolean: [ 'redraw' ],
+    boolean: [ 'serve' ],
+    boolean: [ 'safari' ],
+    boolean: [ 'test' ],
+    boolean: [ 'updates' ],
+    boolean: [ 'verbose' ],
+    string: [ 'codons'],
+    string: [ 'magnitude'],
+    string: [ 'outpath'],
+    string: [ 'triplet'],
+    string: [ 'peptide'],
+    string: [ 'ratio'],
+    string: [ 'width'],
+    alias: { a: 'artistic', b: 'dnabg', c: 'codons', d: 'devmode', f: 'force', h: 'help', k: 'keyboard', m: 'magnitude', o: 'outpath', out: 'outpath', output: 'outpath', p: 'peptide', i: 'image', t: 'triplet', q: 'quiet', r: 'reg', w: 'width', v: 'verbose', x: 'explorer', finder: 'explorer'  },
+    default: { image: false, updates: true, dnabg: false, clear: true, explorer: false, quiet: false, gui: true, keyboard: false, progress: false, redraw: true },
+    stopEarly: false
+  }
+  return minimist(procArgv.slice(2), options);
+}
+function pushCli(cs) { // used by Electron GUI
+  commandString = `${cs} --html -q --verbose --devmode`;
+  log(chalk.inverse(`Starting AminoSee now with CLI:`) + ` isElectron: [${isElectron}]`)
+  bugtxt(commandString);
+
+  let commandArray = commandString.split("\\s+");
+  let jobArgs = populateArgs(commandArray);
+  log(jobArgs);
+  commandArray.forEach((job) => {
+    bugtxt(job)
+    // jobArgs._.push(job)
+  })
+  let thread = addJob(jobArgs);
+  threads.push( thread );
+}
+function addJob( jobArgs ) { // used node and CLI tool.
+  cliInstance = new AminoSeeNoEvil();
+  cliInstance.setupApp( jobArgs ); // do stuff that is needed even just to run "aminosee" with no options.
+  return cliInstance;
+}
 
 class AminoSeeNoEvil {
   constructor(classyArgv) { // CLI commands, this.filenames, *
     // log(`constructed with: [${classyArgv.toString()}] [${classyArgv[1]}] [${classyArgv[2]}]  this.genomeSize: [${ this.genomeSize}]`)
     output(logo());
+    this.setupOutPaths();
+    setupPrefs(this);
   }
   // return number of AminoSee objects
   static get COUNT() {
@@ -218,7 +280,6 @@ class AminoSeeNoEvil {
       // this.resized(tx, ty);
       // this.previousImage = this.justNameOfDNA
       output(logo());
-      this.setupOutPaths();
 
       if ( args.debug) {
         this.debug = true;
@@ -226,7 +287,7 @@ class AminoSeeNoEvil {
       } else {
         this.debug = false;
       }
-      debug = this.debug; // global
+
       if ( args.progress) {
         this.updateProgress = true; // whether to show the progress bars
         log('progress bars enabled');
@@ -319,22 +380,25 @@ class AminoSeeNoEvil {
         this.codonsPerPixel = defaultC;
         this.userCPP = "auto";
       }
+      // let computerWants = this.optimumDimension (linearpix);
+
       if ( args.magnitude || args.m) {
         this.magnitude = Math.round( args.magnitude || args.m);
-        if (  this.magnitude < 1 ) {
-          this.dimension = 1;
+        if (  this.magnitude < 3 ) {
+          this.dimension = 3;
           // this.maxpix = 4096 * 16; // sixteen times oversampled in reference to the linear image.
           output("Magnitude must be an integer number between 3 and 9. Using -m 3 for 4096 pixel curve.");
         } else if (  this.magnitude > theoreticalMaxMagnitude) {
           this.dimension = theoreticalMaxMagnitude;
-          // this.maxpix = 64000000;
-          output("Magnitude must be an integer number between 3 and 9.");
+          this.maxpix = 32000000;
+          output("Magnitude must be an integer number between 3 and 9 or so.");
         } else if (  this.magnitude > 6 &&  this.magnitude < 9) {
           // this.maxpix = targetPixels;
           output(`Using custom output magnitude: ${ this.magnitude }`);
         }
       } else {
         this.magnitude = defaultMagnitude;
+        log(`Using default max magnitude of ${defaultMagnitude}th dimension`)
       }
       bugtxt(` this.maxpix: ${  this.maxpix } this.dimension: ${ this.dimension }`);
       if ( args.ratio) {
@@ -472,10 +536,10 @@ class AminoSeeNoEvil {
         // this.blockingServer();
       }
       if ( args.clear || args.c) {
-        log("screen this.clearing enabled.");
+        log("screen clearing enabled.");
         this.clear = true;
       } else {
-        log("clear screen disabled.");
+        output("clear screen disabled.");
         this.clear = false;
         this.termDisplayHeight--;
       }
@@ -490,7 +554,7 @@ class AminoSeeNoEvil {
       }
       if ( args.reg || args.r) { // NEEDS TO BE ABOVE TEST
         this.reg = true;
-        output(`using this.regmarks`)
+        output(`using regmarks`)
       } else {
         // if ( args.test) {
         //   this.reg = true;
@@ -499,7 +563,7 @@ class AminoSeeNoEvil {
         //   this.reg = false;
         //   log(`not using this.regmarks for calibration`)
         // }
-        log(`no this.regmarks`)
+        log(`no regmarks`)
         this.reg = false;
       }
       if ( args.test) {
@@ -547,17 +611,17 @@ class AminoSeeNoEvil {
       if ( args.list ) {
         listDNA();
       }
-      output(`args length: ${this.howMany} commandString: ${commandString}`)
+      output(`args length: ${this.howMany} commandString: ${commandString} Electron mode: ${isElectron}`)
 
       if ( this.howMany > 0 ) {
-        // this.currentFile = args._[0]
-        // if ( !this.charAtCheck(this.currentFile) ||  this.currentFile == funknzlabel ) { this.quit(); return false }
-        // this.filename =  path.resolve( this.currentFile );
+        this.currentFile = args._[0]
+        if ( !this.charAtCheck(this.currentFile) ||  this.currentFile == funknzlabel ) { this.quit(); return false }
+        this.filename =  path.resolve( this.currentFile );
         log("Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω ");// + this.currentFile)
         mode("Ω first command " + this.howMany);
-        this.lookForWork('Ω first command ॐ')
+        // this.lookForWork('Ω first command ॐ')
         // this.popAndResolve();
-        // this.pollForStream('Ω first command ॐ');
+        this.pollForStream('Ω first command ॐ');
         bugtxt( `appPath ${appPath}` )
       } else {
         mode("no command ");
@@ -685,6 +749,8 @@ class AminoSeeNoEvil {
       // this.bugtxt( this.pepTable ); // least common amino acids in front
 
       let zumari = {
+        original_source: this.currentFile,
+        full_path: this.filename,
         maxpix:  this.maxpix,
         name: this.justNameOfDNA,
         refimage:  this.justNameOfHILBERT,
@@ -769,7 +835,6 @@ class AminoSeeNoEvil {
       this.isDiskFinLinear = false;
       // this.currentFile = this.args._[0].toString();
       // this.filename = path.resolve( this.currentFile )
-      this.setupOutPaths();
 
       for (let h=0; h< this.pepTable.length; h++) {
         this.pepTable[h].Histocount = 0;
@@ -852,7 +917,7 @@ class AminoSeeNoEvil {
       process.stdin.once('keypress', function (ch, key) {
         // log('got "keypress"', key);
         if (key && key.name == 't') {
-          that.mode('pushing this.test onto render queue')
+          mode('pushing this.test onto render queue')
           that.args._.push('test');
         }
         if (key && key.name == 'c') {
@@ -967,7 +1032,9 @@ class AminoSeeNoEvil {
       webserverEnabled = !webserverEnabled;
       if (webserverEnabled) {
         log('start server')
-        launchNonBlockingServer(this);
+
+        pushCli('serve');
+        // launchNonBlockingServer(this);
         // this.blockingServer();
       } else {
         killServers();
@@ -1234,8 +1301,8 @@ class AminoSeeNoEvil {
       this.currentFile = this.args._[0];
       if (!this.checkFileExtension( this.currentFile)) {
         log(this.popAndResolve())
-        // this.pollForStream('!checkFileExtension')
-        // return false;
+        this.pollForStream('!checkFileExtension')
+        return false;
       }
       if ( !this ) { return }
 
@@ -1280,7 +1347,7 @@ class AminoSeeNoEvil {
         streamingZip(this.filename);
       }
       if ( this.checkFileExtension( this.currentFile) == false) {
-        redoLine("File Format not supported: " + chalk.inverse( this.getFileExtension( this.currentFile)));
+        redoLine("File Format not supported: " + chalk.inverse( this.getFileExtension( this.currentFile)) + ` supported: ${ extensions }`);
         this.pollForStream('File Format not supported')
         return false;
       } else {
@@ -1473,28 +1540,29 @@ class AminoSeeNoEvil {
     this.streamStarted();
 
 
-    var that = this;
-    var closure = this.filename;
+
     try {
+      var that = this;
+      var closure = this.filename;
       var readStream = fs.createReadStream( closure ).pipe(es.split()).pipe(es.mapSync(function(line){
         readStream.pause(); // pause the readstream during processing
         that.processLine(line); // process line here and call readStream.resume() when ready
         readStream.resume();
       })
       .on('start', function(err){
-        output("streaming");
+        mode("streaming");
       })
       .on('error', function(err){
-        that.mode("stream error");
-        output(`stream error ` + err)
-        output(`while starting stream: [${ closure }] renderLock: [${ that.renderLock}] storage: [${that.storage()}]`);
-        // that.streamStopped();
+        mode(`stream error ${err}`);
+        output(this.status)
+        output(`while starting stream: [${ closure }] renderLock: [${ this.renderLock}] storage: [${this.storage()}]`);
+        // this.streamStopped();
       })
       .on('end', function() {
-        log("stream end");
+        mode("stream end");
       })
       .on('close', function() {
-        log("stream close");
+        mode("stream close");
         that.streamStopped();
       }));
     } catch(e) {
@@ -1511,10 +1579,10 @@ class AminoSeeNoEvil {
     var that = this;
     output('Started render ' + this.justNameOfPNG);
     this.drawHistogram();
-    if ( that.renderLock == true ) {
-      if ( that.updates == true) {
+    if ( this.renderLock == true ) {
+      if ( this.updates == true) {
       }
-      that.progUpdate({ title: 'DNA File Render step 1/3', items: that.howMany, syncMode: true })
+      this.progUpdate({ title: 'DNA File Render step 1/3', items: this.howMany, syncMode: true })
       setTimeout(() => {
         that.manageLocks(5000)
       }, 2000);
@@ -1726,6 +1794,13 @@ class AminoSeeNoEvil {
     this.calculateShrinkage(); // REQUIRES INFO FROM HERE FOR HILBERT this.filename. BUT THAT INFO NOT EXIST UNTIL WE KNOW HOW MANY PIXELS CAME OUT OF THE DNA!
     this.filenameHILBERT = `${ this.outputPath }/${ this.justNameOfDNA }/images/${ this.generateFilenameHilbert() }`;
   }
+
+
+  generateFilenameHistogram() {
+    this.filenameHistogram = path.normalize( path.resolve(`${ this.outputPath }/${ this.justNameOfDNA}/aminosee_histogram.json`) );
+    return this.filenameHistogram;
+  }
+
   generateFilenameTouch() { // we need the *fullpath* of this one
     let justTouch = `AminoSee_BUSY_LOCK_${ this.extension }${ this.highlightFilename() }_c${ onesigbitTolocale( this.codonsPerPixel ) }${ this.getImageType() }.txt`;
 
@@ -2125,7 +2200,7 @@ class AminoSeeNoEvil {
     var file = this.filename;
     var temp = this.filenamePNG;
 
-    async.series( [
+    async.parallel( [
       function( cb ) {
         log('async start')
         cb();
@@ -2191,7 +2266,7 @@ class AminoSeeNoEvil {
     mode("save HTML");
     this.pepTable.sort( this.compareHistocount )
     let histogramJson =  this.getRenderObject();
-    let histogramFile = path.normalize( path.resolve(`${ this.outputPath }/${ this.justNameOfDNA}/aminosee_histogram.json`) );
+    let histogramFile = this.generateFilenameHistogram();
     let hypertext
     if ( this.test === true ) {
       hypertext = this.htmlTemplate( this.testSummary() );
@@ -2306,29 +2381,27 @@ class AminoSeeNoEvil {
 
     if ( cb !== undefined ) { cb() }
   }
-  // start or poll.
-  lookForWork( reason ) { // move on to the next file via this.pollForStream. only call from early parts prio to render.
+  // check if its cool to poll for stream but dont pop the array:
+  lookForWork( reason ) {
     mode(`Look for work reason: ${reason}`);
 
     if ( this.renderLock == true ) { // re-entrancy filter
       this.error('busy with render ' + reason);
-      return false;
     }
-    this.setupProject();
+    // this.setupProject();
 
     if ( this.test == true ) { // uses a loop not polling.
-      this.bugtxt('test is in look for work?');
-      return false;
+      this.error('test is in look for work?');
     }
     if (this.howMany <= 0) {
       mode('Happiness.');
       log(chalk.bgRed.yellow(status));
       this.printRadMessage(status)
-      this.quit(130, status)
+      this.quit(0, status)
       return false;
     }
-
-
+    this.currentFile = this.args._[0].toString();
+    this.filename = path.resolve(this.currentFile);
     if ( this.currentFile == funknzlabel ) {
       this.popAndResolve();
     } else {
@@ -2808,10 +2881,11 @@ class AminoSeeNoEvil {
   }
   getImageType() {
     let t = "";
-    if ( this.args.ratio) {
+    if ( this.args.ratio || this.args.r ) {
       t += `_${ this.ratio }`;
     }
-    ( this.artistic ? t += "_artistic" : t += "_sci")
+     this.artistic ? t += "_artistic" : t += "_sci"
+     this.reg == true ? t += "_reg" : t += ""  // registration marks
     return t;
   }
 
@@ -4064,6 +4138,7 @@ clout(txt) {
   }
   clearScreen() {
     term.clear();
+    this.termDrawImage();
     // process.stdout.write("\x1Bc");
     // process.stdout.write("\x1B[2J"); // THIS SHRINKS MY FONTS!! wtf?
     // process.stdout.write('\033c'); // <-- maybe best for linux? this.clears the screen. ALSD SHRINKS MY FONTS
@@ -4639,8 +4714,8 @@ clout(txt) {
       }
     } else if (debug == true){
       output(txt)
-    } else if (cliInstance.debug == true) {
-      bugout(txt)
+    } else {
+      redoLine(txt)
     }
 
   }
@@ -4853,26 +4928,25 @@ clout(txt) {
       } ) ;
 
     }
-    function setupPrefs() {
+    function setupPrefs(that) {
 
-      projectprefs = new Preferences('nz.funk.aminosee.project',{}, {
+      projectprefs = new Preferences('nz.funk.aminosee.project', {
+        aminosee: {
+          opens: 0,
+          genomes: [ `megabase` ]
+        }
+      }, {
         encrypt: false,
-        file: path.join(os.homedir(), obviousFoldername +  '/aminosee.conf'),
-        format: 'yaml',
-        opens: 0
+        file: path.join(that.outputPath + '/aminosee_project.conf'),
+        format: 'yaml'
       });
-
-      // userprefs = new Preferences('nz.funk.aminosee.user',{}, {
-      //   encrypt: false,
-      //   file: path.join(os.homedir(), obviousFoldername +  '/aminosee.conf'),
-      //   format: 'yaml'
-      // });     ~/.config/preferences/com.foo.bar.pref
 
       userprefs = new Preferences('nz.funk.aminosee.user', {
         aminosee: {
           cliruns: 0,
           guiruns: 0,
-          gbprocessed: 0
+          gbprocessed: 0,
+          completed: 0
         }
       }, {
         encrypt: false,
@@ -5240,76 +5314,7 @@ clout(txt) {
     function deresSeconds(ms){
       return Math.round(ms/1000) * 1000;
     }
-    function populateArgs(procArgv) { // returns args
-      const options = {
-        boolean: [ 'artistic' ],
-        boolean: [ 'clear' ],
-        boolean: [ 'chrome' ],
-        boolean: [ 'devmode' ],
-        boolean: [ 'debug' ],
-        boolean: [ 'demo' ],
-        boolean: [ 'dnabg' ],
-        boolean: [ 'explorer' ],
-        boolean: [ 'file' ],
-        boolean: [ 'force' ],
-        boolean: [ 'firefox' ],
-        boolean: [ 'gui' ],
-        boolean: [ 'html' ],
-        boolean: [ 'image' ],
-        boolean: [ 'keyboard' ],
-        boolean: [ 'progress' ],
-        boolean: [ 'quiet' ],
-        boolean: [ 'reg' ],
-        boolean: [ 'recycle' ],
-        boolean: [ 'serve' ],
-        boolean: [ 'safari' ],
-        boolean: [ 'test' ],
-        boolean: [ 'updates' ],
-        boolean: [ 'verbose' ],
-        string: [ 'codons'],
-        string: [ 'magnitude'],
-        string: [ 'outpath'],
-        string: [ 'triplet'],
-        string: [ 'peptide'],
-        string: [ 'ratio'],
-        string: [ 'width'],
-        alias: { a: 'artistic', b: 'dnabg', c: 'codons', d: 'devmode', f: 'force', h: 'help', k: 'keyboard', m: 'magnitude', o: 'outpath', out: 'outpath', output: 'outpath', p: 'peptide', i: 'image', t: 'triplet', q: 'quiet', r: 'reg', w: 'width', v: 'verbose', x: 'explorer', finder: 'explorer'  },
-        default: { image: false, updates: true, dnabg: false, clear: true, explorer: false, quiet: false, gui: true, keyboard: false, progress: false },
-        stopEarly: false
-      }
-      return minimist(procArgv.slice(2), options);
-    }
-    function pushCli(cs) { // used by Electron GUI
-      setupPrefs();
-      commandString = `${cs} --html --image --verbose --devmode`;
-      log(chalk.inverse(`Starting AminoSee now with CLI:`) + ` isElectron: [${isElectron}]`)
-      bugtxt(commandString);
 
-      let commandArray = commandString.split("\\s+");
-      let jobArgs = populateArgs(commandArray);
-      log(jobArgs);
-      commandArray.forEach((job) => {
-        bugtxt(job)
-        // jobArgs._.push(job)
-      })
-      let thread = addJob(jobArgs);
-      threads.push( thread );
-  }
-  function addJob( jobArgs ) { // used node and CLI tool.
-
-    setupPrefs();
-
-    cliInstance = new AminoSeeNoEvil();
-    cliInstance.setupApp( jobArgs ); // do stuff that is needed even just to run "aminosee" with no options.
-
-
-    // thread.setupApp(job);
-    // cliInstance = thread;
-    // let job = populateArgs(commandArray);
-    // output(`commandArray in addJob: ${commandArray} ${commandArray.length}`)
-
-    return cliInstance;
-  }
   function streamingZip(f) {
     zipfile = path.resolve(f);
     fs.createReadStream(zipfile)
