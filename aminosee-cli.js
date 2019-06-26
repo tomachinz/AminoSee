@@ -4703,9 +4703,10 @@ bothKindsTestPattern(cb) {
     }
     function wTitle(txt) {
       if (this !== undefined) {
-        term.windowTitle(`${ this.highlightOrNothin()} ${ this.justNameOfDNA} ${status} ${maxWidth(120,txt)} (next: ${ this.nextFile}) [+${cliInstance.howMany}] AminoSee@${hostname}`);
+        term.windowTitle(`[+${cliInstance.howMany}] ${ this.highlightOrNothin() } ${status} ${ this.justNameOfDNA } ${maxWidth(120,txt)} (next: ${ this.nextFile}) (AminoSee@${hostname})`);
       } else {
-        term.windowTitle(`${status} ${maxWidth(120,txt)} [+${cliInstance.howMany}] (AminoSee@${hostname}`);
+        term.windowTitle(`[+${cliInstance.howMany}] ${ cliInstance.highlightOrNothin() } ${status} ${ cliInstance.justNameOfDNA } ${maxWidth(120,txt)} (next: ${ cliInstance.nextFile}) (AminoSee@${hostname})`);
+        // term.windowTitle(`[+${cliInstance.howMany}] ${status} ${maxWidth(120,txt)} (AminoSee@${hostname})`);
       }
     }
     function bugout(txt) {
