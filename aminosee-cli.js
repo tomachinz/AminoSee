@@ -696,6 +696,8 @@ class AminoSeeNoEvil {
 
     resized(tx, ty) {
       this.clearCheck();
+      this.termDrawImage();
+
       termSize();
       this.setDebugCols();
       log(`Terminal resized to (${tx},${ty})`);
@@ -1376,24 +1378,6 @@ class AminoSeeNoEvil {
       }
 
 
-      if ( this.checkLocks( this.filenameTouch)) {
-        output("Render already in progress by another thread for: " + this.justNameOfPNG);
-        log("Either use --force or delete this file: ");
-        log(`Touchfile: ${chalk.underline( this.filenameTouch)}`);
-        if ( this.renderLock ) {
-          this.error("Thread re-entry during pollForStream " + this.justNameOfDNA)
-        } else {
-        }
-        this.popAndResolve();
-        this.resetAndMaybe(); // <---  another node maybe working on, NO RENDER
-        return false;
-      }
-
-      mode("Lock OK proceeding to render...");
-      output(status)
-      if (this.renderLock == false) {
-        this.touchLockAndStartStream(); // <--- THIS IS WHERE MAGIC STARTS
-      }
 
       mode(`pollForStream ${reason}`)
 
@@ -1419,6 +1403,24 @@ class AminoSeeNoEvil {
         bugtxt(`path.resolve( this.currentFile) = ${err}`)
       }
 
+            if ( this.checkLocks( this.filenameTouch)) {
+              output("Render already in progress by another thread for: " + this.justNameOfPNG);
+              log("Either use --force or delete this file: ");
+              log(`Touchfile: ${chalk.underline( this.filenameTouch)}`);
+              if ( this.renderLock ) {
+                this.error("Thread re-entry during pollForStream " + this.justNameOfDNA)
+              } else {
+              }
+              this.popAndResolve();
+              this.resetAndMaybe(); // <---  another node maybe working on, NO RENDER
+              return false;
+            }
+
+            mode("Lock OK proceeding to render...");
+            output(status)
+            if (this.renderLock == false) {
+              this.touchLockAndStartStream(); // <--- THIS IS WHERE MAGIC STARTS
+            }
     }
 
     firstRun() {
@@ -4124,7 +4126,6 @@ clout(txt) {
   }
   clearScreen() {
     term.clear();
-    this.termDrawImage();
     // process.stdout.write("\x1Bc");
     // process.stdout.write("\x1B[2J"); // THIS SHRINKS MY FONTS!! wtf?
     // process.stdout.write('\033c'); // <-- maybe best for linux? this.clears the screen. ALSD SHRINKS MY FONTS
