@@ -1,7 +1,6 @@
-// import
-// const aminosee = require('./aminosee-cli.js')
-// const AminoSeeNoEvil = require('./aminosee-cli')
-const aminosee = require('./aminosee-cli');
+const AminoSeeNoEvil = require('./aminosee-cli')
+const pushCli = AminoSeeNoEvil.pushCli;
+const alog = AminoSeeNoEvil.log;
 const server = require('./aminosee-server')
 const { app, BrowserWindow, Menu, dialog, ipcMain } = require('electron') // Modules to control application life and create native browser window
 const extensions = [ "txt", "fa", "mfa", "gbk", "dna"] // replace with that from data.js
@@ -9,7 +8,6 @@ const path = require('path')
 const spawn = require('cross-spawn');
 let threads = [ ]; // these will be threads from spawn
 let mainWindow, devmode;
-// console.log(`main.js process.argv.toString(): [${process.argv.toString()}]`)
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -19,7 +17,7 @@ let mainWindow, devmode;
 // app.commandLine.appendSwitch('devmode', 'true')
 app.on('ready', function() {
   createWindow();
-  pushCli(`help`)
+  // pushCli(`help`)
 })
 
 // Quit when all windows are closed.
@@ -53,8 +51,8 @@ function toggleDevmode() {
 function log(txt) {
   let d = new Date().getTime();
   let a = 'a';// app.remote.process.argv;
-  console.log(`process.argv: [${process.argv}]`)
-  console.log(`main.js: [${d} txt: ${txt} argv: ${a}]`);
+  // console.log(`process.argv: [${process.argv}]`)
+  alog(`main.js: [${d} txt: ${txt} argv: ${a}]`);
 }
 
 function showOpenDialog() {
@@ -78,17 +76,18 @@ function showOpenDialog() {
   };
   const selectedPaths = dialog.showOpenDialog();
   mainWindow.setProgressBar(2); // -1 remove progress, 0-1 is percentage, 2+ means show indeterminate
+  log(`selectedPaths: ${selectedPaths}`)
   pushCli(selectedPaths);
 }
-function pushCli(commandString) {
-  console.log(`Starting AminoSee now with CLI:`);
-  commandString = `node aminosee ${commandString} --verbose --html --image`;
-  console.log(`commandString: [${commandString}]`);
-  let commandArray = commandString.split("\\s+");
-  let thread = aminosee.addJob( commandArray );
-    // thread = aminosee.addJob( commandArray );
-  threads.push( thread );
-}
+// function pushCli(commandString) {
+//   console.log(`Starting AminoSee now with CLI:`);
+//   commandString = `node aminosee ${commandString} --verbose --html --image`;
+//   console.log(`commandString: [${commandString}]`);
+//   let commandArray = commandString.split("\\s+");
+//   let thread = AminoSeeNoEvil.addJob( commandArray );
+//     thread = AminoSeeNoEvil.addJob( commandArray );
+//   threads.push( thread );
+// }
 function createWindow () {
   const electron = require('electron');
   const {width, height} = electron.screen.getPrimaryDisplay().workAreaSize

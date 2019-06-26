@@ -8,23 +8,23 @@ aminosee_do () {
 
 w
 npm run genversion
+
 aminosee
 aminosee -f
 aminosee -q
 echo SHOW VERBOSE
 aminosee -v
-echo RUN TEST
-aminosee --test
+
 # sleep 1
 FAST='50KB_TestPattern.txt'
 
 nice aminosee $FAST $1 $2 $3 $4 $5 $6  --peptide="aspartic ACID"
 aminosee_do $FAST      $1 $2 $3 $4 $5 $6 -f --peptide="gluTAMIC aCID"
 
-echo TESTING GARBAGE FILENAMES FUZZING THAT KINDA THING
-aminosee_do27MB_TestPattern.txt asdfadsf 50KB_TestPattern.txt * qwert  1KB_TestPattern.txt
-aminosee_do  $FAST     $1 $2 $3 $4 $5 $6 --triplet=ggg --ratio=sqr
-aminosee_do  $FAST     $1 $2 $3 $4 $5 $6 -m5 --ratio=gol
+echo GARBAGE FILENAMES FUZZING THAT KINDA THING
+aminosee_do 27MB_TestPattern.txt actualFileToThelieftistoseeifbatchrendersthroughthis junk asdfadsf 50KB_TestPattern.txt * qwert  1KB_TestPattern.txt
+aminosee_do $FAST     $1 $2 $3 $4 $5 $6 --triplet=ggg --ratio=sqr
+aminosee_do $FAST     $1 $2 $3 $4 $5 $6 -m5 --ratio=gol
 aminosee_do $FAST $1 $2 $3 $4 $5 $6 -c100 --ratio=sqr
 
 echo KEYBOARD MODE TEST
@@ -59,13 +59,16 @@ nice aminosee   $1 $2 $3 $4 $5 $6 -q --ratio=fix --peptide=Arginine --html &
 sleep 1
 
 # echo "nice aminosee help &"
-nice aminosee help  $1 $2 $3 $4 $5 $6  --no-image &
+nice aminosee --help  $1 $2 $3 $4 $5 $6  --no-image &
 sleep 1
 
 
 # echo background demo
-nice aminosee demo   $1 $2 $3 $4 $5 $6  --no-html --image &
+nice aminosee --demo   $1 $2 $3 $4 $5 $6  --no-html --image &
 sleep 1
+
+echo calibration TESTS ARE KNOWN TO BE BUGGY AT PRESEDNT:
+aminosee --test
 
 # echo "doing aminosee serve and opening a file"
 nice aminosee serve 3MB_TestPattern.txt  $1 $2 $3 $4 $5 $6  --no-html --explorer &
