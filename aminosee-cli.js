@@ -14,7 +14,7 @@ Esc     (graceful quit) O (toggle show files after in GUI)`;
 const lineBreak = `
 `;
 const settings = require('./aminosee-settings');
-const version = require('./aminosee-version');
+const version = require('./aminosee-version.js');
 const server = require('./aminosee-server');
 const data = require('./aminosee-data');
 // const StdInPipe = require('./aminosee-stdinpipe');
@@ -59,7 +59,7 @@ const netFoldername = "/output"; // terse for networks
 let PNGReader = require('png.js');
 let express = require('express');
 let bodyParser = require('body-parser');
-const gv = require('genversion');
+// const gv = require('genversion');
 // const Jimp = require('jimp');
 // const electron = require('./main'); // electron app!
 // const fileDialog = require('file-dialog')
