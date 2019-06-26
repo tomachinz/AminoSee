@@ -9,12 +9,10 @@ aminosee_do () {
 w
 npm run genversion
 aminosee
-# sleep 1
 aminosee -f
-# sleep 1
 aminosee -v
-# sleep 1
 aminosee -q
+aminosee --test
 # sleep 1
 FAST='50KB_TestPattern.txt'
 

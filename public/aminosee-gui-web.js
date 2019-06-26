@@ -1,6 +1,7 @@
 // "use strict";
 
 let reader, hilbertPoints, herbs, zoom, progress, status, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, textFile, dna, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, justNameOfFile, filename, verbose, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, devmode, fileUploadShowing, maxcolorpix, nextColors, selectedGenom, chunksMax, chunksize, chunksizeBytes, codonsPerPixel, basepairs, cpu, subdivisions, userFeedback, contextBitmap, pauseIntent, linewidth, fileTones, isElectron;
+let sprites = []
 pauseIntent = false;
 maxcolorpix = 262144; // for large genomes
 linewidth = 8;
@@ -57,29 +58,45 @@ function mout(i) {
 }
 function fileChanged(f) {
   if (f == undefined) { f = 'megabase' }
-  filename = f;
+  let histoURL = `${f}aminosee_histogram.json`;
   let path = window.location.pathname;
   let newURL = `${path}#?selectedGenome=${f}`;
+  let image = `${f}/images/${justNameOfPNG}`
   history.pushState(stateObj, justNameOfFile, newURL);
-  document.getElementById('oi').innerHTML = `<img id="current_image" src="${f}" width="64px" height="64px">`;
+  document.getElementById('oi').innerHTML = `<img id="current_image" src="${image}" width="64px" height="64px">`;
   setupFNames();
   console.log(current_image);
   loadImage();
+  loadHistogramJson(histoURL)
 }
-function loadHistogramJson() {
+function loadHistogramJson(histoURL) {
   console.log("FETCH"); // filename
-  fetch( "megabase_histogram.json")
+  fetch( histoURL )
   .then(response => response.json())
   .then(histogramJson => {
     console.log(histogramJson);
-    // alert(histogramJson);
     buildPage(histogramJson);
   }).catch();
 }
+function removesprites() {
+  for ( var i = group.children.length-1; i>=0 ; i-- ) {
+      var sprite = group.children[ i ];
+      console.log("removing");
+      scene.remove(sprite);
+  }
+}
+
 function buildPage(histogramJson) {
-  pepTable = histogramJson.pepTable;
+  let pepTable = histogramJson.pepTable;
   summary = histogramJson.summary;
-  document.getElementById('stackOimages').innerHTML = imageStack(histogramJson);
+  justNameOfFile = summary.name;
+  removesprites()
+}
+  for (i=0; i < pepTable.length; i++) {
+    let image = `output/${justNameOfFile}/images/${pepTable[i].src}`
+    addSpriteToScene( image, i )
+  }
+  // document.getElementById('stackOimages').innerHTML = imageStack(histogramJson);
   // let stackOimages = document.getElementById('stackOimages');
   // stackOimages.innerHTML = imageStack();
 
@@ -98,7 +115,7 @@ function toggleDevmode() {
   }
 }
 function pageLoaded() {
-  // loadHistogramJson();
+  loadHistogramJson();
   initVariables();
   sceneCameraSetup();
   setScene();
@@ -168,13 +185,17 @@ function initVariables() {
   document.body.appendChild( renderer.domElement );
 }
 
-function addSpriteToScene() {
-  var spriteMap = new THREE.TextureLoader().load( "output/Brown_Kiwi_NW_013982187v1/images/Brown_Kiwi_NW_013982187v1.fa_HILBERT-Reference_m7_c397.2.png" );
+function addSpriteToScene(src, zindex) {
+  // var spriteMap = new THREE.TextureLoader().load( "output/Brown_Kiwi_NW_013982187v1/images/Brown_Kiwi_NW_013982187v1.fa_HILBERT-Reference_m7_c397.2.png" );
+  console.log(src)
+  var spriteMap = new THREE.TextureLoader().load( src );
   var spriteMaterial = new THREE.SpriteMaterial( { map: spriteMap, color: 0xffffff } );
   var sprite = new THREE.Sprite( spriteMaterial );
-  sprite.scale.set(400,400, -2000.000);
+  var degrees = 360 / 21;
+  sprite.scale.set(400,400, -200 * zindex );
+  sprite.position.set( zindex/2, zindex/2, zindex * 10 );
   scene.add( sprite );
-
+  sprites.push( sprite )
 }
 function addOffscreenImage() {
   var img = document.getElementById('current_image');
@@ -193,7 +214,6 @@ function addOffscreenImage() {
 }
 function init2D() {
   sceneCameraSetup();
-  addSpriteToScene();
   addOffscreenImage();
 }
 
@@ -1277,7 +1297,7 @@ function testParse() {
   }
   function positionStack() {
     for (i=0; i<pepTable.length; i++) {
-      let thePep = spaceTo_( pepTable[i].Codon );
+      let thePep = pepTable[i].Codon;
       let theHue = pepTable[i].Hue;
       let c =      hsvToRgb( theHue/360, 0.5, 1.0 );
 
@@ -1552,7 +1572,7 @@ function imageStack(histogramJson) {
 
 
   for (i=0; i<pepTable.length; i++) {
-    let thePep = spaceTo_( pepTable[i].Codon );
+    let thePep = pepTable[i].Codon;
     let theHue = pepTable[i].Hue;
     let c =      hsvToRgb( theHue/360, 0.5, 1.0 );
 

@@ -6,12 +6,13 @@
 //       by Tom Atkinson            aminosee.funk.nz
 //        ah-mee no-see       "I See It this.now - I AminoSee it!"
 const siteDescription = `A unique visualisation of DNA or RNA residing in text files, AminoSee is a way to render huge genomics files into a PNG image using an infinite space filling curve from 18th century! Computation is done locally, and the files do not leave your machine. A back-end terminal daemon cli command that can be scripted is combined with a front-end GUI in Electron, AminoSee features asynchronous streaming processing enabling arbitrary size files to be processed. It has been tested with files in excess of 4 GB and does not need the whole file in memory at any time. Due to issues with the 'aminosee *' command, a batch script is provided for bulk rendering in the dna/ folder. Alertively use the GUI to Drag and drop files to render a unique colour view of RNA or DNA stoRed in text files, output to PNG graphics file, then launches an WebGL this.browser that projects the image onto a 3D Hilbert curve for immersive viewing, using THREEjs. Command line options alow one to filter by this.peptide.`;
-
 const interactiveKeysGuide = `
 Interactive control:    D            (devmode)  Q   (graceful quit next save)
 V       ( this.verbose this.mode)  B ( this.dnabg DNA to screen)  Control-C      (fast quit)
 S    (start webserver)  W (toggle screen this.clear) U       (stats update on/off)
 Esc     (graceful quit) O (toggle show files after in GUI)`;
+const lineBreak = `
+`;
 const settings = require('./aminosee-settings');
 const version = require('./aminosee-version');
 const server = require('./aminosee-server');
@@ -58,7 +59,7 @@ const netFoldername = "/output"; // terse for networks
 let PNGReader = require('png.js');
 let express = require('express');
 let bodyParser = require('body-parser');
-// const gv = require('genversion');
+const gv = require('genversion');
 // const Jimp = require('jimp');
 // const electron = require('./main'); // electron app!
 // const fileDialog = require('file-dialog')
@@ -68,9 +69,9 @@ let bodyParser = require('body-parser');
 
 BigInt.prototype.toJSON = function() { return this.toString(); }; // shim for big int
 BigInt.prototype.toBSON = function() { return this.toString(); }; // Add a `toBSON()` to enable MongoDB to store BigInts as strings
-
+// INCREASE THIS TO BOOST THE IMAGE SIZE. 9MP = 20 MB png on average.
 const targetPixels = 9000000; // for big genomes use setting flag -c 1 to achieve highest resolution and bypass this taret max render size
-const funknzLabel = "aminosee.funk.nz"
+const funknzlabel = "aminosee.funk.nz"
 const extensions = [ "txt", "fa", "mfa", "gbk", "dna", "fasta", "fna", "fsa", "mpfa", "gb", "gff"];
 const refimage = "Reference image - all amino acids blended together"
 const closeBrowser = "If the process apears frozen, it's waiting for your this.browser or image viewer to quit. Escape with [ CONTROL-C ] or use --no-image --no-html";
@@ -79,7 +80,7 @@ aminosee.funk.nz DNA Viewer by Tom Atkinson.
 This is a temporary lock file, placed during rendering to enable parallel cluster rendering over LAN networks, if this is here after processing has completerd it usually it means an AminoSee was quit before finishing or had crashed. Its safe to erase these files, and I've made a script in /dna/ to batch delete them all in one go. Normally these are deleted when render is complete, or with Control-C and graceful shutdown.`;
 const defaultC = 1; // back when it could not handle 3+GB files.
 const artisticHighlightLength = 12; // px only use in artistic this.mode. must be 6 or 12 currently
-const defaultMagnitude = 8; // max for auto setting
+const defaultMagnitude = 9; // max for auto setting
 const theoreticalMaxMagnitude = 10; // max for auto setting
 const overSampleFactor = 2; // your linear image needs to be 2 megapixels to make 1 megapixel hilbert
 const maxCanonical = 32; // max length of canonical name
@@ -90,7 +91,7 @@ const max32bitInteger = 2147483647;
 const minUpdateTime = 2000;
 const defaultFilename = "dna/megabase.fa"; // for some reason this needs to be here. hopefully the open source community can come to rescue and fix this Kludge.
 const testFilename = "AminoSeeTestPatterns"; // for some reason this needs to be here. hopefully the open source community can come to rescue and fix this Kludge.
-let isElectron, status, args, killServersOnQuit, webserverEnabled, cliInstance, tx, ty, termPixels, cliruns, gbprocessed, projectprefs, userprefs, progato, threads;
+let isElectron, status, args, killServersOnQuit, webserverEnabled, cliInstance, tx, ty, termPixels, cliruns, opens, gbprocessed, projectprefs, userprefs, progato, threads;
 let dnaTriplets = data.dnaTriplets;
 termPixels = 69;
 tx = ty = cliruns = gbprocessed = 0;
@@ -115,6 +116,7 @@ module.exports = () => {
 class AminoSeeNoEvil {
   constructor(classyArgv = ['node', 'aminosee.js', 'demo']) { // CLI commands, this.filenames, *
     log(`constructed with: [${classyArgv.toString()}] [${classyArgv[1]}] [${classyArgv[2]}]  this.genomeSize: [${ this.genomeSize}]`)
+    output(logo());
   }
   // return number of AminoSee objects
   static get COUNT() {
@@ -136,8 +138,7 @@ class AminoSeeNoEvil {
       ah-mee no-see         "I See It this.now - I AminoSee it!"
       `, 96, 64, 245);
 
-      const lineBreak = `
-      `;
+
       const options = {
         boolean: [ 'artistic' ],
         boolean: [ 'clear' ],
@@ -172,14 +173,17 @@ class AminoSeeNoEvil {
         string: [ 'width'],
         unknown: [ unknownOption ],
         alias: { a: 'artistic', b: 'dnabg', c: 'codons', d: 'devmode', f: 'force', h: 'help', k: 'keyboard', m: ' magnitude', o: 'outpath', out: 'outpath', output: 'outpath', p: 'peptide', i: 'image', t: 'triplet', q: 'quiet', r: 'reg', w: 'width', v: 'verbose', x: 'explorer', finder: 'explorer'  },
-        default: { image: true, updates: true, dnabg: false, clear: true, explorer: false, quiet: false, gui: true, keyboard: false, progress: false },
+        default: { image: false, updates: true, dnabg: false, clear: true, explorer: false, quiet: false, gui: true, keyboard: false, progress: false },
         stopEarly: false
       }
 
       this.args = minimist(procArgv.slice(2), options);
-      args = this.args;
 
+      args = this.args;
       webserverEnabled = false;
+
+      this.percentComplete = 0;
+      this.howMany = args._.length;
       this.loopCounter = 0;
       this.startDate = new Date(); // required for touch locks.
       this.started = this.startDate.getTime(); // required for touch locks.
@@ -189,16 +193,15 @@ class AminoSeeNoEvil {
       this.termStatsHeight = 9;
       this.timestamp = Math.round(+new Date()/1000);
       this.outFoldername = "";
-      this.howMany = args._.length;
       this.genomeSize = 0;
       this.killServersOnQuit = true;
       this.isElectron = true;
-      this.maxMsPerUpdate  = 30000; // milliseconds per updatethis.maxpix = targetPixels; //  this.maxpix can be changed downwards by algorithm for small genomes in order to zoom in
+      this.maxMsPerUpdate  = 30000; // milliseconds per updatethis.maxpix = targetPixels; //
       this.timeRemain = 1;
       this.debugGears = 1;
       this.done = 0;
       this.suopIters = 0;
-      this.raceDelay = 669; // so i learnt a lot on this project. one day this line shall disappear replaced by promises.
+      this.raceDelay = 969; // so i learnt a lot on this project. one day this line shall disappear replaced by promises.
       this.darkenFactor = 0.25; // if user has chosen to highlight an amino acid others are darkened
       this.highlightFactor = 4.0; // highten brightening.
       this.devmode = false; // kills the auto opening of reports etc
@@ -238,21 +241,20 @@ class AminoSeeNoEvil {
       this.outFoldername = `/AminoSee_Output`;
       this.justNameOfDNA = 'aminosee-is-looking-for-files-containing-ascii-DNA.txt';
       this.browser = 'firefox';
-      this.currentFile = funknzLabel;
-      this.nextFile = funknzLabel;
+      this.currentFile = funknzlabel;
+      this.nextFile = funknzlabel;
       this.dimension = defaultMagnitude; // var that the hilbert projection is be downsampled to
       this.msPerUpdate  = minUpdateTime; // min milliseconds per update its increased for long renders
       this.now = new Date();
       this.termMarginTop = (term.height - this.termDisplayHeight - this.termStatsHeight) / 4;
       this.maxpix = targetPixels;
-      this.howMany = 1;
       this.termPixels = 69;//Math.round((term.width) * (term.height-8));
       this.runningDuration = 1; // ms
       this.pepTable = data.pepTable;
       this.streamLineNr = 0;
       this.termMarginLeft = 2;
       this.dnabg = false;
-      // this.filename = path.resolve(currentFile)
+      this.filename = funknzlabel;
       // termSize();
       // this.resized(tx, ty);
       // this.previousImage = this.justNameOfDNA
@@ -479,7 +481,7 @@ class AminoSeeNoEvil {
         this.openHtml = false;
       }
 
-      if ( cliruns > 69 ||  gbprocessed  > 0.1 ) { this.dnabg = true } // if you actually use the program, this easter egg starts showing raw DNA as the background after 100 megs or 69 runs.
+      if ( cliruns > 69 ||  gbprocessed  > 0.1 || opens > 24 ) { this.dnabg = true } // if you actually use the program, this easter egg starts showing raw DNA as the background after 100 megs or 69 runs.
       if ( args.dnabg || args.s) {
         log("this.dnabg mode enabled.");
         this.dnabg = true;
@@ -586,11 +588,12 @@ class AminoSeeNoEvil {
       if ( args.list ) {
         listDNA();
       }
+      bugtxt(`args length: ${this.howMany}`)
 
       if ( this.howMany > 0 ) {
         this.currentFile = args._[0]
-        if ( !this.chartAtCheck() ||  this.currentFile == funknzLabel ) { this.quit(); return false }
-        this.filename =  path.resolve( this.currentFile );
+        // if ( !this.charAtCheck(this.currentFile) ||  this.currentFile == funknzlabel ) { this.quit(); return false }
+        // this.filename =  path.resolve( this.currentFile );
         log("Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω " + this.currentFile)
         mode("Ω first command " + this.howMany + " " + this.currentFile);
         // this.lookForWork('Ω first command ॐ')
@@ -608,15 +611,16 @@ class AminoSeeNoEvil {
         }
         output(`Try running  --->>>        aminosee help`);
         output(`usage        --->>>        aminosee [*/dna-file.txt] [--help|--test|--demo|--force|--html|--image|--keyboard]     `); //" Closing in 2 seconds.")
+        output(`example      --->>>        aminosee Human_Genome.txt Gorilla.dna Chimp.fa Orangutan.gbk --image `); //" Closing in 2 seconds.")
         if ( this.verbose == true && this.quiet == false) {
           this.helpCmd();
         } else if ( !this.quiet) {
-          output();
-          log('Closing in ')
-          this.countdown('Closing in ', 3000);
+          output(' ');
+          // log('Closing in ')
+          countdown('No command - closing in ', 3000);
         } else {
           output();
-          this.countdown('Closing in ', 500);
+          countdown('Closing in ', 800);
         }
         return true;
       }
@@ -999,10 +1003,15 @@ class AminoSeeNoEvil {
       log(`this.dnabg mode ${this.dnabg}`);
     }
     toggleServer() {
-      webserverEnabled = true;
-      log('start server')
-      // launchNonBlockingServer(this);
-      this.blockingServer();
+      webserverEnabled = !webserverEnabled;
+      if (webserverEnabled) {
+        log('start server')
+        launchNonBlockingServer(this);
+        // this.blockingServer();
+      } else {
+        killServers();
+      }
+
     }
     toggleDebug() {
       this.debug = !this.debug;
@@ -1171,7 +1180,7 @@ class AminoSeeNoEvil {
 
       if (clusterRender) {
         this.outputPath = path.normalize(path.resolve(process.cwd() + this.outFoldername))  // default location after checking overrides
-        output("CLUSTER OUTPUT FOLDER ENABLED")
+        log("CLUSTER OUTPUT FOLDER ENABLED")
         log(`Enabled by the prseence of a /output/ or /AminoSee_Output/ folder in *current* dir. If not present, local users homedir ~/AminoSee_Output`);
       } else {
         this.outputPath = path.normalize(path.resolve(os.homedir + this.outFoldername))  // default location after checking overrides
@@ -1233,12 +1242,10 @@ class AminoSeeNoEvil {
       // return `${(isDiskFinLinear ? 'Linear ' : '')} ${(isDiskFinHilbert ? 'Hilbert ' : '')} ${(isDiskFinHTML ? 'HTML ' : '' )}`;
       return `${( !this.isDiskFinLinear ? 'Linear ' : 'OK')} ${( !this.isDiskFinHilbert ? 'Hilbert ' : 'OK')} ${( !this.isDiskFinHTML ? 'HTML ' : 'OK' )}`;
     }
-    chartAtCheck() {
-      if ( this.currentFile === undefined) { return false }
-      if ( this.currentFile.charAt(0) == '-') {
-        log(`cant use files that begin with a dash - ${ this.currentFile }`)
-        this.popAndResolve()
-        // this.pollForStream('cant use files that begin with a dash -')
+    charAtCheck(file) {
+      if ( file === undefined) { return false }
+      if ( file.charAt(0) == '-') {
+        log(`cant use files that begin with a dash - ${ file }`)
         return false;
       } else { return true }
     }
@@ -1257,33 +1264,37 @@ class AminoSeeNoEvil {
     pollForStream(reason) { // render lock must be off before calling. aim: start the render, or look for work
       mode('pre-polling ' + this.howMany);
       var that = this;
-      if ( !this.chartAtCheck() ) { quit(); return false }
 
+
+      if ( this && this.renderLock == true ) {
+        bugtxt(`thread re-entry inside pollForStream: ${ this.justNameOfDNA} ${ this.busy()} ${this.storage()} reason: ${reason}`);
+        return false;
+      }
+      this.currentFile = this.args._[0];
       if (!this.checkFileExtension( this.currentFile)) {
         log(this.popAndResolve())
         // this.pollForStream('!checkFileExtension')
         // return false;
       }
       if ( !this ) { return }
-      if ( this && this.renderLock == true ) {
-        bugtxt(`thread re-entry inside pollForStream: ${ this.justNameOfDNA} ${ this.busy()} ${this.storage()} reason: ${reason}`);
-        return false;
-      }
 
       mode(`pollForStream ${reason}`)
       //////////////////////
       let result = this.popAndResolve();
       //////////////////////
+
       bugtxt(`File: ${ this.howMany } popAndLock result: ${ result } ${ this.currentFile} reason: ${reason}`);
-      this.howMany = this.args._.length + 1;
-      output(`>>> PREFLIGHT <<< ${ this.howMany } ${ fixedWidth(24,  this.currentFile)} then ${ fixedWidth(24,  this.nextFile)} reason: ${reason}`);
-
-
-      if ( this.howMany < 0) {
-        log(`outa work`)
-        quit(0);
+      this.howMany = this.args._.length; //+ 1;
+      if ( this.howMany < 1) {
+        output(`outa work`)
+        // this.quit(0);
         return false;
       }
+      log(`>>> PREFLIGHT <<< ${ this.howMany } ${ fixedWidth(24,  this.currentFile)} then ${ fixedWidth(24,  this.nextFile)} reason: ${reason}`);
+
+      // if ( !this.charAtCheck() && this.howMany > -1) {  output(`charAtCheck`) ; this.pollForStream('charAtCheck'); return false }
+
+
 
       try {
         this.filename = path.resolve( this.currentFile);  // not thread safe after here!
@@ -1298,7 +1309,8 @@ class AminoSeeNoEvil {
 
       if (doesFileExist(this.filename) == false) {
         output("currentFile is not exist")
-        this.resetAndMaybe();
+        // this.resetAndMaybe();
+        this.pollForStream();
         return false;
       }
 
@@ -1309,11 +1321,12 @@ class AminoSeeNoEvil {
       }
       if ( this.checkFileExtension( this.currentFile) == false) {
         redoLine("File Format not supported: " + chalk.inverse( this.getFileExtension( this.currentFile)));
-        this.popAndResolve();
-        // this.renderLock = false;
-        this.pollForStream('File Format not supported')
-        // this.lookForWork('inside poll for stream. file format not support. ' + fixedWidth(24, this.currentFile) );
+        // this.pollForStream('File Format not supported')
         return false;
+      } else {
+        if (doesFolderExist(this.currentFile)) {
+          output('This is s a folder not a file: ' + this.currentFile)
+        }
       }
       // this.bugtxt("PNG: " + this.justNameOfPNG);
       // this.bugtxt(`[ polling ${ this.nicePercent()} ${status} ${new Date()} ]`);
@@ -1322,11 +1335,22 @@ class AminoSeeNoEvil {
       if (this.howMany < 1) { this.isShuttingDown = true;}
       if (this.howMany < 0) { this.gracefulQuit(130) }
 
-      if ( this.currentFile == funknzLabel) { // maybe this is to get past my lack of understanding of processing of this.args.
+      if ( this.currentFile == funknzlabel) { // maybe this is to get past my lack of understanding of processing of this.args.
         this.popAndResolve();
         this.resetAndMaybe();
         return false;
       }
+
+
+      ///////////////// BEGIN PARSING DNA FILE //////////////////////////////
+      ///////////////// Check if it's been rendered etc
+      mode('parsing');
+      this.setupProject();
+      this.autoconfCodonsPerPixel();
+      this.setupFNames(); // will have incorrect Hilbert file name. Need to wait until after render to check if exists.
+      // this.bugtxt(`analyse: ${chalk.inverse( this.currentFile)} storage: ${chalk.inverse( this.storage() )} Fullpath: ${ this.filename }`)
+      // this.bugtxt(`Parsing ${ this.justNameOfDNA }  defaultFilename  ${defaultFilename}  ${ this.filename }  this.howMany   ${this.howMany}   status ${status}`);
+      log('Checking for previous render'+ this.filenamePNG)
 
       if (doesFileExist(this.filenamePNG) && this.force == false) {
         let msg = `Already rendered ${chalk.bgBlue.white(this.justNameOfPNG)}. `
@@ -1334,9 +1358,9 @@ class AminoSeeNoEvil {
         if ( this.openImage === true) {
           msg += chalk.gray(`Opening image now. Use --no-image to prevent. `)
           this.opensImage++;
-          // open( this.filenamePNG ).then(() => {
-          //   log("image browser closed");
-          // }).catch(function () {  bugtxt("open( this.filenamePNG )") });
+          open( this.filenamePNG ).then(() => {
+            log("image browser closed");
+          }).catch(function () {  bugtxt("open( this.filenamePNG )") });
         } else {
           msg += chalk.gray(`Use --image to automatically open files after render. `)
         }
@@ -1348,31 +1372,22 @@ class AminoSeeNoEvil {
           return false;
         }
       }
-      ///////////////// BEGIN PARSING DNA FILE //////////////////////////////
-      ///////////////// Check if it's been rendered etc
-      mode('parsing');
-      this.setupProject();
-      this.autoconfCodonsPerPixel();
-      this.setupFNames(); // will have incorrect Hilbert file name. Need to wait until after render to check if exists.
-      // this.bugtxt(`analyse: ${chalk.inverse( this.currentFile)} storage: ${chalk.inverse( this.storage() )} Fullpath: ${ this.filename }`)
-      // this.bugtxt(`Parsing ${ this.justNameOfDNA }  defaultFilename  ${defaultFilename}  ${ this.filename }  this.howMany   ${this.howMany}   status ${status}`);
-      output('Checking '+ this.filenamePNG)
-      if ( this.skipExistingFile( this.filenamePNG ) ) {
-        output(`Already rendered this.${ fixedWidth(32, this.filenamePNG)} (${this.howMany} files to go) use --explorer to show files`);
-        log("use --force to overwrite  --image to automatically open   ");
-        if ( this.openHtml == true || this.openImage == true || this.openFileExplorer == true) {
-          log("use --no-image suppress automatic opening of the image.")
-          this.openOutputs(this);
-        } else {
-          log('use --image to open in viewer')
-        }
-        this.previousImage = this.filenamePNG;
-        mode('skip existing')
-        this.popAndResolve();
-        // this.howMany--;
-        this.pollForStream()
-        return false;
-      } else { log('Not skipping') }
+
+      // if ( this.skipExistingFile( this.filenamePNG ) ) {
+      //   output(`Already rendered this.${ fixedWidth(32, this.filenamePNG)} (${this.howMany} files to go) use --explorer to show files`);
+      //   log("use --force to overwrite  --image to automatically open   ");
+      //   if ( this.openHtml == true || this.openImage == true || this.openFileExplorer == true) {
+      //     log("use --no-image suppress automatic opening of the image.")
+      //     this.openOutputs(this);
+      //   } else {
+      //     log('use --image to open in viewer')
+      //   }
+      //   this.previousImage = this.filenamePNG;
+      //   mode('skip existing')
+      //   this.popAndResolve();
+      //   this.pollForStream()
+      //   return false;
+      // } else { log('Not skipping') }
 
       // this.termDrawImage();
 
@@ -1390,6 +1405,7 @@ class AminoSeeNoEvil {
       }
 
       mode("Lock OK proceeding to render...");
+      output(status)
       if (this.renderLock == false) {
         this.touchLockAndStartStream(); // <--- THIS IS WHERE MAGIC STARTS
       }
@@ -1637,7 +1653,7 @@ class AminoSeeNoEvil {
     // therefore if filesize = -1 then streaming pipe mode is enabled.
     // the goal is to set this.codonsPerPixel
     //
-    if (this.filename  == funknzLabel) { log('no'); return false; }
+    if (this.filename  == funknzlabel) { log('no'); return false; }
 
     this.baseChars = this.getFilesizeInBytes( this.filename );
     if ( this.baseChars < 0) { // switch to streaming pipe this.mode,
@@ -1904,7 +1920,9 @@ class AminoSeeNoEvil {
 
     setTimeout(()=> {
       output("AminoSee built-in web server started")
-      showCountdown();
+      output(`Built-in webserver: ${server.getServerURL()}   [ stop server with Control-C | run in background with [S] `)
+      countdown(`| will shutdown in ${humanizeDuration(max32bitInteger)}`, max32bitInteger);
+
     }, max32bitInteger);
   }
 
@@ -2053,19 +2071,17 @@ class AminoSeeNoEvil {
       this.openHtml = true;
       this.openImage = true;
       this.openFileExplorer = true;
-      if ( this.keyboard == false) { // this not need done twice
-        setupKeyboardUI();
-      }
-
+      // if ( this.keyboard == true) { // this not need done twice
+        this.setupKeyboardUI();
+      // }
       // countdown('Press [Q] to quit this.now, [S] to launch a web server in background thread or wait ', 4000, blockingServer());
       // countdown('Press [S] to launch a web server in background thread or quit in ', 4000);
       setTimeout( () => {
-        output("Closing in 2 minutes.")
-        this.countdown("Closing in " , 120000, process.exit() );
+        countdown("Closing in " , 120000, process.exit() );
       }, 4000)
     } else {
       // output('This is a terminal CLI (command line interface) program. Run it from the DOS prompt / Terminal.app / shell.', 4000);
-      this.countdown('Press [Q] to quit this.now, closing in ', 4000, process.exit());
+      countdown('Press [Q] to quit this.now, closing in ', 4000, process.exit());
     }
   }
 
@@ -2132,10 +2148,12 @@ class AminoSeeNoEvil {
     if (this.test) { // the calibration generates its own image
       this.shrinkFactor = 1;
     } else { // regular DNA processing
+
       userprefs.aminosee.cliruns++; // increment run counter. for a future high score table stat and things maybe.
       userprefs.aminosee.gbprocessed  +=  this.baseChars / 1024 / 1024 / 1024; // increment disk counter.
       cliruns = userprefs.aminosee.cliruns
-      gbprocessed  = userprefs.aminosee.gbprocessed ;
+      gbprocessed  = userprefs.aminosee.gbprocessed;
+      // opensImage
     }
     this.percentComplete = 1; // to be sure it shows 100% complete
 
@@ -2150,45 +2168,37 @@ class AminoSeeNoEvil {
     async.series( [
       function( cb ) {
         log('async start')
-        setTimeout(() => {
           cb();
-        }, this.raceDelay*2);
       },
       function( cb ) {
-        if ( this.test ) {
+        if ( that.test ) {
           log('async save hilbert using fakey method')
-          this.filenamePNG = this.filenameHILBERT;
-          this.rgbArray = this.hilbertImage
-          this.ratio = 'sqr'
+          that.filenamePNG = that.filenameHILBERT;
+          that.rgbArray = that.hilbertImage
+          that.ratio = 'sqr'
           that.savePNG( cb );
         } else {
           log('async save png')
-          this.filename = file;
+          // that.filename = file;
           that.savePNG( cb );
         }
-
       },
       function ( cb ) {
-        this.filenamePNG = temp;
-
-        // setTimeout(() => {
+        // that.filenamePNG = temp;
         that.saveHilbert( cb )
-        // }, that.raceDelay)
       },
       function ( cb ) {
-        that.saveHTML( cb ); // saveHTML no longer calls htmlFinished, its so this.openOutputs has time to open it
+        that.saveHTML( cb ); // saveHTML no longer calls htmlFinished, its so that.openOutputs has time to open it
       },
       function ( cb ) {
-        that.openOutputs(that); // thats done in here now
-        that.htmlFinished();
-        setTimeout(() => {
+        // setTimeout(() => {
           cb();
-        }, that.raceDelay*3)
+        // }, this.raceDelay*3)
       }
     ])
     .exec( function( error, results ) {
       log( 'Saving complete.' ) ;
-      // that.pollForStream()
+      // this.pollForStream()
       if ( error ) { console.warn( 'Doh!' ) ; }
     })
 
@@ -2234,6 +2244,7 @@ class AminoSeeNoEvil {
     this.fileWrite( histogramFile, histotext );
     this.fileWrite(`${ this.outputPath }/${ this.justNameOfDNA}/main.html`, hypertext, cb);
     if ( cb !== undefined ) { cb() }
+    this.htmlFinished();
     // this.bugtxt( this.pepTable.sort( this.compareHistocount ) ); // least common amino acids in front
     // this.bugtxt(histogramJson);
   }
@@ -2319,13 +2330,20 @@ class AminoSeeNoEvil {
   }
 
   removeLocks(cb) { // just remove the lock files.
+    this.percentComplete = 1;
     mode('remove locks');
     this.bugtxt('remove locks with ' + this.howMany + ' files in queue. this.filenameTouch: ' + this.filenameTouch)
     this.renderLock = false
     this.howMany--
     clearTimeout( this.updatesTimer);
     clearTimeout( this.progTimer);
-    deleteFile( this.filenameTouch);
+
+    if (this.devmode == true) {
+        output(`Because you are using --devmode, the lock file is not deleted. This is useful during development because I can quickly that.test new code by starting then interupting the render with Control-c. Then, when I use 'aminosee * -f -d' I can have new versions rende that.red  but skip super large genomes that would take 5 mins or more to render. I like to see that they begin to render then break and retry; this way AminoSee will skip the large genome becauyse it has a lock file, saving me CPU during development. Lock files are safe to delete.`)
+    } else {
+      deleteFile( this.filenameTouch);
+    }
+
     if ( cb !== undefined ) { cb() }
   }
   // start or poll.
@@ -2351,7 +2369,7 @@ class AminoSeeNoEvil {
       // this.quit(1, status)
       return false;
     }
-    if ( this.currentFile == funknzLabel ) {
+    if ( this.currentFile == funknzlabel ) {
       this.popAndResolve();
     }
 
@@ -2383,18 +2401,23 @@ class AminoSeeNoEvil {
     }
     // }, this.raceDelay );
   }
-  popAndResolve() {
+  popAndResolve() { // ironic its now a .shift()
+    let file;
     try {
-      this.currentFile = this.args._.pop().toString();
+      file = this.args._.shift().toString();
       this.howMany = this.args._.length;
     } catch(e) {
       this.howMany = this.args._.length;
       return 'popAndLock args not exist ' + e;
     }
-    if ( this.currentFile.indexOf('...') != -1) { return 'Cant use files with three dots in this.filename ... ' }
-    this.filename = path.resolve( this.currentFile );
-    if ( this.filename == undefined) { return 'filename was undefined after resolve: ' + this.currentFile }
-    if ( doesFileExist(this.filename)) {
+    if ( file.indexOf('...') != -1) { return 'Cant use files with three dots in this.filename ... ' }
+    if ( file == undefined) { return 'filename was undefined after resolve: ' + file }
+
+    this.filename = path.resolve( file );
+    this.currentFile = file;
+
+
+    if ( fileSystemChecks(this.filename) == true ) {
       return 'success';
     }  else {
       if (this.renderLock == false) {
@@ -2417,7 +2440,7 @@ class AminoSeeNoEvil {
     if ( this.isDiskFinLinear == true && this.isDiskFinHilbert == true  && this.isDiskFinHTML == true ) {
       log(` [ storage threads ready: ${chalk.inverse( this.storage() )} ] `);
       this.setIsDiskBusy( false );
-      // this.openOutputs(this);
+      this.openOutputs(this);
 
       if ( this.test ) {
         this.renderLock = false;
@@ -2440,7 +2463,7 @@ class AminoSeeNoEvil {
       const fileSizeInBytes = stats.size
       return fileSizeInBytes
     } catch(err) {
-      console.warn("File not found: " + file);
+      this.error("File not found: " + file);
       return -1; // -1 is signal for failure or unknown size (stream).
     }
   }
@@ -2505,35 +2528,14 @@ class AminoSeeNoEvil {
     }
     mode('quit');
     log(chalk.bgWhite.red (`process.exit going on. last file: ${ this.filename }`));
-    if (this.devmode == true && this.debug == false) {
-      output("Because you are using --devmode without --this.debug, the lock file is not deleted. This is useful during development because I can quickly this.test new code by starting then interupting the render with Control-c. Then, when I use 'aminosee * -f -d' I can have new versions rendered but skip super large genomes that would take 5 mins or more to render. I like to see that they begin to render then break and retry.")
-    } else {
-      this.removeLocks();
-    }
+    this.removeLocks();
     this.bugtxt(`percent complete ${  this.percentComplete}`);
     destroyKeyboardUI();
     this.destroyProgress();
     this.calcUpdate();
     if (killServersOnQuit == true) {
       if (webserverEnabled == true && n == 130) { // control-c kills server
-        output("ISSUING 'killall node' use 'Q' key to quit without killing all node processes.")
-        // this.renderLock = false;
-        const killServe = spawn('nice', ['killall', 'node', '', '0'], { stdio: 'pipe' });
-        const killAminosee = spawn('nice', ['killall', 'aminosee.funk.nz', '', '0'], { stdio: 'pipe' });
-        if (server != undefined) {
-          log("closing server")
-          server.close();
-        } else {
-          this.bugtxt("no server running?")
-        }
-        try {
-          fs.unlinkSync( this.filenameServerLock, (err) => {
-            this.bugtxt("Removing server locks OK...")
-            if (err) { log('ish'); console.warn(err);  }
-          });
-        } catch (err) {
-          this.bugtxt("No server locks to remove: " + err);
-        }
+
       }
     } else if (webserverEnabled == true){
       log("If you get a lot of servers running, use Control-C instead of [Q] to issues a 'killall node' command to kill all of them")
@@ -3103,7 +3105,20 @@ decodePNG(file, callback) {
     return this.rgbArray;
   });
 }
+recycleHistogram(histoURL, cb) {
+    log("FETCH"); // filename
+    fetch( histoURL )
+    .then(response => response.json())
+    .then(histogramJson => {
+      log(`histogramJson [ ${histogramJson} ]`);
+      if ( cb !== undefined) { cb() }
+    }).catch();
+}
 recycleOldImage(pngfile) {
+  mode(`RECYCLING ${ this.justNameOfDNA }`)
+  recycleHistogram( path.resolve( `${this.outputPath}/${this.justNameOfDNA}/aminosee_histogram.json` ))
+  output(`recycled json`);
+
   try {
     // var oldimage = new PNG.load(f);
     output(chalk.inverse("RECYCLING EXISTING LINEAR FILE ") + chalk(" " + this.justNameOfDNA))
@@ -3126,7 +3141,7 @@ recycleOldImage(pngfile) {
 }
 
 skipExistingFile (fizzle) { // skip the file if TRUE render it if FALSE
-  if ( this.force == true && this.currentFile == funknzLabel ) {  return false; } // true means to skip render
+  if ( this.force == true && this.currentFile == funknzlabel ) {  return false; } // true means to skip render
   let result = doesFileExist(fizzle);
   this.bugtxt('skipExistingFile ' + fizzle + "force: " + this.force + " result: " + result)
   this.bugtxt(`The file is: ${fizzle} which ${( result ? 'DOES' : 'does NOT')} exist`)
@@ -3514,7 +3529,7 @@ bothKindsTestPattern(cb) {
     this.width = width;
     this.height = height;
     this.rgbArray = array;
-    savePNG(cb)
+    this.savePNG(cb)
   }
   savePNG(cb) {
     let pixels, height, width = 0;
@@ -3612,7 +3627,7 @@ bothKindsTestPattern(cb) {
   }
 
   openOutputs(that) {
-    if ( this.currentFile == funknzLabel ) { return false }
+    if ( this.currentFile == funknzlabel ) { return false }
     // return true;
     status ="open files";
     // if (that.devmode == true)  { this.bugtxt(renderObjToString()); }
@@ -3645,6 +3660,7 @@ bothKindsTestPattern(cb) {
       output(`Opening render output folder in File Manager ${ this.outputPath }`);
       open(this.outputPath).then(() => {
         this.opensFile++;
+        projectprefs.aminosee.opens++; // increment open counter.
         log("file manager closed");
       }).catch(function () {  this.error(`open(${ this.outputPath })`)});
     }
@@ -3653,6 +3669,7 @@ bothKindsTestPattern(cb) {
       // bgOpen( this.filenameHTML, {app: 'firefox', wait: false} );
       launchNonBlockingServer( this.justNameOfDNA, this);
       this.opensHtml++;
+      projectprefs.aminosee.opens++; // increment open counter.
       open( server.getServerURL( this.justNameOfDNA), { wait: false } );
       // if (openLocalHtml == true) {
       //    this.opensFile++;
@@ -3665,6 +3682,7 @@ bothKindsTestPattern(cb) {
       output(`Opening ${ this.justNameOfHILBERT} 2D hilbert space-filling image.`);
       // bgOpen( this.filenameHILBERT)
       this.opensImage++;
+      projectprefs.aminosee.opens++; // increment open counter.
       open( this.filenameHILBERT).then(() => {
         log("hilbert image closed");
       }).catch(function () {  this.error("open( this.filenameHILBERT)") });
@@ -3672,6 +3690,7 @@ bothKindsTestPattern(cb) {
       output(`Opening ${ this.justNameOfPNG} 1D linear projection image.`);
       // bgOpen( this.filenamePNG )
       this.opensImage++;
+      projectprefs.aminosee.opens++; // increment open counter.
       open( this.filenamePNG ).then(() => {
         log("regular png image closed");
       }).catch(function () {  this.error("open( this.filenamePNG )") });
@@ -3683,7 +3702,6 @@ bothKindsTestPattern(cb) {
     } else {
       this.out("Not opening anything");
     }
-    // log(");
   }
   getRegmarks() {
     return ( this.reg == true ? "_reg" : "" )
@@ -4244,7 +4262,7 @@ bothKindsTestPattern(cb) {
         output("     To disable real-time DNA background use any of --no-this.dnabg --no-updates --quiet -q");
         // }
       }
-      this.rawDNA = funknzLabel;
+      this.rawDNA = funknzlabel;
       term.moveTo(1 + this.termMarginLeft,1 + this.termMarginTop);
       this.printRadMessage(array);
       // term.right( this.termMarginLeft );
@@ -4272,7 +4290,7 @@ bothKindsTestPattern(cb) {
 
       if ( this.renderLock == true && this.howMany >= 0 ) { // dont update if not rendering
         if ( this.msPerUpdate  <  this.maxMsPerUpdate ) {
-          this.msPerUpdate  += 200; // this.updates will slow over time on big jobs
+          this.msPerUpdate  += 100; // this.updates will slow over time on big jobs
           if (this.devmode == true) {
             this.msPerUpdate  += 100; // this.updates will slow over time on big jobs
             if (this.debug == true) {
@@ -4640,10 +4658,18 @@ bothKindsTestPattern(cb) {
           bugout(txt);
         } else {
           if (this.verbose == true ) {
-            redoLine(txt);
+            // redoLine(txt);
           }
         }
-      } else if (debug){
+      } else if (cliInstance !== undefined) {
+        if (cliInstance.quiet == false && cliInstance.debug == true && cliInstance.devmode == true && cliInstance.verbose == true)  {
+          bugout(txt);
+        } else {
+          if (cliInstance.verbose == true ) {
+            // redoLine(txt);
+          }
+        }
+      } else if (debug == true){
         output(txt)
       } else if (cliInstance.debug == true) {
         bugout(txt)
@@ -4651,6 +4677,7 @@ bothKindsTestPattern(cb) {
 
     }
     function output(txt) {
+      if (txt == undefined) { txt = " "}
       // console.log('refusing');
       // return false;
       if (debug && this !== undefined) {
@@ -4663,7 +4690,7 @@ bothKindsTestPattern(cb) {
     function log(txt) {
       if (this !== undefined) {
         if (this.quiet == false && this.devmode == true && this.verbose == true ) {
-          output(`devmode log: [${txt}] `);
+          output( fixedWidth(69, `devmode log: [${txt}] `));
         } else if (this.quiet == false){
           redoLine(txt);
         }
@@ -4676,9 +4703,9 @@ bothKindsTestPattern(cb) {
     }
     function wTitle(txt) {
       if (this !== undefined) {
-        term.windowTitle(`${ this.highlightOrNothin()} ${ this.justNameOfDNA} ${status} ${maxWidth(120,txt)} (${this.howMany} files next: ${ this.nextFile}) AminoSee@${hostname}`);
+        term.windowTitle(`${ this.highlightOrNothin()} ${ this.justNameOfDNA} ${status} ${maxWidth(120,txt)} (next: ${ this.nextFile}) [+${cliInstance.howMany}] AminoSee@${hostname}`);
       } else {
-        term.windowTitle(`${status} ${maxWidth(120,txt)} (AminoSee@${hostname}`);
+        term.windowTitle(`${status} ${maxWidth(120,txt)} [+${cliInstance.howMany}] (AminoSee@${hostname}`);
       }
     }
     function bugout(txt) {
@@ -4862,7 +4889,8 @@ bothKindsTestPattern(cb) {
         projectprefs = new Preferences('nz.funk.aminosee.project',{}, {
           encrypt: false,
           file: path.join(os.homedir(), obviousFoldername +  '/aminosee.conf'),
-          format: 'yaml'
+          format: 'yaml',
+          opens: 0
         });
 
         // userprefs = new Preferences('nz.funk.aminosee.user',{}, {
@@ -5091,7 +5119,7 @@ bothKindsTestPattern(cb) {
         // server.startCrossSpawnHttp(); // requires http-server be installed globally
         server.startCrossSpawnHttp(); // requires http-server be installed globally
         // selfSpawn();
-        showCountdown();
+        // showCountdown();
         return true;
 
 
@@ -5178,25 +5206,58 @@ bothKindsTestPattern(cb) {
       }
       function doesFolderExist(f) {
         if (doesFileExist(f)) {
-          return fs.lstatSync(f).isDirectory; // Query the entry
+          return fs.lstatSync(f).isDirectory()
         } else {
+          log('Folder not exist')
           return false;
         }
+      }
+      function fileSystemChecks(file) {
+        let problem = false;
+        let msg = `Stats for file ${file}` + lineBreak;
+        // Check if the file exists in the current directory.
+        fs.access(file, fs.constants.F_OK, (err) => {
+          if(err) {  msg +=  'does not exist, '   } else  { msg += 'exists, '  }
+        });
+
+        // Check if the file is readable.
+        fs.access(file, fs.constants.R_OK, (err) => {
+          if(err) {  msg +=  'is not readable, '  } else  { msg += 'is readable, ' }
+        });
+
+        // Check if the file is writable.
+        fs.access(file, fs.constants.W_OK, (err) => {
+          if(err) {  msg +=  'is not writable, '} else  { msg += 'is writeable, '  }
+        });
+
+        // Check if the file is A FOLDER.
+        msg += (`${file} ${fs.lstatSync(file).isDirectory() ? msg += 'is not a folder, ' : msg += 'is a folder, '}`)
+
+        // Check if the file exists in the current directory, and if it is writable.
+        fs.access(file, fs.constants.F_OK | fs.constants.W_OK, (err) => {
+          if (err) {
+            msg += 'does not exist or is read-only, '
+          } else {
+            msg += `exists, and it is writable, `
+          }
+        });
+        bugtxt(msg + ', and that is all.');
+        return !problem;
       }
       function terminalRGB(_text, _r, _g, _b) {
         return chalk.rgb(_r,_g,_b)(_text);
       };
       function showCountdown() {
-        countdown(`Built-in webserver: ${server.getServerURL()}   [ stop server with Control-C | run in background with [S] | will shutdown in ${humanizeDuration(max32bitInteger)}`, 3000);
+        countdown(`Closing in ${humanizeDuration(max32bitInteger)}`, 5000);
       }
       function countdown(text, timeMs, cb) {
         redoLine(text + humanizeDuration ( deresSeconds(timeMs) ) );
         if ( timeMs > 0 ) {
           setTimeout(() => {
-            countdown(text, timeMs, cb);
-          },  timeMs - 500 )
+            countdown(text, timeMs - 500, cb);
+          },  500 )
         } else {
-          // redoLine(' ');
+          redoLine(' ');
           if ( cb !== undefined ) { cb() }
         }
       }
@@ -5274,15 +5335,29 @@ bothKindsTestPattern(cb) {
       var strTime = hours + ':' + minutes + ":" + secs + ' ' + ampm;
       return strTime;
     }
-
-    // function addJob(commandArray) {
-    //   log(chalk.inverse(`ADD JOB CALLED: `) + commandArray.toString() + ` isElectron: [${isElectron}]`)
-    //   this.setupApp(commandArray);
-    // }
+    function killServers() {
+      output("ISSUING 'killall node' use 'Q' key to quit without killing all node processes!")
+      // this.renderLock = false;
+      const killServe = spawn('nice', ['killall', 'node', '', '0'], { stdio: 'pipe' });
+      const killAminosee = spawn('nice', ['killall', 'aminosee.funk.nz', '', '0'], { stdio: 'pipe' });
+      if (server != undefined) {
+        log("closing server")
+        server.close();
+      } else {
+        this.bugtxt("no server running?")
+      }
+      try {
+        fs.unlinkSync( this.filenameServerLock, (err) => {
+          this.bugtxt("Removing server locks OK...")
+          if (err) { log('ish'); console.warn(err);  }
+        });
+      } catch (err) {
+        this.bugtxt("No server locks to remove: " + err);
+      }
+    }
 
     var that = this;
     process.on("SIGTERM", () => {
-      cliInstance.removeLocks();
       cliInstance.gracefulQuit();
       // this.destroyProgress();
       process.exitCode = 130;
@@ -5290,7 +5365,6 @@ bothKindsTestPattern(cb) {
       process.exit(); // this.now the "exit" event will fire
     });
     process.on("SIGINT", function() {
-      cliInstance.removeLocks();
       cliInstance.gracefulQuit();
       // this.destroyProgress();
       process.exitCode = 130;

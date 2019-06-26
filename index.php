@@ -17,6 +17,7 @@
 	<!-- <script src="node_modules/hammerjs/hammer.min.js"></script> -->
 	<script src="public/hammer.min.js"></script>
 	<script src="public/aminosee-gui-web.js"></script>
+	<!-- <script src="aminosee-cli.js" type="module"></script> -->
 	<!-- <script src="bundle.js"></script> -->
 
 	<link rel="stylesheet" type="text/css" href="public/AminoSee.css">
