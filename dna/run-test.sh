@@ -2,16 +2,18 @@
 # test should run quickly and quit.
 #!/bin/sh
 aminosee_do () {
-  echo $1 $2 $3 $4 $5 $6 $7
-  nice aminosee  $1 $2 $3 $4 $5 $6 $7 --no-image --no-html --no-explorer
+  echo $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
+  nice aminosee  $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --no-image --no-html --no-explorer
 }
 
 w
 npm run genversion
 aminosee
 aminosee -f
-aminosee -v
 aminosee -q
+echo SHOW VERBOSE
+aminosee -v
+echo RUN TEST
 aminosee --test
 # sleep 1
 FAST='50KB_TestPattern.txt'
@@ -21,7 +23,7 @@ aminosee_do $FAST      $1 $2 $3 $4 $5 $6 -f --peptide="gluTAMIC aCID"
 
 echo TESTING GARBAGE FILENAMES FUZZING THAT KINDA THING
 aminosee_do27MB_TestPattern.txt asdfadsf 50KB_TestPattern.txt * qwert  1KB_TestPattern.txt
-aminosee_do  $FAST     $1 $2 $3 $4 $5 $6 --triplet ggg --ratio=sqr
+aminosee_do  $FAST     $1 $2 $3 $4 $5 $6 --triplet=ggg --ratio=sqr
 aminosee_do  $FAST     $1 $2 $3 $4 $5 $6 -m5 --ratio=gol
 aminosee_do $FAST $1 $2 $3 $4 $5 $6 -c100 --ratio=sqr
 

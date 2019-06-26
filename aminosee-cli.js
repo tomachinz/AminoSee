@@ -780,7 +780,7 @@ class AminoSeeNoEvil {
 
     setupProject() { // blank all the variables
       if ( this.renderLock == true ) {
-        this.error(`Renderlock failed in setupProject ${ this.currentFile } , ${ this.nextFile}`)
+        this.error(`Renderlock failed in setupProject ${ this.currentFile } , ${ this.nextFile} ${this.args}`)
         return false;
       }
       this.startDate = new Date(); // required for touch locks.
@@ -1287,30 +1287,29 @@ class AminoSeeNoEvil {
       this.howMany = this.args._.length; //+ 1;
       if ( this.howMany < 1) {
         output(`outa work`)
-        // this.quit(0);
+        this.quit(0);
         return false;
       }
       log(`>>> PREFLIGHT <<< ${ this.howMany } ${ fixedWidth(24,  this.currentFile)} then ${ fixedWidth(24,  this.nextFile)} reason: ${reason}`);
 
       // if ( !this.charAtCheck() && this.howMany > -1) {  output(`charAtCheck`) ; this.pollForStream('charAtCheck'); return false }
 
-
-
-      try {
-        this.filename = path.resolve( this.currentFile);  // not thread safe after here!
-      } catch(err) {
-        bugtxt(`path.resolve( this.currentFile) = ${err}`)
-      }
       if ( this.currentFile == undefined) {
         output("currentFile is undefined")
         this.resetAndMaybe();
         return false;
       }
 
+      try {
+        this.filename = path.resolve( this.currentFile);  // not thread safe after here!
+      } catch(err) {
+        bugtxt(`path.resolve( this.currentFile) = ${err}`)
+      }
+
       if (doesFileExist(this.filename) == false) {
-        output("currentFile is not exist")
-        // this.resetAndMaybe();
-        this.pollForStream();
+        output("currentFile DNA is not exist")
+        this.resetAndMaybe();
+        // this.pollForStream();
         return false;
       }
 
@@ -1321,7 +1320,7 @@ class AminoSeeNoEvil {
       }
       if ( this.checkFileExtension( this.currentFile) == false) {
         redoLine("File Format not supported: " + chalk.inverse( this.getFileExtension( this.currentFile)));
-        // this.pollForStream('File Format not supported')
+        this.pollForStream('File Format not supported')
         return false;
       } else {
         if (doesFolderExist(this.currentFile)) {
@@ -5216,6 +5215,7 @@ bothKindsTestPattern(cb) {
       function fileSystemChecks(file) {
         let problem = false;
         let msg = `Stats for file ${file}` + lineBreak;
+        if (!doesFileExist(file)) { return false; }
         // Check if the file exists in the current directory.
         fs.access(file, fs.constants.F_OK, (err) => {
           if(err) {  msg +=  'does not exist, '   } else  { msg += 'exists, '  }
