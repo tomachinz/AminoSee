@@ -7,7 +7,7 @@ const extensions = [ "txt", "fa", "mfa", "gbk", "dna"] // replace with that from
 const path = require('path')
 const spawn = require('cross-spawn');
 let threads = [ ]; // these will be threads from spawn
-let mainWindow, devmode;
+let mainWindow, devmode, consoleWindow;
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -90,24 +90,33 @@ function showOpenDialog() {
 // }
 function createWindow () {
   const electron = require('electron');
-  const {width, height} = electron.screen.getPrimaryDisplay().workAreaSize
+  const { width, height } = electron.screen.getPrimaryDisplay().workAreaSize
 
   // Create the browser window.
   mainWindow = new BrowserWindow({
     show: false,
-    width: Math.round(width*0.6),
-    height:  Math.round(height*0.4),
-    title: "AminoSee",
+    width: width -640, //; //Math.round(width*0.6),
+    height:  height -64, //Math.round(height*0.8),
+    title: "AminoSee DNA Viewer [Open DNA File]",
     backgroundColor: '#011224',
-    x: 0,
-    y:0,
+    x: 60,
+    y: 8,
     icon: path.join(__dirname, 'public/favicon.png')
   })
 
   // mainWindow.setSize(dispWidth-256, dispHeight);
   // , type: 'desktop' , vibrancy: 'light' , titleBarStyle: 'default', fullscreenWindowTitle: false
-  let consoleWindow = new BrowserWindow({parent: mainWindow, width: 640, height: 400, title: "Console Output",  backgroundColor: '#011224', frame: true, icon: 'favicon.png', x: width-256, y: 0})
-  // , type: 'toolbar'
+  consoleWindow = new BrowserWindow({
+    parent: mainWindow,
+    width: 640,
+    height: height - 64,
+    title: "Terminal Console Output",
+    backgroundColor: '#011224',
+    frame: true,
+    icon: 'public/favicon.png',
+    x: -320,
+    y: 8
+  })
   // , type: 'toolbar'
 
   mainWindow.once('ready-to-show', () => {

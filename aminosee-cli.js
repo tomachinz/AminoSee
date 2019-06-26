@@ -1292,9 +1292,13 @@ class AminoSeeNoEvil {
     pollForStream(reason) { // render lock must be off before calling. aim: start the render, or look for work
       mode('pre-polling ' + this.howMany);
       var that = this;
+      if ( this.howMany < 1) {
+        output(`outa work - last render`);
+        this.quit(0);
+        return false;
+      }
 
-
-      if ( this && this.renderLock == true ) {
+      if ( this.renderLock == true ) {
         bugtxt(`thread re-entry inside pollForStream: ${ this.justNameOfDNA} ${ this.busy()} ${this.storage()} reason: ${reason}`);
         return false;
       }
@@ -1304,34 +1308,9 @@ class AminoSeeNoEvil {
         this.pollForStream('!checkFileExtension')
         return false;
       }
-      if ( !this ) { return }
+      if ( !this ) { output("WHATS GOING ON"); return }
 
-      mode(`pollForStream ${reason}`)
-      //////////////////////
-      let result = this.popAndResolve();
-      //////////////////////
 
-      output(`File: ${ this.howMany } popAndLock result: ${ result } ${ this.currentFile} reason: ${reason}`);
-      this.howMany = this.args._.length; //+ 1;
-      if ( this.howMany < 1) {
-        output(`outa work - last render`);
-        // this.quit(0);
-        // return false;
-      }
-
-      // if ( !this.charAtCheck() && this.howMany > -1) {  output(`charAtCheck`) ; this.pollForStream('charAtCheck'); return false }
-
-      if ( this.currentFile == undefined) {
-        output("currentFile is undefined")
-        this.resetAndMaybe();
-        return false;
-      }
-
-      try {
-        this.filename = path.resolve( this.currentFile);  // not thread safe after here!
-      } catch(err) {
-        bugtxt(`path.resolve( this.currentFile) = ${err}`)
-      }
       log(`>>> PREFLIGHT <<< ${ this.howMany } ${ fixedWidth(24,  this.currentFile)} then ${ fixedWidth(24,  this.nextFile)} reason: ${reason}`);
 
       if (doesFileExist(this.filename) == false) {
@@ -1392,31 +1371,10 @@ class AminoSeeNoEvil {
           msg += chalk.gray(`Use --image to automatically open files after render. `)
         }
         output(msg);
-        if (this.args.magnitude || this.args.m) {
-          output(`Will render again because of custom magnitude setting: ${this.magnitude}`)
-        } else {
-          this.resetAndMaybe();
-          return false;
-        }
+        this.popAndResolve();
+        // this.pollForStream();
       }
 
-      // if ( this.skipExistingFile( this.filenamePNG ) ) {
-      //   output(`Already rendered this.${ fixedWidth(32, this.filenamePNG)} (${this.howMany} files to go) use --explorer to show files`);
-      //   log("use --force to overwrite  --image to automatically open   ");
-      //   if ( this.openHtml == true || this.openImage == true || this.openFileExplorer == true) {
-      //     log("use --no-image suppress automatic opening of the image.")
-      //     this.openOutputs(this);
-      //   } else {
-      //     log('use --image to open in viewer')
-      //   }
-      //   this.previousImage = this.filenamePNG;
-      //   mode('skip existing')
-      //   this.popAndResolve();
-      //   this.pollForStream()
-      //   return false;
-      // } else { log('Not skipping') }
-
-      // this.termDrawImage();
 
       if ( this.checkLocks( this.filenameTouch)) {
         output("Render already in progress by another thread for: " + this.justNameOfPNG);
@@ -1425,9 +1383,9 @@ class AminoSeeNoEvil {
         if ( this.renderLock ) {
           this.error("Thread re-entry during pollForStream " + this.justNameOfDNA)
         } else {
-          this.resetAndMaybe(); // <---  another node maybe working on, NO RENDER
         }
-        // this.pollForStream();
+        this.popAndResolve();
+        this.resetAndMaybe(); // <---  another node maybe working on, NO RENDER
         return false;
       }
 
@@ -1436,7 +1394,31 @@ class AminoSeeNoEvil {
       if (this.renderLock == false) {
         this.touchLockAndStartStream(); // <--- THIS IS WHERE MAGIC STARTS
       }
-      log('polling end');
+
+      mode(`pollForStream ${reason}`)
+
+      //////////////////////
+      let result = this.popAndResolve();
+      //////////////////////
+
+      output(`File: ${ this.howMany } popAndLock result: ${ result } ${ this.currentFile} reason: ${reason}`);
+      this.howMany = this.args._.length; //+ 1;
+
+
+      // if ( !this.charAtCheck() && this.howMany > -1) {  output(`charAtCheck`) ; this.pollForStream('charAtCheck'); return false }
+
+      if ( this.currentFile == undefined) {
+        output("currentFile is undefined")
+        this.resetAndMaybe();
+        return false;
+      }
+
+      try {
+        this.filename = path.resolve( this.currentFile);  // not thread safe after here!
+      } catch(err) {
+        bugtxt(`path.resolve( this.currentFile) = ${err}`)
+      }
+
     }
 
     firstRun() {
@@ -1472,6 +1454,7 @@ class AminoSeeNoEvil {
     return stream
   }
   resetAndMaybe(){
+    if (this.renderLock == true) { output("ERROR: thread entered resetAndMaybe()"); return false}
     mode(`RESET JOB. Storage: (${ this.storage()} ${ this.busy()}) this.currentFile: ${ this.currentFile } Next: ${ this.nextFile}`)
     output(this.status);
     this.isDiskFinHTML = this.isDiskFinLinear = this.isDiskFinHilbert = true;
@@ -1487,6 +1470,8 @@ class AminoSeeNoEvil {
 
   initStream() {
     mode("initStream");
+    output(status);
+
     if ( isShuttingDown == true ) { output("Sorry shutting down."); return false;}
     if ( this.renderLock == false) {
       this.error("RENDER LOCK FAILED. This is an  this.error I'd like reported. Please run with --devmode option enabled and send the logs to aminosee@funk.co.nz");
@@ -2445,8 +2430,8 @@ class AminoSeeNoEvil {
   popAndResolve() { // ironic its now a .shift()
     let file;
     try {
-      file = this.args._.pop().toString();
-      // file = this.args._.shift().toString();
+      // file = this.args._.pop().toString();
+      file = this.args._.shift().toString();
       this.howMany = this.args._.length;
     } catch(e) {
       this.howMany = this.args._.length;
@@ -2505,7 +2490,8 @@ class AminoSeeNoEvil {
       const fileSizeInBytes = stats.size
       return fileSizeInBytes
     } catch(err) {
-      this.error("File not found: " + file);
+      log("File not found: " + file);
+      this.resetAndMaybe();
       return -1; // -1 is signal for failure or unknown size (stream).
     }
   }
