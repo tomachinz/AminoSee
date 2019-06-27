@@ -1308,7 +1308,7 @@ class AminoSeeNoEvil {
         this.popAndPollOrBust('!checkFileExtension')
         return false;
       }
-      if ( !this ) { this.popAndPollOrBust("WTF GOING ON?!"); return }
+      // if ( !this ) { this.popAndPollOrBust("WTF GOING ON?!"); return }
       if (doesFileExist(this.filename) == false) {
         this.popAndPollOrBust("currentFile DNA File not found");
         return false;
@@ -1320,8 +1320,16 @@ class AminoSeeNoEvil {
       this.autoconfCodonsPerPixel();
       this.setupFNames(); // will have incorrect Hilbert file name. Need to wait until after render to check if exists.
       log(`>>> PREFLIGHT <<< ${ this.howMany } ${ fixedWidth(24,  this.currentFile)} then ${ fixedWidth(24,  this.nextFile)} reason: ${reason}`);
-      if (this.extension == "zip") {
-        streamingZip(this.filename);
+      // if (this.extension == "zip") {
+      //   streamingZip(this.filename);
+      // }
+      log('Checking for previous render'+ this.filenamePNG)
+
+      if (doesFileExist(this.filenamePNG) && this.force == false) {
+        let msg = `Already rendered ${chalk.bgBlue.white(this.justNameOfPNG)}. `
+        this.openOutputs();
+        this.popAndPollOrBust(msg);
+        return false;
       }
       if ( this.checkFileExtension( this.currentFile ) == false)  {
         this.popAndPollOrBust("File Format not supported: " + chalk.inverse( this.getFileExtension( this.currentFile)) + ` supported: ${ extensions }`)
@@ -1330,26 +1338,19 @@ class AminoSeeNoEvil {
       if (doesFolderExist(this.filename)) {
           output(`${this.currentFile} is a folder not a file, will try to re-issue job as ${this.currentFile}/* to process all in dir`);
           pushCli( `${basename( this.filename )}/*` );
-          this.quit(0, `Exiting this job thread. New job pushed: ${basename( this.filename )}/*`);
+          // this.quit(0, `Exiting this job thread. New job pushed: ${basename( this.filename )}/*`);
           return true;
       }
       if (this.howMany < 1) { this.isShuttingDown = true;}
-      if ( this.currentFile == funknzlabel) { // maybe this is to get past my lack of understanding of processing of this.args.
-        this.resetAndPop(`For some odd reason... yeah Im gonna get back to you on that unset variable`);
-        return false;
-      }
-      log('Checking for previous render'+ this.filenamePNG)
-      if (doesFileExist(this.filenamePNG) && this.force == false) {
-        let msg = `Already rendered ${chalk.bgBlue.white(this.justNameOfPNG)}. `
-        this.openOutputs();
-        this.popAndPollOrBust();
-        return false;
-      }
+      // if ( this.currentFile == funknzlabel) { // maybe this is to get past my lack of understanding of processing of this.args.
+      //   this.popAndPollOrBust(`For some odd reason... yeah Im gonna get back to you on that unset variable`);
+      //   return false;
+      // }
       if ( this.checkLocks( this.filenameTouch)) {
         output("Render already in progress by another thread for: " + this.justNameOfPNG); // <---  another node maybe working on, NO RENDER
         log("Either use --force or delete this lock file: ");
         log(`Touchfile: ${chalk.underline( this.filenameTouch )}`);
-        this.popAndPollOrBust();
+        this.popAndPollOrBust('Render already in progress');
         return false;
       }
       mode("Lock OK proceeding to render...");
@@ -1426,7 +1427,7 @@ class AminoSeeNoEvil {
     this.currentFile = this.args._[0].toString();
     this.filename = path.resolve(this.currentFile);
     if ( this.currentFile == funknzlabel ) {
-      this.popAndPollOrBust();
+      this.popAndPollOrBust('funknzlabel');
     }
 
     if ( this.currentFile == undefined) {
@@ -2357,19 +2358,21 @@ ${this.renderObjToString()}`; //////////////// <<< END OF TEMPLATE
   }
   // check if its cool to poll for stream but dont pop the array:
 
-  popAndPollOrBust() { // ironic its now a .shift()
+  popAndPollOrBust(reason) { // ironic its now a .shift()
     // pop the array, the poll for stream or quit
+    output(chalk.inverse('Removing job:') + reason)
     let file;
     try {
       file = this.args._.shift().toString(); // file = this.args._.pop().toString();
+      // file = this.args._.pop().toString(); // file = this.args._.pop().toString();
     } catch(e) {
       this.quit(1, 'job args has no more commands: ' + e);
       return false;
     }
     this.howMany = this.args._.length;
     if ( file.indexOf('...') != -1) {
-      log( 'Cant use files with three dots in the filename ... (for some reason?)');
-      this.popAndPollOrBust();
+      mode( 'Cant use files with three dots in the filename ... (for some reason?)');
+      this.popAndPollOrBust(this.status);
       return false;
     }
     if ( file == undefined) {
@@ -2500,7 +2503,7 @@ ${this.renderObjToString()}`; //////////////// <<< END OF TEMPLATE
       } catch(e) {  bugtxt( "Issue with keyboard this.mode: " + e ) }
     }
     term.eraseDisplayBelow();
-    this.printRadMessage([ ` ${(killServersOnQuit ?  'AminoSee has shutdown' : ' ' )}`, `${( this.verbose ?  ' Exit code: '+n : '' )}`,  (killServersOnQuit == false ? server.getServerURL() : ' '), this.howMany ]);
+    this.printRadMessage([ ` ${(killServersOnQuit ?  'AminoSee has shutdown' : ' ' )}`, `${( this.verbose ?  ' Exit code: '+ code : '' )}`,  (killServersOnQuit == false ? server.getServerURL() : ' '), this.howMany ]);
     process.exitCode = code;
     if (code != 0) {
       setImmediate(() => {
