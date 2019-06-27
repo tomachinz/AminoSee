@@ -80,7 +80,7 @@ aminosee.funk.nz DNA Viewer by Tom Atkinson.
 This is a temporary lock file, placed during rendering to enable parallel cluster rendering over LAN networks, if this is here after processing has completerd it usually it means an AminoSee was quit before finishing or had crashed. Its safe to erase these files, and I've made a script in /dna/ to batch delete them all in one go. Normally these are deleted when render is complete, or with Control-C and graceful shutdown.`;
 const defaultC = 1; // back when it could not handle 3+GB files.
 const artisticHighlightLength = 12; // px only use in artistic this.mode. must be 6 or 12 currently
-const defaultMagnitude = 9; // max for auto setting
+const defaultMagnitude = 8; // max for auto setting
 const theoreticalMaxMagnitude = 10; // max for auto setting
 const overSampleFactor = 2; // your linear image needs to be 2 megapixels to make 1 megapixel hilbert
 const maxCanonical = 32; // max length of canonical name
