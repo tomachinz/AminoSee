@@ -151,7 +151,7 @@ function populateArgs(procArgv) { // returns args
 function pushCli(cs) { // used by Electron GUI
   commandString = `${cs} --html -q --verbose --devmode`;
   log(chalk.inverse(`Starting AminoSee now with CLI:`) + ` isElectron: [${isElectron}]`)
-  bugtxt(commandString);
+  // bugtxt(commandString);
 
   let commandArray = commandString.split("\\s+");
   let jobArgs = populateArgs(commandArray);
@@ -200,7 +200,6 @@ class AminoSeeNoEvil {
       this.args = args; // populateArgs(procArgv);// this.args;
       webserverEnabled = false;
 
-      output("same same but different" + args.toString())
       console.log(args)
 
       this.percentComplete = 0;
@@ -611,7 +610,7 @@ class AminoSeeNoEvil {
       if ( args.list ) {
         listDNA();
       }
-      output(`args length: ${this.howMany} commandString: ${commandString} Electron mode: ${isElectron}`)
+      output(chalk.green(`args length: ${this.howMany}`))
 
       if ( this.howMany > 0 ) {
         this.currentFile = args._[0]
@@ -1652,7 +1651,7 @@ class AminoSeeNoEvil {
     Linear to Hilbert reduction: ${ twosigbitsTolocale( this.shrinkFactor)} Oversampling: ${ twosigbitsTolocale(overSampleFactor)}
     Amino acid blend this.opacity : ${Math.round(this.opacity *10000)/100}%
     Max pix setting: ${ this.maxpix.toLocaleString()}
-    ${ this.dimension }th Hilbert this.dimension
+    ${ this.dimension }th Hilbert dimension
     Darken Factor ${ twosigbitsTolocale(this.darkenFactor)} / Highlight Factor ${ twosigbitsTolocale( this.highlightFactor)}
     AminoSee version: ${version}`;
   }
@@ -2054,35 +2053,35 @@ class AminoSeeNoEvil {
     output('  --triplet=[ATCGU]..   -t=GGG            any 3 nucleotides');
     output('  --codons [1-999] -c2       reduce detail to half size res');
     output('  --codons [1-999] -c100         packs 100 codons per pixel');
-    output('  -- this.magnitude [0-8] -m9 crashes my mac 4096x4096 -m8 maximum 2048x2048 resolution');
+    output('  -- magnitude [0-8] -m9 crashes my mac 4096x4096 -m8 maximum 2048x2048 resolution');
     output(chalk.bgBlue (`FLAGS:`));
     output('  --ratio=[square|golden|fixed] fixed is default: 960px width variable height aspect');
-    output('  --ratio=fix --ratio=golden --ratio=sqr aspect this.ratio proportions');
-    output('  --verbose -v                               verbose this.mode');
+    output('  --ratio=fix --ratio=golden --ratio=sqr aspect ratio proportions');
+    output('  --verbose -v                               verbose mode');
     output('  --help -h                             show this message');
     output('  --force -f              ignore locks overwrite existing');
     output('  --devmode -d   will skip locked files even with --force');
     output('  --artistitc -a   creates a visual rhythm in the picture');
-    output('  --this.dnabg -b   spew DNA bases to background during render');
-    output('  --clear --no-clear       dont this.clear the terminal during');
-    output('  --reg     put this.registration marks @ 25% 50% 75% and 100%');
-    output('  --test                 create calibration this.test patterns');
-    output('  --keyboard -k enable interactive this.mode, use control-c to end');
-    output('  --firefox --chrome --safari changes default this.browser to open images');
+    output('  --dnabg -b   spew DNA bases to background during render');
+    output('  --clear --no-clear       dont clear the terminal during');
+    output('  --reg     put registration marks @ 25% 50% 75% and 100%');
+    output('  --test                 create calibration test patterns');
+    output('  --keyboard -k enable interactive mode, use control-c to end');
+    output('  --firefox --chrome --safari changes default browser to open images');
     output('  --clear');
     output('  --html --no-html             open HTML report when done');
     output('  --updates --no-updates           turn off stats display');
     output('  --image                            open image when done');
     output('  --explorer  --file open file explorer / Finder to view files');
     output('  --no-gui               disables all GUI except terminal');
-    output('  --quiet  -q               full this.quiet mode / server this.mode');
+    output('  --quiet  -q               full quiet mode / server mode');
     output(chalk.bgBlue (`EXAMPLES:`));
     output('     aminosee Human-Chromosome-DNA.txt --force overwrite w/ fresh render');
     output('     aminosee chr1.fa -m 8                  render at 2048x2048');
     output('     aminosee chr1.fa  chrX.fa  chrY.fa          render 3 files');
     output('     aminosee * --peptide="Glutamic acid" (use quotes if there is a space');
     output('     aminosee * --triplet=GGT (highlight only this specific version of amino acid');
-    output('     aminosee this.test                 (generate calibration images');
+    output('     aminosee test                 (generate calibration images');
     output('     aminosee serve                (fire up the mini web server');
     output('     aminosee demo   <<-----           (run demo - beta version');
     output('     aminosee help   <<-----           (shows this docs message');
@@ -2186,10 +2185,10 @@ class AminoSeeNoEvil {
     var that = this; // closure
     var file = this.filename;
     var temp = this.filenamePNG;
-
-    async.parallel( [
+    mode('async.series')
+    async.series( [
       function( cb ) {
-        log('async start')
+        mode('async start')
         cb();
       },
       function( cb ) {
@@ -2219,7 +2218,7 @@ class AminoSeeNoEvil {
       }
     ])
     .exec( function( error, results ) {
-      log( 'Saving complete.' ) ;
+      log( 'Saving complete............... next: ' + this.nextFile ) ;
       // this.pollForStream()
       if ( error ) { console.warn( 'Doh!' ) ; }
     })
@@ -2264,7 +2263,12 @@ class AminoSeeNoEvil {
     let histotext = JSON.stringify(histogramJson);
     this.fileWrite( this.filenameHTML, hypertext );
     this.fileWrite( histogramFile, histotext );
-    this.fileWrite(`${ this.outputPath }/${ this.justNameOfDNA}/main.html`, hypertext, cb);
+    // the main.html is only written is user did not set --codons or --magnitude or --peptide or --triplet or --artistic
+    if (this.userCPP == "auto" && this.magnitude == "auto" && this.artistic == false) {
+      this.fileWrite(`${ this.outputPath }/${ this.justNameOfDNA}/main.html`, hypertext, cb);
+    } else if (this.artistic ) {
+      this.fileWrite(`${ this.outputPath }/${ this.justNameOfDNA}/artistic.html`, hypertext, cb);
+    }
     if ( cb !== undefined ) { cb() }
     this.htmlFinished();
     // this.bugtxt( this.pepTable.sort( this.compareHistocount ) ); // least common amino acids in front
@@ -2473,10 +2477,11 @@ class AminoSeeNoEvil {
 
       if ( this.test ) {
         this.renderLock = false;
-        // setTimeout( () => {
         this.runCycle()
-        // }, this.raceDelay)
-      } else { this.removeLocks(); this.resetAndMaybe(); }
+      } else {
+        this.removeLocks();
+        this.resetAndMaybe();
+      }
     } else {
       log(` [ wait on storage: ${chalk.inverse( this.storage() )} reason: ${reason}] `);
       // if ( this.test ) {
@@ -3238,11 +3243,12 @@ calculateShrinkage() { // danger: can change this.filenames of Hilbert images!
   }
 
   if ( this.args.magnitude || this.args.m) {
-    this.dimension =  this.magnitude; // users choice over ride all this nonsense
+    this.magnitude = Math.round(this.args.magnitude)
+    this.dimension = this.magnitude; // users choice over ride all this nonsense
     output(`Ideal magnitude: ${computerWants} using custom magnitude: ${ this.dimension }`);
   } else {
-    // this.magnitude = this.dimension;
-    output(`Ideal magnitude: ${computerWants} using auto-magnitude: ${ this.dimension }`);
+    this.magnitude = "auto";
+    log(`Ideal magnitude: ${computerWants} using auto-magnitude: ${ this.dimension }`);
   }
 
   let hilpix = hilbPixels[ this.dimension ];;
@@ -3263,8 +3269,10 @@ calculateShrinkage() { // danger: can change this.filenames of Hilbert images!
 // resample the large 760px wide linear image into a smaller square hilbert curve
 saveHilbert(cb) {
   mode('maybe save hilbert');
-  if ( this.isHilbertPossible  == true) {
+  if ( this.renderLock == false ) { this.error('locks should be on during hilbert curve') }
+  if ( this.isHilbertPossible  == true ) {
     log("projecting linear array to 2D hilbert curve");
+    this.isDiskFinHilbert = false; // concurrency protection
   } else {
     log("Cant output hilbert image when using artistic mode");
     this.isDiskFinHilbert = true; // doesnt trigger a re-poll.
@@ -3277,13 +3285,14 @@ saveHilbert(cb) {
     output("Existing hilbert image found - skipping projection: " + this.filenameHILBERT);
     if ( this.openImage) {
       this.bugtxt('opening');
-      // this.openOutputs();
+      this.openOutputs();
     } else {
-      log("Use --image to open in default this.browser")
+      log("Use --image to see this in default browser")
     }
     this.isDiskFinHilbert = true;
     this.previousImage = this.filenameHILBERT;
-    this.termDrawImage();
+    var closure = () => { return this.filenameHILBERT }
+    this.termDrawImage(closure);
     cb();
     return false;
   }
@@ -3375,56 +3384,53 @@ hilbertFinished() {
 }
 
 linearFinished() {
+  this.isDiskFinLinear = true;
+  if ( this.artistic) {
+    this.previousImage = this.filenamePNG;
+    this.termDrawImage()
+  }
   if ( this.test ) {
     mode(`Calibration linear generation done. Waiting on (${ this.storage()})`);
   } else {
     mode(`DNA linear render done. Waiting on (${ this.storage()})`);
   }
-  this.isDiskFinLinear = true;
-  if ( this.artistic) {
-    this.previousImage = this.filenamePNG;
-    // this.termDrawImage()
-  }
   this.postRenderPoll('linearFinished ' + this.filenamePNG);
 }
 termDrawImage(fullpath) {
-  if (fullpath === undefined) { fullpath = this.previousImage }
+  var that = gimmeDat();
+  if (fullpath === undefined) { fullpath = that.previousImage }
   if (fullpath === undefined) { return false }
-  // if ( this.force == true) { return false }
-  if ( this.quiet == true ) { return false }
-  this.previousImage = fullpath;
+  // if ( that.force == true) { return false }
+  if ( that.quiet == true ) { return false }
+  that.previousImage = fullpath;
   term.clear()
-  bugout(this.previousImage)
+  bugout(that.previousImage)
   term.moveTo( 0, 0 );
-  term.drawImage( this.previousImage , { shrink: { width: term.width,  height: term.height } } )
-  output("Previous image: " +  replaceoutputPathFileName(this.previousImage))
+  var closure = () => { that.previousImage }
+  term.drawImage( that.previousImage , { shrink: { width: term.width,  height: term.height } } )
+  output("Previous image: " +  replaceoutputPathFileName(that.previousImage))
   // term.restoreCursor()
 }
-bothKindsTestPattern(cb) {
+bothKindsTestPattern( cb ) {
   if (this.renderLock == false) {
-    log("error render lock fail in test patterns")
-    return false;
+    this.error("error render lock fail in test patterns")
   }
   let h = require('hilbert-2d');
   let hilpix = hilbPixels[ this.dimension ];
   let linearpix = hilpix;// * 4;
+  let hWidth = Math.round(Math.sqrt(hilpix));
+  let hHeight = hWidth;
+
   this.hilbertImage = [hilpix*4];
   this.rgbArray = [linearpix*4];
 
-  output(chalk.bgWhite(`Math.sqrt(hilpix): [${Math.sqrt(hilpix)}])`));
-  let hWidth = Math.round(Math.sqrt(hilpix));
-  let hHeight = hWidth;
   const linearWidth = Math.round(Math.sqrt(hilpix));
   const linearHeight = linearWidth;
 
-  // if (this.howMany == -1) {
-  // log("Error -1: no remaining files to process");
-  // hilbertFinished();
-  // return false;
-  // }
+  output( `Generating hilbert curve of the ${ this.dimension }th dimension out of: ${this.howMany}`);
+  bugtxt( chalk.bgWhite(`Math.sqrt(hilpix): [${Math.sqrt(hilpix)}])`));
+  bugtxt( this.filenameHILBERT );
 
-  output(`Generating hilbert curve of the ${ this.dimension }th this.dimension out of: ${this.howMany}`);
-  this.bugtxt( this.filenameHILBERT);
   this.percentComplete = 0;
   let d = Math.round(hilpix/100);
   for (let i = 0; i < hilpix; i++) {
@@ -3772,7 +3778,7 @@ mkdir(relative, cb) { // returns true if a fresh dir was created
 }
 
 generateTestPatterns(cb) {
-  this.howMany = this.magnitude;
+  this.howMany = this.dimension;
   this.openHtml = false;
   this.report = false;
   this.test = true;
@@ -3780,10 +3786,10 @@ generateTestPatterns(cb) {
   this.pngImageFlags = "_test_pattern";
   this.setupProject()
 
-  if ( this.args.magnitude || this.args.m) {
-    this.magnitude = Math.round( this.args.magnitude || this.args.m);
+  if ( this.magnitude != "auto") {
+    this.dimension = this.magnitude; // Math.round( this.args.magnitude || this.args.m);
   } else {
-    this.magnitude = defaultMagnitude;
+    this.dimension = defaultMagnitude;
   }
   if ( this.args.ratio || this.args.r) {
     log("Looks better with --ratio=square in my humble opinion")
@@ -3793,12 +3799,12 @@ generateTestPatterns(cb) {
 
   output("output test patterns to /calibration/ folder. filename: " + this.filename);
   this.mkdir('calibration');
-  if (this.howMany == -1) { this.quit(0); return false;}
-  if (  this.magnitude > 10) { output(`I think this will crash node`); }
+  if ( this.howMany == -1 ) { this.quit(0); return false;}
+  if ( this.magnitude > 10 ) { log(`I think this will crash node, only one way to find out!`); }
   output(`TEST PATTERNS GENERATION    m${ this.magnitude} c${ this.codonsPerPixel }`);
-  output("Use -m to try different this.dimensions. -m 9 requires 1.8 GB RAM");
-  output("Use --no-reg to remove this.registration marks at 0%, 25%, 50%, 75%, 100%. It looks a little cleaner without them ");
-  log(`pix      ${hilbPixels[ this.magnitude]} `);
+  log("Use -m to try different dimensions. -m 9 requires 1.8 GB RAM");
+  log("Use --no-reg to remove registration marks at 0%, 25%, 50%, 75%, 100%. It looks a little cleaner without them ");
+  bugtxt(`pix      ${hilbPixels[ this.magnitude]} `);
 
   this.loopCounter = 0; // THIS REPLACES THE FOR LOOP, INCREMENET BY ONE EACH FUNCTION CALL AND USE IF.
   this.howMany =  this.magnitude;// - this.loopCounter;
@@ -3807,14 +3813,6 @@ generateTestPatterns(cb) {
   } else {
     this.runCycle(); // runs in a callback loop
   }
-
-  // log(`done with JUST ONE CYCLE OF this.generateTestPatterns(). this.filenames:`);
-  // log( this.outputPath);
-  // log( this.filenameTouch);
-  // log( this.filenamePNG );
-  // log( this.filenameHILBERT);
-  // log( this.filenameHTML);
-
 }
 runCycle(cb) {
   if (this.renderLock == true) {
@@ -3827,7 +3825,7 @@ runCycle(cb) {
     this.testStop();
     // this.saveHTML(this.openOutputs);
     // this.openOutputs();
-    // this.termDrawImage();
+    this.termDrawImage();
     if ( cb !== undefined ) { cb() }
     // this.quit(0);
     return false;
@@ -3837,21 +3835,11 @@ runCycle(cb) {
   this.bothKindsTestPattern(() => {
     output(`test patterns returned`)
     // this.saveDocsSync();
-
-    // this.runCycle( cb )
     this.isDiskFinHTML = true;
-    setTimeout( () => {
+    // setTimeout( () => {
       this.postRenderPoll(`test patterns returned`);
-      //   this.rgbArray = this.hilbertImage;
-      //   this.savePNG()
-      //
-      // })
-    }, this.raceDelay)
-
+    // }, this.raceDelay)
   }); // <<--------- sets up both linear and hilbert arrays but only saves the Hilbert.
-
-
-
 
   return true;
 }
@@ -5289,11 +5277,18 @@ clout(txt) {
         redoLine(txt);
       }
     }
-
+    function gimmeDat() {
+      // var that = true;
+      if ( this !== undefined)        { var that = this }
+      if ( cliInstance !== undefined) { var that = cliInstance }
+      if ( that === undefined)        { var that = false }
+      return that;
+    }
     function redoLine(txt) {
       term.eraseLine();
       output(maxWidth( term.width - 2, txt));
-      if (debug) {
+      var that = gimmeDat();
+      if (that && that.debug ) {
         output(maxWidth( term.width - 2, txt));
       }
       term.up( 1 ) ;
