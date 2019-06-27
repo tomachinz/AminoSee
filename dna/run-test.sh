@@ -39,7 +39,7 @@ aminosee_do      $1 $2 $3 $4 $5 $6 --no-updates -c 500 --ratio=GOLDEN --peptide=
 aminosee_do 27MB_TestPattern.txt  3MB_TestPattern.txt *  -c10 -q -v --debug $1 $2 $3 $4
 aminosee_do 3MB_TestPattern.txt *  50KB_TestPattern.txt --keyboard $1 $2 $3 $4
 aminosee_do *  27MB_TestPattern.txt  3MB_TestPattern.txt -c10 -k $1 $2 $3 $4
-
+aminosee_do $FAST  $1 $2 $3 $4 $5 $6 --reg
 # sleep 2
 #
 # echo 'aminosee_do*'

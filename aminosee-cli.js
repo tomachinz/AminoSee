@@ -627,9 +627,9 @@ class AminoSeeNoEvil {
         this.filename =  path.resolve( this.currentFile );
         log("Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω ");// + this.currentFile)
         mode("Ω first command " + this.howMany);
-        // this.lookForWork('Ω first command ॐ')
+        this.lookForWork('Ω first command ॐ')
         // this.popAndPollOrBust();
-        this.pollForStream('Ω first command ॐ');
+        // this.pollForStream('Ω first command ॐ');
         bugtxt( `appPath ${appPath}` )
       } else {
         mode("no command ");
@@ -1295,134 +1295,77 @@ class AminoSeeNoEvil {
     }
     pollForStream(reason) { // render lock must be off before calling. aim: start the render, or look for work
       // take current file and test if it can be rendered
-      mode('pre-polling ' + this.howMany);
+      mode('pre-polling ' + reason);
       var that = this;
-      if ( this.howMany < 1) {
-        output(`outa work - last render`);
-        this.quit(0);
-        return false;
-      }
-
       if ( this.renderLock == true ) {
         bugtxt(`thread re-entry inside pollForStream: ${ this.justNameOfDNA} ${ this.busy()} ${this.storage()} reason: ${reason}`);
         return false;
       } else {
         log(`Not rendering presently. ${this.busy()}`)
       }
-      this.currentFile = this.args._[0];
+      if ( this.howMany < 0 ) {
+        this.quit(0, `outa work - last render`);
+        return false;
+      }
       if (!this.checkFileExtension( this.currentFile)) {
-        log(this.popAndPollOrBust())
-        this.pollForStream('!checkFileExtension')
+        this.popAndPollOrBust('!checkFileExtension')
         return false;
       }
-      if ( !this ) { output("WHATS GOING ON"); return }
-
-
-      log(`>>> PREFLIGHT <<< ${ this.howMany } ${ fixedWidth(24,  this.currentFile)} then ${ fixedWidth(24,  this.nextFile)} reason: ${reason}`);
-
+      if ( !this ) { this.popAndPollOrBust("WTF GOING ON?!"); return }
       if (doesFileExist(this.filename) == false) {
-        output("currentFile DNA is not exist")
-        this.resetAndMaybe();
-        // this.pollForStream();
+        this.popAndPollOrBust("currentFile DNA File not found");
         return false;
       }
-
-      this.setupFNames();
-
-      if (this.extension == "zip") {
-        streamingZip(this.filename);
-      }
-      if ( this.checkFileExtension( this.currentFile) == false) {
-        redoLine("File Format not supported: " + chalk.inverse( this.getFileExtension( this.currentFile)) + ` supported: ${ extensions }`);
-        this.pollForStream('File Format not supported')
-        return false;
-      } else {
-        if (doesFolderExist(this.currentFile)) {
-          output('This is s a folder not a file: ' + this.currentFile)
-        }
-      }
-      // this.bugtxt("PNG: " + this.justNameOfPNG);
-      // this.bugtxt(`[ polling ${ this.nicePercent()} ${status} ${new Date()} ]`);
-      // this.bugtxt(`[ this.howMany  ${this.howMany} ${status} ${ this.filename } ${ this.currentFile } ]`);
-      // this.bugtxt( "this.currentFile is " + this.currentFile   + this.args)
-      if (this.howMany < 1) { this.isShuttingDown = true;}
-      if (this.howMany < 0) { this.gracefulQuit(130) }
-
-      if ( this.currentFile == funknzlabel) { // maybe this is to get past my lack of understanding of processing of this.args.
-        this.popAndPollOrBust();
-        this.resetAndMaybe();
-        return false;
-      }
-
-
       ///////////////// BEGIN PARSING DNA FILE //////////////////////////////
       ///////////////// Check if it's been rendered etc
       mode('parsing');
       this.setupProject();
       this.autoconfCodonsPerPixel();
       this.setupFNames(); // will have incorrect Hilbert file name. Need to wait until after render to check if exists.
-      // this.bugtxt(`analyse: ${chalk.inverse( this.currentFile)} storage: ${chalk.inverse( this.storage() )} Fullpath: ${ this.filename }`)
-      // this.bugtxt(`Parsing ${ this.justNameOfDNA }  defaultFilename  ${defaultFilename}  ${ this.filename }  this.howMany   ${this.howMany}   status ${status}`);
-      log('Checking for previous render'+ this.filenamePNG)
+      log(`>>> PREFLIGHT <<< ${ this.howMany } ${ fixedWidth(24,  this.currentFile)} then ${ fixedWidth(24,  this.nextFile)} reason: ${reason}`);
+      if (this.extension == "zip") {
+        streamingZip(this.filename);
+      }
+      if ( this.checkFileExtension( this.currentFile ) == false)  {
+        this.popAndPollOrBust("File Format not supported: " + chalk.inverse( this.getFileExtension( this.currentFile)) + ` supported: ${ extensions }`)
+        return false;
+      }
+      if (doesFolderExist(this.filename)) {
+          output(`${this.currentFile} is a folder not a file, will try to re-issue job as ${this.currentFile}/* to process all in dir`);
+          pushCli( `${basename( this.filename )}/*` );
+          this.quit(0, `Exiting this job thread. New job pushed: ${basename( this.filename )}/*`);
+          return true;
+      }
+      if (this.howMany < 1) { this.isShuttingDown = true;}
+      if (this.howMany < 0) { this.gracefulQuit(130) }
+      if ( this.currentFile == funknzlabel) { // maybe this is to get past my lack of understanding of processing of this.args.
+        this.resetAndPop(`For some odd reason... yeah Im gonna get back to you on that unset variable`);
+        return false;
+      }
 
+
+
+      log('Checking for previous render'+ this.filenamePNG)
       if (doesFileExist(this.filenamePNG) && this.force == false) {
         let msg = `Already rendered ${chalk.bgBlue.white(this.justNameOfPNG)}. `
         this.openOutputs();
-        // if ( this.openImage === true) {
-        //   msg += chalk.gray(`Opening image now. Use --no-image to prevent. `)
-        //   this.opensImage++;
-        //   open( this.filenamePNG ).then(() => {
-        //     log("image browser closed");
-        //   }).catch(function () {  bugtxt("open( this.filenamePNG )") });
-        // } else {
-        //   msg += chalk.gray(`Use --image to automatically open files after render. `)
-        // }
-        // output(msg);
         this.popAndPollOrBust();
-        // this.pollForStream();
+        return false;
       }
-
-
 
       mode(`pollForStream ${reason}`)
-
-      //////////////////////
-      let result = this.popAndPollOrBust();
-      //////////////////////
-
-      output(`File: ${ this.howMany } popAndLock result: ${ result } ${ this.currentFile} reason: ${reason}`);
-      this.howMany = this.args._.length; //+ 1;
-
-      if ( this.currentFile == undefined) {
-        output("currentFile is undefined")
-        this.resetAndMaybe();
-        return false;
-      }
-
-      try {
-        this.filename = path.resolve( this.currentFile);  // not thread safe after here!
-      } catch(err) {
-        bugtxt(`path.resolve( this.currentFile) = ${err}`)
-      }
+      log(`File: ${ this.howMany } ${ this.currentFile} reason: ${reason}`);
 
       if ( this.checkLocks( this.filenameTouch)) {
-        output("Render already in progress by another thread for: " + this.justNameOfPNG);
-        log("Either use --force or delete this file: ");
-        log(`Touchfile: ${chalk.underline( this.filenameTouch)}`);
-        if ( this.renderLock ) {
-          this.error("Thread re-entry during pollForStream " + this.justNameOfDNA)
-        }
-        this.renderLock = false;
-        this.popAndPollOrBust();
-        this.resetAndMaybe(); // <---  another node maybe working on, NO RENDER
+        // this.resetAndPop("Render already in progress by another thread for: " + this.justNameOfPNG); // <---  another node maybe working on, NO RENDER
+        output("Render already in progress by another thread for: " + this.justNameOfPNG); // <---  another node maybe working on, NO RENDER
+        log("Either use --force or delete this lock file: ");
+        log(`Touchfile: ${chalk.underline( this.filenameTouch )}`);
         return false;
       }
-
       mode("Lock OK proceeding to render...");
-      output(status)
-      if (this.renderLock == false) {
-        this.touchLockAndStartStream(); // <--- THIS IS WHERE MAGIC STARTS
-      }
+      log(status)
+      this.touchLockAndStartStream(); // <--- THIS IS WHERE MAGIC STARTS
     }
 
     firstRun() {
@@ -1457,21 +1400,79 @@ class AminoSeeNoEvil {
     stream.pipe(getX).pipe(process.stdout);        /* 5 */
     return stream
   }
-  resetAndMaybe(){
-    if (this.renderLock == true) { output("ERROR: thread entered resetAndMaybe()"); return false}
-    mode(`RESET JOB. Storage: (${ this.storage()} ${ this.busy()}) this.currentFile: ${ this.currentFile } Next: ${ this.nextFile}`)
+  resetAndPop(reason){
+    if (reason === undefined) { this.error('must set a reason when using reset') }
+    // if (this.renderLock == true) { output("ERROR: thread entered resetAndPop()"); return false}
+    mode(`RESET JOB. Reason ${reason} Storage: (${ this.storage()} ${ this.busy()}) current: ${ this.currentFile } next: ${ this.nextFile}`)
+    output(this.status);
     output(this.status);
     this.isDiskFinHTML = this.isDiskFinLinear = this.isDiskFinHilbert = true;
-    this.renderLock = false;
+    this.isStorageBusy = this.renderLock = false;
     this.percentComplete = 0;
     this.howMany = this.args._.length;
     if (this.howMany > 0) {
-      this.pollForStream(`resetAndMaybe`);
+      this.popAndPollOrBust(`reset ` + reason);
     } else {
-      this.quit();
+      this.quit(1, reason);
     }
   }
+  lookForWork( reason ) {
+    mode(`Look for work reason: ${reason}`);
 
+    if ( this.renderLock == true ) { // re-entrancy filter
+      this.error('busy with render ' + reason);
+    }
+    // this.setupProject();
+
+    if ( this.test == true ) { // uses a loop not polling.
+      this.error('test is in look for work?');
+    }
+    if (this.howMany <= 0) {
+      mode('Happiness.');
+      log(chalk.bgRed.yellow(status));
+      this.printRadMessage(status)
+      this.quit(0, status)
+      return false;
+    }
+    this.currentFile = this.args._[0].toString();
+    this.filename = path.resolve(this.currentFile);
+    if ( this.currentFile == funknzlabel ) {
+      this.popAndPollOrBust();
+    }
+
+    if ( this.currentFile == undefined) {
+      // this.quit(1, status)
+      return false;
+    }
+    this.pollForStream();
+    return false;
+
+    // if (!doesFileExist(path.resolve(this.currentFile))) {
+    //   mode(`file not existing, trying next one`);
+    //   this.pollForStream();
+    //   return false;
+    // }
+    //
+    // try {
+    //   this.howMany = this.args._.length;
+    // } catch(e) {
+    //   mode(`lookForWork caught  this.error: ${e}`);
+    //   this.bugtxt(status)
+    //   this.quit(0, status)
+    //   return false;
+    // }
+    // if (this.howMany == -1) {
+    //   output('Shutdown in progress');
+    //   this.quit(0, status)
+    //   return false;
+    // }
+    // this.bugtxt(`Polling in ${ this.raceDelay } ms ${this.howMany} files remain, next is ${maxWidth(32, this.nextFile)}`);
+    // if ( !this.renderLock) {
+    //   this.pollForStream('everything is going according to plan.');
+    // } else {
+    //   output(`Thread re-entered in look for work`)
+    // }
+  }
   initStream() {
     mode("initStream");
     output(status);
@@ -1480,7 +1481,7 @@ class AminoSeeNoEvil {
     if ( this.renderLock == false) {
       this.error("RENDER LOCK FAILED. This is an  this.error I'd like reported. Please run with --devmode option enabled and send the logs to aminosee@funk.co.nz");
       // this.quit(4, 'Render lock failed');
-      // resetAndMaybe();
+      // resetAndPop();
       // lookForWork('render lock failed inside initStream')
       return false;
     } else { log('Begin') }
@@ -2151,18 +2152,11 @@ class AminoSeeNoEvil {
       pixels = ( this.rgbArray.length / 4);
     }
     catch (err) {
-      this.error(`EXCEPTION DURING this.rgbArray.length / 4 = ${err}`);
-      setTimeout(() => {
-        this.resetAndMaybe();
-      }, this.raceDelay )
+      this.resetAndPop(`EXCEPTION DURING this.rgbArray.length / 4 = ${err}`);
       return false;
     }
     if ( pixels < 64) {
-      output(`Not enough DNA in this file (${ this.currentFile }) ONLY RENDERED ${pixels} pixels. According to https://www.nature.com/news/2006/061009/full/news061009-10.html the smallest organism found so far has 182 genes.`);
-      setTimeout(() => {
-        this.renderLock = false;
-        this.resetAndMaybe();
-      }, this.raceDelay )
+      this.resetAndPop(`Not enough DNA in this file (${ this.currentFile }) ONLY RENDERED ${pixels} pixels. According to https://www.nature.com/news/2006/061009/full/news061009-10.html the smallest organism found so far has 182 genes.`);
       return false;
     }
     this.setIsDiskBusy( true );
@@ -2215,11 +2209,6 @@ class AminoSeeNoEvil {
       },
       function ( cb ) {
         that.saveHTML( cb ); // saveHTML no longer calls htmlFinished, its so that.openOutputs has time to open it
-      },
-      function ( cb ) {
-        // setTimeout(() => {
-        cb();
-        // }, this.raceDelay*3)
       }
     ])
     .exec( function( error, results ) {
@@ -2243,12 +2232,11 @@ class AminoSeeNoEvil {
     if ( this.isHilbertPossible == false ) { mode('not saving html - due to hilbert not possible'); this.isDiskFinHTML = true; }
     if ( this.report == false ) { mode('not saving html - due to report disabled. peptide: ' + this.peptide); this.isDiskFinHTML = true; }
     if ( this.test ) { log('not saving html - due to test');  this.isDiskFinHTML = true;  }
-    if ( this.willRecycleSavedImage == true && this.recycEnabled) {
+    if ( this.willRecycleSavedImage == true && this.recycEnabled == true) {
       mode("Didnt save HTML report because the linear file was recycled.");
       this.isDiskFinHTML = true;
     }
-    if (this.isDiskFinHTML == true ) { if ( cb !== undefined ) { cb() } ; return false; }
-
+    if (this.isDiskFinHTML == true ) { if ( cb !== undefined ) { cb() } ; this.htmlFinished(); return false; }
     mode("will save HTML");
     this.pepTable.sort( this.compareHistocount )
     let histogramJson =  this.getRenderObject();
@@ -2263,16 +2251,13 @@ class AminoSeeNoEvil {
     let histotext = JSON.stringify(histogramJson);
     this.fileWrite( this.filenameHTML, hypertext );
     this.fileWrite( histogramFile, histotext );
-    // the main.html is only written is user did not set --codons or --magnitude or --peptide or --triplet or --artistic
     if (this.userCPP == "auto" && this.magnitude == "auto" && this.artistic == false) {
-      this.fileWrite(`${ this.outputPath }/${ this.justNameOfDNA}/main.html`, hypertext, cb);
+      this.fileWrite(`${ this.outputPath }/${ this.justNameOfDNA}/main.html`, hypertext, cb); // the main.html is only written is user did not set --codons or --magnitude or --peptide or --triplet or --artistic
     } else if (this.artistic && this.userCPP == "auto") {
       this.fileWrite(`${ this.outputPath }/${ this.justNameOfDNA}/artistic.html`, hypertext, cb);
     }
     if ( cb !== undefined ) { cb() }
     this.htmlFinished();
-    // this.bugtxt( this.pepTable.sort( this.compareHistocount ) ); // least common amino acids in front
-    // this.bugtxt(histogramJson);
   }
   fileWrite(file, contents, cb) {
     this.mkRenderFolders();
@@ -2382,98 +2367,32 @@ ${this.renderObjToString()}`; //////////////// <<< END OF TEMPLATE
     if ( cb !== undefined ) { cb() }
   }
   // check if its cool to poll for stream but dont pop the array:
-  lookForWork( reason ) {
-    mode(`Look for work reason: ${reason}`);
 
-    if ( this.renderLock == true ) { // re-entrancy filter
-      this.error('busy with render ' + reason);
-    }
-    // this.setupProject();
-
-    if ( this.test == true ) { // uses a loop not polling.
-      this.error('test is in look for work?');
-    }
-    if (this.howMany <= 0) {
-      mode('Happiness.');
-      log(chalk.bgRed.yellow(status));
-      this.printRadMessage(status)
-      this.quit(0, status)
-      return false;
-    }
-    this.currentFile = this.args._[0].toString();
-    this.filename = path.resolve(this.currentFile);
-    if ( this.currentFile == funknzlabel ) {
-      this.popAndPollOrBust();
-    } else {
-      output(`this.currentFile : ${this.currentFile }`)
-      this.filename = path.resolve( this.currentFile )
-    }
-    this.pollForStream();
-    return false;
-    if ( this.currentFile == undefined) {
-      // this.quit(1, status)
-      return false;
-    }
-    if (!doesFileExist(path.resolve(this.currentFile))) {
-      mode(`file not existing, trying next one`);
-      this.pollForStream();
-      return false;
-    }
-
-    try {
-      this.howMany = this.args._.length;
-    } catch(e) {
-      mode(`lookForWork caught  this.error: ${e}`);
-      this.bugtxt(status)
-      this.quit(0, status)
-      return false;
-    }
-    if (this.howMany == -1) {
-      output('Shutdown in progress');
-      this.quit(0, status)
-      return false;
-    }
-    this.bugtxt(`Polling in ${ this.raceDelay } ms ${this.howMany} files remain, next is ${maxWidth(32, this.nextFile)}`);
-    // setTimeout(() => {
-    if ( !this.renderLock) {
-      this.pollForStream('everything is going according to plan.');
-    } else {
-      output(`Thread re-entered in look for work`)
-    }
-    // }, this.raceDelay );
-  }
   popAndPollOrBust() { // ironic its now a .shift()
     // pop the array, the poll for stream or quit
     let file;
     try {
-      // file = this.args._.pop().toString();
-      file = this.args._.shift().toString();
+      file = this.args._.shift().toString(); // file = this.args._.pop().toString();
     } catch(e) {
-      log( 'job args has no more commands: ' + e);
-      quit();
+      this.quit(1, 'job args has no more commands: ' + e);
       return false;
     }
     this.howMany = this.args._.length;
     if ( file.indexOf('...') != -1) {
       log( 'Cant use files with three dots in the filename ... (for some reason?)');
-      popAndPollOrBust();
+      this.popAndPollOrBust();
       return false;
     }
     if ( file == undefined) {
-      log( 'filename was undefined after resolve: ' + file )
-      quit();
+      this.quit(1, 'filename was undefined after resolve: ' + file );
       return false;
     }
     this.filename = path.resolve( file );
     this.currentFile = file;
-
-
     if ( fileSystemChecks(this.filename) == true ) {
-      return 'success';
+      this.pollForStream(`popped`)
     }  else {
-      if (this.renderLock == false) {
-        this.popAndPollOrBust();
-      }
+      this.popAndPollOrBust();
     }
   }
   postRenderPoll(reason) { // renderLock on late, off early
@@ -2498,7 +2417,7 @@ ${this.renderObjToString()}`; //////////////// <<< END OF TEMPLATE
         this.runCycle()
       } else {
         this.removeLocks();
-        this.resetAndMaybe();
+        this.resetAndPop(`Great success with render`);
       }
     } else {
       log(` [ wait on storage: ${chalk.inverse( this.storage() )} reason: ${reason}] `);
@@ -2515,8 +2434,7 @@ ${this.renderObjToString()}`; //////////////// <<< END OF TEMPLATE
       const fileSizeInBytes = stats.size
       return fileSizeInBytes
     } catch(err) {
-      log("File not found: " + file);
-      this.resetAndMaybe();
+      this.resetAndPop("File not found: " + file);
       return -1; // -1 is signal for failure or unknown size (stream).
     }
   }
@@ -2555,9 +2473,11 @@ ${this.renderObjToString()}`; //////////////// <<< END OF TEMPLATE
     }
   }
 
-  quit(n, txt) {
-    if (n == undefined) { n = 0 }
-    log(`Received quit(${n})`);
+  quit(code, reason) {
+    mode('quit ' + reason);
+    this.calcUpdate();
+    if (code == undefined) { code = 0 } // dont terminate with 0
+    log(`Received quit(${code}) ${reason}`);
     if ( this.isDiskFinLinear && this.isDiskFinHilbert && this.isDiskFinHTML) {
       if ( this.renderLock == true ) {
         log("still rendering") // maybe this happens during gracefull shutdown
@@ -2566,58 +2486,51 @@ ${this.renderObjToString()}`; //////////////// <<< END OF TEMPLATE
     } else {
       log("still saving to storage") // maybe this happens during gracefull shutdown
     }
-    if (this.howMany > 1 ) {
+    if (this.howMany > 0 ) {
       this.bugtxt(`There is more work (${this.howMany}) . Rendering: ${this.busy()} Load: ${os.loadavg()}`);
-      // lookForWork('quit')
+      this.lookForWork(this.status)
       return true;
     }
-    if (n == 0) {
+    if (code == 0) {
       if (isElectron == true){
         log("Electron mode clean exit.")
-        return true;
+        // return true;
       } else {
         log("CLI mode clean exit.")
       }
+    } else {
+      log(chalk.bgWhite.red (`process.exit going on. last file: ${ this.filename } currently: ${this.busy()} percent complete ${  this.percentComplete}`));
     }
-    mode('quit');
-    log(chalk.bgWhite.red (`process.exit going on. last file: ${ this.filename }`));
-    this.removeLocks();
-    this.bugtxt(`percent complete ${  this.percentComplete}`);
-    destroyKeyboardUI();
-    this.destroyProgress();
-    this.calcUpdate();
     if (killServersOnQuit == true) {
-      if (webserverEnabled == true && n == 130) { // control-c kills server
-
+      if (webserverEnabled == true) { // control-c kills server
+        server.stop()
       }
-    } else if (webserverEnabled == true){
+    } else if (webserverEnabled == true) {
       log("If you get a lot of servers running, use Control-C instead of [Q] to issues a 'killall node' command to kill all of them")
     }
-    this.args._ = [];
     if ( this.keyboard == true) {
       try {
         process.stdin.setRawMode(false);
         // process.stdin.resume();
-      } catch(e) {  this.error( "Issue with keyboard this.mode: " + e ) }
-    } else {
-      log("Not in keyboard this.mode.")
+      } catch(e) {  bugtxt( "Issue with keyboard this.mode: " + e ) }
+    }
+    term.eraseDisplayBelow();
+    this.printRadMessage([ ` ${(killServersOnQuit ?  'AminoSee has shutdown' : ' ' )}`, `${( this.verbose ?  ' Exit code: '+n : '' )}`,  (killServersOnQuit == false ? server.getServerURL() : ' '), this.howMany ]);
+    process.exitCode = code;
+    if (code != 0) {
+      setImmediate(() => {
+        setTimeout( () => {
+          this.removeLocks();
+          process.stdout.write(`${code} ${reason}`)
+          this.args._ = [];
+          destroyKeyboardUI();
+          this.destroyProgress();
+          term.processExit(code);
+          process.exit()
+        }, this.raceDelay  * 2)
+      })
     }
 
-    term.eraseDisplayBelow();
-    // this.printRadMessage([ ` ${(killServersOnQuit ?  'AminoSee has shutdown' : 'Webserver will be left running in background. ' )}`, `${( this.verbose ?  ' Exit code: '+n : '' )}`,  (killServersOnQuit == false ? server.getServerURL() : ' '), this.howMany ]);
-    // redoLine("exiting in "+ humanizeDuration( this.raceDelay * 2) )
-    setImmediate(() => {
-      // redoLine("exiting in "+ humanizeDuration( this.raceDelay * 2) )
-      setTimeout( () => {
-        // redoLine("exiting")
-        process.exitCode = 0;
-        if ( n == 130 ) {
-          term.processExit(n);
-          process.exit()
-        }
-
-      }, this.raceDelay  * 2)
-    })
   }
   processLine(l) {
     this.status = "stream";
@@ -3491,13 +3404,6 @@ bothKindsTestPattern( cb ) {
 
 
 
-
-
-
-
-
-
-
   this.setIsDiskBusy( true );
   const hilbertImage = this.hilbertImage;
   const rgbArray = this.rgbArray;
@@ -3523,7 +3429,8 @@ bothKindsTestPattern( cb ) {
     .on('finish', (err, resolve) => {
       // if (err) { log(`not sure if that saved: ${err}`)}
       // if (resolve) { log(`not sure if that saved: ${err} ${ this.storage()} `) }
-      this.isDiskFinHilbert = true;
+      // this.isDiskFinHilbert = true;
+      this.hilbertFinished();
     })
   }).then(  ).catch( output('Test HILBERT catch') );
 
@@ -3596,8 +3503,7 @@ savePNG(cb) {
     pixels = ( this.rgbArray.length / 4);
   }
   catch (err) {
-    this.error(`NOT ENOUGH PIXELS ${err}`);
-    resetAndMaybe();
+    this.resetAndPop(`NOT ENOUGH PIXELS ${err}`);
     return false;
   }
 
@@ -3640,9 +3546,7 @@ savePNG(cb) {
   if ( pixels <= width*height) {
     log("Image allocation is OK: " + pixels + " <= width x height = " + ( width * height ));
   } else {
-    this.error(`MEGA FAIL: TOO MANY ARRAY PIXELS NOT ENOUGH IMAGE SIZE: array pixels: ${pixels} <  width x height = ${width*height}`);
-    // this.quit(6, 'Failed to allocate correct image size (doh!)');
-    resetAndMaybe();
+    this.resetAndPop(`MEGA FAIL: TOO MANY ARRAY PIXELS NOT ENOUGH IMAGE SIZE: array pixels: ${pixels} <  width x height = ${width*height}`);
     return false;
   }
   var stringy = {
