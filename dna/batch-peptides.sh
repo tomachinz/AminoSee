@@ -1,6 +1,6 @@
 #!/bin/sh
 aminosee_do () {
-  echo $1 $2 $3 $4 $5 $6 $7
+  echo $1 $2 $3 $4 $5 $6 $7  --no-image --no-html --no-explorer
   nice aminosee  $1 $2 $3 $4 $5 $6 $7 --no-image --no-html --no-explorer
 }
 best_way () {
@@ -75,10 +75,8 @@ parallel_peptides () {
   echo "-------------------------------------------"
   echo "                                         =///"
   aminosee_do $1 $2 $3 $4 $5 $6 $7
-  # aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide="Start Codons"
-  # aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide="Stop Codons"
-  aminosee $1  --peptide="Glutamic acid" &
-  aminosee $1  --peptide="Aspartic acid" &
+  aminosee_do $1 $2 $3 $4  --peptide="Glutamic acid" &
+  aminosee_do $1 $2 $3 $4  --peptide="Aspartic acid"
   aminosee_do $1 $2 $3 $4  --peptide=Ochre
   aminosee_do $1 $2 $3 $4  --peptide=Amber &
   aminosee_do $1 $2 $3 $4  --peptide=Opal &
@@ -100,6 +98,8 @@ parallel_peptides () {
   aminosee_do $1 $2 $3 $4  --peptide=Arginine &
   aminosee_do $1 $2 $3 $4  --peptide=Lysine
   nice aminosee $1 $2 $3 $4 $5 $6 $7  --peptide=Histidine
+  # aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide="Start Codons"
+  # aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide="Stop Codons"
   echo "                                         =///"
   echo "-------------------------------------------"
   echo FINISHED TWIN THREAD DECODE FOR $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11
@@ -163,9 +163,9 @@ find_way_peptides () {
 echo $1 $2 $3 $4 $5 $6 $7
 # parallel_peptides 50KB_TestPattern.txt  megabase.fa
 
+parallel_peptides $1 $2 $3 $4 $5 $6 $7
 series_peptides $1 $2 $3 $4 $5 $6 $7 --keyboard
 series_peptides * $1 $2 $3 $4 $5 $6 $7 --keyboard
-parallel_peptides $1 $2 $3 $4 $5 $6 $7
 find_way_peptides $1 $2 $3 $4 $5 $6 $7
 # parallel_peptides  --reg $1 $2 $3 $4 $5 $6 $7
 # find_way_peptides  --reg

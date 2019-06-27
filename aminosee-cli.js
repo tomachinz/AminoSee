@@ -55,7 +55,6 @@ const clog = console.log;
 const chalk = require('chalk');
 const obviousFoldername = "/AminoSee_Output"; // descriptive for users
 const netFoldername = "/output"; // terse for networks
-let PNGReader = require('png.js');
 let express = require('express');
 let bodyParser = require('body-parser');
 // const gv = require('genversion');
@@ -79,7 +78,7 @@ const defaultC = 1; // back when it could not handle 3+GB files.
 const artisticHighlightLength = 12; // px only use in artistic this.mode. must be 6 or 12 currently
 const defaultMagnitude = 8; // max for auto setting
 const theoreticalMaxMagnitude = 10; // max for auto setting
-const overSampleFactor = 2; // your linear image needs to be 2 megapixels to make 1 megapixel hilbert
+const overSampleFactor = 4; // your linear image needs to be 2 megapixels to make 1 megapixel hilbert
 const maxCanonical = 32; // max length of canonical name
 const hilbPixels = [ 64, 256, 1024, 4096, 16384, 65536, 262144, 1048576, 4194304, 16777216, 67108864 ]; // I've personally never seen a mag 9 or 10 image, cos my computer breaks down. 67 Megapixel hilbert curve!! the last two are breaking nodes heap and call stack both.
 const widthMax = 960; // i wanted these to be tall and slim kinda like the most common way of diagrammatically showing chromosomes
@@ -142,8 +141,6 @@ function populateArgs(procArgv) { // returns args
     stopEarly: false
   } // NUMERIC INPUTS: codons, magnitude, width,     string: [ 'width'],    string: [ 'magnitude'],    string: [ 'codons'],
 
-
-
   return minimist(procArgv.slice(2), options);
 }
 function pushCli(cs) { // used by Electron GUI
@@ -153,14 +150,14 @@ function pushCli(cs) { // used by Electron GUI
 
   let commandArray = commandString.split(" ");
   let jobArgs = populateArgs(commandArray);
-  console.log(`pushCli: ${jobArgs.toString()}`);
-  console.log(jobArgs);
+  log(`pushCli: ${jobArgs.toString()}`);
+  log(jobArgs);
   commandArray.forEach((job) => {
     if (charAtCheck(job) && fileSystemChecks(job)) {
-      output(`pushing job into render queuee: [${job}]`)
+      log(`pushing job into render queuee: [${job}]`)
       jobArgs._.push(job)
     } else {
-      output(`configuring parameter: [${job}]`)
+      log(`configuring parameter: [${job}]`)
     }
   })
   let thread = addJob(jobArgs);
@@ -203,7 +200,7 @@ class AminoSeeNoEvil {
       this.args = args; // populateArgs(procArgv);// this.args;
       webserverEnabled = false;
 
-      console.log(args)
+      log(args)
 
       this.percentComplete = 0;
       this.howMany = args._.length;
@@ -1318,7 +1315,7 @@ class AminoSeeNoEvil {
       }
       ///////////////// BEGIN PARSING DNA FILE //////////////////////////////
       ///////////////// Check if it's been rendered etc
-      mode('parsing');
+      mode(`pollForStream ${reason}`)
       this.setupProject();
       this.autoconfCodonsPerPixel();
       this.setupFNames(); // will have incorrect Hilbert file name. Need to wait until after render to check if exists.
@@ -1337,14 +1334,10 @@ class AminoSeeNoEvil {
           return true;
       }
       if (this.howMany < 1) { this.isShuttingDown = true;}
-      if (this.howMany < 0) { this.gracefulQuit(130) }
       if ( this.currentFile == funknzlabel) { // maybe this is to get past my lack of understanding of processing of this.args.
         this.resetAndPop(`For some odd reason... yeah Im gonna get back to you on that unset variable`);
         return false;
       }
-
-
-
       log('Checking for previous render'+ this.filenamePNG)
       if (doesFileExist(this.filenamePNG) && this.force == false) {
         let msg = `Already rendered ${chalk.bgBlue.white(this.justNameOfPNG)}. `
@@ -1352,15 +1345,11 @@ class AminoSeeNoEvil {
         this.popAndPollOrBust();
         return false;
       }
-
-      mode(`pollForStream ${reason}`)
-      log(`File: ${ this.howMany } ${ this.currentFile} reason: ${reason}`);
-
       if ( this.checkLocks( this.filenameTouch)) {
-        // this.resetAndPop("Render already in progress by another thread for: " + this.justNameOfPNG); // <---  another node maybe working on, NO RENDER
         output("Render already in progress by another thread for: " + this.justNameOfPNG); // <---  another node maybe working on, NO RENDER
         log("Either use --force or delete this lock file: ");
         log(`Touchfile: ${chalk.underline( this.filenameTouch )}`);
+        this.popAndPollOrBust();
         return false;
       }
       mode("Lock OK proceeding to render...");
@@ -1413,14 +1402,14 @@ class AminoSeeNoEvil {
     if (this.howMany > 0) {
       this.popAndPollOrBust(`reset ` + reason);
     } else {
-      this.quit(1, reason);
+      this.quit(0, reason);
     }
   }
   lookForWork( reason ) {
     mode(`Look for work reason: ${reason}`);
 
     if ( this.renderLock == true ) { // re-entrancy filter
-      this.error('busy with render ' + reason);
+      this.error('look: ' + reason);
     }
     // this.setupProject();
 
@@ -2330,7 +2319,7 @@ ${this.renderObjToString()}`; //////////////// <<< END OF TEMPLATE
     if ( !this.quiet ) {
       term.saveCursor()
       term.moveTo(0, term.height - 5);
-      output(chalk.bgWhite.rgb(48,48,48).inverse(outski));
+      output(chalk.bgWhite.rgb(48,48,64).inverse( outski ));
       output('*')
       term.restoreCursor()
     }
@@ -2421,11 +2410,6 @@ ${this.renderObjToString()}`; //////////////// <<< END OF TEMPLATE
       }
     } else {
       log(` [ wait on storage: ${chalk.inverse( this.storage() )} reason: ${reason}] `);
-      // if ( this.test ) {
-      //   setTimeout( () => {
-      //     this.htmlFinished();
-      //   }, this.raceDelay)
-      // }
     }
   }
   getFilesizeInBytes(file) {
@@ -2487,7 +2471,7 @@ ${this.renderObjToString()}`; //////////////// <<< END OF TEMPLATE
       log("still saving to storage") // maybe this happens during gracefull shutdown
     }
     if (this.howMany > 0 ) {
-      this.bugtxt(`There is more work (${this.howMany}) . Rendering: ${this.busy()} Load: ${os.loadavg()}`);
+      output(`There is more work (${this.howMany}) . Rendering: ${this.busy()} Load: ${os.loadavg()}`);
       this.lookForWork(this.status)
       return true;
     }
@@ -2865,12 +2849,12 @@ ${this.renderObjToString()}`; //////////////// <<< END OF TEMPLATE
     'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
   })(window,document,'script','dataLayer','GTM-P8JX');</script>
   <!-- End Google Tag Manager -->
-  <nav> <a href="../../">AminoSee Home</a> | <a href="../../">Parent</a>  </nav>
+
+  <nav style="position: fixed; top: 8px; left: 8px; z-index:9999; background-color: #123456;"> <a href="../../" class="button">AminoSee Home</a> | <a href="../" class="button">Parent</a>  </nav>
+
   <h1>AminoSee DNA Render Summary for ${ this.currentFile }</h1>
   <h2>${ this.justNameOfDNA}</h2>
   ${( this.test ? " this.test " : this.imageStack(histogramJson))}
-
-
 
 
 
@@ -2916,7 +2900,7 @@ ${this.renderObjToString()}`; //////////////// <<< END OF TEMPLATE
   <thead>
   <tr>
   <th>Amino Acid</th>
-  <th>Hue</th>
+  <th>Hue&#xB0;</th>
   <th>RGB</th>
   <th>Count</th>
   <th>Description</th>
@@ -2948,7 +2932,7 @@ ${this.renderObjToString()}`; //////////////// <<< END OF TEMPLATE
     let thePep = this.pepTable[i].Codon;
     let theHue = this.pepTable[i].Hue;
     let c =      hsvToRgb( theHue / 360, 0.5, 1.0 );
-    let lightC = hsvToRgb( theHue / 360, 0.95, 0.75 );
+    let richC = hsvToRgb( theHue / 360, 0.95, 0.75 );
     let imghil = this.aminoFilenameIndex(i)[0]; // first elemewnt in array is the hilbert image
     let imglin = this.aminoFilenameIndex(i)[1]; // second element is linear
 
@@ -2956,21 +2940,17 @@ ${this.renderObjToString()}`; //////////////// <<< END OF TEMPLATE
       html += `<!-- ${thePep} -->`;
     } else {
       html += `
-      <tr style="background-color: hsl( ${theHue} , 50%, 100%);" onmouseover="mover(${i})" onmouseout="mout(${i})">
-      <td style="background-color: white;"> ${ this.pepTable[i].Codon} </td>
-      <td style="background-color: rgb(${lightC});">
-      <p class="fineprint" style="background-color: white; background-color: rgba(255,255,255,0.5); color: black;">${theHue}&#xB0;</p>
-      </td>
-      <td style="background-color: rgb(${c}); color: white; font-weight: bold; "> <p class="fineprint" style="background-color: black; background-color: rgba(0,0,0,0.5); color: white;">${c}</p> </td>
-      <td>${ this.pepTable[i].Histocount.toLocaleString()}</td>
-      <td>${ this.pepTable[i].Description}</td>
-      <td style="background-color: white;">
-      <a href="images/${ imghil }" class="button" title="Amino filter: ${ thePep }"><img width="48" height="16" class="blackback" src="images/${ imghil }" alt="${ this.justNameOfDNA } ${ thePep }"></a>
-      </td>
-      <td style="background-color: white;">
-      <a href="images/${ imglin }" class="button" title="Amino filter: ${ thePep }"><img width="48" height="16" class="blackback" src="images/${ imglin }" alt="${ this.justNameOfDNA } ${ thePep }"></a>
-      </td>
-      </tr>
+<tr style="background-color: hsl( ${theHue} , 50%, 100%);" onmouseover="mover(${i})" onmouseout="mout(${i})">
+<td style="background-color: white;"> ${ this.pepTable[i].Codon} </td>
+<td style="background-color: rgb(${richC});"><p class="fineprint" style="background-color: black; background-color: rgba(0,0,0,0.5); color: white;">${theHue}&#xB0;</p></td>
+<td style="background-color: rgb(${c}); color: black; font-weight: bold; "> <p class="fineprint" style="background-color: white; background-color: rgba(255,255,255,0.5); color: black;">${c}</p></td>
+<td>${ this.pepTable[i].Histocount.toLocaleString()}</td>
+<td>${ this.pepTable[i].Description}</td>
+<td style="background-color: white;"><a href="images/${ imghil }" class="button" title="Amino filter: ${ thePep }"><img width="48" height="16" class="blackback" src="images/${ imghil }" alt="${ this.justNameOfDNA } ${ thePep }"></a></td>
+<td style="background-color: white;">
+<a href="images/${ imglin }" class="button" title="Amino filter: ${ thePep }"><img width="48" height="16" class="blackback" src="images/${ imglin }" alt="${ this.justNameOfDNA } ${ thePep }"></a>
+</td>
+</tr>
       `
     }
   }
@@ -3433,17 +3413,11 @@ bothKindsTestPattern( cb ) {
       this.hilbertFinished();
     })
   }).then(  ).catch( output('Test HILBERT catch') );
-
-
-
-
   // new Promise(resolve =>
   //   hilbert_img_png.pack()
   //   .pipe(wstreamHILBERT)
   //   .on('finish', resolve)
   // );
-
-
   var img_data = Uint8ClampedArray.from( this.rgbArray );
   var img_png = new PNG({
     width: this.width,
@@ -3477,12 +3451,12 @@ bothKindsTestPattern( cb ) {
   //   .on('finish', resolve)
   // );
 
-  setTimeout( () => {
-    this.isDiskFinHTML = true;
-    this.linearFinished();
-    this.hilbertFinished();
-    if (cb !== undefined) { cb() }
-  }, 4000)
+  // setTimeout( () => {
+  //   this.isDiskFinHTML = true;
+  //   this.linearFinished();
+  //   this.hilbertFinished();
+  //   if (cb !== undefined) { cb() }
+  // }, 4000)
   //
   // if (cb !== undefined) { cb() }
 
@@ -3763,11 +3737,8 @@ runCycle(cb) {
     output(`test patterns returned`)
     // this.saveDocsSync();
     this.isDiskFinHTML = true;
-    // setTimeout( () => {
     this.postRenderPoll(`test patterns returned`);
-    // }, this.raceDelay)
   }); // <<--------- sets up both linear and hilbert arrays but only saves the Hilbert.
-
   return true;
 }
 
@@ -4350,11 +4321,11 @@ clout(txt) {
       //   return "none";
       // }
     }
-    tidyPeptideName(str) { // give it "OPAL" it gives "Opal"
+    tidyPeptideName(str) { // give it "OPAL" it gives "Opal". GIVE it aspartic_ACID or "gluTAMic acid"
     if (str === undefined) { return "none" }
-    str = str.toUpperCase()
+    str = spaceTo_( str.toUpperCase() )
     for ( let i = 0; i < this.pepTable.length; i++) {
-      var compareTo = this.pepTable[i].Codon.toUpperCase()
+      var compareTo = spaceTo_( this.pepTable[i].Codon.toUpperCase() )
       // output(`str  ${str}    compareTo: ${compareTo}`)
       if ( compareTo == str ) {
         // output(`str  ${str}    compareTo: ${this.pepTable[i].Codon} <--  GREAT SUCCESS`)
@@ -4580,17 +4551,16 @@ clout(txt) {
         let i =      item.index + 1;
         let src =    item.src;
         let vector = i - (quant/2);
+        let zoom = 3;
         // this.bugtxt( src );
         html +=  i +". ";
         if (thePep == "Start Codons" || thePep == "Stop Codons" || thePep == "Non-coding NNN") {
           html += `<!-- ${thePep.Codon} -->`;
         } else {
           html += `
-          <li>${i} <a href="images/${src}">${thePep} <br/>
-          <img src="images/${src}" id="stack_${i}" width="20%" height="20%" style="z-index: ${i}; position: fixed; top: 50%; left: 50%; transform: translate(${(i*4)-40},${(i*4)-40})" alt="${name} ${thePep}" title="${name} ${thePep}" onmouseover="mover(${i})" onmouseout="mout(${i})"></a></li>
-
-          <!-- li>${i}<a href="images/${src}" class="imgstack"> ${thePep} <br/>
-          <img src="images/${src}" id="stack_${i}" width="256" height="256" style="z-index: 99; position: absolute; top: ${i*2}px; left: ${i*32}px;" alt="${thePep}" title="${item.Description}" onmouseover="mover(${i})" onmouseout="mout(${i})"></a -->`;
+          <li>${i} <a href="images/${src}" title="${name} ${thePep}">${thePep} <br/>
+          <img src="images/${src}" id="stack_${i}" width="20%" height="20%" style="z-index: ${i}; position: fixed; z-index: ${i}; top: 50%; left: 50%; transform: translate(${(i*zoom)-100}px,${(i*zoom)-100}px)" alt="${name} ${thePep}" title="${name} ${thePep}" onmouseover="mover(${i})" onmouseout="mout(${i})"></a></li>
+`;
         }
       });
       html += `</ul> <!-- END stackOimages MA man -->`;
