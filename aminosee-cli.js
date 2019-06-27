@@ -2879,7 +2879,7 @@ class AminoSeeNoEvil {
       t += `_${ this.ratio }`;
     }
     this.artistic ? t += "_artistic" : t += "_sci"
-    this.reg == true ? t += "_reg" : t += ""  // registration marks
+    // this.reg == true ? t += "_reg" : t += ""  // registration marks
     return t;
   }
 
