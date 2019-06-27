@@ -91,7 +91,7 @@ const max32bitInteger = 2147483647;
 const minUpdateTime = 2000;
 const defaultFilename = "dna/megabase.fa"; // for some reason this needs to be here. hopefully the open source community can come to rescue and fix this Kludge.
 const testFilename = "AminoSeeTestPatterns"; // for some reason this needs to be here. hopefully the open source community can come to rescue and fix this Kludge.
-let isElectron, status, args, killServersOnQuit, webserverEnabled, cliInstance, tx, ty, termPixels, cliruns, opens, gbprocessed, projectprefs, userprefs, progato, commandString;
+let isElectron, status, args, killServersOnQuit, webserverEnabled, cliInstance, tx, ty, termPixels, cliruns, opens, gbprocessed, projectprefs, userprefs, progato, commandString, batchSize;
 let dnaTriplets = data.dnaTriplets;
 termPixels = 69;
 tx = ty = cliruns = gbprocessed = 0;
@@ -204,6 +204,7 @@ class AminoSeeNoEvil {
 
       this.percentComplete = 0;
       this.howMany = args._.length;
+      batchSize = this.howMany;
       this.loopCounter = 0;
       this.startDate = new Date(); // required for touch locks.
       this.started = this.startDate.getTime(); // required for touch locks.
@@ -1302,6 +1303,8 @@ class AminoSeeNoEvil {
       if ( this.renderLock == true ) {
         bugtxt(`thread re-entry inside pollForStream: ${ this.justNameOfDNA} ${ this.busy()} ${this.storage()} reason: ${reason}`);
         return false;
+      } else {
+        log(`Not rendering presently. ${this.busy()}`)
       }
       this.currentFile = this.args._[0];
       if (!this.checkFileExtension( this.currentFile)) {
@@ -1402,24 +1405,24 @@ class AminoSeeNoEvil {
         bugtxt(`path.resolve( this.currentFile) = ${err}`)
       }
 
-            if ( this.checkLocks( this.filenameTouch)) {
-              output("Render already in progress by another thread for: " + this.justNameOfPNG);
-              log("Either use --force or delete this file: ");
-              log(`Touchfile: ${chalk.underline( this.filenameTouch)}`);
-              if ( this.renderLock ) {
-                this.error("Thread re-entry during pollForStream " + this.justNameOfDNA)
-              } else {
-              }
-              this.popAndResolve();
-              this.resetAndMaybe(); // <---  another node maybe working on, NO RENDER
-              return false;
-            }
+      if ( this.checkLocks( this.filenameTouch)) {
+        output("Render already in progress by another thread for: " + this.justNameOfPNG);
+        log("Either use --force or delete this file: ");
+        log(`Touchfile: ${chalk.underline( this.filenameTouch)}`);
+        if ( this.renderLock ) {
+          this.error("Thread re-entry during pollForStream " + this.justNameOfDNA)
+        }
+        this.renderLock = false;
+        this.popAndResolve();
+        this.resetAndMaybe(); // <---  another node maybe working on, NO RENDER
+        return false;
+      }
 
-            mode("Lock OK proceeding to render...");
-            output(status)
-            if (this.renderLock == false) {
-              this.touchLockAndStartStream(); // <--- THIS IS WHERE MAGIC STARTS
-            }
+      mode("Lock OK proceeding to render...");
+      output(status)
+      if (this.renderLock == false) {
+        this.touchLockAndStartStream(); // <--- THIS IS WHERE MAGIC STARTS
+      }
     }
 
     firstRun() {
@@ -1503,7 +1506,7 @@ class AminoSeeNoEvil {
     this.status = "init";
     this.rgbArray = [];
     this.hilbertImage = [];
-    this.clearCheck();
+    // this.clearCheck();
     this.bugtxt(`Loading ${ this.filename } Filesize ${bytes( this.baseChars)}`);
     if ( this.clear == true) {
       term.up(this.termDisplayHeight + this.termStatsHeight*2);
@@ -1557,7 +1560,7 @@ class AminoSeeNoEvil {
 
     log("FINISHED INIT " + this.howMany);
     // term.up( this.termStatsHeight);
-    this.clearCheck();
+    // this.clearCheck();
     term.eraseDisplayBelow();
   }
   streamStarted() {
@@ -2154,8 +2157,9 @@ class AminoSeeNoEvil {
       return false;
     }
     if ( pixels < 64) {
-      output(`Not enough DNA in this file (${ this.currentFile }) ONLY RENDERED ${pixels} pixels`);
+      output(`Not enough DNA in this file (${ this.currentFile }) ONLY RENDERED ${pixels} pixels. According to https://www.nature.com/news/2006/061009/full/news061009-10.html the smallest organism found so far has 182 genes.`);
       setTimeout(() => {
+        this.renderLock = false;
         this.resetAndMaybe();
       }, this.raceDelay )
       return false;
@@ -2234,21 +2238,16 @@ class AminoSeeNoEvil {
   }
   saveHTML(cb) {
     mode("maybe save HTML");
-    if ( !this.isHilbertPossible ) { log('not saving html - due to hilbert not possible');       this.isDiskFinHTML = true; cb(); return false; }
+    this.isDiskFinHTML = false;
+    if ( this.isHilbertPossible == false ) { mode('not saving html - due to hilbert not possible'); this.isDiskFinHTML = true; }
+    if ( this.report == false ) { mode('not saving html - due to report disabled. peptide: ' + this.peptide); this.isDiskFinHTML = true; }
     if ( this.test ) { log('not saving html - due to test'); cb(); return false; }
     if ( this.willRecycleSavedImage == true && this.recycEnabled) {
-      log("Didnt save HTML this.report because the linear file was recycled. Use --html to enable and auto open when done.");
+      mode("Didnt save HTML report because the linear file was recycled.");
       this.isDiskFinHTML = true;
-      if ( cb !== undefined ) { cb() }
-      return false;
     }
-    if ( this.report == false) {
-      log("Didnt save HTML this.report because reports = false they were disabled. Use --html to enable and auto open when done.");
-      this.isDiskFinHTML = true;
-      // this.htmlFinished();
-      if ( cb !== undefined ) { cb() }
-      return false;
-    }
+    if (this.isDiskFinHTML == true ) { if ( cb !== undefined ) { cb() } ; return false; }
+
     mode("save HTML");
     this.pepTable.sort( this.compareHistocount )
     let histogramJson =  this.getRenderObject();
@@ -2311,7 +2310,9 @@ class AminoSeeNoEvil {
     this.initStream()
   }
   blurb() {
-    return `Started DNA render ${ this.currentFile } at ${ formatAMPM( this.startDate)}, and after ${humanizeDuration( this.runningDuration)} completed ${ this.nicePercent()} of the ${bytes(  this.baseChars)} file at ${bytes( this.bytesPerMs*1000)} per second. Estimated ${humanizeDuration( this.timeRemain)} to go with ${  this.genomeSize.toLocaleString()} r/DNA base pair this.triplets decoded, and ${ this.pixelClock.toLocaleString()} pixels painted so far.
+    return `Started DNA render ${ this.currentFile } at ${ formatAMPM( this.startDate)}, and after ${humanizeDuration( this.runningDuration)} completed ${ this.nicePercent()} of the ${bytes(  this.baseChars)} file at ${bytes( this.bytesPerMs*1000)} per second.
+    Estimated ${humanizeDuration( this.timeRemain)} to go with ${  this.genomeSize.toLocaleString()} r/DNA base pair this.triplets decoded, and ${ this.pixelClock.toLocaleString()} pixels painted so far.
+    It was the ${this.howMany}th file of ${batchSize}.
     ${ this.memToString()}
     CPU load:    [ ${ this.loadAverages()} ]`
   }
@@ -2877,8 +2878,8 @@ class AminoSeeNoEvil {
     if ( this.args.ratio || this.args.r ) {
       t += `_${ this.ratio }`;
     }
-     this.artistic ? t += "_artistic" : t += "_sci"
-     this.reg == true ? t += "_reg" : t += ""  // registration marks
+    this.artistic ? t += "_artistic" : t += "_sci"
+    this.reg == true ? t += "_reg" : t += ""  // registration marks
     return t;
   }
 
@@ -3837,7 +3838,7 @@ runCycle(cb) {
     // this.saveDocsSync();
     this.isDiskFinHTML = true;
     // setTimeout( () => {
-      this.postRenderPoll(`test patterns returned`);
+    this.postRenderPoll(`test patterns returned`);
     // }, this.raceDelay)
   }); // <<--------- sets up both linear and hilbert arrays but only saves the Hilbert.
 
@@ -5297,89 +5298,89 @@ clout(txt) {
       return Math.round(ms/1000) * 1000;
     }
 
-  function streamingZip(f) {
-    zipfile = path.resolve(f);
-    fs.createReadStream(zipfile)
-    .pipe(unzipper.Parse())
-    .pipe(stream.Transform({
-      objectMode: true,
-      transform: function(entry,e,cb) {
-        var zipPath = entry.path;
-        var type = entry.type; // 'Directory' or 'File'
-        var size = entry.size;
-        var cb = function (byte) {
-          output(byte);
+    function streamingZip(f) {
+      zipfile = path.resolve(f);
+      fs.createReadStream(zipfile)
+      .pipe(unzipper.Parse())
+      .pipe(stream.Transform({
+        objectMode: true,
+        transform: function(entry,e,cb) {
+          var zipPath = entry.path;
+          var type = entry.type; // 'Directory' or 'File'
+          var size = entry.size;
+          var cb = function (byte) {
+            output(byte);
+          }
+          if (zipPath === "this IS the file I'm looking for") {
+            entry.pipe(fs.createWriteStream('dna'))
+            .on('finish',cb);
+          } else {
+            entry.autodrain();
+            if ( cb !== undefined ) { cb( ) }
+          }
         }
-        if (zipPath === "this IS the file I'm looking for") {
-          entry.pipe(fs.createWriteStream('dna'))
-          .on('finish',cb);
-        } else {
-          entry.autodrain();
-          if ( cb !== undefined ) { cb( ) }
-        }
+      }));
+    }
+    function unknownOption(unknown) {
+      output( chalk.inverse('Unknown option: ') +  unknown);
+      output( chalk.inverse('Unknown option: ') +  unknown);
+      output( chalk.inverse('Unknown option: ') +  unknown);
+      output( chalk.inverse('Unknown option: ') +  unknown);
+    }
+    function formatAMPM(date) { // nice time output
+      var hours = date.getHours();
+      var minutes = date.getMinutes();
+      var secs   = date.getSeconds();
+      var ampm = hours >= 12 ? 'pm' : 'am';
+      hours = hours % 12;
+      hours = hours ? hours : 12; // the hour '0' should be '12'
+      minutes = minutes < 10 ? '0'+minutes : minutes;
+      secs = secs < 10 ? '0'+secs : secs;
+      var strTime = hours + ':' + minutes + ":" + secs + ' ' + ampm;
+      return strTime;
+    }
+    function killServers() {
+      output("ISSUING 'killall node' use 'Q' key to quit without killing all node processes!")
+      // this.renderLock = false;
+      const killServe = spawn('nice', ['killall', 'node', '', '0'], { stdio: 'pipe' });
+      const killAminosee = spawn('nice', ['killall', 'aminosee.funk.nz', '', '0'], { stdio: 'pipe' });
+      if (server != undefined) {
+        log("closing server")
+        server.close();
+      } else {
+        this.bugtxt("no server running?")
       }
-    }));
-  }
-  function unknownOption(unknown) {
-    output( chalk.inverse('Unknown option: ') +  unknown);
-    output( chalk.inverse('Unknown option: ') +  unknown);
-    output( chalk.inverse('Unknown option: ') +  unknown);
-    output( chalk.inverse('Unknown option: ') +  unknown);
-  }
-  function formatAMPM(date) { // nice time output
-    var hours = date.getHours();
-    var minutes = date.getMinutes();
-    var secs   = date.getSeconds();
-    var ampm = hours >= 12 ? 'pm' : 'am';
-    hours = hours % 12;
-    hours = hours ? hours : 12; // the hour '0' should be '12'
-    minutes = minutes < 10 ? '0'+minutes : minutes;
-    secs = secs < 10 ? '0'+secs : secs;
-    var strTime = hours + ':' + minutes + ":" + secs + ' ' + ampm;
-    return strTime;
-  }
-  function killServers() {
-    output("ISSUING 'killall node' use 'Q' key to quit without killing all node processes!")
-    // this.renderLock = false;
-    const killServe = spawn('nice', ['killall', 'node', '', '0'], { stdio: 'pipe' });
-    const killAminosee = spawn('nice', ['killall', 'aminosee.funk.nz', '', '0'], { stdio: 'pipe' });
-    if (server != undefined) {
-      log("closing server")
-      server.close();
-    } else {
-      this.bugtxt("no server running?")
+      try {
+        fs.unlinkSync( this.filenameServerLock, (err) => {
+          this.bugtxt("Removing server locks OK...")
+          if (err) { log('ish'); console.warn(err);  }
+        });
+      } catch (err) {
+        this.bugtxt("No server locks to remove: " + err);
+      }
     }
-    try {
-      fs.unlinkSync( this.filenameServerLock, (err) => {
-        this.bugtxt("Removing server locks OK...")
-        if (err) { log('ish'); console.warn(err);  }
-      });
-    } catch (err) {
-      this.bugtxt("No server locks to remove: " + err);
-    }
-  }
 
-  var that = this;
-  process.on("SIGTERM", () => {
-    cliInstance.gracefulQuit();
-    // this.destroyProgress();
-    process.exitCode = 130;
-    cliInstance.quit(130);
-    process.exit(); // this.now the "exit" event will fire
-  });
-  process.on("SIGINT", function() {
-    cliInstance.gracefulQuit();
-    // this.destroyProgress();
-    process.exitCode = 130;
-    cliInstance.quit(130);
-    process.exit(); // this.now the "exit" event will fire
-  });
+    var that = this;
+    process.on("SIGTERM", () => {
+      cliInstance.gracefulQuit();
+      // this.destroyProgress();
+      process.exitCode = 130;
+      cliInstance.quit(130);
+      process.exit(); // this.now the "exit" event will fire
+    });
+    process.on("SIGINT", function() {
+      cliInstance.gracefulQuit();
+      // this.destroyProgress();
+      process.exitCode = 130;
+      cliInstance.quit(130);
+      process.exit(); // this.now the "exit" event will fire
+    });
 
-  module.exports.log = log;
-  module.exports.output = output;
-  module.exports.doesFileExist = doesFileExist;
-  module.exports.AminoSeeNoEvil = AminoSeeNoEvil;
-  module.exports.addJob = addJob;
-  module.exports.pushCli = pushCli;
-  module.exports.terminalRGB = terminalRGB;
-  module.exports.showCountdown = showCountdown;
+    module.exports.log = log;
+    module.exports.output = output;
+    module.exports.doesFileExist = doesFileExist;
+    module.exports.AminoSeeNoEvil = AminoSeeNoEvil;
+    module.exports.addJob = addJob;
+    module.exports.pushCli = pushCli;
+    module.exports.terminalRGB = terminalRGB;
+    module.exports.showCountdown = showCountdown;

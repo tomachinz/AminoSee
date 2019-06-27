@@ -17,6 +17,7 @@ aminosee -v
 
 # sleep 1
 FAST='50KB_TestPattern.txt'
+aminosee_do 50KB_TestPattern.txt 50KB_TestPattern.txt 50KB_TestPattern.txt --peptide=amber
 
 nice aminosee $FAST $1 $2 $3 $4 $5 $6  --peptide="aspartic ACID"
 aminosee_do $FAST      $1 $2 $3 $4 $5 $6 -f --peptide="gluTAMIC aCID"
