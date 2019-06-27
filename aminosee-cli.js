@@ -22,7 +22,6 @@ const asciiart = data.asciiart;
 let saySomethingEpic = data.saySomethingEpic;
 const debug = false; // should be false for PRODUCTION
 
-
 // OPEN SOURCE PACKAGES FROM NPM
 const Preferences = require("preferences");
 const spawn = require('cross-spawn');
@@ -134,17 +133,17 @@ function populateArgs(procArgv) { // returns args
     boolean: [ 'test' ],
     boolean: [ 'updates' ],
     boolean: [ 'verbose' ],
-    string: [ 'codons'],
-    string: [ 'magnitude'],
     string: [ 'outpath'],
     string: [ 'triplet'],
     string: [ 'peptide'],
     string: [ 'ratio'],
-    string: [ 'width'],
-    alias: { a: 'artistic', b: 'dnabg', c: 'codons', d: 'devmode', f: 'force', h: 'help', k: 'keyboard', m: 'magnitude', o: 'outpath', out: 'outpath', output: 'outpath', p: 'peptide', i: 'image', t: 'triplet', q: 'quiet', r: 'reg', w: 'width', v: 'verbose', x: 'explorer', finder: 'explorer'  },
+    alias: { a: 'artistic', b: 'dnabg', c: 'codons', d: 'devmode', f: 'force', h: 'help', k: 'keyboard', m: 'magnitude', o: 'outpath', out: 'outpath', output: 'outpath', p: 'peptide', i: 'image', t: 'triplet', u: 'updates', q: 'quiet', r: 'reg', w: 'width', v: 'verbose', x: 'explorer', finder: 'explorer'  },
     default: { image: false, updates: true, dnabg: false, clear: true, explorer: false, quiet: false, gui: true, keyboard: false, progress: false, redraw: true },
     stopEarly: false
-  }
+  } // NUMERIC INPUTS: codons, magnitude, width,     string: [ 'width'],    string: [ 'magnitude'],    string: [ 'codons'],
+
+
+
   return minimist(procArgv.slice(2), options);
 }
 function pushCli(cs) { // used by Electron GUI
@@ -279,6 +278,8 @@ class AminoSeeNoEvil {
       this.streamLineNr = 0;
       this.termMarginLeft = 2;
       this.dnabg = false;
+      this.peptide = this.triplet = this.currentTriplet = this.currentPeptide = "none";
+
       // termSize();
       // this.resized(tx, ty);
       // this.previousImage = this.justNameOfDNA
@@ -374,7 +375,13 @@ class AminoSeeNoEvil {
         log(`will not open image`)
         this.openImage = false;
       }
-
+      if ( args.any || args.a) {
+        this.anyfile = true;
+        output(`will ignore filetype extensions list and try to use any file`)
+      } else {
+        log(`will only open files with extensions: ${extensions}`)
+        this.anyfile = false;
+      }
       if ( args.codons || args.c) {
         this.userCPP = Math.round( args.codons || args.c); // javascript is amazing
         output(`codons per pixel ${ this.userCPP }`);
@@ -426,7 +433,6 @@ class AminoSeeNoEvil {
       }
       log(`Using ${ this.ratio } aspect ratio`);
 
-      this.peptide = this.triplet = this.currentTriplet = this.currentPeptide = "none";
       if ( args.triplet || args.t) {
         this.users = args.triplet || args.t;
         this.triplet = this.tidyTripletName(this.users);
@@ -622,7 +628,7 @@ class AminoSeeNoEvil {
         log("Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω ");// + this.currentFile)
         mode("Ω first command " + this.howMany);
         // this.lookForWork('Ω first command ॐ')
-        // this.popAndResolve();
+        // this.popAndPollOrBust();
         this.pollForStream('Ω first command ॐ');
         bugtxt( `appPath ${appPath}` )
       } else {
@@ -1288,6 +1294,7 @@ class AminoSeeNoEvil {
       } else { return true; }
     }
     pollForStream(reason) { // render lock must be off before calling. aim: start the render, or look for work
+      // take current file and test if it can be rendered
       mode('pre-polling ' + this.howMany);
       var that = this;
       if ( this.howMany < 1) {
@@ -1304,7 +1311,7 @@ class AminoSeeNoEvil {
       }
       this.currentFile = this.args._[0];
       if (!this.checkFileExtension( this.currentFile)) {
-        log(this.popAndResolve())
+        log(this.popAndPollOrBust())
         this.pollForStream('!checkFileExtension')
         return false;
       }
@@ -1342,7 +1349,7 @@ class AminoSeeNoEvil {
       if (this.howMany < 0) { this.gracefulQuit(130) }
 
       if ( this.currentFile == funknzlabel) { // maybe this is to get past my lack of understanding of processing of this.args.
-        this.popAndResolve();
+        this.popAndPollOrBust();
         this.resetAndMaybe();
         return false;
       }
@@ -1371,7 +1378,7 @@ class AminoSeeNoEvil {
         //   msg += chalk.gray(`Use --image to automatically open files after render. `)
         // }
         // output(msg);
-        this.popAndResolve();
+        this.popAndPollOrBust();
         // this.pollForStream();
       }
 
@@ -1380,7 +1387,7 @@ class AminoSeeNoEvil {
       mode(`pollForStream ${reason}`)
 
       //////////////////////
-      let result = this.popAndResolve();
+      let result = this.popAndPollOrBust();
       //////////////////////
 
       output(`File: ${ this.howMany } popAndLock result: ${ result } ${ this.currentFile} reason: ${reason}`);
@@ -1406,7 +1413,7 @@ class AminoSeeNoEvil {
           this.error("Thread re-entry during pollForStream " + this.justNameOfDNA)
         }
         this.renderLock = false;
-        this.popAndResolve();
+        this.popAndPollOrBust();
         this.resetAndMaybe(); // <---  another node maybe working on, NO RENDER
         return false;
       }
@@ -1826,7 +1833,7 @@ class AminoSeeNoEvil {
 
     // this.calculateShrinkage(); // REQUIRES INFO FROM HERE FOR HILBERT this.filename. BUT THAT INFO NOT EXIST UNTIL WE KNOW HOW MANY PIXELS CAME OUT OF THE DNA!
     this.filename = path.resolve(this.currentFile);
-    this.justNameOfCurrentFile  = replaceoutputPathFileName( this.filename );
+    this.justNameOfCurrentFile  = basename( this.filename );
     this.extension = this.getFileExtension( this.currentFile);
     this.justNameOfDNA = spaceTo_( this.removeFileExtension( this.justNameOfCurrentFile));
     if ( this.justNameOfDNA.length > maxCanonical ) {
@@ -2235,14 +2242,14 @@ class AminoSeeNoEvil {
     this.isDiskFinHTML = false;
     if ( this.isHilbertPossible == false ) { mode('not saving html - due to hilbert not possible'); this.isDiskFinHTML = true; }
     if ( this.report == false ) { mode('not saving html - due to report disabled. peptide: ' + this.peptide); this.isDiskFinHTML = true; }
-    if ( this.test ) { log('not saving html - due to test'); cb(); return false; }
+    if ( this.test ) { log('not saving html - due to test');  this.isDiskFinHTML = true;  }
     if ( this.willRecycleSavedImage == true && this.recycEnabled) {
       mode("Didnt save HTML report because the linear file was recycled.");
       this.isDiskFinHTML = true;
     }
     if (this.isDiskFinHTML == true ) { if ( cb !== undefined ) { cb() } ; return false; }
 
-    mode("save HTML");
+    mode("will save HTML");
     this.pepTable.sort( this.compareHistocount )
     let histogramJson =  this.getRenderObject();
     let histogramFile = this.generateFilenameHistogram();
@@ -2396,7 +2403,7 @@ ${this.renderObjToString()}`; //////////////// <<< END OF TEMPLATE
     this.currentFile = this.args._[0].toString();
     this.filename = path.resolve(this.currentFile);
     if ( this.currentFile == funknzlabel ) {
-      this.popAndResolve();
+      this.popAndPollOrBust();
     } else {
       output(`this.currentFile : ${this.currentFile }`)
       this.filename = path.resolve( this.currentFile )
@@ -2435,19 +2442,28 @@ ${this.renderObjToString()}`; //////////////// <<< END OF TEMPLATE
     }
     // }, this.raceDelay );
   }
-  popAndResolve() { // ironic its now a .shift()
+  popAndPollOrBust() { // ironic its now a .shift()
+    // pop the array, the poll for stream or quit
     let file;
     try {
       // file = this.args._.pop().toString();
       file = this.args._.shift().toString();
-      this.howMany = this.args._.length;
     } catch(e) {
-      this.howMany = this.args._.length;
-      return 'popAndLock args not exist ' + e;
+      log( 'job args has no more commands: ' + e);
+      quit();
+      return false;
     }
-    if ( file.indexOf('...') != -1) { return 'Cant use files with three dots in this.filename ... ' }
-    if ( file == undefined) { return 'filename was undefined after resolve: ' + file }
-
+    this.howMany = this.args._.length;
+    if ( file.indexOf('...') != -1) {
+      log( 'Cant use files with three dots in the filename ... (for some reason?)');
+      popAndPollOrBust();
+      return false;
+    }
+    if ( file == undefined) {
+      log( 'filename was undefined after resolve: ' + file )
+      quit();
+      return false;
+    }
     this.filename = path.resolve( file );
     this.currentFile = file;
 
@@ -2456,7 +2472,7 @@ ${this.renderObjToString()}`; //////////////// <<< END OF TEMPLATE
       return 'success';
     }  else {
       if (this.renderLock == false) {
-        this.popAndResolve();
+        this.popAndPollOrBust();
       }
     }
   }
@@ -2529,7 +2545,7 @@ ${this.renderObjToString()}`; //////////////// <<< END OF TEMPLATE
     // return lastFive.replace(/.*\./, '').toLowerCase();
   }
   checkFileExtension(f) {
-    let value = extensions.indexOf( this.getFileExtension(f));
+    let value = extensions.indexOf( this.getFileExtension(f) );
     if ( value < 0) {
       this.bugtxt(`checkFileExtension FAIL: ${f}  ${value} `);
       return false;
@@ -3415,7 +3431,7 @@ termDrawImage(fullpath) {
   term.moveTo( 0, 0 );
   var closure = () => { that.previousImage }
   term.drawImage( that.previousImage , { shrink: { width: term.width,  height: term.height } } )
-  output("Previous image: " +  replaceoutputPathFileName(that.previousImage))
+  output("Previous image: " +  basename(that.previousImage))
   // term.restoreCursor()
 }
 bothKindsTestPattern( cb ) {
@@ -5118,9 +5134,10 @@ function bugout(txt) {
   //       obj.data.length === obj.width * obj.height * 3)
   //     );
   //   }
-  function replaceoutputPathFileName(f) {
-    if (f == undefined) { f = "was_not_set";  console.warn(f); }
-    return f.replace(/^.*[\\\/]/, '');
+  function basename(f) {
+    return path.basename(f);
+    // if (f == undefined) { f = "was_not_set";  console.warn(f); }
+    // return f.replace(/^.*[\\\/]/, '');
   }
 
 
@@ -5230,16 +5247,23 @@ function bugout(txt) {
   }
   function fileSystemChecks(file) { // make sure file is writable or folder exists etc
     let problem = false;
-    let msg = `Stats for file ${file}` + lineBreak;
+    let name = basename(file)
+    let msg = `Stats for file ${name}` + lineBreak;
     if (!doesFileExist(file)) { return false; }
 
     let isDir = doesFolderExist(file);
 
+    try {
+
+    } catch(e) {
+      output(chalk.inverse("ERROR:") + e)
+    }
     // Check if the file exists in the current directory.
     fs.access(file, fs.constants.F_OK, (err) => {
       if(err) {  msg +=  'does not exist, '   } else  { msg += 'exists, '  }
     });
-
+    // Check if the file is ACTUALLY FOLDER.
+    isDir ? msg += 'is not a folder, ' : msg += 'is a folder (will re-issue the job as ), '
     if (!isDir) {
       // Check if the file is readable.
       fs.access(file, fs.constants.R_OK, (err) => {
@@ -5261,8 +5285,6 @@ function bugout(txt) {
       });
     }
 
-    // Check if the file is A FOLDER.
-    msg += (`${file} ${fs.lstatSync(file).isDirectory() ? msg += 'is not a folder, ' : msg += 'is a folder, '}`)
 
     bugtxt(msg + ', and that is all.');
     return !problem;

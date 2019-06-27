@@ -38,10 +38,17 @@ mkdir -p build/toms_source/
 # cp -v main.js                                                    dist/root/
 # cp -v renderer.js                                                dist/root/
 # cp -v mastdinpipe.js                                             dist/root/
-# cp -v public/aminosee-web-gui.js                                 build/toms_source/
-# cp -v aminosee-serve.js                                          build/toms_source/
-# cp -v aminosee-cli.js                                            build/toms_source/
-# cp -v aminosee-settings.js                                       build/toms_source/
+cp -v public/aminosee-web-gui.js                            build/toms_source/
+cp -v aminosee-serve.js                                     build/toms_source/
+cp -v aminosee-cli.js                                       build/toms_source/
+cp -v aminosee-data.js                                      build/toms_source/
+cp -v aminosee-server.js                                    build/toms_source/
+cp -v aminosee-settings.js                                  build/toms_source/
+cp -v aminosee-stdinpipe.js                                 build/toms_source/
+cp -v aminosee-version.js                                   build/toms_source/
+cp -v main.js                                               build/toms_source/
+cp -v renderer.js                                           build/toms_source/
+cp -v console.js                                            build/toms_source/
 
 cp -v node_modules/sliced/index.js                               dist/root/node_modules/sliced/index.js
 cp -v node_modules/deep-defaults/lib/index.js                    dist/root/node_modules/deep-defaults/lib
@@ -52,8 +59,11 @@ cp -v node_modules/opn/xdg-open                                  dist/root
 cp -r node_modules/terminal-kit/*                                dist/root/node_modules/terminal-kit
 cp -r node_modules/lazyness/*                                    dist/root/node_modules/lazyness
 cp -r public/*                                                   dist/root/public
-#
-#
+
+# for the awesome shell window in electron app:
+cp    node_modules/xterm/dist/xterm.js                           public/
+cp    node_modules/xterm/dist/xterm.css                          public/
+
 #
 # echo creating distributions
 # echo COPYING LIBRARIES INTO /dist/* APP ROOT FOLDERS

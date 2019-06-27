@@ -71,8 +71,8 @@ function showOpenDialog() {
     ],
     buttonLabel : "Artistic",
     defaultPath : "dna",
-    properties: [ 'openFile', 'openDirectory', 'multiSelections' ],
-    message: 'Any text file containing ASCII base pairs like: ACGTUacgtu'
+    properties: [ 'multiSelections', 'openFile', 'openDirectory' ],
+    message: 'Any text file containing DNA as ASCII base pairs like: ACGTUacgtu'
   };
   const selectedPaths = dialog.showOpenDialog();
   mainWindow.setProgressBar(2); // -1 remove progress, 0-1 is percentage, 2+ means show indeterminate
@@ -91,31 +91,34 @@ function showOpenDialog() {
 function createWindow () {
   const electron = require('electron');
   const { width, height } = electron.screen.getPrimaryDisplay().workAreaSize
-
+  const consoleWidth = 640;
+  const padding = 64;
+  let mainWidth = width - (consoleWidth + padding)
+  let mainHeight = Math.round( height / 2)
   // Create the browser window.
   mainWindow = new BrowserWindow({
     show: false,
-    width: width -640, //; //Math.round(width*0.6),
-    height:  height -64, //Math.round(height*0.8),
+    width: mainWidth,
+    height: mainHeight,
     title: "AminoSee DNA Viewer [Open DNA File]",
     backgroundColor: '#011224',
-    x: 60,
-    y: 8,
-    icon: path.join(__dirname, 'public/favicon.png')
+    x: padding,
+    y: padding,
+    icon: path.join(__dirname, '/public/favicon.png')
   })
 
   // mainWindow.setSize(dispWidth-256, dispHeight);
   // , type: 'desktop' , vibrancy: 'light' , titleBarStyle: 'default', fullscreenWindowTitle: false
   consoleWindow = new BrowserWindow({
     parent: mainWindow,
-    width: 640,
-    height: height - 64,
-    title: "Terminal Console Output",
+    width: consoleWidth,
+    height: mainHeight,
+    title: "Terminal Console",
     backgroundColor: '#011224',
     frame: true,
     icon: 'public/favicon.png',
-    x: -320,
-    y: 8
+    x: padding + mainWidth,
+    y: padding
   })
   // , type: 'toolbar'
 
@@ -191,7 +194,10 @@ function buildMenus() {
         {
           label: 'Test',
           accelerator: 'CmdOrCtrl+T',
-          role: 'options'
+          role: 'options',
+          click() {
+            pushCli('--test');
+          }
         }
       ]
     },

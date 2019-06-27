@@ -16,10 +16,19 @@ if (window.addEventListener) {
 } else {
   window.attachEvent('onload',pageLoaded); //IE
 }
-
+function log(txt) {
+  console.log(txt);
+}
 function pageLoaded() {
   let supercontainer = document.getElementById('supercontainer');
   let dragitem = document.getElementById('dragitem')
+
+  node.addEventListener('dragover', function(evt) {
+    log(evt)
+  })
+  node.addEventListener('drop', function(evt) {
+    log(evt)
+  })
 
   dragitem.addEventListener('dragstart', (evt) => {
     evt.dataTransfer.effectAllowed = 'copy'
