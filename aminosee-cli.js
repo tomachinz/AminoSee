@@ -153,11 +153,12 @@ function pushCli(cs) { // used by Electron GUI
   log(chalk.inverse(`Starting AminoSee now with CLI:`) + ` isElectron: [${isElectron}]`)
   // bugtxt(commandString);
 
-  let commandArray = commandString.split("\\s+");
+  let commandArray = commandString.split(" ");
   let jobArgs = populateArgs(commandArray);
-  log(jobArgs);
+  console.log(`pushCli: ${jobArgs.toString()}`);
+  console.log(jobArgs);
   commandArray.forEach((job) => {
-    bugtxt(job)
+    output(`pushing job into render queuee: ${job}`)
     // jobArgs._.push(job)
   })
   let thread = addJob(jobArgs);
@@ -5254,7 +5255,7 @@ clout(txt) {
 
       // Check if the file is A FOLDER.
       msg += (`${file} ${fs.lstatSync(file).isDirectory() ? msg += 'is not a folder, ' : msg += 'is a folder, '}`)
-      
+
       bugtxt(msg + ', and that is all.');
       return !problem;
     }
