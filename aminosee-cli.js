@@ -2381,6 +2381,7 @@ ${this.renderObjToString()}`; //////////////// <<< END OF TEMPLATE
     if ( fileSystemChecks(this.filename) == true ) {
       this.pollForStream(`popped`)
     }  else {
+      output('failed file system checks: '+ file)
       this.popAndPollOrBust();
     }
   }
