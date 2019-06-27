@@ -7,12 +7,12 @@ const extensions = [ "txt", "fa", "mfa", "gbk", "dna"] // replace with that from
 const path = require('path')
 const spawn = require('cross-spawn');
 let threads = [ ]; // these will be threads from spawn
-let mainWindow, devmode, consoleWindow;
+let mainWindow, devmode, consoleWindow; // Keep a global reference of the window object, if you don't, the window will be closed automatically when the JavaScript object is garbage collected.
 
-// Keep a global reference of the window object, if you don't, the window will
-// be closed automatically when the JavaScript object is garbage collected.
-// app.commandLine.appendSwitch('remote-debugging-port', '8315')
-// app.commandLine.appendSwitch('host-rules', 'MAP * 127.0.0.1')
+app.commandLine.appendSwitch('remote-debugging-port', '5432')
+app.commandLine.appendSwitch('host-rules', 'MAP * 127.0.0.1')
+app.commandLine.appendSwitch('host-rules', 'MAP * funk.co.nz')
+app.commandLine.appendSwitch('host-rules', 'MAP * localhost')
 // app.commandLine.appendSwitch('devmode', 'true')
 // app.commandLine.appendSwitch('devmode', 'true')
 app.on('ready', function() {

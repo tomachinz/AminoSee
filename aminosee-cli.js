@@ -75,9 +75,7 @@ const funknzlabel = "aminosee.funk.nz"
 const extensions = [ "txt", "fa", "mfa", "gbk", "dna", "fasta", "fna", "fsa", "mpfa", "gb", "gff"];
 const refimage = "Reference image - all amino acids blended together"
 const closeBrowser = "If the process apears frozen, it's waiting for your this.browser or image viewer to quit. Escape with [ CONTROL-C ] or use --no-image --no-html";
-const lockFileMessage = `
-aminosee.funk.nz DNA Viewer by Tom Atkinson.
-This is a temporary lock file, placed during rendering to enable parallel cluster rendering over LAN networks, if this is here after processing has completerd it usually it means an AminoSee was quit before finishing or had crashed. Its safe to erase these files, and I've made a script in /dna/ to batch delete them all in one go. Normally these are deleted when render is complete, or with Control-C and graceful shutdown.`;
+
 const defaultC = 1; // back when it could not handle 3+GB files.
 const artisticHighlightLength = 12; // px only use in artistic this.mode. must be 6 or 12 currently
 const defaultMagnitude = 8; // max for auto setting
@@ -91,6 +89,7 @@ const max32bitInteger = 2147483647;
 const minUpdateTime = 2000;
 const defaultFilename = "dna/megabase.fa"; // for some reason this needs to be here. hopefully the open source community can come to rescue and fix this Kludge.
 const testFilename = "AminoSeeTestPatterns"; // for some reason this needs to be here. hopefully the open source community can come to rescue and fix this Kludge.
+const openLocalHtml = true;
 let isElectron, status, args, killServersOnQuit, webserverEnabled, cliInstance, tx, ty, termPixels, cliruns, opens, gbprocessed, projectprefs, userprefs, progato, commandString, batchSize;
 let dnaTriplets = data.dnaTriplets;
 termPixels = 69;
@@ -149,7 +148,7 @@ function populateArgs(procArgv) { // returns args
   return minimist(procArgv.slice(2), options);
 }
 function pushCli(cs) { // used by Electron GUI
-  commandString = `${cs} --html -q --verbose --devmode`;
+  commandString = `${cs} --html`;
   log(chalk.inverse(`Starting AminoSee now with CLI:`) + ` isElectron: [${isElectron}]`)
   // bugtxt(commandString);
 
@@ -245,7 +244,6 @@ class AminoSeeNoEvil {
       this.recycEnabled = false; // bummer had to disable it
       this.renderLock = false; // not rendering right this.now obviously
       this.clear = true; // this.clear the terminal screen while running
-      this.openLocalHtml = true; // its better to use the built-in server due to CORS
       this.openImage = true; // open the png
       this.openHtml = true;
       this.opensHtml = 0; // how many times have we popped up a browser.
@@ -592,7 +590,6 @@ class AminoSeeNoEvil {
         output("Disabled the graphical user interface")
         openFile = false;
         this.openHtml = false;
-        openLocalHtml = false;
         this.openFileExplorer = false;
         this.openImage = false;
       }
@@ -756,7 +753,7 @@ class AminoSeeNoEvil {
       // this.bugtxt( this.pepTable ); // least common amino acids in front
 
       let zumari = {
-        original_source: this.currentFile,
+        original_source: this.justNameOfCurrentFile,
         full_path: this.filename,
         maxpix:  this.maxpix,
         name: this.justNameOfDNA,
@@ -1363,17 +1360,17 @@ class AminoSeeNoEvil {
 
       if (doesFileExist(this.filenamePNG) && this.force == false) {
         let msg = `Already rendered ${chalk.bgBlue.white(this.justNameOfPNG)}. `
-
-        if ( this.openImage === true) {
-          msg += chalk.gray(`Opening image now. Use --no-image to prevent. `)
-          this.opensImage++;
-          open( this.filenamePNG ).then(() => {
-            log("image browser closed");
-          }).catch(function () {  bugtxt("open( this.filenamePNG )") });
-        } else {
-          msg += chalk.gray(`Use --image to automatically open files after render. `)
-        }
-        output(msg);
+        this.openOutputs();
+        // if ( this.openImage === true) {
+        //   msg += chalk.gray(`Opening image now. Use --no-image to prevent. `)
+        //   this.opensImage++;
+        //   open( this.filenamePNG ).then(() => {
+        //     log("image browser closed");
+        //   }).catch(function () {  bugtxt("open( this.filenamePNG )") });
+        // } else {
+        //   msg += chalk.gray(`Use --image to automatically open files after render. `)
+        // }
+        // output(msg);
         this.popAndResolve();
         // this.pollForStream();
       }
@@ -1560,7 +1557,7 @@ class AminoSeeNoEvil {
     term.eraseDisplayBelow();
   }
   streamStarted() {
-    mode('streamStarted');
+    mode(`Stream started at ${ formatAMPM(this.startDate) }`);
     var that = this;
     output('Started render ' + this.justNameOfPNG);
     this.drawHistogram();
@@ -1627,31 +1624,32 @@ class AminoSeeNoEvil {
     Hilbert Curve Pixels: ${hilbPixels[ this.dimension ]}`;
   }
   renderObjToString() {
-
+    const unknown = 'unknown until render complete'
     // += 0; // cast it into a number from whatever the heck data type it was before!
     return `
-    <h3>Canonical this.filename: <b>${ this.justNameOfDNA}</b></h3>
+    Canonical filename: ${ this.justNameOfDNA}
     Source: ${ this.justNameOfCurrentFile}
-    Gigabytes processed: ${ gbprocessed.toLocaleString()} Run ID: ${ this.timestamp } ${ cliruns}th run on <b>${ this.hostname}</b>
-    Finished at: ${ formatAMPM(new Date())} Time used: ${humanizeDuration( this.runningDuration )}
+    Full path: ${this.filename}
+    Started: ${ formatAMPM(this.startDate) } Finished: ${ formatAMPM(new Date())} Used: ${humanizeDuration( this.runningDuration )} ${ this.isStorageBusy ? ' ' : '(ongoing)'}
     Machine load averages: ${ this.loadAverages()}
-    DNA Input bytes: ${bytes(  this.baseChars )} ${bytes( this.bytesPerMs * 1000 )}/sec
-    Image Output bytes: ${bytes ( this.rgbArray.length)}
-    Pixels linear: ${ this.pixelClock.toLocaleString()} Aspect Ratio: ${ this.ratio}
-    Pixels hilbert: ${hilbPixels[ this.dimension ].toLocaleString()} ${(  this.magnitude ? "(auto)" : "(manual -m)")}
-    Custom flags: ${ this.flags}
-    ${(  this.artistic ? "Artistic this.mode" : "Science this.mode"    )}
+    DNA Input bytes: ${ bytes( this.baseChars ) } ${ bytes( this.bytesPerMs * 1000 ) }/sec
+    Image Output bytes: ${ this.isStorageBusy == true ? bytes( this.rgbArray.length ) : '(busy)' }
+    Pixels (linear): ${ this.pixelClock.toLocaleString()} Image aspect Ratio: ${ this.ratio }
+    Pixels (hilbert): ${hilbPixels[ this.dimension ].toLocaleString()} ${(  this.magnitude ? "(auto)" : "(manual -m)")}
+    Custom flags: ${ this.showFlags()} "${( this.artistic ? "Artistic mode" : "Science mode" )}" render style
     Estimated Codons: ${Math.round( this.estimatedPixels).toLocaleString()} (filesize % 3)
-    Actual Codons matched: ${ this.genomeSize.toLocaleString()}
-    Estimate ${Math.round((( this.estimatedPixels /  this.genomeSize))*100)}% of actual
+    Actual Codons matched: ${ this.genomeSize.toLocaleString()} ${ this.isStorageBusy ? ' ' : '(so far)' }
+    Estimate accuracy: ${ this.isStorageBusy ? Math.round((( this.estimatedPixels /  this.genomeSize))*100) + '% of actual ': '(still rendering...) ' }
     Non-coding characters: ${ this.errorClock.toLocaleString()}
     Coding characters: ${ this.charClock.toLocaleString()}
-    Codons per pixel: ${ twosigbitsTolocale( this.codonsPerPixel )} (linear) ${ twosigbitsTolocale( this.codonsPerPixelHILBERT )} (hilbert)
-    Linear to Hilbert reduction: ${ twosigbitsTolocale( this.shrinkFactor)} Oversampling: ${ twosigbitsTolocale(overSampleFactor)}
-    Amino acid blend this.opacity : ${Math.round(this.opacity *10000)/100}%
+    Codons per pixel: ${ twosigbitsTolocale( this.codonsPerPixel )} (linear) ${ this.isStorageBusy ? twosigbitsTolocale( this.codonsPerPixelHILBERT ) : unknown } (hilbert projection)
+    Linear to Hilbert reduction: ${ this.isStorageBusy ?  twosigbitsTolocale( this.shrinkFactor) : unknown } Oversampling: ${ twosigbitsTolocale(overSampleFactor)}
+    Amino acid blend opacity: ${Math.round(this.opacity *10000)/100}%
     Max pix setting: ${ this.maxpix.toLocaleString()}
-    ${ this.dimension }th Hilbert dimension
+    ${ this.dimension }th Hilbert curve infintite recursion dimension
     Darken Factor ${ twosigbitsTolocale(this.darkenFactor)} / Highlight Factor ${ twosigbitsTolocale( this.highlightFactor)}
+    Gigabytes processed on this profile: ${ gbprocessed.toLocaleString()} Run ID: ${ this.timestamp } ${ cliruns}th run on ${ this.hostname}
+    Total renders: ${ userprefs.aminosee.completed } Project opens: ${ projectprefs.aminosee.opens } (only increments when using --image --help --html or --explorer)
     AminoSee version: ${version}`;
   }
 
@@ -2031,7 +2029,7 @@ class AminoSeeNoEvil {
 
   helpCmd(args) {
 
-    output(chalk.bgBlue (`Welcome to the AminoSeeNoEvil DNA Viewer!`));
+    output(chalk.bgBlue.bold.italic(`Welcome to the AminoSee DNA Viewer!`));
     output(siteDescription);
     output(chalk.bgBlue (`USAGE:`));
     output('    aminosee [files/*] --flags            (to process all files');
@@ -2307,29 +2305,36 @@ class AminoSeeNoEvil {
   }
   blurb() {
     return `Started DNA render ${ this.currentFile } at ${ formatAMPM( this.startDate)}, and after ${humanizeDuration( this.runningDuration)} completed ${ this.nicePercent()} of the ${bytes(  this.baseChars)} file at ${bytes( this.bytesPerMs*1000)} per second.
-    Estimated ${humanizeDuration( this.timeRemain)} to go with ${  this.genomeSize.toLocaleString()} r/DNA base pair this.triplets decoded, and ${ this.pixelClock.toLocaleString()} pixels painted so far.
-    It was the ${this.howMany}th file of ${batchSize}.
-    ${ this.memToString()}
+    Estimated ${humanizeDuration( this.timeRemain)} to go with ${  this.genomeSize.toLocaleString()} r/DNA triplets decoded, and ${ this.pixelClock.toLocaleString()} pixels painted.
+    It was the ${this.howMany}th file of ${batchSize} issued by ${ isElectron ? 'Electron GUI' : 'Terminal CLI' } running on ${ os.platform() } on ${os.hostname()}.
+    ${ this.memToString()} currently ${this.busy()}
     CPU load:    [ ${ this.loadAverages()} ]`
   }
   tLock(cb) {
     this.calcUpdate();
+    const outski = `
+    AminoSee DNA Viewer by Tom Atkinson.
 
-    const outski = " " + this.blurb();
+${ asciiart }
+
+This is a temporary lock file, placed during rendering to enable parallel cluster rendering over LAN networks, if this is here after processing has completed, usually it means an AminoSee had quit before finishing with --devmode enabled, or... had crashed. If the file is here when idle, it prevents the render and will cause AminoSee to skip the DNA. It's SAFE TO ERASE THESE FILES (even during the render, you might see it come back alive or not). Run the script /dna/find-rm-touch-files.sh to batch delete them all in one go. Normally these are deleted when render is completed, or with Control-C during graceful shutdown on SIGINT and SIGTERM. If they didn't they are super useful to the author for debugging, you can send to aminosee@funk.co.nz
+
+    Input: ${ this.filename }
+    Your output path : ${ this.outputPath }
+
+    ${ this.blurb() }
+    ${ version } ${ this.timestamp } ${ hostname }
+
+${this.renderObjToString()}`; //////////////// <<< END OF TEMPLATE
+    //////////////////////////////////////////
     this.fileWrite(
       this.filenameTouch,
-      `${lockFileMessage}
-      ${ version } ${ this.timestamp } ${ hostname }
-      ${ asciiart }
-      Input: ${ this.filename }
-      Your output path : ${ this.outputPath }
-      ${outski}`,
+      outski,
       cb
     );
     if ( this.msElapsed > 5000) {
       this.termDrawImage();
     }
-
     if ( !this.quiet ) {
       term.saveCursor()
       term.moveTo(0, term.height - 5);
@@ -2937,11 +2942,7 @@ class AminoSeeNoEvil {
   ${( this.test ? " this.test " : this.imageStack(histogramJson))}
 
 
-  <div class="fineprint" style="text-align: right; float: right;">
-  <pre>
-  ${ this.renderObjToString(histogramJson)}
-  </pre>
-  </div>
+
 
 
   <a href="#scrollLINEAR" class="button" title"Click To Scroll Down To See LINEAR"><br />
@@ -3058,6 +3059,15 @@ class AminoSeeNoEvil {
   </table>
   <a name="scrollHILBERT" ></a>
   <a href="images/${ this.justNameOfHILBERT}" ><img src="images/${ this.justNameOfHILBERT}" width-"99%" height="auto"></a>
+
+<div id="render_summary" style="text-align: right; float: right;">
+  <h2>Render Summary</h2>
+  <div class="fineprint">
+  <pre>
+  ${ this.renderObjToString(histogramJson)}
+  </pre>
+  </div>
+</div>
 
   <h2>About Start and Stop Codons</h2>
   <p>The codon AUG is called the START codon as it the first codon in the transcribed mRNA that undergoes translation. AUG is the most common START codon and it codes for the amino acid methionine (Met) in eukaryotes and formyl methionine (fMet) in prokaryotes. During protein synthesis, the tRNA recognizes the START codon AUG with the help of some initiation factors and starts translation of mRNA.
@@ -3704,12 +3714,12 @@ openOutputs(that) {
     this.opensHtml++;
     projectprefs.aminosee.opens++; // increment open counter.
     open( server.getServerURL( this.justNameOfDNA), { wait: false } );
-    // if (openLocalHtml == true) {
-    //    this.opensFile++;
-    //   open( this.filenameHTML, {app: 'firefox', wait: false}).then(() => {
-    //     log("browser closed");
-    //   }).catch(function () {  this.error("open( this.filenameHTML)")});
-    // }
+    if (openLocalHtml == true) {
+       this.opensFile++;
+      open( this.filenameHTML, {app: 'firefox', wait: false}).then(() => {
+        log("browser closed");
+      }).catch(function () {  this.error("open( this.filenameHTML)")});
+    }
   }
   if ( this.isHilbertPossible  === true && this.openImage === true) {
     output(`Opening ${ this.justNameOfHILBERT} 2D hilbert space-filling image.`);
@@ -4421,13 +4431,13 @@ clout(txt) {
       // }
     }
     tidyPeptideName(str) { // give it "OPAL" it gives "Opal"
-    str =                               str.toUpperCase()
-    for ( let i =0; i < this.pepTable.length; i++) {
+    if (str === undefined) { return "none" }
+    str = str.toUpperCase()
+    for ( let i = 0; i < this.pepTable.length; i++) {
       var compareTo = this.pepTable[i].Codon.toUpperCase()
       // output(`str  ${str}    compareTo: ${compareTo}`)
       if ( compareTo == str ) {
         // output(`str  ${str}    compareTo: ${this.pepTable[i].Codon} <--  GREAT SUCCESS`)
-
         return this.pepTable[i].Codon
       }
     }
@@ -4635,11 +4645,11 @@ clout(txt) {
       let name = summary.name;
       let refimage = summary.refimage;
       let linearimage = summary.linearimage;
-      let i = 0;
-      let quant = pepTable.length;
-      html += `<div id="stackOimages">
-      <a href="images/${name}" class="imgstack">
-      <img src="images/${name}" id="stack_reference" width="256" height="256" style="z-index: ${i}; position: fixed; top: 50%; left: 50%; transform: translate(${(i*4)-40},${(i*4)-40})" alt="${refimage}" title="${refimage}" onmouseover="mover(this)" onmouseout="mout(this)">Reference</a>`;
+      let i = -1;
+      let quant = pepTable.length; // Ω first command ॐ
+      html += `<ul id="stackOimages">
+      <li>Ω <a href="images/${refimage}">Reference (combined image) <br/>
+      <img src="images/${refimage}" id="stack_reference" width="20%" height="20%" style="z-index: ${i}; position: fixed; top: 50%; left: 50%; transform: translate(${(i*4)-40},${(i*4)-40})" alt="${name} Reference image" title="${name} Reference image" onmouseover="mover(this)" onmouseout="mout(this)"></a></li>`;
 
       histogramJson.pepTable.forEach(function(item) {
         // log(item.toString());
@@ -4656,11 +4666,14 @@ clout(txt) {
           html += `<!-- ${thePep.Codon} -->`;
         } else {
           html += `
-          <a href="images/${src}" class="imgstack">${i}. ${thePep} <br/>
-          <img src="images/${src}" id="stack_${i}" width="256" height="256" style="z-index: 99; position: absolute; top: ${i*2}px; left: ${i*32}px;" alt="${thePep}" title="${item.Description}" onmouseover="mover(${i})" onmouseout="mout(${i})"></a>`;
+          <li>${i} <a href="images/${src}">${thePep} <br/>
+          <img src="images/${src}" id="stack_${i}" width="20%" height="20%" style="z-index: ${i}; position: fixed; top: 50%; left: 50%; transform: translate(${(i*4)-40},${(i*4)-40})" alt="${name} ${thePep}" title="${name} ${thePep}" onmouseover="mover(${i})" onmouseout="mout(${i})"></a></li>
+
+          <!-- li>${i}<a href="images/${src}" class="imgstack"> ${thePep} <br/>
+          <img src="images/${src}" id="stack_${i}" width="256" height="256" style="z-index: 99; position: absolute; top: ${i*2}px; left: ${i*32}px;" alt="${thePep}" title="${item.Description}" onmouseover="mover(${i})" onmouseout="mout(${i})"></a -->`;
         }
       });
-      html += `</div> <!--  id="stackOimages -- >`;
+      html += `</ul> <!-- END stackOimages MA man -->`;
       return html;
     }
     output(txt) { // console out
@@ -5215,7 +5228,7 @@ function bugout(txt) {
       return false;
     }
   }
-  function fileSystemChecks(file) {
+  function fileSystemChecks(file) { // make sure file is writable or folder exists etc
     let problem = false;
     let msg = `Stats for file ${file}` + lineBreak;
     if (!doesFileExist(file)) { return false; }

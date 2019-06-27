@@ -14,6 +14,8 @@ aminosee -f
 aminosee -q
 echo SHOW VERBOSE
 aminosee -v
+echo USING INCORRECT SINGLE DASH FOR -help
+aminosee -help
 
 # sleep 1
 FAST='50KB_TestPattern.txt'
