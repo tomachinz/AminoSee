@@ -2265,7 +2265,7 @@ class AminoSeeNoEvil {
     // the main.html is only written is user did not set --codons or --magnitude or --peptide or --triplet or --artistic
     if (this.userCPP == "auto" && this.magnitude == "auto" && this.artistic == false) {
       this.fileWrite(`${ this.outputPath }/${ this.justNameOfDNA}/main.html`, hypertext, cb);
-    } else if (this.artistic ) {
+    } else if (this.artistic && this.userCPP == "auto") {
       this.fileWrite(`${ this.outputPath }/${ this.justNameOfDNA}/artistic.html`, hypertext, cb);
     }
     if ( cb !== undefined ) { cb() }
@@ -5223,32 +5223,38 @@ clout(txt) {
       let problem = false;
       let msg = `Stats for file ${file}` + lineBreak;
       if (!doesFileExist(file)) { return false; }
+
+      let isDir = doesFolderExist(file);
+
       // Check if the file exists in the current directory.
       fs.access(file, fs.constants.F_OK, (err) => {
         if(err) {  msg +=  'does not exist, '   } else  { msg += 'exists, '  }
       });
 
-      // Check if the file is readable.
-      fs.access(file, fs.constants.R_OK, (err) => {
-        if(err) {  msg +=  'is not readable, '  } else  { msg += 'is readable, ' }
-      });
+      if (!isDir) {
+        // Check if the file is readable.
+        fs.access(file, fs.constants.R_OK, (err) => {
+          if(err) {  msg +=  'is not readable, '  } else  { msg += 'is readable, ' }
+        });
 
-      // Check if the file is writable.
-      fs.access(file, fs.constants.W_OK, (err) => {
-        if(err) {  msg +=  'is not writable, '} else  { msg += 'is writeable, '  }
-      });
+        // Check if the file is writable.
+        fs.access(file, fs.constants.W_OK, (err) => {
+          if(err) {  msg +=  'is not writable, '} else  { msg += 'is writeable, '  }
+        });
+
+        // Check if the file exists in the current directory, and if it is writable.
+        fs.access(file, fs.constants.F_OK | fs.constants.W_OK, (err) => {
+          if (err) {
+            msg += 'does not exist or is read-only, '
+          } else {
+            msg += `exists, and it is writable, `
+          }
+        });
+      }
 
       // Check if the file is A FOLDER.
       msg += (`${file} ${fs.lstatSync(file).isDirectory() ? msg += 'is not a folder, ' : msg += 'is a folder, '}`)
-
-      // Check if the file exists in the current directory, and if it is writable.
-      fs.access(file, fs.constants.F_OK | fs.constants.W_OK, (err) => {
-        if (err) {
-          msg += 'does not exist or is read-only, '
-        } else {
-          msg += `exists, and it is writable, `
-        }
-      });
+      
       bugtxt(msg + ', and that is all.');
       return !problem;
     }
