@@ -22,7 +22,7 @@ echo "Deleting these touch files: $LOCKFILES"
     find $DASHF . -name $LOCKFILES -exec rm -v {} \;
 sleep 2
 
- # fnd -f .  -name '*_LOCK*.aminosee.touch'
+ # find -f .  -name '*_LOCK*.aminosee.touch'
  # macos
 
 
