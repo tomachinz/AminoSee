@@ -4695,7 +4695,7 @@ function bugout(txt) {
     return str;
   }
   function blueWhite(txt) {
-    output(chalk.bgBlue.white.bold(txt));
+    return chalk.bgBlue.white.bold(txt);
   }
   function spaceTo_(str) {
     // log(str);
