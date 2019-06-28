@@ -1,8 +1,8 @@
 Thanks to Christos Georghiou who designed the 'See No Evil Hear No Evil Monkeys' http://christosgeorghiou.com/
-    2080
+    2075
  open source node npm packages used. 
 
-aminosee@1.17.1 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
+aminosee@1.17.2 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
 ├─┬ ascii-histogram@1.2.1
 │ └── printf@0.1.3
 ├─┬ async-kit@2.2.4
@@ -1070,7 +1070,7 @@ aminosee@1.17.1 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
 │ └─┬ node-version-matches@1.0.1
 │   └── semver@5.6.0 deduped
 ├── minimist@1.2.0
-├─┬ nexe@3.3.1
+├─┬ UNMET DEPENDENCY nexe@3.3.2
 │ ├── @calebboyd/semaphore@1.3.1
 │ ├── app-builder@5.2.0
 │ ├─┬ caw@2.0.1
@@ -1220,7 +1220,7 @@ aminosee@1.17.1 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
 │ │ ├─┬ @types/glob@7.1.1
 │ │ │ ├── @types/events@3.0.0
 │ │ │ ├── @types/minimatch@3.0.3
-│ │ │ └── @types/node@12.0.8
+│ │ │ └── UNMET DEPENDENCY @types/node@12.0.10
 │ │ ├─┬ array-union@1.0.2
 │ │ │ └── array-uniq@1.0.3
 │ │ ├─┬ dir-glob@2.2.2
@@ -1352,8 +1352,8 @@ aminosee@1.17.1 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
 │ │ │   │ │ │ │ │   └── is-buffer@1.1.6 deduped
 │ │ │   │ │ │ │ └── isobject@3.0.1 deduped
 │ │ │   │ │ │ ├── isobject@3.0.1 deduped
-│ │ │   │ │ │ ├─┬ set-value@2.0.0
-│ │ │   │ │ │ │ ├─┬ extend-shallow@2.0.1
+│ │ │   │ │ │ ├─┬ UNMET DEPENDENCY set-value@2.0.1
+│ │ │   │ │ │ │ ├─┬ UNMET DEPENDENCY extend-shallow@2.0.1
 │ │ │   │ │ │ │ │ └── is-extendable@0.1.1 deduped
 │ │ │   │ │ │ │ ├── is-extendable@0.1.1 deduped
 │ │ │   │ │ │ │ ├── is-plain-object@2.0.4 deduped
@@ -1361,16 +1361,11 @@ aminosee@1.17.1 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
 │ │ │   │ │ │ ├─┬ to-object-path@0.3.0
 │ │ │   │ │ │ │ └─┬ kind-of@3.2.2
 │ │ │   │ │ │ │   └── is-buffer@1.1.6 deduped
-│ │ │   │ │ │ ├─┬ union-value@1.0.0
+│ │ │   │ │ │ ├─┬ UNMET DEPENDENCY union-value@1.0.1
 │ │ │   │ │ │ │ ├── arr-union@3.1.0 deduped
 │ │ │   │ │ │ │ ├── get-value@2.0.6 deduped
 │ │ │   │ │ │ │ ├── is-extendable@0.1.1 deduped
-│ │ │   │ │ │ │ └─┬ set-value@0.4.3
-│ │ │   │ │ │ │   ├─┬ extend-shallow@2.0.1
-│ │ │   │ │ │ │   │ └── is-extendable@0.1.1 deduped
-│ │ │   │ │ │ │   ├── is-extendable@0.1.1 deduped
-│ │ │   │ │ │ │   ├── is-plain-object@2.0.4 deduped
-│ │ │   │ │ │ │   └── to-object-path@0.3.0 deduped
+│ │ │   │ │ │ │ └── UNMET DEPENDENCY set-value@2.0.1
 │ │ │   │ │ │ └─┬ unset-value@1.0.0
 │ │ │   │ │ │   ├─┬ has-value@0.3.1
 │ │ │   │ │ │   │ ├── get-value@2.0.6 deduped
@@ -1401,9 +1396,9 @@ aminosee@1.17.1 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
 │ │ │   │ │ │   │ └── kind-of@6.0.2 deduped
 │ │ │   │ │ │   └── kind-of@6.0.2 deduped
 │ │ │   │ │ ├── isobject@3.0.1 deduped
-│ │ │   │ │ ├─┬ mixin-deep@1.3.1
+│ │ │   │ │ ├─┬ UNMET DEPENDENCY mixin-deep@1.3.2
 │ │ │   │ │ │ ├── for-in@1.0.2
-│ │ │   │ │ │ └─┬ is-extendable@1.0.1
+│ │ │   │ │ │ └─┬ UNMET DEPENDENCY is-extendable@1.0.1
 │ │ │   │ │ │   └── is-plain-object@2.0.4 deduped
 │ │ │   │ │ └── pascalcase@0.1.1
 │ │ │   │ ├─┬ debug@2.6.9
@@ -1503,7 +1498,7 @@ aminosee@1.17.1 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
 │ └─┬ rimraf@2.6.3
 │   └── glob@7.1.3 deduped
 ├── node-fetch@2.6.0
-├─┬ node-gyp@5.0.0
+├─┬ UNMET DEPENDENCY node-gyp@5.0.1
 │ ├── env-paths@1.0.0
 │ ├── glob@7.1.3 deduped
 │ ├── graceful-fs@4.1.15 deduped
@@ -1540,7 +1535,7 @@ aminosee@1.17.1 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
 │ │ └── set-blocking@2.0.0 deduped
 │ ├── request@2.88.0 deduped
 │ ├── rimraf@2.6.3 deduped
-│ ├── semver@5.3.0
+│ ├── UNMET DEPENDENCY semver@5.3.0
 │ ├─┬ tar@4.4.10
 │ │ ├── chownr@1.1.1
 │ │ ├─┬ fs-minipass@1.2.6
@@ -1673,7 +1668,7 @@ aminosee@1.17.1 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
 │   ├── graceful-fs@4.1.15 deduped
 │   ├── imurmurhash@0.1.4
 │   └── slide@1.1.6
-├─┬ remark-preset-lint-node@1.6.1
+├─┬ UNMET DEPENDENCY remark-preset-lint-node@1.7.0
 │ ├─┬ remark-lint@6.0.5
 │ │ └─┬ remark-message-control@4.2.0
 │ │   ├── mdast-comment-marker@1.1.1
@@ -2052,7 +2047,7 @@ aminosee@1.17.1 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
 │   └─┬ wbuf@1.7.3
 │     └── minimalistic-assert@1.0.1
 ├── stream-file@0.2.4
-├─┬ terminal-kit@1.28.1
+├─┬ UNMET DEPENDENCY terminal-kit@1.28.2
 │ ├─┬ @cronvel/get-pixels@3.3.1
 │ │ ├── jpeg-js@0.1.2
 │ │ ├── ndarray@1.0.18 deduped
@@ -2070,9 +2065,9 @@ aminosee@1.17.1 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
 │ ├── nextgen-events@1.1.1
 │ ├─┬ seventh@0.7.23
 │ │ └── setimmediate@1.0.5
-│ ├── string-kit@0.9.5
+│ ├── UNMET DEPENDENCY string-kit@0.9.6
 │ └── tree-kit@0.6.1
-├── three@0.105.2
+├── UNMET DEPENDENCY three@0.106.1
 ├── through@2.3.8
 ├── uniq@1.0.1
 ├─┬ vows@0.8.2
