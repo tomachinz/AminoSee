@@ -69,7 +69,7 @@
     "uniq": "^1.0.1",
     "vows": "^0.8.2",
     "xmlhttprequest": "^1.8.0",
-    "xterm": "^3.14.2"
+    "xterm": "^3.14.4"
   },
   "devDependencies": {
     "electron": "^5.0.4",
