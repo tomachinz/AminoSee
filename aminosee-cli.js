@@ -427,10 +427,11 @@ class AminoSeeNoEvil {
         bugtxt(`No custom ratio chosen. (default)`);
         this.ratio = "fix";
       }
-      log(`Using ${ this.ratio } aspect ratio`);
+      output(`Using ${ this.ratio } aspect ratio`);
 
       if ( args.triplet || args.t) {
-        this.users = args.triplet || args.t;
+        this.users = args.triplet;
+        output(this.users)
         this.triplet = this.tidyTripletName(this.users);
         this.currentTriplet = this.triplet;
         if ( this.isNormalTriplet( this.triplet )) { //uses global this.currentTriplet
@@ -447,7 +448,7 @@ class AminoSeeNoEvil {
         this.triplet = "none";
       }
       if ( args.peptide || args.p) {
-        let usersPeptide = args.peptide || args.p;
+        let usersPeptide = args.peptide ;
         this.peptide = this.tidyPeptideName( usersPeptide);
         if ( this.peptide != "none" || this.peptide == "") { // this colour is a flag for  this.error
           this.isHighlightSet = true;
@@ -1308,7 +1309,8 @@ class AminoSeeNoEvil {
         return false;
       }
       if (!this.checkFileExtension( this.currentFile)) {
-        this.popAndPollOrBust('!checkFileExtension')
+        let msg = `File extension: ${chalk.bgBlue.white(this.justNameOfPNG)}. `
+        this.popAndPollOrBust(msg)
         return false;
       }
       // if ( !this ) { this.popAndPollOrBust("WTF GOING ON?!"); return }
@@ -1424,16 +1426,22 @@ class AminoSeeNoEvil {
       this.quit(0, status)
       return false;
     }
-    this.currentFile = this.args._[0].toString();
-    this.filename = path.resolve(this.currentFile);
-    if ( this.currentFile == funknzlabel ) {
-      this.popAndPollOrBust('funknzlabel');
+    let file = this.args._[0].toString();
+    if ( file == funknzlabel ) {
+      this.popAndPollOrBust('funknzlabel ' + file);
+      return false;
     }
-
     if ( this.currentFile == undefined) {
       // this.quit(1, status)
       return false;
     }
+    if (charAtCheck(file) == false) {
+      output('Problem with file: ' + file)
+    } else {
+      out("no problem: "  + file)
+    }
+    this.currentFile = file;
+    this.filename = path.resolve(file);
     this.pollForStream(this.status);
     return false;
 
@@ -2520,7 +2528,7 @@ class AminoSeeNoEvil {
     }
     if (this.howMany > 0 ) {
       output(`There is more work (${this.howMany}) . Rendering: ${this.busy()} Load: ${os.loadavg()}`);
-      this.lookForWork(this.status)
+      // this.lookForWork('more work in quiyt')
       return true;
     }
     if (code == 0) {
@@ -3455,8 +3463,8 @@ bothKindsTestPattern( cb ) {
     .on('finish', (err, resolve) => {
       // if (err) { log(`not sure if that saved: ${err}`)}
       // if (resolve) { log(`not sure if that saved: ${err} ${ this.storage()} `) }
-      // this.isDiskFinHilbert = true;
-      this.hilbertFinished();
+      this.isDiskFinHilbert = true;
+      // this.hilbertFinished();
     })
   }).then(  ).catch( output('Test HILBERT catch') );
   // new Promise(resolve =>
@@ -3477,15 +3485,16 @@ bothKindsTestPattern( cb ) {
   })
   img_png.data = Buffer.from( img_data );
   let wstreamLINEAR = fs.createWriteStream( this.filenamePNG );
-
   new Promise(resolve => {
     img_png.pack()
     .pipe(wstreamLINEAR)
     .on('finish', (err, resolve) => {
       // if (err) { log(`not sure if that saved: ${err}`)}
       // if (resolve) { log(`not sure if that saved: ${err} ${ this.storage()} `) }
-      // this.isDiskFinLinear = true;
-      this.linearFinished()
+      this.isDiskFinLinear = true;
+      // this.linearFinished()
+      if (cb !== undefined) { cb() }
+
     })
   }).then(  ).catch( output('Test LINEAR catch') );
 
@@ -3504,7 +3513,6 @@ bothKindsTestPattern( cb ) {
   //   if (cb !== undefined) { cb() }
   // }, 4000)
   //
-  // if (cb !== undefined) { cb() }
 
 
 
@@ -3696,18 +3704,24 @@ runCycle(cb) {
     this.testStop();
     // this.saveHTML(this.openOutputs);
     // openOutputs(this);
-    this.termDrawImage();
+    // this.termDrawImage();
     if ( cb !== undefined ) { cb() }
     // this.quit(0);
     return false;
   }
   output('test cycle ' + this.loopCounter);
   this.testInit (this.loopCounter); // replaces loop
+
+  // let closure = function ()  { log('closure'); return this.runCycle(cb) }
+  let that = this;
   this.bothKindsTestPattern(() => {
-    output(`test patterns returned`)
     // this.saveDocsSync();
-    this.isDiskFinHTML = true;
-    this.postRenderPoll(`test patterns returned`);
+    that.isDiskFinHTML = true;
+    this.renderLock = false;
+    that.runCycle(cb)
+    output(`test patterns returned`)
+    // closure();
+    // this.postRenderPoll(`test patterns returned`);
   }); // <<--------- sets up both linear and hilbert arrays but only saves the Hilbert.
   return true;
 }
@@ -4293,7 +4307,8 @@ memToString() {
     // }
   }
   tidyPeptideName(str) { // give it "OPAL" it gives "Opal". GIVE it aspartic_ACID or "gluTAMic acid"
-  if (str === undefined) { return "none" }
+  if (str == undefined) { return "none" }
+  str += " "
   str = spaceTo_( str.toUpperCase() )
   for ( let i = 0; i < this.pepTable.length; i++) {
     var compareTo = spaceTo_( this.pepTable[i].Codon.toUpperCase() )
@@ -5227,6 +5242,10 @@ function bugout(txt) {
       return false;
     } else { return true }
   }
+  function bgOpen(file, options, callback) {
+    open( file, options, callback);
+  }
+
   function openOutputs(that) {
     if ( that.currentFile == funknzlabel ) { return false }
     mode("open files");
@@ -5245,7 +5264,9 @@ function bugout(txt) {
 
     if ( that.openHtml == true) {
       output(`Opening ${ that.justNameOfHTML} DNA render summary HTML report.`);
-      server.start( that.outputPath );
+      setImmediate( () => {
+        // server.start( that.outputPath );
+      })
       that.opensHtml++;
       projectprefs.aminosee.opens++; // increment open counter.
       // open( server.getServerURL( that.justNameOfDNA), { wait: false } );
