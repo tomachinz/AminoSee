@@ -20,7 +20,7 @@ const data = require('./aminosee-data');
 // const StdInPipe = require('./aminosee-stdinpipe');
 const asciiart = data.asciiart;
 let saySomethingEpic = data.saySomethingEpic;
-const debug = false; // should be false for PRODUCTION
+const debug = true; // should be false for PRODUCTION
 
 // OPEN SOURCE PACKAGES FROM NPM
 const Preferences = require("preferences");
@@ -164,6 +164,7 @@ function pushCli(cs) { // used by Electron GUI
   let thread = addJob(jobArgs);
   threads.push( thread );
 }
+
 function addJob( jobArgs ) { // used node and CLI tool.
   cliInstance = new AminoSeeNoEvil();
   cliInstance.setupApp( jobArgs ); // do stuff that is needed even just to run "aminosee" with no options.
@@ -626,10 +627,10 @@ class AminoSeeNoEvil {
 
       if ( this.howMany > 0 ) {
         this.currentFile = args._[0]
-        if ( !charAtCheck(this.currentFile) ||  this.currentFile == funknzlabel ) { this.quit(); return false }
         this.filename =  path.resolve( this.currentFile );
         log("Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω Ω ");// + this.currentFile)
         mode("Ω first command " + this.howMany);
+        if ( !charAtCheck(this.currentFile) ||  this.currentFile == funknzlabel ) {  return false }
         this.lookForWork('Ω first command ॐ')
         // this.popAndPollOrBust();
         // this.pollForStream('Ω first command ॐ');
@@ -1422,7 +1423,7 @@ class AminoSeeNoEvil {
     }
     let file = this.args._[0].toString();
     if ( file == funknzlabel ) {
-      this.popAndPollOrBust('funknzlabel ' + file);
+      // this.popAndPollOrBust('funknzlabel ' + file);
       return false;
     }
     if ( this.currentFile == undefined) {
@@ -4311,7 +4312,7 @@ memToString() {
       log(`str  ${str}    compareTo: ${this.pepTable[i].Codon} <--  GREAT SUCCESS`)
       return this.pepTable[i].Codon
     } else {
-      log(`str  ${str}    compareTo: ${this.pepTable[i].Codon } `)
+      // log(`str  ${str}    compareTo: ${this.pepTable[i].Codon } `)
     }
   }
   return "none";
@@ -4566,9 +4567,13 @@ function log(txt) {
   wTitle(txt) // put it on the terminal windowbar or in tmux
 }
 function wTitle(txt) {
+  // let that = gimmeDat();
+  // term.windowTitle(`[+${that.howMany}] ${ that.highlightOrNothin() } ${status} ${ that.justNameOfDNA } ${maxWidth(120,txt)} (next: ${ that.nextFile}) (AminoSee@${hostname})`);
+  // return
+
   if (this !== undefined) {
-    term.windowTitle(`[+${cliInstance.howMany}] ${ this.highlightOrNothin() } ${status} ${ this.justNameOfDNA } ${maxWidth(120,txt)} (next: ${ this.nextFile}) (AminoSee@${hostname})`);
-  } else {
+    term.windowTitle(`[+${this.howMany}] ${ this.highlightOrNothin() } ${status} ${ this.justNameOfDNA } ${maxWidth(120,txt)} (next: ${ this.nextFile}) (AminoSee@${hostname})`);
+  } else if (cliInstance !== undefined){
     term.windowTitle(`[+${cliInstance.howMany}] ${ cliInstance.highlightOrNothin() } ${status} ${ cliInstance.justNameOfDNA } ${maxWidth(120,txt)} (next: ${ cliInstance.nextFile}) (AminoSee@${hostname})`);
     // term.windowTitle(`[+${cliInstance.howMany}] ${status} ${maxWidth(120,txt)} (AminoSee@${hostname})`);
   }
@@ -5130,10 +5135,10 @@ function bugout(txt) {
     }
   }
   function gimmeDat() {
-    // var that = true;
-    if ( this !== undefined)        { var that = this }
-    if ( cliInstance !== undefined) { var that = cliInstance }
-    if ( that === undefined)        { var that = false }
+    var that = true;
+    if ( this !== undefined)        {  that = this }
+    if ( cliInstance !== undefined) {  that = cliInstance }
+    if ( that === undefined)        {  that = false }
     return that;
   }
   function redoLine(txt) {
