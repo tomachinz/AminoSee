@@ -1,5 +1,6 @@
 const AminoSeeNoEvil = require('./aminosee-cli')
 const pushCli = AminoSeeNoEvil.pushCli;
+const bruteForce = AminoSeeNoEvil.bruteForce;
 const alog = AminoSeeNoEvil.log;
 const server = require('./aminosee-server')
 const { app, BrowserWindow, Menu, dialog, ipcMain } = require('electron') // Modules to control application life and create native browser window
@@ -54,8 +55,7 @@ function log(txt) {
   // console.log(`process.argv: [${process.argv}]`)
   alog(`main.js: [${d} txt: ${txt} argv: ${a}]`);
 }
-
-function showOpenDialog() {
+function showOpenFolderDialog() {
   const options = {
     title: 'Open multiple DNA files or folders',
     buttonLabel: 'Convert DNA to Image with AminoSee',
@@ -71,6 +71,34 @@ function showOpenDialog() {
     ],
     buttonLabel : "Artistic",
     defaultPath : "dna",
+    properties: [ 'multiSelections', 'openDirectory' ],
+    message: 'Any text file containing DNA as ASCII base pairs like: ACGTUacgtu'
+  };
+  const selectedPaths = dialog.showOpenDialog();
+  mainWindow.setProgressBar(2); // -1 remove progress, 0-1 is percentage, 2+ means show indeterminate
+  log(`selectedPaths: ${selectedPaths}`)
+  pushCli(selectedPaths +  " --force --image --html");
+  bruteForce(selectPaths);
+}
+function showOpenDialog() {
+  const options = {
+    title: 'Open multiple DNA files or folders',
+    buttonLabel: 'Convert DNA to Image with AminoSee',
+    filters: [
+    { name: 'All Files', extensions: ['*'] }
+
+    // filters: [
+    //   { name: 'TXT', extensions: ['txt'] },
+    //   { name: 'FA',  extensions: ['fa']  },
+    //   { name: 'FNA', extensions: ['fna']  },
+    //   { name: 'FSA', extensions: ['fsa']  },
+    //   { name: 'MFA', extensions: ['mfa'] },
+    //   { name: 'GBK', extensions: ['gbk'] },
+    //   { name: 'GB',  extensions: ['gb'] },
+    //   { name: 'DNA', extensions: ['dna'] }
+    ],
+    buttonLabel : "Process DNA",
+    defaultPath : "dna",
     properties: [ 'multiSelections', 'openFile', 'openDirectory' ],
     message: 'Any text file containing DNA as ASCII base pairs like: ACGTUacgtu'
   };
@@ -78,6 +106,7 @@ function showOpenDialog() {
   mainWindow.setProgressBar(2); // -1 remove progress, 0-1 is percentage, 2+ means show indeterminate
   log(`selectedPaths: ${selectedPaths}`)
   pushCli(selectedPaths);
+  // bruteForce(selectPaths);
 }
 // function pushCli(commandString) {
 //   console.log(`Starting AminoSee now with CLI:`);
@@ -104,7 +133,7 @@ function createWindow () {
     backgroundColor: '#011224',
     x: padding,
     y: padding,
-    icon: path.join(__dirname, '/public/favicon.png')
+    icon: path.join(__dirname, 'public/favicon.png')
   })
 
   // mainWindow.setSize(dispWidth-256, dispHeight);
@@ -116,7 +145,7 @@ function createWindow () {
     title: "Terminal Console",
     backgroundColor: '#011224',
     frame: true,
-    icon: 'public/favicon.png',
+    icon: path.join(__dirname, 'public/favicon.png'),
     x: padding + mainWidth,
     y: padding
   })
@@ -183,6 +212,15 @@ function buildMenus() {
           role: 'open',
           click() {
             showOpenDialog();
+          }
+        },
+
+        {
+          label: 'Process Entire Folder...',
+          // accelerator: 'CmdOrCtrl+,',
+          role: 'open',
+          click() {
+            showOpenFolderDialog();
           }
         },
 

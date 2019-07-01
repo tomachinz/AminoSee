@@ -809,39 +809,40 @@ function welcomeMessage() {
 }
 
 function helpCmd(args) {
-  output('Welcome to the AminoSeeNoEvil DNA Viewer!');
-  output(`This CLI is to convert sequence found in ASCII/RTF-8 text files - tested with .mfa .fa .gbk up to  into .png graphics. works with .mfa .fa .gbk DNA text files. It's been tested with files up to 3 GB, and uses asynchronous streaming architecture! Pass the name of the DNA file via command line, and it will put the images in a folder called 'output' in the same folder.`);
-  output(' ');
-  output(chalk.inverse("Help section"));
-  output("Hello!");
-  output("Author:         tom@funk.co.nz or +64212576422");
-  output("calls only between 2pm and 8pm NZT (GMT+11hrs)");
-  output(" ");
-  output("Donations can be sent to my bitcoin address with thanks:");
-  output("15S43axXZ8hqqaV8XpFxayZQa8bNhL5VVa");
-  output("https://www.funk.co.nz/blog/online-marketing/pay-tom-atkinson");
-  output("variables:");
-  output('     --ratio=(square|golden|fixed) (default fixed proportions)');
-  output('     --width=1920 -w960  (default 960px requires fixed ratio)');
-  output('     --magnitude=[0-8] -m8 (debug setting to limit memory use)');
-  output('     --triplet=[ATCGU][ATCGU][ATCGU]      (highlight triplet)');
-  output('     --codons=[1-999] -c[1-999]   (reduces quality 1 is best)');
-  output('flags:');
-  output('     --verbose -v                              (verbose mode)');
-  output('     --help -h                            (show this message)');
-  output('     --force -f             (ignore locks overwrite existing)');
-  output('     --devmode -d  (will skip locked files even with --force)');
-  output('     --artistitc -a  (creates a visual rhythm in the picture)');
-  output('     --spew -s          (spew DNA bases to the screen during)');
-  output('     --no-clear              (dont clear the terminal during)');
-  output('     --no-update                       (dont provide updates)');
-  output('     --reg    (put registration marks @ 25% 50% 75% and 100%)');
-  output('     --test                (create calibration test patterns)');
-  output('     --keyboard -k (enable interactive mode, use control-c to end)');
-  output("Calibrate your DNA with aminosee --test  ");
-  output("run aminosee * to process all dna in current dir");
-}
+  // output('Welcome to the AminoSeeNoEvil DNA Viewer!');
+  // output(`This CLI is to convert sequence found in ASCII/RTF-8 text files - tested with .mfa .fa .gbk up to  into .png graphics. works with .mfa .fa .gbk DNA text files. It's been tested with files up to 3 GB, and uses asynchronous streaming architecture! Pass the name of the DNA file via command line, and it will put the images in a folder called 'output' in the same folder.`);
+  // output(' ');
+  // output(chalk.inverse("Help section"));
+  // output("Hello!");
+  // output("Author:         tom@funk.co.nz or +64212576422");
+  // output("calls only between 2pm and 8pm NZT (GMT+11hrs)");
+  // output(" ");
+  // output("Donations can be sent to my bitcoin address with thanks:");
+  // output("15S43axXZ8hqqaV8XpFxayZQa8bNhL5VVa");
+  // output("https://www.funk.co.nz/blog/online-marketing/pay-tom-atkinson");
+  // output("variables:");
+  // output('     --ratio=(square|golden|fixed) (default fixed proportions)');
+  // output('     --width=1920 -w960  (default 960px requires fixed ratio)');
+  // output('     --magnitude=[0-8] -m8 (debug setting to limit memory use)');
+  // output('     --triplet=[ATCGU][ATCGU][ATCGU]      (highlight triplet)');
+  // output('     --codons=[1-999] -c[1-999]   (reduces quality 1 is best)');
+  // output('flags:');
+  // output('     --verbose -v                              (verbose mode)');
+  // output('     --help -h                            (show this message)');
+  // output('     --force -f             (ignore locks overwrite existing)');
+  // output('     --devmode -d  (will skip locked files even with --force)');
+  // output('     --artistitc -a  (creates a visual rhythm in the picture)');
+  // output('     --spew -s          (spew DNA bases to the screen during)');
+  // output('     --no-clear              (dont clear the terminal during)');
+  // output('     --no-update                       (dont provide updates)');
+  // output('     --reg    (put registration marks @ 25% 50% 75% and 100%)');
+  // output('     --test                (create calibration test patterns)');
+  // output('     --keyboard -k (enable interactive mode, use control-c to end)');
+  // output("Calibrate your DNA with aminosee --test  ");
+  // output("run aminosee * to process all dna in current dir");
+  // output("*********************************************************")
 
+}
 
 
           const siteDescription = `A unique visualisation of DNA or RNA residing in text files, AminoSee is a way to render huge genomics files into a PNG image using an infinite space filling curve from 18th century! Computation is done locally, and the files do not leave your machine. A back-end terminal daemon cli command that can be scripted is combined with a front-end GUI in Electron, AminoSee features asynchronous streaming processing enabling arbitrary size files to be processed. It has been tested with files in excess of 4 GB and does not need the whole file in memory at any time. Due to issues with the 'aminosee *' command, a batch script is provided for bulk rendering in the dna/ folder. Alertively use the GUI to Drag and drop files to render a unique colour view of RNA or DNA stored in text files, output to PNG graphics file, then launches an WebGL browser that projects the image onto a 3D Hilbert curve for immersive viewing, using THREEjs. Command line options alow one to filter by peptide.`;

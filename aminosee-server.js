@@ -1,6 +1,7 @@
 const AminoSeeNoEvil = require('./aminosee-cli');
 const alog = AminoSeeNoEvil.log;
-// const doesFileExist = AminoSeeNoEvil.doesFileExist;
+const createSymlink = AminoSeeNoEvil.createSymlink;
+// const doesFileExist = require('./aminosee-cli')(doesFileExist);
 const http = require('http');
 const chalk = require('chalk');
 const path = require('path');
@@ -18,6 +19,21 @@ let outputPath, filenameServerLock;
 
 let port = 4321;
 
+  function buildServer() {
+    // this.openHtml = true;
+    webserverEnabled = true;
+    // that.setupKeyboardUI();
+    output(blueWhite(`Building server`))
+    let sFiles = [
+      { "source": appPath + '/public',            "dest": cliInstance.outputPath + '/public' },
+      { "source": appPath + '/public/home.html', "dest": process.cwd() + '/index.html' },
+      { "source": appPath + '/public/favicon.ico',"dest": cliInstance.outputPath + '/favicon.ico' },
+    ];
+    sFiles.forEach(function(element) {
+      log('buildling ' + element.toString());
+      createSymlink(path.normalize(path.resolve(element.source)), path.normalize(path.resolve(element.dest)));
+    });
+  }
 function startCrossSpawnHttp() {
   // Spawn background server
   // const evilSpawn = spawn('npm', ['list', '-g', '-depth', '0'], { stdio: 'inherit' });
