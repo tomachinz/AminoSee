@@ -105,8 +105,8 @@ function showOpenDialog() {
   const selectedPaths = dialog.showOpenDialog();
   mainWindow.setProgressBar(2); // -1 remove progress, 0-1 is percentage, 2+ means show indeterminate
   log(`selectedPaths: ${selectedPaths}`)
-  pushCli(selectedPaths);
-  // bruteForce(selectPaths);
+  // pushCli(selectedPaths);
+  bruteForce(selectPaths);
 }
 // function pushCli(commandString) {
 //   console.log(`Starting AminoSee now with CLI:`);

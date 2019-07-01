@@ -148,13 +148,15 @@ function populateArgs(procArgv) { // returns args
   return minimist(procArgv.slice(2), options);
 }
 function bruteForce(cs) {
+  output("Batch")
   for (i=0; i<pepTable[i].length; i++) {
+    output( pepTable[i].Codon )
     pushCli(`${cs} --peptide="${ pepTable[i].Codon }" `)
   }
 }
 function pushCli(cs) { // used by Electron GUI
-  commandString = `${cs} --image `;
-  log(chalk.inverse(`Starting AminoSee now with CLI:`) + ` isElectron: [${isElectron}]`)
+  commandString = `${cs} --image --force`;
+  output(chalk.inverse(`Starting AminoSee now with CLI:`) + ` isElectron: [${isElectron}]`)
 
   let commandArray = commandString.split(" ");
   let jobArgs = populateArgs(commandArray);
@@ -414,18 +416,18 @@ class AminoSeeNoEvil {
           }
         }
       }
-      if ( args.magnitude || args.m) {
-        this.magnitude = Math.round( args.magnitude || args.m);
-        if (  this.magnitude < 3 ) {
+      if ( args.magnitude || args.m ) {
+        this.magnitude = Math.round( args.magnitude );
+        this.dimension = this.magnitude;
+        if ( this.magnitude < 3 ) {
           this.dimension = 3;
           // this.maxpix = 4096 * 16; // sixteen times oversampled in reference to the linear image.
           output("Magnitude must be an integer number between 3 and 9. Using -m 3 for 4096 pixel curve.");
-        } else if (  this.magnitude > theoreticalMaxMagnitude) {
+        } else if ( this.magnitude > theoreticalMaxMagnitude) {
           this.dimension = theoreticalMaxMagnitude;
           this.maxpix = 32000000;
           output("Magnitude must be an integer number between 3 and 9 or so.");
         } else if (  this.magnitude > 6 &&  this.magnitude < 9) {
-          // this.maxpix = targetPixels;
           output(`Using custom output magnitude: ${ this.magnitude }`);
         }
       } else {
