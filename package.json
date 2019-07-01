@@ -30,7 +30,7 @@
     "node-fetch": "^2.6.0",
     "xterm": "^3.14.4",
     "hammerjs": "^2.0.8",
-    "three": "^0.106.1",
+    "three": "^0.106.2",
     "fs-extra": "^8.0.1"
   },
   "devDependencies": {
