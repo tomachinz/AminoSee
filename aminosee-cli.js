@@ -1321,7 +1321,8 @@ class AminoSeeNoEvil {
         log(`Not rendering presently. ${this.busy()}`)
       }
       if ( this.howMany < 0 ) {
-        this.quit(0, `outa work - last render`);
+        mode(`outa work - last render`)
+        this.quit(0);
         return false;
       }
       if ( doesFolderExist(this.filename) && this.currentFile !== "") {
@@ -1469,7 +1470,7 @@ class AminoSeeNoEvil {
     }
     this.currentFile = file;
     this.filename = path.resolve(file);
-    this.pollForStream(this.status);
+    this.pollForStream(`Look for work: ${this.status}`);
     return false;
 
     // if (!doesFileExist(path.resolve(this.currentFile))) {
@@ -2453,7 +2454,7 @@ class AminoSeeNoEvil {
     }
     this.howMany = this.args._.length;
     this.setNextFile();
-    log( chalk.inverse(`Checking job:`) +  ' ' + chalk.bgBlue.white( fixedWidth(40, this.currentFile)) +   ' Closing job: ' + reason );
+    output( chalk.inverse(`Checking job:`) +  ' ' + chalk.bgBlue.white( fixedWidth(40, this.currentFile)) +   ' Closing job: ' + reason );
 
     if ( file.indexOf('...') != -1) {
       mode( 'Cant use files with three dots in the filename ... (for some reason?)');
@@ -4613,7 +4614,7 @@ function output(txt) {
   // } else {
     console.log( txt );
   // }
-  wTitle(this.status)
+  // wTitle(this.status)
 }
 function out(txt) {
   let that = gimmeDat();

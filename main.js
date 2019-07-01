@@ -77,8 +77,8 @@ function showOpenFolderDialog() {
   const selectedPaths = dialog.showOpenDialog();
   mainWindow.setProgressBar(2); // -1 remove progress, 0-1 is percentage, 2+ means show indeterminate
   log(`selectedPaths: ${selectedPaths}`)
-  pushCli(selectedPaths +  " --force --image --html");
-  bruteForce(selectPaths);
+  // pushCli(selectedPaths +  " --force --image --html");
+  bruteForce(selectPaths +  " --force --image --html");
 }
 function showOpenDialog() {
   const options = {
