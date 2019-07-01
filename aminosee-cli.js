@@ -148,10 +148,11 @@ function populateArgs(procArgv) { // returns args
   return minimist(procArgv.slice(2), options);
 }
 function bruteForce(cs) {
-  output("Batch")
-  for (i=0; i<pepTable[i].length; i++) {
-    output( pepTable[i].Codon )
-    pushCli(`${cs} --peptide="${ pepTable[i].Codon }" `)
+  let pepTable = data.pepTable;
+  output("Fast Batch Enabled. Length: " + pepTable.length);
+  for (i=1; i < pepTable.length-1; i++) {
+    output( ` > ` + pepTable[i].Codon );
+    pushCli(`${cs} ${cs} ${cs} --peptide="${ pepTable[i].Codon }" `)
   }
 }
 function pushCli(cs) { // used by Electron GUI
@@ -297,7 +298,9 @@ class AminoSeeNoEvil {
       // this.previousImage = this.justNameOfDNA
 
       output(logo());
-
+      if ( args.brute ) {
+        bruteForce( args._[0] )
+      }
       if ( args.debug || debug == true) {
         this.debug = true;
         output('debug mode ENABLED');
@@ -1341,14 +1344,7 @@ class AminoSeeNoEvil {
         return false;
       }
       // if ( !this ) { this.popAndPollOrBust("WTF GOING ON?!"); return }
-      if (doesFileExist(this.filename) == false) {
-        this.popAndPollOrBust("currentFile DNA File not found");
-        return false;
-      }
-      if (charAtCheck(this.filename) == false) {
-        this.popAndPollOrBust("charAtCheck returned false: "+ this.filename);
-        return false;
-      }
+
       ///////////////// BEGIN PARSING DNA FILE //////////////////////////////
       ///////////////// Check if it's been rendered etc
       mode(`pollForStream ${reason}`)
@@ -1359,6 +1355,17 @@ class AminoSeeNoEvil {
       if (this.extension == "zip") {
         streamingZip(this.filename);
       }
+
+      if (doesFileExist(this.filename) == false) {
+        this.popAndPollOrBust("currentFile DNA File not found");
+        return false;
+      }
+      if (charAtCheck(this.filename) == false) {
+        this.popAndPollOrBust("charAtCheck returned false: "+ this.filename);
+        return false;
+      }
+
+
       log('Checking for previous render'+ this.filenamePNG)
 
       if (doesFileExist(this.filenamePNG) && this.force == false) {
@@ -1452,8 +1459,8 @@ class AminoSeeNoEvil {
     if (this.howMany <= 0) {
       mode('Happiness.');
       log(chalk.bgRed.yellow(status));
-      this.printRadMessage(status)
-      this.quit(1, status)
+      // this.printRadMessage(status)
+      // this.quit(0, status)
       return false;
     }
     let file = this.args._[0].toString();
