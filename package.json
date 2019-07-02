@@ -53,7 +53,7 @@
     "internal-ip": "^4.3.0",
     "jimp": "^0.6.4",
     "keypress": "^0.2.1",
-    "local-web-server": "^3.0.3",
+    "local-web-server": "^3.0.4",
     "minimist": "^1.2.0",
     "nexe": "^3.3.2",
     "node-gyp": "^5.0.1",
