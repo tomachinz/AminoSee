@@ -7,8 +7,8 @@ best_way () {
   nice aminosee $1 $2 $3 $4 $5 $6 $7
   # aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide="Start Codons"
   # aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide="Stop Codons"
-  aminosee $1    $2 $3 $4  --peptide="Glutamic acid" &
-  aminosee $1    $2 $3 $4  --peptide="Aspartic acid"
+  aminosee $1    $2 $3 $4  --peptide="Glutamic_acid" &
+  aminosee $1    $2 $3 $4  --peptide="Aspartic_acid"
   aminosee_do $1 $2 $3 $4  --peptide=Ochre &
   aminosee_do $1 $2 $3 $4  --peptide=Amber &
   aminosee_do $1 $2 $3 $4  --peptide=Opal
@@ -38,8 +38,8 @@ series_peptides () {
   echo "-------------------------------------------"
   echo "                                         =///"
   aminosee_do $1 $2 $3 $4 $5 $6 $7
-  aminosee_do $1 $2 $3 $4  --peptide="Glutamic acid"
-  aminosee_do $1 $2 $3 $4  --peptide="Aspartic acid"
+  aminosee_do $1 $2 $3 $4  --peptide="Glutamic_acid"
+  aminosee_do $1 $2 $3 $4  --peptide="Aspartic_acid"
   aminosee_do $1 $2 $3 $4  --peptide=Ochre
   aminosee_do $1 $2 $3 $4  --peptide=Amber
   aminosee_do $1 $2 $3 $4  --peptide=Opal
@@ -75,8 +75,8 @@ parallel_peptides () {
   echo "-------------------------------------------"
   echo "                                         =///"
   aminosee_do $1 $2 $3 $4 $5 $6 $7
-  aminosee_do $1 $2 $3 $4  --peptide="Glutamic acid" &
-  aminosee_do $1 $2 $3 $4  --peptide="Aspartic acid"
+  aminosee_do $1 $2 $3 $4  --peptide="Glutamic_acid" &
+  aminosee_do $1 $2 $3 $4  --peptide="Aspartic_acid"
   aminosee_do $1 $2 $3 $4  --peptide=Ochre
   aminosee_do $1 $2 $3 $4  --peptide=Amber &
   aminosee_do $1 $2 $3 $4  --peptide=Opal &
@@ -128,8 +128,8 @@ find_way_peptides () {
 
   #
   # find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee $1 $2 $3 $4 $5 $6 $7 "{}" \;
-  # find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee $1 $2   --peptide="Glutamic acid" $3 $4 $5 $6 $7 "{}" \;
-  # find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee $1 $2   --peptide="Aspartic acid" $3 $4 $5 $6 $7 "{}" \;
+  # find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee $1 $2   --peptide="Glutamic_acid" $3 $4 $5 $6 $7 "{}" \;
+  # find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee $1 $2   --peptide="Aspartic_acid" $3 $4 $5 $6 $7 "{}" \;
   # # find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee $1 $2   --peptide="Start Codons" $3 $4 $5 $6 $7 "{}" \;
   # # find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee $1 $2   --peptide="Stop Codons" $3 $4 $5 $6 $7 "{}" \;
   # find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee $1 $2   --peptide=Ochre $3 $4 $5 $6 $7 "{}" \;

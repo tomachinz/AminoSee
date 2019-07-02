@@ -31,8 +31,8 @@ MEDIUM='3MB_TestPattern.txt'
 SLOW='27MB_TestPattern.txt'
 aminosee_do $FAST $FAST $FAST --peptide=amber $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
 
-aminosee_do $FAST $1 $2 $3 $4 $5 $6 --force --peptide="aspartic ACID"
-aminosee_do $FAST -fb --peptide="gluTAMIC aCID" $1 $2 $3 $4 $5 $6
+aminosee_do $FAST $1 $2 $3 $4 $5 $6 --force --peptide="aspartic_ACID"
+aminosee_do $FAST -fb --peptide="gluTAMIC_aCID" $1 $2 $3 $4 $5 $6
 
 success "PROGRESS bars test --> "
 aminosee_do $SLOW $MEDIUM $1 $2 $3 $4 $5 $6 --force --peptide=opal -q --progress

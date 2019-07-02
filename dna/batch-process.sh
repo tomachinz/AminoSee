@@ -38,8 +38,8 @@ parallel_peptides () {
   echo "                                         =///"
   aminosee_do $1 $2 $3
   aminosee_do $1 $2 $3   --peptide=Ochre &
-  aminosee_do $1 $2 $3   --peptide=Glutamic
-  aminosee_do $1 $2 $3   --peptide=Aspartic &
+  aminosee_do $1 $2 $3   --peptide=Glutamic_acid
+  aminosee_do $1 $2 $3   --peptide=Aspartic_acid &
   aminosee_do $1 $2 $3   --peptide=Amber
   aminosee_do $1 $2 $3   --peptide=Cysteine &
   aminosee_do $1 $2 $3   --peptide=Glycine
@@ -74,8 +74,8 @@ find_way_peptides () {
   echo "                                         =///"
   find -f *.fa *.mfa *.gbk *.txt -exec  aminosee {} $1 $2  $3 $4 $5 $6  \;
   find -f *.fa *.mfa *.gbk *.txt -exec  aminosee {} $1 $2   --peptide=Ochre $3 $4 $5 $6  \;
-  find -f *.fa *.mfa *.gbk *.txt -exec  aminosee {} $1 $2   --peptide="Glutamic Acid" $3 $4 $5 $6  \;
-  find -f *.fa *.mfa *.gbk *.txt -exec  aminosee {} $1 $2   --peptide="Aspartic Acid" $3 $4 $5 $6  \;
+  find -f *.fa *.mfa *.gbk *.txt -exec  aminosee {} $1 $2   --peptide="Glutamic_Acid" $3 $4 $5 $6  \;
+  find -f *.fa *.mfa *.gbk *.txt -exec  aminosee {} $1 $2   --peptide="Aspartic_Acid" $3 $4 $5 $6  \;
   find -f *.fa *.mfa *.gbk *.txt -exec  aminosee {} $1 $2   --peptide=Amber $3 $4 $5 $6  \;
   find -f *.fa *.mfa *.gbk *.txt -exec  aminosee {} $1 $2   --peptide=Cysteine $3 $4 $5 $6  \;
   find -f *.fa *.mfa *.gbk *.txt -exec  aminosee {} $1 $2   --peptide=Glycine $3 $4 $5 $6  \;

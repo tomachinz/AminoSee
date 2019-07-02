@@ -37,7 +37,7 @@ mkdir -p build/toms_source/
 # cp -v aminosee-settings.js                                       dist/root/
 # cp -v main.js                                                    dist/root/
 # cp -v renderer.js                                                dist/root/
-# cp -v mastdinpipe.js                                             dist/root/
+# cp -v aminosee-stdinpipe.js                                      dist/root/
 cp -v public/aminosee-web-gui.js                            build/toms_source/
 cp -v aminosee-serve.js                                     build/toms_source/
 cp -v aminosee-cli.js                                       build/toms_source/
