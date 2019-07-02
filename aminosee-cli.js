@@ -91,7 +91,7 @@ const testFilename = "AminoSeeTestPatterns"; // for some reason this needs to be
 const openLocalHtml = true;
 const maxWindowsToOpen = 10;
 let opens = 0; // session local counter to avoid having way too many windows opened.
-let isElectron, status, args, killServersOnQuit, webserverEnabled, cliInstance, tx, ty, termPixels, cliruns, gbprocessed, projectprefs, userprefs, progato, commandString, batchSize;
+let isElectron, status, args, killServersOnQuit, webserverEnabled, cliInstance, tx, ty, termPixels, cliruns, gbprocessed, projectprefs, userprefs, genomes, progato, commandString, batchSize;
 let dnaTriplets = data.dnaTriplets;
 termPixels = 69;
 tx = ty = cliruns = gbprocessed = 0;
@@ -799,6 +799,7 @@ class AminoSeeNoEvil {
         runid: this.timestamp,
         cliruns: cliruns,
         gbprocessed: gbprocessed,
+        genomes: genomes,
         hostname: os.hostname(),
         version: version,
         flags: (  this.force ? "F" : ""    )+(  this.userCPP == "auto"  ? `C${ this.userCPP }` : ""    )+(  this.devmode ? "D" : ""    )+(  this.args.ratio || this.args.r ? `${ this.ratio }` : "   "    )+(  this.args.magnitude || this.args.m ? `M${ this.dimension }` : "   "    ),
@@ -1370,6 +1371,7 @@ class AminoSeeNoEvil {
 
       if (doesFileExist(this.filenamePNG) && this.force == false) {
         let msg = `Already rendered ${ maxWidth(60, this.justNameOfPNG) }. `
+        this.isHilbertPossible = false;
         openOutputs(this);
         this.popAndPollOrBust(msg);
         return false;
@@ -2249,12 +2251,17 @@ class AminoSeeNoEvil {
     if (this.test) { // the calibration generates its own image
       this.shrinkFactor = 1;
     } else { // regular DNA processing
+      cliruns = userprefs.aminosee.cliruns;
+      cliruns++;
+      userprefs.aminosee.cliruns = cliruns; // increment run counter. for a future high score table stat and things maybe.
 
-      userprefs.aminosee.cliruns++; // increment run counter. for a future high score table stat and things maybe.
-      userprefs.aminosee.gbprocessed  +=  this.baseChars / 1024 / 1024 / 1024; // increment disk counter.
-      cliruns = userprefs.aminosee.cliruns
       gbprocessed  = userprefs.aminosee.gbprocessed;
-      // opensImage
+      gbprocessed +=  this.baseChars / 1024 / 1024 / 1024; // increment disk counter.
+      userprefs.aminosee.gbprocessed = gbprocessed; // i have a superstition this way is less likely to conflict with other threads
+
+      genomes = projectprefs.aminosee.genomes;
+      genomes.push(this.justNameOfDNA);
+      projectprefs.aminosee.genomes = genomes;
     }
     this.percentComplete = 1; // to be sure it shows 100% complete
 
@@ -4257,7 +4264,9 @@ drawHistogram() {
     output(histogram(aacdata, { bar: '/', width: this.debugColumns*2, sort: true, map: aacdata.Histocount} ));
     output();
     output();
-    output(interactiveKeysGuide);
+    if (this.keyboard) {
+      output(interactiveKeysGuide);
+    }
     output();
     // term.up(5);
     output(`Last red: ${ this.peakRed } Last  green : ${ this.peakGreen } Last  blue : ${ this.peakBlue }`)
@@ -4845,7 +4854,7 @@ function bugout(txt) {
     projectprefs = new Preferences('nz.funk.aminosee.project', {
       aminosee: {
         opens: 0,
-        genomes: [ `megabase` ]
+        genomes: [ `megabase`, '50KB_TestPattern' ]
       }
     }, {
       encrypt: false,
@@ -4869,6 +4878,7 @@ function bugout(txt) {
     userprefs.aminosee.cliruns++; // increment run counter. for a future high score table stat and things maybe.
     cliruns = userprefs.aminosee.cliruns;
     gbprocessed  = userprefs.aminosee.gbprocessed;
+    genomes = projectprefs.aminosee.genomes;
   }
   function logo() {
     return `${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196).inverse("See")}${chalk.rgb(128,128,128).inverse("No")}${chalk.grey.inverse("Evil")}       v${chalk.rgb(255,255,0).inverse(version)}`;
@@ -5177,7 +5187,7 @@ function bugout(txt) {
     var that = gimmeDat()
     if (that.debug) {
       out(txt);
-    } else {
+    } else if (that.quiet == false){
       redoLine(txt);
     }
   }
@@ -5274,8 +5284,9 @@ function bugout(txt) {
   }
 
   function openOutputs(that) {
-    if ( that.currentFile == funknzlabel ) { return false }
     mode("open files");
+    output(this.status);
+    if ( that.currentFile == funknzlabel ) { return false }
     if ( that.devmode == true )  { log( that.renderObjToString() ); }
     log( closeBrowser ); // tell user process maybe blocked
     bugtxt(` that.openHtml, that.openImage, that.openFileExplorer `, that.openHtml, that.openImage, that.openFileExplorer );

@@ -18,7 +18,7 @@ app.commandLine.appendSwitch('host-rules', 'MAP * localhost')
 // app.commandLine.appendSwitch('devmode', 'true')
 app.on('ready', function() {
   createWindow();
-  // pushCli(`help`)
+  pushCli(`dna/3MB_TestPattern.txt --serve --verbose --image`)
 })
 
 // Quit when all windows are closed.
