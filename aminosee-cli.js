@@ -15,7 +15,7 @@ Esc     (graceful quit) O (toggle show files after in GUI)`;
 const lineBreak = `
 `;
 const settings = require('./aminosee-settings');
-const version = require('./aminosee-version.js');
+const version = require('./aminosee-version');
 const server = require('./aminosee-server');
 const data = require('./aminosee-data');
 // const StdInPipe = require('./aminosee-stdinpipe');
@@ -2504,11 +2504,11 @@ class AminoSeeNoEvil {
       log('failed file system checks: '+ file)
     }
     output( chalk.inverse(`Checking job ${fixedWidth(3,  this.howMany )}: `) +  ' ' + chalk.bgBlue.white( fixedWidth(40, this.currentFile)) + this.highlightOrNothin() +  ' Closing: ' + reason );
-    if ( fileSystemChecks(this.filename) == true ) {
-      this.popAndPollOrBust();
-    } else {
+    // if ( fileSystemChecks(this.filename) == true ) {
+      // this.popAndPollOrBust(`failed filesystem checks`);
+    // } else {
       this.lookForWork(`chompsky`); // <<<<-------------- THATS WHERE THE ACTION GOES
-    }
+    // }
 
 
   }
