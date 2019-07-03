@@ -256,7 +256,7 @@ class AminoSeeNoEvil {
       this.done = 0;
       this.suopIters = 0;
       this.raceDelay = 269; // so i learnt a lot on this project. one day this line shall disappear replaced by promises.
-      this.darkenFactor = 0.25; // if user has chosen to highlight an amino acid others are darkened
+      this.darkenFactor = 0.125; // if user has chosen to highlight an amino acid others are darkened
       this.highlightFactor = 4.0; // highten brightening.
       this.devmode = false; // kills the auto opening of reports etc
       this.quiet = false;
@@ -946,7 +946,7 @@ class AminoSeeNoEvil {
     progUpdate(obj) {  // allows to disable all the prog bars in one place
       if ( this.updateProgress == true) {
         if ( this.progato !== undefined && obj !== undefined) {
-          // this.calcUpdate();
+          this.fastUpdate();
           output(`Progress ${obj}`)
           this.progato.update(obj);
         }
@@ -1106,7 +1106,7 @@ class AminoSeeNoEvil {
       if (this.debug == false) {
         this.raceDelay  -= 100;
       }
-      output("AminoSee has been slowed to " + this.raceDelay )
+      output("AminoSee has been slowed to " + this.raceDelay );
     }
     toggleDevmode() {
       this.devmode = !this.devmode;
@@ -1358,10 +1358,10 @@ class AminoSeeNoEvil {
         this.popAndPollOrBust(msg)
         return false;
       }
-      if (doesFileExist(this.filename) === false) {
-        this.popAndPollOrBust(`${this.filename} No File Found`);
-        return false;
-      }
+      // if (doesFileExist(this.filename) === false) {
+      //   this.popAndPollOrBust(`${this.filename} No File Found`);
+      //   return false;
+      // }
       // if ( !this ) { this.popAndPollOrBust("WTF GOING ON?!"); return }
       if ( this.currentFile == funknzlabel) { // maybe this is to get past my lack of understanding of processing of this.args.
         this.popAndPollOrBust(`For some odd reason... yeah Im gonna get back to you on that unset variable`);
@@ -1986,10 +1986,9 @@ class AminoSeeNoEvil {
     // startCrossSpawnHttp(); // requires http-server be installed globally
 
     setTimeout(()=> {
-      output("AminoSee built-in web server started")
-      output(`Built-in webserver: ${server.getServerURL()}   [ stop server with Control-C | run in background with [S] `)
+      output("AminoSee built-in web server started");
+      output(`Built-in webserver: ${server.getServerURL()}   [ stop server with Control-C | run in background with [S] `);
       countdown(`| will shutdown in ${humanizeDuration(max32bitInteger)}`, max32bitInteger);
-
     }, max32bitInteger);
   }
 
@@ -2432,7 +2431,7 @@ class AminoSeeNoEvil {
     if ( !this.quiet ) {
       term.saveCursor()
       term.moveTo(0, term.height - 5);
-      output(chalk.bgWhite.rgb(48,48,64).inverse( outski ));
+      output(chalk.bgWhite.rgb(48,48,64).inverse( this.blurb() ));
       output('*')
       term.restoreCursor()
     }
@@ -2473,7 +2472,7 @@ class AminoSeeNoEvil {
   popAndPollOrBust(reason) { // ironic its now a .shift()
     // pop the array, the poll for stream or quit
     let file;
-    out('pop')
+    out('pop +' + reason)
     if ( this.test ) {
       this.error(`Test mode.`)
     }
@@ -4187,7 +4186,6 @@ class AminoSeeNoEvil {
       wTitle(msg);
     }
     output(msg)
-    // this.quit(130,`calc update`)
   }
 
   getHistoCount(item, index) {
