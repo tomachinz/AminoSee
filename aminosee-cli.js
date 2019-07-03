@@ -726,15 +726,15 @@ class AminoSeeNoEvil {
       clearTimeout( this.progTimer);
       clearTimeout( this.lockTimer);
     }
-    bugtxt(txt) { // full this.debug output
-      if (this.quiet == false && this.debug == true && this.devmode == true && this.verbose == true)  {
-        bugout(txt);
-      } else {
-        if (this.verbose == true ) {
-          redoLine(txt);
-        }
-      }
-    }
+    // bugtxt(txt) { // full this.debug output
+    //   if (this.quiet == false && this.debug == true && this.devmode == true && this.verbose == true)  {
+    //     bugout(txt);
+    //   } else {
+    //     if (this.verbose == true ) {
+    //       redoLine(txt);
+    //     }
+    //   }
+    // }
 
 
 
@@ -1159,8 +1159,8 @@ class AminoSeeNoEvil {
       mode( "Graceful shutdown in progress...");
       var that = this;
       isShuttingDown = true;
-      that.bugtxt(status);
-      that.bugtxt("webserverEnabled: " + webserverEnabled + " killServersOnQuit: "+ killServersOnQuit)
+      bugtxt(status);
+      bugtxt("webserverEnabled: " + webserverEnabled + " killServersOnQuit: "+ killServersOnQuit)
       try {
         that.nextFile = "shutdown";
         that.howMany = 0;
@@ -1333,7 +1333,7 @@ class AminoSeeNoEvil {
       // take current file and test if it can be rendered
       mode('pre-polling ' + reason);
       log(this.status)
-      var that = this;
+      // var that = this;
       if ( this.renderLock == true ) {
         bugtxt(`thread re-entry inside pollForStream: ${ this.justNameOfDNA} ${ this.busy()} ${this.storage()} reason: ${reason}`);
         return false;
@@ -2366,14 +2366,14 @@ class AminoSeeNoEvil {
     try {
       fs.writeFile(file, contents, 'utf8', function (err, cb) {
         if (err) {
-          that.bugtxt(`[FileWrite] Issue with saving: ${ file } ${err}`)
+          bugtxt(`[FileWrite] Issue with saving: ${ file } ${err}`)
         } else {
           try {
-            that.bugtxt('Set permissions for file: ' + file);
+            bugtxt('Set permissions for file: ' + file);
             // fs.chmodSync(file, 0o777); // not work with strict this.mode
             fs.chmodSync(file, '0777');
           } catch(e) {
-            that.bugtxt('Could not set permission for file: ' + file + ' due to ' + e);
+            bugtxt('Could not set permission for file: ' + file + ' due to ' + e);
           }
         }
         out('$ ' + file);
@@ -3426,7 +3426,7 @@ class AminoSeeNoEvil {
       hilbert_img_png.pack()
       .pipe(wstream)
       .on('finish', (err) => {
-        that.bugtxt("HILBERT Save OK " +  this.storage());
+        bugtxt("HILBERT Save OK " +  this.storage());
         that.hilbertFinished();
         if ( cb !== undefined ) { cb() }
       })
@@ -3701,7 +3701,7 @@ class AminoSeeNoEvil {
       img_png.pack()
       .pipe(wstream)
       .on('finish', (err) => {
-        that.bugtxt("linear Save OK " +  this.storage());
+        bugtxt("linear Save OK " +  this.storage());
         that.linearFinished();
       })
     }).then( bugtxt('LINEAR then') ).catch( bugtxt('LINEAR catch') );
