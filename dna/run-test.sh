@@ -35,7 +35,7 @@ aminosee_do $FAST $1 $2 $3 $4 $5 $6 --force --peptide="aspartic_ACID"
 aminosee_do $FAST -fb --peptide="gluTAMIC_aCID" $1 $2 $3 $4 $5 $6
 
 success "PROGRESS bars test --> "
-aminosee_do $SLOW $MEDIUM $1 $2 $3 $4 $5 $6 --force --peptide=opal -q --progress
+aminosee_do $SLOW $MEDIUM $1 $2 $3 $4 $5 $6 --force --peptide=opal -q --progress --dnabg
 success "PROGRESS bars peptide-opal force"
 
 echo GARBAGE FILENAMES FUZZING THAT KINDA THING
@@ -117,3 +117,4 @@ echo "                                         =///"
 clear
 killall aminosee.funk.nz
 killall "aminosee.funk.nz 27MB_TestPattern 34.94MB"
+eslint ../aminosee-cli.js

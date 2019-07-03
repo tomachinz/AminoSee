@@ -1,44 +1,57 @@
-const AminoSeeNoEvil = require('./aminosee-cli');
-const alog = AminoSeeNoEvil.log;
-const createSymlink = AminoSeeNoEvil.createSymlink;
-// const doesFileExist = require('./aminosee-cli')(doesFileExist);
+const aminosee = require('./aminosee-cli');
+const data = require('./aminosee-data');
+const alog = aminosee.log;
+
+const doesFileExist   = data.doesFileExist;
+const doesFolderExist = data.doesFolderExist;
+const createSymlink   = data.createSymlink;
+
 const http = require('http');
 const chalk = require('chalk');
 const path = require('path');
 const os = require("os");
 const httpserver = require('http-server'); // cant have - in js
 const spawn = require('cross-spawn');
+const fs = require('fs-extra'); // drop in replacement = const fs = require('fs')
 const lockFileMessage = `
 aminosee.funk.nz DNA Viewer by Tom Atkinson.
 This is a temporary lock file, so I dont start too many servers. Its safe to erase these files, and I've made a script in /dna/ to batch delete them all in one go. Normally these are deleted when render is complete, or with Control-C and graceful shutdown.`;
-const version = AminoSeeNoEvil.version;
-// let terminalRGB = function (txt) { AminoSeeNoEvil.terminalRGB(txt) }
+const version = aminosee.version;
+// let terminalRGB = function (txt) { aminosee.terminalRGB(txt) }
 // let terminalRGB = require('./aminosee-cli').terminalRGB;
 let outputPath, filenameServerLock;
-
+function log(txt) {
+  if (alog) { alog(txt) } else { console.log( txt ) }
+}
 
 let port = 4321;
 
   function buildServer() {
+    const appFilename = require.main.filename; //     /bin/aminosee.js is 11 chars
+    const appPath = path.normalize(appFilename.substring(0, appFilename.length-15));// cut 4 off to remove /dna
+
     // this.openHtml = true;
     webserverEnabled = true;
     // that.setupKeyboardUI();
-    output(blueWhite(`Building server`))
+    output(`Building server`)
+    data.saySomethingEpic();
     let sFiles = [
-      { "source": appPath + '/public',            "dest": cliInstance.outputPath + '/public' },
-      { "source": appPath + '/public/home.html', "dest": process.cwd() + '/index.html' },
-      { "source": appPath + '/public/favicon.ico',"dest": cliInstance.outputPath + '/favicon.ico' },
+      { "source": appPath + 'public',            "dest": outputPath + '/public' },
+      { "source": appPath + 'public/home.html', "dest": process.cwd() + '/index.html' },
+      { "source": appPath + 'public/favicon.ico',"dest": outputPath + '/favicon.ico' },
     ];
-    sFiles.forEach(function(element) {
-      log('buildling ' + element.toString());
-      createSymlink(path.normalize(path.resolve(element.source)), path.normalize(path.resolve(element.dest)));
-    });
+    for (i=0; i<sFiles.length; i++) {
+      let element = sFiles[i]
+      log('buildling ' + element.source );//.toString());
+      // aminosee.createSymlink(path.normalize(path.resolve(element.source)), path.normalize(path.resolve(element.dest)));
+    }
+
   }
 function startCrossSpawnHttp() {
   // Spawn background server
   // const evilSpawn = spawn('npm', ['list', '-g', '-depth', '0'], { stdio: 'inherit' });
   // const evilSpawn = spawn('http-server', [server.getServerURL(justNameOfDNA), '--port', port, '0'], { stdio: 'pipe' });
-  const evilSpawn = spawn('http-server', ['--directory', outputPath,  '--port', port, '0'], { stdio: 'pipe' });
+  const evilSpawn = spawn('http-server', ['--directory', outputPath,  '--port', port], { stdio: 'pipe' });
   evilSpawn.stdout.on('data', (data) => {
     output(`${chalk.inverse('aminosee-server')}${chalk(': ')}${data}`);
   });
@@ -48,7 +61,7 @@ function startCrossSpawnHttp() {
   evilSpawn.on('close', (code) => {
     output(`child process quit with code ${code}`);
   });
-  log("Personal mini-Webserver starting up around now (hopefully) on port ${port}");
+  log(`Personal mini-Webserver starting up around now (hopefully) on port ${port} ${outputPath}`);
   //  log(`visit ${server.getServerURL()} in your browser to see 3D WebGL visualisation`);
   log(terminalRGB("ONE DAY this will serve up a really cool WebGL visualisation of your DNA PNG. That day.... is not today though.", 255, 240,10));
   log(terminalRGB("IDEA: Maybe send some bitcoin to the under-employed creator tom@funk.co.nz to convince him to work on it?", 240, 240,200));
@@ -91,8 +104,8 @@ function startServeHandler() {
     });
     return true
   } catch(err) {
-    AminoSeeNoEvil.log(`Caught err while trying to start server. Probably already running.`)
-    // AminoSeeNoEvil.bugtxt(err)
+    aminosee.log(`Caught err while trying to start server. Probably already running.`)
+    // aminosee.bugtxt(err)
     return false
   }
 }
@@ -173,23 +186,25 @@ function close() {
       output("no server");
     }
   } catch(e) {
-    // AminoSeeNoEvil.bugtxt(e);
+    // aminosee.bugtxt(e);
   }
 }
 function start(o) { // return the port number
+  output(`Attempting to start server at: ${ o }`)
   outputPath = o;
   setOutputPath(o)
   if (serverLock()) {
     output("Server already started. If you think this is not true, remove the lock file: " + filenameServerLock);
   } else {
     output("No locks found, Starting server");
+    buildServer();
     startCrossSpawnHttp()
     // startServeHandler();
   }
   return port
 };
 function setOutputPath(o) {
-  if (o === undefined) { o = AminoSeeNoEvil.outputPath }
+  if (o === undefined) { o = aminosee.outputPath }
   outputPath = o;
   filenameServerLock = path.resolve(`${outputPath}/aminosee_server_lock.txt`);
   output(`(server) im planning to run server at: ` + outputPath);
@@ -197,7 +212,7 @@ function setOutputPath(o) {
 
 function stop() {
   output("Stoping server");
-  // AminoSeeNoEvil.deleteFile(filenameServerLock);
+  // aminosee.deleteFile(filenameServerLock);
 }
 
 function open(relative) {
@@ -225,38 +240,38 @@ function serverLock() {
     return true;
   } else { return false }
 }
-function log(txt) {
-  output(txt)
-  // AminoSeeNoEvil.output(txt)
-}
-function doesFileExist(f) {
-  let result = false;
-  if (f == undefined) { return false; } // adds stability to this rickety program!
-  f = path.resolve(f);
-  try {
-    result = fs.existsSync(f);
-    if (result == true ) {
-      return true; //file exists
-    } else {
-      result = false;
-    }
-  } catch(err) {
-    output("Shell be right mate: " + err)
-    result = false;
-  }
-  return result;
-}
-function doesFolderExist(f) {
-  if (doesFileExist(f)) {
-    return fs.lstatSync(f).isDirectory()
-  } else {
-    log('Folder not exist')
-    return false;
-  }
-}
+// function log(txt) {
+//   output(txt)
+//   // aminosee.output(txt)
+// }
+// function doesFileExist(f) {
+//   let result = false;
+//   if (f == undefined) { return false; } // adds stability to this rickety program!
+//   f = path.resolve(f);
+//   try {
+//     result = fs.existsSync(f);
+//     if (result == true ) {
+//       return true; //file exists
+//     } else {
+//       result = false;
+//     }
+//   } catch(err) {
+//     output("Shell be right mate: " + err)
+//     result = false;
+//   }
+//   return result;
+// }
+// function doesFolderExist(f) {
+//   if (doesFileExist(f)) {
+//     return fs.lstatSync(f).isDirectory()
+//   } else {
+//     log('Folder not exist')
+//     return false;
+//   }
+// }
 function output(txt) {
   console.log(`server: ${txt} (server)`);
-  // AminoSeeNoEvil.output(txt)
+  // aminosee.output(txt)
 }
 // module.exports.startServeHandler = startServeHandler;
 function terminalRGB(_text, _r, _g, _b) {

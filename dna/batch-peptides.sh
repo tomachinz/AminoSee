@@ -74,30 +74,32 @@ parallel_peptides () {
   echo STARTING MULTI-THREAD DECODE FOR $1 $2 $3 $4 $5 $6 $7
   echo "-------------------------------------------"
   echo "                                         =///"
-  aminosee_do $1 $2 $3 $4 $5 $6 $7
   aminosee_do $1 $2 $3 $4  --peptide="Glutamic_acid" &
-  aminosee_do $1 $2 $3 $4  --peptide="Aspartic_acid"
+  aminosee_do $1 $2 $3 $4  --peptide="Aspartic_acid" &
   aminosee_do $1 $2 $3 $4  --peptide=Ochre
   aminosee_do $1 $2 $3 $4  --peptide=Amber &
   aminosee_do $1 $2 $3 $4  --peptide=Opal &
   aminosee_do $1 $2 $3 $4  --peptide=Methionine &
-  aminosee_do $1 $2 $3 $4  --peptide=Cysteine
-  aminosee_do $1 $2 $3 $4  --peptide=Glycine &
+  aminosee_do $1 $2 $3 $4  --peptide=Cysteine &
+  aminosee_do $1 $2 $3 $4  --peptide=Glycine
   aminosee_do $1 $2 $3 $4  --peptide=Alanine &
   aminosee_do $1 $2 $3 $4  --peptide=Valine &
   aminosee_do $1 $2 $3 $4  --peptide=Leucine &
-  aminosee_do $1 $2 $3 $4  --peptide=Isoleucine
+  aminosee_do $1 $2 $3 $4  --peptide=Isoleucine &
   aminosee_do $1 $2 $3 $4  --peptide=Phenylalanine &
-  aminosee_do $1 $2 $3 $4  --peptide=Proline &
+  aminosee_do $1 $2 $3 $4  --peptide=Proline
   aminosee_do $1 $2 $3 $4  --peptide=Tryptophan &
   aminosee_do $1 $2 $3 $4  --peptide=Serine &
   aminosee_do $1 $2 $3 $4  --peptide=Threonine &
-  aminosee_do $1 $2 $3 $4  --peptide=Glutamine
+  aminosee_do $1 $2 $3 $4  --peptide=Glutamine &
   aminosee_do $1 $2 $3 $4  --peptide=Asparagine &
-  aminosee_do $1 $2 $3 $4  --peptide=Tyrosine
+  aminosee_do $1 $2 $3 $4  --peptide=Tyrosine &
   aminosee_do $1 $2 $3 $4  --peptide=Arginine &
-  aminosee_do $1 $2 $3 $4  --peptide=Lysine
-  nice aminosee $1 $2 $3 $4 $5 $6 $7  --peptide=Histidine
+  aminosee_do $1 $2 $3 $4  --peptide=Lysine &
+  nice aminosee $1 $2 $3 $4 $5 $6 $7  --peptide=Histidine &
+  aminosee_do $1 $2 $3 $4 $5 $6 $7 
+
+  # sleep 1
   # aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide="Start Codons"
   # aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide="Stop Codons"
   echo "                                         =///"
@@ -164,8 +166,8 @@ echo $1 $2 $3 $4 $5 $6 $7
 # parallel_peptides 50KB_TestPattern.txt  megabase.fa
 
 parallel_peptides $1 $2 $3 $4 $5 $6 $7
-series_peptides $1 $2 $3 $4 $5 $6 $7 --keyboard
-series_peptides * $1 $2 $3 $4 $5 $6 $7 --keyboard
-find_way_peptides $1 $2 $3 $4 $5 $6 $7
+# series_peptides $1 $2 $3 $4 $5 $6 $7 --keyboard
+# series_peptides * $1 $2 $3 $4 $5 $6 $7 --keyboard
+# find_way_peptides $1 $2 $3 $4 $5 $6 $7
 # parallel_peptides  --reg $1 $2 $3 $4 $5 $6 $7
 # find_way_peptides  --reg
