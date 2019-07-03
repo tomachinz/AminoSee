@@ -71,10 +71,7 @@ function doesFolderExist(f) {
   }
 }
 function doesFileExist(f) {
-  console.log(`fuck yes trust me ${f}`)
-  // return true;
   let result = false;
-  // console.log(f)
   if (f == undefined) { return false; } // adds stability to this rickety program!
   f = path.resolve(f);
   try {

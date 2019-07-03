@@ -164,22 +164,28 @@ function pushCli(cs) { // used by Electron GUI
   commandString = `node aminosee ${cs} --image --force --quiet`;
   output(chalk.inverse(`Starting AminoSee now with CLI:`) + ` isElectron: [${isElectron}]`)
 
-  // let commandArray = commandString.split(" ");
-  let commandArray = [`node`, `aminosee`, commandString];
+  let commandArray = commandString.split(" ");
+  // let commandArray = [`node`, `aminosee`, commandString];
   let jobArgs = populateArgs(commandArray);
   log(`pushCli: ${jobArgs.toString()}`);
   log(jobArgs);
-  commandArray.forEach((job) => { // this is done because minimist filters out the files but not flags/options
+
+  for (i=2; i < commandArray.length; i++) {
+    let job = commandArray[i];
     if (charAtCheck(job)) { // no files can start with - first char filename
-      // if (fileSystemChecks(job)) {
+      if (fileSystemChecks(job)) {
       log(`pushing job into render queuee: [${job}]`)
       jobArgs._.push(job)
-      // } else {
-      //   log(`problem with file: [${job}]`)
-      // }
+      } else {
+        log(`umm: [${job}]`)
+      }
     } else {
       log(`configuring parameter: [${job}]`)
     }
+  }
+
+  commandArray.forEach((job) => { // this is done because minimist filters out the files but not flags/options
+
   })
   // let thread = addJob(jobArgs);
   let thread = addJob(populateArgs (commandString));
