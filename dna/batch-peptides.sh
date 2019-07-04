@@ -97,7 +97,7 @@ parallel_peptides () {
   aminosee_do $1 $2 $3 $4  --peptide=Arginine &
   aminosee_do $1 $2 $3 $4  --peptide=Lysine &
   nice aminosee $1 $2 $3 $4 $5 $6 $7  --peptide=Histidine &
-  aminosee_do $1 $2 $3 $4 $5 $6 $7 
+  aminosee_do $1 $2 $3 $4 $5 $6 $7
 
   # sleep 1
   # aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide="Start Codons"
@@ -166,6 +166,16 @@ echo $1 $2 $3 $4 $5 $6 $7
 # parallel_peptides 50KB_TestPattern.txt  megabase.fa
 
 parallel_peptides $1 $2 $3 $4 $5 $6 $7
+sleep 1
+echo WILL NOW RENDER ALL IN FOLDER
+echo WILL NOW RENDER ALL IN FOLDER
+echo WILL NOW RENDER ALL IN FOLDER
+echo WILL NOW RENDER ALL IN FOLDER
+echo WILL NOW RENDER ALL IN FOLDER
+echo WILL NOW RENDER ALL IN FOLDER
+sleep 5
+parallel_peptides * $1 $2 $3 $4 $5 $6 $7
+
 # series_peptides $1 $2 $3 $4 $5 $6 $7 --keyboard
 # series_peptides * $1 $2 $3 $4 $5 $6 $7 --keyboard
 # find_way_peptides $1 $2 $3 $4 $5 $6 $7

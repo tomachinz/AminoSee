@@ -1,8 +1,23 @@
 Thanks to Christos Georghiou who designed the 'See No Evil Hear No Evil Monkeys' http://christosgeorghiou.com/
-    2178
+    2193
  open source node npm packages used. 
 
-aminosee@1.18.3 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
+aminosee@1.18.4 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
+├─┬ @gmod/indexedfasta@1.0.13
+│ ├─┬ @babel/runtime-corejs2@7.4.5
+│ │ ├── core-js@2.6.8 deduped
+│ │ └── regenerator-runtime@0.13.2
+│ ├─┬ @gmod/bgzf-filehandle@1.2.4
+│ │ ├─┬ @babel/runtime@7.4.5
+│ │ │ └── regenerator-runtime@0.13.2 deduped
+│ │ ├── es6-promisify@6.0.1 deduped
+│ │ ├─┬ fs-extra@7.0.1
+│ │ │ ├── graceful-fs@4.1.15 deduped
+│ │ │ ├── jsonfile@4.0.0 deduped
+│ │ │ └── universalify@0.1.2 deduped
+│ │ ├── long@4.0.0
+│ │ └── pako@1.0.10
+│ └── es6-promisify@6.0.1
 ├─┬ ascii-histogram@1.2.1
 │ └── printf@0.1.3
 ├─┬ async-kit@2.2.4
@@ -858,7 +873,7 @@ aminosee@1.18.3 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
 ├─┬ jimp@0.6.4
 │ ├─┬ @babel/polyfill@7.4.4
 │ │ ├── core-js@2.6.8 deduped
-│ │ └── regenerator-runtime@0.13.2
+│ │ └── regenerator-runtime@0.13.2 deduped
 │ ├─┬ @jimp/custom@0.6.4
 │ │ ├─┬ @jimp/core@0.6.4
 │ │ │ ├─┬ @jimp/utils@0.6.4
