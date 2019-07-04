@@ -149,16 +149,29 @@ function populateArgs(procArgv) { // returns args
   } // NUMERIC INPUTS: codons, magnitude, width,     string: [ 'width'],    string: [ 'magnitude'],    string: [ 'codons'],
   console.log(procArgv.slice(2))
   console.log(process.argv.slice(2))
+  // return minimist(process.argv.slice(2), options);
   return minimist(procArgv.slice(2), options);
 }
 function bruteForce(cs) {
   let pepTable = data.pepTable;
   output("Fast Batch Enabled. Length: " + pepTable.length);
-  for (i=1; i < pepTable.length-1; i++) {
+  for (i=1; i < data.pepTable.length-1; i++) {
+    let pep =  data.pepTable[i].Codon
     setTimeout( () => {
-      out( ` > ` + pepTable[i].Codon );
-      pushCli(`${cs} ${cs} ${cs} --peptide="${ spaceTo_( pepTable[i].Codon ) }" `)
-    }, 200 * i)
+      output( ` > ` + pep);
+      let job = { _: [ cs ],
+        peptide: pep,
+        quiet: true,
+        q: false,
+        gui: false,
+        keyboard: false,
+        k: false,
+        progress: false,
+        redraw: true,
+        updates: false,
+      }
+      addJob( job );
+    }, 100 * i)
   }
 }
 function pushCli(cs) { // used by Electron GUI
@@ -171,23 +184,21 @@ function pushCli(cs) { // used by Electron GUI
   log(`pushCli: ${jobArgs.toString()}`);
   log(jobArgs);
 
-  for (i=2; i < commandArray.length; i++) {
+  for (i=0; i < commandArray.length; i++) {
     let job = commandArray[i];
     if (charAtCheck(job)) { // no files can start with - first char filename
-      if (fileSystemChecks(job)) {
+      // if (fileSystemChecks(job)) {
       log(`pushing job into render queuee: [${job}]`)
       jobArgs._.push(job)
-      } else {
-        log(`umm: [${job}]`)
-      }
+      // } else {
+      //   log(`umm: [${job}]`)
+      // }
     } else {
       log(`configuring parameter: [${job}]`)
     }
   }
 
-  commandArray.forEach((job) => { // this is done because minimist filters out the files but not flags/options
 
-  })
   // let thread = addJob(jobArgs);
   let thread = addJob(populateArgs (commandString));
   threads.push( thread );
@@ -626,7 +637,6 @@ class AminoSeeNoEvil {
         // default was always fairly graphical :)
       } else {
         output("Disabled the graphical user interface")
-        openFile = false;
         this.openHtml = false;
         this.openFileExplorer = false;
         this.openImage = false;
@@ -2620,8 +2630,8 @@ class AminoSeeNoEvil {
       } else {
 
       }
-      log(`If process hangs, remove this line, its preventing a process exit. Reason: ${reason}. But I wasn't in a rush to terminate all that.`)
-      return true;
+      // log(`If process hangs, remove this line, its preventing a process exit. Reason: ${reason}. But I wasn't in a rush to terminate all that.`)
+      // return true;
     } else {
       log(chalk.bgWhite.red (`process.exit going on. last file: ${ this.filename } currently: ${this.busy()} percent complete ${  this.percentComplete}`));
     }

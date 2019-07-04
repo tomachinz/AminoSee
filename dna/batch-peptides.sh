@@ -1,6 +1,8 @@
 #!/bin/sh
 aminosee_do () {
   echo $1 $2 $3 $4 $5 $6 $7  --no-image --no-html --no-explorer
+  nice aminosee  $1 $2 $3 $4 $5 $6 $7 --no-image --no-html --no-explorer -c200 &
+  sleep 1
   nice aminosee  $1 $2 $3 $4 $5 $6 $7 --no-image --no-html --no-explorer
 }
 best_way () {

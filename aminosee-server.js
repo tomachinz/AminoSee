@@ -37,13 +37,13 @@ let port = 4321;
     data.saySomethingEpic();
     let sFiles = [
       { "source": appPath + 'public',            "dest": outputPath + '/public' },
-      { "source": appPath + 'public/home.html', "dest": process.cwd() + '/index.html' },
+      { "source": appPath + 'public/home.html', "dest": outputPath + '/home.html' },
       { "source": appPath + 'public/favicon.ico',"dest": outputPath + '/favicon.ico' },
     ];
     for (i=0; i<sFiles.length; i++) {
       let element = sFiles[i]
       log('buildling ' + element.source );//.toString());
-      // aminosee.createSymlink(path.normalize(path.resolve(element.source)), path.normalize(path.resolve(element.dest)));
+      createSymlink(path.normalize(path.resolve(element.source)), path.normalize(path.resolve(element.dest)));
     }
 
   }
