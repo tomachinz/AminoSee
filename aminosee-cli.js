@@ -94,7 +94,7 @@ const testFilename = "AminoSeeTestPatterns"; // for some reason this needs to be
 const openLocalHtml = true;
 const maxWindowsToOpen = 10;
 let opens = 0; // session local counter to avoid having way too many windows opened.
-let isElectron, status, args, killServersOnQuit, webserverEnabled, cliInstance, tx, ty, termPixels, cliruns, gbprocessed, projectprefs, userprefs, genomes, progato, commandString, batchSize;
+let isElectron, status, args, killServersOnQuit, webserverEnabled, cliInstance, tx, ty, termPixels, cliruns, gbprocessed, projectprefs, userprefs, genomes, progato, commandString, batchSize, previousImage;
 let dnaTriplets = data.dnaTriplets;
 termPixels = 69;
 tx = ty = cliruns = gbprocessed = 0;
@@ -672,7 +672,7 @@ class AminoSeeNoEvil {
         } catch(err) {
           this.resetAndPop(`not a file`);
         }
-        this.lookForWork('Ω first command ॐ')
+        this.prepareState('Ω first command ॐ')
       } else if ( this.test == true ) {
         output('Ω Running test Ω')
         this.generateTestPatterns(bugout);
@@ -749,7 +749,7 @@ class AminoSeeNoEvil {
 
     resized(tx, ty) {
       this.clearCheck();
-      this.termDrawImage();
+      termDrawImage();
 
       termSize();
       this.setDebugCols();
@@ -1388,6 +1388,7 @@ class AminoSeeNoEvil {
 
       if (doesFileExist(this.filenamePNG) && this.force == false) {
         let msg = `Already rendered ${ maxWidth(60, this.justNameOfPNG) }. `
+        termDrawImage(this.filenamePNG);
         this.isHilbertPossible = false;
         openOutputs(this);
         this.popAndPollOrBust(msg);
@@ -1465,8 +1466,8 @@ class AminoSeeNoEvil {
       this.quit(0, reason);
     }
   }
-  lookForWork( reason ) {
-    mode(`Look for work reason: ${reason}`);
+  prepareState( reason ) {
+    mode(`Preparing for work reason: ${reason}`);
     if ( this.renderLock == true ) { // re-entrancy filter
       this.error('look thread re-rentry: ' + reason);
     }
@@ -1476,27 +1477,20 @@ class AminoSeeNoEvil {
     if (this.howMany <= 0) {
       mode('Happiness.');
       log(chalk.bgRed.yellow(status));
-      // this.printRadMessage(status)
-      // this.quit(0, status)
+      this.printRadMessage(status)
+      this.quit(0, status)
       return false;
     }
+
     let file = this.args._[0].toString();
     if ( file == funknzlabel ) {
+      this.error('funknzlabel')
       // this.popAndPollOrBust('funknzlabel ' + file);
       return false;
     }
-    if ( this.currentFile == undefined) {
-      // this.quit(1, status)
-      return false;
-    }
-    if (charAtCheck(file) == false) {
-      output('Problem with file: ' + file)
-    } else {
-      out("no problem: "  + file)
-    }
     this.currentFile = file;
     this.filename = path.resolve(file);
-    this.pollForStream(`Look for work: ${this.status}`);
+    this.pollForStream(`Ready: ${this.status}`);
     return false;
 
     // if (!doesFileExist(path.resolve(this.currentFile))) {
@@ -1508,7 +1502,7 @@ class AminoSeeNoEvil {
     // try {
     //   this.howMany = this.args._.length;
     // } catch(e) {
-    //   mode(`lookForWork caught  this.error: ${e}`);
+    //   mode(`prepareState caught  this.error: ${e}`);
     //   bugtxt(status)
     //   this.quit(0, status)
     //   return false;
@@ -2426,7 +2420,7 @@ class AminoSeeNoEvil {
       cb
     );
     if ( this.msElapsed > 5000) {
-      this.termDrawImage();
+      termDrawImage();
     }
     if ( !this.quiet ) {
       term.saveCursor()
@@ -2471,6 +2465,7 @@ class AminoSeeNoEvil {
 
   popAndPollOrBust(reason) { // ironic its now a .shift()
     // pop the array, the poll for stream or quit
+    output( this.busy() )
     let file;
     out('pop +' + reason)
     if ( this.test ) {
@@ -2507,7 +2502,7 @@ class AminoSeeNoEvil {
     // if ( fileSystemChecks(this.filename) == true ) {
       // this.popAndPollOrBust(`failed filesystem checks`);
     // } else {
-      this.lookForWork(`chompsky`); // <<<<-------------- THATS WHERE THE ACTION GOES
+      this.prepareState(`chompsky`); // <<<<-------------- THATS WHERE THE ACTION GOES
     // }
 
 
@@ -3232,7 +3227,7 @@ class AminoSeeNoEvil {
     } catch(e) {
       output(`Failure during recycling: ${e} will poll for work`);
       this.isDiskFinHilbert = true;
-      // this.lookForWork(`recycle fail`);
+      // this.prepareState(`recycle fail`);
       this.pollForStream(`recycle fail`)
       return false;
     }
@@ -3354,7 +3349,7 @@ class AminoSeeNoEvil {
       this.isDiskFinHilbert = true;
       this.previousImage = this.filenameHILBERT;
       var closure = () => { return this.filenameHILBERT }
-      this.termDrawImage(closure);
+      termDrawImage(closure);
       cb();
       return false;
     }
@@ -3441,7 +3436,7 @@ class AminoSeeNoEvil {
     mode(`Hilbert curve done. Waiting on (${ this.storage()})`);
     this.isDiskFinHilbert = true;
     this.previousImage = this.filenameHILBERT;
-    // this.termDrawImage()
+    // termDrawImage()
     this.postRenderPoll('hilbertFinished ' + this.filenameHILBERT);
   }
 
@@ -3449,7 +3444,7 @@ class AminoSeeNoEvil {
     this.isDiskFinLinear = true;
     if ( this.artistic) {
       this.previousImage = this.filenamePNG;
-      this.termDrawImage()
+      termDrawImage()
     }
     if ( this.test ) {
       mode(`Calibration linear generation done. Waiting on (${ this.storage()})`);
@@ -3458,21 +3453,7 @@ class AminoSeeNoEvil {
     }
     this.postRenderPoll('linearFinished ' + this.filenamePNG);
   }
-  termDrawImage(fullpath) {
-    var that = gimmeDat();
-    if (fullpath === undefined) { fullpath = that.previousImage }
-    if (fullpath === undefined) { return false }
-    // if ( that.force == true) { return false }
-    if ( that.quiet == true ) { return false }
-    that.previousImage = fullpath;
-    term.clear()
-    bugout(that.previousImage)
-    term.moveTo( 0, 0 );
-    var closure = () => { that.previousImage }
-    term.drawImage( that.previousImage , { shrink: { width: term.width,  height: term.height } } )
-    output("Previous image: " +  basename(that.previousImage))
-    // term.restoreCursor()
-  }
+
   bothKindsTestPattern( cb ) {
     if (this.renderLock == false) {
       this.error("error render lock fail in test patterns")
@@ -3796,7 +3777,7 @@ class AminoSeeNoEvil {
       this.testStop();
       // this.saveHTML(this.openOutputs);
       // openOutputs(this);
-      // this.termDrawImage();
+      // termDrawImage();
       if ( cb !== undefined ) { cb() }
       // this.quit(0);
       return false;
@@ -5382,7 +5363,17 @@ function bugout(txt) {
       cliInstance.quit(130);
       process.exit(); // this.now the "exit" event will fire
     });
-
+    function termDrawImage(fullpath) {
+      if (fullpath === undefined) { fullpath = previousImage }
+      if (fullpath === undefined) { return false }
+      // if ( that.force == true) { return false }
+      if ( this.quiet == true ) { out('quiet'); return false; }
+      previousImage = fullpath;
+      term.clear()
+      term.moveTo( 0, 0 );
+      term.drawImage( previousImage, { shrink: { width: term.width,  height: term.height } } )
+      log("image: " +  basename(previousImage))
+    }
     module.exports.createSymlink = createSymlink;
     module.exports.log = log;
     module.exports.output = output;
