@@ -24,6 +24,7 @@ const doesFolderExist = data.doesFolderExist;
 const createSymlink = data.createSymlink;
 const asciiart = data.asciiart;
 let saySomethingEpic = data.saySomethingEpic;
+let isElectron, status, args, killServersOnQuit, webserverEnabled, cliInstance, tx, ty, termPixels, cliruns, gbprocessed, projectprefs, userprefs, genomes, progato, commandString, batchSize, previousImage, quiet, url;
 const debug = false; // should be false for PRODUCTION
 // OPEN SOURCE PACKAGES FROM NPM
 const path = require('path');
@@ -44,7 +45,6 @@ const fetch = require("node-fetch");
 const keypress = require('keypress');
 const open = require('open'); //path-to-executable/xdg-open
 const parse = require('parse-apache-directory-index');
-// const fs = require('fs')
 const fs = require('fs-extra'); // drop in replacement = const fs = require('fs')
 const request = require('request');
 const histogram = require('ascii-histogram');
@@ -91,10 +91,9 @@ const max32bitInteger = 2147483647;
 const minUpdateTime = 2000;
 const defaultFilename = "dna/megabase.fa"; // for some reason this needs to be here. hopefully the open source community can come to rescue and fix this Kludge.
 const testFilename = "AminoSeeTestPatterns"; // for some reason this needs to be here. hopefully the open source community can come to rescue and fix this Kludge.
-const openLocalHtml = true;
+const openLocalHtml = false; // affects auto-open HTML.
 const maxWindowsToOpen = 10;
 let opens = 0; // session local counter to avoid having way too many windows opened.
-let isElectron, status, args, killServersOnQuit, webserverEnabled, cliInstance, tx, ty, termPixels, cliruns, gbprocessed, projectprefs, userprefs, genomes, progato, commandString, batchSize, previousImage, quiet;
 let dnaTriplets = data.dnaTriplets;
 termPixels = 69;
 tx = ty = cliruns = gbprocessed = 0;
@@ -139,6 +138,7 @@ function populateArgs(procArgv) { // returns args
     boolean: [ 'test' ],
     boolean: [ 'updates' ],
     boolean: [ 'verbose' ],
+    string: [ 'url'],
     string: [ 'outpath'],
     string: [ 'triplet'],
     string: [ 'peptide'],
@@ -182,7 +182,7 @@ function pushCli(cs) { // used by Electron GUI
   // let commandArray = [`node`, `aminosee`, commandString];
   let jobArgs = populateArgs(commandArray);
   log(`pushCli: ${jobArgs.toString()}`);
-  log(jobArgs);
+  // log(jobArgs);
 
   for (i=0; i < commandArray.length; i++) {
     let job = commandArray[i];
@@ -243,17 +243,17 @@ class AminoSeeNoEvil {
       this.args = args; // populateArgs(procArgv);// this.args;
       webserverEnabled = false;
 
+      batchSize = this.howMany;
+      isShuttingDown = false;
 
       this.usersPeptide = "not set"
       this.usersTriplet = "not set"
       this.percentComplete = 0;
       this.howMany = args._.length;
-      batchSize = this.howMany;
       this.loopCounter = 0;
       this.startDate = new Date(); // required for touch locks.
       this.started = this.startDate.getTime(); // required for touch locks.
       this.rawDNA = "this aint sushi";
-      isShuttingDown = false;
       this.termDisplayHeight = 31;
       this.termStatsHeight = 9;
       this.timestamp = Math.round(+new Date()/1000);
@@ -330,7 +330,17 @@ class AminoSeeNoEvil {
       } else {
         this.debug = false;
       }
-
+      url = projectprefs.aminosee.url;
+      if (url === undefined) {
+        url = `http://localhost:8888/aminosee/output/`;
+      }
+      if ( args.url ) {
+        url = args.url;
+        projectprefs.aminosee.url = url;
+        output(`Custom URL set: ${url}`);
+      } else {
+        output(`Using URL prefix: ${url}`)
+      }
       if ( args.progress) {
         this.updateProgress = true; // whether to show the progress bars
         log('progress bars enabled');
@@ -592,6 +602,7 @@ class AminoSeeNoEvil {
       }
       if ( args.serve || args.s) {
         webserverEnabled = true;
+        output("Output path: "+ this.outputPath)
         server.start( this.outputPath );
         // server.blockingServer();
         // this.blockingServer();
@@ -628,9 +639,9 @@ class AminoSeeNoEvil {
       // test = this.test;
       if ( args.stop ) {
         if (this) {
-          this.quit(130)
+          this.gracefulQuit(130)
         } else {
-          cliInstance.quit(130);
+          cliInstance.gracefulQuit(130);
         }
       }
       if ( args.gui) {
@@ -672,7 +683,8 @@ class AminoSeeNoEvil {
       if ( args.brute ) {
         bruteForce( args._[0] )
       }
-      console.log(args)
+
+      bugtxt(args)
 
       if ( this.howMany > 0 ) {
         output(chalk.green(`${chalk.underline("Job items:")} ${this.howMany}`))
@@ -824,6 +836,7 @@ class AminoSeeNoEvil {
         refimage:  this.justNameOfHILBERT,
         linearimage: this.justNameOfPNG,
         runid: this.timestamp,
+        url: url,
         cliruns: cliruns,
         gbprocessed: gbprocessed,
         genomes: genomes,
@@ -1169,7 +1182,7 @@ class AminoSeeNoEvil {
     }
     gracefulQuit(code) {
       if (code == undefined) { code = 0; }
-      mode( "Graceful shutdown in progress...");
+      mode( `Graceful shutdown in progress... ${threads.length} threads`);
       var that = this;
       isShuttingDown = true;
       bugtxt(status);
@@ -1623,8 +1636,8 @@ class AminoSeeNoEvil {
       }
       this.progUpdate({ title: 'DNA File Render step 1/3', items: this.howMany, syncMode: true })
       setTimeout(() => {
-        that.manageLocks(5000)
-      }, 2000);
+        that.manageLocks(10000) // 10 seconds
+      }, 5000);
     }
   }
   manageLocks(time) {
@@ -1897,7 +1910,8 @@ class AminoSeeNoEvil {
     this.filenameHTML =    this.qualifyPath( this.generateFilenameHTML()   );
     this.filenamePNG =     this.qualifyPath(`images/${ this.generateFilenamePNG()     }`);
     this.filenameHILBERT = this.qualifyPath(`images/${ this.generateFilenameHilbert() }`);
-    this.fancyFilenames();
+    this.fullURL          = `${url}/${this.justNameOfDNA}/${this.justNameOfHTML}`;
+    // this.fancyFilenames();
     this.setNextFile();
   }
   qualifyPath(f) {
@@ -2140,7 +2154,9 @@ class AminoSeeNoEvil {
     output('     aminosee help   <<-----           (shows this docs message');
     output('     aminosee *         (render all files with default settings');
     term.down( this.termStatsHeight);
-    this.printRadMessage( [ `software version ${version}` ] );
+    if ( this.quiet == false) {
+      this.printRadMessage( [ `software version ${version}` ] );
+    }
     if ( this.help == true) {
       this.openHtml = true;
       this.openImage = true;
@@ -2173,6 +2189,7 @@ class AminoSeeNoEvil {
     output(chalk.rgb(150,150,150).inverse(  fixedWidth( this.debugColumns*2, `Hilbert PNG: ${ this.justNameOfHILBERT }`)));
     output(chalk.rgb(100,100,180).inverse.underline(  fixedWidth( this.debugColumns*2, `HTML ${ this.filenameHTML }`)));
     output(chalk.rgb(80,80,120).bgBlue.inverse(fixedWidth( this.debugColumns*2, `${ this.filenameTouch }`)));
+    output(chalk.rgb(0,0,128).bgWhite.inverse(fixedWidth( this.debugColumns*2, `${ this.fullURL }`)));
   }
   setIsDiskBusy(boolean) {
     if (boolean) { // busy!
@@ -4406,6 +4423,8 @@ class AminoSeeNoEvil {
     return dnaTriplets.indexOf( str )
   }
   // take 3 letters, convert into a Uint8ClampedArray with 4 items
+
+
   codonToRGBA(cod) {
     // STOP CODONS are hard coded as   index 24 in this.pepTable array       "Description": "One of Opal, Ochre, or Amber",
     // START CODONS are hard coded as  ndex 23 in this.pepTable array       "Description": "Count of Methionine",
@@ -4827,7 +4846,8 @@ function bugout(txt) {
     projectprefs = new Preferences('nz.funk.aminosee.project', {
       aminosee: {
         opens: 0,
-        genomes: [ `megabase`, '50KB_TestPattern' ]
+        genomes: [ `megabase`, '50KB_TestPattern' ],
+        url: `http://localhost:8888/aminosee/output/`
       }
     }, {
       encrypt: false,
@@ -4852,6 +4872,7 @@ function bugout(txt) {
     cliruns = userprefs.aminosee.cliruns;
     gbprocessed  = userprefs.aminosee.gbprocessed;
     genomes = projectprefs.aminosee.genomes;
+    url = projectprefs.aminosee.url
   }
   function logo() {
     return `${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196).inverse("See")}${chalk.rgb(128,128,128).inverse("No")}${chalk.grey.inverse("Evil")}       v${chalk.rgb(255,255,0).inverse(version)}`;
@@ -5222,17 +5243,21 @@ function bugout(txt) {
 
     if ( that.openHtml == true) {
       output(`Opening ${ that.justNameOfHTML} DNA render summary HTML report.`);
-      setImmediate( () => {
+      // setImmediate( () => {
         // server.start( that.outputPath );
-      })
+      // })
       that.opensHtml++;
       projectprefs.aminosee.opens++; // increment open counter.
       // open( server.getServerURL( that.justNameOfDNA), { wait: false } );
       if (openLocalHtml == true) {
-        that.opensFile++;
         open( that.filenameHTML, {app: 'firefox', wait: false}).then(() => {
           log("browser closed");
         }).catch(function () {  that.error("open( that.filenameHTML)")});
+      } else {
+        open( url + that.justNameOfDNA + `/main.html`, {app: 'firefox', wait: false}).then(() => {
+          log("browser closed");
+        }).catch(function () {  that.error("open( that.filenameHTML)")});
+
       }
     } else {
       log(`Not opening HTML`)
@@ -5380,6 +5405,9 @@ function bugout(txt) {
       }
       return "none";
     }
+    function gracefulQuit(code) {
+      cliInstance.gracefulQuit(code);
+    }
     module.exports.createSymlink = createSymlink;
     module.exports.log = log;
     module.exports.output = output;
@@ -5389,3 +5417,4 @@ function bugout(txt) {
     module.exports.bruteForce = bruteForce;
     module.exports.terminalRGB = terminalRGB;
     module.exports.showCountdown = showCountdown;
+    module.exports.gracefulQuit = gracefulQuit;
