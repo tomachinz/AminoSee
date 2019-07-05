@@ -2670,12 +2670,13 @@ class AminoSeeNoEvil {
     this.destroyProgress();
     process.exitCode = code;
     this.removeLocks();
+    destroyKeyboardUI();
+
     if (code > 0) {
       setImmediate(() => {
         setTimeout( () => {
           process.stdout.write(`${code} ${reason}`)
           this.args._ = [];
-          destroyKeyboardUI();
           term.processExit(code);
           process.exit()
         }, this.raceDelay  * 2)
