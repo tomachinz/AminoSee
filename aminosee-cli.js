@@ -181,7 +181,8 @@ function pushCli(cs) { // used by Electron GUI
   let commandArray = commandString.split(" ");
   // let commandArray = [`node`, `aminosee`, commandString];
   let jobArgs = populateArgs(commandArray);
-  log(`pushCli: ${jobArgs.toString()}`);
+  // log(`pushCli: ${jobArgs.toString()} commandString: ${commandString}`);
+  log(`Command: ${commandString}`);
   // log(jobArgs);
 
   for (i=0; i < commandArray.length; i++) {
@@ -1652,7 +1653,7 @@ class AminoSeeNoEvil {
           that.tLock();
           that.manageLocks(time*2)
         } else {
-          log('No more this.updates scheduled after 90% with less than 20 seconds to go. Current at ' + that.nicePercent() + ' time remain: ' + humanizeDuration( that.timeRemain))
+          log('Over 90% done / less than 20 seconds: ' + that.nicePercent() + ' time remain: ' + humanizeDuration( that.timeRemain))
         }
       } else {
         out("Stopped")
@@ -4385,8 +4386,9 @@ class AminoSeeNoEvil {
   isNormalTriplet(normaltrip) {
     return dnaTriplets => dnaTriplets.DNA.toUpperCase() === normaltrip.toUpperCase();
   }
-  nicePercent() {
-    return minWidth(5, (Math.round(  this.percentComplete*1000) / 10) + "%");
+  nicePercent(percent) {
+    if (percent == undefined) { percent = this.percentComplete }
+    return minWidth(5, (Math.round(  percent*1000) / 10) + "%");
   }
   tidyTripletName(str) {
     for ( let i =0; i < dnaTriplets.length; i++) {
