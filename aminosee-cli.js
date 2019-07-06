@@ -24,14 +24,13 @@ const doesFolderExist = data.doesFolderExist;
 const createSymlink = data.createSymlink;
 const asciiart = data.asciiart;
 let saySomethingEpic = data.saySomethingEpic;
-let isElectron, status, args, killServersOnQuit, webserverEnabled, cliInstance, tx, ty, termPixels, cliruns, gbprocessed, projectprefs, userprefs, genomes, progato, commandString, batchSize, previousImage, quiet, url;
+let isElectron, status, jobArgs, killServersOnQuit, webserverEnabled, cliInstance, tx, ty, termPixels, cliruns, gbprocessed, projectprefs, userprefs, genomes, progato, commandString, batchSize, previousImage, quiet, url;
 const debug = false; // should be false for PRODUCTION
 // OPEN SOURCE PACKAGES FROM NPM
 const path = require('path');
 const Preferences = require("preferences");
 const spawn = require('cross-spawn');
 const stream = require('stream');
-const util = require('util');
 const async = require('async-kit'); // amazing lib
 const term = require('terminal-kit').terminal;
 const MyManHilbert = require('hilbert-2d'); // also contains magic
@@ -40,7 +39,6 @@ const Writable = require('stream').Writable
 const Transform = require('stream').Transform
 const es = require('event-stream');
 const minimist = require('minimist')
-const highland = require('highland')
 const fetch = require("node-fetch");
 const keypress = require('keypress');
 const open = require('open'); //path-to-executable/xdg-open
@@ -59,7 +57,6 @@ const clog = console.log;
 const chalk = require('chalk');
 const obviousFoldername = "/AminoSee_Output"; // descriptive for users
 const netFoldername = "/output"; // terse for networks
-let express = require('express');
 let bodyParser = require('body-parser');
 // const gv = require('genversion');
 // const Jimp = require('jimp');
@@ -138,12 +135,13 @@ function populateArgs(procArgv) { // returns args
     boolean: [ 'test' ],
     boolean: [ 'updates' ],
     boolean: [ 'verbose' ],
+    boolean: [ 'view' ],
     string: [ 'url'],
     string: [ 'outpath'],
     string: [ 'triplet'],
     string: [ 'peptide'],
     string: [ 'ratio'],
-    alias: { a: 'artistic', b: 'dnabg', c: 'codons', d: 'devmode', f: 'force', h: 'help', k: 'keyboard', m: 'magnitude', o: 'outpath', out: 'outpath', output: 'outpath', p: 'peptide', i: 'image', t: 'triplet', u: 'updates', q: 'quiet', r: 'reg', w: 'width', v: 'verbose', x: 'explorer', finder: 'explorer'  },
+    alias: { a: 'artistic', b: 'dnabg', c: 'codons', d: 'devmode', f: 'force', h: 'help', k: 'keyboard', m: 'magnitude', o: 'outpath', out: 'outpath', output: 'outpath', p: 'peptide', i: 'image', t: 'triplet', u: 'updates', q: 'quiet', r: 'reg', w: 'width', v: 'verbose', x: 'explorer', finder: 'explorer', view: 'html'  },
     default: { html: false, image: false, dnabg: true, clear: true, explorer: false, quiet: false, gui: true, keyboard: false, progress: false, redraw: true, updates: true },
     stopEarly: false
   } // NUMERIC INPUTS: codons, magnitude, width,     string: [ 'width'],    string: [ 'magnitude'],    string: [ 'codons'],
@@ -181,10 +179,10 @@ function pushCli(cs) { // used by Electron GUI
 
   let commandArray = commandString.split(" ");
   // let commandArray = [`node`, `aminosee`, commandString];
-  let jobArgs = populateArgs(commandArray);
+  jobArgs = populateArgs(commandArray);
   // log(`pushCli: ${jobArgs.toString()} commandString: ${commandString}`);
   log(`Command: ${commandString}`);
-  // log(jobArgs);
+  log(jobArgs);
 
   for (i=0; i < commandArray.length; i++) {
     let job = commandArray[i];
@@ -206,17 +204,17 @@ function pushCli(cs) { // used by Electron GUI
   threads.push( thread );
 }
 function setupApp() {
-  this.progato = term.progressBar( {
-    width: 80 ,
-    title: 'Daily tasks:' ,
-    eta: true ,
-    percent: true ,
-    items: this.howMany
-  } ) ;
+  // progato = term.progressBar( {
+  //   width: 80 ,
+  //   title: 'Daily tasks:' ,
+  //   eta: true ,
+  //   percent: true ,
+  //   items: this.howMany
+  // } ) ;
 }
-function addJob( jobArgs ) { // used node and CLI tool.
+function addJob( job ) { // used node and CLI tool.
   cliInstance = new AminoSeeNoEvil();
-  cliInstance.setupJob( jobArgs ); // do stuff that is needed even just to run "aminosee" with no options.
+  cliInstance.setupJob( job ); // do stuff that is needed even just to run "aminosee" with no options.
   return cliInstance;
 }
 
@@ -737,31 +735,29 @@ class AminoSeeNoEvil {
     setupProgress() {
       if ( this.updateProgress == true) {
 
-        let thingsToDo = [
-        	'update my lib' ,
-        	'data analyzing' ,
-        	'serious business' ,
-        	'decrunching data' ,
-        	'do my laundry' ,
-        	'optimizing'
-        ];
-
-        let countDown = this.howMany ;
-
-        this.progato = term.progressBar( {
-        	width: 80 ,
-        	title: 'Daily tasks:' ,
-        	eta: true ,
-        	percent: true ,
-        	items: this.howMany
-        } ) ;
-
-        this.startProgress();
+        // let thingsToDo = [
+        // 	'update my lib' ,
+        // 	'data analyzing' ,
+        // 	'serious business' ,
+        // 	'decrunching data' ,
+        // 	'do my laundry' ,
+        // 	'optimizing'
+        // ];
+        //
+        // let countDown = this.howMany ;
+        // progato = term.progressBar( {
+        // 	width: 80 ,
+        // 	title: 'Daily tasks:' ,
+        // 	eta: true ,
+        // 	percent: true ,
+        // 	items: this.howMany
+        // } ) ;
+        // this.startProgress();
 
 
 
 
-        // this.progato = term.progressBar({
+        // progato = term.progressBar({
         //   width: term.width - 20,
         //   title: `Booting up at ${ formatAMPM( new Date())} on ${hostname}`,
         //   eta: true,
@@ -773,33 +769,33 @@ class AminoSeeNoEvil {
         // this.drawProgress();
       }
     }
-    startProgress() {
-      if ( this.howMany < 0 ) { return false }
-      let task = this.currentFile
-      this.progato.startItem( task ) ;
-
-      // Finish the task in...
-      setTimeout( this.doneProgress.bind( null , this.currentFile ) , 500 + Math.random() * 1200 ) ;
-
-      // Start another parallel task in...
-      setTimeout( this.startProgress , 400 + Math.random() * 400 ) ;
-    }
-
-
-    doneProgress( task ) {
-      this.progato.itemDone( task ) ;
-
-      if ( this.howMany < 0 ) {
-        setTimeout( function() { term( '\n' ) ; process.exit() ; } , 200 ) ;
-      }
-    }
+    // startProgress() {
+    //   if ( this.howMany < 0 ) { return false }
+    //   let task = this.currentFile
+    //   progato.startItem( task ) ;
+    //
+    //   // Finish the task in...
+    //   setTimeout( this.doneProgress.bind( null , this.currentFile ) , 500 + Math.random() * 1200 ) ;
+    //
+    //   // Start another parallel task in...
+    //   setTimeout( this.startProgress , 400 + Math.random() * 400 ) ;
+    // }
+    //
+    //
+    // doneProgress( task ) {
+    //   progato.itemDone( task ) ;
+    //
+    //   if ( this.howMany < 0 ) {
+    //     setTimeout( function() { term( '\n' ) ; process.exit() ; } , 200 ) ;
+    //   }
+    // }
     destroyProgress() { // this.now thats a fucking cool name if ever there was!
       // if (this.howMany == -1) {
       // }
       if ( this.updateProgress == true) {
-        if ( this.progato !== undefined) {
-          this.progato.stop();
-          //  this.progato = null;
+        if ( progato !== undefined) {
+          progato.stop();
+          //  progato = null;
         }
       }
       clearTimeout( this.updatesTimer);
@@ -1020,10 +1016,10 @@ class AminoSeeNoEvil {
 
     progUpdate(obj) {  // allows to disable all the prog bars in one place
       if ( this.updateProgress == true) {
-        if ( this.progato !== undefined && obj !== undefined) {
+        if ( progato !== undefined && obj !== undefined) {
           this.fastUpdate();
           redoLine(`Progress ${obj}`)
-          this.progato.update(obj);
+          progato.update(obj);
         }
       } else {
         bugtxt(`progress dummy function: ${obj}`)
@@ -1588,7 +1584,7 @@ class AminoSeeNoEvil {
     this.autoconfCodonsPerPixel();
     this.autoconfCodonsPerPixel();
     this.mkRenderFolders(); // create /images etc
-    this.setupProgress();
+    // this.setupProgress();
     this.rawDNA = "@"
     this.extension = this.getFileExtension( this.currentFile );
     this.percentComplete = 0;
@@ -4229,7 +4225,7 @@ class AminoSeeNoEvil {
 
   drawProgress() {
     this.fastUpdate();
-    this.progato.update(  this.percentComplete ) ;
+    progato.update(  this.percentComplete ) ;
 
     if (this.howMany >= 0 ) {
       clearTimeout( this.progTimer)
@@ -4238,7 +4234,7 @@ class AminoSeeNoEvil {
           this.drawProgress();
           // electron.updatePercent( this.percentComplete )
         } else {
-          this.progato.stop();
+          progato.stop();
         }
       }, 500);
     }
