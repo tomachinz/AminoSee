@@ -46,7 +46,7 @@
     "ascii-histogram": "^1.2.1",
     "async-kit": "^2.2.4",
     "body-parser": "^1.19.0",
-    "browserify": "^16.2.3",
+    "browserify": "^16.3.0",
     "bytes": "^3.1.0",
     "chalk": "^2.4.2",
     "cross-spawn": "^6.0.5",
