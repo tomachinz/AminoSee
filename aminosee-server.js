@@ -253,7 +253,6 @@ function terminalRGB(_text, _r, _g, _b) {
     return chalk.rgb(_r,_g,_b)(_text);
 };
 function symlinkGUI(cb) { // does:  ln -s /Users.....AminoSee/public, /Users.....currentWorkingDir/output/public
-    this.mkRenderFolders();
     this.mkdir('public')
     let fullSrc, fullDest;
     fullSrc = path.normalize( path.resolve(appPath + '/public') );

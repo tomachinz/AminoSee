@@ -87,7 +87,6 @@ function showOpenFolderDialog() {
 function showOpenDialog() {
   const options = {
     title: 'Open multiple DNA files or folders',
-    buttonLabel: 'Convert DNA to Image with AminoSee',
     filters: [
     { name: 'All Files', extensions: ['*'] }
 
@@ -101,26 +100,30 @@ function showOpenDialog() {
     //   { name: 'GB',  extensions: ['gb'] },
     //   { name: 'DNA', extensions: ['dna'] }
     ],
-    buttonLabel : "Process DNA",
+    buttonLabel : "Render DNA",
     defaultPath : "dna",
     properties: [ 'multiSelections', 'openFile', 'openDirectory' ],
     message: 'Any text file containing DNA as ASCII base pairs like: ACGTUacgtu'
   };
-  const selectedPaths = dialog.showOpenDialog();
+  const selectedPaths = dialog.showOpenDialog(options);
   mainWindow.setProgressBar(2); // -1 remove progress, 0-1 is percentage, 2+ means show indeterminate
-  log(`selectedPaths: ${selectedPaths}`)
+  log(`selectedPaths: ${selectedPaths}`);
+  createTerminal();
+
+
   pushCli(selectedPaths);
   // bruteForce(selectedPaths);
 }
-// function pushCli(commandString) {
-//   console.log(`Starting AminoSee now with CLI:`);
-//   commandString = `node aminosee ${commandString} --verbose --html --image`;
-//   console.log(`commandString: [${commandString}]`);
-//   let commandArray = commandString.split("\\s+");
-//   let thread = AminoSeeNoEvil.addJob( commandArray );
-//     thread = AminoSeeNoEvil.addJob( commandArray );
-//   threads.push( thread );
-// }
+function createTerminal() {
+  console.log(`Starting AminoSee now with CLI:`);
+
+    realTerm = require( "terminal-kit" ).realTerminal ;
+    realTerm.blue( "Enter your name: " ) ;
+    realTerm.inputField( function( error , name ) {
+    	realTerm.green( "\nHello %s!\n" , name ) ;
+    	process.exit() ;
+    } ) ;
+}
 function createWindow () {
   const electron = require('electron');
   const { width, height } = electron.screen.getPrimaryDisplay().workAreaSize
