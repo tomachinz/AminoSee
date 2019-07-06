@@ -252,6 +252,27 @@ function serverLock() {
 function terminalRGB(_text, _r, _g, _b) {
     return chalk.rgb(_r,_g,_b)(_text);
 };
+function symlinkGUI(cb) { // does:  ln -s /Users.....AminoSee/public, /Users.....currentWorkingDir/output/public
+    this.mkRenderFolders();
+    this.mkdir('public')
+    let fullSrc, fullDest;
+    fullSrc = path.normalize( path.resolve(appPath + '/public') );
+    fullDest = path.normalize( path.resolve(this.outputPath + '/public') );
+    createSymlink(fullSrc, fullDest);
+    fullSrc = path.normalize( path.resolve(appPath + '/aminosee-gui-web.js') );
+    fullDest = path.normalize( path.resolve(this.outputPath + '/aminosee-gui-web.js') );
+    createSymlink(fullSrc  , fullDest);
+    fullSrc = path.normalize( path.resolve(appPath + '/public/index.html') );
+    fullDest = path.normalize( path.resolve(this.outputPath + '/main.html') ); // Protects users privacy in current working directory
+    createSymlink(fullSrc, fullDest);
+    fullSrc = path.normalize( path.resolve(appPath + '/node_modules') );
+    fullDest = path.normalize( path.resolve(this.outputPath + '/node_modules') ); // MOVES INTO ROOT
+    createSymlink(fullSrc, fullDest);
+    if (cb !== undefined) {
+      cb();
+    }
+  }
+
 module.exports.getServerURL = () => { getServerURL() }
 module.exports.startServeHandler = () => { startServeHandler() }
 module.exports.startCrossSpawnHttp = () => { startCrossSpawnHttp() }

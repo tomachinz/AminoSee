@@ -778,7 +778,7 @@ class AminoSeeNoEvil {
     resized(tx, ty) {
       this.clearCheck();
       termSize();
-      termDrawImage();
+      termDrawImage(this.filenamePNG, `resized`);
       this.setDebugCols();
       tx = term.width; ty = term.height
       output(`Terminal resized: ${tx} x ${ty} and has at least ${termPixels} chars`)
@@ -1528,7 +1528,7 @@ class AminoSeeNoEvil {
     } else { log('Begin') }
     bugtxt("isElectron: " + isElectron  );
     termSize();
-    this.resized();
+    this.termSize();
     mode("Ω first command " + this.howMany + " " + this.currentFile);
     this.setIsDiskBusy( false );
     this.autoconfCodonsPerPixel();
@@ -1916,26 +1916,7 @@ class AminoSeeNoEvil {
     }
   }
 
-  symlinkGUI(cb) { // does:  ln -s /Users.....AminoSee/public, /Users.....currentWorkingDir/output/public
-    this.mkRenderFolders();
-    this.mkdir('public')
-    let fullSrc, fullDest;
-    fullSrc = path.normalize( path.resolve(appPath + '/public') );
-    fullDest = path.normalize( path.resolve(this.outputPath + '/public') );
-    createSymlink(fullSrc, fullDest);
-    fullSrc = path.normalize( path.resolve(appPath + '/aminosee-gui-web.js') );
-    fullDest = path.normalize( path.resolve(this.outputPath + '/aminosee-gui-web.js') );
-    createSymlink(fullSrc  , fullDest);
-    fullSrc = path.normalize( path.resolve(appPath + '/public/index.html') );
-    fullDest = path.normalize( path.resolve(this.outputPath + '/main.html') ); // Protects users privacy in current working directory
-    createSymlink(fullSrc, fullDest);
-    fullSrc = path.normalize( path.resolve(appPath + '/node_modules') );
-    fullDest = path.normalize( path.resolve(this.outputPath + '/node_modules') ); // MOVES INTO ROOT
-    createSymlink(fullSrc, fullDest);
-    if (cb !== undefined) {
-      cb();
-    }
-  }
+
 
   // function startLocalWebServer() { // package lws
   //   fullSrc = path.normalize( path.resolve(appPath + '/public/lws.config.js') );
@@ -2224,6 +2205,8 @@ class AminoSeeNoEvil {
   //     function( cb ) {
   //       server.start( this.outputPath );
   //       // copyGUI(cb);
+  // this.mkRenderFolders();
+
   //       // symlinkGUI(cb);
   //     }
   //   ] )
@@ -2419,7 +2402,7 @@ class AminoSeeNoEvil {
       cb
     );
     if ( this.msElapsed > 10000) {
-      termDrawImage();
+      termDrawImage(this.filenamePNG, `lock file`);
     }
     if ( !this.quiet ) {
       // term.saveCursor()
@@ -3446,13 +3429,9 @@ class AminoSeeNoEvil {
 
   linearFinished() {
     this.isDiskFinLinear = true;
-    if ( this.artistic) {
+    if ( this.artistic || this.quiet == false ) {
       this.previousImage = this.filenamePNG;
-      termDrawImage(this.previousImage)
-    } else {
-      if ( this.quiet == false) {
-        termDrawImage(this.previousImage)
-      }
+      termDrawImage(this.previousImage, `linear finished`)
     }
     if ( this.test ) {
       mode(`Calibration linear generation done. Waiting on (${ this.storage()})`);
@@ -4790,7 +4769,8 @@ function bugout(txt) {
   function runDemo() {
     async.series( [
       function( cb ) {
-        // addJob('test')
+        addJob('test')
+        cb()
       },
       function( cb ) {
         this.openImage = true;
@@ -4798,7 +4778,6 @@ function bugout(txt) {
         this.ratio = 'sqr';
         this.generateTestPatterns(cb);
         openOutputs(this);
-
       },
       function( cb ) {
         // this.openImage = true;
@@ -4818,25 +4797,19 @@ function bugout(txt) {
         this.ratio = 'sqr';
         this.generateTestPatterns(cb);
       },
-
       function ( cb ) {
         openOutputs(this);
         if ( cb !== undefined ) { cb() }
       },
-      // function ( cb ) {
-      //   this.args._[0] = this.currentFile;
-      //   this.currentFile = '*';
-      //   this.args._.push( this.currentFile); // DEMO
-      //   this.pollForStream();
-      // },
       function( cb ) {
         server.start( this.outputPath );
         // copyGUI(cb);
-        // symlinkGUI(cb);
+        this.mkRenderFolders();
+        symlinkGUI(cb);
       }
     ] )
-    .exec( function( error, results ) {
-      if (  this.error ) { log( 'Doh!' ) ; }
+    .exec( function( error ) {
+      if ( error ) { log( 'Doh!' ) ; }
       else { log( 'WEEEEE DONE Yay! Done!' ) ; }
     } ) ;
 
@@ -4947,14 +4920,7 @@ function bugout(txt) {
     if (s == 0) {
       r = g = b = l; // achromatic
     } else {
-      function hue2rgb(p, q, t) {
-        if (t < 0) t += 1;
-        if (t > 1) t -= 1;
-        if (t < 1/6) return p + (q - p) * 6 * t;
-        if (t < 1/2) return q;
-        if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
-        return p;
-      }
+
 
       var q = l < 0.5 ? l * (1 + s) : l + s - l * s;
       var p = 2 * l - q;
@@ -4966,7 +4932,14 @@ function bugout(txt) {
 
     return [ r * 255, g * 255, b * 255 ];
   }
-
+  function hue2rgb(p, q, t) {
+    if (t < 0) t += 1;
+    if (t > 1) t -= 1;
+    if (t < 1/6) return p + (q - p) * 6 * t;
+    if (t < 1/2) return q;
+    if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+    return p;
+  }
   /**
   * Converts an RGB color value to HSV. Conversion formula
   * adapted from http://en.wikipedia.org/wiki/HSV_color_space.
@@ -5057,7 +5030,6 @@ function bugout(txt) {
 
 
 
-
   function fileSystemChecks(file) { // make sure file is writable or folder exists etc
     let problem = false;
     let name = basename(file)
@@ -5109,7 +5081,7 @@ function bugout(txt) {
   }
   function terminalRGB(_text, _r, _g, _b) {
     return chalk.rgb(_r,_g,_b)(_text);
-  };
+  }
   function showCountdown() {
     countdown(`Closing in ${humanizeDuration(max32bitInteger)}`, 5000);
   }
@@ -5196,8 +5168,8 @@ function bugout(txt) {
   function killServers() {
     output("ISSUING 'killall node' use 'Q' key to quit without killing all node processes!")
     this.renderLock = false;
-    const killServe = spawn('nice', ['killall', 'node', '', '0'], { stdio: 'pipe' });
-    const killAminosee = spawn('nice', ['killall', 'aminosee.funk.nz', '', '0'], { stdio: 'pipe' });
+    spawn('nice', ['killall', 'node', '', '0'], { stdio: 'pipe' });
+    spawn('nice', ['killall', 'aminosee.funk.nz', '', '0'], { stdio: 'pipe' });
     if (server != undefined) {
       log("closing server")
       server.close();
@@ -5207,7 +5179,9 @@ function bugout(txt) {
     try {
       fs.unlinkSync( this.filenameServerLock, (err) => {
         bugtxt("Removing server locks OK...")
-        if (err) { log('ish'); console.warn(err);  }
+        if (err) {
+          log(`ish ${err}`);
+        }
       });
     } catch (err) {
       bugtxt("No server locks to remove: " + err);
@@ -5282,7 +5256,7 @@ function bugout(txt) {
     }
     if ( that.opensFile > 3) { // notice the s
       log('i figured that was enough windows, will not open more windows')
-      openFile = false;
+      that.openFileExplorer = false;
       return false;
     }
     if ( that.opensImage > 3) {
@@ -5295,7 +5269,7 @@ function bugout(txt) {
       that.openHtml = false;
       return false;
     }
-    if ( opens = 0 ) {
+    if ( opens == 0 ) {
       out(`not opening ${opens} times`)
     } else {
       out(`opening ${opens} times`)
@@ -5319,14 +5293,13 @@ function bugout(txt) {
       <tr><th colspan="5"><hr></th></tr>
       </table>
       </body></html>`);
-
     }
     function listDNA() {
       var XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
       var xhr = new XMLHttpRequest('https://www.funk.co.nz/aminosee/output/');
       let txt = xhr.responseText;
-      // testParse();
-      // parse("https://www.funk.co.nz/aminosee/output/")
+      testParse();
+      parse("https://www.funk.co.nz/aminosee/output/")
       output('list')
       output(txt)
       // parse(txt)
@@ -5347,17 +5320,16 @@ function bugout(txt) {
 
       img_png.data = Buffer.from(img_data);
       let wstream = fs.createWriteStream( filename );
-      var that = this;
       new Promise(resolve => {
         img_png.pack()
         .pipe(wstream)
         .on('finish', (err) => {
           bugtxt("HILBERT Save OK ");
           if ( cb !== undefined ) { cb() }
+          if ( err ) { log("Error: " + err)}
         })
       }).then( log('PNG2 then') ).catch( log('PNG2 catch') );
     }
-    var that = this;
     process.on("SIGTERM", () => {
       cliInstance.gracefulQuit();
       // this.destroyProgress();
@@ -5372,16 +5344,22 @@ function bugout(txt) {
       cliInstance.quit(130);
       process.exit(); // this.now the "exit" event will fire
     });
-    function termDrawImage(fullpath) {
+    function termDrawImage(fullpath, reason) {
       if (fullpath === undefined) { fullpath = previousImage }
       if (fullpath === undefined) { return false }
+      if (reason === undefined) { reason = `BUG. Reminder: always set a reason` }
+
       // if ( that.force == true) { return false }
       if ( quiet === true ) { out('quiet'); return false; }
       previousImage = fullpath;
       term.clear()
       term.moveTo( 0, 0 );
-      term.drawImage( previousImage, { shrink: { width: term.width,  height: term.height } } )
-      log("image: " +  basename(previousImage))
+      output("image: " +  basename(previousImage))
+      output("image: " +  basename(previousImage))
+      term.drawImage( previousImage, { shrink: { width: term.width / 2,  height: term.height } } )
+
+      output("image: " +  basename(previousImage))
+      output("image: " +  basename(previousImage) + `Reason: ${reason}`)
     }
     function nicePercent(percent) {
       if (percent === undefined) { percent = this.percentComplete }
@@ -5389,13 +5367,13 @@ function bugout(txt) {
     }
     function tidyPeptideName(str) { // give it "OPAL" it gives "Opal". GIVE it aspartic_ACID or "gluTAMic acid". also it gives "none"
       if (str == undefined) {
-        output(`error with str it equals ${str} err: [${e}] will return "none"`)
+        output(`error with str it equals ${str} will return "none"`)
         return "none";
       }
       try {
         str = spaceTo_( str.toUpperCase() )
       } catch(e) {
-        output(`error with str it equals ${str} err: [${e}] will return "none"`)
+        output(`error with str it equals ${str} will return "none"`)
         return "none";
       }
       for ( let i = 0; i < data.pepTable.length; i++) {
