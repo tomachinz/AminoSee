@@ -1,5 +1,5 @@
 Thanks to Christos Georghiou who designed the 'See No Evil Hear No Evil Monkeys' http://christosgeorghiou.com/
-    2191
+    2120
  open source node npm packages used. 
 
 aminosee@1.18.7 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
@@ -33,7 +33,7 @@ aminosee@1.18.7 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
 │ │ ├── depd@1.1.2 deduped
 │ │ ├── inherits@2.0.3 deduped
 │ │ ├── setprototypeof@1.1.1
-│ │ ├── statuses@1.5.0 deduped
+│ │ ├── statuses@1.5.0
 │ │ └── toidentifier@1.0.0
 │ ├─┬ iconv-lite@0.4.24
 │ │ └── safer-buffer@2.1.2
@@ -49,7 +49,7 @@ aminosee@1.18.7 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
 │   ├── media-typer@0.3.0
 │   └─┬ mime-types@2.1.24
 │     └── mime-db@1.40.0
-├─┬ browserify@16.2.3
+├─┬ browserify@16.3.0
 │ ├─┬ assert@1.5.0
 │ │ ├── object-assign@4.1.1
 │ │ └─┬ util@0.10.3
@@ -124,7 +124,7 @@ aminosee@1.18.7 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
 │ │ │ │ └── randombytes@2.1.0 deduped
 │ │ │ ├── create-hash@1.2.0 deduped
 │ │ │ ├── create-hmac@1.1.7 deduped
-│ │ │ ├─┬ elliptic@6.4.1
+│ │ │ ├─┬ elliptic@6.5.0
 │ │ │ │ ├── bn.js@4.11.8 deduped
 │ │ │ │ ├── brorand@1.1.0
 │ │ │ │ ├─┬ hash.js@1.1.7
@@ -150,7 +150,7 @@ aminosee@1.18.7 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
 │ │ │   └── safe-buffer@5.1.2 deduped
 │ │ ├─┬ create-ecdh@4.0.3
 │ │ │ ├── bn.js@4.11.8 deduped
-│ │ │ └── elliptic@6.4.1 deduped
+│ │ │ └── elliptic@6.5.0 deduped
 │ │ ├─┬ create-hash@1.2.0
 │ │ │ ├─┬ cipher-base@1.0.4
 │ │ │ │ ├── inherits@2.0.3 deduped
@@ -241,9 +241,9 @@ aminosee@1.18.7 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
 │ ├── inherits@2.0.3
 │ ├─┬ insert-module-globals@7.2.0
 │ │ ├─┬ acorn-node@1.7.0
-│ │ │ ├── acorn@6.1.1
+│ │ │ ├── acorn@6.1.1 deduped
 │ │ │ ├── acorn-dynamic-import@4.0.0
-│ │ │ ├── acorn-walk@6.1.1
+│ │ │ ├── acorn-walk@6.2.0
 │ │ │ └── xtend@4.0.1 deduped
 │ │ ├── combine-source-map@0.8.0 deduped
 │ │ ├── concat-stream@1.6.2 deduped
@@ -742,77 +742,6 @@ aminosee@1.18.7 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
 │ │ ├── duplexer@0.1.1 deduped
 │ │ └── through@2.3.8 deduped
 │ └── through@2.3.8 deduped
-├─┬ express@4.17.1
-│ ├─┬ accepts@1.3.7
-│ │ ├─┬ mime-types@2.1.24
-│ │ │ └── mime-db@1.40.0
-│ │ └── negotiator@0.6.2
-│ ├── array-flatten@1.1.1
-│ ├── body-parser@1.19.0 deduped
-│ ├─┬ content-disposition@0.5.3
-│ │ └── safe-buffer@5.1.2 deduped
-│ ├── content-type@1.0.4 deduped
-│ ├── cookie@0.4.0
-│ ├── cookie-signature@1.0.6
-│ ├─┬ debug@2.6.9
-│ │ └── ms@2.0.0
-│ ├── depd@1.1.2 deduped
-│ ├── encodeurl@1.0.2
-│ ├── escape-html@1.0.3
-│ ├── etag@1.8.1
-│ ├─┬ finalhandler@1.1.2
-│ │ ├─┬ debug@2.6.9
-│ │ │ └── ms@2.0.0
-│ │ ├── encodeurl@1.0.2 deduped
-│ │ ├── escape-html@1.0.3 deduped
-│ │ ├── on-finished@2.3.0 deduped
-│ │ ├── parseurl@1.3.3
-│ │ ├── statuses@1.5.0 deduped
-│ │ └── unpipe@1.0.0 deduped
-│ ├── fresh@0.5.2
-│ ├── merge-descriptors@1.0.1
-│ ├── methods@1.1.2
-│ ├── on-finished@2.3.0 deduped
-│ ├── parseurl@1.3.3
-│ ├── path-to-regexp@0.1.7
-│ ├─┬ proxy-addr@2.0.5
-│ │ ├── forwarded@0.1.2
-│ │ └── ipaddr.js@1.9.0 deduped
-│ ├── qs@6.7.0
-│ ├── range-parser@1.2.1
-│ ├── safe-buffer@5.1.2
-│ ├─┬ send@0.17.1
-│ │ ├─┬ debug@2.6.9
-│ │ │ └── ms@2.0.0
-│ │ ├── depd@1.1.2 deduped
-│ │ ├── destroy@1.0.4
-│ │ ├── encodeurl@1.0.2 deduped
-│ │ ├── escape-html@1.0.3 deduped
-│ │ ├── etag@1.8.1 deduped
-│ │ ├── fresh@0.5.2 deduped
-│ │ ├─┬ http-errors@1.7.2
-│ │ │ ├── depd@1.1.2 deduped
-│ │ │ ├── inherits@2.0.3 deduped
-│ │ │ ├── setprototypeof@1.1.1
-│ │ │ ├── statuses@1.5.0 deduped
-│ │ │ └── toidentifier@1.0.0 deduped
-│ │ ├── mime@1.6.0
-│ │ ├── ms@2.1.1 deduped
-│ │ ├── on-finished@2.3.0 deduped
-│ │ ├── range-parser@1.2.1
-│ │ └── statuses@1.5.0 deduped
-│ ├─┬ serve-static@1.14.1
-│ │ ├── encodeurl@1.0.2 deduped
-│ │ ├── escape-html@1.0.3 deduped
-│ │ ├── parseurl@1.3.3
-│ │ └── send@0.17.1 deduped
-│ ├── setprototypeof@1.1.1
-│ ├── statuses@1.5.0
-│ ├─┬ type-is@1.6.18
-│ │ ├── media-typer@0.3.0 deduped
-│ │ └── mime-types@2.1.24 deduped
-│ ├── utils-merge@1.0.1
-│ └── vary@1.1.2
 ├─┬ fs-extra@8.1.0
 │ ├── graceful-fs@4.2.0
 │ ├─┬ jsonfile@4.0.0
@@ -834,7 +763,7 @@ aminosee@1.18.7 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
 │ ├── corser@2.0.1
 │ ├─┬ ecstatic@3.3.2
 │ │ ├── he@1.2.0
-│ │ ├── mime@1.6.0 deduped
+│ │ ├── mime@1.6.0
 │ │ ├── minimist@1.2.0 deduped
 │ │ └── url-join@2.0.5
 │ ├─┬ http-proxy@1.17.0
@@ -1044,10 +973,10 @@ aminosee@1.18.7 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
 │ │ │ │ └── ms@2.0.0
 │ │ │ ├── delegates@1.0.0
 │ │ │ ├── depd@1.1.2 deduped
-│ │ │ ├── destroy@1.0.4 deduped
+│ │ │ ├── destroy@1.0.4
 │ │ │ ├── error-inject@1.0.0
-│ │ │ ├── escape-html@1.0.3 deduped
-│ │ │ ├── fresh@0.5.2 deduped
+│ │ │ ├── escape-html@1.0.3
+│ │ │ ├── fresh@0.5.2
 │ │ │ ├─┬ http-assert@1.4.1
 │ │ │ │ ├── deep-equal@1.0.1
 │ │ │ │ └── http-errors@1.7.3 deduped
@@ -1108,7 +1037,7 @@ aminosee@1.18.7 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
 │ ├─┬ lws-conditional-get@1.0.1
 │ │ ├── koa-conditional-get@2.0.0
 │ │ └─┬ koa-etag@3.0.0
-│ │   ├── etag@1.8.1 deduped
+│ │   ├── etag@1.8.1
 │ │   └─┬ mz@2.7.0
 │ │     ├── any-promise@1.3.0
 │ │     ├── object-assign@4.1.1 deduped
@@ -1182,7 +1111,7 @@ aminosee@1.18.7 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
 │ │ │ └── path-to-regexp@2.4.0
 │ │ ├─┬ koa-route@3.2.0
 │ │ │ ├── debug@3.2.6 deduped
-│ │ │ ├── methods@1.1.2 deduped
+│ │ │ ├── methods@1.1.2
 │ │ │ └─┬ path-to-regexp@1.7.0
 │ │ │   └── isarray@0.0.1
 │ │ ├── path-to-regexp@3.0.0 deduped
@@ -2026,7 +1955,7 @@ aminosee@1.18.7 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
 │ ├── oauth-sign@0.9.0
 │ ├── performance-now@2.1.0
 │ ├── qs@6.5.2
-│ ├── safe-buffer@5.1.2 deduped
+│ ├── safe-buffer@5.1.2
 │ ├─┬ tough-cookie@2.4.3
 │ │ ├── psl@1.1.29
 │ │ └── punycode@1.4.1 deduped
@@ -2114,7 +2043,7 @@ aminosee@1.18.7 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
 │ │ │ └── ms@2.0.0
 │ │ ├── on-headers@1.0.1
 │ │ ├── safe-buffer@5.1.2 deduped
-│ │ └── vary@1.1.2 deduped
+│ │ └── vary@1.1.2
 │ ├─┬ serve-handler@6.0.2
 │ │ ├── bytes@3.0.0
 │ │ ├── content-disposition@0.5.2 deduped
@@ -2163,7 +2092,7 @@ aminosee@1.18.7 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
 │   └─┬ wbuf@1.7.3
 │     └── minimalistic-assert@1.0.1
 ├── stream-file@0.2.4
-├─┬ terminal-kit@1.28.2
+├─┬ terminal-kit@1.28.3
 │ ├─┬ @cronvel/get-pixels@3.3.1
 │ │ ├── jpeg-js@0.1.2
 │ │ ├── ndarray@1.0.18 deduped
@@ -2181,7 +2110,7 @@ aminosee@1.18.7 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
 │ ├── nextgen-events@1.1.1
 │ ├─┬ seventh@0.7.23
 │ │ └── setimmediate@1.0.5
-│ ├── string-kit@0.9.6
+│ ├── string-kit@0.9.8
 │ └── tree-kit@0.6.1
 ├── three@0.106.2
 ├── through@2.3.8
