@@ -2,7 +2,7 @@ Thanks to Christos Georghiou who designed the 'See No Evil Hear No Evil Monkeys'
     2193
  open source node npm packages used. 
 
-aminosee@1.18.4 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
+aminosee@1.18.5 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
 ├─┬ @gmod/indexedfasta@1.0.13
 │ ├─┬ @babel/runtime-corejs2@7.4.5
 │ │ ├── core-js@2.6.8 deduped

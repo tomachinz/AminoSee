@@ -7,7 +7,8 @@ maxcolorpix = 262144; // for large genomes
 linewidth = 8;
 ( window.location.toString().indexOf('electron') ==-1 ? isElectron = false : isElectron = true )
 log('Electron mode: ' + isElectron + " window.location: " + window.location);
-let autostopdelay = 300; // seconds
+let autostopdelay = 300000; // ms
+let devautostop = 500;
 let downloaderDisabled;
 let levels = 2; // default 2
 let cubes = 0; // 1 gives just the row of three at bottom. 2 gives two rows for 6 boxes.
@@ -976,9 +977,9 @@ function toggleView() {
 let timeout;
 function setTimeoutPause() {
   if (devmode) {
-    timeout = setTimeout(togglePause, autostopdelay*16); // pause after 5 seconds
+    timeout = setTimeout(togglePause, devautostop); // pause after 5 seconds
   } else {
-    timeout = setTimeout(togglePause, autostopdelay*1000); // pause after 5 minutes
+    timeout = setTimeout(togglePause, autostopdelay); // pause after 5 minutes
   }
 }
 function togglePause() {

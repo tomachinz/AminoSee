@@ -123,11 +123,13 @@ or alternatively, this will do the above, render it, and also generate test cali
 aminosee demo
 ```
 
-###Official Site
+### Official Site
 This site was built using [AminoSee Official Site](https://www.funk.co.nz/aminosee/).
 
+### Documentation
 
-##To Do List
+
+## To Do List
 
 - [x] Node CLI to convert DNA into PNG
 - [x] A funky WebGL way to look at linear colour maps

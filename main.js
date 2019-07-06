@@ -10,16 +10,19 @@ const spawn = require('cross-spawn');
 let threads = [ ]; // these will be threads from spawn
 let mainWindow, devmode, consoleWindow; // Keep a global reference of the window object, if you don't, the window will be closed automatically when the JavaScript object is garbage collected.
 
-app.commandLine.appendSwitch('remote-debugging-port', '5432')
+// app.commandLine.appendSwitch('remote-debugging-port', '5432')
 app.commandLine.appendSwitch('host-rules', 'MAP * 127.0.0.1')
 app.commandLine.appendSwitch('host-rules', 'MAP * funk.co.nz')
 app.commandLine.appendSwitch('host-rules', 'MAP * localhost')
 // app.commandLine.appendSwitch('devmode', 'true')
 // app.commandLine.appendSwitch('devmode', 'true')
-app.on('ready', function() {
+
+let start = function() {
   createWindow();
   pushCli(`dna/3MB_TestPattern.txt --serve --verbose --image`)
-})
+}
+
+app.on('ready', start)
 
 // Quit when all windows are closed.
 app.on('window-all-closed', function () {
@@ -106,8 +109,8 @@ function showOpenDialog() {
   const selectedPaths = dialog.showOpenDialog();
   mainWindow.setProgressBar(2); // -1 remove progress, 0-1 is percentage, 2+ means show indeterminate
   log(`selectedPaths: ${selectedPaths}`)
-  // pushCli(selectedPaths);
-  bruteForce(selectedPaths);
+  pushCli(selectedPaths);
+  // bruteForce(selectedPaths);
 }
 // function pushCli(commandString) {
 //   console.log(`Starting AminoSee now with CLI:`);
