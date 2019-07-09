@@ -5,13 +5,14 @@ TOMSSOURCE=toms_source_temp.txt
 echo GENERATE CREDITS.TXT FILE
 echo "Thanks to Christos Georghiou who designed the 'See No Evil Hear No Evil Monkeys' http://christosgeorghiou.com/" > $CREDITS
 
-cat public/aminosee-gui-web.js                >       build/toms.txt
-cat aminosee-server.js                                          >>       build/toms.txt
-cat aminosee-cli.js                                             >>       build/toms.txt
-cat aminosee-settings.js                                        >>       build/toms.txt
-cat main.js                                                     >>       build/toms.txt
-cat renderer.js                                                 >>       build/toms.txt
-cat stdinpipe.js                                              >>       build/toms.txt
+cat src/public/aminosee-gui-web.js                 >       build/toms.txt
+cat src/aminosee-server.js                                          >>       build/toms.txt
+cat src/aminosee-data.js                                            >>       build/toms.txt
+cat src/aminosee-cli.js                                             >>       build/toms.txt
+cat src/aminosee-settings.js                                        >>       build/toms.txt
+cat src/aminosee-stdinpipe.js                                       >>       build/toms.txt
+cat src/main.js                                                     >>       build/toms.txt
+cat src/renderer.js                                                 >>       build/toms.txt
 
 mkdir -p build
 cat  build/toms.txt | wc
@@ -27,4 +28,3 @@ clear
 
 cat  $CREDITS
 # open $CREDITS
-  

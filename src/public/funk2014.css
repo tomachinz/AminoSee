@@ -687,3 +687,40 @@ only screen and (max-resolution: 120dpi) {}
 /* @media (orientation: landscape) and (min-height: 321px) and (min-width: 578px) and (max-width: 1600px) {} */
 /* landscape crossover ratio: 1.34 or*/
 /* SUPER WIDE SCREENS GET FULL WIDTH */
+/*  from: https://medium.com/@ferie/detect-a-touch-device-with-only-css-9f8e30fa1134   */
+/* smartphones, touchscreens */
+@media (hover: none) and (pointer: coarse) {
+
+  /* ... */
+  a.mobileonly {
+    background-color: white;
+    /* visibility: hidden;
+    display: none; */
+  }
+}
+
+/* stylus-based screens */
+@media (hover: none) and (pointer: fine) {
+  /* ... */
+}
+
+/* Nintendo Wii controller, Microsoft Kinect */
+@media (hover: hover) and (pointer: coarse) {
+  /* ... */
+}
+
+/* mouse, touch pad */
+@media (hover: hover) and (pointer: fine) {
+
+  /* FULL DESKTOPS */
+  a.mobileonly {
+    /* background-color: blue; */
+    visibility: hidden;
+    display: none;
+  }
+}
+
+/* the device does not include any pointing device. */
+@media (any-pointer: none) {
+  /* ... */
+}

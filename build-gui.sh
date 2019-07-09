@@ -49,7 +49,7 @@ mkdir -p $TARGET/dna
 echo COPYING LIBRARIES INTO /dist/*
 mkdir -p $TARGET/dist
 mkdir -p $TARGET/dist/root
-# cp -r -v dist/root/* $TARGET/dist/root
+# cp -r -v docs/* $TARGET/dist/root
 
 
 cp -v -r dna/megabase.fa $TARGET/dna
@@ -73,7 +73,7 @@ cp -r index.html $TARGET
 cp -r console.js $TARGET
 cp -r favicon.ico $TARGET
 cp -r favicon.png $TARGET
-cp -r -v dist/root/* $TARGET
+cp -r -v docs/* $TARGET
 
 echo COPY AND RENAME package-electron.json $TARGET/package.json
 cp -v package-electron.json $TARGET/package.json

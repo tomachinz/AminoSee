@@ -3,10 +3,11 @@ const data = require('./aminosee-data');
 const doesFileExist   = data.doesFileExist;
 const doesFolderExist = data.doesFolderExist;
 const createSymlink   = data.createSymlink;
+const Preferences = require('preferences');
 const http = require('http');
 const chalk = require('chalk');
 const path = require('path');
-const os = require("os");
+const os = require('os');
 const httpserver = require('http-server'); // cant have - in js
 const spawn = require('cross-spawn');
 const fs = require('fs-extra'); // drop in replacement = const fs = require('fs')
@@ -14,9 +15,26 @@ const lockFileMessage = `
 aminosee.funk.nz DNA Viewer by Tom Atkinson.
 This is a temporary lock file, so I dont start too many servers. Its safe to erase these files, and I've made a script in /dna/ to batch delete them all in one go. Normally these are deleted when render is complete, or with Control-C and graceful shutdown.`;
 const version = aminosee.version;
+const defaulturl = `http://127.0.0.1:4321`
 // let terminalRGB = function (txt) { aminosee.terminalRGB(txt) }
 // let terminalRGB = require('./aminosee-cli').terminalRGB;
-let outputPath, filenameServerLock;
+let outputPath, filenameServerLock, url, projectprefs;
+url = defaulturl
+function setupPrefs() {
+  url = projectprefs.aminosee.url;
+  // aminosee.setupPrefs();
+  // output()
+  if (url === undefined) {
+    url = defaulturl;
+  }
+  if ( args.url ) {
+    url = args.url;
+    projectprefs.aminosee.url = url;
+    output(`Custom URL set: ${url}`);
+  } else {
+    output(`Using URL prefix: ${url}`)
+  }
+}
 function log(txt) {
   // output( txt )
 }
@@ -60,7 +78,7 @@ function startCrossSpawnHttp() { // Spawn background server
     output(`${chalk.inverse('aminosee-server')}${chalk(': ')}${data}`);
   });
   evilSpawn.stderr.on('data', (data) => {
-    output(`${chalk.inverse('aminosee-server error')}${chalk(': ')}${data}`);
+    output( ` ${chalk.inverse(url)}  [${data}]` );
   });
   evilSpawn.on('close', (code) => {
     output(`child process quit with code ${code}`);
@@ -153,7 +171,6 @@ module.exports = (options) => {
       response.end();
       // Note: the 2 lines above could be replaced with this next one:
       // response.end(JSON.stringify(responseBody))
-
       // END OF NEW STUFF
     });
   }).listen(options.port);
@@ -197,6 +214,7 @@ function close() {
 }
 function start(o) { // return the port number
   output(`Attempting to start server at: ${ o }`)
+  // setupPrefs()
   outputPath = o;
   setOutputPath(o)
   if (serverLock()) {
@@ -214,7 +232,7 @@ function setOutputPath(o) {
   if (o === undefined) { o = aminosee.outputPath }
   outputPath = o;
   filenameServerLock = path.resolve(`${outputPath}/aminosee_server_lock.txt`);
-  output(`(server) im planning to run server at: ` + outputPath);
+  // output(`(server) im planning to run server at: ` + outputPath);
 }
 
 function stop() {

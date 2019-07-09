@@ -1,8 +1,8 @@
 Thanks to Christos Georghiou who designed the 'See No Evil Hear No Evil Monkeys' http://christosgeorghiou.com/
-    2120
+    2130
  open source node npm packages used. 
 
-aminosee@1.18.7 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
+aminosee@1.18.8 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
 ├─┬ @gmod/indexedfasta@1.0.13
 │ ├─┬ @babel/runtime-corejs2@7.4.5
 │ │ ├── core-js@2.6.8 deduped
@@ -2119,6 +2119,16 @@ aminosee@1.18.7 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
 │ ├── diff@1.0.8
 │ ├── eyes@0.1.8
 │ └── glob@7.1.3 deduped
+├── UNMET PEER DEPENDENCY vue@^2.5.17
+├─┬ vue-golden-layout@1.6.0
+│ ├── golden-layout@1.5.9 deduped
+│ ├── UNMET PEER DEPENDENCY vue@^2.5.17
+│ ├── vue-class-component@6.3.2
+│ ├─┬ vue-resize-directive@1.2.0
+│ │ ├── css-element-queries@1.2.0
+│ │ ├── intersection-observer@0.5.1
+│ │ └── lodash.debounce@4.0.8
+│ └── vue-storage-decorator@1.0.6
 ├── xmlhttprequest@1.8.0
 └── xterm@3.14.4
 

@@ -93,7 +93,7 @@ echo calibration TESTS ARE KNOWN TO BE BUGGY AT PRESEDNT:
 aminosee --test
 
 # echo "doing aminosee serve and opening a file"
-nice aminosee serve $MEDIUM  $1 $2 $3 $4 $5 $6  --no-html --explorer &
+nice aminosee --serve $MEDIUM  $1 $2 $3 $4 $5 $6  --no-html --explorer &
 # echo only works on linux:
 # open http://127.0.0.1:8081 &
 sleep 1
@@ -107,7 +107,8 @@ echo NEARLY COMPLETED TESTING FOR $1 $2 $3 $4 $5 $6 $6
 echo LETS TYR THE ELECTRON APP GUI
 echo "-------------------------------------------"
 echo "                                         =///"
-npm run gui &
+# npm run gui &
+
 sleep 1
 echo "                                         =///"
 echo "-------------------------------------------"
@@ -117,4 +118,4 @@ echo "                                         =///"
 clear
 killall aminosee.funk.nz
 killall "aminosee.funk.nz 27MB_TestPattern 34.94MB"
-eslint ../aminosee-cli.js
+eslint ../src/aminosee-cli.js

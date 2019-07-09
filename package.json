@@ -1,6 +1,6 @@
 {
   "name": "aminosee",
-  "version": "1.18.7",
+  "version": "1.18.8",
   "owner": "Thomas Bieder Atkinson",
   "author": "Tom Atkinson <tom@funk.co.nz>",
   "website": "http://aminosee.funk.nz",
@@ -22,7 +22,7 @@
     "icon": "public/favicon.png",
     "directories": [
       "public/**",
-      "dist/root/**"
+      "docs/**"
     ],
     "mac": {
       "category": [
@@ -55,7 +55,6 @@
     "eslint": "^6.0.1",
     "event-stream": "^4.0.1",
     "get-cursor-position": "^1.0.5",
-    "golden-layout": "^1.5.9",
     "hilbert-2d": "0.0.1",
     "humanize-duration": "^3.18.0",
     "internal-ip": "^4.3.0",
@@ -85,12 +84,12 @@
     "xmlhttprequest": "^1.8.0"
   },
   "scripts": {
+    "demo": "node bin/aminosee demo",
     "credits": "./build-credits.sh",
     "crash": "node --inspect 27MB_TestPattern.txt --peptide=Ochre 3MB_TestPattern.txt 50KB_TestPattern.txt batch-peptides.sh batch-process.sh Gorilla_gorGor4_chr2B.fa",
     "test": "echo 'requires cli program time' ; time dna/run-test.sh ; vows --spec --isolate",
     "start": "node bin/aminosee",
     "inspect": "node --inspect bin/aminosee.js /Volumes/aminosee/dna/Brown_Kiwi_NW_013982187v1.fa   /Volumes/aminosee/dna/Brown_Kiwi_NW_013982187v1.fa  -f -c1000 -vd --debug",
-    "demo": "node bin/aminosee demo",
     "build": "./build-lib.sh ; nice time npm run build-web ; nice time npm run pkg",
     "build-all": "./build-lib.sh ; npm run build-web ; npm run pkg; npm run zip",
     "build-web": "npm run genversion  &amp;  npm run browserify  &amp; npm run minify ; npm run credits",

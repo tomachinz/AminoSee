@@ -67,6 +67,6 @@ cp    node_modules/xterm/dist/xterm.css                          public/
 #
 # echo creating distributions
 # echo COPYING LIBRARIES INTO /dist/* APP ROOT FOLDERS
-cp -r  dist/root/* dist/Aminosee_macos
-cp -r  dist/root/* dist/Aminosee_linux
-cp -r  dist/root/* dist/Aminosee_win
+cp -r  docs/* dist/Aminosee_macos
+cp -r  docs/* dist/Aminosee_linux
+cp -r  docs/* dist/Aminosee_win

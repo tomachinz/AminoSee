@@ -53,21 +53,21 @@ function saySomethingEpic() {
   return epicQuotes[Math.floor( Math.random() * epicQuotes.length )]
 }
 function createSymlink(src, dest) { // source is the original, dest is the symlink
-  // log(src, " --> " , dest);
+  log(src, " --> " , dest);
   try { // the idea is to copy the GUI into the output folder to.... well enable it to render cos its a web app!
     let existing = doesFileExist(dest);
     if (existing == true) {
-      log(`symlink already appears to be in place at: ${dest}`);
+      bugtxt(`symlink already appears to be in place at: ${dest}`);
       return false;
     } else {
       fs.symlinkSync(src, dest);
       fs.symlink(src, dest, function (err, result) {
-        if (err) { console.warn(`Just a slight issue creating a symlink: ${err}`)}
-        if (result) { log(`Great Symlink Success ${result}`)}
+        if (err)    { bugtxt(`Symlink is likely already in place: ${err}`)}
+        if (result) { bugtxt(`Great Symlink Success: ${result}`)}
       });
     }
   } catch(e) {
-    log("Symlink ${} could not created. Probably not an error: " + e);
+    output("Symlink ${} could not created. Probably not an error: " + e);
   }
 }
 function doesFolderExist(f) {
@@ -901,6 +901,11 @@ function output(txt) {
 }
 function log(txt) {
   output(txt)
+}
+function bugtxt(txt) {
+  if (aminosee.args.debug == true) {
+    output(txt)
+  }
 }
 const siteDescription = `A unique visualisation of DNA or RNA residing in text files, AminoSee is a way to render huge genomics files into a PNG image using an infinite space filling curve from 18th century! Computation is done locally, and the files do not leave your machine. A back-end terminal daemon cli command that can be scripted is combined with a front-end GUI in Electron, AminoSee features asynchronous streaming processing enabling arbitrary size files to be processed. It has been tested with files in excess of 4 GB and does not need the whole file in memory at any time. Due to issues with the 'aminosee *' command, a batch script is provided for bulk rendering in the dna/ folder. Alertively use the GUI to Drag and drop files to render a unique colour view of RNA or DNA stored in text files, output to PNG graphics file, then launches an WebGL browser that projects the image onto a 3D Hilbert curve for immersive viewing, using THREEjs. Command line options alow one to filter by peptide.`;
 
