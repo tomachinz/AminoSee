@@ -1,6 +1,6 @@
 {
   "name": "aminosee",
-  "version": "1.18.8",
+  "version": "1.18.9",
   "owner": "Thomas Bieder Atkinson",
   "author": "Tom Atkinson <tom@funk.co.nz>",
   "website": "http://aminosee.funk.nz",
@@ -93,8 +93,8 @@
     "build": "./build-lib.sh ; nice time npm run build-web ; nice time npm run pkg",
     "build-all": "./build-lib.sh ; npm run build-web ; npm run pkg; npm run zip",
     "build-web": "npm run genversion  &amp;  npm run browserify  &amp; npm run minify ; npm run credits",
-    "genversion": "genversion aminosee-version.js",
-    "browserify": "browserify bin/aminosee.js -o public/bundle.js",
+    "genversion": "genversion src/aminosee-version.js",
+    "browserify": "echo DISABLED browserify bin/aminosee.js -o public/bundle.js",
     "minify": "uglify public/bundle.js -o public/bundle.min.js",
     "electron": "electron-packager ./bin/aminosee.js --platform=darwin --arch=x64 --prune --overwrite  --out ./dist/electron",
     "electron-all": "npm run build-all ; electron-packager ./bin/aminosee.js --platform=darwin,win32,linux --arch=x64 --prune --overwrite  --out ./dist/electron",

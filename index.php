@@ -40,4 +40,4 @@
 
 <body id="webgl" class="black nocse">
 	<?php include '../includes/menu.php';?>
-	<?php include 'public/home.html';?>
+	<?php include './src/public/home.html';?>
