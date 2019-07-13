@@ -880,7 +880,7 @@ class AminoSeeNoEvil {
     linearimage = this.aminoFilenameIndex(-1)[1];
     this.pepTable.sort( this.compareHistocount )
     // bugtxt( this.pepTable ); // least common amino acids in front
-
+    genomes = dedupeArray( genomes )
     let zumari = {
       original_source: this.justNameOfCurrentFile,
       full_path: this.filename,
@@ -2248,7 +2248,7 @@ class AminoSeeNoEvil {
 
       genomes = projectprefs.aminosee.genomes;
       genomes.push(this.justNameOfDNA);
-      projectprefs.aminosee.genomes = genomes;
+      projectprefs.aminosee.genomes = dedupeArray( genomes );
     }
 
     this.calcUpdate();
@@ -5378,8 +5378,7 @@ class AminoSeeNoEvil {
     }
     function stopWork(reason) {
       if (reason === undefined) { this.error(`You have to give a reason`) }
-      that = gimmeDat();
-      that.gracefulQuit(0, reason)
+      cliInstance.gracefulQuit(0, reason)
     }
     function getOutputFolder() {
       let outpath, clusterRender, outFoldername;
@@ -5418,6 +5417,9 @@ class AminoSeeNoEvil {
         log("HOME DIRECTORY OUTPUT ENABLED")
       }
       return outpath;
+    }
+    function dedupeArray(a) {
+      return [...new Set(a)];
     }
     module.exports.getOutputFolder = getOutputFolder;
     module.exports.nicePercent = nicePercent;
