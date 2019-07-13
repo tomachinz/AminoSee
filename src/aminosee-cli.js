@@ -1354,6 +1354,10 @@ class AminoSeeNoEvil {
       this.quit(0);
       return false;
     }
+    if ( this.filename === undefined) {
+      this.popAndPollOrBust(msg);
+      return false;
+    }
     if ( doesFolderExist(this.filename) ) { // && this.currentFile !== ""
       let newCommand = `${this.filename}/*`
       let msg = `Folder (${this.currentFile}) provided as input instead of a file. Presently this requires use of asterix on CLI eg: aminosee ${newCommand}`
@@ -1409,11 +1413,12 @@ class AminoSeeNoEvil {
       this.popAndPollOrBust("File Format not supported: " + chalk.inverse( this.getFileExtension( this.currentFile)) + ` supported: ${ extensions }`)
       return false;
     }
-    // if (doesFolderExist(this.filename)) {
-    //   output(`${this.currentFile} is a folder not a file, will try to re-issue job as ${this.currentFile}/* to process all in dir`);
-    //   pushCli( `${basename( this.filename )}/*` );
-    //   return true;
-    // }
+    if (doesFolderExist(this.filename)) {
+      output(`${this.currentFile} is a folder not a file, will try to re-issue job as ${this.currentFile}/* to process all in dir`);
+      pushCli( `${basename( this.currentFile )}/*` );
+      this.popAndPollOrBust(msg);
+      return true;
+    }
     if (this.howMany < 0) { isShuttingDown = true;}
 
     if ( this.checkLocks( this.filenameTouch)) {
@@ -3653,8 +3658,8 @@ class AminoSeeNoEvil {
   }
    openOutputs() {
     mode("open files "+ this.currentFile);
-    output( this.status );
-    output( this.status );
+    // output( this.status );
+    // output( this.status );
     if ( this.currentFile == funknzlabel ) { return false }
     if ( this.devmode == true )  { log( this.renderObjToString() ); }
     log( closeBrowser ); // tell user process maybe blocked
