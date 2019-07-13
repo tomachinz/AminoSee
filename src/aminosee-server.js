@@ -16,14 +16,11 @@ aminosee.funk.nz DNA Viewer by Tom Atkinson.
 This is a temporary lock file, so I dont start too many servers. Its safe to erase these files, and I've made a script in /dna/ to batch delete them all in one go. Normally these are deleted when render is complete, or with Control-C and graceful shutdown.`;
 const version = aminosee.version;
 const defaulturl = `http://127.0.0.1:4321`
-// let terminalRGB = function (txt) { aminosee.terminalRGB(txt) }
-// let terminalRGB = require('./aminosee-cli').terminalRGB;
 let outputPath, filenameServerLock, url, projectprefs;
 url = defaulturl
 function setupPrefs() {
   url = projectprefs.aminosee.url;
   // aminosee.setupPrefs();
-  // output()
   if (url === undefined) {
     url = defaulturl;
   }
@@ -46,45 +43,45 @@ function output(txt) {
 }
 let port = 4321;
 
-  function buildServer() {
-    const appFilename = require.main.filename; //     /bin/aminosee.js is 11 chars
-    const appPath = path.normalize(appFilename.substring(0, appFilename.length-15));// cut 4 off to remove /dna
+function buildServer() {
+  const appFilename = require.main.filename; //     /bin/aminosee.js is 11 chars
+  const appPath = path.normalize(appFilename.substring(0, appFilename.length-15));// cut 4 off to remove /dna
 
-    // this.openHtml = true;
-    webserverEnabled = true;
-    // that.setupKeyboardUI();
-    // output("HELLO**********************")
-    // output(`Building server to ${outputPath}`)
-    data.saySomethingEpic();
-    let sFiles = [
-      { "source": appPath + 'public',            "dest": outputPath + '/public' },
-      { "source": appPath + 'public/home.html', "dest": outputPath + '/home.html' },
-      { "source": appPath + 'public/favicon.ico',"dest": outputPath + '/favicon.ico' },
-    ];
-    for (i=0; i<sFiles.length; i++) {
-      let element = sFiles[i]
-      // log('building ' + element.source );//.toString());
-      createSymlink(path.normalize(path.resolve(element.source)), path.normalize(path.resolve(element.dest)));
-    }
-
+  // this.openHtml = true;
+  webserverEnabled = true;
+  // that.setupKeyboardUI();
+  // output("HELLO**********************")
+  // output(`Building server to ${outputPath}`)
+  data.saySomethingEpic();
+  let sFiles = [
+    { "source": appPath + 'public',            "dest": outputPath + '/public' },
+    { "source": appPath + 'public/home.html', "dest": outputPath + '/home.html' },
+    { "source": appPath + 'public/favicon.ico',"dest": outputPath + '/favicon.ico' },
+  ];
+  for (i=0; i<sFiles.length; i++) {
+    let element = sFiles[i]
+    // log('building ' + element.source );//.toString());
+    createSymlink(path.normalize(path.resolve(element.source)), path.normalize(path.resolve(element.dest)));
   }
+
+}
 
 
 function startCrossSpawnHttp() { // Spawn background server
-    let options = [outputPath+"/", `-p`, port, '-o']
+  let options = [ outputPath + "/", `-p`, port, '-o' ]
   output(chalk.yellow(`http-server ${options.toString()}`))
   const evilSpawn = spawn('http-server', options, { stdio: 'pipe' });
   evilSpawn.stdout.on('data', (data) => {
     output(`${chalk.inverse('aminosee-server')}${chalk(': ')}${data}`);
   });
   evilSpawn.stderr.on('data', (data) => {
-    output( ` ${chalk.inverse(url)}  [${data}]` );
+    output( `${chalk.inverse(url)}  [${data}]` );
   });
   evilSpawn.on('close', (code) => {
-    output(`child process quit with code ${code}`);
+    output( chalk.inverse(`Server process quit with` ) + ` [${code}] `);
   });
-  log(terminalRGB("ONE DAY this will serve up a really cool WebGL visualisation of your DNA PNG. That day.... is not today though.", 255, 240,10));
-  log(terminalRGB("IDEA: Maybe send some bitcoin to the under-employed creator tom@funk.co.nz to convince him to work on it?", 240, 240,200));
+
+  log(chalk.bgBlue.yellow("IDEA: Maybe send some bitcoin to the under-employed creator tom@funk.co.nz to convince him to work on it?"));
   log("Control-C to quit. This requires http-server, install that with:");
   log("sudo npm install --global http-server");
   return port
@@ -268,27 +265,27 @@ function serverLock() {
 
 
 function terminalRGB(_text, _r, _g, _b) {
-    return chalk.rgb(_r,_g,_b)(_text);
+  return chalk.rgb(_r,_g,_b)(_text);
 };
 function symlinkGUI(cb) { // does:  ln -s /Users.....AminoSee/public, /Users.....currentWorkingDir/output/public
-    this.mkdir('public')
-    let fullSrc, fullDest;
-    fullSrc = path.normalize( path.resolve(appPath + '/public') );
-    fullDest = path.normalize( path.resolve(this.outputPath + '/public') );
-    createSymlink(fullSrc, fullDest);
-    fullSrc = path.normalize( path.resolve(appPath + '/aminosee-gui-web.js') );
-    fullDest = path.normalize( path.resolve(this.outputPath + '/aminosee-gui-web.js') );
-    createSymlink(fullSrc  , fullDest);
-    fullSrc = path.normalize( path.resolve(appPath + '/public/index.html') );
-    fullDest = path.normalize( path.resolve(this.outputPath + '/main.html') ); // Protects users privacy in current working directory
-    createSymlink(fullSrc, fullDest);
-    fullSrc = path.normalize( path.resolve(appPath + '/node_modules') );
-    fullDest = path.normalize( path.resolve(this.outputPath + '/node_modules') ); // MOVES INTO ROOT
-    createSymlink(fullSrc, fullDest);
-    if (cb !== undefined) {
-      cb();
-    }
+  this.mkdir('public')
+  let fullSrc, fullDest;
+  fullSrc = path.normalize( path.resolve(appPath + '/public') );
+  fullDest = path.normalize( path.resolve(this.outputPath + '/public') );
+  createSymlink(fullSrc, fullDest);
+  fullSrc = path.normalize( path.resolve(appPath + '/aminosee-gui-web.js') );
+  fullDest = path.normalize( path.resolve(this.outputPath + '/aminosee-gui-web.js') );
+  createSymlink(fullSrc  , fullDest);
+  fullSrc = path.normalize( path.resolve(appPath + '/public/index.html') );
+  fullDest = path.normalize( path.resolve(this.outputPath + '/main.html') ); // Protects users privacy in current working directory
+  createSymlink(fullSrc, fullDest);
+  fullSrc = path.normalize( path.resolve(appPath + '/node_modules') );
+  fullDest = path.normalize( path.resolve(this.outputPath + '/node_modules') ); // MOVES INTO ROOT
+  createSymlink(fullSrc, fullDest);
+  if (cb !== undefined) {
+    cb();
   }
+}
 
 module.exports.getServerURL = () => { getServerURL() }
 module.exports.startServeHandler = () => { startServeHandler() }

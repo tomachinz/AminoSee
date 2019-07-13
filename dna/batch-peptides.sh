@@ -9,8 +9,8 @@ best_way () {
   nice aminosee $1 $2 $3 $4 $5 $6 $7
   # aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide="Start Codons"
   # aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide="Stop Codons"
-  aminosee $1    $2 $3 $4  --peptide="Glutamic_acid" &
-  aminosee $1    $2 $3 $4  --peptide="Aspartic_acid"
+  aminosee $1    $2 $3 $4  --peptide=Glutamic_acid &
+  aminosee $1    $2 $3 $4  --peptide=Aspartic_acid
   aminosee_do $1 $2 $3 $4  --peptide=Ochre &
   aminosee_do $1 $2 $3 $4  --peptide=Amber &
   aminosee_do $1 $2 $3 $4  --peptide=Opal
@@ -40,8 +40,8 @@ series_peptides () {
   echo "-------------------------------------------"
   echo "                                         =///"
   aminosee_do $1 $2 $3 $4 $5 $6 $7
-  aminosee_do $1 $2 $3 $4  --peptide="Glutamic_acid"
-  aminosee_do $1 $2 $3 $4  --peptide="Aspartic_acid"
+  aminosee_do $1 $2 $3 $4  --peptide=Glutamic_acid
+  aminosee_do $1 $2 $3 $4  --peptide=Aspartic_acid
   aminosee_do $1 $2 $3 $4  --peptide=Ochre
   aminosee_do $1 $2 $3 $4  --peptide=Amber
   aminosee_do $1 $2 $3 $4  --peptide=Opal
@@ -118,29 +118,29 @@ asterix_peptides () {
   echo "-------------------------------------------"
   echo "                                         =///"
   nice aminosee -q  * $1 $2 $3 $4  --peptide=Glutamic_acid &
-  nice aminosee -q  * $1 $2 $3 $4  --peptide=Aspartic_acid &
-  nice aminosee -q  * $1 $2 $3 $4  --peptide=Ochre
-  nice aminosee -q  * $1 $2 $3 $4  --peptide=Amber &
-  nice aminosee -q  * $1 $2 $3 $4  --peptide=Opal &
-  nice aminosee -q  * $1 $2 $3 $4  --peptide=Methionine &
-  nice aminosee -q  * $1 $2 $3 $4  --peptide=Cysteine &
-  nice aminosee -q  * $1 $2 $3 $4  --peptide=Glycine
-  nice aminosee -q  * $1 $2 $3 $4  --peptide=Alanine &
-  nice aminosee -q  * $1 $2 $3 $4  --peptide=Valine &
-  nice aminosee -q  * $1 $2 $3 $4  --peptide=Leucine &
-  nice aminosee -q  * $1 $2 $3 $4  --peptide=Isoleucine &
-  nice aminosee -q  * $1 $2 $3 $4  --peptide=Phenylalanine &
-  nice aminosee -q  * $1 $2 $3 $4  --peptide=Proline
-  nice aminosee -q  * $1 $2 $3 $4  --peptide=Tryptophan &
-  nice aminosee -q  * $1 $2 $3 $4  --peptide=Serine &
-  nice aminosee -q  * $1 $2 $3 $4  --peptide=Threonine &
-  nice aminosee -q  * $1 $2 $3 $4  --peptide=Glutamine &
-  nice aminosee -q  * $1 $2 $3 $4  --peptide=Asparagine &
-  nice aminosee -q  * $1 $2 $3 $4  --peptide=Tyrosine &
-  nice aminosee -q  * $1 $2 $3 $4  --peptide=Arginine &
-  nice aminosee -q  * $1 $2 $3 $4  --peptide=Lysine &
-  nice aminosee -q  * $1 $2 $3 $4  --peptide=Histidine &
-  nice aminosee -q  * $1 $2 $3 $4 $5 $6 $7
+aminosee_do -q  * $1 $2 $3 $4  --peptide=Aspartic_acid &
+aminosee_do -q  * $1 $2 $3 $4  --peptide=Ochre
+aminosee_do -q  * $1 $2 $3 $4  --peptide=Amber &
+aminosee_do -q  * $1 $2 $3 $4  --peptide=Opal &
+aminosee_do -q  * $1 $2 $3 $4  --peptide=Methionine &
+aminosee_do -q  * $1 $2 $3 $4  --peptide=Cysteine &
+aminosee_do -q  * $1 $2 $3 $4  --peptide=Glycine
+aminosee_do -q  * $1 $2 $3 $4  --peptide=Alanine &
+aminosee_do -q  * $1 $2 $3 $4  --peptide=Valine &
+aminosee_do -q  * $1 $2 $3 $4  --peptide=Leucine &
+aminosee_do -q  * $1 $2 $3 $4  --peptide=Isoleucine &
+aminosee_do -q  * $1 $2 $3 $4  --peptide=Phenylalanine &
+aminosee_do -q  * $1 $2 $3 $4  --peptide=Proline
+aminosee_do -q  * $1 $2 $3 $4  --peptide=Tryptophan &
+aminosee_do -q  * $1 $2 $3 $4  --peptide=Serine &
+aminosee_do -q  * $1 $2 $3 $4  --peptide=Threonine &
+aminosee_do -q  * $1 $2 $3 $4  --peptide=Glutamine &
+aminosee_do -q  * $1 $2 $3 $4  --peptide=Asparagine &
+aminosee_do -q  * $1 $2 $3 $4  --peptide=Tyrosine &
+aminosee_do -q  * $1 $2 $3 $4  --peptide=Arginine &
+aminosee_do -q  * $1 $2 $3 $4  --peptide=Lysine &
+aminosee_do -q  * $1 $2 $3 $4  --peptide=Histidine &
+aminosee_do -q  * $1 $2 $3 $4 $5 $6 $7
 
   # sleep 1
   # aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide="Start Codons"

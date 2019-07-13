@@ -868,13 +868,16 @@ class AminoSeeNoEvil {
   getRenderObject() { // return part of the histogramJson obj
     // this.calculateShrinkage();
     bugtxt(`codonsPerPixelHILBERT inside this.getRenderObject is ${ this.codonsPerPixelHILBERT }`)
-
+    let linearimage, refimage;
     for (let h=0; h< this.pepTable.length; h++) {
       const pep =  this.pepTable[h];
       this.currentPeptide = pep.Codon;
       this.pepTable[h].src = this.aminoFilenameIndex(h)[0];
       // bugtxt( this.pepTable[h].src);
     }
+    this.currentPeptide = "none"; // get URL for reference image
+    refimage = this.aminoFilenameIndex(-1)[0];
+    linearimage = this.aminoFilenameIndex(-1)[1];
     this.pepTable.sort( this.compareHistocount )
     // bugtxt( this.pepTable ); // least common amino acids in front
 
@@ -883,8 +886,8 @@ class AminoSeeNoEvil {
       full_path: this.filename,
       maxpix:  this.maxpix,
       name: this.justNameOfDNA,
-      refimage:  this.justNameOfHILBERT,
-      linearimage: this.justNameOfPNG,
+      refimage:  refimage,
+      linearimage: linearimage,
       runid: this.timestamp,
       url: url,
       cliruns: cliruns,
@@ -1351,7 +1354,7 @@ class AminoSeeNoEvil {
       this.quit(0);
       return false;
     }
-    if ( doesFolderExist(this.filename) && this.currentFile !== "") {
+    if ( doesFolderExist(this.filename) ) { // && this.currentFile !== ""
       let newCommand = `${this.filename}/*`
       let msg = `Folder (${this.currentFile}) provided as input instead of a file. Presently this requires use of asterix on CLI eg: aminosee ${newCommand}`
       output(msg)
@@ -1400,7 +1403,7 @@ class AminoSeeNoEvil {
       this.popAndPollOrBust(msg);
       return false;
     } else {
-      output(`Job to be rendered.`)
+      log(`Job to be rendered.`)
     }
     if ( this.checkFileExtension( this.currentFile ) == false)  {
       this.popAndPollOrBust("File Format not supported: " + chalk.inverse( this.getFileExtension( this.currentFile)) + ` supported: ${ extensions }`)
@@ -2298,6 +2301,7 @@ class AminoSeeNoEvil {
     if (this.isDiskFinHTML == true ) { if ( cb !== undefined ) { cb() } ; this.htmlFinished(); return false; }
     mode("will save HTML");
     this.pepTable.sort( this.compareHistocount )
+
     let histogramJson =  this.getRenderObject();
     let histogramFile = this.generateFilenameHistogram();
     let hypertext
@@ -2320,7 +2324,7 @@ class AminoSeeNoEvil {
   }
   fileWrite(file, contents, cb) {
     this.mkRenderFolders();
-    var that = this;
+    // var that = this;
     try {
       fs.writeFile(file, contents, 'utf8', function (err, cb) {
         if (err) {
@@ -2431,7 +2435,7 @@ class AminoSeeNoEvil {
 
   popAndPollOrBust(reason) { // ironic its now a .shift()
     // pop the array, the poll for stream or quit
-    output( `popAndPollOrBust: ${this.busy()} `)
+    bugtxt( `popAndPollOrBust: ${this.busy()} `)
     let file;
     out('pop +' + reason)
     if ( this.test ) {
@@ -3378,11 +3382,11 @@ class AminoSeeNoEvil {
       hilbert_img_png.pack()
       .pipe(wstream)
       .on('finish', (err) => {
-        bugtxt("HILBERT Save OK " +  this.storage());
+        out("HILBERT Save OK " +  this.storage());
         that.hilbertFinished();
         if ( cb !== undefined ) { cb() }
       })
-    }).then( log('Render HILBERT done') ).catch( log('catch') );
+    }).then( out('Hilbert done') ).catch( out('.') );
   }
   htmlFinished() {
     this.isDiskFinHTML = true;
@@ -3496,7 +3500,7 @@ class AminoSeeNoEvil {
         this.isDiskFinHilbert = true;
         // this.hilbertFinished();
       })
-    }).then(  ).catch( output('Test HILBERT catch') );
+    }).then(  ).catch( out('HILBERT catch') );
     // new Promise(resolve =>
     //   hilbert_img_png.pack()
     //   .pipe(wstreamHILBERT)
@@ -4606,9 +4610,9 @@ class AminoSeeNoEvil {
         }
       }
     } else if (debug == true){
-      output(txt)
+      log(txt)
     } else {
-      redoLine(txt)
+      // redoLine(txt)
     }
 
   }
@@ -4791,7 +4795,7 @@ class AminoSeeNoEvil {
           that.peptide = 'Opal'; // Blue TESTS
           that.ratio = 'sqr';
           that.generateTestPatterns(cb);
-          this.openOutputs();
+          that.openOutputs();
         },
         function( cb ) {
           // that.openImage = true;
@@ -5423,3 +5427,4 @@ class AminoSeeNoEvil {
     module.exports.showCountdown = showCountdown;
     module.exports.stopWork = stopWork;
     module.exports.setupPrefs = setupPrefs;
+    module.exports.fileWrite = (a,b,cpen ) => { this.fileWrite(a,b,c) }
