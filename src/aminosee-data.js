@@ -1,7 +1,7 @@
 const aminosee = require('./aminosee-cli');
 const path = require('path');
 const fs = require('fs-extra'); // drop in replacement = const fs = require('fs')
-const { IndexedFasta, BgzipIndexedFasta } = require('@gmod/indexedfasta')
+// const { IndexedFasta, BgzipIndexedFasta } = require('@gmod/indexedfasta')
 // const output = aminosee.output;
 // const log = aminosee.log;
 const asciiart = `
@@ -38,6 +38,7 @@ const extensions = [ "txt", "fa", "mfa", "gbk", "dna", "fasta", "fna", "fsa", "m
 const epicQuotes = [
   `I have not failed. I've just found 10,000 ways that won't work!`,
   `Amino dont see nothing...    ...wait, I think I can see it now! I can AminoSEE it!!`,
+  `Autonomy, mastery, and purpose.`,
   `Thats us we outa here cousin! Sweet-as-a-Kina-in-a-creek (as they say in NZ)`
 ]
 async function getSequenceNames(fastaFilePath) {

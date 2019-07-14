@@ -3,20 +3,32 @@
 # AminoSee DNA Viewer
 by Tom Atkinson
 
-A new way to view DNA data which maps a spectrum of colour hues to each amino acid, encoding all the information visually. It can take an infinite file size as input, and crunch this into a linear render (left to right, top to bottom), and also a space filling Hilbert curve (top left to center to top right via all corners).
+A node command to convert any DNA sequence into an abstract image, and a built-in web server to show your work to others. Your renders will end up in ~/AminoSee_Output or create a folder with that name in the same folder as your DNA to enable zero-conf cluster rendering (it uses lock files to synchronise the nodes).
 
-Tested with files as large as an entire Chimpanzee genome which ids 3.11 GB - AminoSee streams through the file without loading it completely at the file size, makes an estimate of how many codon triplets are present, and starts blending just over 100 codons per pixel in a 9 megapixels image. Smaller microbes and the C.Elegans worm can be seen at 1 pixel per codon resolution on a large 4k monitor! I get about 2 MB/s on my 2015 Mac.
+Tested with FASTA .fa and GBK files on macOS, Linux and Windows. Just feed it a file, simple as:
 
-## What?
+```aminosee dna/megabase.fa```
+
+To render the sample DNA included in this repo.
+
+No file size limit - tested with a 3.11 GB Chimpanzee genome - AminoSee streams through the file - one line at a time - and outputs a pixel of colour for each triplet found. AminoSee makes an estimate of how many amino acids are present, and starts blending for example 100 codons per pixel in a 9 megapixels image. Smaller microbes and the C.Elegans worm can be seen at 1 pixel per codon resolution on a large 4k monitor! I get about 2 MB/s on my 2015 Mac. To remove the limit use --maxpix 69000000 but I think you will find the default of 9 megapixels is fine.
+
+## What can I see?
 DNA structures like repeats, genes, chromosomes, centromere, telomeres etc - which otherwise would appear as incredibly thin 1-pixel-thick lines.
 
 ## Why on Earth?
-I got the idea while looking at raw DNA and pondering if that advent of 4K monitors mite allow me to "See" all the information. In particular, I'm interesting in cross-species comparisons, forensics, visulisation large chromosomal structures such as the Telemeres (grip points at the endings), the Centromeres (place in middle where chromosome breaks in two), and generally check how different the species look.
+I got the idea while looking at raw DNA and pondering if that advent of 4K monitors mite allow me to "See" all the information. In particular, I'm interested in seeing if it could be useful for cross-species comparisons, criminal forensics, visualisation and animation of mutations over time.
 
-Another reason, was thinking about ways to prove *or disprove* the Sumerian account of human history. The hypothesis being that the Annunaki had been trying to create fertile hydrids for quite some period.  with our DNA for a solar precession or two. It might be possible to see something happening around 340,000 to 450,000 years ago, I'm focussing on 2A 2B, and the Y chromosome to start. It would be tricky to prove but visuals might help.
+It is possible to see large chromosomal structures such as the Telomeres (grip points at the endings), the Centromeres (place in middle where chromosome breaks in two), and generally check how different the species look.
+
+## And the real reason?
+I was wondering how to prove or disprove the official Sumerian account of human history. The hypothesis being that if the Annunaki had spent tens of thousands of years medling with our DNA, perhaps this will show up visually compared to the natural mutations of ~6 million years which is the separation from homo sapiens to a common Chimp ancester AFAIK. If the story is true, it might be possible to see something happening around 340,000 to 450,000 years ago, I'm focussing on the fused chromosome 2pq in humans which is normally 2p and 2q in other apes; and the Y chromosome for its slow rate of mutation to begin with.
+
+```Among the living primates, humans are most closely related to the apes, which include the lesser apes (gibbons) and the great apes (chimpanzees, gorillas and orangutans). These so-called hominoids — that is, the gibbons, great apes and humans — emerged and diversified during the Miocene epoch, approximately 23 million to 5 million years ago. The last common ancestor that humans had with chimpanzees lived about 6 million to 7 million years ago. Source: https://www.scientificamerican.com/article/fossil-reveals-what-last-common-ancestor-of-humans-and-apes-looked-liked/ ```
 
 ## How on earth is it done?
 It creates full colour images and was designed to enable inter-species comparisons by enabling a visual diff; to understand the role of the regulatory “non-coding” junk DNA; as a thought experiment and exercise in processing enormous datasets; but most of all just purely out of curiosity and to inspire youth to get into science.
+A new way to view DNA data which maps a spectrum of colour hues to each amino acid, encoding all the information visually. It can take an infinite file size as input, and crunch this into a linear render (left to right, top to bottom), and also a space filling Hilbert curve (top left to center to top right via all corners).
 
 
 ## 3D and 2D Hilbert mapping
@@ -24,9 +36,7 @@ An experimental 3D mode enables visitors to http://aminosee.funk.nz/ to interact
 
 I'm about to get in touch with some universities and genomics researchers worldwide, once the code has settled down a bit, hoping to gain some feedback and suggestions on the final colours for each amino acid, which I am still open to, and planning a way to customise it.
 
-***Strapline: “I can see it now - I can AminoSee it!”***
-
-
+Strapline: “I can see it now - I can AminoSee it!”
 
 Amino.See.No.Evil (AminoSee) is a DNA visualisation written in NodeJS, ThreeJS and Electron. It does this with a terminal command and batch scripts that can be run (such as batch-peptides.sh in ./dna), Its been tested with Fasta or GBK files I downloaded. AminoSee assigns a unique colour hue to each amino acid and start/stop codon,
 
@@ -131,10 +141,12 @@ This site was built using [AminoSee Official Site](https://www.funk.co.nz/aminos
 
 ## To Do List
 
+- [ ] Rewrite code engine in Vulkan GPU language
 - [x] Node CLI to convert DNA into PNG
 - [x] A funky WebGL way to look at linear colour maps
 - [ ] Link the two together by feeding the PNG into the WebGL
-- [ ] Remove use of String, convert to Streaming architecture (half done)
+- [x] Implement streaming architecture for main array ingress
+- [ ] Implement streaming for PNG saving
 - [ ] Finish the UI, it's possible to move forward using W but but backwards with S not work.
 - [ ] Test if array map is faster than for loops, its currently done with for loops
 - [ ] Implement GPU acceleration for transcoding step. It uses GPU for the WebGL viewer.
