@@ -37,7 +37,7 @@
     "hammerjs": "^2.0.8",
     "http-server": "^0.11.1",
     "node-fetch": "^2.6.0",
-    "terminal-kit": "^1.28.3",
+    "terminal-kit": "^1.28.9",
     "three": "^0.106.2",
     "xterm": "^3.14.4"
   },
