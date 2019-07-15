@@ -151,9 +151,9 @@ function populateArgs(procArgv) { // returns args
   } // NUMERIC INPUTS: codons, magnitude, width,     string: [ 'width'],    string: [ 'magnitude'],    string: [ 'codons'],
   // console.log(procArgv.slice(2))
   console.log(process.argv.slice(2))
-  // return minimist(process.argv.slice(2), options);
-  this.args = minimist(procArgv.slice(2), options)
-  return this.args;
+  return minimist(process.argv.slice(2), options);
+  // this.args = minimist(procArgv.slice(2), options)
+  // return this.args;
 }
 function bruteForce(cs) {
   let pepTable = data.pepTable;
@@ -201,10 +201,10 @@ function pushCli(cs) { // used by Electron GUI
       log(`configuring parameter: [${job}]`)
     }
   }
+// populateArgs( job )
 
-
-  // let thread = addJob(jobArgs);
-  let thread = addJob(populateArgs (commandString));
+  let thread = addJob(jobArgs);
+  // let thread = addJob( commandString );
   threads.push( thread );
 }
 function setupApp() {
@@ -238,7 +238,7 @@ class AminoSeeNoEvil {
     // do stuff aside from creating any changes. eg if you just run "aminosee" by itself.
     // for each render batch sent through addJob, here is where "this" be instantiated once per addJob
     // for each DNA file, run setupProject
-    this.error(args)
+    log(args)
 
 
 
@@ -1666,8 +1666,7 @@ class AminoSeeNoEvil {
     Hilbert Curve Pixels: ${hilbPixels[ this.dimension ]}`;
   }
   renderObjToString() {
-    const unknown = 'unknown until render complete'
-    // += 0; // cast it into a number from whatever the heck data type it was before!
+    const unknown = 'unknown until render complete';
     return `
     Canonical this.file: ${ this.justNameOfDNA}
     Source: ${ this.justNameOfCurrentFile}
