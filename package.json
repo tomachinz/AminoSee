@@ -87,7 +87,7 @@
     "demo": "node bin/aminosee demo",
     "credits": "./build-credits.sh",
     "crash": "node --inspect 27MB_TestPattern.txt --peptide=Ochre 3MB_TestPattern.txt 50KB_TestPattern.txt batch-peptides.sh batch-process.sh Gorilla_gorGor4_chr2B.fa",
-    "test": "echo 'requires cli program time' ; time dna/run-test.sh ; vows --spec --isolate",
+    "test": "echo 'requires cli programs: time, lighthouse, vows etc' ; time dna/run-test.sh ; npm run start --serve &amp; lighthouse http://localhost:4321 ; vows --spec --isolate; killall aminosee.funk.nz",
     "start": "node bin/aminosee",
     "inspect": "node --inspect bin/aminosee.js /Volumes/aminosee/dna/Brown_Kiwi_NW_013982187v1.fa   /Volumes/aminosee/dna/Brown_Kiwi_NW_013982187v1.fa  -f -c1000 -vd --debug",
     "build": "./build-lib.sh ; nice time npm run build-web ; nice time npm run pkg",

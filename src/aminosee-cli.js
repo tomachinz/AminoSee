@@ -3,14 +3,14 @@
 //       ╠═╣││││││││ │╚═╗├┤ ├┤    ║║║║║╠═╣  ╚╗╔╝│├┤ │││├┤ ├┬┘
 //       ╩ ╩┴ ┴┴┘└┘└─┘╚═╝└─┘└─┘  ═╩╝╝╚╝╩ ╩   ╚╝ ┴└─┘└┴┘└─┘┴└─
 //       by Tom Atkinson            aminosee.funk.nz
-//        ah-mee no-see       "I See It this.now - I AminoSee it!"
+//        ah-mee no-see       "I see it now...  I AminoSee it!"
 const radMessage = `
 MADE IN NEW ZEALAND
 ╔═╗┌┬┐┬┌┐┌┌─┐╔═╗┌─┐┌─┐  ╔╦╗╔╗╔╔═╗  ╦  ╦┬┌─┐┬ ┬┌─┐┬─┐
 ╠═╣││││││││ │╚═╗├┤ ├┤    ║║║║║╠═╣  ╚╗╔╝│├┤ │││├┤ ├┬┘
 ╩ ╩┴ ┴┴┘└┘└─┘╚═╝└─┘└─┘  ═╩╝╝╚╝╩ ╩   ╚╝ ┴└─┘└┴┘└─┘┴└─
 by Tom Atkinson          aminosee.funk.nz
-ah-mee no-see         "I See It this.now - I AminoSee it!"
+ah-mee no-see         "I see it now...  I AminoSee it!"
 `;
 
 const siteDescription = `A unique visualisation of DNA or RNA residing in text files, AminoSee is a way to render huge genomics files into a PNG image using an infinite space filling curve from 18th century! Computation is done locally, and the files do not leave your machine. A back-end terminal daemon cli command that can be scripted is combined with a front-end GUI in Electron, AminoSee features asynchronous streaming processing enabling arbitrary size files to be processed. It has been tested with files in excess of 4 GB and does not need the whole file in memory at any time. Due to issues with the 'aminosee *' command, a batch script is provided for bulk rendering in the dna/ folder. Alertively use the GUI to Drag and drop files to render a unique colour view of RNA or DNA stoRed in text files, output to PNG graphics file, then launches an WebGL this.browser that projects the image onto a 3D Hilbert curve for immersive viewing, using THREEjs. Command line options alow one to filter by this.peptide.`;
@@ -2449,6 +2449,7 @@ class AminoSeeNoEvil {
     out('pop +' + reason)
     if ( this.test ) {
       this.error(`Test mode.`)
+      log(`Test mode.`)
     }
     if ( this.renderLock ) {
       this.error(`Thread re-entered popAndPollOrBust due to: ${reason}`)
@@ -2464,13 +2465,13 @@ class AminoSeeNoEvil {
     this.setNextFile();
 
     if ( file.indexOf('...') != -1) {
-      mode( 'Cant use files with three dots in the this.dnafile ... (for some reason?)');
+      mode( 'Cant use files with three dots in the file ... (for some reason?)');
       this.popAndPollOrBust(this.status );
       // this.quit(0, 'no more commands' );
       return false;
     }
     if ( file == undefined) {
-      mode('this.dnafile was undefined after resolve: ' + file)
+      mode('undefined after resolve: ' + file)
       // this.quit(0, 'no more commands' );
       return false;
     }
@@ -3672,7 +3673,7 @@ class AminoSeeNoEvil {
       open(this.outputPath, () => {
         this.opensFile++;
         log("file manager closed");
-      }).catch(function () {  this.error(`open(${ this.outputPath })`)});
+      }).catch(function () { log(`open(${ this.outputPath })`) });
     }
 
 

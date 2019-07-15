@@ -3,9 +3,13 @@ CREDITS="credits.txt"
 TIMESTAMP=$(date +%s)
 TOMSSOURCE=toms_source_temp.txt
 echo GENERATE CREDITS.TXT FILE
-echo "Thanks to Christos Georghiou who designed the 'See No Evil Hear No Evil Monkeys' http://christosgeorghiou.com/" > $CREDITS
-
-cat src/public/aminosee-gui-web.js                 >       build/toms.txt
+cp src/ascii-logo.txt $CREDITS
+echo >> $CREDITS
+echo "Thanks to Christos Georghiou who designed the 'See No Evil Hear No Evil Monkeys' http://christosgeorghiou.com/" >> $CREDITS
+echo >> $CREDITS
+echo "Checkout the music from the drummer who wrote this app at https://www.funk.co.nz/tomachi" >> $CREDITS
+echo >> $CREDITS
+cat src/public/aminosee-gui-web.js                                  >>       build/toms.txt
 cat src/aminosee-server.js                                          >>       build/toms.txt
 cat src/aminosee-data.js                                            >>       build/toms.txt
 cat src/aminosee-cli.js                                             >>       build/toms.txt

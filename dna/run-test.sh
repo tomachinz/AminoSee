@@ -2,6 +2,9 @@
 # test should run quickly and quit.
 #!/bin/sh
 echo aminosee $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
+echo STARTING SERVER TO RUN IN BACKGROUND
+aminosee --serve &
+
 aminosee_do () {
   success "$1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12"
   nice aminosee $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --no-image --no-html --no-explorer
@@ -95,7 +98,7 @@ aminosee --test
 # echo "doing aminosee serve and opening a file"
 nice aminosee --serve $MEDIUM  $1 $2 $3 $4 $5 $6  --no-html --explorer &
 # echo only works on linux:
-# open http://127.0.0.1:8081 &
+open http://localhost:4321 &
 sleep 1
 echo KILLING ALL AMINOSEE SERVERS IN 5 seconds
 sleep 1
@@ -108,7 +111,6 @@ echo LETS TYR THE ELECTRON APP GUI
 echo "-------------------------------------------"
 echo "                                         =///"
 # npm run gui &
-
 sleep 1
 echo "                                         =///"
 echo "-------------------------------------------"
@@ -116,6 +118,9 @@ echo COMPLETED TESTING FOR $1 $2 $3 $4 $5 $6 $6
 echo "-------------------------------------------"
 echo "                                         =///"
 clear
+# killall "aminosee.funk.nz 27MB_TestPattern 34.94MB"
+lighthouse http://localhost:4321 ;
+eslint src/aminosee-cli.js
+echo Stopping server in 1 second
+sleep 1
 killall aminosee.funk.nz
-killall "aminosee.funk.nz 27MB_TestPattern 34.94MB"
-eslint ../src/aminosee-cli.js
