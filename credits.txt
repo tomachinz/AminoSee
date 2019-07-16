@@ -1,8 +1,18 @@
+  MADE IN NEW ZEALAND
+  ╔═╗┌┬┐┬┌┐┌┌─┐╔═╗┌─┐┌─┐  ╔╦╗╔╗╔╔═╗  ╦  ╦┬┌─┐┬ ┬┌─┐┬─┐
+  ╠═╣││││││││ │╚═╗├┤ ├┤    ║║║║║╠═╣  ╚╗╔╝│├┤ │││├┤ ├┬┘
+  ╩ ╩┴ ┴┴┘└┘└─┘╚═╝└─┘└─┘  ═╩╝╝╚╝╩ ╩   ╚╝ ┴└─┘└┴┘└─┘┴└─
+  by Tom Atkinson          aminosee.funk.nz
+  ah-mee no-see         "I See It this.now - I AminoSee it!"
+
 Thanks to Christos Georghiou who designed the 'See No Evil Hear No Evil Monkeys' http://christosgeorghiou.com/
-    2118
+
+Checkout the music from the drummer who wrote this app at https://www.funk.co.nz/tomachi
+
+    2117
  open source node npm packages used. 
 
-aminosee@1.18.8 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
+aminosee@1.18.13 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
 ├─┬ @gmod/indexedfasta@1.0.13
 │ ├─┬ @babel/runtime-corejs2@7.4.5
 │ │ ├── core-js@2.6.8 deduped
@@ -780,7 +790,6 @@ aminosee@1.18.8 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
 │ │ └── mkdirp@0.5.1 deduped
 │ └─┬ union@0.4.6
 │   └── qs@2.3.3
-├── humanize-duration@3.18.0
 ├─┬ internal-ip@4.3.0
 │ ├─┬ default-gateway@4.2.0
 │ │ ├─┬ execa@1.0.0

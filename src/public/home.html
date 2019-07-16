@@ -1,129 +1,274 @@
-<div id="bgCanvFixed">
-	<canvas id="canvas" width="512" height="512" style="width: 512px; height: 512px;"></canvas>
-</div>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<title>AminoSee DNA Viewer :: WebGL 3D DNA Visualisation Pseudo-Hilbert Curve Projection :: Funk NZ</title>
+	<meta name="description" content="A new way to view DNA that attributes a colour hue to each Amino acid codon triplet">
+	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+	<meta http-equiv="Content-Security-Policy" content="default-src http://127.0.0.1:8888 http://127.0.0.1:4321 http://127.0.0.1:43210 https://dev.funk.co.nz http://dev.funk.co.nz https://www.funk.co.nz  http://www.funk.co.nz * data: blob: 'unsafe-inline' 'unsafe-eval' ws: wss:;">
+	<script src="three.min.js"></script>
+	<script src="jquery.min.js"></script>
+	<script src="hilbert3D.js"></script>
+	<script src="hilbert2D.js"></script>
+	<script src="WebGL.js"></script>
+	<script src="sprites.js"></script>
+	<script src="hammer.min.js"></script>
+	<script src="aminosee-gui-web.js"></script>
+	<!-- <script src="node_modules/hammerjs/hammer.min.js"></script> -->
+	<!-- <script src="node_modules/jquery/dist/jquery.min.js"></script> -->
+	<!-- <script src="node_modules/three/build/three.min.js"></script> -->
+	<!-- <script src="bundle.js"></script> -->
+	<!-- <script src="sprites.js" type="module"></script> -->
+
+	<link rel="stylesheet" type="text/css" href="AminoSee.css">
+	<link href='https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz:700,400,200,100' rel='stylesheet' type='text/css'>
+	<link href="https://www.funk.co.nz/css/menu.css" rel="stylesheet">
+	<!-- <link href="/css/menu.css" rel="stylesheet"> -->
+	<link href="https://www.funk.co.nz/css/funk2014.css" rel="stylesheet">
+	<!-- <link href="/css/funk2014.css" rel="stylesheet"> -->
+	<!-- Funk.nz menubar include -->
+	<!-- Google Tag Manager -->
+	<noscript><iframe src="//www.googletagmanager.com/ns.html?id=GTM-P8JX" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+	<script>
+		(function(w, d, s, l, i) {
+			w[l] = w[l] || [];
+			w[l].push({
+				'gtm.start': new Date().getTime(),
+				event: 'gtm.js'
+			});
+			var f = d.getElementsByTagName(s)[0],
+				j = d.createElement(s),
+				dl = l != 'dataLayer' ? '&l=' + l : '';
+			j.async = true;
+			j.src =
+				'//www.googletagmanager.com/gtm.js?id=' + i + dl;
+			f.parentNode.insertBefore(j, f);
+		})(window, document, 'script', 'dataLayer', 'GTM-P8JX');
+	</script>
+	<!-- End Google Tag Manager -->
+</head>
+
+<body id="webgl" class="black nocse">
 
 
-<div id="supercontainer">
+
+	<!-- Funk.nz menubar include -->
+	<!-- Google Tag Manager -->
+	<noscript><iframe src="//www.googletagmanager.com/ns.html?id=GTM-P8JX" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+	<script>
+		(function(w, d, s, l, i) {
+			w[l] = w[l] || [];
+			w[l].push({
+				'gtm.start': new Date().getTime(),
+				event: 'gtm.js'
+			});
+			var f = d.getElementsByTagName(s)[0],
+				j = d.createElement(s),
+				dl = l != 'dataLayer' ? '&l=' + l : '';
+			j.async = true;
+			j.src =
+				'//www.googletagmanager.com/gtm.js?id=' + i + dl;
+			f.parentNode.insertBefore(j, f);
+		})(window, document, 'script', 'dataLayer', 'GTM-P8JX');
+	</script>
+	<!-- End Google Tag Manager -->
 
 
-	<div id="viewPortSize" class="bottom_right" style="display: none; background-color: rgb(0, 0, 0); color: rgb(255, 255, 255); font-size: 12px;"></div>
-
-	<!-- <a href="https://www.funk.co.nz/" style="width: 100px;" title="Return to FUNK Homepage"><img src="https://www.funk.co.nz/images/nav/funk-logo-140px.png" width="140" height="70" alt="www.funk.co.nz" style="position: fixed; top: -2px; left: 26px;"/></a> -->
-
-
-
-
-	<div id="info">
-		<div id="monkeys">
-			<div>
-				<input type="button" id="hide" name="hide" value="Hide Controls [H]" onclick="toggleControls()"><br>
-				<a href="https://www.funk.co.nz/aminosee/" onclick="toggleControls(); return false;">
-					<img src="https://www.funk.co.nz/aminosee/public/seenoevilmonkeys.jpg" id="dragitem">
-				</a>
-				<!-- <h1>AminoSeeNoEvil</h1> -->
-				<h1>Amino<span style="color: #888888;">See</span><span style="color: #dddddd;">NoEvil</span></h1>
-				<div class="hidable">
-					<h2 id="h2">DNA/RNA Chromosome Viewer</h2>
-					<p id="description" class="small hidable">A new way to view DNA that attributes a colour hue to each Amino acid codon triplet</p>
+	<script async type="text/javascript" src="//localhost:35729/livereload.js?snipver=1"></script>
+	<nav id="nav">
 
 
 
 
 
-					<form action="../">
-						<select name="selectedGenome" onchange="fileChanged(this.options[this.selectedIndex].value)">
-							<option value="Brown_Kiwi_NW_013982187v1/">Brown Kiwi</option>
-							<option value="Caenorhabditisel.dna_sm.toplevel/">Caenorhabditis Elegans Worm</option>
-							<option value="Chimp_Clint_chrY/">Clint the Chimps Y</option>
-							<option value="Gorilla_gorGor4_chr2A/">Gorgor the Gorilla Chr 2A</option>
-							<option value="Influenza-A-virus-H9N2-NC_004905/">Influenza A virus H9N2</option>
-							<option value="Kyokai7_BABQ01000000/">Kyokai Yeast</option>
-							<option value="Mycoplasmapneumoosome.Chromosome/">Mycoplasma Calibration Large</option>
-							<option value="Streptococcus_virus_2972/">Streptococcus virus</option>
-							<!-- <option value="Brown_Kiwi_NW_013982187v1/" selected>Brown Kiwi</option>
+		<nav id="nav">
+			<ul>
+				<li id="menuhomelink"><a href="http://www.funk.co.nz/" style="width: 100px;" title="Return to FUNK Homepage"><img src="/images/nav/funk-logo-140px.png" width="140" height="70" alt="Home" style="position: absolute; top: -2px; left: 26px; z-index: -1;" /></a></li>
+				<ul>
+					<li>
+						<div id="gsc-control-cse">
+							<script>
+								(function() {
+								var cx = '009784352838369446998:kll8tgkuhfk';
+								var gcse = document.createElement('script');
+								gcse.type = 'text/javascript';
+								gcse.async = true;
+								gcse.src = 'https://cse.google.com/cse.js?cx=' + cx;
+								var s = document.getElementsByTagName('script')[0];
+								s.parentNode.insertBefore(gcse, s);
+
+								document.getElementById("gsc-control-cse").style.width = "256px";
+							})();
+							</script>
+							<gcse:search style=""></gcse:search>
+						</div>
+					</li>
+				</ul>
+				<li id="menuabout"><a href="http://www.funk.co.nz/menu/about-author.php" title="About the author">About Funk</a>
+					<ul>
+						<li id="menucontact"><a href="http://www.funk.co.nz/menu/contact.php" title="Contact">Contact</a></li>
+						<li><a href="http://www.funk.co.nz/amu/" title="Receive Email Updates">Subscribe to Updates</a></li>
+						<li><a href="http://www.funk.co.nz/cv/" title="Curriculum Vitae">CV / Resume</a></li>
+						<li id="menuconsulting"><a href="http://www.funk.co.nz/blog/business/the-tomachi-corporation-is-a-go">Web Consulting</a></li>
+						<li id="menuhandy"><a href="http://www.funk.co.nz/h/" title="Auckland NZ Handy Links">Handy Links</a></li>
+						<li id="menuaminosee"><a href="http://www.funk.co.nz/aminosee/">AminoSee DNA Viewer</a></li>
+						<li id="menublog"><a href="http://www.funk.co.nz/blog/" title="The Funk Blog - Some Stuff That Some People Wrote">Blog</a></li>
+						<li id="menusearch"><a href="http://www.funk.co.nz/menu/search.php" title="Search the Funk site network">Search</a></li>
+					</ul>
+				</li>
+				<li id="menugraphics"><a href="http://www.funk.co.nz/blog/category/visuals"><img src="https://tomachi.co/wp-content/uploads/2016/06/cropped-tcorp-512px-BW-icon-32x32.png" width="12" height="12" alt="Tomachi live show" style="margin-right: 8px;">
+						Graphics</a>
+					<ul>
+						<li><a href="http://www.funk.co.nz/aminosee/">AminoSee DNA Viewer</a></li>
+						<li><a href="http://www.funk.co.nz/ballsofsteel/">Balls Of Steel</a></li>
+						<li><a href="http://www.funk.co.nz/tiri/">Tiritirimatangi</a></li>
+					</ul>
+				</li>
+				<li id="menubands"><a href="http://www.funk.co.nz/tomachi/"><img src="https://tomachi.co/wp-content/uploads/2016/06/cropped-tcorp-512px-BW-icon-32x32.png" width="12" height="12" alt="Tomachi live show" style="margin-right: 8px;">
+						Tomachi's Music</a>
+					<ul>
+						<li><a href="http://www.funk.co.nz/auckland-music-update/">UPCOMING GIGS</a></li>
+						<li><a href="http://www.funk.co.nz/auckland-music-update/music-video-sex-girls-caught-tourettes-triptonites/">The Triptonites</a></li>
+						<li><a href="http://www.funk.co.nz/damnative/">Dam Native</a></li>
+						<li><a href="http://www.funk.co.nz/sjd/">SJD</a></li>
+						<li><a href="http://www.funk.co.nz/blog/music/breaks-co-op-uk-tour-2006-tour-dates">Breaks Co-op</a></li>
+						<li><a href="http://www.funk.co.nz/foghorn/">Foghorn</a></li>
+						<li><a href="http://www.funk.co.nz/omd/">one million dollars</a></li>
+						<li><a href="http://www.funk.co.nz/hmx/">HMX</a></li>
+						<li><a href="http://www.funk.co.nz/roughness/">The Roughness</a></li>
+					</ul>
+				</li>
+			</ul>
+		</nav>
+
+
+		<div id="bgCanvFixed">
+			<canvas id="canvas" width="512" height="512" style="width: 512px; height: 512px;"></canvas>
+		</div>
+
+
+		<div id="supercontainer">
+
+
+			<div id="viewPortSize" class="bottom_right" style="display: none; background-color: rgb(0, 0, 0); color: rgb(255, 255, 255); font-size: 12px;"></div>
+
+			<!-- <a href="https://www.funk.co.nz/" style="width: 100px;" title="Return to FUNK Homepage"><img src="https://www.funk.co.nz/images/nav/funk-logo-140px.png" width="140" height="70" alt="www.funk.co.nz" style="position: fixed; top: -2px; left: 26px;"/></a> -->
+
+
+
+
+			<div id="info">
+				<div id="monkeys">
+					<div>
+						<input type="button" id="hide" name="hide" value="Hide Controls [H]" onclick="toggleControls()"><br>
+						<a href="https://www.funk.co.nz/aminosee/" onclick="toggleControls(); return false;">
+							<img src="https://www.funk.co.nz/aminosee/public/seenoevilmonkeys.jpg" id="dragitem">
+						</a>
+						<!-- <h1>AminoSeeNoEvil</h1> -->
+						<h1>Amino<span style="color: #888888;">See</span><span style="color: #dddddd;">NoEvil</span></h1>
+						<div class="hidable">
+							<h2 id="h2">DNA/RNA Chromosome Viewer</h2>
+							<p id="description" class="small hidable">A new way to view DNA that attributes a colour hue to each Amino acid codon triplet</p>
+
+
+
+
+
+							<form action="../">
+								<select name="selectedGenome" onchange="fileChanged(this.options[this.selectedIndex].value)">
+									<option value="Brown_Kiwi_NW_013982187v1/">Brown Kiwi</option>
+									<option value="Caenorhabditisel.dna_sm.toplevel/">Caenorhabditis Elegans Worm</option>
+									<option value="Chimp_Clint_chrY/">Clint the Chimps Y</option>
+									<option value="Gorilla_gorGor4_chr2A/">Gorgor the Gorilla Chr 2A</option>
+									<option value="Influenza-A-virus-H9N2-NC_004905/">Influenza A virus H9N2</option>
+									<option value="Kyokai7_BABQ01000000/">Kyokai Yeast</option>
+									<option value="Mycoplasmapneumoosome.Chromosome/">Mycoplasma Calibration Large</option>
+									<option value="Streptococcus_virus_2972/">Streptococcus virus</option>
+									<!-- <option value="Brown_Kiwi_NW_013982187v1/" selected>Brown Kiwi</option>
 							<option value="calibration/AminoSee_Calibration_reg_linear_8.png">AminoSee Calibration Large</option>
 							<option value="calibration/AminoSee_Calibration_reg_linear_2.png">AminoSee Calibration Small</option>
 							<option value="Caenorhabdihromosome-V.fa_linear_reg_c1.7_fix_sci.png">C.elegans</option>
-							<option value="public/seenoevilmonkeys.jpg">AminoSeeNoEvil Monkeys</option>
+							<option value="seenoevilmonkeys.jpg">AminoSeeNoEvil Monkeys</option>
 							<option value="/images/nav/funk-logo-140px.png">Funk Logo 140px</option> -->
-						</select>
-					</form>
+								</select>
+							</form>
 
-					<p class="white small hidable">
-						<a href="/pdf/AminoSee_WhitePaper_09Jan2019.pdf" class="small hidable">WHITE PAPER PDF</a> |
-						<a href="/blog/news/aminosee-dna-visualisation" class="small hidable">2018 Press Release</a> |
-						<a href="output" class="small hidable">2D IMAGE RENDERS</a> |
-						<a href="calibration/AminoSee_Calibration_reg_HILBERT_8.png" class="small hidable">Calibration</a> |
-						<a href="dist" class="small hidable" title="Download executable for win, linux, and macos">DOWNLOAD</a> |
-						<a href="https://github.com/tomachinz/AminoSee" class="small hidable" title="Github Source Code Repo">SOURCE</a>
-						<br />
-					</p>
+							<p class="white small hidable">
+								<a href="/pdf/AminoSee_WhitePaper_09Jan2019.pdf" class="small hidable">WHITE PAPER PDF</a> |
+								<a href="/blog/news/aminosee-dna-visualisation" class="small hidable">2018 Press Release</a> |
+								<a href="output" class="small hidable">2D IMAGE RENDERS</a> |
+								<a href="calibration/AminoSee_Calibration_reg_HILBERT_8.png" class="small hidable">Calibration</a> |
+								<a href="dist" class="small hidable" title="Download executable for win, linux, and macos">DOWNLOAD</a> |
+								<a href="https://github.com/tomachinz/AminoSee" class="small hidable" title="Github Source Code Repo">SOURCE</a>
+								<br />
+							</p>
+						</div>
+					</div>
 				</div>
-			</div>
-		</div>
 
-		<div id="status" class="headingStatus">
-			...loading...
-			<div id="oi">
-				<img id="current_image" src="Brown_Kiwi_NW_013982187v1/images/Brown_Kiwi_NW_013982187v1.fa_HILBERT-Reference_m7_c397.2.png" width="64px" height="64px">
-				<img id="offscreen_image" src="Brown_Kiwi_NW_013982187v1/images/Brown_Kiwi_NW_013982187v1.fa_HILBERT-Reference_m7_c397.2.png" class="hidden">
-			</div>
-		</div>
-		<div id="stats" class="stats whitetext">
-			<h6>loading</h6>
-			<pre>
+				<div id="status" class="headingStatus">
+					...loading...
+					<div id="oi">
+						<img id="current_image" src="Brown_Kiwi_NW_013982187v1/images/Brown_Kiwi_NW_013982187v1.fa_HILBERT-Reference_m6_c1,600.4.png" width="64px" height="64px">
+						<img id="offscreen_image" src="Brown_Kiwi_NW_013982187v1/images/Brown_Kiwi_NW_013982187v1.fa_HILBERT-Reference_m6_c1,600.4.png" class="hidden">
+					</div>
+				</div>
+				<div id="stats" class="stats whitetext">
+					<h6>loading</h6>
+					<pre>
 					...loading...
 				</pre>
-		</div>
-	</div>
+				</div>
+			</div>
 
-	<div id="controls" onclick="resume()" style="text-align: center;">
-		<div id="fileheader">
-			<label class="custom-file-upload">
-				Custom Upload
-				<input type="file" id="choosefiles" name="file" value="example-sequence.fa" multiple /></label>
-			<input disabled type="button" id="cancel" class="fineprint small hidden" name="cancel" value="Cancel" onclick="cancel()">
-			<span class="fineprint whitetext">Any ASCII text file containing DNA or RNA sequences in first 1k</span>
-			<br />
-			Hire Me: <a href="https://tomachi.co/about/hire-me">for recruiters</a>
-			<output id="list"></output>
-		</div>
+			<div id="controls" onclick="resume()" style="text-align: center;">
+				<div id="fileheader">
+					<label class="custom-file-upload">
+						Custom Upload
+						<input type="file" id="choosefiles" name="file" value="example-sequence.fa" multiple /></label>
+					<input disabled type="button" id="cancel" class="fineprint small hidden" name="cancel" value="Cancel" onclick="cancel()">
+					<span class="fineprint whitetext">Any ASCII text file containing DNA or RNA sequences in first 1k</span>
+					<br />
+					Hire Me: <a href="https://tomachi.co/about/hire-me">for recruiters</a>
+					<output id="list"></output>
+				</div>
 
-		<br>
-		<div id="#butbar">
-			<input type="button" name="lessdetail" value="Less Detail [-]" onclick="lessdetail()" title="Less detail" class="flex-item">
-			<input type="button" name="moredetail" value="More Detail [+]" onclick="moredetail()" title="More detail" class="flex-item">
-			<input type="button" id="pause" name="pause" value="Pause [P]" onclick="togglePause()" class="flex-item">
-			<input type="button" id="spin" name="spin" value="Stop Rotate [R]" onclick="toggleSpin()" class="flex-item">
-			<input type="button" id="amongst" name="amongst" value="Get Amoungst It [G]" onclick="getAmongstIt()" title="Put the camera wang in the middle o dat dere" class="flex-item">
-			<input type="button" id="perspective" name="perspective" value="Perspective [V]iew" onclick="toggleView()" class="flex-item">
-			<input type="button" id="reset" name="reset" value="Reset [U]" onclick="reset()" class="flex-item">
-			<input type="button" id="testcolour" name="testcolour" value="Test Colours [T]" onclick="testColour()" class="flex-item">
-			<input type="button" id="loadImage" name="loadImage" value="Load Image [L]" onclick="loadImage()" class="flex-item">
-			<!-- <input disabled type="button" id="fileupload" name="fileupload" value="Upload DNA (soon)" onclick="//toggleFileUpload()" class="flex-item"> -->
-			<br>
-			<input type="button" class="tinyButton flex-item" name="A" value="Left [A]" onclick="cursorLeft()">
-			<input type="button" class="tinyButton flex-item" name="W" value="Fwd  [W]" onclick="cursorUp()">
-			<input type="button" class="tinyButton flex-item" name="S" value="Back [S]" onclick="cursorDown()">
-			<input type="button" class="tinyButton flex-item" name="D" value="Right[D]" onclick="cursorRight()">
-			<br>
-			<label class="fineprint whitetext"><input type="checkbox" id="autostop" name="autostop" value="pause after running for 5 minutes" onchange="autostopChanged()" checked>pause after running for 5 minutes</label>
-			<br>
-			<h1>Welcome, try the <a href="Brown_Kiwi_NW_013982187v1/main.html" style="color: white;">Brown Kiwi</a> or <a href="Caenorhabditiseldna-chromosome-V/main.html" style="color: white;">C.elegans</a></h1>
-			* 3D mode is only showing test patterns at this time. Try using WASD keys to move about.
-		</div>
+				<br>
+				<div id="#butbar">
+					<input type="button" name="lessdetail" value="Less Detail [-]" onclick="lessdetail()" title="Less detail" class="flex-item">
+					<input type="button" name="moredetail" value="More Detail [+]" onclick="moredetail()" title="More detail" class="flex-item">
+					<input type="button" id="pause" name="pause" value="Pause [P]" onclick="togglePause()" class="flex-item">
+					<input type="button" id="spin" name="spin" value="Stop Rotate [R]" onclick="toggleSpin()" class="flex-item">
+					<input type="button" id="amongst" name="amongst" value="Get Amoungst It [G]" onclick="getAmongstIt()" title="Put the camera wang in the middle o dat dere" class="flex-item">
+					<input type="button" id="perspective" name="perspective" value="Perspective [V]iew" onclick="toggleView()" class="flex-item">
+					<input type="button" id="reset" name="reset" value="Reset [U]" onclick="reset()" class="flex-item">
+					<input type="button" id="testcolour" name="testcolour" value="Test Colours [T]" onclick="testColour()" class="flex-item">
+					<input type="button" id="loadImage" name="loadImage" value="Load Image [L]" onclick="loadImage()" class="flex-item">
+					<!-- <input disabled type="button" id="fileupload" name="fileupload" value="Upload DNA (soon)" onclick="//toggleFileUpload()" class="flex-item"> -->
+					<br>
+					<input type="button" class="tinyButton flex-item" name="A" value="Left [A]" onclick="cursorLeft()">
+					<input type="button" class="tinyButton flex-item" name="W" value="Fwd  [W]" onclick="cursorUp()">
+					<input type="button" class="tinyButton flex-item" name="S" value="Back [S]" onclick="cursorDown()">
+					<input type="button" class="tinyButton flex-item" name="D" value="Right[D]" onclick="cursorRight()">
+					<br>
+					<label class="fineprint whitetext"><input type="checkbox" id="autostop" name="autostop" value="pause after running for 5 minutes" onchange="autostopChanged()" checked>pause after running for 5 minutes</label>
+					<br>
+					<h1>Welcome, try the <a href="Brown_Kiwi_NW_013982187v1/main.html" style="color: white;">Brown Kiwi</a> or <a href="Caenorhabditiseldna-chromosome-V/main.html" style="color: white;">C.elegans</a></h1>
+					* 3D mode is only showing test patterns at this time. Try using WASD keys to move about.
+				</div>
 
 
-		<div id="progress_bar" class="">
-			<div class="percent">0%</div>
+				<div id="progress_bar" class="">
+					<div class="percent">0%</div>
+				</div>
+				<div id="modalBox" class="hidden">
+					im normally hidden
+					<input type="button" id="modalBoxButton" value="OK [ENTER]">
+				</div>
+				<div class="footer"></div>
+			</div>
 		</div>
-		<div id="modalBox" class="hidden">
-			im normally hidden
-			<input type="button" id="modalBoxButton" value="OK [ENTER]">
-		</div>
-		<div class="footer"></div>
-	</div>
-</div>
 </body>
 
 </html>

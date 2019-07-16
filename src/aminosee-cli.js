@@ -1,9 +1,3 @@
-//       MADE IN NEW ZEALAND
-//       ╔═╗┌┬┐┬┌┐┌┌─┐╔═╗┌─┐┌─┐  ╔╦╗╔╗╔╔═╗  ╦  ╦┬┌─┐┬ ┬┌─┐┬─┐
-//       ╠═╣││││││││ │╚═╗├┤ ├┤    ║║║║║╠═╣  ╚╗╔╝│├┤ │││├┤ ├┬┘
-//       ╩ ╩┴ ┴┴┘└┘└─┘╚═╝└─┘└─┘  ═╩╝╝╚╝╩ ╩   ╚╝ ┴└─┘└┴┘└─┘┴└─
-//       by Tom Atkinson            aminosee.funk.nz
-//        ah-mee no-see       "I see it now...  I AminoSee it!"
 const radMessage = `
 MADE IN NEW ZEALAND
 ╔═╗┌┬┐┬┌┐┌┌─┐╔═╗┌─┐┌─┐  ╔╦╗╔╗╔╔═╗  ╦  ╦┬┌─┐┬ ┬┌─┐┬─┐
@@ -32,6 +26,7 @@ const doesFileExist = data.doesFileExist;
 const doesFolderExist = data.doesFolderExist;
 const createSymlink = data.createSymlink;
 const asciiart = data.asciiart;
+const extensions = data.extensions;
 const saySomethingEpic = data.saySomethingEpic;
 let isElectron, jobArgs, killServersOnQuit, webserverEnabled, cliInstance, tx, ty, termPixels, cliruns, gbprocessed, projectprefs, userprefs, genomes, progato, commandString, batchSize, previousImage, quiet, url, outputPath;
 const debug = false; // should be false for PRODUCTION
@@ -46,6 +41,7 @@ const MyManHilbert = require('hilbert-2d'); // also contains magic
 // const Readable = require('stream').Readable
 // const Writable = require('stream').Writable
 // const Transform = require('stream').Transform
+// const request = require('request');
 const es = require('event-stream');
 const minimist = require('minimist')
 const fetch = require("node-fetch");
@@ -53,7 +49,6 @@ const keypress = require('keypress');
 const open = require('open'); //path-to-executable/xdg-open
 const parse = require('parse-apache-directory-index');
 const fs = require('fs-extra'); // drop in replacement = const fs = require('fs')
-// const request = require('request');
 const histogram = require('ascii-histogram');
 const bytes = require('bytes');
 const PNG = require('pngjs').PNG;
@@ -78,7 +73,6 @@ const netFoldername = "/output"; // terse for networks
 // INCREASE THIS TO BOOST THE IMAGE SIZE. 9MP = 20 MB png on average.
 const targetPixels = 9000000; // for big genomes use setting flag -c 1 to achieve highest resolution and bypass this taret max render size
 const funknzlabel = "aminosee.funk.nz"
-const extensions = [ "txt", "fa", "mfa", "gbk", "dna", "fasta", "fna", "fsa", "mpfa", "gb", "gff"];
 const closeBrowser = "If the process apears frozen, it's waiting for your this.browser or image viewer to quit. Escape with [ CONTROL-C ] or use --no-image --no-html";
 const defaultC = 1; // back when it could not handle 3+GB files.
 const artisticHighlightLength = 12; // px only use in artistic this.mode. must be 6 or 12 currently
@@ -1362,6 +1356,7 @@ class AminoSeeNoEvil {
       return false;
     }
     if ( doesFolderExist(this.dnafile )  && isShuttingDown == false) { // && this.currentFile !== ""
+      if (this.currentFile == undefined) { return false; }
       let newCommand = `${this.currentFile}/*`
       let msg = `${this.dnafile }
       Folder (${this.currentFile}) provided as input instead of a file. If you meant to render everything in there, try using an asterix on CLI: aminosee ${newCommand}`
@@ -4043,8 +4038,9 @@ class AminoSeeNoEvil {
   }
   error(e) {
     if ( this.quiet == false ) {
+
       output();
-      output( this.status  + ' /  this.error start {{{ ----------- ' + chalk.inverse( e.toString() ) + chalk(" ") + ' ----------- }}} end');
+      output( chalk.bgRed( this.status  + ' /  this.error start {{{ ----------- ' + chalk.inverse( e.toString() ) + ' ----------- }}} end. Not rendering (may halt), thread entered postRenderPoll: ${reason}'))
       output();
     }
     mode(` this.error: ${e} will exit`)
@@ -5303,13 +5299,12 @@ class AminoSeeNoEvil {
         if (fullpath === undefined) { fullpath = previousImage }
         if (fullpath === undefined) { return false }
         if (reason === undefined) { reason = `BUG. Reminder: always set a reason` }
-
         // if ( that.force == true) { return false }
         if ( quiet === true ) { out('quiet'); return false; }
         term.saveCursor()
         previousImage = fullpath;
         clearCheck();
-        term.moveTo( 0, 0 )
+        // term.moveTo( 0, 0 )
         output(chalk.inverse("image: " +  basename(previousImage)))
         term.drawImage( previousImage, { shrink: { width: tx / 2,  height: ty } }, () => {
           output(chalk.inverse("image: " +  basename(previousImage)))

@@ -3,7 +3,7 @@ ERASED="build"
 BUILDFOLDER="build/AminoSee_build_"
 TIMESTAMP=$(date +%s)
 TARGET="$BUILDFOLDER$TIMESTAMP"
-echo GENERATE VERSION NUMBER IMPORT
+echo GENERATE VERSION NUMBER IMPORT needs to be run in ./
 npm run genversion
 echo GENERATE BROWSERIFY BUNDLE
 npm run browserify

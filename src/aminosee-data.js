@@ -1,4 +1,4 @@
-const aminosee = require('./aminosee-cli');
+const aminosee = require('./aminosee-cli').gimmeDat;
 const path = require('path');
 const fs = require('fs-extra'); // drop in replacement = const fs = require('fs')
 // const { IndexedFasta, BgzipIndexedFasta } = require('@gmod/indexedfasta')

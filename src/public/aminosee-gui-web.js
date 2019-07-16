@@ -1,6 +1,6 @@
 // "use strict";
 
-let reader, hilbertPoints, herbs, zoom, progress, status, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, textFile, dna, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, justNameOfFile, filename, verbose, spline, point, vertices, colorsReady, canvas, material, colorArray, playbackHead, usersColors, controlsShowing, devmode, fileUploadShowing, maxcolorpix, nextColors, selectedGenom, chunksMax, chunksize, chunksizeBytes, codonsPerPixel, basepairs, cpu, subdivisions, userFeedback, contextBitmap, pauseIntent, linewidth, fileTones, isElectron;
+let hilbertPoints, herbs, zoom, progress, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, justNameOfFile, filename, verbose, spline, point, vertices, colorsReady, controlsShowing, devmode, fileUploadShowing, maxcolorpix, nextColors, cpu, subdivisions, userFeedback, contextBitmap, pauseIntent, linewidth, isElectron;
 let sprites = []
 pauseIntent = false;
 maxcolorpix = 262144; // for large genomes
@@ -21,20 +21,20 @@ perspective = true;
 paused = false;
 spinning = true;
 colorsReady = false;
-basepairs = 3;
 zoom = 2; //  defalt 2
 distance = 900; // default 900
 let stateObj = { foo: "bar" };
 let histogramJson = { foo: "bar " };
-let peptide = "none";
 let stackOimages = document.getElementById('stackOimages');
-
+let urlprefix = `funk.co.nz/aminosee/output/`;
+if ( window.location.indexOf('funk.co.nz') == -1 ) {
+  urlprefix = `../`
+}
 if(window.addEventListener) {
   window.addEventListener('load',pageLoaded,false); //W3C
 } else {
   window.attachEvent('onload',pageLoaded); //IE
 }
-// let page = "report";
 
 function mover(i) {
   if (i == undefined) {
@@ -59,14 +59,14 @@ function mout(i) {
 }
 function fileChanged(f) {
   if (f == undefined) { f = 'megabase' }
-  let histoURL = `${f}aminosee_histogram.json`;
+  let histoURL = `${urlprefix}${f}aminosee_histogram.json`;
   let path = window.location.pathname;
   let newURL = `${path}#?selectedGenome=${f}`;
-  let image = `${f}/images/${justNameOfPNG}`
+  // let image = `${f}/images/${justNameOfPNG}`
   history.pushState(stateObj, justNameOfFile, newURL);
-  document.getElementById('oi').innerHTML = `<img id="current_image" src="${image}" width="64px" height="64px">`;
+  // document.getElementById('oi').innerHTML = `<img id="current_image" src="${image}" width="64px" height="64px">`;
   setupFNames();
-  console.log(current_image);
+  // console.log(current_image);
   loadImage();
   loadHistogramJson(histoURL)
 }
@@ -116,7 +116,7 @@ function toggleDevmode() {
   }
 }
 function pageLoaded() {
-  loadHistogramJson();
+  loadHistogramJson(urlprefix + 'megabase/aminosee_histogram.json');
   initVariables();
   sceneCameraSetup();
   setScene();

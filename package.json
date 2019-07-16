@@ -1,6 +1,6 @@
 {
   "name": "aminosee",
-  "version": "1.18.11",
+  "version": "1.18.13",
   "owner": "Thomas Bieder Atkinson",
   "author": "Tom Atkinson <tom@funk.co.nz>",
   "website": "http://aminosee.funk.nz",
@@ -37,9 +37,9 @@
     "hammerjs": "^2.0.8",
     "http-server": "^0.11.1",
     "node-fetch": "^2.6.0",
-    "terminal-kit": "^1.28.3",
+    "terminal-kit": "^1.28.14",
     "three": "^0.106.2",
-    "xterm": "^3.14.4"
+    "xterm": "^3.14.5"
   },
   "devDependencies": {
     "@gmod/indexedfasta": "^1.0.13",
@@ -70,11 +70,10 @@
     "png.js": "^0.2.1",
     "pngjs": "^3.4.0",
     "preferences": "^1.0.2",
-    "remark-preset-lint-node": "^1.7.0",
     "remove": "^0.1.5",
     "request": "^2.88.0",
     "save": "^2.4.0",
-    "serve": "^11.0.2",
+    "serve": "^11.1.0",
     "sliced": "^1.0.1",
     "spdy": "^4.0.0",
     "stream-file": "^0.2.4",
@@ -87,7 +86,7 @@
     "demo": "node bin/aminosee demo",
     "credits": "./build-credits.sh",
     "crash": "node --inspect 27MB_TestPattern.txt --peptide=Ochre 3MB_TestPattern.txt 50KB_TestPattern.txt batch-peptides.sh batch-process.sh Gorilla_gorGor4_chr2B.fa",
-    "test": "echo 'requires cli programs: time, lighthouse, vows etc' ; time dna/run-test.sh ; npm run start --serve &amp; lighthouse http://localhost:4321 ; vows --spec --isolate; killall aminosee.funk.nz",
+    "test": "echo 'requires cli programs: time, lighthouse, vows etc' ; time dna/run-test.sh ;",
     "start": "node bin/aminosee",
     "inspect": "node --inspect bin/aminosee.js /Volumes/aminosee/dna/Brown_Kiwi_NW_013982187v1.fa   /Volumes/aminosee/dna/Brown_Kiwi_NW_013982187v1.fa  -f -c1000 -vd --debug",
     "build": "./build-lib.sh ; nice time npm run build-web ; nice time npm run pkg",

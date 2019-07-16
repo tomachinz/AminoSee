@@ -121,6 +121,7 @@ clear
 # killall "aminosee.funk.nz 27MB_TestPattern 34.94MB"
 lighthouse http://localhost:4321 ;
 eslint src/aminosee-cli.js
+ vows --spec --isolate
 echo Stopping server in 1 second
 sleep 1
 killall aminosee.funk.nz

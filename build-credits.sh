@@ -1,6 +1,7 @@
 #!/bin/sh
 CREDITS="credits.txt"
 TIMESTAMP=$(date +%s)
+DATE=$(date)
 TOMSSOURCE=toms_source_temp.txt
 echo GENERATE CREDITS.TXT FILE
 cp src/ascii-logo.txt $CREDITS
@@ -25,7 +26,7 @@ cat  build/toms.txt | wc
 # npm list # for bystanders
 npm list | wc -l >>  $CREDITS # actually
 echo ' open source node npm packages used. ' >>  $CREDITS
-echo 'as at $TIMESTAMP'
+echo as at $TIMESTAMP
 echo >>  $CREDITS
 npm list >>  $CREDITS
 clear
