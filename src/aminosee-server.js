@@ -69,16 +69,27 @@ function buildServer() {
 
 function startCrossSpawnHttp() { // Spawn background server
   let options = [ outputPath + "/", `-p`, port, '-o' ]
-  output(chalk.yellow(`http-server ${options.toString()}`))
-  const evilSpawn = spawn('http-server', options, { stdio: 'pipe' });
+  output(chalk.yellow(`starting up with ${options.toString()}`))
+  let evilSpawn
+  try {
+    evilSpawn = spawn('http-server', options, { stdio: 'pipe' });
+  } catch(err) {
+    output(err)
+  }
   evilSpawn.stdout.on('data', (data) => {
-    output(`${chalk.inverse('aminosee-server')}${chalk(': ')}${data}`);
+    output(`${chalk.inverse('aminosee-server')}: ${data}`);
   });
   evilSpawn.stderr.on('data', (data) => {
-    output( `${chalk.inverse(url)}  [${data}]` );
+    output( `error with ${chalk.inverse(url)}`);
+    if ( data.indexOf('EADDRINUSE') != -1 ) {
+      output(`Port ${port} in use, switching to port 43210`);
+      port = 43210;
+    } else {
+      output(data);
+    }
   });
   evilSpawn.on('close', (code) => {
-    output( chalk.inverse(`Server process quit with` ) + ` [${code}] `);
+    output( chalk.inverse(`Server process quit with` ) + ` [${code}] Use --kill to get forceful about starting that server`);
   });
 
   log(chalk.bgBlue.yellow("IDEA: Maybe send some bitcoin to the under-employed creator tom@funk.co.nz to convince him to work on it?"));

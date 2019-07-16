@@ -140,7 +140,7 @@ function populateArgs(procArgv) { // returns args
     string: [ 'peptide'],
     string: [ 'ratio'],
     alias: { a: 'artistic', b: 'dnabg', c: 'codons', d: 'devmode', f: 'force', h: 'help', k: 'keyboard', m: 'magnitude', o: 'outpath', out: 'outpath', output: 'outpath', p: 'peptide', i: 'image', t: 'triplet', u: 'updates', q: 'quiet', r: 'reg', w: 'width', v: 'verbose', x: 'explorer', finder: 'explorer', view: 'html'  },
-    default: { html: true, dnabg: true, clear: false, explorer: false, quiet: false, keyboard: false, progress: false, redraw: true, updates: true },
+    default: { html: true, image: true, dnabg: true, clear: false, explorer: false, quiet: false, keyboard: false, progress: true, redraw: true, updates: true },
     stopEarly: false
   } // NUMERIC INPUTS: codons, magnitude, width,     string: [ 'width'],    string: [ 'magnitude'],    string: [ 'codons'],
   // console.log(procArgv.slice(2))
@@ -1355,7 +1355,7 @@ class AminoSeeNoEvil {
       this.quit(0, reason);
       return false;
     }
-    if ( doesFolderExist(this.dnafile )  && isShuttingDown == false) { // && this.currentFile !== ""
+    if ( doesFolderExist(this.dnafile )  && isShuttingDown == false && this.howMany > 0) { // && this.currentFile !== ""
       if (this.currentFile == undefined) { return false; }
       let newCommand = `${this.currentFile}/*`
       let msg = `${this.dnafile }
@@ -1400,7 +1400,7 @@ class AminoSeeNoEvil {
 
     if (doesFileExist(this.filePNG) && this.force == false) {
       bugtxt(`isStorageBusy ${this.isStorageBusy}`)
-      termDrawImage(this.filePNG);
+      termDrawImage(this.filePNG, `File already rendered`);
       let msg = `Already rendered ${ maxWidth(60, this.justNameOfPNG) }.`;
       this.openOutputs();
       this.popAndPollOrBust(msg);
@@ -1874,7 +1874,7 @@ class AminoSeeNoEvil {
     this.fileHTML =    this.qualifyPath( this.generateFilenameHTML()   );
     this.filePNG =     this.qualifyPath(`images/${ this.generateFilenamePNG()     }`);
     this.fileHILBERT = this.qualifyPath(`images/${ this.generateFilenameHilbert() }`);
-    this.fullURL          = `${url}${this.justNameOfDNA}/${this.justNameOfHTML}`;
+    this.fullURL          = `${url}/${this.justNameOfDNA}/${this.justNameOfHTML}`;
     // this.fancyFilenames();
     this.setNextFile();
   }
@@ -2128,7 +2128,7 @@ class AminoSeeNoEvil {
   }
   fancyFilenames() {
     term.eraseDisplayBelow();
-    output(chalk.bold(`Render Filenames for ${ this.justNameOfDNA}: ${this.pixelClock.toLocaleString()} pixels. isHighlightSet: ${this.isHighlightSet}`));
+    output(chalk.bold(`Render Filenames for ${ this.justNameOfDNA}:`));
     output(chalk.rgb(255, 255, 255).inverse( fixedWidth( this.debugColumns*2, `Input DNA File: ${ this.dnafile }`)));
     output(chalk.rgb(200,200,200).inverse(  fixedWidth( this.debugColumns*2, `Linear PNG: ${ this.justNameOfPNG }`)));
     output(chalk.rgb(150,150,150).inverse(  fixedWidth( this.debugColumns*2, `Hilbert PNG: ${ this.justNameOfHILBERT }`)));
@@ -2230,7 +2230,7 @@ class AminoSeeNoEvil {
       return false;
     }
     this.setIsDiskBusy( true );
-    output(chalk.inverse(`Finished linear render of ${ this.justNameOfDNA} ${ pixels } = ${ this.pixelClock }`))
+    log(chalk.inverse(`Finished linear render of ${ this.justNameOfDNA} ${ pixels } = ${ this.pixelClock }`))
     term.eraseDisplayBelow();
 
     if (this.test) { // the calibration generates its own image
@@ -2452,7 +2452,7 @@ class AminoSeeNoEvil {
       file = this.args._.shift().toString(); // file = this.args._.pop().toString();
       // file = this.args._.pop().toString(); // file = this.args._.pop().toString();
     } catch(e) {
-      // this.quit(0, 'no more commands' );
+      this.quit(0, 'no more commands' );
       return false;
     }
     this.howMany = this.args._.length;
@@ -2475,7 +2475,7 @@ class AminoSeeNoEvil {
     } catch(err) {
       log('failed file system checks: '+ file)
     }
-    log( chalk.inverse(`${this.busy()} Starting job ${fixedWidth(3,  this.howMany )}: `) +  ' ' + chalk.bgBlue.white( fixedWidth(40, this.currentFile)) + this.highlightOrNothin() +  ' Closing: ' + reason );
+    log( chalk.inverse(`${this.busy()} Checking job ${fixedWidth(3,  this.howMany )}: `) +  ' ' + chalk.bgBlue.white( fixedWidth(40, this.currentFile)) + this.highlightOrNothin() +  ' Closing: ' + reason );
     // if ( fileSystemChecks(this.dnafile )  == true ) {
     // this.popAndPollOrBust(`failed filesystem checks`);
     // } else {
@@ -2485,7 +2485,7 @@ class AminoSeeNoEvil {
 
   }
   postRenderPoll(reason) { // renderLock on late, off early
-    output(chalk.inverse(`Finishing saving (${reason}), ${this.busy()} waiting on ${ this.storage() } ${ this.howMany } files to go.`));
+    log(chalk.inverse(`Finishing saving (${reason}), ${this.busy()} waiting on ${ this.storage() } ${ this.howMany } files to go.`));
     if ( this.renderLock !== true) { // re-entrancy filter
       output(chalk.bgRed("Not rendering (may halt), thread entered postRenderPoll: " + reason))
       return true
@@ -2582,16 +2582,13 @@ class AminoSeeNoEvil {
       output(`There is more work (${this.howMany}) . Rendering: ${this.busy()} Load: ${os.loadavg()}`);
       if ( this.renderLock ) {
         return true;
-
-      } else {
-        // this.pollForStream();
       }
     }
     if (code == 0) {
       if (isElectron == true){
-        log("Electron mode clean exit.")
+        output("Electron mode clean exit.")
       } else {
-        log("CLI mode clean exit.")
+        output("CLI mode clean exit.")
       }
       if ( this.keyboard ) {
 
@@ -2601,7 +2598,7 @@ class AminoSeeNoEvil {
       // log(`If process hangs, remove this line, its preventing a process exit. Reason: ${reason}. But I wasn't in a rush to terminate all that.`)
       // return true;
     } else {
-      log(chalk.bgWhite.red (`process.exit going on. last file: ${ this.dnafile } currently: ${this.busy()} percent complete ${  this.percentComplete}`));
+      output(chalk.bgWhite.red (`process.exit going on. last file: ${ this.dnafile } currently: ${this.busy()} percent complete ${  this.percentComplete}`));
     }
     if (killServersOnQuit == true) {
       if (webserverEnabled == true) { // control-c kills server
@@ -3312,17 +3309,13 @@ class AminoSeeNoEvil {
     //   this.isDiskFinHilbert = true;
     //   this.previousImage = this.fileHILBERT;
     //   var closure = () => { return this.fileHILBERT }
-    //   termDrawImage(closure);
     //   cb();
     //   return false;
     // }
     term.eraseDisplayBelow();
     mode('save hilbert');
-    log("Getting in touch with my man from 1891... Hilbert. In the " + this.dimension + "th this.dimension and reduced by " + threesigbitsTolocale( this.shrinkFactor) + "X  ----> " +  this.justNameOfHILBERT);
-    output("    ॐ    ");
+    output("Getting in touch with my man from 1891... Hilbert.   ॐ    ");// In the " + this.dimension + "th dimension and reduced by " + threesigbitsTolocale( this.shrinkFactor) );
     bugtxt( this.justNameOfDNA);
-    // term.up(1);
-    // output( this.status );
     let hilpix = hilbPixels[ this.dimension ];
     this.resampleByFactor( this.shrinkFactor );
     let hWidth = Math.sqrt(hilpix);
@@ -3332,9 +3325,10 @@ class AminoSeeNoEvil {
     this.debugFreq = Math.round(hilpix / 100);
     this.progUpdate({ title: 'Hilbert Curve', items: this.howMany, syncMode: true })
     for (let i = 0; i < hilpix; i++) {
-      if ( i%this.debugFreq == 0) {
+      if ( i % this.debugFreq == 0) {
         this.percentComplete = i/hilpix;
-        this.progUpdate(  this.percentComplete)
+        this.progUpdate( this.percentComplete )
+        redoLine(`Space filling ${nicePercent(this.percentComplete)} `);
       }
 
       let hilbX, hilbY;
@@ -3343,7 +3337,6 @@ class AminoSeeNoEvil {
       let hilbertLinear = 4 * ((hilbX % hWidth) + (hilbY * hWidth));
       this.percentComplete = i / hilpix;
       // if ((Math.round(  this.percentComplete * 1000) % 100) === 0) {
-      //   this.clout(i, this.debugFreq, "Space filling " + nicePercent(this.percentComplete) + " of " + hilpix.toLocaleString());
       // }
 
       // output("Space filling " + fixedWidth(10, (perc*100) + "%") + " of " + hilpix.toLocaleString());
@@ -3399,15 +3392,15 @@ class AminoSeeNoEvil {
     mode(`Hilbert curve done. Waiting on (${ this.storage()})`);
     this.isDiskFinHilbert = true;
     this.previousImage = this.fileHILBERT;
-    // termDrawImage()
     this.postRenderPoll('hilbertFinished ' + this.fileHILBERT);
+    termDrawImage(this.previousImage, `hilbert curve`)
   }
 
   linearFinished() {
     this.isDiskFinLinear = true;
     if ( this.artistic || this.quiet == false ) {
       this.previousImage = this.filePNG;
-      termDrawImage(this.previousImage, `linear finished`)
+      // termDrawImage(this.previousImage, `linear finished`)
     }
     if ( this.test ) {
       mode(`Calibration linear generation done. Waiting on (${ this.storage()})`);
@@ -3479,7 +3472,7 @@ class AminoSeeNoEvil {
     const rgbArray = this.rgbArray;
     // this.saveDocsSync();
 
-    var hilbert_img_data = Uint8ClampedArray.from( this.hilbertImage );
+    var hilbert_img_data = Uint8ClampedArray.from( hilbertImage );
     var hilbert_img_png = new PNG({
       width: this.width,
       height: this.height,
@@ -3508,7 +3501,7 @@ class AminoSeeNoEvil {
     //   .pipe(wstreamHILBERT)
     //   .on('finish', resolve)
     // );
-    var img_data = Uint8ClampedArray.from( this.rgbArray );
+    var img_data = Uint8ClampedArray.from( rgbArray );
     var img_png = new PNG({
       width: this.width,
       height: this.height,
@@ -3532,7 +3525,7 @@ class AminoSeeNoEvil {
         if (cb !== undefined) { cb() }
 
       })
-    }).then(  ).catch( output('Test LINEAR catch') );
+    }).then().catch();
 
 
 
@@ -4118,7 +4111,7 @@ class AminoSeeNoEvil {
     returnText += terminalRGB(`╠═╣││││││││ │╚═╗├┤ ├┤    ║║║║║╠═╣  ╚╗╔╝│├┤ │││├┤ ├┬┘  ${array[1]}`, 170, 150, 255);
     returnText += terminalRGB(`╩ ╩┴ ┴┴┘└┘└─┘╚═╝└─┘└─┘  ═╩╝╝╚╝╩ ╩   ╚╝ ┴└─┘└┴┘└─┘┴└─  ${array[2]}`, 128, 240, 240);
     returnText += terminalRGB(` by Tom Atkinson          aminosee.funk.nz            ${array[3]}`, 225, 225, 130);
-    returnText += terminalRGB(`  ah-mee-no-see     'I See It this.now - I AminoSee it!'   ${array[4]}`, 255, 180,  90);
+    returnText += terminalRGB(`  ah-mee-no-see     'I See It Now - I AminoSee it!'   ${array[4]}`, 255, 180,  90);
     returnText += terminalRGB(`   ${ this.prettyDate()}   v${version}            ${array[5]}`          , 220, 120,  70);
     returnText += terminalRGB(array[6], 200, 105,   60);
     returnText += terminalRGB(array[7], 200, 32,   32);
@@ -4144,7 +4137,7 @@ class AminoSeeNoEvil {
       output( terminalRGB(`╠═╣││││││││ │╚═╗├┤ ├┤    ║║║║║╠═╣  ╚╗╔╝│├┤ │││├┤ ├┬┘  ${array[2]}`, 170, 150, 255) ); term.right(radMargin); term.eraseLine();
       output( terminalRGB(`╩ ╩┴ ┴┴┘└┘└─┘╚═╝└─┘└─┘  ═╩╝╝╚╝╩ ╩   ╚╝ ┴└─┘└┴┘└─┘┴└─  ${array[3]}`, 128, 240, 240) ); term.right(radMargin); term.eraseLine();
       output( terminalRGB(` by Tom Atkinson          aminosee.funk.nz            ${array[4]}`, 225, 225, 130) ); term.right(radMargin); term.eraseLine();
-      output( terminalRGB(`  ah-mee-no-see     'I See It this.now - I AminoSee it!'   ${array[5]}`, 255, 180,  90) ); term.right(radMargin); term.eraseLine();
+      output( terminalRGB(`  ah-mee-no-see     'I See It Now - I AminoSee it!'   ${array[5]}`, 255, 180,  90) ); term.right(radMargin); term.eraseLine();
       output( terminalRGB(`   ${ this.prettyDate()}   v${version} ${array[6]}`          , 220, 120,  70) ); term.right(radMargin); term.eraseLine();
       output( terminalRGB(array[7], 200, 105,   60) ); term.right(radMargin); term.eraseLine();
       output( terminalRGB(array[8], 200, 32,   32) ); term.eraseLine();
@@ -4251,10 +4244,10 @@ class AminoSeeNoEvil {
       `| i@${ fixedWidth(10, this.charClock.toLocaleString())} Breaks:${ fixedWidth(6, this.breakClock.toLocaleString())} Filesize:${ fixedWidth(7, bytes(  this.baseChars ))}`,
       `| Next update:${ fixedWidth(6,  this.msPerUpdate .toLocaleString())}ms Codon Opacity: ${ twosigbitsTolocale( this.opacity *100)}%`,
       `| CPU: ${ fixedWidth(10, bytes( this.bytesPerMs*1000))}/s ${ fixedWidth(5, this.codonsPerSec.toLocaleString())}K acids/s`,
-      ` Next file >>> ${maxWidth(24, this.nextFile)}`,
+      `| Next file >>> ${maxWidth(24, this.nextFile)}`,
       `| Codons:${ fixedWidth(14, " " +  this.genomeSize.toLocaleString())} Pixels:${ fixedWidth(10, " " + this.pixelClock.toLocaleString())} Last Acid: ${chalk.inverse.rgb(ceiling( this.red ), ceiling( this.green ), ceiling( this.blue )).bgWhite.bold( fixedWidth(16, "  " + this.aminoacid + "   ") ) } Host: ${hostname}`,
-      `| Sample: ${ fixedWidth(60, this.rawDNA) } ${ this.showFlags()}`,
-      `| RunID: ${chalk.rgb(128, 0, 0).bgWhite( this.timestamp )} acids per pixel: ${ twosigbitsTolocale( this.codonsPerPixel )}`
+      `  Sample: ${ fixedWidth(60, this.rawDNA) } ${ this.showFlags()}`,
+      `  RunID: ${chalk.rgb(128, 0, 0).bgWhite( this.timestamp )} acids per pixel: ${ twosigbitsTolocale( this.codonsPerPixel )}`
     ];
     if ( this.clear == true) {
       term.up( this.termStatsHeight);
@@ -4272,7 +4265,7 @@ class AminoSeeNoEvil {
       // term.up(rawDNA.length/term.width);
       // if ( this.clear== true) {
       term.moveTo(1 + this.termMarginLeft,1);
-      output(`     To disable real-time DNA background use any of --no-this.dnabg --no-updates --quiet -q  (${termPixels.toLocaleString()})`);
+      output(`     To disable real-time DNA background use any of --no-dnabg --no-updates --quiet -q  (${tx},${ty})`);
       // }
     }
     this.rawDNA = funknzlabel;
@@ -5296,18 +5289,18 @@ class AminoSeeNoEvil {
         process.exit(); // this.now the "exit" event will fire
       });
       function termDrawImage(fullpath, reason) {
-        if (fullpath === undefined) { fullpath = previousImage }
-        if (fullpath === undefined) { return false }
-        if (reason === undefined) { reason = `BUG. Reminder: always set a reason` }
+        if (fullpath == undefined) { fullpath = previousImage }
+        if (fullpath == undefined) { return false }
+        if (reason == undefined) { reason = `BUG. Reminder: always set a reason` }
         // if ( that.force == true) { return false }
-        if ( quiet === true ) { out('quiet'); return false; }
+        if ( quiet == true ) { out('quiet'); return false; }
         term.saveCursor()
         previousImage = fullpath;
         clearCheck();
         // term.moveTo( 0, 0 )
         output(chalk.inverse("image: " +  basename(previousImage)))
         term.drawImage( previousImage, { shrink: { width: tx / 2,  height: ty } }, () => {
-          output(chalk.inverse("image: " +  basename(previousImage)))
+          output(chalk.inverse("image: " +  basename(previousImage) ) + " " +  reason)
           term.restoreCursor()
         })
       }
