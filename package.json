@@ -50,7 +50,7 @@
     "bytes": "^3.1.0",
     "chalk": "^2.4.2",
     "cross-spawn": "^6.0.5",
-    "electron": "^5.0.6",
+    "electron": "^5.0.7",
     "electron-rebuild": "^1.8.5",
     "eslint": "^6.0.1",
     "event-stream": "^4.0.1",
