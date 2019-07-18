@@ -4620,7 +4620,9 @@ var Terminal = (function (_super) {
     };
     Terminal.prototype._setTheme = function (theme) {
         this._theme = theme;
-        this._colorManager.setTheme(theme);
+        if (this._colorManager) {
+            this._colorManager.setTheme(theme);
+        }
         if (this._renderCoordinator) {
             this._renderCoordinator.setColors(this._colorManager.colors);
         }
@@ -5588,10 +5590,8 @@ function applyWindowsMode(terminal) {
     return terminal.onLineFeed(function () {
         var line = terminal.buffer.lines.get(terminal.buffer.ybase + terminal.buffer.y - 1);
         var lastChar = line.get(terminal.cols - 1);
-        if (lastChar[BufferLine_1.CHAR_DATA_CODE_INDEX] !== BufferLine_1.NULL_CELL_CODE && lastChar[BufferLine_1.CHAR_DATA_CODE_INDEX] !== BufferLine_1.WHITESPACE_CELL_CODE) {
-            var nextLine = terminal.buffer.lines.get(terminal.buffer.ybase + terminal.buffer.y);
-            nextLine.isWrapped = true;
-        }
+        var nextLine = terminal.buffer.lines.get(terminal.buffer.ybase + terminal.buffer.y);
+        nextLine.isWrapped = (lastChar[BufferLine_1.CHAR_DATA_CODE_INDEX] !== BufferLine_1.NULL_CELL_CODE && lastChar[BufferLine_1.CHAR_DATA_CODE_INDEX] !== BufferLine_1.WHITESPACE_CELL_CODE);
     });
 }
 exports.applyWindowsMode = applyWindowsMode;

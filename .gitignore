@@ -13,7 +13,6 @@ dna/*.fa
 dna/*.mfa
 dna/*.gbk
 dna/*.gb
-dna/*.txt
 dna/*.png
 dna/*.html
 dna/*.touch

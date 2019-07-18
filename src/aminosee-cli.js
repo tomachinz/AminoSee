@@ -729,6 +729,8 @@ class AminoSeeNoEvil {
         output();
         countdown('Closing in ', 700);
       }
+      const carlo = require('./carlo');
+
       return true;
     }
   }
@@ -4472,10 +4474,9 @@ class AminoSeeNoEvil {
 
             if (this.aminoacid == this.peptide ) {
               this.alpha = 255;
-              // log(`isHighlightSet    ${isHighlightSet}   this.aminoacid ${this.aminoacid}  this.peptide ${ this.peptide }`)
-              // log(alpha);
+              // log(`isHighlightSet    ${ this.isHighlightSet}   this.aminoacid ${this.aminoacid}
             } else {
-              this.alpha = 128;
+              this.alpha = 32; // non highlight alpha makes them almost fully translucent
               // log(alpha);
             }
           } else {
