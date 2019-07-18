@@ -144,7 +144,7 @@ function populateArgs(procArgv) { // returns args
     stopEarly: false
   } // NUMERIC INPUTS: codons, magnitude, width,     string: [ 'width'],    string: [ 'magnitude'],    string: [ 'codons'],
   // console.log(procArgv.slice(2))
-  console.log(process.argv.slice(2))
+  log(process.argv.slice(2))
   return minimist(process.argv.slice(2), options);
   // this.args = minimist(procArgv.slice(2), options)
   // return this.args;

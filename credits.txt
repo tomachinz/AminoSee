@@ -446,8 +446,8 @@ aminosee@1.18.14 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
 │ └─┬ which@1.3.1
 │   └── isexe@2.0.0
 ├── dat.gui@0.7.6
-├─┬ electron@5.0.6
-│ ├── @types/node@10.14.10
+├─┬ electron@5.0.7
+│ ├── @types/node@10.14.13
 │ ├─┬ electron-download@4.1.1
 │ │ ├─┬ debug@3.2.6
 │ │ │ └── ms@2.1.1 deduped
@@ -481,10 +481,10 @@ aminosee@1.18.14 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
 │ │ │ │   │ └─┬ validate-npm-package-license@3.0.4
 │ │ │ │   │   ├─┬ spdx-correct@3.1.0
 │ │ │ │   │   │ ├── spdx-expression-parse@3.0.0 deduped
-│ │ │ │   │   │ └── spdx-license-ids@3.0.4
+│ │ │ │   │   │ └── spdx-license-ids@3.0.5
 │ │ │ │   │   └─┬ spdx-expression-parse@3.0.0
 │ │ │ │   │     ├── spdx-exceptions@2.2.0
-│ │ │ │   │     └── spdx-license-ids@3.0.4 deduped
+│ │ │ │   │     └── spdx-license-ids@3.0.5 deduped
 │ │ │ │   ├── object-assign@4.1.1 deduped
 │ │ │ │   ├─┬ read-pkg-up@1.0.1
 │ │ │ │   │ ├─┬ find-up@1.1.2
@@ -809,7 +809,7 @@ aminosee@1.18.14 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
 │ │ └── mkdirp@0.5.1 deduped
 │ └─┬ union@0.4.6
 │   └── qs@2.3.3
-├── humanize-duration@3.19.0
+├── humanize-duration@3.20.0
 ├─┬ internal-ip@4.3.0
 │ ├─┬ default-gateway@4.2.0
 │ │ ├─┬ execa@1.0.0
@@ -1586,7 +1586,7 @@ aminosee@1.18.14 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
 │ └─┬ rimraf@2.6.3
 │   └── glob@7.1.3 deduped
 ├── node-fetch@2.6.0
-├─┬ node-gyp@5.0.2
+├─┬ node-gyp@5.0.3
 │ ├── env-paths@1.0.0
 │ ├── glob@7.1.3 deduped
 │ ├── graceful-fs@4.1.15
@@ -1937,7 +1937,7 @@ aminosee@1.18.14 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
 │   └─┬ wbuf@1.7.3
 │     └── minimalistic-assert@1.0.1
 ├── stream-file@0.2.4
-├─┬ terminal-kit@1.28.14
+├─┬ terminal-kit@1.28.16
 │ ├─┬ @cronvel/get-pixels@3.3.1
 │ │ ├── jpeg-js@0.1.2
 │ │ ├── ndarray@1.0.18 deduped
@@ -1953,7 +1953,7 @@ aminosee@1.18.14 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
 │ │ ├── iota-array@1.0.0
 │ │ └── is-buffer@1.1.6 deduped
 │ ├── nextgen-events@1.1.1
-│ ├─┬ seventh@0.7.23
+│ ├─┬ seventh@0.7.25
 │ │ └── setimmediate@1.0.5
 │ ├── string-kit@0.9.9
 │ └── tree-kit@0.6.1

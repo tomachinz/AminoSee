@@ -27,7 +27,7 @@ let stateObj = { foo: "bar" };
 let histogramJson = { foo: "bar " };
 let stackOimages = document.getElementById('stackOimages');
 let urlprefix = `funk.co.nz/aminosee/output/`;
-if ( window.location.indexOf('funk.co.nz') == -1 ) {
+if ( document.location.indexOf('funk.co.nz') == -1 ) {
   urlprefix = `../`
 }
 if(window.addEventListener) {

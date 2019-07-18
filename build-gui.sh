@@ -7,11 +7,11 @@ echo open ./build-lib.sh
 sleep 1
 open ./build-lib.sh
 
-echo Requires: npm, electron, electron-packager
-echo Requires: npm, electron, electron-packager
-echo Requires: npm, electron, electron-packager
+# echo Requires: npm, electron, electron-packager
+# echo Requires: npm, electron, electron-packager
+# echo Requires: npm, electron, electron-packager
 
-echo "And now some bloated electron stuff"
+# echo "And now some bloated electron stuff"
 # mkdir -p dist/root/node_modules/electron
 # mkdir -p dist/root/node_modules/electron/dist
 # cp -r node_modules/electron/dist/*  dist/root/node_modules/electron/dist
@@ -59,29 +59,17 @@ cp -v -r dna/1KB_TestPattern.txt $TARGET/dna
 cp -v -r dna/3MB_TestPattern.fa $TARGET/dna
 cp -r images $TARGET
 cp -r imports $TARGET
-cp -r lib $TARGET
 cp -r bin $TARGET
-cp -r aminosee-cli.js $TARGET
-cp -r aminosee-gui-web.js $TARGET
-cp -r aminosee-server.js $TARGET
-cp -r settings.js $TARGET
-cp -r data.js $TARGET
-cp -r bundle.js $TARGET
+cp -r src/  $TARGET
 cp -r package.json $TARGET
 cp -r README.md $TARGET
-cp -r bundle.js $TARGET
-cp -r settings.js $TARGET
-cp -r index.html $TARGET
-cp -r console.js $TARGET
-cp -r favicon.ico $TARGET
-cp -r favicon.png $TARGET
 cp -r -v docs/* $TARGET
 
-echo COPY AND RENAME package-electron.json $TARGET/package.json
-cp -v package-electron.json $TARGET/package.json
-cp -v electron.html $TARGET
-cp -v main.js $TARGET
-cp -v renderer.js $TARGET
+# echo COPY AND RENAME package-electron.json $TARGET/package.json
+# cp -v package-electron.json $TARGET/package.json
+# cp -v electron.html $TARGET
+# cp -v main.js $TARGET
+# cp -v renderer.js $TARGET
 # cp -r node_modules $TARGET
 
 mkdir "build/THIS FOLDER IS AUTOMATICALLY WIPED BY SCRIPTS"
@@ -93,28 +81,28 @@ npm install -v
 # npm update
 # npm run gui &
 # cp -r ../dist .
-electron .
+# electron .
 # npm run electron
 # RUN ELECTRON BUILD BEFORE COPYING THE DIST SHELLS, AND TESTING
 
-electron-packager ./ --platform=darwin,win32,linux --arch=x64 --prune --overwrite  --output ./dist/electron
+# electron-packager ./ --platform=darwin,win32,linux --arch=x64 --prune --overwrite  --output ./dist/electron
 
 
 # npm run start --no-image
 # npm run start megabase.fa --image
 
-cd ../../
-echo RUNNING AGAIN IN 60 seconds
-pwd
-sleep 50
-echo RUNNING AGAIN IN 10 seconds
-echo RUNNING AGAIN IN 10 seconds
-echo RUNNING AGAIN IN 10 seconds
-echo RUNNING AGAIN IN 10 seconds
-echo RUNNING AGAIN IN 10 seconds
-echo RUNNING AGAIN IN 10 seconds
-sleep 10
-pwd
-cd ../
-
-open ./build.sh
+# cd ../../
+# echo RUNNING AGAIN IN 60 seconds
+# pwd
+# sleep 50
+# echo RUNNING AGAIN IN 10 seconds
+# echo RUNNING AGAIN IN 10 seconds
+# echo RUNNING AGAIN IN 10 seconds
+# echo RUNNING AGAIN IN 10 seconds
+# echo RUNNING AGAIN IN 10 seconds
+# echo RUNNING AGAIN IN 10 seconds
+# sleep 10
+# pwd
+# cd ../
+#
+# open ./build.sh
