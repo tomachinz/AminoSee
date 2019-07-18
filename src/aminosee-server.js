@@ -234,8 +234,8 @@ function start(o) { // return the port number
   } else {
     output("No locks found, Starting server");
     buildServer();
-    // startHttpServer();
-    startCrossSpawnHttp(4321)
+    startHttpServer();
+    // startCrossSpawnHttp(4321)
     // startServeHandler();
   }
   return port
