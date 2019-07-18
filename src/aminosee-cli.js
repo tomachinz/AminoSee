@@ -728,8 +728,7 @@ class AminoSeeNoEvil {
         output(' ');
         // log('Closing in ')
         const carlo = require('./carlo');
-
-        countdown('No command - closing in ', 2000);
+        countdown('No command - closing in ', 20000);
       } else {
         output();
         countdown('Closing in ', 700);
