@@ -17,7 +17,7 @@ Esc     (graceful quit) O (toggle show files after in GUI)
 `;
 const lineBreak = `
 `;
-// const settings = require('./aminosee-settings');
+const settings = require('./aminosee-settings');
 const version = require('./aminosee-version');
 const server = require('./aminosee-server');
 const data = require('./aminosee-data');
@@ -607,6 +607,9 @@ class AminoSeeNoEvil {
       server.start( this.outputPath );
       // server.blockingServer();
       // this.blockingServer();
+    } else {
+      output("Webserver Disabled ")
+      webserverEnabled = false;
     }
     if ( args.clear || args.c) {
       log("screen clearing enabled.");
@@ -1402,7 +1405,7 @@ class AminoSeeNoEvil {
 
     if (doesFileExist(this.filePNG) && this.force == false) {
       bugtxt(`isStorageBusy ${this.isStorageBusy}`)
-      termDrawImage(this.filePNG, `File already rendered`);
+      termDrawImage(this.filePNG, `File already rendered ${this.filePNG}`);
       let msg = `Already rendered ${ maxWidth(60, this.justNameOfPNG) }.`;
       this.openOutputs();
       this.popAndPollOrBust(msg);
@@ -3393,9 +3396,8 @@ class AminoSeeNoEvil {
   hilbertFinished() {
     mode(`Hilbert curve done. Waiting on (${ this.storage()})`);
     this.isDiskFinHilbert = true;
-    this.previousImage = this.fileHILBERT;
     this.postRenderPoll('hilbertFinished ' + this.fileHILBERT);
-    termDrawImage(this.previousImage, `hilbert curve`)
+    termDrawImage(this.fileHILBERT, `hilbert curve`)
   }
 
   linearFinished() {
@@ -4290,7 +4292,7 @@ class AminoSeeNoEvil {
       }
       output();
       // term.up(5);
-      output(`Last red: ${ this.peakRed } Last  green : ${ this.peakGreen } Last  blue : ${ this.peakBlue }`)
+      log(`Last red: ${ this.peakRed } Last  green : ${ this.peakGreen } Last  blue : ${ this.peakBlue }`)
       // term.up(this.termDisplayHeight - 2)
     } else {
       output();
@@ -4620,6 +4622,7 @@ class AminoSeeNoEvil {
     // if (debug && this !== undefined) {
     // bugout(txt)
     // } else {
+    term.eraseLine();
     console.log( txt );
     // }
     // wTitle(this.status )
@@ -5290,11 +5293,11 @@ class AminoSeeNoEvil {
         process.exit(); // this.now the "exit" event will fire
       });
       function termDrawImage(fullpath, reason) {
-        if (fullpath == undefined) { fullpath = previousImage }
-        if (fullpath == undefined) { return false }
-        if (reason == undefined) { reason = `BUG. Reminder: always set a reason` }
+        // if (fullpath === undefined) { fullpath = previousImage }
+        // if (fullpath === undefined) { return false }
+        if (reason === undefined) { reason = `BUG. Reminder: always set a reason` }
         // if ( that.force == true) { return false }
-        if ( quiet == true ) { out('quiet'); return false; }
+        if ( quiet === true ) { out('quiet'); return false; }
         term.saveCursor()
         previousImage = fullpath;
         clearCheck();

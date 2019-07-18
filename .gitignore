@@ -13,7 +13,7 @@ dna/*.fa
 dna/*.mfa
 dna/*.gbk
 dna/*.gb
-dna/*.png
+cat dna/*.png
 dna/*.html
 dna/*.touch
 AminoSee_*.png

@@ -67,7 +67,8 @@ function buildServer() {
 }
 
 
-function startCrossSpawnHttp() { // Spawn background server
+function startCrossSpawnHttp(p) { // Spawn background server
+  if (p !== undefined) { port = p }
   let options = [ outputPath + "/", `-p`, port, '-o' ]
   output(chalk.yellow(`starting up with ${options.toString()}`))
   let evilSpawn
@@ -83,7 +84,8 @@ function startCrossSpawnHttp() { // Spawn background server
     output( `error with ${chalk.inverse(url)}`);
     if ( data.indexOf('EADDRINUSE') != -1 ) {
       output(`Port ${port} in use, switching to port 43210`);
-      port = 43210;
+      startCrossSpawnHttp(43210);
+      return false;
     } else {
       output(data);
     }
@@ -227,11 +229,13 @@ function start(o) { // return the port number
   setOutputPath(o)
   if (serverLock()) {
     output("Server already started. If you think this is not true, remove the lock file: " + filenameServerLock);
+    startCrossSpawnHttp(43210)
+
   } else {
     output("No locks found, Starting server");
     buildServer();
     // startHttpServer();
-    startCrossSpawnHttp()
+    startCrossSpawnHttp(4321)
     // startServeHandler();
   }
   return port
