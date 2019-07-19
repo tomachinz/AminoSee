@@ -5,6 +5,7 @@ DATE=$(date)
 TOMSSOURCE=toms_source_temp.txt
 echo GENERATE CREDITS.TXT FILE
 rm -v $CREDITS
+rm -v build/toms.txt
 cp src/ascii-logo.txt $CREDITS
 echo >> $CREDITS
 echo "Thanks to Christos Georghiou who designed the 'See No Evil Hear No Evil Monkeys' http://christosgeorghiou.com/" >> $CREDITS

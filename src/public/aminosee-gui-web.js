@@ -26,10 +26,12 @@ distance = 900; // default 900
 let stateObj = { foo: "bar" };
 let histogramJson = { foo: "bar " };
 let stackOimages = document.getElementById('stackOimages');
-let urlprefix = `funk.co.nz/aminosee/output/`;
-if ( document.location.indexOf('funk.co.nz') == -1 ) {
-  urlprefix = `../`
-}
+let urlprefix = `../`;
+// if ( document.location.indexOf('funk.co.nz') == -1 ) {
+//   urlprefix = `../`
+// } else {
+//   urlprefix = `funk.co.nz/aminosee/output/`;
+// }
 if(window.addEventListener) {
   window.addEventListener('load',pageLoaded,false); //W3C
 } else {
