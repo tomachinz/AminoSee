@@ -27,7 +27,8 @@ mkdir -p dist/root/node_modules/termconfig
 mkdir -p dist/AminoSee_macos
 mkdir -p dist/AminoSee_win
 mkdir -p dist/AminoSee_linux
-mkdir -p dist/electron
+# mkdir -p dist/electron
+
 mkdir -p build
 mkdir -p build/toms_source/
 
@@ -60,7 +61,7 @@ cp -r node_modules/terminal-kit/*                                dist/root/node_
 cp -r node_modules/lazyness/*                                    dist/root/node_modules/lazyness
 cp -r public/*                                                   dist/root/public
 
-# for the awesome shell window in electron app:
+# for the awesome shell window:
 cp    node_modules/xterm/dist/xterm.js                           public/
 cp    node_modules/xterm/dist/xterm.css                          public/
 

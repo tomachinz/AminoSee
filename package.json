@@ -134,14 +134,8 @@
       "node_modules/terminal-kit/**",
       "node_modules/get-cursor-position/**",
       "bin/**",
-      "index.html",
-      "index.php",
-      "aminosee-cli.js",
-      "aminosee-data.js",
-      "aminosee-settings.js",
-      "aminosee-server.js",
-      "aminosee-version.js",
-      "public/**",
+      "src/**",
+      "src/public/**",
       "package.json",
       "dna/megabase.fa"
     ]

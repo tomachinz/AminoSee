@@ -7,6 +7,7 @@ echo GENERATE CREDITS.TXT FILE
 rm -v $CREDITS
 rm -v build/toms.txt
 cp src/ascii-logo.txt $CREDITS
+tail -f $CREDITS &
 echo >> $CREDITS
 echo "Thanks to Christos Georghiou who designed the 'See No Evil Hear No Evil Monkeys' http://christosgeorghiou.com/" >> $CREDITS
 echo >> $CREDITS
@@ -28,10 +29,11 @@ cat  build/toms.txt | wc
 # npm list # for bystanders
 npm list | wc -l >>  $CREDITS # actually
 echo ' open source node npm packages used. ' >>  $CREDITS
-echo as at $TIMESTAMP
+echo as at $TIMESTAMP and $DATE >> $CREDITS
 echo >>  $CREDITS
 npm list >>  $CREDITS
-clear
-
-cat  $CREDITS
+# clear
+# cat $CREDITS
 # open $CREDITS
+killall tail
+sleep 1
