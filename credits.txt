@@ -9,14 +9,14 @@ Thanks to Christos Georghiou who designed the 'See No Evil Hear No Evil Monkeys'
 
 Checkout the music from the drummer who wrote this app at https://www.funk.co.nz/tomachi
 
-    1791
+    1654
  open source node npm packages used. 
-as at 1563509436 and Fri 19 Jul 2019 16:10:36 NZST
+as at 1563509640 and Fri 19 Jul 2019 16:14:00 NZST
 
-aminosee@1.18.16 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
+aminosee@1.18.17 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
 ├─┬ @gmod/indexedfasta@1.0.13
 │ ├─┬ @babel/runtime-corejs2@7.4.5
-│ │ ├── core-js@2.6.8 deduped
+│ │ ├── core-js@2.6.8
 │ │ └── regenerator-runtime@0.13.2
 │ ├─┬ @gmod/bgzf-filehandle@1.2.4
 │ │ ├─┬ @babel/runtime@7.4.5
@@ -647,143 +647,6 @@ aminosee@1.18.16 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
 │ │ │ └── strip-eof@1.0.0
 │ │ └── ip-regex@2.1.0
 │ └── ipaddr.js@1.9.0
-├─┬ jimp@0.6.4
-│ ├─┬ @babel/polyfill@7.4.4
-│ │ ├── core-js@2.6.8 deduped
-│ │ └── regenerator-runtime@0.13.2 deduped
-│ ├─┬ @jimp/custom@0.6.4
-│ │ ├─┬ @jimp/core@0.6.4
-│ │ │ ├─┬ @jimp/utils@0.6.4
-│ │ │ │ └── core-js@2.6.8 deduped
-│ │ │ ├── any-base@1.1.0
-│ │ │ ├── buffer@5.2.1 deduped
-│ │ │ ├── core-js@2.6.8 deduped
-│ │ │ ├── exif-parser@0.1.12
-│ │ │ ├── file-type@9.0.0
-│ │ │ ├─┬ load-bmfont@1.4.0
-│ │ │ │ ├── buffer-equal@0.0.1
-│ │ │ │ ├── mime@1.6.0 deduped
-│ │ │ │ ├── parse-bmfont-ascii@1.0.6
-│ │ │ │ ├── parse-bmfont-binary@1.0.6
-│ │ │ │ ├─┬ parse-bmfont-xml@1.1.4
-│ │ │ │ │ ├── xml-parse-from-string@1.0.1
-│ │ │ │ │ └─┬ xml2js@0.4.19
-│ │ │ │ │   ├── sax@1.2.4
-│ │ │ │ │   └── xmlbuilder@9.0.7
-│ │ │ │ ├── phin@2.9.3 deduped
-│ │ │ │ ├─┬ xhr@2.5.0
-│ │ │ │ │ ├─┬ global@4.3.2
-│ │ │ │ │ │ ├─┬ min-document@2.19.0
-│ │ │ │ │ │ │ └── dom-walk@0.1.1
-│ │ │ │ │ │ └── process@0.5.2
-│ │ │ │ │ ├── is-function@1.0.1
-│ │ │ │ │ ├─┬ parse-headers@2.0.2
-│ │ │ │ │ │ ├─┬ for-each@0.3.3
-│ │ │ │ │ │ │ └── is-callable@1.1.4
-│ │ │ │ │ │ └─┬ string.prototype.trim@1.1.2
-│ │ │ │ │ │   ├─┬ define-properties@1.1.3
-│ │ │ │ │ │   │ └── object-keys@1.1.1
-│ │ │ │ │ │   ├─┬ es-abstract@1.13.0
-│ │ │ │ │ │   │ ├─┬ es-to-primitive@1.2.0
-│ │ │ │ │ │   │ │ ├── is-callable@1.1.4 deduped
-│ │ │ │ │ │   │ │ ├── is-date-object@1.0.1
-│ │ │ │ │ │   │ │ └─┬ is-symbol@1.0.2
-│ │ │ │ │ │   │ │   └── has-symbols@1.0.0
-│ │ │ │ │ │   │ ├── function-bind@1.1.1 deduped
-│ │ │ │ │ │   │ ├── has@1.0.3 deduped
-│ │ │ │ │ │   │ ├── is-callable@1.1.4 deduped
-│ │ │ │ │ │   │ ├─┬ is-regex@1.0.4
-│ │ │ │ │ │   │ │ └── has@1.0.3 deduped
-│ │ │ │ │ │   │ └── object-keys@1.1.1 deduped
-│ │ │ │ │ │   └── function-bind@1.1.1 deduped
-│ │ │ │ │ └── xtend@4.0.1 deduped
-│ │ │ │ └── xtend@4.0.1 deduped
-│ │ │ ├── mkdirp@0.5.1 deduped
-│ │ │ ├── phin@2.9.3
-│ │ │ ├─┬ pixelmatch@4.0.2
-│ │ │ │ └── pngjs@3.4.0 deduped
-│ │ │ └── tinycolor2@1.4.1
-│ │ └── core-js@2.6.8 deduped
-│ ├─┬ @jimp/plugins@0.6.4
-│ │ ├─┬ @jimp/plugin-blit@0.6.4
-│ │ │ ├── @jimp/utils@0.6.4 deduped
-│ │ │ └── core-js@2.6.8 deduped
-│ │ ├─┬ @jimp/plugin-blur@0.6.4
-│ │ │ ├── @jimp/utils@0.6.4 deduped
-│ │ │ └── core-js@2.6.8 deduped
-│ │ ├─┬ @jimp/plugin-color@0.6.4
-│ │ │ ├── @jimp/utils@0.6.4 deduped
-│ │ │ ├── core-js@2.6.8 deduped
-│ │ │ └── tinycolor2@1.4.1 deduped
-│ │ ├─┬ @jimp/plugin-contain@0.6.4
-│ │ │ ├── @jimp/utils@0.6.4 deduped
-│ │ │ └── core-js@2.6.8 deduped
-│ │ ├─┬ @jimp/plugin-cover@0.6.4
-│ │ │ ├── @jimp/utils@0.6.4 deduped
-│ │ │ └── core-js@2.6.8 deduped
-│ │ ├─┬ @jimp/plugin-crop@0.6.4
-│ │ │ ├── @jimp/utils@0.6.4 deduped
-│ │ │ └── core-js@2.6.8 deduped
-│ │ ├─┬ @jimp/plugin-displace@0.6.4
-│ │ │ ├── @jimp/utils@0.6.4 deduped
-│ │ │ └── core-js@2.6.8 deduped
-│ │ ├─┬ @jimp/plugin-dither@0.6.4
-│ │ │ ├── @jimp/utils@0.6.4 deduped
-│ │ │ └── core-js@2.6.8 deduped
-│ │ ├─┬ @jimp/plugin-flip@0.6.4
-│ │ │ ├── @jimp/utils@0.6.4 deduped
-│ │ │ └── core-js@2.6.8 deduped
-│ │ ├─┬ @jimp/plugin-gaussian@0.6.4
-│ │ │ ├── @jimp/utils@0.6.4 deduped
-│ │ │ └── core-js@2.6.8 deduped
-│ │ ├─┬ @jimp/plugin-invert@0.6.4
-│ │ │ ├── @jimp/utils@0.6.4 deduped
-│ │ │ └── core-js@2.6.8 deduped
-│ │ ├─┬ @jimp/plugin-mask@0.6.4
-│ │ │ ├── @jimp/utils@0.6.4 deduped
-│ │ │ └── core-js@2.6.8 deduped
-│ │ ├─┬ @jimp/plugin-normalize@0.6.4
-│ │ │ ├── @jimp/utils@0.6.4 deduped
-│ │ │ └── core-js@2.6.8 deduped
-│ │ ├─┬ @jimp/plugin-print@0.6.4
-│ │ │ ├── @jimp/utils@0.6.4 deduped
-│ │ │ ├── core-js@2.6.8 deduped
-│ │ │ └── load-bmfont@1.4.0 deduped
-│ │ ├─┬ @jimp/plugin-resize@0.6.4
-│ │ │ ├── @jimp/utils@0.6.4 deduped
-│ │ │ └── core-js@2.6.8 deduped
-│ │ ├─┬ @jimp/plugin-rotate@0.6.4
-│ │ │ ├── @jimp/utils@0.6.4 deduped
-│ │ │ └── core-js@2.6.8 deduped
-│ │ ├─┬ @jimp/plugin-scale@0.6.4
-│ │ │ ├── @jimp/utils@0.6.4 deduped
-│ │ │ └── core-js@2.6.8 deduped
-│ │ ├── core-js@2.6.8 deduped
-│ │ └── timm@1.6.1
-│ ├─┬ @jimp/types@0.6.4
-│ │ ├─┬ @jimp/bmp@0.6.4
-│ │ │ ├── @jimp/utils@0.6.4 deduped
-│ │ │ ├── bmp-js@0.1.0
-│ │ │ └── core-js@2.6.8 deduped
-│ │ ├─┬ @jimp/gif@0.6.4
-│ │ │ ├── @jimp/utils@0.6.4 deduped
-│ │ │ ├── core-js@2.6.8 deduped
-│ │ │ └── omggif@1.0.9 deduped
-│ │ ├─┬ @jimp/jpeg@0.6.4
-│ │ │ ├── @jimp/utils@0.6.4 deduped
-│ │ │ ├── core-js@2.6.8 deduped
-│ │ │ └── jpeg-js@0.3.5
-│ │ ├─┬ @jimp/png@0.6.4
-│ │ │ ├── @jimp/utils@0.6.4 deduped
-│ │ │ ├── core-js@2.6.8 deduped
-│ │ │ └── pngjs@3.4.0 deduped
-│ │ ├─┬ @jimp/tiff@0.6.4
-│ │ │ ├── core-js@2.6.8 deduped
-│ │ │ └─┬ utif@2.0.1
-│ │ │   └── pako@1.0.6 deduped
-│ │ ├── core-js@2.6.8 deduped
-│ │ └── timm@1.6.1 deduped
-│ └── core-js@2.6.8
 ├── keypress@0.2.1
 ├─┬ local-web-server@3.0.4
 │ ├─┬ lws@2.0.3
