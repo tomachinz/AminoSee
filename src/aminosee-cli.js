@@ -1405,7 +1405,7 @@ class AminoSeeNoEvil {
 
     if (doesFileExist(this.filePNG) && this.force == false) {
       bugtxt(`isStorageBusy ${this.isStorageBusy}`)
-      termDrawImage(this.filePNG, `File already rendered ${this.filePNG}`);
+      termDrawImage(this.filePNG, `File already rendered`);
       let msg = `Already rendered ${ maxWidth(60, this.justNameOfPNG) }.`;
       this.openOutputs();
       this.popAndPollOrBust(msg);
@@ -5299,12 +5299,11 @@ class AminoSeeNoEvil {
         // if ( that.force == true) { return false }
         if ( quiet === true ) { out('quiet'); return false; }
         term.saveCursor()
-        previousImage = fullpath;
         clearCheck();
         // term.moveTo( 0, 0 )
-        output(chalk.inverse("image: " +  basename(previousImage)))
-        term.drawImage( previousImage, { shrink: { width: tx / 2,  height: ty } }, () => {
-          output(chalk.inverse("image: " +  basename(previousImage) ) + " " +  reason)
+        output(chalk.inverse("image: " +  basename(fullpath)))
+        term.drawImage( fullpath, { shrink: { width: tx / 2,  height: ty } }, () => {
+          output(chalk.inverse("image: " +  basename(fullpath) ) + " " +  reason)
           term.restoreCursor()
         })
       }
