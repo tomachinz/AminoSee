@@ -26,7 +26,8 @@ distance = 900; // default 900
 let stateObj = { foo: "bar" };
 let histogramJson = { foo: "bar " };
 let stackOimages = document.getElementById('stackOimages');
-let urlprefix = `../`;
+// let urlprefix = `../`;
+let urlprefix = `output/`;
 // if ( document.location.indexOf('funk.co.nz') == -1 ) {
 //   urlprefix = `../`
 // } else {
@@ -132,7 +133,7 @@ function pageLoaded() {
   // parseApache()
 }
 function jsonTest() {
-  fetch('output/megabase/megabase.json')
+  fetch('output/megabase/aminosee_histogram.json')
   .then(function(response) {
     return response.json();
   })
@@ -239,12 +240,11 @@ function getParameterFromURL() {
     // if ( index != -1 ) {
     //   href = href.substring(0, index); //CHOP OFF THE &
     // }
-    // alert(href)
-    return href;
   } else {
-    // alert("output/Brown_Kiwi_NW_013982187v1/images/Brown_Kiwi_NW_013982187v1.fa_HILBERT-Reference_m7_c397.2.png")
-    return `output/Brown_Kiwi_NW_013982187v1/images/Brown_Kiwi_NW_013982187v1.fa_HILBERT-Reference_m7_c397.2.png`;
+    href = `output/Brown_Kiwi_NW_013982187v1/images/Brown_Kiwi_NW_013982187v1.fa_HILBERT-Reference_m7_c397.2.png`;
   }
+  alert(href)
+  return href;
 }
 
 function mover(i) {
@@ -668,10 +668,10 @@ function getStats() {
   } else {
     t+= " orthographic view "
   }
-  if (basepairs>3) {
-    t += `
-    DNA basepairs: ${Math.round(basepairs/100000)/10} Megabases, Codons per pixel: ${codonsPerPixel}`;
-  }
+  // if (basepairs>3) {
+  //   t += `
+  //   DNA basepairs: ${Math.round(basepairs/100000)/10} Megabases, Codons per pixel: ${codonsPerPixel}`;
+  // }
   if (cpu>3) {
     t += ` CPU: ${Math.round(cpu/1000)} K IOPs `;
   }

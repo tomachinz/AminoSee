@@ -7,6 +7,7 @@ AminoSee-linux
 output/
 funk.co.nz-aminosee/
 dist/
+backup/
 
 # this kludge is so i can have a shell script in there "process-all-files-in-cd.sh"
 dna/*.fa

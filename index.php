@@ -70,7 +70,8 @@
 
 						<form action="../">
 						<select name="selectedGenome" onchange="fileChanged(this.options[this.selectedIndex].value)">
-						<option value="output/Brown_Kiwi_013982187v1.fa_linear_leucine_c123.6_sci.png" selected>Brown Kiwi</option>
+						<option value="output/megabase/megabase.fa_linear-Reference_c1_sqr_sci.png" selected>Megabase</option>
+						<option value="output/Brown_Kiwi_013982187v1.fa_linear_leucine_c123.6_sci.png">Brown Kiwi</option>
 						<option value="calibration/AminoSee_Calibration_reg_linear_8.png">AminoSee Calibration Large</option>
 						<option value="calibration/AminoSee_Calibration_reg_linear_2.png">AminoSee Calibration Small</option>
 						<option value="output/Caenorhabdihromosome-V.fa_linear_reg_c1.7_fix_sci.png">C.elegans</option>
@@ -95,8 +96,8 @@
 			<div id="status" class="headingStatus">
 				...loading...
 				<div id="oi">
-					<img id="current_image" src="output/Brown_Kiwi_013982187v1.fa_linear_leucine_c123.6_sci.png" width="64px" height="64px">
-					<img id="offscreen_image" src="output/Brown_Kiwi_013982187v1.fa_linear_leucine_c123.6_sci.png" class="hidden">
+					<img id="current_image" src="output/megabase/images/megabase.fa_linear-Reference_c1_sqr_sci.png" width="64px" height="64px">
+					<img id="offscreen_image" src="output/megabase/images/megabase.fa_linear-Reference_c1_sqr_sci.png" class="hidden">
 				</div>
 			</div>
 			<div id="stats" class="stats whitetext">

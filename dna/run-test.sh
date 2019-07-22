@@ -119,7 +119,7 @@ echo "-------------------------------------------"
 echo "                                         =///"
 clear
 # killall "aminosee.funk.nz 27MB_TestPattern 34.94MB"
-lighthouse http://localhost:4321 ;
+lighthouse http://localhost:4321 --output-path=test --view;
 eslint src/aminosee-cli.js
  vows --spec --isolate
 echo Stopping server in 1 second

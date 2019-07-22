@@ -140,7 +140,7 @@ function populateArgs(procArgv) { // returns args
     string: [ 'peptide'],
     string: [ 'ratio'],
     alias: { a: 'artistic', b: 'dnabg', c: 'codons', d: 'devmode', f: 'force', h: 'help', k: 'keyboard', m: 'magnitude', o: 'outpath', out: 'outpath', output: 'outpath', p: 'peptide', i: 'image', t: 'triplet', u: 'updates', q: 'quiet', r: 'reg', w: 'width', v: 'verbose', x: 'explorer', finder: 'explorer', view: 'html'  },
-    default: { html: true, image: true, dnabg: true, clear: false, explorer: false, quiet: false, keyboard: false, progress: true, redraw: true, updates: true },
+    default: { html: true, image: true, dnabg: true, clear: false, explorer: false, quiet: false, keyboard: false, progress: true, redraw: true, updates: true, serve: true },
     stopEarly: false
   } // NUMERIC INPUTS: codons, magnitude, width,     string: [ 'width'],    string: [ 'magnitude'],    string: [ 'codons'],
   // console.log(procArgv.slice(2))
@@ -727,7 +727,7 @@ class AminoSeeNoEvil {
       } else if ( !this.quiet) {
         output(' ');
         // log('Closing in ')
-        const carlo = require('./carlo');
+        // const carlo = require('./carlo');
         countdown('No command - closing in ', 20000);
       } else {
         output();
@@ -4698,10 +4698,10 @@ class AminoSeeNoEvil {
       try {
         fs.unlinkSync(file, (err) => {
           bugtxt("Removing file OK...")
-          if (err) { fileBug(err)  }
+          if (err) { bugtxt(err)  }
         });
       } catch (err) {
-        // bugtxt(err)
+        bugtxt(err)
       }
     }
     function termSize() {
@@ -5427,4 +5427,6 @@ class AminoSeeNoEvil {
     module.exports.showCountdown = showCountdown;
     module.exports.stopWork = stopWork;
     module.exports.setupPrefs = setupPrefs;
-    module.exports.fileWrite = (a,b,cpen ) => { this.fileWrite(a,b,c) }
+    module.exports.fileWrite = (a,b,c) => { this.fileWrite(a,b,c) }
+    // module.exports.deleteFile = (file) => { deleteFile(file) }
+    module.exports.deleteFile = deleteFile;

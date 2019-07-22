@@ -189,6 +189,8 @@ module.exports = (options) => {
 module.exports.start = start;
 
 function stop() {
+  output("Stoping server");
+  aminosee.deleteFile(filenameServerLock);
   if (serverLock()) {
     const killServe = spawn('nice', ['killall', 'node', '', '0'], { stdio: 'pipe' });
     const killAminosee = spawn('nice', ['killall', 'aminosee.funk.nz', '', '0'], { stdio: 'pipe' });
@@ -207,7 +209,7 @@ function stop() {
   } catch (err) {
     bugtxt("No server locks to remove: " + err);
   }
-}; module.exports.stop = stop;
+}
 
 
 function close() {
@@ -234,12 +236,12 @@ function start(o) { // return the port number
   } else {
     output("No locks found, Starting server");
     buildServer();
-    startHttpServer();
-    // startCrossSpawnHttp(4321)
+    // startHttpServer();
+    startCrossSpawnHttp(4321)
     // startServeHandler();
   }
   return port
-};
+}
 function setOutputPath(o) {
   if (o === undefined) { o = aminosee.outputPath }
   outputPath = o;
@@ -247,10 +249,7 @@ function setOutputPath(o) {
   // output(`(server) im planning to run server at: ` + outputPath);
 }
 
-function stop() {
-  output("Stoping server");
-  // aminosee.deleteFile(filenameServerLock);
-}
+
 
 function open(relative) {
   output("Opening page: " + relative);
@@ -272,6 +271,7 @@ function getServerURL(path) {
 
 // module.exports.serverLock = function(cb) {
 function serverLock() {
+  log(`Checking server lock at: ${filenameServerLock}`)
   if (doesFileExist(filenameServerLock)) {
     log('Server already running ');
     return true;
