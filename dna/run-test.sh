@@ -11,10 +11,9 @@ aminosee_do () {
 }
 success () {
   echo $1
-  echo $1
-  echo $1
-  echo $1
-  echo $1
+  echo
+  echo
+  echo
   sleep 1
 }
 w

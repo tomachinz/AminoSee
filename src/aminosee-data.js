@@ -1,5 +1,8 @@
-const aminosee = require('./aminosee-cli').gimmeDat;
+const aminosee = require('./aminosee-cli');
+// const out = aminosee.out;
+const maxWidth = aminosee.maxWidth;
 const path = require('path');
+const chalk = require('chalk');
 const fs = require('fs-extra'); // drop in replacement = const fs = require('fs')
 // const { IndexedFasta, BgzipIndexedFasta } = require('@gmod/indexedfasta')
 // const output = aminosee.output;
@@ -41,15 +44,15 @@ const epicQuotes = [
   `Autonomy, mastery, and purpose.`,
   `Thats us we outa here cousin! Sweet-as-a-Kina-in-a-creek (as they say in NZ)`
 ]
-async function getSequenceNames(fastaFilePath) {
-  const t = new IndexedFasta({
-    path: fastaFilePath,
-    faiPath: 'test.fa.fai',
-  });
-  const seqNames = await t.getSequenceNames();
-  console.log( seqNames )
-  return seqNames;
-}
+// async function getSequenceNames(fastaFilePath) {
+//   const t = new IndexedFasta({
+//     path: fastaFilePath,
+//     faiPath: 'test.fa.fai',
+//   });
+//   const seqNames = await t.getSequenceNames();
+//   aminosee.log( seqNames )
+//   return seqNames;
+// }
 function saySomethingEpic() {
   return epicQuotes[Math.floor( Math.random() * epicQuotes.length )]
 }
@@ -70,6 +73,33 @@ function createSymlink(src, dest) { // source is the original, dest is the symli
   } catch(e) {
     // output("Symlink ${} could not created. Probably not an error: " + e);
   }
+}
+function out(txt) {
+  process.stdout.write(chalk.blue(`[`) + maxWidth(10, txt)  + chalk.blue(`]`))
+}
+function recordFile(file, contents, cb) {
+
+
+    try {
+      fs.writeFile(file, contents, 'utf8', function (err, cb) {
+        if (err) {
+          bugtxt(`[FileWrite] Issue with saving: ${ file } ${err}`)
+        } else {
+          try {
+            bugtxt('Set permissions for file: ' + file);
+            fs.chmodSync(file, '0777');
+          } catch(e) {
+            output('Could not set permission for file: ' + file + ' due to ' + e);
+          }
+        }
+        out('$ ' + file);
+        if ( cb !== undefined ) { cb() }
+      });
+    } catch(err) {
+      log(`[catch] Issue with saving: ${file} ${err}`);
+      if ( cb !== undefined ) { cb() }
+    }
+
 }
 function doesFolderExist(f) {
   if ( doesFileExist(f) ) {
@@ -913,10 +943,11 @@ const siteDescription = `A unique visualisation of DNA or RNA residing in text f
 
 
 
+module.exports.out = out;
 module.exports.doesFileExist = doesFileExist;
 module.exports.doesFolderExist = doesFolderExist;
 module.exports.createSymlink = createSymlink;
-module.exports.getSequenceNames = getSequenceNames;
+// module.exports.getSequenceNames = getSequenceNames;
 module.exports.pepTable = pepTable;
 module.exports.asciiart = asciiart;
 module.exports.extensions = extensions;

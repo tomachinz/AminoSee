@@ -1,10 +1,10 @@
 const aminosee = require('./aminosee-cli');
+const fileWrite = aminosee.fileWrite;
 const data = require('./aminosee-data');
 const doesFileExist   = data.doesFileExist;
 const doesFolderExist = data.doesFolderExist;
 const createSymlink   = data.createSymlink;
 const alog = aminosee.log;
-
 const Preferences = require('preferences');
 const http = require('http');
 const chalk = require('chalk');
@@ -17,9 +17,12 @@ const lockFileMessage = `
 aminosee.funk.nz DNA Viewer by Tom Atkinson.
 This is a temporary lock file, so I dont start too many servers. Its safe to erase these files, and I've made a script in /dna/ to batch delete them all in one go. Normally these are deleted when render is complete, or with Control-C and graceful shutdown.`;
 const version = aminosee.version;
+// const webserverEnabled = true;
 const defaulturl = `http://127.0.0.1:4321`
-let outputPath, filenameServerLock, url, projectprefs;
+
+let outputPath, filenameServerLock, url, projectprefs, port;
 url = defaulturl
+port = 4321;
 function setupPrefs() {
   url = projectprefs.aminosee.url;
   // aminosee.setupPrefs();
@@ -43,24 +46,22 @@ function getArgs() {
 function output(txt) {
   console.log(chalk.inverse(`aminosee-server: `) + txt);
 }
-let port = 4321;
 
 function buildServer() {
   const appFilename = require.main.filename; //     /bin/aminosee.js is 11 chars
   const appPath = path.normalize(appFilename.substring(0, appFilename.length-15));// cut 4 off to remove /dna
 
   // this.openHtml = true;
-  webserverEnabled = true;
   // that.setupKeyboardUI();
   // output("HELLO**********************")
   // output(`Building server to ${outputPath}`)
   data.saySomethingEpic();
   let sFiles = [
     { "source": appPath + 'public',            "dest": outputPath + '/public' },
-    { "source": appPath + 'public/home.html', "dest": outputPath + '/home.html' },
+    // { "source": appPath + 'public/home.html', "dest": outputPath + '/home.html' },
     { "source": appPath + 'public/favicon.ico',"dest": outputPath + '/favicon.ico' },
   ];
-  for (i=0; i<sFiles.length; i++) {
+  for (let i=0; i<sFiles.length; i++) {
     let element = sFiles[i]
     // log('building ' + element.source );//.toString());
     createSymlink(path.normalize(path.resolve(element.source)), path.normalize(path.resolve(element.dest)));
@@ -70,26 +71,29 @@ function buildServer() {
 
 
 function startCrossSpawnHttp(p) { // Spawn background server
+  let didStart = false;
   if (p !== undefined) { port = p }
   let options = [ outputPath + "/", `-p`, port, '-o' ]
   output(chalk.yellow(`starting up with ${options.toString()}`))
   let evilSpawn
   try {
     evilSpawn = spawn('http-server', options, { stdio: 'pipe' });
+    didStart = true;
   } catch(err) {
     output(err)
+    didStart = false;
   }
   evilSpawn.stdout.on('data', (data) => {
     output(data);
   });
   evilSpawn.stderr.on('data', (data) => {
     output( `error with ${chalk.inverse(url)}`);
+    didStart = false;
     if ( data.indexOf('EADDRINUSE') != -1 ) {
-      output(`Port ${port} in use, switching to port 43210`);
-      startCrossSpawnHttp(43210);
-      return false;
+      output(`Port ${port} is in use, switching to port 43210`);
     } else {
-      output(data);
+      output(`Unknown error:`);
+      output( data );
     }
   });
   evilSpawn.on('close', (code) => {
@@ -99,7 +103,7 @@ function startCrossSpawnHttp(p) { // Spawn background server
   log(chalk.bgBlue.yellow("IDEA: Maybe send some bitcoin to the under-employed creator tom@funk.co.nz to convince him to work on it?"));
   log("Control-C to quit. This requires http-server, install that with:");
   log("sudo npm install --global http-server");
-  return port
+  return didStart
 }
 function startHttpServer() {
   let options = [ `$[outputPath}/`, `-p`, port, '-o' ]
@@ -227,11 +231,11 @@ function close() {
   }
 }
 function start(o) { // return the port number
-  output(`Attempting to start server at: ${ o }`)
+  output(`Attempting to start server at: ${ o } on port ${ port }`)
   // setupPrefs()
   outputPath = o;
   setOutputPath(o)
-  if (serverLock()) {
+  if ( serverLock() ) {
     output("Server already started. If you think this is not true, remove the lock file: " + filenameServerLock);
     startCrossSpawnHttp(43210)
 
@@ -240,8 +244,11 @@ function start(o) { // return the port number
     log(`filenameServerLock: ${filenameServerLock}`)
     buildServer();
     // startHttpServer();
-    startCrossSpawnHttp(4321)
-    // startServeHandler();
+    if ( startCrossSpawnHttp(port) == false ) {
+      output(`Problem with port ${port} `);
+      port = 43210;
+      // startCrossSpawnHttp(port)
+    }
   }
   return port
 }
@@ -274,11 +281,17 @@ function getServerURL(path) {
 
 // module.exports.serverLock = function(cb) {
 function serverLock() {
-  log(`Checking server lock at: ${filenameServerLock}`)
-  if (doesFileExist(filenameServerLock)) {
-    log('Server already running ');
+  output(`Checking server lock at: ${filenameServerLock}`)
+  if ( doesFileExist(filenameServerLock) ) {
+    output('Server already running ');
     return true;
-  } else { return false }
+  } else {
+    output('Server NOT already running ');
+    // aminosee.fileWrite(filenameServerLock, port, () => {
+    //   output('Server starting up');
+    // })
+    return false
+  }
 }
 
 

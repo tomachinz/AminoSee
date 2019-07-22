@@ -17,7 +17,7 @@ Esc     (graceful quit) O (toggle show files after in GUI)
 `;
 const lineBreak = `
 `;
-const settings = require('./aminosee-settings');
+// const settings = require('./aminosee-settings');
 const version = require('./aminosee-version');
 const server = require('./aminosee-server');
 const data = require('./aminosee-data');
@@ -28,8 +28,8 @@ const createSymlink = data.createSymlink;
 const asciiart = data.asciiart;
 const extensions = data.extensions;
 const saySomethingEpic = data.saySomethingEpic;
-let isElectron, jobArgs, killServersOnQuit, webserverEnabled, cliInstance, tx, ty, termPixels, cliruns, gbprocessed, projectprefs, userprefs, genomes, progato, commandString, batchSize, previousImage, quiet, url, outputPath;
-const debug = false; // should be false for PRODUCTION
+let isElectron, jobArgs, killServersOnQuit, webserverEnabled, cliInstance, tx, ty, termPixels, cliruns, gbprocessed, projectprefs, userprefs, genomes, progato, commandString, batchSize, quiet, url, outputPath;
+const debug = true; // should be false for PRODUCTION
 // OPEN SOURCE PACKAGES FROM NPM
 const path = require('path');
 const Preferences = require("preferences");
@@ -107,46 +107,16 @@ module.exports = () => {
 }
 function populateArgs(procArgv) { // returns args
   const options = {
-    boolean: [ 'artistic' ],
-    boolean: [ 'clear' ],
-    boolean: [ 'chrome' ],
-    boolean: [ 'devmode' ],
-    boolean: [ 'debug' ],
-    boolean: [ 'demo' ],
-    boolean: [ 'dnabg' ],
-    boolean: [ 'explorer' ],
-    boolean: [ 'file' ],
-    boolean: [ 'force' ],
-    boolean: [ 'firefox' ],
-    boolean: [ 'gui' ],
-    boolean: [ 'html' ],
-    boolean: [ 'image' ],
-    boolean: [ 'keyboard' ],
-    boolean: [ 'list' ],
-    boolean: [ 'progress' ],
-    boolean: [ 'quiet' ],
-    boolean: [ 'reg' ],
-    boolean: [ 'recycle' ],
-    boolean: [ 'redraw' ],
-    boolean: [ 'serve' ],
-    boolean: [ 'safari' ],
-    boolean: [ 'test' ],
-    boolean: [ 'updates' ],
-    boolean: [ 'verbose' ],
-    boolean: [ 'view' ],
-    string: [ 'url'],
-    string: [ 'outpath'],
-    string: [ 'triplet'],
-    string: [ 'peptide'],
-    string: [ 'ratio'],
+    boolean: [ 'artistic', 'clear', 'chrome', 'devmode', 'debug', 'demo', 'dnabg', 'explorer', 'file', 'force', 'firefox', 'gui', 'html', 'image', 'keyboard', 'list', 'progress', 'quiet', 'reg', 'recycle', 'redraw', 'serve', 'safari', 'test', 'updates', 'verbose', 'view' ],
+    string: [ 'url', 'outpath', 'triplet', 'peptide', 'ratio'],
     alias: { a: 'artistic', b: 'dnabg', c: 'codons', d: 'devmode', f: 'force', h: 'help', k: 'keyboard', m: 'magnitude', o: 'outpath', out: 'outpath', output: 'outpath', p: 'peptide', i: 'image', t: 'triplet', u: 'updates', q: 'quiet', r: 'reg', w: 'width', v: 'verbose', x: 'explorer', finder: 'explorer', view: 'html'  },
-    default: { html: true, image: true, dnabg: true, clear: false, explorer: false, quiet: false, keyboard: false, progress: true, redraw: true, updates: true, serve: true },
+    default: { html: true, image: true, dnabg: true, clear: false, explorer: false, quiet: false, keyboard: false, progress: true, redraw: true, updates: false, serve: true },
     stopEarly: false
   } // NUMERIC INPUTS: codons, magnitude, width,     string: [ 'width'],    string: [ 'magnitude'],    string: [ 'codons'],
-  // console.log(procArgv.slice(2))
-  log(process.argv.slice(2))
-  return minimist(process.argv.slice(2), options);
-  // this.args = minimist(procArgv.slice(2), options)
+  log(procArgv.slice(2), options)
+  // log( process.argv.slice(2) )
+  // return minimist( process.argv.slice(2), options);
+  return minimist(procArgv.slice(2), options)
   // return this.args;
 }
 function bruteForce(cs) {
@@ -232,7 +202,7 @@ class AminoSeeNoEvil {
     // do stuff aside from creating any changes. eg if you just run "aminosee" by itself.
     // for each render batch sent through addJob, here is where "this" be instantiated once per addJob
     // for each DNA file, run setupProject
-    log(args)
+    log( args )
 
 
 
@@ -273,7 +243,7 @@ class AminoSeeNoEvil {
     this.devmode = false; // kills the auto opening of reports etc
     this.quiet = false;
     this.verbose = false; // not recommended. will slow down due to console.
-    this.debug = false; // not recommended. will slow down due to console.
+    this.debug = true; // not recommended. will slow down due to console.
     this.force = false; // this.force overwrite existing PNG and HTML reports
     this.artistic = false; // for Charlie
     this.dnabg = false; // firehose your screen with DNA!
@@ -662,6 +632,7 @@ class AminoSeeNoEvil {
       this.dnabg = false;
       this.updates = false;
       this.clear = false;
+      webserverEnabled = false;
     } else {
       this.quiet = false;
       log('not using quiet mode. ')
@@ -1692,7 +1663,7 @@ class AminoSeeNoEvil {
     Max pix setting: ${ this.maxpix.toLocaleString()}
     ${ this.dimension }th Hilbert curve infintite recursion dimension
     Darken Factor ${ twosigbitsTolocale(this.darkenFactor)} / Highlight Factor ${ twosigbitsTolocale( this.highlightFactor)}
-    Gigabytes processed on this profile: ${ gbprocessed.toLocaleString()} Run ID: ${ this.timestamp } ${ cliruns}th run on ${ this.hostname}
+    Gigabytes processed on this profile: ${ gbprocessed.toLocaleString()} Run ID: ${ this.timestamp } ${ cliruns}th run on ${ hostname }
     Total renders: ${ userprefs.aminosee.completed } Project opens: ${ projectprefs.aminosee.opens } (only increments when using --image --help --html or --explorer)
     AminoSee version: ${version}`;
   }
@@ -4282,7 +4253,7 @@ class AminoSeeNoEvil {
     output(`Done: ${chalk.rgb(128, 255, 128).inverse( nicePercent(this.percentComplete) )} Elapsed: ${ fixedWidth(12, humanizeDuration( this.msElapsed )) } Remain: ${humanizeDuration( this.timeRemain)}`);
     output(`${ twosigbitsTolocale( gbprocessed )} GB All time total on ${chalk.yellow(hostname)} ${ cliruns.toLocaleString()} jobs run total`);
     this.progUpdate( this.percentComplete );
-    output(`Output path: ${chalk.underline(this.filePNG)}`)
+    output(`Report URL: ${chalk.underline( this.fullURL )}`)
     term.down(1);
     term.right( this.termMarginLeft );
     output();
@@ -4642,15 +4613,13 @@ class AminoSeeNoEvil {
   function log(txt) {
     if (this !== undefined) {
       if (this.quiet == false && this.devmode == true && this.verbose == true ) {
-        output( fixedWidth(69, `devmode log: [${txt}] `));
+        // output( fixedWidth(69, `devmode log: [${txt}] `));
+        output( `devmode log: [${txt}] `);
       } else if (this.quiet == false){
         redoLine(txt);
       }
     } else if (debug == true) {
       redoLine(txt)
-    } else {
-      redoLine('twas not defined ma nigga: ' +txt)
-      return false;
     }
     wTitle(txt) // put it on the terminal windowbar or in tmux
   }
@@ -5421,6 +5390,7 @@ class AminoSeeNoEvil {
     module.exports.nicePercent = nicePercent;
     module.exports.createSymlink = createSymlink;
     module.exports.log = log;
+    module.exports.out = out;
     module.exports.output = output;
     module.exports.AminoSeeNoEvil = AminoSeeNoEvil;
     module.exports.addJob = addJob;
@@ -5433,3 +5403,4 @@ class AminoSeeNoEvil {
     module.exports.fileWrite = (a,b,c) => { this.fileWrite(a,b,c) }
     // module.exports.deleteFile = (file) => { deleteFile(file) }
     module.exports.deleteFile = deleteFile;
+    module.exports.maxWidth = maxWidth;
