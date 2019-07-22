@@ -38,11 +38,11 @@ function setupPrefs() {
   }
 }
 function log(txt) {
-  // output( txt )
+  output( txt )
 }
-function getArgs() {
-  return this.args;
-}
+// function getArgs() {
+//   return this.args;
+// }
 function output(txt) {
   console.log(chalk.inverse(`aminosee-server: `) + txt);
 }
@@ -54,12 +54,11 @@ function buildServer() {
   // this.openHtml = true;
   // that.setupKeyboardUI();
   // output("HELLO**********************")
-  // output(`Building server to ${outputPath}`)
+  output(`Building server to ${outputPath}`)
   data.saySomethingEpic();
   let sFiles = [
     { "source": appPath + 'public',            "dest": outputPath + '/public' },
-    // { "source": appPath + 'public/home.html', "dest": outputPath + '/home.html' },
-    { "source": appPath + 'public/favicon.ico',"dest": outputPath + '/favicon.ico' },
+    { "source": appPath + 'public/favicon.ico',"dest": outputPath + '/favicon.ico' }
   ];
   for (let i=0; i<sFiles.length; i++) {
     let element = sFiles[i]
@@ -90,7 +89,7 @@ function startCrossSpawnHttp(p) { // Spawn background server
     output( `error with ${chalk.inverse(url)}`);
     didStart = false;
     if ( data.indexOf('EADDRINUSE') != -1 ) {
-      output(`Port ${port} is in use, switching to port 43210`);
+      output(`Port ${port} is in use`);
     } else {
       output(`Unknown error:`);
       output( data );
@@ -155,41 +154,39 @@ function startServeHandler() {
 module.exports = (options) => {
 
 
-  http.createServer((request, response) => {
-    const { headers, method, url } = request;
-    let body = [];
-    request.on('error', (err) => {
-      console.error(`err from createServer ${createServer}`);
-    }).on('data', (chunk) => {
-      output('data from web');
-      body.push(chunk);
-    }).on('end', () => {
-      body = Buffer.concat(body).toString();
-      // BEGINNING OF NEW STUFF
-
-      body = Buffer.concat(body).toString();
-      response.end(body);
-
-      response.on('error', (err) => {
-        console.error(err);
-      });
-      body += ' AminoSee was here ';
-      response.statusCode = 200;
-      // response.setHeader('Content-Type', 'application/json');
-      response.setHeader('Content-Type', 'application/html');
-      // Note: the 2 lines above could be replaced with this next one:
-      // response.writeHead(200, {'Content-Type': 'application/json'})
-
-      const responseBody = { headers, method, url, body };
-
-      // response.write(JSON.stringify(responseBody));
-      response.write(body);
-      response.end();
-      // Note: the 2 lines above could be replaced with this next one:
-      // response.end(JSON.stringify(responseBody))
-      // END OF NEW STUFF
-    });
-  }).listen(options.port);
+  // http.createServer((request, response) => {
+  //   const { headers, method, url } = request;
+  //   let body = [];
+  //   request.on('error', (err) => {
+  //     console.error(`err from createServer ${createServer}`);
+  //   }).on('data', (chunk) => {
+  //     output('data from web');
+  //     body.push(chunk);
+  //   }).on('end', () => {
+  //     body = Buffer.concat(body).toString();
+  //     // BEGINNING OF NEW STUFF
+  //     body = Buffer.concat(body).toString();
+  //     response.end(body);
+  //     response.on('error', (err) => {
+  //       console.error(err);
+  //     });
+  //     body += ' AminoSee was here ';
+  //     response.statusCode = 200;
+  //     // response.setHeader('Content-Type', 'application/json');
+  //     response.setHeader('Content-Type', 'application/html');
+  //     // Note: the 2 lines above could be replaced with this next one:
+  //     // response.writeHead(200, {'Content-Type': 'application/json'})
+  //
+  //     const responseBody = { headers, method, url, body };
+  //
+  //     // response.write(JSON.stringify(responseBody));
+  //     response.write(body);
+  //     response.end();
+  //     // Note: the 2 lines above could be replaced with this next one:
+  //     // response.end(JSON.stringify(responseBody))
+  //     // END OF NEW STUFF
+  //   });
+  // }).listen(options.port);
 }
 
 module.exports.start = start;
@@ -232,12 +229,12 @@ function close() {
 }
 function start(o) { // return the port number
   output(`Attempting to start server at: ${ o } on port ${ port }`)
-  // setupPrefs()
+  setupPrefs()
   outputPath = o;
   setOutputPath(o)
   if ( serverLock() ) {
     output("Server already started. If you think this is not true, remove the lock file: " + filenameServerLock);
-    startCrossSpawnHttp(43210)
+    // startCrossSpawnHttp(43210)
 
   } else {
     output("No locks found, Starting server ");
@@ -247,7 +244,7 @@ function start(o) { // return the port number
     if ( startCrossSpawnHttp(port) == false ) {
       output(`Problem with port ${port} `);
       port = 43210;
-      // startCrossSpawnHttp(port)
+      startCrossSpawnHttp(port)
     }
   }
   return port

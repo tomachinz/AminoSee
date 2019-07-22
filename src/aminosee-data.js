@@ -934,7 +934,8 @@ function log(txt) {
   output(txt)
 }
 function bugtxt(txt) {
-  if (aminosee.args.debug == true) {
+  let args = aminosee.getArgs();
+  if (args.debug == true) {
     output(txt)
   }
 }

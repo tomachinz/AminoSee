@@ -39,17 +39,7 @@ mkdir -p build/toms_source/
 # cp -v main.js                                                    dist/root/
 # cp -v renderer.js                                                dist/root/
 # cp -v aminosee-stdinpipe.js                                      dist/root/
-cp -v public/aminosee-web-gui.js                            build/toms_source/
-cp -v aminosee-serve.js                                     build/toms_source/
-cp -v aminosee-cli.js                                       build/toms_source/
-cp -v aminosee-data.js                                      build/toms_source/
-cp -v aminosee-server.js                                    build/toms_source/
-cp -v aminosee-settings.js                                  build/toms_source/
-cp -v aminosee-stdinpipe.js                                 build/toms_source/
-cp -v aminosee-version.js                                   build/toms_source/
-cp -v main.js                                               build/toms_source/
-cp -v renderer.js                                           build/toms_source/
-cp -v console.js                                            build/toms_source/
+
 
 cp -v node_modules/sliced/index.js                               dist/root/node_modules/sliced/index.js
 cp -v node_modules/deep-defaults/lib/index.js                    dist/root/node_modules/deep-defaults/lib

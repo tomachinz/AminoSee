@@ -9,7 +9,7 @@ const carlo = require('carlo');
   app.on('exit', () => process.exit());
 
   // Tell carlo where your web files are located.
-  app.serveFolder(__dirname);
+  // app.serveFolder(__dirname);
 
   // Expose 'env' function in the web environment.
   await app.exposeFunction('env', _ => process.env);
