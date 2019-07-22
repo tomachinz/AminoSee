@@ -852,7 +852,7 @@ function getPixX(i) {
 function getPixY(i) {
   var y = Math.round(( maxcolorpix / 1920 ) -0.5) ; // i use rounding to count the first "1" as 1920 / 1920, but not 1919/1920
   if (y<0) {
-    alert("nek minute");
+    // alert("nek minute");
     y=0;
   }
 }
@@ -876,7 +876,7 @@ function getPixY(i) {
 // }
 function toggleFileUpload() {
   stat(document.getElementById('fileupload').value );
-  alert('ho');
+  // alert('ho');
   if (!fileUploadShowing) {
     document.getElementById('fileheader').style.visibility = 'visible';
     document.getElementById('fileheader').style.display = 'block';

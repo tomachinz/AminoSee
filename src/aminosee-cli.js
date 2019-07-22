@@ -317,7 +317,6 @@ class AminoSeeNoEvil {
     this.pepTable = data.pepTable;
     this.streamLineNr = 0;
     this.termMarginLeft = 2;
-    this.dnabg = false;
     this.peptide = this.triplet = this.currentTriplet = this.currentPeptide = "none";
     // termSize();
     // this.resized(tx, ty);
@@ -575,7 +574,10 @@ class AminoSeeNoEvil {
       this.openHtml = false;
     }
 
-    if ( cliruns > 69 ||  gbprocessed  > 0.1 || opens > 24 ) { this.dnabg = true } // if you actually use the program, this easter egg starts showing raw DNA as the background after 100 megs or 69 runs.
+    if ( cliruns > 69 || gbprocessed  > 0.1 || opens > 24 && Math.random() > 0.8) {
+      output(`Easter egg: enabling dnabg mode!!`)
+      this.dnabg = true
+    } // if you actually use the program, this easter egg starts showing raw DNA as the background after 100 megs or 69 runs.
     if ( args.dnabg || args.s) {
       log("this.dnabg mode enabled.");
       this.dnabg = true;
