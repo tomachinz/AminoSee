@@ -3,6 +3,8 @@ const data = require('./aminosee-data');
 const doesFileExist   = data.doesFileExist;
 const doesFolderExist = data.doesFolderExist;
 const createSymlink   = data.createSymlink;
+const alog = aminosee.log;
+
 const Preferences = require('preferences');
 const http = require('http');
 const chalk = require('chalk');
@@ -78,7 +80,7 @@ function startCrossSpawnHttp(p) { // Spawn background server
     output(err)
   }
   evilSpawn.stdout.on('data', (data) => {
-    output(`${chalk.inverse('aminosee-server')}: ${data}`);
+    output(data);
   });
   evilSpawn.stderr.on('data', (data) => {
     output( `error with ${chalk.inverse(url)}`);
@@ -234,7 +236,8 @@ function start(o) { // return the port number
     startCrossSpawnHttp(43210)
 
   } else {
-    output("No locks found, Starting server");
+    output("No locks found, Starting server ");
+    log(`filenameServerLock: ${filenameServerLock}`)
     buildServer();
     // startHttpServer();
     startCrossSpawnHttp(4321)

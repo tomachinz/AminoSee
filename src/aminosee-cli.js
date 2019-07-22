@@ -603,10 +603,6 @@ class AminoSeeNoEvil {
     }
     if ( args.serve || args.s) {
       webserverEnabled = true;
-      output("Output path: "+ this.outputPath)
-      server.start( this.outputPath );
-      // server.blockingServer();
-      // this.blockingServer();
     } else {
       output("Webserver Disabled ")
       webserverEnabled = false;
@@ -695,6 +691,10 @@ class AminoSeeNoEvil {
     }
 
     bugtxt(`the args -->> ${this.args}`)
+
+    if ( webserverEnabled ) {
+      server.start( this.outputPath );
+    }
 
     if ( this.howMany > 0 ) {
       output(chalk.green(`${chalk.underline("Job items:")} ${this.howMany}`))
@@ -965,9 +965,10 @@ class AminoSeeNoEvil {
     this.streamLineNr = 0;
     this.genomeSize = 1;
     this.opacity  = 1 / this.codonsPerPixel; // 0.9 is used to make it brighter, also due to line breaks
-    this.isDiskFinHTML = false;
-    this.isDiskFinHilbert = false;
-    this.isDiskFinLinear = false;
+    this.isDiskFinHTML = true;
+    this.isDiskFinHilbert = true;
+    this.isDiskFinLinear = true;
+    this.isStorageBusy = false;
     // this.currentFile = this.args._[0].toString();
     // this.dnafile = path.resolve( this.currentFile )
 
@@ -2168,7 +2169,6 @@ class AminoSeeNoEvil {
   //       this.peptide = 'Opal'; // Blue TESTS
   //       this.ratio = 'sqr';
   //       this.generateTestPatterns(cb);
-  //       this.openOutputs();
   //
   //     },
   //     function( cb ) {
@@ -2191,7 +2191,6 @@ class AminoSeeNoEvil {
   //     },
   //
   //     function ( cb ) {
-  //       this.openOutputs();
   //       if ( cb !== undefined ) { cb() }
   //     },
   //     // function ( cb ) {
@@ -2298,7 +2297,6 @@ class AminoSeeNoEvil {
   }
   saveHTML(cb) {
     mode("maybe save HTML");
-    this.isDiskFinHTML = false;
     if ( this.isHilbertPossible == false ) { mode('not saving html - due to hilbert not possible'); this.isDiskFinHTML = true; }
     if ( this.report == false ) { mode('not saving html - due to report disabled. peptide: ' + this.peptide); this.isDiskFinHTML = true; }
     if ( this.test ) { log('not saving html - due to test');  this.isDiskFinHTML = true;  }
@@ -2306,8 +2304,12 @@ class AminoSeeNoEvil {
       mode("Didnt save HTML report because the linear file was recycled.");
       this.isDiskFinHTML = true;
     }
-    if (this.isDiskFinHTML == true ) { if ( cb !== undefined ) { cb() } ; this.htmlFinished(); return false; }
-    mode("will save HTML");
+    if (this.isDiskFinHTML == true ) { // set just above
+      this.htmlFinished();
+      if ( cb !== undefined ) { cb() }
+      return false;
+    }
+    mode("saving HTML");
     this.pepTable.sort( this.compareHistocount )
 
     let histogramJson =  this.getRenderObject();
@@ -2327,8 +2329,8 @@ class AminoSeeNoEvil {
     } else if (this.artistic && this.userCPP == "auto") {
       this.fileWrite(`${ this.outputPath }/${ this.justNameOfDNA}/artistic.html`, hypertext, cb);
     }
-    if ( cb !== undefined ) { cb() }
     this.htmlFinished();
+    if ( cb !== undefined ) { cb() }
   }
   fileWrite(file, contents, cb) {
     this.mkRenderFolders();
@@ -3810,7 +3812,6 @@ class AminoSeeNoEvil {
     if (this.loopCounter+1 >  this.magnitude) {
       this.testStop();
       // this.saveHTML(this.openOutputs);
-      // this.openOutputs();
       // termDrawImage();
       if ( cb !== undefined ) { cb() }
       // this.quit(0);

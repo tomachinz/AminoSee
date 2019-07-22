@@ -243,7 +243,7 @@ function getParameterFromURL() {
   } else {
     href = `output/Brown_Kiwi_NW_013982187v1/images/Brown_Kiwi_NW_013982187v1.fa_HILBERT-Reference_m7_c397.2.png`;
   }
-  alert(href)
+  // alert(href)
   return href;
 }
 
