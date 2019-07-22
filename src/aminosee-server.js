@@ -228,6 +228,9 @@ function close() {
   }
 }
 function start(o) { // return the port number
+  if ( o === undefined && doesFolderExist(path.resolve(`/snapshot/`) )  ) {
+    o = `/snapshot/public`
+  }
   output(`Attempting to start server at: ${ o } on port ${ port }`)
   setupPrefs()
   outputPath = o;
