@@ -4530,8 +4530,9 @@ class AminoSeeNoEvil {
     // } else {
     term.eraseLine();
     console.log( txt );
+    term.eraseLine();
     // }
-    // wTitle(this.status )
+    wTitle( txt )
   }
   function out(txt) {
     let that = gimmeDat();

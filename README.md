@@ -22,13 +22,13 @@ I got the idea while looking at raw DNA and pondering if that advent of 4K monit
 It is possible to see large chromosomal structures such as the Telomeres (grip points at the endings), the Centromeres (place in middle where chromosome breaks in two), and generally check how different the species look.
 
 ## And the real reason?
-I was wondering how to prove or disprove the official Sumerian account of human history. The hypothesis being that if the Annunaki had spent tens of thousands of years medling with our DNA, perhaps this will show up visually compared to the natural mutations of ~6 million years which is the separation from homo sapiens to a common Chimp ancester AFAIK. If the story is true, it might be possible to see something happening around 340,000 to 450,000 years ago, I'm focussing on the fused chromosome 2pq in humans which is normally 2p and 2q in other apes; and the Y chromosome for its slow rate of mutation to begin with.
+I was wondering how to prove or disprove the official Sumerian account of human history. The hypothesis being that if the Annunaki had spent tens of thousands of years meddling with our DNA, perhaps this will show up visually compared to the natural mutations of ~6 million years which is the separation from homo sapiens to a common Chimp ancestor AFAIK. If the story is true, it might be possible to see something happening around 340,000 to 450,000 years ago, I'm focussing on the fused chromosome 2-pq in humans which is normally 2p and 2q in other apes; and the Y chromosome for its slow rate of mutation to begin with.
 
-```Among the living primates, humans are most closely related to the apes, which include the lesser apes (gibbons) and the great apes (chimpanzees, gorillas and orangutans). These so-called hominoids — that is, the gibbons, great apes and humans — emerged and diversified during the Miocene epoch, approximately 23 million to 5 million years ago. The last common ancestor that humans had with chimpanzees lived about 6 million to 7 million years ago. Source: https://www.scientificamerican.com/article/fossil-reveals-what-last-common-ancestor-of-humans-and-apes-looked-liked/ ```
+```Among the living primates, Humans are most closely related to the apes, which include the lesser apes (Gibbon) and the great apes (Chimpanzee, Gorilla and Orangutan). These so-called hominoids — that is, the gibbons, great apes and humans — emerged and diversified during the Miocene epoch, approximately 23 million to 5 million years ago. The last common ancestor that humans had with chimpanzees lived about 6 million to 7 million years ago. Source: https://www.scientificamerican.com/article/fossil-reveals-what-last-common-ancestor-of-humans-and-apes-looked-liked/ ```
 
 ## How on earth is it done?
 It creates full colour images and was designed to enable inter-species comparisons by enabling a visual diff; to understand the role of the regulatory “non-coding” junk DNA; as a thought experiment and exercise in processing enormous datasets; but most of all just purely out of curiosity and to inspire youth to get into science.
-A new way to view DNA data which maps a spectrum of colour hues to each amino acid, encoding all the information visually. It can take an infinite file size as input, and crunch this into a linear render (left to right, top to bottom), and also a space filling Hilbert curve (top left to center to top right via all corners).
+A new way to view DNA data which maps a spectrum of colour hues to each amino acid, encoding all the information visually. It can take an infinite file size as input, and crunch this into a linear render (left to right, top to bottom), and also a space filling Hilbert curve (top left to centre to top right via all corners).
 
 
 ## 3D and 2D Hilbert mapping
@@ -36,18 +36,18 @@ An experimental 3D mode enables visitors to http://aminosee.funk.nz/ to interact
 
 I'm about to get in touch with some universities and genomics researchers worldwide, once the code has settled down a bit, hoping to gain some feedback and suggestions on the final colours for each amino acid, which I am still open to, and planning a way to customise it.
 
-Strapline: “I can see it now - I can AminoSee it!”
+Motto: “I can see it now - I can AminoSee it!”
 
-Amino.See.No.Evil (AminoSee) is a DNA visualisation written in NodeJS, ThreeJS and Electron. It does this with a terminal command and batch scripts that can be run (such as batch-peptides.sh in ./dna), Its been tested with Fasta or GBK files I downloaded. AminoSee assigns a unique colour hue to each amino acid and start/stop codon,
+Amino.See.No.Evil (AminoSee) is a DNA visualisation written in NodeJS, ThreeJS and Carlo. It does this with a terminal command and batch scripts that can be run (such as batch-peptides.sh in ./dna), Its been tested with Fasta or GBK files I downloaded. AminoSee assigns a unique colour hue to each amino acid and start/stop codon,
 
 This is done to enhance the visual prominence of genetic structures -
 
 The bunching of the curve preserves local sequence proximity such that 90% of the DNA that is close to its neighbour - such as genes - are also close in proximity in the image - even at different resolutions, which is almost impossible when converted 1D into higher dimensions. Genomics researchers can convert any file containing ASCII blocks of DNA (tested with popular formats Fasta, GBK, and also just .txt) into an image. A unique visualisation of DNA / RNA residing in text files, AminoSee is a way to render arbitrarily large files - due to support for streamed processing - into a static size PNG image. Special thanks and shot-outs to David Hilbert who invented it in 1891! Computation is done locally, and the files do not leave your machine. A back-end terminal daemon cli command that can be automated by scripts in /dna/ folder is soon to be enhanced with a front-end GUI. AminoSee features asynchronous streaming processing enabling arbitrary size files to be processed. It has been tested with files in excess of 4 GB and does not need the whole file in memory at any time. The dna/batch-peptides.sh script is currently required for bulk rendering. Alternatively use the GUI to Drag and drop files to render a unique colour view of RNA or DNA stored in text files, output to PNG graphics file, then launches an WebGL browser that projects the image onto a 3D Hilbert curve for immersive viewing, using THREEjs. Command line options allow one to filter by peptide.
 
 
-"description": "Allows genomics researchers to convert any file containing ASCII blocks of DNA (Fasta, GBK, .txt) into an image. A unique visualisation of DNA / RNA residing in text files, AminoSee is a way to render arbitrarily large files - due to support for streamed processing - into a static size PNG image using a pseudo-Hilbert infinite space filling curve written in the 18th century! Computation is done locally, and the files do not leave your machine. A back-end terminal daemon cli command that can be scripted is combined with a front-end GUI in Electron, AminoSee features asynchronous streaming processing enabling arbitrary size files to be processed. It has been tested with files in excess of 4 GB and does not need the whole file in memory at any time. In a diectory with DNA files try running aminosee *. Alternatively use the GUI to Drag and drop files to render a unique colour view of RNA or DNA stored in text files, output to PNG graphics file, then launches an WebGL browser that projects the image onto a 3D Hilbert curve for immersive viewing, using THREEjs. Command line options alow one to filter by peptide.",
+"description": "Allows genomics researchers to convert any file containing ASCII blocks of DNA (Fasta, GBK, .txt) into an image. A unique visualisation of DNA / RNA residing in text files, AminoSee is a way to render arbitrarily large files - due to support for streamed processing - into a static size PNG image using a pseudo-Hilbert infinite space filling curve written in the 18th century! Computation is done locally, and the files do not leave your machine. A back-end terminal daemon cli command that can be scripted is combined with a front-end GUI in Carlo, AminoSee features asynchronous streaming processing enabling arbitrary size files to be processed. It has been tested with files in excess of 4 GB and does not need the whole file in memory at any time. In a directory with DNA files try running aminosee *. Alternatively use the GUI to Drag and drop files to render a unique colour view of RNA or DNA stored in text files, output to PNG graphics file, then launches an WebGL browser that projects the image onto a 3D Hilbert curve for immersive viewing, using THREEjs. Command line options allow one to filter by peptide.",
 
-const siteDescription = `A unique visualisation of DNA or RNA residing in text files, AminoSee is a way to render huge genomics files into a PNG image using an infinite space filling curve from 18th century! Computation is done locally, and the files do not leave your machine. A back-end terminal daemon cli command that can be scripted is combined with a front-end GUI in Electron, AminoSee features asynchronous streaming processing enabling arbitrary size files to be processed. It has been tested with files in excess of 4 GB and does not need the whole file in memory at any time. Due to issues with the 'aminosee *' command, a batch script is provided for bulk rendering in the dna/ folder. Alertively use the GUI to Drag and drop files to render a unique colour view of RNA or DNA sto this.red  in text files, output to PNG graphics file, then launches an WebGL this.browser that projects the image onto a 3D Hilbert curve for immersive viewing, using THREEjs. Command line options alow one to filter by this.peptide.`;
+const siteDescription = `A unique visualisation of DNA or RNA residing in text files, AminoSee is a way to render huge genomics files into a PNG image using an infinite space filling curve from 18th century! Computation is done locally, and the files do not leave your machine. A back-end terminal daemon cli command that can be scripted is combined with a front-end GUI in Carlo, AminoSee features asynchronous streaming processing enabling arbitrary size files to be processed. It has been tested with files in excess of 4 GB and does not need the whole file in memory at any time. Due to issues with the 'aminosee *' command, a batch script is provided for bulk rendering in the dna/ folder. Alternatively use the GUI to Drag and drop files to render a unique colour view of RNA or DNA sto this.red  in text files, output to PNG graphics file, then launches an WebGL this.browser that projects the image onto a 3D Hilbert curve for immersive viewing, using THREEjs. Command line options allow one to filter by this.peptide.`;
 
 
 
@@ -69,11 +69,13 @@ Soon the demo page will host many images I've generated while developing the sof
 
 
 ## Easy Install
-Prebuilt binaries for Mac, Windows and Linux. This is a CLI program, so run it from a terminal:
+Prebuilt binaries of v1.18.19 for Mac, Windows and Linux. This is a CLI program, so run it from a terminal with a space and a DNA file and press enter:
 
-https://www.funk.co.nz/aminosee/dist/linux.zip linux.zip	28-Dec-2018 20:40	35M	 
-https://www.funk.co.nz/aminosee/dist/macos.zip macos.zip	28-Dec-2018 20:42	33M	 
-https://www.funk.co.nz/aminosee/dist/win32.zip win32.zip	28-Dec-2018 20:38	30M
+https://www.funk.co.nz/aminosee/dist/AminoSee_linux.zip	 AminoSee_linux.zip 2019-07-16 09:23	25M	 
+https://www.funk.co.nz/aminosee/dist/AminoSee_macos.zip	 AminoSee_macos.zip 2019-07-16 09:23	22M	 
+https://www.funk.co.nz/aminosee/dist/AminoSee_win.zip	   AminoSee_win.zip   2019-07-16 09:23	22M
+
+Then you run `aminosee human.dna` to render an image of the DNA.
 
 ## Install from Source Code
 Run it yourself from source code.
@@ -81,7 +83,6 @@ Run it yourself from source code.
 ### Install from source requires the previous install of:
 - https://nodejs.org/en/download/
 - https://git-scm.com/
-- https://electronjs.org/
 - https://www.python.org/downloads/
 - on windows:  npm install -g windows-build-tools (as admin)
 
