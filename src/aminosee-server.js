@@ -1,9 +1,10 @@
 const aminosee = require('./aminosee-cli');
-const fileWrite = aminosee.fileWrite;
 const data = require('./aminosee-data');
 const doesFileExist   = data.doesFileExist;
 const doesFolderExist = data.doesFolderExist;
 const createSymlink   = data.createSymlink;
+const deleteFile      = data.deleteFile;
+const recordFile      = data.recordFile;
 const alog = aminosee.log;
 const Preferences = require('preferences');
 const http = require('http');
@@ -16,26 +17,51 @@ const fs = require('fs-extra'); // drop in replacement = const fs = require('fs'
 const lockFileMessage = `
 aminosee.funk.nz DNA Viewer by Tom Atkinson.
 This is a temporary lock file, so I dont start too many servers. Its safe to erase these files, and I've made a script in /dna/ to batch delete them all in one go. Normally these are deleted when render is complete, or with Control-C and graceful shutdown.`;
-const version = aminosee.version;
+// const version = aminosee.version;
 // const webserverEnabled = true;
 const defaulturl = `http://127.0.0.1:4321`
 
-let outputPath, filenameServerLock, url, projectprefs, port;
+let outputPath, filenameServerLock, url, projectprefs, userprefs, port;
 url = defaulturl
 port = 4321;
+
+[ userprefs, projectprefs ] = setupPrefs();
+
+
 function setupPrefs() {
+
+  projectprefs = new Preferences('nz.funk.aminosee.project', {
+    aminosee: {
+      opens: 0,
+      genomes: [ `megabase`, '50KB_TestPattern' ],
+      url: `http://localhost:4321`
+    }
+  }, {
+    encrypt: false,
+    file: path.join( outputPath + '/aminosee_project.conf'),
+    format: 'yaml'
+  });
+
+  userprefs = new Preferences('nz.funk.aminosee.user', {
+    aminosee: {
+      cliruns: 0,
+      guiruns: 0,
+      gbprocessed: 0,
+      completed: 0
+    }
+  }, {
+    encrypt: false,
+    file: path.resolve( os.homedir(), '.config/preferences/nz.funk.aminosee.conf'),
+    format: 'yaml'
+  });
+  // Preferences can be accessed directly
+  userprefs.aminosee.cliruns++; // increment run counter. for a future high score table stat and things maybe.
+  cliruns = userprefs.aminosee.cliruns;
+  gbprocessed  = userprefs.aminosee.gbprocessed;
+  genomes = projectprefs.aminosee.genomes;
   url = projectprefs.aminosee.url;
-  // aminosee.setupPrefs();
-  if (url === undefined) {
-    url = defaulturl;
-  }
-  if ( args.url ) {
-    url = args.url;
-    projectprefs.aminosee.url = url;
-    output(`Custom URL set: ${url}`);
-  } else {
-    output(`Using URL prefix: ${url}`)
-  }
+  return [ userprefs, projectprefs ]
+
 }
 function log(txt) {
   output( txt )
@@ -189,11 +215,10 @@ module.exports = (options) => {
   // }).listen(options.port);
 }
 
-module.exports.start = start;
 
 function stop() {
   output("Stoping server");
-  aminosee.deleteFile(filenameServerLock);
+  deleteFile(filenameServerLock);
   if (serverLock()) {
     const killServe = spawn('nice', ['killall', 'node', '', '0'], { stdio: 'pipe' });
     const killAminosee = spawn('nice', ['killall', 'aminosee.funk.nz', '', '0'], { stdio: 'pipe' });
@@ -236,7 +261,7 @@ function start(o) { // return the port number
   outputPath = o;
   setOutputPath(o)
   if ( serverLock() ) {
-    output("Server already started. If you think this is not true, remove the lock file: " + filenameServerLock);
+    // output("Server already started. If you think this is not true, remove the lock file: " + filenameServerLock);
     // startCrossSpawnHttp(43210)
 
   } else {
@@ -281,15 +306,15 @@ function getServerURL(path) {
 
 // module.exports.serverLock = function(cb) {
 function serverLock() {
-  output(`Checking server lock at: ${filenameServerLock}`)
+  // output(`Checking server lock at: ${filenameServerLock}`)
   if ( doesFileExist(filenameServerLock) ) {
-    output('Server already running ');
+    // output('Server already running ');
     return true;
   } else {
-    output('Server NOT already running ');
-    // aminosee.fileWrite(filenameServerLock, port, () => {
-    //   output('Server starting up');
-    // })
+    // output('Server NOT already running ');
+    recordFile(filenameServerLock, port, () => {
+      output('Server starting up');
+    })
     return false
   }
 }

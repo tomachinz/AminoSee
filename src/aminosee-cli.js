@@ -28,7 +28,7 @@ const createSymlink = data.createSymlink;
 const asciiart = data.asciiart;
 const extensions = data.extensions;
 const saySomethingEpic = data.saySomethingEpic;
-let isElectron, jobArgs, killServersOnQuit, webserverEnabled, cliInstance, tx, ty, termPixels, cliruns, gbprocessed, projectprefs, userprefs, genomes, progato, commandString, batchSize, quiet, url, outputPath;
+let isElectron, jobArgs, killServersOnQuit, webserverEnabled, cliInstance, tx, ty, termPixels, cliruns, gbprocessed, projectprefs, userprefs, genomes, progato, commandString, batchSize, quiet, url;
 const debug = false; // should be false for PRODUCTION
 // OPEN SOURCE PACKAGES FROM NPM
 const path = require('path');
@@ -47,14 +47,14 @@ const minimist = require('minimist')
 const fetch = require("node-fetch");
 const keypress = require('keypress');
 const open = require('open'); //path-to-executable/xdg-open
-const parse = require('parse-apache-directory-index');
+// const parse = require('parse-apache-directory-index');
 const fs = require('fs-extra'); // drop in replacement = const fs = require('fs')
 const histogram = require('ascii-histogram');
 const bytes = require('bytes');
 const PNG = require('pngjs').PNG;
 const os = require("os");
 const humanizeDuration = require('humanize-duration')
-const appFilename = require.main.filename; //     /bin/aminosee.js is 11 chars
+// const appFilename = require.main.filename; //     /bin/aminosee.js is 11 chars
 // const appPath = path.normalize(appFilename.substring(0, appFilename.length-15));// cut 4 off to remove /dna
 const hostname = os.hostname();
 const chalk = require('chalk');
@@ -104,21 +104,22 @@ module.exports = () => {
     setupApp();
     cliInstance = new AminoSeeNoEvil();
     cliInstance.setupJob( populateArgs( process.argv )  );
-    // addJob( ); // populate args returns the args.
+    // cliInstance = newJob( populateArgs( process.argv ) ); // populate args returns the args.
   }
 }
 function populateArgs(procArgv) { // returns args
   const options = {
     boolean: [ 'artistic', 'clear', 'chrome', 'devmode', 'debug', 'demo', 'dnabg', 'explorer', 'file', 'force', 'firefox', 'gui', 'html', 'image', 'keyboard', 'list', 'progress', 'quiet', 'reg', 'recycle', 'redraw', 'serve', 'safari', 'test', 'updates', 'verbose', 'view' ],
-    string: [ 'url', 'outpath', 'triplet', 'peptide', 'ratio'],
+    string: [ 'url', 'outpath', 'triplet', 'peptide', 'ratio' ],
     alias: { a: 'artistic', b: 'dnabg', c: 'codons', d: 'devmode', f: 'force', h: 'help', k: 'keyboard', m: 'magnitude', o: 'outpath', out: 'outpath', output: 'outpath', p: 'peptide', i: 'image', t: 'triplet', u: 'updates', q: 'quiet', r: 'reg', w: 'width', v: 'verbose', x: 'explorer', finder: 'explorer', view: 'html'  },
-    default: { html: true, image: true, dnabg: false, clear: false, explorer: false, quiet: false, keyboard: false, progress: false, redraw: true, updates: true, serve: false },
+    default: { html: true, image: true, dnabg: false, clear: false, explorer: false, quiet: false, keyboard: false, progress: true, redraw: true, updates: true, serve: true },
     stopEarly: false
-  } // NUMERIC INPUTS: codons, magnitude, width,     string: [ 'width'],    string: [ 'magnitude'],    string: [ 'codons'],
-  log(procArgv.slice(2), options)
+  } // NUMERIC INPUTS: codons, magnitude, width, maxpix
+  let args = minimist(procArgv.slice(2), options)
+  log(args)
   // log( process.argv.slice(2) )
   // return minimist( process.argv.slice(2), options);
-  return minimist(procArgv.slice(2), options)
+  return args;
   // return this.args;
 }
 function bruteForce(cs) {
@@ -139,17 +140,15 @@ function bruteForce(cs) {
         redraw: true,
         updates: false,
       }
-      addJob( job );
+      // newJob( job );
     }, 100 * i)
   }
 }
 function pushCli(cs) { // used by Electron GUI
-  commandString = `node aminosee ${cs} --image --force --quiet`;
+  commandString = `node aminosee ${cs} --image --force --quiet`;// let commandArray = [`node`, `aminosee`, commandString];
   output(chalk.inverse(`Starting AminoSee now with CLI:`) + ` isElectron: [${isElectron}]`)
-
   let commandArray = commandString.split(" ");
-  // let commandArray = [`node`, `aminosee`, commandString];
-  jobArgs = populateArgs(commandArray);
+  jobArgs = populateArgs( commandArray );
   // log(`pushCli: ${jobArgs.toString()} commandString: ${commandString}`);
   log(`Command: ${commandString}`);
   log(jobArgs);
@@ -169,11 +168,13 @@ function pushCli(cs) { // used by Electron GUI
   }
 // populateArgs( job )
 
-  let thread = addJob(jobArgs);
-  // let thread = addJob( commandString );
+  let thread = newJob(jobArgs);
+  // let thread = newJob( commandString );
   threads.push( thread );
 }
 function setupApp() {
+  [ userprefs, projectprefs ] = setupPrefs();
+
   if ( this.progress ) {
     progato = term.progressBar( {
       width: 80 ,
@@ -185,18 +186,18 @@ function setupApp() {
   }
 
 }
-function addJob( job ) { // used node and CLI tool.
+function newJob( job ) { // used node and CLI tool.
   output( job )
-  cliInstance = new AminoSeeNoEvil();
-  cliInstance.setupJob( job ); // do stuff that is needed even just to run "aminosee" with no options.
-  return cliInstance;
+  let nuThread = new AminoSeeNoEvil();
+  nuThread.setupJob( job ); // do stuff that is needed even just to run "aminosee" with no options.
+  return nuThread;
 }
 
 class AminoSeeNoEvil {
   constructor() { // CLI commands, this.files, *
     output(logo());
     this.outputPath = getOutputFolder();
-    setupPrefs(this);
+    // [ projectprefs, userprefs] = setupPrefs();
   }
   // return number of AminoSee objects
   static get COUNT() {
@@ -206,9 +207,9 @@ class AminoSeeNoEvil {
   setupJob( args ) {
     mode('setup job')
     // do stuff aside from creating any changes. eg if you just run "aminosee" by itself.
-    // for each render batch sent through addJob, here is where "this" be instantiated once per addJob
+    // for each render batch sent through newJob, here is where "this" be instantiated once per newJob
     // for each DNA file, run setupProject
-    log( args )
+    log(`setupJob args: ${ args }`);
 
 
 
@@ -297,7 +298,7 @@ class AminoSeeNoEvil {
     // termSize();
     // this.resized(tx, ty);
     // this.previousImage = this.justNameOfDNA
-
+    // server.buildServer()
     // output(logo());
 
     if ( args.debug || debug == true) {
@@ -315,7 +316,7 @@ class AminoSeeNoEvil {
       projectprefs.aminosee.url = url;
       output(`Custom URL set: ${url}`);
     } else {
-      output(`Using URL prefix: ${url}`)
+      log(`Using URL prefix: ${url}`)
     }
     if ( args.progress) {
       this.updateProgress = true; // whether to show the progress bars
@@ -534,7 +535,9 @@ class AminoSeeNoEvil {
       bugtxt(`os.platform(): ${os.platform()} ${process.cwd()}`)
       this.verbose = true;
       this.termDisplayHeight++;
-    } else { this.verbose = false; }
+    } else {
+      log(`verbose mode disabled`)
+      this.verbose = false; }
     if ( args.html ) {
       output("will open html after render")
       this.openHtml = true;
@@ -546,7 +549,7 @@ class AminoSeeNoEvil {
       output("opening html");
       this.openHtml = true;
     } else {
-      output("not opening html");
+      log("not opening html");
       this.openHtml = false;
     }
 
@@ -672,7 +675,7 @@ class AminoSeeNoEvil {
     bugtxt(`the args -->> ${this.args}`)
 
     if ( webserverEnabled ) {
-      // server.start( this.outputPath );
+      server.start( this.outputPath );
     }
 
     if ( this.howMany > 0 ) {
@@ -1337,7 +1340,7 @@ class AminoSeeNoEvil {
     }
     if ( this.dnafile === undefined || this.currentFile === undefined) {
       reason = `this.dnafile == undefined`
-      this.popAndPollOrBust(reason);
+      // this.popAndPollOrBust(reason);
       this.quit(0, reason);
       return false;
     }
@@ -1345,7 +1348,7 @@ class AminoSeeNoEvil {
       if (this.currentFile == undefined) { return false; }
       let newCommand = `${this.currentFile}/*`
       let msg = `${this.dnafile }
-      Folder (${this.currentFile}) provided as input instead of a file. If you meant to render everything in there, try using an asterix on CLI: aminosee ${newCommand}`
+      Folder (${this.currentFile}) provided as input instead of a file. ${this.howMany} If you meant to render everything in there, try using an asterix on CLI: aminosee ${newCommand}`
       output(msg)
       // pushCli(newCommand)
       this.popAndPollOrBust(msg)
@@ -1425,7 +1428,13 @@ class AminoSeeNoEvil {
       output("Render already in progress by another thread for: " + this.justNameOfPNG + " due to presence of " + this.fileTouch); // <---  another node maybe working on, NO RENDER
       log("Either use --force or delete this lock file: ");
       log(`Touchfile: ${chalk.underline( this.fileTouch )}`);
-      this.popAndPollOrBust('Render already in progress');
+      setTimeout( () => {
+        if ( this.renderLock == false ) {
+          this.popAndPollOrBust('Polling');
+        } else {
+          output("Render already in progress by another thread for: " + this.justNameOfPNG + " due to presence of " + this.fileTouch); // <---  another node maybe working on, NO RENDER
+        }
+      }, this.raceDelay )
       return false;
     }
     mode("Lock OK proceeding to render...");
@@ -1476,11 +1485,12 @@ class AminoSeeNoEvil {
     // if (this.renderLock == true) { output("ERROR: thread entered resetAndPop()"); return false}
     mode(`RESET JOB. Reason ${reason} Storage: (${ this.storage()} ${ this.busy()}) current: ${ this.currentFile } next: ${ this.nextFile}`)
     output(this.status );
-    output(this.status );
+    output( reason );
     this.setIsDiskBusy( false )
     // setIsDiskBusy(false);
-    this.isDiskFinHTML = this.isDiskFinLinear = this.isDiskFinHilbert = true;
-    this.isStorageBusy = this.renderLock = false;
+    // this.isDiskFinHTML = this.isDiskFinLinear = this.isDiskFinHilbert = true;
+    // this.isStorageBusy = false;
+    this.renderLock = false;
     this.percentComplete = 0;
     this.howMany = this.args._.length;
     if (this.howMany >= 0) {
@@ -1559,7 +1569,8 @@ class AminoSeeNoEvil {
     if ( this.willRecycleSavedImage && this.recycEnabled) {
       output(`Skipped DNA render stage of ${ this.justNameOfDNA}`);
       log("AM PLANNING TO RECYCLE TODAY (joy)")
-      recycleOldImage( this.filePNG );
+      this.recycleOldImage( this.filePNG );
+      // recycleHistogram
       return false;
     } else {
       log('Not recycling');
@@ -1577,26 +1588,29 @@ class AminoSeeNoEvil {
         readStream.resume();
       })
       .on('start', function(err){
-        mode("streaming");
+        mode("streaming start");
+        output(`streaming start ${err}`);
       })
       .on('error', function(err){
         mode(`stream error ${err}`);
-        output(this.status )
+        output(that.status )
         // output(`while starting stream: [${ closure }] renderLock: [${ this.renderLock}] storage: [${this.storage()}]`);
         // this.streamStopped();
       })
       .on('end', function() {
         mode("stream end");
+
       })
       .on('close', function() {
         mode("stream close");
         that.streamStopped();
+
       }));
     } catch(e) {
       output("Catch in Init ERROR:"  + e)
     }
 
-    log("FINISHED INIT " + this.howMany);
+    log("FINISHED INIT " + that.howMany);
     // term.up( this.termStatsHeight);
     // clearCheck();
     term.eraseDisplayBelow();
@@ -1604,15 +1618,20 @@ class AminoSeeNoEvil {
   streamStarted() {
     mode(`Stream started at ${ formatAMPM(this.startDate) }`);
     var that = this;
+    this.setIsDiskBusy( true );
     output(`Started render of ${this.justNameOfPNG} next is ${this.nextFile}`);
-    this.drawHistogram();
     if ( this.renderLock == true ) {
       if ( this.updates == true) {
+        this.drawHistogram();
+
       }
       this.progUpdate({ title: 'DNA File Render step 1/3', items: this.howMany, syncMode: true })
       setTimeout(() => {
         that.manageLocks(10000) // 10 seconds
       }, 5000);
+    } else {
+      output(`Thread entered streamStarted`);
+
     }
   }
   manageLocks(time) {
@@ -1635,7 +1654,7 @@ class AminoSeeNoEvil {
     }, time);
   }
   streamStopped() {
-    log("Stream ending event");
+    output("Stream ending event");
     log("Stream ending event");
     log("Stream ending event");
     log("Stream ending event");
@@ -2037,12 +2056,14 @@ class AminoSeeNoEvil {
   }
   setIsDiskBusy(boolean) {
     if (boolean) { // busy!
+      out(`Disk is locked!`)
       this.isStorageBusy = true;
       this.isDiskFinHTML = false;
       this.isDiskFinHilbert = false;
       this.isDiskFinLinear = false;
       // this.renderLock = true;
     } else { // free!
+      out(`Disk is unlocked!`)
       this.isStorageBusy = false;
       this.isDiskFinHTML = true;
       this.isDiskFinHilbert = true;
@@ -2055,7 +2076,7 @@ class AminoSeeNoEvil {
   // function runDemo() {
   //   async.series( [
   //     function( cb ) {
-  //       // addJob('test')
+  //       // newJob('test')
   //     },
   //     function( cb ) {
   //       this.openImage = true;
@@ -2144,24 +2165,25 @@ class AminoSeeNoEvil {
       genomes.push(this.justNameOfDNA);
       projectprefs.aminosee.genomes = dedupeArray( genomes );
     }
-
+    // clearTimeout( updatesTimer)
     this.calcUpdate();
     this.setupHilbertFilenames();
     this.fancyFilenames();
 
     var that = this; // closure
     mode('async.series')
-    async.waterfall( [
-      // async.series( [
+    // async.waterfall( [
+      async.series( [
       function ( cb ) {
         mode('async start ' + that.currentFile)
         that.savePNG( cb );
       },
       function ( cb ) {
-        that.saveHilbert( cb )
+        that.saveHTML(  ); // saveHTML no longer calls htmlFinished, its so that.openOutputs has time to open it
+        cb();
       },
       function ( cb ) {
-        that.saveHTML( cb ); // saveHTML no longer calls htmlFinished, its so that.openOutputs has time to open it
+        that.saveHilbert( cb )
       }
     ])
     .exec( function( error, results ) {
@@ -2376,7 +2398,7 @@ class AminoSeeNoEvil {
 
   }
   postRenderPoll(reason) { // renderLock on late, off early
-    log(chalk.inverse(`Finishing saving (${reason}), ${this.busy()} waiting on ${ this.storage() } ${ this.howMany } files to go.`));
+    output(chalk.inverse(`Finishing saving (${reason}), ${this.busy()} waiting on ${ this.storage() } ${ this.howMany } files to go.`));
     if ( this.renderLock !== true) { // re-entrancy filter
       output(chalk.bgRed("Not rendering (may halt), thread entered postRenderPoll: " + reason))
       return true
@@ -2388,19 +2410,20 @@ class AminoSeeNoEvil {
     // check if all the disk is finished and if so change the locks
     // log(chalk.inverse( fixedWidth(24, this.justNameOfDNA))  + " postRenderPoll reason: " + reason);
     if ( this.isDiskFinLinear !== false && this.isDiskFinHilbert !== false  && this.isDiskFinHTML !== false ) {
-      log(` [ storage threads ready: ${chalk.inverse( this.storage() )} ] test: ${this.test}`);
+      output(` [ storage threads ready: ${chalk.inverse( this.storage() )} ] test: ${this.test}`);
       this.setIsDiskBusy( false );
       this.openOutputs();
 
       if ( this.test ) {
         this.renderLock = false;
         this.runCycle()
-      } else {
-        this.removeLocks();
-        this.resetAndPop(`Great success with render of (${this.justNameOfDNA}) but: ${this.busy()} ${this.storage()}`);
       }
+
+      this.removeLocks();
+      this.resetAndPop(`Great success with render of (${this.justNameOfDNA}) but: ${this.busy()} ${this.storage()}`);
+
     } else {
-      log(` [ wait on storage: ${chalk.inverse( this.storage() )} reason: ${reason}] `);
+      output(` [ ${reason} wait on storage: ${chalk.inverse( this.storage() )}  ] `);
     }
   }
   getFilesizeInBytes(file) {
@@ -2525,7 +2548,6 @@ class AminoSeeNoEvil {
   }
   processLine(l) {
     mode('process line')
-    // this.status  = 'process line'
     this.streamLineNr++;
     if (this.rawDNA.length < this.termPixels) {
       this.rawDNA = this.cleanString(l) + this.rawDNA;
@@ -2613,7 +2635,7 @@ class AminoSeeNoEvil {
           this.mixRGBA[0] +=   parseFloat( this.codonRGBA[0].valueOf() * this.opacity  *  this.darkenFactor );
           this.mixRGBA[1] +=   parseFloat( this.codonRGBA[1].valueOf() * this.opacity  *  this.darkenFactor );
           this.mixRGBA[2] +=   parseFloat( this.codonRGBA[2].valueOf() * this.opacity  *  this.darkenFactor );
-          this.mixRGBA[3] +=   255 * ( this.darkenFactor *  this.opacity );// * this.opacity ; //  this.blue
+          this.mixRGBA[3] +=   64 * ( this.darkenFactor *  this.opacity );// image is mostly transparent because you see through 21 layers!
         }
 
 
@@ -2624,7 +2646,7 @@ class AminoSeeNoEvil {
         if ( this.pixelStacking >= this.codonsPerPixel) {
 
 
-          if ( this.artistic != true) {
+          if ( this.artistic != true) { // REGULAR MODE
 
 
             this.red  =  this.mixRGBA[0];
@@ -3027,17 +3049,14 @@ class AminoSeeNoEvil {
       bugtxt("Not checking locks - this.force mode enabled.");
       return false;
     }
-    let locked, result;
-    locked = false;
     try {
-      result = fs.lstatSync(fullPathOfLockFile).isDirectory();
+      fs.lstatSync(fullPathOfLockFile).isDirectory();
       log('locked')
       return true;
     } catch(e){
       bugtxt("No lockfile found - proceeding to render" );
       return false;
     }
-    return locked;
   }
   decodePNG(file, callback) {
     // var fs = require('fs'),
@@ -3526,7 +3545,7 @@ class AminoSeeNoEvil {
     img_png.data = Buffer.from(img_data);
     let wstream = fs.createWriteStream( this.filePNG );
     var that = this;
-    new Promise(resolve => {
+    let retProm =  new Promise((resolve) => {
       img_png.pack()
       .pipe(wstream)
       .on('finish', (err) => {
@@ -3534,9 +3553,11 @@ class AminoSeeNoEvil {
         bugtxt("linear Save OK " +  that.storage());
         that.linearFinished();
       })
+      resolve();
     }).then( bugtxt('LINEAR then') ).catch( bugtxt('LINEAR catch') );
 
     if ( cb !== undefined ) { cb() }
+    return retProm;
   }
    openOutputs() {
     mode("open files "+ this.currentFile);
@@ -3924,9 +3945,9 @@ class AminoSeeNoEvil {
       output( chalk.bgRed( this.status  + ' /  this.error start {{{ ----------- ' + chalk.inverse( e.toString() ) + ' ----------- }}} end. Not rendering (may halt), thread entered postRenderPoll: ${reason}'))
       output();
     }
-    mode(` this.error: ${e} will exit`)
-    process.exit();
+    crash(e)
   }
+
   clout(txt) {
     if (txt == undefined) {
       txt = " ";
@@ -4403,33 +4424,33 @@ class AminoSeeNoEvil {
     * @param {string} src The path to the thing to copy.
     * @param {string} dest The path to the new copy.
     */
-    copyRecursiveSync(src, dest) {
-      log(`Will try to recursive copy from ${src} to ${dest}`)
-      var exists = doesFileExist(src);
-      var stats = exists && fs.statSync(src);
-      var isDirectory = exists && stats.isDirectory();
-      var existsDest = doesFileExist(dest);
-      if (existsDest) {
-        log(`Remove the ${dest} folder or file, then I can rebuild the web-server`);
-        return false;
-      }
-      if (exists && isDirectory) {
-        var exists = doesFileExist(dest);
-        if (exists) {
-          log("Remove the /public/ folder and also /index.html, then I can rebuild the web-server");
-          return false;
-        } else {
-          fs.mkdirSync(dest);
-        }
-        fs.readdirSync(src).forEach(function(childItemName) {
-          log(childItemName);
-          copyRecursiveSync(path.join(src, childItemName),
-          path.join(dest, childItemName));
-        });
-      } else {
-        fs.linkSync(src, dest);
-      }
-    };
+    // copyRecursiveSync(src, dest) {
+    //   log(`Will try to recursive copy from ${src} to ${dest}`)
+    //   var exists = doesFileExist(src);
+    //   var stats = exists && fs.statSync(src);
+    //   var isDirectory = exists && stats.isDirectory();
+    //   var existsDest = doesFileExist(dest);
+    //   if (existsDest) {
+    //     log(`Remove the ${dest} folder or file, then I can rebuild the web-server`);
+    //     return false;
+    //   }
+    //   if (exists && isDirectory) {
+    //     var exists = doesFileExist(dest);
+    //     if (exists) {
+    //       log("Remove the /public/ folder and also /index.html, then I can rebuild the web-server");
+    //       return false;
+    //     } else {
+    //       fs.mkdirSync(dest);
+    //     }
+    //     fs.readdirSync(src).forEach(function(childItemName) {
+    //       log(childItemName);
+    //       copyRecursiveSync(path.join(src, childItemName),
+    //       path.join(dest, childItemName));
+    //     });
+    //   } else {
+    //     fs.linkSync(src, dest);
+    //   }
+    // };
 
 
     imageStack(histogramJson) {
@@ -4438,13 +4459,14 @@ class AminoSeeNoEvil {
       let summary = histogramJson.summary;
       let pepTable = histogramJson.pepTable;
       let name = summary.name;
-      let refimage = summary.refimage;
-      let linearimage = summary.linearimage;
-      let i = -1;
+      // let refimage = summary.refimage;
+      // let linearimage = summary.linearimage;
+      // let i = -1;
       let quant = pepTable.length; // Ω first command ॐ
+      //   <li>Ω <a href="images/${refimage}">Reference (combined image) <br/>
+      //  <img src="images/${refimage}" id="stack_reference" width="20%" height="20%" style="z-index: ${i}; position: fixed; top: 50%; left: 50%; transform: translate(${(i*4)-40},${(i*4)-40})" alt="${name} Reference image" title="${name} Reference image" onmouseover="mover(this)" onmouseout="mout(this)"></a></li>
       html += `<ul id="stackOimages">
-      <li>Ω <a href="images/${refimage}">Reference (combined image) <br/>
-      <img src="images/${refimage}" id="stack_reference" width="20%" height="20%" style="z-index: ${i}; position: fixed; top: 50%; left: 50%; transform: translate(${(i*4)-40},${(i*4)-40})" alt="${name} Reference image" title="${name} Reference image" onmouseover="mover(this)" onmouseout="mout(this)"></a></li>`;
+      `;
 
       histogramJson.pepTable.forEach(function(item) {
         // log(item.toString());
@@ -4539,12 +4561,12 @@ class AminoSeeNoEvil {
     // } else if (cliInstance !== undefined){
     //   let that = cliInstance;
     // }
-    if (this === undefined) {
+    if (this == undefined) {
       // let that = gimmeDat();
       term.windowTitle(`-[${txt}]`);
     } else {
-      term.windowTitle(`@[${txt}]`);
-      // term.windowTitle(`[+${this.howMany}] ${ this.highlightOrNothin() } ${this.status } ${ this.justNameOfDNA } ${maxWidth(120,txt)} (next: ${ this.nextFile}) (AminoSee@${hostname})`);
+      term.windowTitle(`@[${txt}] ${ this.args}`);
+      // term.windowTitle(`[${this.howMany}] ${ this.highlightOrNothin() } ${this.status } ${ this.justNameOfDNA } ${maxWidth(120,txt)} (next: ${ this.nextFile}) (AminoSee@${hostname})`);
     }
 
   }
@@ -4669,7 +4691,7 @@ class AminoSeeNoEvil {
       var that = cliInstance;
       async.series( [
         function( cb ) {
-          addJob('test')
+          newJob('test')
           cb()
         },
         function( cb ) {
@@ -4714,7 +4736,7 @@ class AminoSeeNoEvil {
 
     }
     function setupPrefs() {
-
+      let output = getOutputFolder();
       projectprefs = new Preferences('nz.funk.aminosee.project', {
         aminosee: {
           opens: 0,
@@ -4723,7 +4745,7 @@ class AminoSeeNoEvil {
         }
       }, {
         encrypt: false,
-        file: path.join( outputPath + '/aminosee_project.conf'),
+        file: path.resolve( output + '/aminosee_project.conf'),
         format: 'yaml'
       });
 
@@ -4744,7 +4766,7 @@ class AminoSeeNoEvil {
       cliruns = userprefs.aminosee.cliruns;
       gbprocessed  = userprefs.aminosee.gbprocessed;
       genomes = projectprefs.aminosee.genomes;
-      url = projectprefs.aminosee.url
+      url = projectprefs.aminosee.url;
       return [ userprefs, projectprefs ]
     }
     function logo() {
@@ -5103,32 +5125,32 @@ class AminoSeeNoEvil {
       projectprefs.aminosee.opens++; // increment open counter.
     }
 
-
-    function testParse() {
-      return parse(`
-        <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
-        <html>
-        <head>
-        <title>Index of /foo/bar</title>
-        </head>
-        <body>
-        <h1>Index of /foo/bar</h1>
-        <table><tr><th><img src="/icons/blank.gif" alt="[ICO]"></th><th><a href="?C=N;O=D">Name</a></th><th><a href="?C=M;O=A">Last modified</a></th><th><a href="?C=S;O=A">Size</a></th><th><a href="?C=D;O=A">Description</a></th></tr><tr><th colspan="5"><hr></th></tr>
-        <tr><td valign="top"><img src="/icons/folder.gif" alt="[DIR]"></td><td><a href="beep/">beep/</a>           </td><td align="right">25-May-2016 11:53  </td><td align="right">  - </td><td>&nbsp;</td></tr>
-        <tr><td valign="top"><img src="/icons/folder.gif" alt="[DIR]"></td><td><a href="boop20160518/">boop20160518/</a>        </td><td align="right">19-May-2016 17:57  </td><td align="right">  - </td><td>&nbsp;</td></tr>
-        <tr><td valign="top"><img src="/icons/folder.gif" alt="[DIR]"></td><td><a href="jazz20160518/">jazz20160518/</a>         </td><td align="right">19-May-2016 19:04  </td><td align="right">  - </td><td>&nbsp;</td></tr>
-        <tr><td valign="top"><img src="/icons/folder.gif" alt="[DIR]"></td><td><a href="punk20160518/">punk20160518/</a>    </td><td align="right">19-May-2016 17:47  </td><td align="right">  - </td><td>&nbsp;</td></tr>
-        <tr><td valign="top"><img src="/icons/folder.gif" alt="[DIR]"></td><td><a href="space20160518/">space20160518/</a>       </td><td align="right">19-May-2016 19:03  </td><td align="right">  - </td><td>&nbsp;</td></tr>
-        <tr><th colspan="5"><hr></th></tr>
-        </table>
-        </body></html>`);
-      }
+    //
+    // function testParse() {
+    //   return parse(`
+    //     <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+    //     <html>
+    //     <head>
+    //     <title>Index of /foo/bar</title>
+    //     </head>
+    //     <body>
+    //     <h1>Index of /foo/bar</h1>
+    //     <table><tr><th><img src="/icons/blank.gif" alt="[ICO]"></th><th><a href="?C=N;O=D">Name</a></th><th><a href="?C=M;O=A">Last modified</a></th><th><a href="?C=S;O=A">Size</a></th><th><a href="?C=D;O=A">Description</a></th></tr><tr><th colspan="5"><hr></th></tr>
+    //     <tr><td valign="top"><img src="/icons/folder.gif" alt="[DIR]"></td><td><a href="beep/">beep/</a>           </td><td align="right">25-May-2016 11:53  </td><td align="right">  - </td><td>&nbsp;</td></tr>
+    //     <tr><td valign="top"><img src="/icons/folder.gif" alt="[DIR]"></td><td><a href="boop20160518/">boop20160518/</a>        </td><td align="right">19-May-2016 17:57  </td><td align="right">  - </td><td>&nbsp;</td></tr>
+    //     <tr><td valign="top"><img src="/icons/folder.gif" alt="[DIR]"></td><td><a href="jazz20160518/">jazz20160518/</a>         </td><td align="right">19-May-2016 19:04  </td><td align="right">  - </td><td>&nbsp;</td></tr>
+    //     <tr><td valign="top"><img src="/icons/folder.gif" alt="[DIR]"></td><td><a href="punk20160518/">punk20160518/</a>    </td><td align="right">19-May-2016 17:47  </td><td align="right">  - </td><td>&nbsp;</td></tr>
+    //     <tr><td valign="top"><img src="/icons/folder.gif" alt="[DIR]"></td><td><a href="space20160518/">space20160518/</a>       </td><td align="right">19-May-2016 19:03  </td><td align="right">  - </td><td>&nbsp;</td></tr>
+    //     <tr><th colspan="5"><hr></th></tr>
+    //     </table>
+    //     </body></html>`);
+    //   }
       function listDNA() {
         var XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
         var xhr = new XMLHttpRequest('https://www.funk.co.nz/aminosee/output/');
         let txt = xhr.responseText;
-        testParse();
-        parse("https://www.funk.co.nz/aminosee/output/")
+        // testParse();
+        // parse("https://www.funk.co.nz/aminosee/output/")
         output('list')
         output(txt)
         // parse(txt)
@@ -5183,10 +5205,10 @@ class AminoSeeNoEvil {
         clearCheck();
         // term.moveTo( 0, 0 )
         output(chalk.inverse("image: " +  basename(fullpath)))
-        term.drawImage( fullpath, { shrink: { width: tx / 2,  height: ty } }, (cb) => {
+        term.drawImage( fullpath, { shrink: { width: tx / 2,  height: ty } }, () => {
           output(chalk.inverse("image: " +  basename(fullpath) ) + " " +  reason)
           term.restoreCursor();
-          if ( cb !== undefined ) { cb() }
+          // if ( cb !== undefined ) { cb() }
         })
       }
       function nicePercent(percent) {
@@ -5299,6 +5321,11 @@ class AminoSeeNoEvil {
     function getArgs() {
       return this.args;
     }
+    function crash(msg) {
+      mode(` this.error: ${msg} will exit`)
+      throw new Error(msg)
+      process.exit();
+    }
     module.exports.getOutputFolder = getOutputFolder;
     module.exports.nicePercent = nicePercent;
     module.exports.createSymlink = createSymlink;
@@ -5306,7 +5333,7 @@ class AminoSeeNoEvil {
     module.exports.out = out;
     module.exports.output = output;
     module.exports.AminoSeeNoEvil = AminoSeeNoEvil;
-    module.exports.addJob = addJob;
+    module.exports.newJob = newJob;
     module.exports.pushCli = pushCli;
     module.exports.bruteForce = bruteForce;
     module.exports.terminalRGB = terminalRGB;

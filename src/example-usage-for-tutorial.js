@@ -7,9 +7,9 @@ module.exports = randomAnimal => {
   // genDNA(99)
   console.log('hello ');
   // genDNA(9999);
-  cliInstance = AminoSeeNoEvil();
-  cliInstance.addJob(process.argv); // do stuff that is needed even just to run "aminosee" with no options.
-
+  // cliInstance = AminoSeeNoEvil();
+  // cliInstance.newJob(process.argv); // do stuff that is needed even just to run "aminosee" with no options.
+  //
 
 }
 

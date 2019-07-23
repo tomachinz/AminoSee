@@ -1,6 +1,6 @@
 {
   "name": "aminosee",
-  "version": "1.18.20",
+  "version": "1.18.21",
   "owner": "Thomas Bieder Atkinson",
   "author": "Tom Atkinson <tom@funk.co.nz>",
   "website": "http://aminosee.funk.nz",
@@ -13,16 +13,14 @@
   "bin": {
     "aminosee": "./bin/aminosee.js"
   },
-  "main_bundle": "bundle.js",
-  "main": "main.js",
+  "main": "./bin/aminosee.js",
   "build": {
     "productName": "aminosee",
     "appId": "nz.funk.aminosee",
     "copyright": "Copyright © 2018-2019 Tom Atkinson",
-    "icon": "public/favicon.png",
+    "icon": "src/public/favicon.png",
     "directories": [
-      "public/**",
-      "docs/**"
+      "src/public/**"
     ],
     "mac": {
       "category": [
@@ -72,6 +70,7 @@
     "request": "^2.88.0",
     "save": "^2.4.0",
     "serve": "^11.1.0",
+    "serve-handler": "^6.1.0",
     "sliced": "^1.0.1",
     "spdy": "^4.0.0",
     "stream-file": "^0.2.4",

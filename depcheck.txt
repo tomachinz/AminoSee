@@ -1,0 +1,65 @@
+30 May 2019:
+
+➜  src aminosee git:(master) ✗ nice time depcheck
+Unused dependencies
+* cheerio
+* get-cursor-position
+* hammerjs
+* node-gyp
+* npm-merge-driver
+* png-js
+* png-stream
+* remove
+* save
+* serve
+* sliced
+* three
+* uniq
+Missing dependencies
+* through2
+* readable-stream
+* serve-handler
+* tree-kit
+      515.39 real       201.51 user        39.94 sys
+
+==============================================================================
+
+
+Unused dependencies
+* ascii-histogram
+* bmp-js
+* bytes
+* chalk
+* comlink-fetch
+* event-stream
+* fs-extra
+* hammerjs
+* highland
+* hilbert-2d
+* http-server
+* https
+* jimp
+* jquery
+* keypress
+* local-web-server
+* localforage
+* minimist
+* node-fetch
+* node-gyp
+* opn
+* parse-apache-directory-index
+* png-js
+* png.js
+* pngjs
+* progress
+* remove
+* save
+* terminal-kit
+* three
+* uniq
+* xmlhttprequest
+Missing dependencies
+* cheerio
+
+before removing a fresh install:
+npm i  37.88s user 14.90s system 119% cpu 44.002 total

@@ -75,7 +75,17 @@ function createSymlink(src, dest) { // source is the original, dest is the symli
   }
 }
 function out(txt) {
-  process.stdout.write(chalk.blue(`[`) + maxWidth(10, txt)  + chalk.blue(`]`))
+  process.stdout.write(chalk.blue(`[`) + txt + chalk.blue(`]`))
+}
+function deleteFile(file) {
+  try {
+    fs.unlinkSync(file, (err) => {
+      bugtxt("Removing file OK...")
+      if (err) { bugtxt(err)  }
+    });
+  } catch (err) {
+    bugtxt(err)
+  }
 }
 function recordFile(file, contents, cb) {
 
@@ -942,13 +952,13 @@ function bugtxt(txt) {
 const siteDescription = `A unique visualisation of DNA or RNA residing in text files, AminoSee is a way to render huge genomics files into a PNG image using an infinite space filling curve from 18th century! Computation is done locally, and the files do not leave your machine. A back-end terminal daemon cli command that can be scripted is combined with a front-end GUI in Electron, AminoSee features asynchronous streaming processing enabling arbitrary size files to be processed. It has been tested with files in excess of 4 GB and does not need the whole file in memory at any time. Due to issues with the 'aminosee *' command, a batch script is provided for bulk rendering in the dna/ folder. Alertively use the GUI to Drag and drop files to render a unique colour view of RNA or DNA stored in text files, output to PNG graphics file, then launches an WebGL browser that projects the image onto a 3D Hilbert curve for immersive viewing, using THREEjs. Command line options alow one to filter by peptide.`;
 
 
-
-
+// module.exports.getSequenceNames = getSequenceNames;
 module.exports.out = out;
+module.exports.recordFile = recordFile;
+module.exports.deleteFile = deleteFile;
 module.exports.doesFileExist = doesFileExist;
 module.exports.doesFolderExist = doesFolderExist;
 module.exports.createSymlink = createSymlink;
-// module.exports.getSequenceNames = getSequenceNames;
 module.exports.pepTable = pepTable;
 module.exports.asciiart = asciiart;
 module.exports.extensions = extensions;
