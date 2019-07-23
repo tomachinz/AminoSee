@@ -14,7 +14,7 @@ http://optimalworks.net/ http://sitepoint.com/
 
     1459
  open source node npm packages used. 
-as at 1563894511 and Wed 24 Jul 2019 03:08:31 NZST
+as at 1563894667 and Wed 24 Jul 2019 03:11:07 NZST
 
 aminosee@1.18.21 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
 ├─┬ @gmod/indexedfasta@1.0.13
