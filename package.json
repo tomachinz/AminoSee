@@ -56,7 +56,7 @@
     "humanize-duration": "^3.20.0",
     "internal-ip": "^4.3.0",
     "keypress": "^0.2.1",
-    "local-web-server": "^3.0.6",
+    "local-web-server": "^3.0.7",
     "minimist": "^1.2.0",
     "nexe": "^3.3.2",
     "node-gyp": "^5.0.3",
