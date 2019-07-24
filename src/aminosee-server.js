@@ -130,10 +130,10 @@ function startCrossSpawnHttp(p) { // Spawn background server
   log("sudo npm install --global http-server");
   return didStart
 }
-function startHttpServer() {
-  let options = [ `$[outputPath}/`, `-p`, port, '-o' ]
-  const httpServer = require('http-server');
-  httpServer.createServer(options);
+function starthttpserver() {
+  let options = [ outputPath, `-p`, port, '-o' ]
+  const theserver = require('http-server');
+  theserver.createServer(options);
 }
 function startServeHandler() {
   setOutputPath()
@@ -268,12 +268,12 @@ function start(o) { // return the port number
     output("No locks found, Starting server ");
     log(`filenameServerLock: ${filenameServerLock}`)
     buildServer();
-    // startHttpServer();
-    if ( startCrossSpawnHttp(port) == false ) {
-      output(`Problem with port ${port} `);
-      port = 43210;
-      startCrossSpawnHttp(port)
-    }
+    starthttpserver();
+    // if ( startCrossSpawnHttp(port) == false ) {
+    //   output(`Problem with port ${port} `);
+    //   port = 43210;
+    //   startCrossSpawnHttp(port)
+    // }
   }
   return port
 }

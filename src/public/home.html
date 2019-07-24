@@ -219,76 +219,78 @@
 
 
 
+					<audio src=”src/public/aminosee_audio_logo-Q10.ogg” autoplay=”true”>
+						Sorry, your browser does not support the <audio> tag
+						</audio>
 
 
 
 
+						<form id="upload" action="filedrag.html" method="POST" enctype="multipart/form-data">
 
-					<form id="upload" action="filedrag.html" method="POST" enctype="multipart/form-data">
+							<fieldset>
+								<legend>HTML File Upload</legend>
+								<input type="hidden" id="MAX_FILE_SIZE" name="MAX_FILE_SIZE" value="300000" />
+								<div>
+									<label for="fileselect">Files to upload:</label>
+									<input type="file" id="fileselect" name="fileselect[]" multiple="multiple" />
+								</div>
 
-						<fieldset>
-							<legend>HTML File Upload</legend>
-							<input type="hidden" id="MAX_FILE_SIZE" name="MAX_FILE_SIZE" value="300000" />
-							<div>
-								<label for="fileselect">Files to upload:</label>
-								<input type="file" id="fileselect" name="fileselect[]" multiple="multiple" />
-							</div>
+								<div id="submitbutton">
+									<button type="submit">Upload Files</button>
+								</div>
 
-							<div id="submitbutton">
-								<button type="submit">Upload Files</button>
-							</div>
+							</fieldset>
 
-						</fieldset>
+						</form>
 
-					</form>
+						<div id="messages">
+							<p>Status Messages</p>
 
-					<div id="messages">
-						<p>Status Messages</p>
-
-						<div id="window" class="black nocse">
-
+							<div id="window" class="black nocse">
 
 
 
-							<h1>Terminal Console</h1>
-							<div id="wrapper" style="height: 99%; width: 99%;">
-								<!-- <div id="debugDiv" style="height: 300px; width: 200px; overflow: scroll; color: white; font-family: monospace; font-size: 10px; background-color: #010204;" class="fineprint"></div> -->
-								<div id="terminal">t</div>
-								<script>
-									var term = new Terminal();
+
+								<h1>Terminal Console</h1>
+								<div id="wrapper" style="height: 99%; width: 99%;">
+									<!-- <div id="debugDiv" style="height: 300px; width: 200px; overflow: scroll; color: white; font-family: monospace; font-size: 10px; background-color: #010204;" class="fineprint"></div> -->
+									<div id="terminal">t</div>
+									<script>
+										var term = new Terminal();
 									term.open(document.getElementById('terminal'));
 									term.write('Hello from \x1B[1;3;31maminosee.js\x1B[0m $ ')
 								</script>
 
+								</div>
 							</div>
 						</div>
-					</div>
 
 
 
 
 
-					<!-- <h1>AminoSeeNoEvil</h1> -->
-					<h1>Amino<span style="color: #888888;">See</span><span style="color: #dddddd;">NoEvil</span></h1>
-					<div class="hidable">
-						<h2 id="h2">DNA/RNA Chromosome Viewer</h2>
-						<p id="description" class="small hidable">A new way to view DNA that attributes a colour hue to each Amino acid codon triplet</p>
+						<!-- <h1>AminoSeeNoEvil</h1> -->
+						<h1>Amino<span style="color: #888888;">See</span><span style="color: #dddddd;">NoEvil</span></h1>
+						<div class="hidable">
+							<h2 id="h2">DNA/RNA Chromosome Viewer</h2>
+							<p id="description" class="small hidable">A new way to view DNA that attributes a colour hue to each Amino acid codon triplet</p>
 
 
 
 
 
 
-						<p class="white small hidable">
-							<a href="/pdf/AminoSee_WhitePaper_09Jan2019.pdf" class="small hidable">WHITE PAPER PDF</a> |
-							<a href="/blog/news/aminosee-dna-visualisation" class="small hidable">2018 Press Release</a> |
-							<a href="output" class="small hidable">2D IMAGE RENDERS</a> |
-							<a href="calibration/AminoSee_Calibration_reg_HILBERT_8.png" class="small hidable">Calibration</a> |
-							<a href="dist" class="small hidable" title="Download executable for win, linux, and macos">DOWNLOAD</a> |
-							<a href="https://github.com/tomachinz/AminoSee" class="small hidable" title="Github Source Code Repo">SOURCE</a>
-							<br />
-						</p>
-					</div>
+							<p class="white small hidable">
+								<a href="/pdf/AminoSee_WhitePaper_09Jan2019.pdf" class="small hidable">WHITE PAPER PDF</a> |
+								<a href="/blog/news/aminosee-dna-visualisation" class="small hidable">2018 Press Release</a> |
+								<a href="output" class="small hidable">2D IMAGE RENDERS</a> |
+								<a href="calibration/AminoSee_Calibration_reg_HILBERT_8.png" class="small hidable">Calibration</a> |
+								<a href="dist" class="small hidable" title="Download executable for win, linux, and macos">DOWNLOAD</a> |
+								<a href="https://github.com/tomachinz/AminoSee" class="small hidable" title="Github Source Code Repo">SOURCE</a>
+								<br />
+							</p>
+						</div>
 				</div>
 			</div>
 

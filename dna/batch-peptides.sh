@@ -1,16 +1,18 @@
 #!/bin/sh
 aminosee_do () {
-  echo $1 $2 $3 $4 $5 $6 $7  --no-image --no-html --no-explorer
-  # nice aminosee --quiet --no-image --no-html -c200 --recycle  $1 $2 $3 $4 $5 $6 $7 &
+  echo $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 REFERENCE RENDER
   # sleep 1
-  nice aminosee  $1 $2 $3 $4 $5 $6 $7  --quiet  --no-image --no-html --no-explorer
+  aminosee  $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12  --quiet
+  echo $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 RECYCLED C500 THUMBNAIL RENDER
+  nice aminosee --recycle --quiet -c500 --ratio=sqr $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 &
 }
 best_way () {
-  nice aminosee $1 $2 $3 $4 $5 $6 $7
+  aminosee $1 $2 $3 $4 $5 $6 $7 --force &
+  sleep 2
   # aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide="Start Codons"
   # aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide="Stop Codons"
-  aminosee $1    $2 $3 $4  --peptide=Glutamic_acid &
-  aminosee $1    $2 $3 $4  --peptide=Aspartic_acid
+  aminosee_do $1 $2 $3 $4  --peptide=Glutamic_acid &
+  aminosee_do $1 $2 $3 $4  --peptide=Aspartic_acid
   aminosee_do $1 $2 $3 $4  --peptide=Ochre &
   aminosee_do $1 $2 $3 $4  --peptide=Amber &
   aminosee_do $1 $2 $3 $4  --peptide=Opal
@@ -31,7 +33,7 @@ best_way () {
   aminosee_do $1 $2 $3 $4  --peptide=Tyrosine
   aminosee_do $1 $2 $3 $4  --peptide=Arginine &
   aminosee_do $1 $2 $3 $4  --peptide=Lysine &
-  nice aminosee $1 $2 $3 $4 --peptide=Histidine
+  aminosee_do $1 $2 $3 $4 --peptide=Histidine
 }
 series_peptides () {
   echo "                                         =///"
@@ -39,7 +41,7 @@ series_peptides () {
   echo STARTING MULTI-THREAD DECODE FOR $1 $2 $3 $4 $5 $6 $7
   echo "-------------------------------------------"
   echo "                                         =///"
-  aminosee_do $1 $2 $3 $4 $5 $6 $7
+  aminosee  $1 $2 $3 $4 $5 $6 $7 &
   aminosee_do $1 $2 $3 $4  --peptide=Glutamic_acid
   aminosee_do $1 $2 $3 $4  --peptide=Aspartic_acid
   aminosee_do $1 $2 $3 $4  --peptide=Ochre
@@ -98,7 +100,7 @@ parallel_peptides () {
   aminosee_do $1 $2 $3 $4  --peptide=Tyrosine &
   aminosee_do $1 $2 $3 $4  --peptide=Arginine &
   aminosee_do $1 $2 $3 $4  --peptide=Lysine &
-  nice aminosee $1 $2 $3 $4 $5 $6 $7  --peptide=Histidine &
+  aminosee_do $1 $2 $3 $4 $5 $6 $7  --peptide=Histidine &
   aminosee_do $1 $2 $3 $4 $5 $6 $7
 
   # sleep 1
@@ -214,11 +216,8 @@ sleep 1
 echo WILL NOW RENDER ALL IN FOLDER
 echo WILL NOW RENDER ALL IN FOLDER
 echo WILL NOW RENDER ALL IN FOLDER
-echo WILL NOW RENDER ALL IN FOLDER
-echo WILL NOW RENDER ALL IN FOLDER
-echo WILL NOW RENDER ALL IN FOLDER
 sleep 5
-asterix_peptides $1 $2 $3 $4 $5 $6 $7
+asterix_peptides -c500 --recycle $1 $2 $3 $4 $5 $6 $7
 
 # series_peptides $1 $2 $3 $4 $5 $6 $7 --keyboard
 # series_peptides * $1 $2 $3 $4 $5 $6 $7 --keyboard

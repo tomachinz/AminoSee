@@ -124,3 +124,4 @@ eslint src/aminosee-cli.js
 echo Stopping server in 1 second
 sleep 1
 killall aminosee.funk.nz
+echo done

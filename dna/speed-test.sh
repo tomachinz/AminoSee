@@ -1,7 +1,7 @@
 #!/bin/sh
 
 echo SPEED TEST!!!!
-
+ w |   sed "s/.........................................................//"
 nice -n 1 ./run-test.sh --no-updates &
 sleep 1
 nice -n 2 ./run-test.sh --no-updates &
@@ -13,11 +13,5 @@ sleep 4
 nice -n 5 ./run-test.sh --no-updates &
 sleep 5
 nice -n 6 ./run-test.sh
-
-echo "SPEED TEST COMPLETE"
-echo "SPEED TEST COMPLETE"
-echo "SPEED TEST COMPLETE"
-echo "SPEED TEST COMPLETE"
-echo "SPEED TEST COMPLETE"
-echo "SPEED TEST COMPLETE"
+ w |   sed "s/.........................................................//"
 echo "SPEED TEST COMPLETE"

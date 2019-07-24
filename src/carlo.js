@@ -1,6 +1,8 @@
 const carlo = require('carlo');
-
-
+const data = require('./aminosee-data');
+const aminosee = require('./aminosee-cli');
+const Preferences = require("preferences");
+const setupPrefs = aminosee.setupPrefs;
 (async () => {
   // Launch the browser.
   const app = await carlo.launch();
@@ -17,5 +19,43 @@ const carlo = require('carlo');
 
   // Navigate to the main page of your app.
   // await app.load('public/home.html');
-  // await app.load('http://127.0.0.1:4321/public/home.html');
+  // await app.load('http://127.0.0.1:4321/public/home.html').then( () => { console.log(`rugby was the winner`) });
 })();
+
+
+
+//
+// function setupPrefs() {
+//   let output = getOutputFolder();
+//   projectprefs = new Preferences('nz.funk.aminosee.project', {
+//     aminosee: {
+//       opens: 0,
+//       genomes: [ `megabase`, '50KB_TestPattern' ],
+//       url: `http://localhost:4321`
+//     }
+//   }, {
+//     encrypt: false,
+//     file: path.resolve( output + '/aminosee_project.conf'),
+//     format: 'yaml'
+//   });
+//
+//   userprefs = new Preferences('nz.funk.aminosee.user', {
+//     aminosee: {
+//       cliruns: 0,
+//       guiruns: 0,
+//       gbprocessed: 0,
+//       completed: 0
+//     }
+//   }, {
+//     encrypt: false,
+//     file: path.resolve( os.homedir(), '.config/preferences/nz.funk.aminosee.conf'),
+//     format: 'yaml'
+//   });
+//   // Preferences can be accessed directly
+//   userprefs.aminosee.cliruns++; // increment run counter. for a future high score table stat and things maybe.
+//   cliruns = userprefs.aminosee.cliruns;
+//   gbprocessed  = userprefs.aminosee.gbprocessed;
+//   genomes = projectprefs.aminosee.genomes;
+//   url = projectprefs.aminosee.url;
+//   return [ userprefs, projectprefs ]
+// }

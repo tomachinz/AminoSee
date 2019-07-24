@@ -112,7 +112,7 @@ function populateArgs(procArgv) { // returns args
     boolean: [ 'artistic', 'clear', 'chrome', 'devmode', 'debug', 'demo', 'dnabg', 'explorer', 'file', 'force', 'firefox', 'gui', 'html', 'image', 'keyboard', 'list', 'progress', 'quiet', 'reg', 'recycle', 'redraw', 'serve', 'safari', 'test', 'updates', 'verbose', 'view' ],
     string: [ 'url', 'outpath', 'triplet', 'peptide', 'ratio' ],
     alias: { a: 'artistic', b: 'dnabg', c: 'codons', d: 'devmode', f: 'force', h: 'help', k: 'keyboard', m: 'magnitude', o: 'outpath', out: 'outpath', output: 'outpath', p: 'peptide', i: 'image', t: 'triplet', u: 'updates', q: 'quiet', r: 'reg', w: 'width', v: 'verbose', x: 'explorer', finder: 'explorer', view: 'html'  },
-    default: { html: true, image: true, dnabg: false, clear: false, explorer: false, quiet: false, keyboard: false, progress: true, redraw: true, updates: true, serve: true },
+    default: { html: true, image: true, dnabg: false, clear: false, explorer: false, quiet: false, keyboard: false, progress: true, redraw: true, updates: true, serve: true, gui: true },
     stopEarly: false
   } // NUMERIC INPUTS: codons, magnitude, width, maxpix
   let args = minimist(procArgv.slice(2), options)
@@ -214,7 +214,7 @@ class AminoSeeNoEvil {
 
 
     this.args = args; // populateArgs(procArgv);// this.args;
-    webserverEnabled = false;
+    webserverEnabled = true;
 
     batchSize = this.howMany;
     isShuttingDown = false;
@@ -585,8 +585,8 @@ class AminoSeeNoEvil {
     if ( args.serve || args.s) {
       webserverEnabled = true;
     } else {
-      output("Webserver Disabled ")
-      webserverEnabled = false;
+      // output("Webserver Disabled ")
+      // webserverEnabled = false;
     }
     if ( args.clear || args.c) {
       log("screen clearing enabled.");
@@ -2547,7 +2547,8 @@ class AminoSeeNoEvil {
 
   }
   processLine(l) {
-    mode('process line')
+    // mode('process line')
+    this.status = 'process line ' + this.howMany;
     this.streamLineNr++;
     if (this.rawDNA.length < this.termPixels) {
       this.rawDNA = this.cleanString(l) + this.rawDNA;
