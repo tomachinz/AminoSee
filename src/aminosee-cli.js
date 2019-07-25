@@ -1352,6 +1352,7 @@ class AminoSeeNoEvil {
       output(msg)
       // pushCli(newCommand)
       this.popAndPollOrBust(msg)
+      // this.resetAndPop(msg)
       return false;
     }
     if (!this.checkFileExtension( this.currentFile)) {
@@ -2612,32 +2613,37 @@ class AminoSeeNoEvil {
         this.pixelStacking++;
         this.genomeSize++;
         this.codonRGBA =  this.codonToRGBA(codon); // this will this.report this.alpha info
-        let brightness = this.codonRGBA[0] +  this.codonRGBA[1] +  this.codonRGBA[2] + this.codonRGBA[3];
-
+        this.brightness = this.codonRGBA[0] +  this.codonRGBA[1] +  this.codonRGBA[2] + this.codonRGBA[3];
+        this.isHighlightCodon = false; // always false during regular render!
+        let pixelGamma = 1; // normal render
+        // output( this.isHighlightSet )
         // HIGHLIGHT codon --triplet Tryptophan
         if ( this.isHighlightSet ) {
-          if (codon == this.triplet) {
+          if (codon == this.triplet) { // this block is trying to decide if a) regular render b) highlight pixel c) darken pixel
             this.isHighlightCodon = true;
           } else if (this.aminoacid == this.peptide) {
             this.isHighlightCodon = true;
-          } else {
-            this.isHighlightCodon = false;
           }
+          if (this.isHighlightCodon) {
+            pixelGamma = this.highlightFactor * this.opacity;
+          } else {
+            pixelGamma = this.darkenFactor * this.opacity ;
+          }
+        } else {
+          pixelGamma = this.opacity ;
+        }
+        this.mixRGBA[0] += parseFloat( this.codonRGBA[0].valueOf() * pixelGamma ); // * red
+        this.mixRGBA[1] += parseFloat( this.codonRGBA[1].valueOf() * pixelGamma ); // * green
+        this.mixRGBA[2] += parseFloat( this.codonRGBA[2].valueOf() * pixelGamma ); // * blue
+        this.mixRGBA[3] += 255 * pixelGamma; // * full opacity
+
+
+        if (this.isHighlightCodon && !this.isHighlightSet) {
+          this.mixRGBA[3] += 255 * pixelGamma; // * full opacity
+        } else {
+          this.mixRGBA[3] += 64 * pixelGamma;// image is mostly transparent because you see through 21 layers!
         }
 
-        if (this.isHighlightCodon) { // 255 = 1.0
-          this.mixRGBA[0]  += parseFloat( this.codonRGBA[0].valueOf() * this.highlightFactor * this.opacity );// * this.opacity ; //  this.red
-          this.mixRGBA[1]  += parseFloat( this.codonRGBA[1].valueOf() * this.highlightFactor * this.opacity );// * this.opacity ; //  this.green
-          this.mixRGBA[2]  += parseFloat( this.codonRGBA[2].valueOf() * this.highlightFactor * this.opacity );// * this.opacity ; //  this.blue
-          this.mixRGBA[3]  +=   255 * ( this.highlightFactor *  this.opacity );// * this.opacity ; //  this.blue
-        } else {
-          //  not a START/STOP codon. Stack multiple codons per pixel.
-          // HERE WE ADDITIVELY BUILD UP THE VALUES with +=
-          this.mixRGBA[0] +=   parseFloat( this.codonRGBA[0].valueOf() * this.opacity  *  this.darkenFactor );
-          this.mixRGBA[1] +=   parseFloat( this.codonRGBA[1].valueOf() * this.opacity  *  this.darkenFactor );
-          this.mixRGBA[2] +=   parseFloat( this.codonRGBA[2].valueOf() * this.opacity  *  this.darkenFactor );
-          this.mixRGBA[3] +=   64 * ( this.darkenFactor *  this.opacity );// image is mostly transparent because you see through 21 layers!
-        }
 
 
 
@@ -3738,7 +3744,25 @@ class AminoSeeNoEvil {
     }); // <<--------- sets up both linear and hilbert arrays but only saves the Hilbert.
     return true;
   }
+  async testPromise() {
+    let teethPromise = brushTeeth();
+    let tempPromise = getRoomTemperature();
 
+    // Change clothes based on room temperature
+    var clothesPromise = tempPromise.then(function(temp) {
+      // Assume `changeClothes` also returns a Promise
+      if(temp > 20) {
+        return changeClothes("warm");
+      } else {
+        return changeClothes("cold");
+      }
+    });
+    /* Note that clothesPromise resolves to the result of `changeClothes`
+       due to Promise "chaining" magic. */
+
+    // Combine promises and await them both
+    await Promise.all(teethPromise, clothesPromise);
+  }
   testStop () {
     this.percentComplete = 1;
     this.genomeSize = 0;
@@ -4243,8 +4267,6 @@ class AminoSeeNoEvil {
     }
     highlightOrNothin() { // no highlight, no return!
       return ( this.isHighlightSet ?  this.peptideOrNothing() + this.tripletOrNothing()  : "" )
-      // let that = gimmeDat()
-      // return ( that.isHighlightSet ?  that.peptideOrNothing() + that.tripletOrNothing()  : "" )
     }
     peptideOrNothing() {
       return ( this.peptide == "none" ? "" : this.peptide )
@@ -5289,7 +5311,7 @@ class AminoSeeNoEvil {
       // if not found setup and use local home folder ~/AminoSee_Output
       // this way you can create a network cluster quickly by just moving your ~/AminoSee_Output into the same folder as your DNA files
       // next time you run, it will put the render in same folder
-      bugtxt(`OS: ${os.platform()} Home: ${os.homedir} `)
+      output(`OS: ${os.platform()} Home: ${os.homedir} process.cwd() + obviousFoldername: ${process.cwd() + obviousFoldername}`)
 
       // FIRST check for special folders in current directory
       // THEN if not found, create and use dirs in home directory
