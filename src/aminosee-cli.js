@@ -29,7 +29,7 @@ const asciiart = data.asciiart;
 const extensions = data.extensions;
 const saySomethingEpic = data.saySomethingEpic;
 let isElectron, jobArgs, killServersOnQuit, webserverEnabled, cliInstance, tx, ty, termPixels, cliruns, gbprocessed, projectprefs, userprefs, genomes, progato, commandString, batchSize, quiet, url;
-const debug = true; // should be false for PRODUCTION
+const debug = false; // should be false for PRODUCTION
 // OPEN SOURCE PACKAGES FROM NPM
 const path = require('path');
 const Preferences = require("preferences");
@@ -84,7 +84,7 @@ const hilbPixels = [ 64, 256, 1024, 4096, 16384, 65536, 262144, 1048576, 4194304
 const widthMax = 960; // i wanted these to be tall and slim kinda like the most common way of diagrammatically showing chromosomes
 const port = 4321;
 const max32bitInteger = 2147483647;
-const minUpdateTime = 2000;
+const minUpdateTime = 500;
 const openLocalHtml = false; // affects auto-open HTML.
 const wideScreen = 140; // shrinks terminal display
 let opens = 0; // session local counter to avoid having way too many windows opened.
@@ -318,12 +318,12 @@ class AminoSeeNoEvil {
     } else {
       log(`Using URL prefix: ${url}`)
     }
-    if ( args.progress) {
+    if ( args.progres ) {
       this.updateProgress = true; // whether to show the progress bars
       log('progress bars enabled');
     } else {
       this.updateProgress = false; // whether to show the progress bars
-      output('Disabled progress bars')
+      log('Disabled progress bars')
     }
 
     this.devmode = false;
@@ -396,9 +396,9 @@ class AminoSeeNoEvil {
       this.browser = 'safari';
       output(`default this.browser set to open automatically in ${ this.browser }`);
     }
-    if ( args.image || args.i) {
+    if ( args.image || args.i && args.quiet ) {
       this.openImage = true;
-      output(`will automatically open image`)
+      log(`will automatically open image`)
     } else {
       log(`will not open image`)
       this.openImage = false;
@@ -450,7 +450,7 @@ class AminoSeeNoEvil {
       log(`Using default max magnitude of ${defaultMagnitude}th dimension`)
     }
     bugtxt(` this.maxpix: ${  this.maxpix } this.dimension: ${ this.dimension }`);
-    if ( args.ratio) {
+    if ( args.ratio || args.r ) {
       this.ratio = args.ratio;
       if ( this.ratio && this.ratio != true ) { // this is for: aminosee --test -r
         this.ratio = this.ratio.toLowerCase();
@@ -466,9 +466,11 @@ class AminoSeeNoEvil {
         this.ratio = "fix";
       }
       this.pngImageFlags += this.ratio;
+      this.userRatio = "custom";
     } else {
       bugtxt(`No custom ratio chosen. (default)`);
       this.ratio = "fix";
+      this.userRatio = "auto";
     }
     log(`Using ${ this.ratio } aspect ratio`);
 
@@ -500,7 +502,7 @@ class AminoSeeNoEvil {
         output(`Sorry, could not lookup users peptide: ${ this.usersPeptide } using ${ this.peptide }`);
       }
     } else {
-      output(`No custom peptide chosen. Will render standard reference type image`);
+      log(`No custom peptide chosen. Will render standard reference type image`);
       this.peptide = "none";
     }
     if ( this.peptide == "none" && this.triplet == "none") {
@@ -591,10 +593,10 @@ class AminoSeeNoEvil {
         // webserverEnabled = false;
       }
       if ( args.clear || args.c) {
-        log("screen clearing enabled.");
+        output("screen clearing enabled.");
         this.clear = true;
       } else {
-        output("clear screen disabled.");
+        log("clear screen disabled.");
         this.clear = false;
         this.termDisplayHeight--;
       }
@@ -628,16 +630,16 @@ class AminoSeeNoEvil {
         }
       }
       if ( args.gui) {
-        output(`Running AminoSee graphical user interface...`)
+        log(`Running AminoSee graphical user interface...`)
         // electron.
       } else {
-        output("Disabled the graphical user interface")
+        output("Disabled the GUI (graphical user interface)")
         this.openHtml = false;
         this.openFileExplorer = false;
         this.openImage = false;
       }
       if ( args.quiet || args.q) { // needs to be at top so changes can be overridden! but after this.debug.
-        output("quiet mode enabled. use --no-progress to also remove that.");
+        output("quiet mode enabled.");
         this.quiet = true;
         this.verbose = false;
         this.dnabg = false;
@@ -1016,7 +1018,7 @@ class AminoSeeNoEvil {
           }
           if ( key.ctrl && key.name == 'c') {
             process.stdin.pause(); // stop sending control-c here, send that.now to parent, which is gonna kill us on the second go with control-c
-            that. this.status  = "TERMINATED WITH CONTROL-C";
+            this.status  = "TERMINATED WITH CONTROL-C";
             isShuttingDown = true;
             if (that.devmode == true) {
               setTimeout(()=> {
@@ -1162,9 +1164,9 @@ class AminoSeeNoEvil {
         this.progress = true; // EXPERIMENTAL FEATURES
         this.keyboard = true; // EXPERIMENTAL FEATURES
         this.termDisplayHeight++;
-        this.raceDelay += 1000; // this helps considerably!
+        this.raceDelay += 500; // this helps considerably!
         if (this.debug == true) {
-          this.raceDelay += 2000; // this helps considerably!
+          this.raceDelay += 1000; // this helps considerably!
         }
         output("AminoSee has been slowed to " + this.raceDelay)
       } else {
@@ -1406,11 +1408,11 @@ class AminoSeeNoEvil {
     redoLine(msg)
     log('Checking for previous render'+ this.filePNG)
 
-    if (doesFileExist(this.fileHILBERT) && this.force == false) {
-      bugtxt(`isStorageBusy ${this.isStorageBusy}`)
-      termDrawImage(this.fileHILBERT, `File already rendered`);
-      let msg = `Already rendered ${ maxWidth(60, this.justNameOfHILBERT) }. Storage: [${this.isStorageBusy}]`;
-      output(msg);
+    if (doesFileExist(this.filePNG) && this.force == false) {
+      bugtxt(`isStorageBusy ${this.isStorageBusy} Storage: [${this.isStorageBusy}]`)
+      termDrawImage(this.filePNG, `File already rendered`);
+      let msg = `Already rendered ${ maxWidth(60, this.justNameOfPNG) }.`;
+      log(msg);
       this.openOutputs();
       setTimeout( () => {
         this.popAndPollOrBust(msg);
@@ -3626,7 +3628,7 @@ class AminoSeeNoEvil {
       log(`Not opening HTML`)
     }
     if ( this.isHilbertPossible  === true && this.openImage === true) {
-      output(`Opening ${ this.justNameOfHILBERT} 2D hilbert space-filling image.`);
+      log(`Opening ${ this.justNameOfHILBERT} 2D hilbert space-filling image.`);
       this.opensImage++;
       projectprefs.aminosee.opens++; // increment open counter.
       open( this.fileHILBERT).then(() => {
@@ -3659,9 +3661,9 @@ class AminoSeeNoEvil {
       return false;
     }
     if ( opens == 0 ) {
-      out(`not opening ${opens} times`)
+      log(`not opening ${opens} times`)
     } else {
-      out(`opening ${opens} times`)
+      log(`opening ${opens} times`)
     }
   }
 
@@ -4206,7 +4208,7 @@ class AminoSeeNoEvil {
     }
     let array = [
       `Load: ${ this.loadAverages()}     Files: ${this.howMany}`,
-      `| File: ${chalk.inverse( fixedWidth(40, this.justNameOfDNA))}.${ this.extension } ${chalk.inverse( this.highlightOrNothin())}`,
+      `| File: ${chalk.bgWhite.inverse( fixedWidth(40, this.justNameOfDNA))}.${ this.extension } ${chalk.inverse( this.highlightOrNothin())}`,
       `| i@${ fixedWidth(10, this.charClock.toLocaleString())} Breaks:${ fixedWidth(6, this.breakClock.toLocaleString())} Filesize:${ fixedWidth(7, bytes(  this.baseChars ))}`,
       `| Next update:${ fixedWidth(6,  this.msPerUpdate .toLocaleString())}ms Codon Opacity: ${ twosigbitsTolocale( this.opacity *100)}%`,
       `| CPU: ${ fixedWidth(10, bytes( this.bytesPerMs*1000))}/s ${ fixedWidth(5, this.codonsPerSec.toLocaleString())}K acids/s`,
@@ -5259,14 +5261,15 @@ class AminoSeeNoEvil {
       if (reason === undefined) { reason = `BUG. Reminder: always set a reason` }
       // if ( that.force == true) { return false }
       if ( quiet === true ) { out('quiet'); return false; }
-      term.saveCursor()
+      // term.saveCursor()
       clearCheck();
       // term.moveTo( 0, 0 )
-      output(chalk.inverse("Terminal image: " +  basename(fullpath)))
+      out('loading terminal image');
+      // output(chalk.inverse("Terminal image: " +  basename(fullpath)))
       term.drawImage( fullpath, { shrink: { width: tx / 2,  height: ty } }, () => {
-        output(chalk.inverse("Terminal image: " +  basename(fullpath) ) + " " +  reason)
-        term.restoreCursor();
-        // if ( cb !== undefined ) { cb() }
+        output("Terminal image: " + chalk.inverse(  basename(fullpath) ) + " " +  reason)
+        // term.restoreCursor();
+        if ( cb !== undefined ) { cb() }
       })
     }
     function nicePercent(percent) {
