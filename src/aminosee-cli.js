@@ -244,7 +244,7 @@ class AminoSeeNoEvil {
     this.debugGears = 1;
     this.done = 0;
     this.suopIters = 0;
-    this.raceDelay = 269; // so i learnt a lot on this project. one day this line shall disappear replaced by promises.
+    this.raceDelay = 69; // so i learnt a lot on this project. one day this line shall disappear replaced by promises.
     this.darkenFactor = 0.125; // if user has chosen to highlight an amino acid others are darkened
     this.highlightFactor = 4.0; // highten brightening.
     this.devmode = false; // kills the auto opening of reports etc
@@ -713,7 +713,9 @@ class AminoSeeNoEvil {
           output(' ');
           // log('Closing in ')
           const carlo = require('./carlo');
-          countdown('No command - closing in ', 20000);
+          this.keyboard = true;
+          this.setupKeyboardUI();
+          countdown('Press [Q] to exit or wait ', 20000);
         } else {
           output();
           countdown('Closing in ', 700);
@@ -1003,87 +1005,95 @@ class AminoSeeNoEvil {
       // listen for the "keypress" event
       process.stdin.once('keypress', function (ch, key) {
         // log('got "keypress"', key);
-        if (key && key.name == 't') {
-          mode('pushing this.test onto render queue')
-          that.args._.push('test');
-        }
-        if (key && key.name == 'c') {
-          clearCheck();
-        }
-        if (key && key.ctrl && key.name == 'c') {
-          process.stdin.pause(); // stop sending control-c here, send that.now to parent, which is gonna kill us on the second go with control-c
-          that. this.status  = "TERMINATED WITH CONTROL-C";
-          isShuttingDown = true;
-          if (that.devmode == true) {
-            setTimeout(()=> {
-              output(`Because you are using --devmode, the lock file is not deleted. This is useful during development because I can quickly that.test new code by starting then interupting the render with Control-c. Then, when I use 'aminosee * -f -d' I can have new versions rende that.red  but skip super large genomes that would take 5 mins or more to render. I like to see that they begin to render then break and retry; this way AminoSee will skip the large genome becauyse it has a lock file, saving me CPU during development. Lock files are safe to delete.`)
-            }, 500)
-          } else {
-            that.removeLocks();
+
+        if ( key ) {
+          if ( key.name == 't') {
+            mode('pushing this.test onto render queue')
+            that.args._.push('test');
           }
-          log( this.status );
-          // that.updates = false;
-          // args = [];
-          that.debug = true;
-          that.devmode = true;
-          killServersOnQuit = true;
-          server.stop();
-          destroyKeyboardUI();
-          // setTimeout(()=> {
-          that.gracefulQuit(130);
-          // }, 500)
-        }
-        if (key && key.name == 'q' || key.name == 'Escape') {
-          output("Gracefull Shutdown in progress... will finish this render then quit.")
-          killServersOnQuit = false;
-          that.gracefulQuit();
-          // that.quit(7, 'Q / Escape - leaving webserver running in background')
-        }
-        if (key && key.name == 'b') {
-          clearCheck();
-          that.togglednabg();
-        }
-        // if (key && key.name == 's') {
-        //   clearCheck();
-        //   that.toggleServer();
-        // }
-        if (key && key.name == 'f') {
-          that.toggleForce();
-        }
-        if (key && key.name == 'd') {
-          clearCheck();
-          that.toggleDebug();
-        }
-        if (key && key.name == 'v') {
-          clearCheck();
-          that.toggleVerbose();
-        }
-        if (key && key.name == 'o') {
-          clearCheck();
-          that.toggleOpen();
-        }
-        if (key && key.name == 'w') {
-          term.clear();
-          that.toggleClearScreen();
-        }
-        // if (key && key.name == 't') {
-        //   linearpixbert();
-        // }
-        if (key && key.name == 'Space' || key.name == 'Enter') {
-          clearCheck();
-          that.msPerUpdate  = 200;
-        }
-        if (key && key.name == 'u') {
-          that.msPerUpdate  = 200;
-          if ( that.updates == true) {
-            that.updates = false;
-            clearTimeout( that.updatesTimer);
-          } else {
-            that.updates = true;
-            that.drawHistogram();
+          if ( key.name == 'c') {
+            clearCheck();
+          }
+          if ( key.ctrl && key.name == 'c') {
+            process.stdin.pause(); // stop sending control-c here, send that.now to parent, which is gonna kill us on the second go with control-c
+            that. this.status  = "TERMINATED WITH CONTROL-C";
+            isShuttingDown = true;
+            if (that.devmode == true) {
+              setTimeout(()=> {
+                output(`Because you are using --devmode, the lock file is not deleted. This is useful during development because I can quickly that.test new code by starting then interupting the render with Control-c. Then, when I use 'aminosee * -f -d' I can have new versions rende that.red  but skip super large genomes that would take 5 mins or more to render. I like to see that they begin to render then break and retry; this way AminoSee will skip the large genome becauyse it has a lock file, saving me CPU during development. Lock files are safe to delete.`)
+              }, 500)
+            } else {
+              that.removeLocks();
+            }
+            log( this.status );
+            // that.updates = false;
+            // args = [];
+            that.debug = true;
+            that.devmode = true;
+            killServersOnQuit = true;
+            server.stop();
+            destroyKeyboardUI();
+            // setTimeout(()=> {
+            that.gracefulQuit(130);
+            // }, 500)
+          }
+          if ( key.name == 'q' || key.name == 'Escape') {
+            output("Gracefull Shutdown in progress... will finish this render then quit.")
+            killServersOnQuit = false;
+            that.gracefulQuit();
+            // that.quit(7, 'Q / Escape - leaving webserver running in background')
+          }
+          if ( key.name == 'b') {
+            clearCheck();
+            that.togglednabg();
+          }
+          // if ( key.name == 's') {
+          //   clearCheck();
+          //   that.toggleServer();
+          // }
+          if ( key.name == 'f') {
+            that.toggleForce();
+          }
+          if ( key.name == 'd') {
+            clearCheck();
+            that.toggleDebug();
+          }
+          if ( key.name == 'v') {
+            clearCheck();
+            that.toggleVerbose();
+          }
+          if ( key.name == 'o') {
+            clearCheck();
+            that.toggleOpen();
+          }
+          if ( key.name == 'o') {
+            clearCheck();
+            that.toggleOpen();
+          }
+          if ( key.name == 'w') {
+            term.clear();
+            that.toggleClearScreen();
+          }
+          // if ( key.name == 't') {
+          //   linearpixbert();
+          // }
+          if ( key.name == 'Space' || key.name == 'Enter') {
+            clearCheck();
+            that.msPerUpdate  = 200;
+          }
+          if ( key.name == 'u') {
+            that.msPerUpdate  = 200;
+            if ( that.updates == true) {
+              that.updates = false;
+              clearTimeout( that.updatesTimer);
+            } else {
+              that.updates = true;
+              that.drawHistogram();
+            }
           }
         }
-        // that.drawHistogram();
+
+
       });
       process.on('exit', function () {
         // disable mouse on exit, so that the state
@@ -1347,7 +1357,8 @@ class AminoSeeNoEvil {
         this.quit(0, reason);
         return false;
       }
-      if ( doesFolderExist(this.dnafile ) && isShuttingDown == false && this.howMany > 0) { // && this.currentFile !== ""
+      if ( this.isShuttingDown == false && this.howMany <= 0 ) { this.quit(0, "ran out of files to process") }
+      if ( doesFolderExist(this.dnafile ) ) { // && this.currentFile !== ""
         if (this.currentFile == undefined) { return false; }
         let newCommand = `${this.currentFile}/*`
         let msg = `${this.dnafile }
@@ -1360,7 +1371,10 @@ class AminoSeeNoEvil {
     }
     if (!this.checkFileExtension( this.currentFile)) {
       let msg = `${this.currentFile} wrong file extension. Must be one of ${ extensions } `
-      this.popAndPollOrBust(msg)
+      out( this.busy() )
+      if ( this.howMany > 0 ) {
+        this.popAndPollOrBust(msg)
+      }
       return false;
     }
     // if (doesFileExist(this.dnafile )  === false) {
@@ -1626,6 +1640,7 @@ class AminoSeeNoEvil {
   }
   streamStarted() {
     mode(`Stream started at ${ formatAMPM(this.startDate) }`);
+    this.tLock();
     var that = this;
     output(`Started render of ${this.justNameOfPNG} next is ${this.nextFile}`);
     if ( this.renderLock == true ) {
@@ -2358,14 +2373,14 @@ class AminoSeeNoEvil {
     // pop the array, the poll for stream or quit
     bugtxt( `popAndPollOrBust: ${this.busy()} `)
     let file;
-    out('pop +' + reason)
+    out(`pop ${ this.howMany } reason: ${reason}`)
     if ( this.test ) {
       this.error(`Test mode.`)
       log(`Test mode.`)
     }
-    if ( this.renderLock === true) {
+    if ( this.renderLock == true) {
       this.error(`Thread re-entered popAndPollOrBust due to: ${reason}`)
-    } else { out(`About to pop`) }
+    } else { out(`About to pop / shift`) }
     try {
       file = this.args._.shift().toString(); // file = this.args._.pop().toString();
       // file = this.args._.pop().toString(); // file = this.args._.pop().toString();
@@ -2399,7 +2414,11 @@ class AminoSeeNoEvil {
     // } else {
     // }
     // this.touchLockAndStartStream();
-    this.prepareState(`chompsky ` + ( this.test ? 'test mode' : 'dna mode' ) ); // <<<<-------------- THATS WHERE THE ACTION GOES
+    var that = this;
+    setTimeout( () => {
+      that.prepareState(`chompsky ` + ( this.test ? 'test mode' : 'dna mode' ) ); // <<<<-------------- THATS WHERE THE ACTION GOES
+    }, this.raceDelay)
+    // this.prepareState(`chompsky ` + ( this.test ? 'test mode' : 'dna mode' ) ); // <<<<-------------- THATS WHERE THE ACTION GOES
 
   }
   postRenderPoll(reason) { // renderLock on late, off early
@@ -3136,8 +3155,8 @@ class AminoSeeNoEvil {
   }
 
   skipExistingFile (fizzle) { // skip the file if TRUE render it if FALSE
-    if ( this.force == true && this.currentFile == funknzlabel ) {  return false; } // true means to skip render
-    let result = doesFileExist(fizzle);
+    if ( this.force == true && this.currentFile == funknzlabel ) {  return true; } // true means to skip render
+    let result = doesFileExist(fizzle) ;
     bugtxt('skipExistingFile ' + fizzle + "force: " + this.force + " result: " + result)
     bugtxt(`The file is: ${fizzle} which ${( result ? 'DOES' : 'does NOT')} exist`)
     return this.result;
