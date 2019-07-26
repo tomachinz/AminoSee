@@ -1,39 +1,32 @@
 #!/bin/sh
 # test should run quickly and quit.
-#!/bin/sh
-echo aminosee $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
-echo STARTING SERVER TO RUN IN BACKGROUND
-aminosee --serve &
-
-aminosee_do () {
-  success "$1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12"
-  nice aminosee $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --no-image --no-html --no-explorer
-}
-success () {
-  echo $1
-  echo
-  echo
-  echo
-  sleep 1
-}
-w
-npm run genversion
-
-aminosee
-aminosee -f $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
-aminosee -q $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
-echo SHOW VERBOSE
-aminosee -v $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
-echo USING INCORRECT SINGLE DASH FOR -help
-aminosee -help
-
-# sleep 1
 FAST='50KB_TestPattern.txt'
 MEDIUM='3MB_TestPattern.txt'
 SLOW='27MB_TestPattern.txt'
-aminosee_do $FAST $FAST $FAST --peptide=amber $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
+aminosee_do () {
+  success $1 "START__ $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 _________"
+  nice aminosee $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
+  success $1 "END____ $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 _________"
+}
 
-aminosee_do $FAST $1 $2 $3 $4 $5 $6 --force --peptide="aspartic_ACID"
+success () {
+  echo
+  echo __________________________________________
+  echo $1
+  echo
+  echo
+}
+npm run genversion
+echo aminosee $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
+echo STARTING SERVER TO RUN IN BACKGROUND
+aminosee --serve &
+aminosee
+aminosee_do "FORCED RENDER OF SMALL GENOME: $FAST" -f $FAST $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
+aminosee_do "QUIET MODE" -q $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
+aminosee_do "VERBOSE MODE" -v $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
+aminosee_do "USING INCORRECT SINGLE DASH FOR -help" -help $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
+aminosee_do "THREE OF SAME FILE IN A ROW: $FAST WITH PEPTIDE=AMBER" $FAST $FAST $FAST --peptide=amber $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
+aminosee_do "Wonky caps: -p=aspartic_ACID" $FAST $1 $2 $3 $4 $5 $6 --force --peptide="aspartic_ACID"
 aminosee_do $FAST -fb --peptide="gluTAMIC_aCID" $1 $2 $3 $4 $5 $6
 
 success "PROGRESS bars test --> "
@@ -73,7 +66,7 @@ echo ABOUT TO START OPENING WINDOWS AROUND THE PLACE
 # echo "-------------------------------------------"
 echo
 echo THIS SHOULD OPEN REPORT EVEN IF IT ALREADY EXISTS
-aminosee_do $FAST -p=proline --html
+aminosee $FAST -p=proline --html
 
 # echo "nice aminosee $1 $2 $3 $4 $5 $6 -f --no-updates --ratio=fix --peptide=Arginine --html &"
 nice aminosee $1 $2 $3 $4 $5 $6 -q --ratio=fix --peptide=Arginine --html
@@ -91,7 +84,7 @@ sleep 1
 nice aminosee --demo   $1 $2 $3 $4 $5 $6  --no-html --image &
 sleep 1
 
-echo calibration TESTS ARE KNOWN TO BE BUGGY AT PRESEDNT:
+echo calibration TESTS ARE KNOWN TO BE BUGGY AT PRESENT:
 aminosee --test
 
 # echo "doing aminosee serve and opening a file"

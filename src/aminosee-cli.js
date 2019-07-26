@@ -359,6 +359,8 @@ class AminoSeeNoEvil {
           // return false;
         }
       }
+    } else {
+      this.outputPath = getOutputFolder();
     }
     if ( args.keyboard || args.k ) {
       this.keyboard = true;
@@ -1734,7 +1736,7 @@ class AminoSeeNoEvil {
     this.baseChars = this.getFilesizeInBytes( this.dnafile );
     if ( this.baseChars < 0) { // switch to streaming pipe this.mode,
       this.error("Are you streaming std in? That part isn't written yet!")
-      process.exit();
+      // process.exit();
       this.isStreamingPipe = true; // cat Human.genome | aminosee
       this.estimatedPixels = 696969; // 696969 flags a missing value in this.debug
       this.magnitude = this.dimension = 6; // close to 69
@@ -3963,14 +3965,17 @@ class AminoSeeNoEvil {
     }
     process.stdout.write(`[${txt}] `);
   }
-  error(e) {
+  error(err) {
+    mode(`Error: [${err}] ${this.justNameOfDNA} ${this.busy()}`)
     if ( this.quiet == false ) {
-
       output();
-      output( chalk.bgRed( this.status  + ' /  this.error start {{{ ----------- ' + chalk.inverse( e.toString() ) + ' ----------- }}} end. Not rendering (may halt), thread entered postRenderPoll: ${reason}'))
+      output( chalk.bgRed( this.status  + ' /  this.error start {{{ ----------- ' + chalk.inverse( err.toString() ) + ' ----------- }}} end. Not rendering (may halt), thread entered postRenderPoll: ${reason}'))
       output();
     }
-    crash(e)
+    if ( debug ) {
+      throw new Error(err)
+      // process.exit();
+    }
   }
 
   clout(txt) {
@@ -5345,11 +5350,7 @@ class AminoSeeNoEvil {
     function getArgs() {
       return this.args;
     }
-    function crash(msg) {
-      mode(` this.error: ${msg} will exit`)
-      throw new Error(msg)
-      process.exit();
-    }
+
     module.exports.getOutputFolder = getOutputFolder;
     module.exports.nicePercent = nicePercent;
     module.exports.createSymlink = createSymlink;
