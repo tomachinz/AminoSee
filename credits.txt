@@ -8,15 +8,15 @@
 Thanks to Christos Georghiou who designed the 'See No Evil Hear No Evil Monkeys' http://christosgeorghiou.com/
 
 Checkout the music from the drummer who wrote this app at https://www.funk.co.nz/tomachi
-9084 lines of code
+9116 lines of code
 File drag and drop code by http://twitter.com/craigbuckler
 http://optimalworks.net/ http://sitepoint.com/
 
-    1459
+    1642
  open source node npm packages used. 
-as at 1563960257 and Wed 24 Jul 2019 21:24:17 NZST
+as at 1564121349 and Fri 26 Jul 2019 18:09:09 NZST
 
-aminosee@1.18.23 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
+aminosee@1.19.1 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
 ├─┬ @gmod/indexedfasta@1.0.13
 │ ├─┬ @babel/runtime-corejs2@7.4.5
 │ │ ├── core-js@2.6.8
@@ -651,6 +651,209 @@ aminosee@1.18.23 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
 │ │ └── ip-regex@2.1.0
 │ └── ipaddr.js@1.9.0
 ├── keypress@0.2.1
+├─┬ local-web-server@3.0.7
+│ ├─┬ lws@2.0.3
+│ │ ├─┬ ansi-escape-sequences@4.1.0
+│ │ │ └── array-back@3.1.0 deduped
+│ │ ├── array-back@3.1.0
+│ │ ├── byte-size@5.0.1
+│ │ ├─┬ command-line-args@5.1.1
+│ │ │ ├── array-back@3.1.0 deduped
+│ │ │ ├─┬ find-replace@3.0.0
+│ │ │ │ └── array-back@3.1.0 deduped
+│ │ │ ├── lodash.camelcase@4.3.0
+│ │ │ └── typical@4.0.0
+│ │ ├─┬ command-line-usage@6.0.2
+│ │ │ ├── array-back@3.1.0 deduped
+│ │ │ ├── chalk@2.4.2 deduped
+│ │ │ ├─┬ table-layout@1.0.0
+│ │ │ │ ├── array-back@3.1.0 deduped
+│ │ │ │ ├── deep-extend@0.6.0
+│ │ │ │ ├── typical@5.1.0 deduped
+│ │ │ │ └─┬ wordwrapjs@4.0.0
+│ │ │ │   ├── reduce-flatten@2.0.0 deduped
+│ │ │ │   └── typical@5.1.0 deduped
+│ │ │ └── typical@5.1.0 deduped
+│ │ ├── create-mixin@2.0.1
+│ │ ├─┬ koa@2.7.0
+│ │ │ ├── accepts@1.3.5 deduped
+│ │ │ ├─┬ cache-content-type@1.0.1
+│ │ │ │ ├── mime-types@2.1.21 deduped
+│ │ │ │ └── ylru@1.2.1
+│ │ │ ├── content-disposition@0.5.2 deduped
+│ │ │ ├── content-type@1.0.4 deduped
+│ │ │ ├─┬ cookies@0.7.3
+│ │ │ │ ├── depd@1.1.2 deduped
+│ │ │ │ └── keygrip@1.0.3
+│ │ │ ├─┬ debug@3.1.0
+│ │ │ │ └── ms@2.0.0
+│ │ │ ├── delegates@1.0.0
+│ │ │ ├── depd@1.1.2 deduped
+│ │ │ ├── destroy@1.0.4
+│ │ │ ├── error-inject@1.0.0
+│ │ │ ├── escape-html@1.0.3
+│ │ │ ├── fresh@0.5.2
+│ │ │ ├─┬ http-assert@1.4.1
+│ │ │ │ ├── deep-equal@1.0.1
+│ │ │ │ └── http-errors@1.7.3 deduped
+│ │ │ ├─┬ http-errors@1.7.3
+│ │ │ │ ├── depd@1.1.2 deduped
+│ │ │ │ ├── inherits@2.0.4
+│ │ │ │ ├── setprototypeof@1.1.1
+│ │ │ │ ├── statuses@1.5.0 deduped
+│ │ │ │ └── toidentifier@1.0.0 deduped
+│ │ │ ├── is-generator-function@1.0.7
+│ │ │ ├── koa-compose@4.1.0
+│ │ │ ├─┬ koa-convert@1.2.0
+│ │ │ │ ├── co@4.6.0 deduped
+│ │ │ │ └─┬ koa-compose@3.2.1
+│ │ │ │   └── any-promise@1.3.0 deduped
+│ │ │ ├── koa-is-json@1.0.0
+│ │ │ ├── on-finished@2.3.0 deduped
+│ │ │ ├── only@0.0.2
+│ │ │ ├── parseurl@1.3.3
+│ │ │ ├── statuses@1.5.0 deduped
+│ │ │ ├─┬ type-is@1.6.18
+│ │ │ │ ├── media-typer@0.3.0 deduped
+│ │ │ │ └─┬ mime-types@2.1.24
+│ │ │ │   └── mime-db@1.40.0
+│ │ │ └── vary@1.1.2 deduped
+│ │ ├─┬ load-module@2.0.1
+│ │ │ └── array-back@3.1.0 deduped
+│ │ ├── lodash.assignwith@4.2.0
+│ │ ├── node-version-matches@1.0.1 deduped
+│ │ ├── open@6.4.0 deduped
+│ │ ├── reduce-flatten@2.0.0
+│ │ ├── typical@5.1.0
+│ │ └── walk-back@3.0.1
+│ ├─┬ lws-basic-auth@1.0.3
+│ │ └─┬ basic-auth@2.0.1
+│ │   └── safe-buffer@5.1.2 deduped
+│ ├─┬ lws-blacklist@2.0.2
+│ │ ├── array-back@3.1.0 deduped
+│ │ └── path-to-regexp@3.0.0
+│ ├─┬ lws-body-parser@1.0.2
+│ │ └─┬ koa-bodyparser@4.2.1
+│ │   ├─┬ co-body@6.0.0
+│ │   │ ├── inflation@2.0.0
+│ │   │ ├── qs@6.7.0
+│ │   │ ├─┬ raw-body@2.4.1
+│ │   │ │ ├── bytes@3.1.0 deduped
+│ │   │ │ ├── http-errors@1.7.3 deduped
+│ │   │ │ ├── iconv-lite@0.4.24 deduped
+│ │   │ │ └── unpipe@1.0.0 deduped
+│ │   │ └── type-is@1.6.18 deduped
+│ │   └── copy-to@2.0.1
+│ ├─┬ lws-compress@1.0.2
+│ │ └─┬ koa-compress@3.0.0
+│ │   ├── bytes@3.1.0 deduped
+│ │   ├── compressible@2.0.15 deduped
+│ │   ├── koa-is-json@1.0.0 deduped
+│ │   └── statuses@1.5.0 deduped
+│ ├─┬ lws-conditional-get@1.0.1
+│ │ ├── koa-conditional-get@2.0.0
+│ │ └─┬ koa-etag@3.0.0
+│ │   ├── etag@1.8.1
+│ │   └─┬ mz@2.7.0
+│ │     ├── any-promise@1.3.0
+│ │     ├── object-assign@4.1.1 deduped
+│ │     └─┬ thenify-all@1.6.0
+│ │       └─┬ thenify@3.3.0
+│ │         └── any-promise@1.3.0 deduped
+│ ├─┬ lws-cors@2.0.1
+│ │ └─┬ @koa/cors@3.0.0
+│ │   └── vary@1.1.2 deduped
+│ ├─┬ lws-index@1.0.5
+│ │ └─┬ serve-index-75lb@2.0.1
+│ │   ├── accepts@1.3.5 deduped
+│ │   ├── batch@0.6.1
+│ │   ├─┬ debug@2.6.9
+│ │   │ └── ms@2.0.0
+│ │   ├── escape-html@1.0.3 deduped
+│ │   ├─┬ http-errors@1.6.3
+│ │   │ ├── depd@1.1.2 deduped
+│ │   │ ├── inherits@2.0.3 deduped
+│ │   │ ├── setprototypeof@1.1.0
+│ │   │ └── statuses@1.5.0 deduped
+│ │   ├── mime-types@2.1.21 deduped
+│ │   └── parseurl@1.3.3 deduped
+│ ├─┬ lws-json@1.0.1
+│ │ └─┬ koa-json@2.0.2
+│ │   ├── koa-is-json@1.0.0 deduped
+│ │   └─┬ streaming-json-stringify@3.1.0
+│ │     ├── json-stringify-safe@5.0.1 deduped
+│ │     └─┬ readable-stream@2.3.6
+│ │       ├── core-util-is@1.0.2 deduped
+│ │       ├── inherits@2.0.3 deduped
+│ │       ├── isarray@1.0.0
+│ │       ├── process-nextick-args@2.0.0 deduped
+│ │       ├── safe-buffer@5.1.2 deduped
+│ │       ├── string_decoder@1.1.1 deduped
+│ │       └── util-deprecate@1.0.2 deduped
+│ ├─┬ lws-log@1.0.3
+│ │ ├─┬ koa-morgan@1.0.1
+│ │ │ └─┬ morgan@1.9.1
+│ │ │   ├── basic-auth@2.0.1 deduped
+│ │ │   ├─┬ debug@2.6.9
+│ │ │   │ └── ms@2.0.0
+│ │ │   ├── depd@1.1.2 deduped
+│ │ │   ├── on-finished@2.3.0 deduped
+│ │ │   └── on-headers@1.0.1 deduped
+│ │ └─┬ stream-log-stats@3.0.1
+│ │   ├── ansi-escape-sequences@4.1.0 deduped
+│ │   ├── byte-size@5.0.1 deduped
+│ │   ├── common-log-format@1.0.0
+│ │   ├── JSONStream@1.3.5 deduped
+│ │   ├── lodash.throttle@4.1.1
+│ │   ├── stream-via@1.0.4
+│ │   └─┬ table-layout@0.4.5
+│ │     ├─┬ array-back@2.0.0
+│ │     │ └── typical@2.6.1 deduped
+│ │     ├── deep-extend@0.6.0 deduped
+│ │     ├── lodash.padend@4.6.1
+│ │     ├── typical@2.6.1
+│ │     └─┬ wordwrapjs@3.0.0
+│ │       ├── reduce-flatten@1.0.1
+│ │       └── typical@2.6.1 deduped
+│ ├── lws-mime@1.0.1
+│ ├─┬ lws-range@2.0.1
+│ │ └─┬ koa-range@0.3.0
+│ │   └── stream-slice@0.1.2
+│ ├─┬ lws-request-monitor@1.0.4
+│ │ └── byte-size@5.0.1 deduped
+│ ├─┬ lws-rewrite@2.0.8
+│ │ ├── array-back@3.1.0 deduped
+│ │ ├─┬ http-proxy-agent@2.1.0
+│ │ │ ├── agent-base@4.3.0 deduped
+│ │ │ └─┬ debug@3.1.0
+│ │ │   └── ms@2.0.0
+│ │ ├── https-proxy-agent@2.2.2 deduped
+│ │ ├─┬ koa-rewrite-75lb@3.0.1
+│ │ │ └── path-to-regexp@2.4.0
+│ │ ├─┬ koa-route@3.2.0
+│ │ │ ├── debug@3.2.6 deduped
+│ │ │ ├── methods@1.1.2
+│ │ │ └─┬ path-to-regexp@1.7.0
+│ │ │   └── isarray@0.0.1
+│ │ └── path-to-regexp@3.0.0 deduped
+│ ├─┬ lws-spa@2.0.2
+│ │ └─┬ koa-send@5.0.0
+│ │   ├── debug@3.2.6 deduped
+│ │   ├── http-errors@1.7.3 deduped
+│ │   ├── mz@2.7.0 deduped
+│ │   └─┬ resolve-path@1.4.0
+│ │     ├─┬ http-errors@1.6.3
+│ │     │ ├── depd@1.1.2 deduped
+│ │     │ ├── inherits@2.0.3 deduped
+│ │     │ ├── setprototypeof@1.1.0
+│ │     │ └── statuses@1.5.0 deduped
+│ │     └── path-is-absolute@1.0.1 deduped
+│ ├─┬ lws-static@1.1.3
+│ │ └─┬ koa-static@5.0.0
+│ │   ├── debug@3.2.6 deduped
+│ │   └── koa-send@5.0.0 deduped
+│ └─┬ node-version-matches@1.0.1
+│   └── semver@5.6.0 deduped
 ├── minimist@1.2.0
 ├─┬ nexe@3.3.2
 │ ├── @calebboyd/semaphore@1.3.1
@@ -1098,7 +1301,7 @@ aminosee@1.18.23 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
 │ │ └── abbrev@1.1.1
 │ ├─┬ npmlog@4.1.2
 │ │ ├─┬ are-we-there-yet@1.1.5
-│ │ │ ├── delegates@1.0.0
+│ │ │ ├── delegates@1.0.0 deduped
 │ │ │ └─┬ readable-stream@2.3.6
 │ │ │   ├── core-util-is@1.0.2 deduped
 │ │ │   ├── inherits@2.0.3 deduped
@@ -1396,7 +1599,7 @@ aminosee@1.18.23 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
 │ └─┬ update-check@1.5.2
 │   ├─┬ registry-auth-token@3.3.2
 │   │ ├─┬ rc@1.2.8
-│   │ │ ├── deep-extend@0.6.0
+│   │ │ ├── deep-extend@0.6.0 deduped
 │   │ │ ├── ini@1.3.5
 │   │ │ ├── minimist@1.2.0 deduped
 │   │ │ └── strip-json-comments@2.0.1
@@ -1445,26 +1648,6 @@ aminosee@1.18.23 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
 │   └─┬ wbuf@1.7.3
 │     └── minimalistic-assert@1.0.1
 ├── stream-file@0.2.4
-├─┬ terminal-kit@1.28.25
-│ ├─┬ @cronvel/get-pixels@3.3.1
-│ │ ├── jpeg-js@0.1.2
-│ │ ├── ndarray@1.0.18 deduped
-│ │ ├─┬ ndarray-pack@1.2.1
-│ │ │ ├─┬ cwise-compiler@1.1.3
-│ │ │ │ └── uniq@1.0.1 deduped
-│ │ │ └── ndarray@1.0.18 deduped
-│ │ ├── node-bitmap@0.0.1
-│ │ ├── omggif@1.0.10
-│ │ └── pngjs@2.3.1
-│ ├── lazyness@1.1.1
-│ ├─┬ ndarray@1.0.18
-│ │ ├── iota-array@1.0.0
-│ │ └── is-buffer@1.1.6 deduped
-│ ├── nextgen-events@1.1.1
-│ ├─┬ seventh@0.7.27
-│ │ └── setimmediate@1.0.5
-│ ├── string-kit@0.9.9
-│ └── tree-kit@0.6.1
 ├── three@0.106.2
 ├── through@2.3.8
 ├── uniq@1.0.1
