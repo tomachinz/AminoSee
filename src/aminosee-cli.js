@@ -78,7 +78,7 @@ const defaultC = 1; // back when it could not handle 3+GB files.
 const artisticHighlightLength = 12; // px only use in artistic this.mode. must be 6 or 12 currently
 const defaultMagnitude = 8; // max for auto setting
 const theoreticalMaxMagnitude = 10; // max for auto setting
-const overSampleFactor = 4; // your linear image needs to be 2 megapixels to make 1 megapixel hilbert
+const overSampleFactor = 8; // your linear image divided by this will be the hilbert image size.
 const maxCanonical = 32; // max length of canonical name
 const hilbPixels = [ 64, 256, 1024, 4096, 16384, 65536, 262144, 1048576, 4194304, 16777216, 67108864 ]; // I've personally never seen a mag 9 or 10 image, cos my computer breaks down. 67 Megapixel hilbert curve!! the last two are breaking nodes heap and call stack both.
 const widthMax = 960; // i wanted these to be tall and slim kinda like the most common way of diagrammatically showing chromosomes
@@ -140,8 +140,8 @@ function bruteForce(cs) {
         redraw: true,
         updates: false,
       }
-      // newJob( job );
-    }, 100 * i)
+      newJob( job );
+    }, 800 * i)
   }
 }
 function pushCli(cs) { // used by Electron GUI
@@ -699,7 +699,7 @@ class AminoSeeNoEvil {
         output('Ω Running test Ω')
         this.generateTestPatterns(bugout);
       } else {
-        mode("no command ");
+        mode("no command");
         if ( cliruns < 3) {
           output("FIRST RUN!!! Opening the demo... use the command aminosee demo to see this first run demo in future");
           this.firstRun();
@@ -714,10 +714,10 @@ class AminoSeeNoEvil {
         } else if ( !this.quiet) {
           output(' ');
           // log('Closing in ')
-          // const carlo = require('./carlo');
+          const carlo = require('./carlo');
           this.keyboard = true;
           this.setupKeyboardUI();
-          countdown('Press [Q] to exit or wait ', 5000, process.exit);
+          countdown('Press [Q] to exit or wait ', 15000, process.exit);
         } else {
           output();
           countdown('Closing in ', 700, AminoSeeNoEvil.quit);
@@ -1099,9 +1099,9 @@ class AminoSeeNoEvil {
 
       });
       // process.on('exit', function () {
-        // disable mouse on exit, so that the state
-        // is back to normal for the terminal
-        // keypress.disableMouse(process.stdout);
+      // disable mouse on exit, so that the state
+      // is back to normal for the terminal
+      // keypress.disableMouse(process.stdout);
       // });
 
     }
@@ -1362,15 +1362,15 @@ class AminoSeeNoEvil {
       }
       if ( this.isShuttingDown == false && this.howMany <= 0 ) { this.quit(0, "ran out of files to process") }
       if ( doesFolderExist(this.dnafile ) ) { // && this.currentFile !== ""
-        if (this.currentFile == undefined) { return false; }
-        let newCommand = `${this.currentFile}/*`
-        let msg = `${this.dnafile }
-        Folder (${this.currentFile}) provided as input instead of a file. ${this.howMany} If you meant to render everything in there, try using an asterix on CLI: aminosee ${newCommand}`
-        // output(msg)
-        // pushCli(newCommand)
-        this.popAndPollOrBust(msg)
-        // this.resetAndPop(msg)
-        return false;
+      if (this.currentFile == undefined) { return false; }
+      let newCommand = `${this.currentFile}/*`
+      let msg = `${this.dnafile }
+      Folder (${this.currentFile}) provided as input instead of a file. ${this.howMany} If you meant to render everything in there, try using an asterix on CLI: aminosee ${newCommand}`
+      // output(msg)
+      // pushCli(newCommand)
+      this.popAndPollOrBust(msg)
+      // this.resetAndPop(msg)
+      return false;
     }
     if (!this.checkFileExtension( this.currentFile)) {
       let msg = `${this.currentFile} wrong file extension. Must be one of ${ extensions } `
@@ -1537,8 +1537,14 @@ class AminoSeeNoEvil {
       this.quit(0, this.status  )
       return false;
     }
+    let file;
+    try {
+      file = this.args._[0].toString();
 
-    let file = this.args._[0].toString();
+    } catch(err) {
+      log(`this.args._[0].toString() = ${this.args._[0].toString()}`)
+    }
+
     if ( file == funknzlabel ) {
       this.error('funknzlabel')
       // this.popAndPollOrBust('funknzlabel ' + file);
@@ -1785,7 +1791,7 @@ class AminoSeeNoEvil {
     }
 
     if ( this.estimatedPixels >  this.maxpix ) { // for seq bigger than screen        this.codonsPerPixel = this.estimatedPixels /  this.maxpix*overSampleFactor;
-      this.codonsPerPixel = this.estimatedPixels /  this.maxpix;
+      this.codonsPerPixel = Math.round( this.estimatedPixels /  this.maxpix ); // THIS IS THE CORE FUNCTION
       if ( this.userCPP == "auto" ) {
         if ( this.userCPP < this.codonsPerPixel) {
           log( terminalRGB(`WARNING: Your target Codons Per Pixel setting ${ this.userCPP } will make an estimated ${Math.round( this.estimatedPixels / this.userCPP).toLocaleString()} is likely to exceed the max image size of ${ this.maxpix.toLocaleString()}, sometimes this causes an out of memory  this.error. My machine spit the dummy at 1.7 GB of virtual memory use by node, lets try yours. We reckon ${ this.codonsPerPixel } would be better, higher numbers give a smaller image.`))
@@ -2878,7 +2884,7 @@ class AminoSeeNoEvil {
     <head>
     <title>${ this.justNameOfDNA} :: AminoSee HTML Report :: DNA Viewer by Tom Atkinson :: ${ this.currentFile }</title>
     <meta name="description" content="${ siteDescription }">
-    <link rel="stylesheet" type="text/css" href="https://www.funk.co.nz/aminosee/public/AminoSee.css">
+    <link rel="stylesheet" type="text/css" href="https://dev.funk.co.nz/aminosee/public/AminoSee.css">
     <link href='https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz:700,400,200,100' rel='stylesheet' type='text/css'>
     <link href="https://www.funk.co.nz/css/menu.css" rel="stylesheet">
     <link href="https://www.funk.co.nz/css/funk2014.css" rel="stylesheet">

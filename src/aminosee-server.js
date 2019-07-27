@@ -70,7 +70,7 @@ function log(txt) {
 //   return this.args;
 // }
 function output(txt) {
-  console.log(chalk.inverse(`aminosee-server: `) + txt);
+  console.log(chalk.inverse(`server:`) + ' [' + txt + ']');
 }
 
 function buildServer() {
@@ -262,7 +262,7 @@ function start(o) { // return the port number
   setOutputPath(o)
   if ( serverLock() ) {
     // output("Server already started. If you think this is not true, remove the lock file: " + filenameServerLock);
-    // startCrossSpawnHttp(43210)
+    startCrossSpawnHttp(43210)
 
   } else {
     output("No locks found, Starting server ");
@@ -272,7 +272,7 @@ function start(o) { // return the port number
     // if ( startCrossSpawnHttp(port) == false ) {
     //   output(`Problem with port ${port} `);
     //   port = 43210;
-    //   startCrossSpawnHttp(port)
+      startCrossSpawnHttp(port)
     // }
   }
   return port
