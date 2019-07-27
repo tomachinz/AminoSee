@@ -226,16 +226,16 @@ function stop() {
       log("closing server")
       server.close();
     } else {
-      bugtxt("no server running")
+      log("no server running")
     }
   }
   try {
     fs.unlinkSync(filenameServerLock, (err) => {
-      bugtxt("Removing server locks OK...")
+      log("Removing server locks OK...")
       if (err) { log('ish'); console.warn(err);  }
     });
   } catch (err) {
-    bugtxt("No server locks to remove: " + err);
+    log("No server locks to remove: " + err);
   }
 }
 

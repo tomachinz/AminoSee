@@ -222,29 +222,39 @@ function init2D() {
 }
 
 
-function getParameterFromURL() {
+function getParameterFromURL( param ) { // extract filename to load from url
   let href = window.location.href;
-  let index = href.indexOf('selectedGenome');
-  console.log(href, index);
-  if ( index != -1 ) {
-    href = href.substring(index);
-    index = href.indexOf('&');
-    if ( index != -1) {
-      href = href.substring(0, index);
-    }
-    index = href.indexOf('=');
+  let index = href.indexOf( param );
+  if ( index != -1 ) { // if its not not there
+    param = href.substring(index); // its gonna grab everything past here thats a bug
+
+    index = param.indexOf('=');
     if ( index != -1 ) {
-      href = href.substring(index+1); //CHOP OFF THE =
+      param = param.substring(index + 1); //CHOP OFF THE =
     }
-    // index = href.indexOf('&');
-    // if ( index != -1 ) {
-    //   href = href.substring(0, index); //CHOP OFF THE &
-    // }
+
+    index = param.indexOf('&'); // fixed by stopping at &, should probably add # and ? and =
+    if ( index != -1) {
+      param = param.substring(0, index);
+    }
+
+    index = param.indexOf('#'); // fixed by stopping at &, should probably add # and ? and =
+    if ( index != -1) {
+      param = param.substring(0, index);
+    }
+
+    index = param.indexOf('?'); // fixed by stopping at &, should probably add # and ? and =
+    if ( index != -1) {
+      param = param.substring(0, index);
+    }
+
+
   } else {
-    href = `output/Brown_Kiwi_NW_013982187v1/images/Brown_Kiwi_NW_013982187v1.fa_HILBERT-Reference_m7_c397.2.png`;
+    // param = `output/Brown_Kiwi_NW_013982187v1/images/Brown_Kiwi_NW_013982187v1.fa_HILBERT-Reference_m7_c397.2.png`;
+    param = `ERROR_timetofixme`;
   }
-  // alert(href)
-  return href;
+  console.log(`loading ${param}`);
+  return param;
 }
 
 function mover(i) {

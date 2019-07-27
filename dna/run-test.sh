@@ -113,9 +113,12 @@ echo "                                         =///"
 clear
 # killall "aminosee.funk.nz 27MB_TestPattern 34.94MB"
 lighthouse http://localhost:4321 --output-path=test --view;
-eslint src/aminosee-cli.js
+eslint ../src/aminosee-cli.js
  vows --spec --isolate
 echo Stopping server in 1 second
 sleep 1
 killall aminosee.funk.nz
+npm run macos &
+sleep 1
+echo ALL TESTS NON-BLOCKING!
 echo done

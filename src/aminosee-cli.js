@@ -714,13 +714,13 @@ class AminoSeeNoEvil {
         } else if ( !this.quiet) {
           output(' ');
           // log('Closing in ')
-          const carlo = require('./carlo');
+          // const carlo = require('./carlo');
           this.keyboard = true;
           this.setupKeyboardUI();
-          countdown('Press [Q] to exit or wait ', 20000);
+          countdown('Press [Q] to exit or wait ', 5000, process.exit);
         } else {
           output();
-          countdown('Closing in ', 700);
+          countdown('Closing in ', 700, AminoSeeNoEvil.quit);
         }
 
         return true;
@@ -991,6 +991,7 @@ class AminoSeeNoEvil {
     }
 
     setupKeyboardUI() {
+      this.keyboard = true;
       // make `process.stdin` begin emitting "keypress" events
       keypress(process.stdin);
       // keypress.enableMouse(process.stdout); // wow mouse events in the term?
@@ -1097,11 +1098,11 @@ class AminoSeeNoEvil {
 
 
       });
-      process.on('exit', function () {
+      // process.on('exit', function () {
         // disable mouse on exit, so that the state
         // is back to normal for the terminal
         // keypress.disableMouse(process.stdout);
-      });
+      // });
 
     }
     toggleOpen() {
@@ -2042,21 +2043,23 @@ class AminoSeeNoEvil {
     if ( this.quiet == false) {
       this.printRadMessage( [ `software version ${version}` ] );
     }
+
+    this.setupKeyboardUI(); // allows fast quit with [Q]
+
     if ( this.help == true) {
       this.openHtml = true;
       this.openImage = true;
       this.openFileExplorer = true;
       // if ( this.keyboard == true) { // this not need done twice
-      this.setupKeyboardUI();
       // }
       // countdown('Press [Q] to quit this.now, [S] to launch a web server in background thread or wait ', 4000, blockingServer());
       // countdown('Press [S] to launch a web server in background thread or quit in ', 4000);
       setTimeout( () => {
-        countdown("Closing in " , 120000, process.exit() );
+        countdown("Closing in " , 6000, process.exit  );
       }, 4000)
     } else {
       // output('This is a terminal CLI (command line interface) program. Run it from the DOS prompt / Terminal.app / shell.', 4000);
-      countdown('Press [Q] to quit this.now, closing in ', 4000, process.exit());
+      countdown('Press [Q] to quit now, closing in ', 4000, process.exit );
     }
   }
 
@@ -2165,7 +2168,8 @@ class AminoSeeNoEvil {
       return false;
     }
     if ( pixels < 64) {
-      this.resetAndPop(`Not enough DNA in this file (${ this.currentFile }) ONLY RENDERED ${pixels} pixels. According to https://www.nature.com/news/2006/061009/full/news061009-10.html the smallest organism found so far has 182 genes.`);
+      this.resetAndPop(`Either there is too little DNA in this file for render at ${ this.codonsPerPixel } codons per pixel, or less than 64 pixels rendered: ${pixels} pixels rendered from ${ this.currentFile }`);
+      data.saySomethingEpic();
       return false;
     }
     this.setIsDiskBusy( true );
@@ -2250,15 +2254,21 @@ class AminoSeeNoEvil {
     }
 
     let histotext = JSON.stringify(histogramJson);
+    let filename;
     this.fileWrite( this.fileHTML, hypertext );
     this.fileWrite( histogramFile, histotext );
     if (this.userCPP == "auto" && this.magnitude == "auto" && this.artistic == false) {
-      this.fileWrite(`${ this.outputPath }/${ this.justNameOfDNA}/main.html`, hypertext, cb); // the main.html is only written is user did not set --codons or --magnitude or --peptide or --triplet or --artistic
+      if ( debug ) {
+        filename = `${ this.outputPath }/${ this.justNameOfDNA}/main.html`
+      } else {
+        filename = `${ this.outputPath }/${ this.justNameOfDNA}/index.html`
+      }
+      this.fileWrite(filename, hypertext, cb); // the main.html is only written is user did not set --codons or --magnitude or --peptide or --triplet or --artistic
     } else if (this.artistic && this.userCPP == "auto") {
       this.fileWrite(`${ this.outputPath }/${ this.justNameOfDNA}/artistic.html`, hypertext, cb);
     }
     this.htmlFinished();
-    if ( cb !== undefined ) { cb() }
+    // if ( cb !== undefined ) { cb() }
   }
   fileWrite(file, contents, cb) {
     this.mkRenderFolders();
@@ -2534,12 +2544,9 @@ class AminoSeeNoEvil {
         output("CLI mode clean exit.")
       }
       if ( this.keyboard ) {
-
-      } else {
-
+        destroyKeyboardUI();
       }
-      // log(`If process hangs, remove this line, its preventing a process exit. Reason: ${reason}. But I wasn't in a rush to terminate all that.`)
-      // return true;
+
     } else {
       output(chalk.bgWhite.red (`process.exit going on. last file: ${ this.dnafile } currently: ${this.busy()} percent complete ${  this.percentComplete}`));
     }
@@ -4222,7 +4229,7 @@ class AminoSeeNoEvil {
     } else {
       log('nc')
     }
-    clearCheck();
+    // clearCheck();
 
     if ( this.dnabg  == true) {
       if ( this.clear == true) {
@@ -4673,7 +4680,6 @@ class AminoSeeNoEvil {
     }
     function destroyKeyboardUI() {
       process.stdin.pause(); // stop eating the this.keyboard!
-      // keypress.disableMouse(process.stdout);
       try {
         process.stdin.setRawMode(false); // back to cooked this.mode
       } catch(err) {
@@ -5064,7 +5070,7 @@ class AminoSeeNoEvil {
       return chalk.rgb(_r,_g,_b)(_text);
     }
     function showCountdown() {
-      countdown(`Closing in ${humanizeDuration(max32bitInteger)}`, 5000);
+      countdown(`Closing in ${humanizeDuration(max32bitInteger)}`, 5000, this.gracefulQuit());
     }
     function countdown(text, timeMs, cb) {
       redoLine(text + humanizeDuration ( deresSeconds(timeMs) ) );
@@ -5324,7 +5330,7 @@ class AminoSeeNoEvil {
     return [ x, y ];
   }
   function   clearCheck() { // maybe clear the terminal
-    if ( clear == true) {
+    if ( this.clear == true) {
       clearScreen();
     } else {
       process.stdout.write('[nc]');

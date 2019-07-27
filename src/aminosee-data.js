@@ -1,6 +1,5 @@
 const aminosee = require('./aminosee-cli');
 // const out = aminosee.out;
-const maxWidth = aminosee.maxWidth;
 const path = require('path');
 const chalk = require('chalk');
 const fs = require('fs-extra'); // drop in replacement = const fs = require('fs')
@@ -42,7 +41,8 @@ const epicQuotes = [
   `I have not failed. I've just found 10,000 ways that won't work!`,
   `Amino dont see nothing...    ...wait, I think I can see it now! I can AminoSEE it!!`,
   `Autonomy, mastery, and purpose.`,
-  `Thats us we outa here cousin! Sweet-as-a-Kina-in-a-creek (as they say in NZ)`
+  `Thats us we outa here cousin! Sweet-as-a-Kina-in-a-creek (as they say in NZ)`,
+  `According to https://www.nature.com/news/2006/061009/full/news061009-10.html the smallest organism found so far has 182 genes!`
 ]
 // async function getSequenceNames(fastaFilePath) {
 //   const t = new IndexedFasta({
