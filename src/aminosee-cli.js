@@ -1844,14 +1844,14 @@ class AminoSeeNoEvil {
     // bugtxt(`Call to highlight this.dnafile made`)
     let ret = "";
     if ( this.isHighlightSet == false) {
-      ret += `-Reference`;
+      ret += `__Reference`;
     } else {
       if ( this.currentTriplet.toLowerCase() != "none" || this.triplet.toLowerCase() != "none") {
         ret += `_${spaceTo_( this.currentTriplet).toUpperCase()}`;
       } else if ( this.currentPeptide != "none") {
         ret += `_${spaceTo_( tidyPeptideName( this.peptide ) )}`;
       } else {
-        ret += `-Reference`;
+        ret += `__Reference`;
       }
     }
     // log(`ret: ${ret} this.currentTriplet: ${currentTriplet}  this.currentPeptide ${ this.currentPeptide}`);
@@ -2602,7 +2602,6 @@ class AminoSeeNoEvil {
       // ITS AT THE STAGE WHERE IT CAN EAT ANY FILE WITH DNA
       // BUT IF ANY META DATA CONTAINS THE WORD "CAT", "TAG" etc these are taken as coding (its a bug)
       while ( c == "." && c != "N") { // biff it and get another
-        // log(c);
         codon =  ""; // we wipe it because... codons should not cross line break boundaries.
         column++;
         c = cleanChar(l.charAt(column)); // line breaks
@@ -2611,9 +2610,7 @@ class AminoSeeNoEvil {
         this.red  = 0;
         this.green  = 0;
         this.blue  = 0;
-
         if (column > lineLength) {
-          // log("BREAK - END OF LINE")
           this.breakClock++;
           break
         }
@@ -2631,9 +2628,9 @@ class AminoSeeNoEvil {
           //  this.red  -= this.codonsPerPixel;
           //  this.green -= this.codonsPerPixel;
           //  this.blue -= this.codonsPerPixel;
-          this.red  --;
-          this.green --;
-          this.blue --;
+          this.red--;
+          this.green--;
+          this.blue--;
           // this.paintPixel();
         } else {
           // do nothing this maybe a non-coding header section in the file.
@@ -2978,7 +2975,7 @@ class AminoSeeNoEvil {
     html += `</div>
 
     <br /><br />
-    http://localhost:4321/aminosee/output/50KB_TestPattern/50KB_TestPattern.txt_linear-Reference_c1_sci.png
+    http://localhost:4321/aminosee/output/50KB_TestPattern/50KB_TestPattern.txt_linear__Reference_c1_sci.png
     <table>
     <thead>
     <tr>
@@ -4600,12 +4597,9 @@ class AminoSeeNoEvil {
   }
   function out(txt) {
     let that = gimmeDat();
-    if ( that.verbose || debug ) {
+    if ( that.quiet == false || debug ) {
       process.stdout.write(chalk.blue(` [ `) + txt + chalk.blue(` ] `))
-    } else if ( that.quiet == false){
-      process.stdout.write(chalk.blue(`[`) + maxWidth(10, txt)  + chalk.blue(`]`))
     }
-
   }
   function log(txt) {
     if (this !== undefined) {

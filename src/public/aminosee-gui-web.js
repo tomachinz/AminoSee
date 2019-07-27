@@ -190,7 +190,7 @@ function initVariables() {
 }
 
 function addSpriteToScene(src, zindex) {
-  // var spriteMap = new THREE.TextureLoader().load( "output/Brown_Kiwi_NW_013982187v1/images/Brown_Kiwi_NW_013982187v1.fa_HILBERT-Reference_m7_c397.2.png" );
+  // var spriteMap = new THREE.TextureLoader().load( "output/Brown_Kiwi_NW_013982187v1/images/Brown_Kiwi_NW_013982187v1.fa_HILBERT__Reference_m7_c397.2.png" );
   console.log(src)
   var spriteMap = new THREE.TextureLoader().load( src );
   var spriteMaterial = new THREE.SpriteMaterial( { map: spriteMap, color: 0xffffff } );
@@ -250,7 +250,7 @@ function getParameterFromURL( param ) { // extract filename to load from url
 
 
   } else {
-    // param = `output/Brown_Kiwi_NW_013982187v1/images/Brown_Kiwi_NW_013982187v1.fa_HILBERT-Reference_m7_c397.2.png`;
+    // param = `output/Brown_Kiwi_NW_013982187v1/images/Brown_Kiwi_NW_013982187v1.fa_HILBERT__Reference_m7_c397.2.png`;
     param = `ERROR_timetofixme`;
   }
   console.log(`loading ${param}`);

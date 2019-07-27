@@ -18,7 +18,7 @@ var SPRITES = {
 
 
 };
-// http://localhost:4321/aminosee/output/50KB_TestPattern/50KB_TestPattern.txt_linear-reference_c1_sci.png
+// http://localhost:4321/aminosee/output/50KB_TestPattern/50KB_TestPattern.txt_linear__Reference_c1_sci.png
 
 
 // fetch("output/megabase/megabase_histogram.json")
