@@ -19,17 +19,14 @@ aminosee.funk.nz DNA Viewer by Tom Atkinson.
 This is a temporary lock file, so I dont start too many servers. Its safe to erase these files, and I've made a script in /dna/ to batch delete them all in one go. Normally these are deleted when render is complete, or with Control-C and graceful shutdown.`;
 // const version = aminosee.version;
 // const webserverEnabled = true;
-const defaulturl = `http://127.0.0.1:4321`
-
-let outputPath, filenameServerLock, url, projectprefs, userprefs, port;
+const defaulturl = `http://localhost:4321`
+let outputPath, filenameServerLock, url, projectprefs, userprefs, port, cliruns, gbprocessed;
 url = defaulturl
 port = 4321;
 
 [ userprefs, projectprefs ] = setupPrefs();
 
-
 function setupPrefs() {
-
   projectprefs = new Preferences('nz.funk.aminosee.project', {
     aminosee: {
       opens: 0,

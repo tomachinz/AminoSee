@@ -28,6 +28,7 @@ const createSymlink = data.createSymlink;
 const asciiart = data.asciiart;
 const extensions = data.extensions;
 const saySomethingEpic = data.saySomethingEpic;
+const readParseJson = data.readParseJson;
 let isElectron, jobArgs, killServersOnQuit, webserverEnabled, cliInstance, tx, ty, termPixels, cliruns, gbprocessed, projectprefs, userprefs, genomes, progato, commandString, batchSize, quiet, url;
 const debug = false; // should be false for PRODUCTION
 // OPEN SOURCE PACKAGES FROM NPM
@@ -78,7 +79,7 @@ const defaultC = 1; // back when it could not handle 3+GB files.
 const artisticHighlightLength = 12; // px only use in artistic this.mode. must be 6 or 12 currently
 const defaultMagnitude = 8; // max for auto setting
 const theoreticalMaxMagnitude = 10; // max for auto setting
-const overSampleFactor = 8; // your linear image divided by this will be the hilbert image size.
+const overSampleFactor = 4; // your linear image divided by this will be the hilbert image size.
 const maxCanonical = 32; // max length of canonical name
 const hilbPixels = [ 64, 256, 1024, 4096, 16384, 65536, 262144, 1048576, 4194304, 16777216, 67108864 ]; // I've personally never seen a mag 9 or 10 image, cos my computer breaks down. 67 Megapixel hilbert curve!! the last two are breaking nodes heap and call stack both.
 const widthMax = 960; // i wanted these to be tall and slim kinda like the most common way of diagrammatically showing chromosomes
@@ -861,7 +862,11 @@ class AminoSeeNoEvil {
       for (let h=0; h< this.pepTable.length; h++) {
         const pep =  this.pepTable[h];
         this.currentPeptide = pep.Codon;
-        this.pepTable[h].src = this.aminoFilenameIndex(h)[0];
+        this.pepTable[h].hilbert_master = this.aminoFilenameIndex(h)[0];
+        this.pepTable[h].linear_master = this.aminoFilenameIndex(h)[1];
+        this.pepTable[h].hilbert_preview = this.aminoFilenameIndex(h)[0];
+        this.pepTable[h].linear_preview = this.aminoFilenameIndex(h)[1];
+
         // bugtxt( this.pepTable[h].src);
       }
       this.currentPeptide = "none"; // get URL for reference image
@@ -1608,7 +1613,7 @@ class AminoSeeNoEvil {
       log('Not recycling');
     }
     // startStreamingPng();
-    process.title = `aminosee.funk.nz (${ this.justNameOfDNA} ${bytes( this.estimatedPixels*4)} ${ this.highlightOrNothin() })`;
+    process.title = `aminosee.funk.nz (${ this.justNameOfDNA} ${bytes( this.estimatedPixels*4)} ${ this.highlightOrNothin() } c${ this.codonsPerPixel })`;
     this.streamStarted();
 
     try {
@@ -2252,6 +2257,10 @@ class AminoSeeNoEvil {
 
     let histogramJson =  this.getRenderObject();
     let histogramFile = this.generateFilenameHistogram();
+    if ( doesFileExist( histogramFile ) ) {
+      let loadedJson = readParseJson( histogramFile );
+      this.pepTable = loadedJson.pepTable
+    }
     let hypertext
     if ( this.test === true ) {
       hypertext = this.htmlTemplate( this.testSummary() );
@@ -2859,6 +2868,8 @@ class AminoSeeNoEvil {
     this.peptide = this.currentPeptide; // bad use of globals i agree, well i aint getting paid for this, i do it for the love, so yeah
     let returnedHil = this.generateFilenameHilbert(); // this.isHighlightSet needs to be false for reference
     let returnedPNG = this.generateFilenamePNG(); // this.isHighlightSet needs to be false for reference
+
+
     this.peptide = backupPeptide;
     this.isHighlightSet = backupHighlight;
     return [ returnedHil, returnedPNG ];
@@ -2873,8 +2884,9 @@ class AminoSeeNoEvil {
 
 
   htmlTemplate(histogramJson) {
+    // let histogramJson;
     if (histogramJson == undefined) {
-      let histogramJson = this.getRenderObject();
+      histogramJson = this.getRenderObject();
       // ;
     }
     var html = `<!DOCTYPE html>
@@ -2928,7 +2940,7 @@ class AminoSeeNoEvil {
 
     <h1>AminoSee DNA Render Summary for ${ this.currentFile }</h1>
     <h2>${ this.justNameOfDNA}</h2>
-    ${( this.test ? " this.test " : this.imageStack(histogramJson))}
+    ${( this.test ? " this.test " : this.imageStack( histogramJson ))}
 
 
 
@@ -2950,7 +2962,7 @@ class AminoSeeNoEvil {
     <h2>Render Summary</h2>
     <div class="fineprint">
     <pre>
-    ${ this.renderObjToString(histogramJson)}
+    ${ this.renderObjToString( histogramJson )}
     </pre>
     </div>
     </div>
@@ -3142,7 +3154,8 @@ class AminoSeeNoEvil {
   }
   recycleOldImage(pngfile) {
     mode(`RECYCLING ${ this.justNameOfDNA }`)
-    recycleHistogram( path.resolve( `${this.outputPath}/${this.justNameOfDNA}/aminosee_histogram.json` ))
+
+    recycleHistogram( path.resolve( generateFilenameHistogram() ))
     output(`recycled json`);
 
     try {

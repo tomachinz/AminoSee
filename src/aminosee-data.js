@@ -56,6 +56,9 @@ const epicQuotes = [
 function saySomethingEpic() {
   return epicQuotes[Math.floor( Math.random() * epicQuotes.length )]
 }
+function readParseJson(file) {
+  return JSON.parse(fs.readFileSync(file));
+}
 function createSymlink(src, dest) { // source is the original, dest is the symlink
   log(src, " --> " , dest);
   try { // the idea is to copy the GUI into the output folder to.... well enable it to render cos its a web app!
@@ -964,3 +967,4 @@ module.exports.asciiart = asciiart;
 module.exports.extensions = extensions;
 module.exports.dnaTriplets = dnaTriplets;
 module.exports.saySomethingEpic = saySomethingEpic;
+module.exports.readParseJson = readParseJson;

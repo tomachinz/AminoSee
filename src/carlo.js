@@ -22,10 +22,10 @@ function startCarlo() {
 
     // Navigate to the main page of your app.
     // await app.load('public/home.html');
-    await app.load('http://127.0.0.1:43210/public/home.html').then( () => { console.log(`rugby was the winner`) }).catch( await app.load('http://127.0.0.1:4321/public/home.html') );
+    await app.load('http://127.0.0.1:43210/public/carlo.html').then( () => { console.log(`rugby was the winner`) }).catch( await app.load('http://127.0.0.1:4321/public/carlo.html') );
   })();
 }
-// startCarlo();
+startCarlo();
 //
 // function setupPrefs() {
 //   let output = getOutputFolder();
