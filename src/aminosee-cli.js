@@ -33,6 +33,8 @@ const debug = false; // should be false for PRODUCTION
 // OPEN SOURCE PACKAGES FROM NPM
 const path = require('path');
 const Preferences = require("preferences");
+const beautify = require("json-beautify");
+
 const spawn = require('cross-spawn');
 const stream = require('stream');
 const async = require('async-kit'); // amazing lib
@@ -451,6 +453,7 @@ class AminoSeeNoEvil {
     } else {
       // this.magnitude = defaultMagnitude;
       this.magnitude = "auto";
+      this.dimension = defaultMagnitude;
       log(`Using auto magnitude with limit ${defaultMagnitude}th dimension`)
     }
     bugtxt(` this.maxpix: ${  this.maxpix } this.dimension: ${ this.dimension }`);
@@ -680,13 +683,17 @@ class AminoSeeNoEvil {
         listDNA();
       }
       if ( args.brute ) {
-        bruteForce( args._[0] )
+        this.brute = true;
+        // bruteForce( args._[0] )
+      } else {
+        this.brute = false;
       }
 
       bugtxt(`the args -->> ${this.args}`)
 
       if ( webserverEnabled ) {
-        server.start( this.outputPath );
+        let serverURL = server.start( this.outputPath );
+        output(`started at ${serverURL}`)
       }
 
       if ( this.howMany > 0 ) {
@@ -803,6 +810,7 @@ class AminoSeeNoEvil {
       clearTimeout( this.updatesTimer);
       clearTimeout( this.progTimer);
       clearTimeout( this.lockTimer);
+      deleteFile( this.fileServerLock );
     }
     // bugtxt(txt) { // full this.debug output
     //   if (this.quiet == false && this.debug == true && this.devmode == true && this.verbose == true)  {
@@ -926,7 +934,7 @@ class AminoSeeNoEvil {
         pepTable: this.pepTable,
         summary: zumari
       }
-      return histogramJson;
+      return beautify( histogramJson, null, 2, 100);
     }
 
 
@@ -1600,7 +1608,10 @@ class AminoSeeNoEvil {
     this.pixelStacking = 0; // how we fit more than one codon on each pixel
     this.pixelClock = 0; // which pixel are we painting?
     this.msElapsed  = 0;
+
     this.rgbArray = [];
+    initialiseArrays();
+
     this.hilbertImage = [];
     bugtxt(`Loading ${ this.dnafile } Filesize ${bytes( this.baseChars)}`);
     if ( this.clear == true) {
@@ -5355,6 +5366,15 @@ class AminoSeeNoEvil {
   }
   function getArgs() {
     return this.args;
+  }
+  function initialiseArrays() {
+    if ( this.brute == false) { return false; }
+
+    for (let i = 0; i < cliInstance.pepTable.length; i++) {
+      cliInstance.pepTable[i].lm_rgbArray = []
+      cliInstance.pepTable[i].hm_rgbArray = []
+    }
+
   }
   // function runDemo() {
   //   async.series( [

@@ -214,7 +214,8 @@ module.exports = (options) => {
 
 
 function stop() {
-  output("Stoping server");
+  output(`Stopping server`);
+  log(filenameServerLock)
   deleteFile(filenameServerLock);
   if (serverLock()) {
     const killServe =    spawn('nice', ['killall', 'node', '', '0'], { stdio: 'pipe' });
@@ -279,8 +280,18 @@ function setOutputPath(o) {
   filenameServerLock = path.resolve(`${outputPath}/aminosee_server_lock.txt`);
   // output(`(server) im planning to run server at: ` + outputPath);
 }
-
-
+function setArgs(a) {
+  if (a === undefined) { error(`args needs to be set!`) }
+  outputPath = o;
+  filenameServerLock = path.resolve(`${outputPath}/aminosee_server_lock.txt`);
+  // output(`(server) im planning to run server at: ` + outputPath);
+}
+function error(err) {
+  output(err)
+  if (debug) {
+    process.exit()
+  }
+}
 
 function open(relative) {
   output("Opening page: " + relative);
