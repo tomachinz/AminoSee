@@ -5,6 +5,10 @@ TIMESTAMP=$(date +%s)
 TARGET="$BUILDFOLDER$TIMESTAMP"
 echo open ./build-lib.sh
 sleep 1
+mkdir -p build
+rm -rf ./build/TOBEDELETED
+mkdir -p build/TOBEDELETED
+mv -v ./build/* build/TOBEDELETED
 open ./build-lib.sh
 
 # echo Requires: npm, electron, electron-packager
@@ -44,7 +48,6 @@ cp -v node_modules/dat.gui/build/dat.gui.min.js public
 
 
 echo "Move a bunch of files into $TARGET then run pkg on it"
-mkdir -p build
 mkdir -p $TARGET
 mkdir -p $TARGET/dna
 
@@ -65,6 +68,7 @@ cp -r package.json $TARGET
 cp -r README.md $TARGET
 cp -r -v docs/* $TARGET
 
+rm -v $TARGET/public/gource.mp4
 # echo COPY AND RENAME package-electron.json $TARGET/package.json
 # cp -v package-electron.json $TARGET/package.json
 # cp -v electron.html $TARGET
@@ -106,3 +110,4 @@ npm install -v
 # cd ../
 #
 # open ./build.sh
+# open ./gource.sh

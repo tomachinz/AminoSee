@@ -19,7 +19,7 @@ aminosee.funk.nz DNA Viewer by Tom Atkinson.
 This is a temporary lock file, so I dont start too many servers. Its safe to erase these files, and I've made a script in /dna/ to batch delete them all in one go. Normally these are deleted when render is complete, or with Control-C and graceful shutdown.`;
 // const version = aminosee.version;
 // const webserverEnabled = true;
-const defaulturl = `http://localhost:4321`
+const defaulturl = `http://localhost:4321/?devmode`
 let outputPath, filenameServerLock, url, projectprefs, userprefs, port, cliruns, gbprocessed;
 url = defaulturl
 port = 4321;
@@ -31,7 +31,7 @@ function setupPrefs() {
     aminosee: {
       opens: 0,
       genomes: [ `megabase`, '50KB_TestPattern' ],
-      url: `http://localhost:4321`
+      url: defaulturl
     }
   }, {
     encrypt: false,
@@ -67,7 +67,7 @@ function log(txt) {
 //   return this.args;
 // }
 function output(txt) {
-  console.log(chalk.inverse(`server:`) + ' [' + txt + ']');
+    console.log(chalk.inverse(`${defaulturl} `) + ' [' + txt + ']');
 }
 
 function buildServer() {
@@ -217,11 +217,11 @@ function stop() {
   output("Stoping server");
   deleteFile(filenameServerLock);
   if (serverLock()) {
-    const killServe = spawn('nice', ['killall', 'node', '', '0'], { stdio: 'pipe' });
+    const killServe =    spawn('nice', ['killall', 'node', '', '0'], { stdio: 'pipe' });
     const killAminosee = spawn('nice', ['killall', 'aminosee.funk.nz', '', '0'], { stdio: 'pipe' });
     if (server != undefined) {
       log("closing server")
-      server.close();
+      // server.close();
     } else {
       log("no server running")
     }
@@ -258,14 +258,13 @@ function start(o) { // return the port number
   outputPath = o;
   setOutputPath(o)
   if ( serverLock() ) {
-    // output("Server already started. If you think this is not true, remove the lock file: " + filenameServerLock);
+    output("Server already started. If you think this is not true, remove the lock file: " + filenameServerLock);
     startCrossSpawnHttp(43210)
-
   } else {
     output("No locks found, Starting server ");
     log(`filenameServerLock: ${filenameServerLock}`)
     buildServer();
-    starthttpserver();
+    // starthttpserver();
     // if ( startCrossSpawnHttp(port) == false ) {
     //   output(`Problem with port ${port} `);
     //   port = 43210;

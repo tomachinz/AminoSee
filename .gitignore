@@ -8,6 +8,7 @@ output/
 funk.co.nz-aminosee/
 dist/
 backup/
+src/public/gource.mp4
 
 # this kludge is so i can have a shell script in there "process-all-files-in-cd.sh"
 dna/*.fa

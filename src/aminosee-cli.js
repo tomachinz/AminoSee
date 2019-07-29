@@ -29,7 +29,6 @@ const asciiart = data.asciiart;
 const extensions = data.extensions;
 const saySomethingEpic = data.saySomethingEpic;
 const readParseJson = data.readParseJson;
-let isElectron, jobArgs, killServersOnQuit, webserverEnabled, cliInstance, tx, ty, termPixels, cliruns, gbprocessed, projectprefs, userprefs, genomes, progato, commandString, batchSize, quiet, url;
 const debug = false; // should be false for PRODUCTION
 // OPEN SOURCE PACKAGES FROM NPM
 const path = require('path');
@@ -61,18 +60,6 @@ const hostname = os.hostname();
 const chalk = require('chalk');
 const obviousFoldername = "/AminoSee_Output"; // descriptive for users
 const netFoldername = "/output"; // terse for networks
-// let bodyParser = require('body-parser');
-// const gv = require('genversion');
-// const Jimp = require('jimp');
-// const fileDialog = require('file-dialog')
-// let gui = require('./public/aminosee-gui-web.js');
-// let imageStack = gui.imageStack;
-// let imageStack = require('./public/aminosee-gui-web.js').imageStack;
-
-// BigInt.prototype.toJSON = function() { return this.toString(); }; // shim for big int
-// BigInt.prototype.toBSON = function() { return this.toString(); }; // Add a `toBSON()` to enable MongoDB to store BigInts as strings
-// INCREASE THIS TO BOOST THE IMAGE SIZE. 9MP = 20 MB png on average.
-const targetPixels = 8000000; // for big genomes use setting flag -c 1 to achieve highest resolution and bypass this taret max render size
 const funknzlabel = "aminosee.funk.nz"
 const closeBrowser = "If the process apears frozen, it's waiting for your this.browser or image viewer to quit. Escape with [ CONTROL-C ] or use --no-image --no-html";
 const defaultC = 1; // back when it could not handle 3+GB files.
@@ -83,11 +70,20 @@ const overSampleFactor = 4; // your linear image divided by this will be the hil
 const maxCanonical = 32; // max length of canonical name
 const hilbPixels = [ 64, 256, 1024, 4096, 16384, 65536, 262144, 1048576, 4194304, 16777216, 67108864 ]; // I've personally never seen a mag 9 or 10 image, cos my computer breaks down. 67 Megapixel hilbert curve!! the last two are breaking nodes heap and call stack both.
 const widthMax = 960; // i wanted these to be tall and slim kinda like the most common way of diagrammatically showing chromosomes
-const port = 4321;
+const defaultPort = 4321;
 const max32bitInteger = 2147483647;
 const minUpdateTime = 500;
 const openLocalHtml = false; // affects auto-open HTML.
 const wideScreen = 140; // shrinks terminal display
+// let bodyParser = require('body-parser');
+// const gv = require('genversion');
+// let gui = require('./public/aminosee-gui-web.js');
+// let imageStack = gui.imageStack;
+// let imageStack = require('./public/aminosee-gui-web.js').imageStack;
+// BigInt.prototype.toJSON = function() { return this.toString(); }; // shim for big int
+// BigInt.prototype.toBSON = function() { return this.toString(); }; // Add a `toBSON()` to enable MongoDB to store BigInts as strings
+const targetPixels = 8000000; // for big genomes use setting flag -c 1 to achieve highest resolution and bypass this taret max render size
+let isElectron, jobArgs, killServersOnQuit, webserverEnabled, cliInstance, tx, ty, termPixels, cliruns, gbprocessed, projectprefs, userprefs, genomes, progato, commandString, batchSize, quiet, url, port;
 let opens = 0; // session local counter to avoid having way too many windows opened.
 let dnaTriplets = data.dnaTriplets;
 termPixels = 69;
@@ -111,7 +107,7 @@ module.exports = () => {
 function populateArgs(procArgv) { // returns args
   const options = {
     boolean: [ 'artistic', 'clear', 'chrome', 'devmode', 'debug', 'demo', 'dnabg', 'explorer', 'file', 'force', 'firefox', 'gui', 'html', 'image', 'keyboard', 'list', 'progress', 'quiet', 'reg', 'recycle', 'redraw', 'serve', 'safari', 'test', 'updates', 'verbose', 'view' ],
-    string: [ 'url', 'outpath', 'triplet', 'peptide', 'ratio' ],
+    string: [ 'url', 'outpath', 'triplet', 'peptide', 'ratio', 'port' ],
     alias: { a: 'artistic', b: 'dnabg', c: 'codons', d: 'devmode', f: 'force', h: 'help', k: 'keyboard', m: 'magnitude', o: 'outpath', out: 'outpath', output: 'outpath', p: 'peptide', i: 'image', t: 'triplet', u: 'updates', q: 'quiet', r: 'reg', w: 'width', v: 'verbose', x: 'explorer', finder: 'explorer', view: 'html'  },
     default: { html: true, image: true, dnabg: false, clear: false, explorer: false, quiet: false, keyboard: false, progress: true, redraw: true, updates: true, serve: true, gui: true },
     stopEarly: false
@@ -372,6 +368,12 @@ class AminoSeeNoEvil {
     } else {
       this.keyboard = false;
     }
+    if ( args.port ) {
+      this.port = Math.round( args.port );
+      output
+    } else {
+      this.port = defaultPort;
+    }
     if ( this.keyboard == true) {
       output(`interactive keyboard mode enabled`)
       this.setupKeyboardUI()
@@ -442,13 +444,14 @@ class AminoSeeNoEvil {
       } else if ( this.magnitude > theoreticalMaxMagnitude) {
         this.dimension = theoreticalMaxMagnitude;
         this.maxpix = 32000000;
-        output("Magnitude must be an integer number between 3 and 9 or so.");
+        output("Magnitude must be an integer number between 3 and 9 or so. 9 you may run out of memory.");
       } else if (  this.magnitude > 6 &&  this.magnitude < 9) {
         output(`Using custom output magnitude: ${ this.magnitude }`);
       }
     } else {
-      this.magnitude = defaultMagnitude;
-      log(`Using default max magnitude of ${defaultMagnitude}th dimension`)
+      // this.magnitude = defaultMagnitude;
+      this.magnitude = "auto";
+      log(`Using auto magnitude with limit ${defaultMagnitude}th dimension`)
     }
     bugtxt(` this.maxpix: ${  this.maxpix } this.dimension: ${ this.dimension }`);
     if ( args.ratio || args.r ) {
@@ -624,6 +627,8 @@ class AminoSeeNoEvil {
       }
       // test = this.test;
       if ( args.stop ) {
+        this.webserverEnabled = false;
+        server.stop();
         if (this) {
           this.gracefulQuit(130)
         } else {
@@ -718,7 +723,9 @@ class AminoSeeNoEvil {
           const carlo = require('./carlo');
           this.keyboard = true;
           this.setupKeyboardUI();
-          countdown('Press [Q] to exit or wait ', 15000, process.exit);
+          // countdown('Press [Q] to exit or wait ', 15000, process.exit);
+          countdown('Press [Q] to exit or wait ', 15000);
+
         } else {
           output();
           countdown('Closing in ', 700, AminoSeeNoEvil.quit);
@@ -859,7 +866,7 @@ class AminoSeeNoEvil {
       // this.calculateShrinkage();
       bugtxt(`codonsPerPixelHILBERT inside this.getRenderObject is ${ this.codonsPerPixelHILBERT }`)
       let linearimage, refimage;
-      for (let h=0; h< this.pepTable.length; h++) {
+      for (let h=0; h < this.pepTable.length; h++) {
         const pep =  this.pepTable[h];
         this.currentPeptide = pep.Codon;
         this.pepTable[h].hilbert_master = this.aminoFilenameIndex(h)[0];
@@ -2065,12 +2072,12 @@ class AminoSeeNoEvil {
       // }
       // countdown('Press [Q] to quit this.now, [S] to launch a web server in background thread or wait ', 4000, blockingServer());
       // countdown('Press [S] to launch a web server in background thread or quit in ', 4000);
-      setTimeout( () => {
-        countdown("Closing in " , 6000, process.exit  );
-      }, 4000)
+      // setTimeout( () => {
+      //   countdown("Closing in " , 6000, process.exit  );
+      // }, 4000)
     } else {
       // output('This is a terminal CLI (command line interface) program. Run it from the DOS prompt / Terminal.app / shell.', 4000);
-      countdown('Press [Q] to quit now, closing in ', 4000, process.exit );
+      // countdown('Press [Q] to quit now, closing in ', 4000 );
     }
   }
 
@@ -2109,59 +2116,6 @@ class AminoSeeNoEvil {
   }
 
 
-  // function runDemo() {
-  //   async.series( [
-  //     function( cb ) {
-  //       // newJob('test')
-  //     },
-  //     function( cb ) {
-  //       this.openImage = true;
-  //       this.peptide = 'Opal'; // Blue TESTS
-  //       this.ratio = 'sqr';
-  //       this.generateTestPatterns(cb);
-  //
-  //     },
-  //     function( cb ) {
-  //       // this.openImage = true;
-  //       this.peptide = 'Ochre'; // Red TESTS
-  //       this.ratio = 'sqr';
-  //       this.generateTestPatterns(cb);
-  //     },
-  //     function( cb ) {
-  //       // this.openImage = true;
-  //       this.peptide = 'Arginine'; //  PURPLE TESTS
-  //       this.ratio = 'sqr';
-  //       this.generateTestPatterns(cb);
-  //     },
-  //     function( cb ) {
-  //       // this.openImage = true;
-  //       this.peptide = 'Methionine'; //  this.green  TESTS
-  //       this.ratio = 'sqr';
-  //       this.generateTestPatterns(cb);
-  //     },
-  //
-  //     function ( cb ) {
-  //       if ( cb !== undefined ) { cb() }
-  //     },
-  //     // function ( cb ) {
-  //     //   this.args._[0] = this.currentFile;
-  //     //   this.currentFile = '*';
-  //     //   this.args._.push( this.currentFile); // DEMO
-  //     //   this.pollForStream();
-  //     // },
-  //     function( cb ) {
-  //       server.start( this.outputPath );
-  // this.mkRenderFolders();
-
-  //       // symlinkGUI(cb);
-  //     }
-  //   ] )
-  //   .exec( function( error, results ) {
-  //     if (  this.error ) { log( 'Doh!' ) ; }
-  //     else { log( 'WEEEEE DONE Yay! Done!' ) ; }
-  //   } ) ;
-  //
-  // }
 
   saveDocsSync() {
     let pixels = 0;
@@ -3488,6 +3442,7 @@ class AminoSeeNoEvil {
         // if (resolve) { log(`not sure if that saved: ${err} ${ this.storage()} `) }
         this.isDiskFinHTML = true;
         this.linearFinished()
+        termDrawImage( this.filePNG, `linear curve` )
         if (cb !== undefined) { cb() }
 
       })
@@ -3858,7 +3813,7 @@ class AminoSeeNoEvil {
     this.dnafile = this.justNameOfDNA;
     this.currentFile = this.justNameOfDNA;
     this.baseChars = hilbPixels[  magnitude ];
-    this.maxpix = hilbPixels[defaultMagnitude+1];
+    this.maxpix = hilbPixels[defaultMagnitude];
     this.genomeSize =  this.baseChars;
     this.estimatedPixels =  this.baseChars;
     this.charClock =  this.baseChars;
@@ -4814,7 +4769,7 @@ class AminoSeeNoEvil {
     }
     function setupPrefs() {
       let o = getOutputFolder();
-      output(`output = ${o}`);
+      log(`output = ${o}`);
       projectprefs = new Preferences('nz.funk.aminosee.project', {
         aminosee: {
           opens: 0,
@@ -5401,7 +5356,49 @@ class AminoSeeNoEvil {
   function getArgs() {
     return this.args;
   }
-
+  // function runDemo() {
+  //   async.series( [
+  //     function( cb ) {
+  //       this.openImage = true;
+  //       this.peptide = 'Opal'; // Blue TESTS
+  //       this.ratio = 'sqr';
+  //       this.generateTestPatterns(cb);
+  //     },
+  //     function( cb ) {
+  //       // this.openImage = true;
+  //       this.peptide = 'Ochre'; // Red TESTS
+  //       this.ratio = 'sqr';
+  //       this.generateTestPatterns(cb);
+  //     },
+  //     function( cb ) {
+  //       // this.openImage = true;
+  //       this.peptide = 'Arginine'; //  PURPLE TESTS
+  //       this.ratio = 'sqr';
+  //       this.generateTestPatterns(cb);
+  //     },
+  //     function( cb ) {
+  //       // this.openImage = true;
+  //       this.peptide = 'Methionine'; //  this.green  TESTS
+  //       this.ratio = 'sqr';
+  //       this.generateTestPatterns(cb);
+  //     }
+      // function ( cb ) {
+      //   this.args._[0] = this.currentFile;
+      //   this.currentFile = '*';
+      //   this.args._.push( this.currentFile); // DEMO
+      //   this.pollForStream();
+      // },
+      // function( cb ) {
+      //   server.start( this.outputPath );
+      //   this.mkRenderFolders();
+      //   // symlinkGUI(cb);
+      // }
+  //   ])
+  //   .exec( function( error, results ) {
+  //     if (  this.error ) { log( 'Doh!' ) ; }
+  //     else { log( 'WEEEEE DONE Yay! Done!' ) ; }
+  //   });
+  // }
   module.exports.getOutputFolder = getOutputFolder;
   module.exports.nicePercent = nicePercent;
   module.exports.createSymlink = createSymlink;

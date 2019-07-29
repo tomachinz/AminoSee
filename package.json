@@ -1,6 +1,6 @@
 {
   "name": "aminosee",
-  "version": "1.19.4",
+  "version": "1.19.5",
   "owner": "Thomas Bieder Atkinson",
   "author": "Tom Atkinson <tom@funk.co.nz>",
   "website": "http://aminosee.funk.nz",
@@ -86,7 +86,7 @@
     "clean": "rimraf ./dist ./build",
     "crash": "node --inspect 27MB_TestPattern.txt --peptide=Ochre 3MB_TestPattern.txt 50KB_TestPattern.txt batch-peptides.sh batch-process.sh Gorilla_gorGor4_chr2B.fa",
     "gource": "gource --camera-mode overview -1600x800 --seconds-per-day 0.63 --auto-skip-seconds 0.15 --file-idle-time 30 --max-file-lag 0.2 --background-image src/public/aminosee-promo-one-shot.png    --logo src/public/AminoSee_DNA_Viewer_ascii_logo_shot.jpg  --font-size 26 --key  --bloom-multiplier 0.25 --bloom-intensity 0.5  --background 012345 --title 'tomachinz commits to github.com/tomachinz/AminoSee' --frameless",
-    "test": "echo 'requires cli programs: time, lighthouse, vows etc' ; time run-test.sh ;",
+    "test": "echo 'requires cli programs: time, lighthouse, vows etc' ; time ./run-test.sh ;",
     "start": "node bin/aminosee",
     "inspect": "node --inspect bin/aminosee.js dna/27MB_TestPattern.txt /Volumes/aminosee/dna/Brown_Kiwi_NW_013982187v1.fa   /Volumes/aminosee/dna/Brown_Kiwi_NW_013982187v1.fa  -f -c1000 -vd --debug",
     "build": "./build-lib.sh ; ./build-gui.sh ; nice time npm run build-web ; nice time npm run pkg",

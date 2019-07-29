@@ -15,6 +15,6 @@ echo "npm run demo"
 
 
 echo "IDEA: try starting the experimental GUI mode with "
-echo npm run gui
+echo npm run start
 
 # and also - to build the elecron app

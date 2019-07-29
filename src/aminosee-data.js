@@ -1,4 +1,5 @@
 const aminosee = require('./aminosee-cli');
+// const aminosee.debug
 // const out = aminosee.out;
 const path = require('path');
 const chalk = require('chalk');
@@ -83,11 +84,11 @@ function out(txt) {
 function deleteFile(file) {
   try {
     fs.unlinkSync(file, (err) => {
-      bugtxt("Removing file OK...")
-      if (err) { bugtxt(err)  }
+      log("Removing file OK...")
+      if (err) { log(err)  }
     });
   } catch (err) {
-    bugtxt(err)
+    log(err)
   }
 }
 function recordFile(file, contents, cb) {
@@ -947,8 +948,8 @@ function log(txt) {
   output(txt)
 }
 function bugtxt(txt) {
-  let args = aminosee.getArgs();
-  if (args.debug == true) {
+  // let args = AminoSeeNoEvil.getArgs();
+  if (this.debug == true ) {
     output(txt)
   }
 }
