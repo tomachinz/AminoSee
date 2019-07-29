@@ -73,7 +73,7 @@
     "serve": "^11.1.0",
     "serve-handler": "^6.1.0",
     "sliced": "^1.0.1",
-    "spdy": "^4.0.0",
+    "spdy": "^4.0.1",
     "stream-file": "^0.2.4",
     "systeminformation": "^4.14.4",
     "terminal-kit": "^1.28.39",
