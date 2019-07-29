@@ -10,6 +10,10 @@ const spawn = require('cross-spawn');
 let threads = [ ]; // these will be threads from spawn
 let mainWindow, devmode, consoleWindow; // Keep a global reference of the window object, if you don't, the window will be closed automatically when the JavaScript object is garbage collected.
 
+
+require('./carlo.js').run();
+
+
 // app.commandLine.appendSwitch('remote-debugging-port', '5432')
 app.commandLine.appendSwitch('host-rules', 'MAP * 127.0.0.1')
 app.commandLine.appendSwitch('host-rules', 'MAP * funk.co.nz')

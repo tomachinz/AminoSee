@@ -35,7 +35,7 @@ open ./build-lib.sh
 # npm run genversion
 #
 
-cp -v node_modules/dat.gui/build/dat.gui.min.js public
+cp -v node_modules/dat.gui/build/dat.gui.min.js src/public
 # cp -v node_modules/sliced/index.js lib/node_modules/sliced
 # cp -v node_modules/deep-defaults/lib/index.js lib/node_modules/deep-defaults/lib
 # cp -v node_modules/get-cursor-position/build/Release/pos.node lib

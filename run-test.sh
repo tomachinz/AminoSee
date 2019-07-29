@@ -36,7 +36,6 @@ test_do "Triplet TTT and Proline (was not designed to do both)" $FAST     $1 $2 
 test_do "Triplet CAT ratio sqr" $FAST     $1 $2 $3 $4 $5 $6 --triplet=CAT --ratio=sqr
 test_do "m5 Golden" $FAST     $1 $2 $3 $4 $5 $6 -m5 --ratio=gol
 test_do "c100 Golden" $FAST $1 $2 $3 $4 $5 $6 -c100 --ratio=golden
-
 echo KEYBOARD MODE TEST
 test_do "Ochre"         $FAST      $1 $2 $3 $4 $5 $6 --force --ratio=gol --peptide=Ochre --keyboard
 test_do "Amber"         $FAST      $1 $2 $3 $4 $5 $6  --force --no-updates -m7 --ratio=sqr --peptide=Amber
@@ -47,49 +46,27 @@ test_do "-c10" $SLOW  $MEDIUM *  -c10 -q -v --debug $1 $2 $3 $4
 test_do " --ratio=GOL" $MEDIUM *  $FAST --keyboard $1 $2 $3 $4 --ratio=GOL
 test_do "*  $SLOW  $MEDIUM" *  $SLOW  $MEDIUM -c10 -k $1 $2 $3 $4
 test_do "GGG" $FAST  $1 $2 $3 $4 $5 $6 --reg -t=ggg
-# sleep 2
-#
-# echo 'aminosee_do*'
 test_do "*" *  $1 $2 $3 $4 $5 $6     &
-sleep 8
-
+sleep 1
 echo
-# echo "-------------------------------------------"
+echo "-------------------------------------------"
 # echo HALFWAY TESTING FOR $1 $2 $3 $4 $5 $6 $6
 echo ABOUT TO START OPENING WINDOWS AROUND THE PLACE
-# echo "-------------------------------------------"
+echo "-------------------------------------------"
 echo
 echo THIS SHOULD OPEN REPORT EVEN IF IT ALREADY EXISTS
-aminosee $FAST -p=proline --html
-
-# echo "nice aminosee $1 $2 $3 $4 $5 $6 -f --no-updates --ratio=fix --peptide=Arginine --html &"
+test_do "html" $FAST -p=proline --html
 nice aminosee $1 $2 $3 $4 $5 $6 -q --ratio=fix --peptide=Arginine --html
-
-# echo "nice aminosee $1 $2 $3 $4 $5 $6  test --image --ratio square &"
-# nice aminosee       $1 $2 $3 $4 $5 $6  test --image --ratio square &
-# sleep 1
-
-# echo "nice aminosee help &"
 nice aminosee --help  $1 $2 $3 $4 $5 $6  --no-image &
-sleep 1
-
-
-# echo background demo
 nice aminosee --demo   $1 $2 $3 $4 $5 $6  --no-html --image &
-sleep 1
-
 echo calibration TESTS ARE KNOWN TO BE BUGGY AT PRESENT:
-aminosee --test
-
-# echo "doing aminosee serve and opening a file"
-nice aminosee --serve $MEDIUM  $1 $2 $3 $4 $5 $6  --no-html --explorer &
-# echo only works on linux:
+test_do "Calibratn" --test
+test_do "doing aminosee serve and opening a file" --serve $MEDIUM  $1 $2 $3 $4 $5 $6 --no-html --explorer &
 open http://localhost:4321 &
 sleep 1
 echo KILLING ALL AMINOSEE SERVERS IN 5 seconds
 sleep 1
-clear
-
+# clear
 echo "                                         =///"
 echo "-------------------------------------------"
 echo NEARLY COMPLETED TESTING FOR $1 $2 $3 $4 $5 $6 $6
@@ -110,6 +87,7 @@ eslint src/aminosee-cli.js
 vows --spec --isolate
 echo Stopping server in 1 second
 sleep 1
+killall node
 killall aminosee.funk.nz
 sleep 1
 echo ALL TESTS NON-BLOCKING!

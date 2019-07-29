@@ -80,7 +80,7 @@ const wideScreen = 140; // shrinks terminal display
 // let bodyParser = require('body-parser');
 // const gv = require('genversion');
 // let gui = require('./public/aminosee-gui-web.js');
-let imageStack = server.imageStack;
+// let imageStack = server.imageStack;
 // let imageStack = require('./public/aminosee-gui-web.js').imageStack;
 // BigInt.prototype.toJSON = function() { return this.toString(); }; // shim for big int
 // BigInt.prototype.toBSON = function() { return this.toString(); }; // Add a `toBSON()` to enable MongoDB to store BigInts as strings
@@ -726,7 +726,7 @@ class AminoSeeNoEvil {
         } else if ( !this.quiet) {
           output(' ');
           // log('Closing in ')
-          const carlo = require('./carlo');
+          const carlo = require('./aminosee-carlo');
           this.keyboard = true;
           this.setupKeyboardUI();
           // countdown('Press [Q] to exit or wait ', 15000, process.exit);
@@ -734,7 +734,7 @@ class AminoSeeNoEvil {
 
         } else {
           output();
-          countdown('Closing in ', 700, AminoSeeNoEvil.quit);
+          // countdown('Closing in ', 700, AminoSeeNoEvil.quit);
         }
 
         return true;
@@ -876,6 +876,7 @@ class AminoSeeNoEvil {
       for (let h=0; h < this.pepTable.length; h++) {
         const pep =  this.pepTable[h];
         this.currentPeptide = pep.Codon;
+        this.pepTable[h].src = this.aminoFilenameIndex(h)[0];
         this.pepTable[h].hilbert_master = this.aminoFilenameIndex(h)[0];
         this.pepTable[h].linear_master = this.aminoFilenameIndex(h)[1];
         this.pepTable[h].hilbert_preview = this.aminoFilenameIndex(h)[0];
@@ -901,7 +902,7 @@ class AminoSeeNoEvil {
         cliruns: cliruns,
         gbprocessed: gbprocessed,
         genomes: genomes,
-        hostname: os.hostname(),
+        hostname: hostname,
         version: version,
         flags: (  this.force ? "F" : ""    )+(  this.userCPP == "auto"  ? `C${ this.userCPP }` : ""    )+(  this.devmode ? "D" : ""    )+(  this.args.ratio || this.args.r ? `${ this.ratio }` : "   "    )+(  this.args.magnitude || this.args.m ? `M${ this.dimension }` : "   "    ),
         aspect: this.ratio,
@@ -934,7 +935,8 @@ class AminoSeeNoEvil {
         pepTable: this.pepTable,
         summary: zumari
       }
-      return beautify( histogramJson, null, 2, 100);
+      // return beautify( histogramJson, null, 2, 100);
+      return histogramJson;
     }
 
 
@@ -1742,7 +1744,7 @@ class AminoSeeNoEvil {
   renderObjToString() {
     const unknown = 'unknown until render complete';
     return `
-    Canonical this.justNameOfDNA: ${ this.justNameOfDNA}
+    Canonical Name: ${ this.justNameOfDNA}
     Source: ${ this.justNameOfCurrentFile}
     Full path: ${this.dnafile }
     Started: ${ formatAMPM(this.startDate) } Finished: ${ formatAMPM(new Date())} Used: ${humanizeDuration( this.runningDuration )} ${ this.isStorageBusy ? ' ' : '(ongoing)'}
@@ -1947,7 +1949,7 @@ class AminoSeeNoEvil {
     this.fileHTML =    this.qualifyPath( this.generateFilenameHTML()   );
     this.filePNG =     this.qualifyPath(`images/${ this.generateFilenamePNG()     }`);
     this.fileHILBERT = this.qualifyPath(`images/${ this.generateFilenameHilbert() }`);
-    this.fullURL          = `${url}/${this.justNameOfDNA}/${this.justNameOfHTML}`;
+    this.fullURL          = `${url}/${this.justNameOfDNA}/`;//`${this.justNameOfHTML}`;
     // this.fancyFilenames();
     this.setNextFile();
   }
@@ -2224,8 +2226,10 @@ class AminoSeeNoEvil {
     let histogramFile = this.generateFilenameHistogram();
     if ( doesFileExist( histogramFile ) ) {
       let loadedJson = readParseJson( histogramFile );
+      console.log( beautify( JSON.stringify( loadedJson ), null, 2, 100) )
       this.pepTable = loadedJson.pepTable
     }
+    process.exit();
     let hypertext
     if ( this.test === true ) {
       hypertext = this.htmlTemplate( this.testSummary() );
@@ -2233,8 +2237,8 @@ class AminoSeeNoEvil {
       hypertext = this.htmlTemplate( histogramJson );
     }
 
-    let histotext = JSON.stringify(histogramJson);
-    let filename;
+    let histotext = beautify( JSON.stringify( histogramJson ), null, 2, 100);
+    output( histotxt )
     this.fileWrite( this.fileHTML, hypertext );
     this.fileWrite( histogramFile, histotext );
     if (this.userCPP == "auto" && this.magnitude == "auto" && this.artistic == false) {
@@ -2291,7 +2295,7 @@ class AminoSeeNoEvil {
   blurb() {
     return `Started DNA render ${ this.currentFile } at ${ formatAMPM( this.startDate)}, and after ${humanizeDuration( this.runningDuration)} completed ${ nicePercent(this.percentComplete)} of the ${bytes(  this.baseChars)} file at ${bytes( this.bytesPerMs*1000)} per second.
     Estimated ${humanizeDuration( this.timeRemain)} to go with ${  this.genomeSize.toLocaleString()} r/DNA triplets decoded, and ${ this.pixelClock.toLocaleString()} pixels painted.
-    It was the ${this.howMany}th file of ${batchSize} issued by ${ isElectron ? 'Electron GUI' : 'Terminal CLI' } running on ${ os.platform() } on ${os.hostname()}.
+    It was the ${this.howMany}th file of ${batchSize} issued by ${ isElectron ? 'Electron GUI' : 'Terminal CLI' } running on ${ os.platform() } on ${ hostname }.
     ${ this.memToString()} currently ${this.busy()}
     CPU load:    [ ${ this.loadAverages()} ]`
   }
@@ -2901,7 +2905,9 @@ class AminoSeeNoEvil {
     'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f); })(window,document,'script','dataLayer','GTM-P8JX');</script>
     <!-- End Google Tag Manager -->
 
-    <nav style="position: fixed; top: 8px; left: 8px; z-index:9999; background-color: #123456;"> <a href="../../" class="button">AminoSee Home</a> | <a href="../" class="button">Parent</a>  </nav>
+    <nav style="position: fixed; top: 8px; left: 8px; z-index:9999; background-color: #123456;">  </nav>
+
+    <a href="../../" class="button">AminoSee Home</a> | <a href="../" class="button">Parent</a>
 
     <h1>AminoSee DNA Render Summary for ${ this.currentFile }</h1>
     <h2>${ this.justNameOfDNA}</h2>
@@ -4229,7 +4235,7 @@ class AminoSeeNoEvil {
     this.printRadMessage(array);
     // term.right( this.termMarginLeft );
     output(`Done: ${chalk.rgb(128, 255, 128).inverse( nicePercent(this.percentComplete) )} Elapsed: ${ fixedWidth(12, humanizeDuration( this.msElapsed )) } Remain: ${humanizeDuration( this.timeRemain)}`);
-    output(`${ twosigbitsTolocale( gbprocessed )} GB All time total on ${chalk.yellow(hostname)} ${ cliruns.toLocaleString()} jobs run total`);
+    output(`${ twosigbitsTolocale( gbprocessed )} GB All time total on ${chalk.yellow( hostname )} ${ cliruns.toLocaleString()} jobs run total`);
     this.progUpdate( this.percentComplete );
     output(`Report URL: ${chalk.underline( this.fullURL )}`)
     term.down(1);
@@ -4503,6 +4509,7 @@ class AminoSeeNoEvil {
       let html = " ";
       let summary = histogramJson.summary;
       let pepTable = histogramJson.pepTable;
+      output(histogramJson.toString())
       let name = summary.name;
       // let refimage = summary.refimage;
       // let linearimage = summary.linearimage;
@@ -4546,9 +4553,6 @@ class AminoSeeNoEvil {
       });
       html += `</ul> <!-- END stackOimages MA man -->`;
       return html;
-    }
-    output(txt) { // console out
-      output("WRONG " + txt);
     }
   } // <<< --- END OF CLASS
 

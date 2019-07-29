@@ -1,6 +1,6 @@
 {
   "name": "aminosee",
-  "version": "1.19.7",
+  "version": "1.19.9",
   "owner": "Thomas Bieder Atkinson",
   "author": "Tom Atkinson <tom@funk.co.nz>",
   "website": "http://aminosee.funk.nz",
@@ -10,10 +10,10 @@
     "url": "git://github.com/tomachinz/AminoSee.git"
   },
   "description": "Allows genomics researchers to convert any file containing ASCII blocks of DNA (Fasta, GBK, .txt) into an image. A unique visualisation of DNA / RNA residing in text files, AminoSee is a way to render arbitrarily large files - due to support for streamed processing - into a static size PNG image using a pseudo-Hilbert infinite space filling curve written in the 18th century! Computation is done locally, and the files do not leave your machine. A back-end terminal daemon cli command that can be scripted is combined with a front-end GUI with Carlo, AminoSee features asynchronous streaming processing enabling arbitrary size files to be processed. It has been tested with files in excess of 4 GB and does not need the whole file in memory at any time. In a diectory with DNA files try running aminosee *. Alternatively use the GUI to Drag and drop files to render a unique colour view of RNA or DNA stored in text files, output to PNG graphics file, then launches an WebGL browser that projects the image onto a 3D Hilbert curve for immersive viewing, using THREEjs. Command line options alow one to filter by peptide.",
+  "main": "./bin/aminosee.js",
   "bin": {
     "aminosee": "./bin/aminosee.js"
   },
-  "main": "./bin/aminosee.js",
   "build": {
     "productName": "aminosee",
     "appId": "nz.funk.aminosee",
@@ -75,6 +75,7 @@
     "sliced": "^1.0.1",
     "spdy": "^4.0.0",
     "stream-file": "^0.2.4",
+    "systeminformation": "^4.14.4",
     "terminal-kit": "^1.28.39",
     "through": "^2.3.8",
     "uniq": "^1.0.1",
@@ -89,8 +90,10 @@
     "gource": "./gource.sh",
     "test": "echo 'requires cli programs: time, lighthouse, vows etc' ; time ./run-test.sh ;",
     "start": "node bin/aminosee",
+    "serve": "node ./bin/aminosee.js",
     "inspect": "node --inspect bin/aminosee.js dna/27MB_TestPattern.txt /Volumes/aminosee/dna/Brown_Kiwi_NW_013982187v1.fa   /Volumes/aminosee/dna/Brown_Kiwi_NW_013982187v1.fa  -f -c1000 -vd --debug",
-    "build": "./build-lib.sh ; ./build-gui.sh ; nice time npm run build-web ; nice time npm run pkg",
+    "build": "npm run clean; nice npm run build-web ; nice time npm run macos",
+    "build-old": "./build-lib.sh ; ./build-gui.sh ; nice time npm run build-web ; nice time npm run pkg",
     "build-all": "npm run clean ; ./build-lib.sh ; npm run build-web ; npm run pkg; npm run zip",
     "build-web": "npm run genversion  &amp;  npm run browserify  &amp; npm run minify ; npm run credits",
     "genversion": "genversion src/aminosee-version.js",
@@ -100,7 +103,7 @@
     "zip": "zip -8 -r ./dist/AminoSee_macos.zip ./dist/AminoSee_macos  &amp; nice zip -8 -r ./dist/AminoSee_win.zip ./dist/AminoSee_win &amp; nice zip -8 -r ./dist/AminoSee_linux.zip ./dist/AminoSee_linux",
     "runmac": "open ./dist/AminoSee_macos/aminosee",
     "runlinux": "open ./dist/AminoSee_linux/aminosee",
-    "macos": "echo MACOS ; pkg . --targets macos   --output ./dist/AminoSee_macos/aminosee",
+    "macos": "echo MACOS ; pkg . --targets macos   --output ./dist/AminoSee_macos/aminosee ; ./dist/AminoSee_macos/aminosee",
     "win32": "echo WIN32 ; pkg . --targets win-x86 --output ./dist/AminoSee_win/aminosee-win32.exe",
     "win64": "echo WIN64 ; pkg . --targets win-x64 --output ./dist/AminoSee_win/aminosee.exe",
     "linux": "echo LINUX ; pkg . --targets linux   --output ./dist/AminoSee_linux/aminosee",
@@ -128,7 +131,8 @@
       "win"
     ],
     "scripts": [
-      "dist/root/pos.node"
+      "dist/root/pos.node",
+      "src/*.js"
     ],
     "assets": [
       "bin/pos.node",
@@ -137,7 +141,8 @@
       "node_modules/get-cursor-position/**",
       "bin/**",
       "src/**",
-      "src/public/**",
+      "www/**",
+      "src/public/**/*",
       "package.json",
       "dna/megabase.fa"
     ]
