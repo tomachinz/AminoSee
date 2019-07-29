@@ -80,7 +80,7 @@ const wideScreen = 140; // shrinks terminal display
 // let bodyParser = require('body-parser');
 // const gv = require('genversion');
 // let gui = require('./public/aminosee-gui-web.js');
-// let imageStack = gui.imageStack;
+let imageStack = server.imageStack;
 // let imageStack = require('./public/aminosee-gui-web.js').imageStack;
 // BigInt.prototype.toJSON = function() { return this.toString(); }; // shim for big int
 // BigInt.prototype.toBSON = function() { return this.toString(); }; // Add a `toBSON()` to enable MongoDB to store BigInts as strings
@@ -437,24 +437,23 @@ class AminoSeeNoEvil {
       }
     }
     if ( args.magnitude || args.m ) {
-      this.magnitude = Math.round( args.magnitude );
-      this.dimension = this.magnitude;
-      if ( this.magnitude < 3 ) {
+      this.magnitude = "custom";
+      this.dimension = Math.round( args.magnitude );
+      if ( this.dimension < 3 ) {
         this.dimension = 3;
-        // this.maxpix = 4096 * 16; // sixteen times oversampled in reference to the linear image.
         output("Magnitude must be an integer number between 3 and 9. Using -m 3 for 4096 pixel curve.");
-      } else if ( this.magnitude > theoreticalMaxMagnitude) {
+      } else if ( this.dimension > theoreticalMaxMagnitude) {
         this.dimension = theoreticalMaxMagnitude;
         this.maxpix = 32000000;
         output("Magnitude must be an integer number between 3 and 9 or so. 9 you may run out of memory.");
-      } else if (  this.magnitude > 6 &&  this.magnitude < 9) {
-        output(`Using custom output magnitude: ${ this.magnitude }`);
+      } else if (  this.dimension > 6 &&  this.dimension < 9) {
+        output(`Using custom output magnitude: ${ this.dimension }`);
       }
     } else {
       // this.magnitude = defaultMagnitude;
       this.magnitude = "auto";
       this.dimension = defaultMagnitude;
-      log(`Using auto magnitude with limit ${defaultMagnitude}th dimension`)
+      output(`Using auto magnitude with limit ${defaultMagnitude}th dimension`)
     }
     bugtxt(` this.maxpix: ${  this.maxpix } this.dimension: ${ this.dimension }`);
     if ( args.ratio || args.r ) {
@@ -919,6 +918,7 @@ class AminoSeeNoEvil {
         overSampleFactor: this.overSampleFactor,
         opacity: this.opacity,
         magnitude:  this.magnitude,
+        dimension:  this.dimension,
         optimumDimension: this.optimumDimension ( this.estimatedPixels ),
         darkenFactor: this.darkenFactor,
         highlightFactor: this.highlightFactor,
@@ -1735,7 +1735,7 @@ class AminoSeeNoEvil {
     ${ ( this.peptide || this.triplet ) ?  "Highlights: " + ( this.peptide || this.triplet) : " "}
     Your custom flags: TEST${(  this.force ? "F" : ""    )}${(  this.userCPP == "auto"  ? `C${ this.userCPP }` : ""    )}${(  this.devmode ? "D" : ""    )}${(  this.args.ratio || this.args.r ? `${ this.ratio }` : ""    )}${(  this.args.magnitude || this.args.m ? `M${ this.dimension }` : ""    )}
     ${(  this.artistic ? ` Artistic this.mode` : ` Science this.mode`    )}
-    Max  this.magnitude: ${ this.dimension } / 10 Max pix: ${ this.maxpix.toLocaleString()}
+    Max magnitude: ${ this.dimension } ${ this.dimension } / 10 Max pix: ${ this.maxpix.toLocaleString()}
     Hilbert Magnitude: ${ this.dimension } / ${defaultMagnitude}
     Hilbert Curve Pixels: ${hilbPixels[ this.dimension ]}`;
   }
@@ -1750,7 +1750,7 @@ class AminoSeeNoEvil {
     DNA Input bytes: ${ bytes( this.baseChars ) } ${ bytes( this.bytesPerMs * 1000 ) }/sec
     Image Output bytes: ${ this.isStorageBusy == true ? bytes( this.rgbArray.length ) : '(busy)' }
     Pixels (linear): ${ this.pixelClock.toLocaleString()} Image aspect Ratio: ${ this.ratio }
-    Pixels (hilbert): ${hilbPixels[ this.dimension ].toLocaleString()} ${(  this.magnitude ? "(auto)" : "(manual -m)")}
+    Pixels (hilbert): ${hilbPixels[ this.dimension ].toLocaleString()} ${(  this.dimension ? "(auto)" : "(manual -m)")}
     Custom flags: ${ this.showFlags()} "${( this.artistic ? "Artistic mode" : "Science mode" )}" render style
     Estimated Codons: ${Math.round( this.estimatedPixels).toLocaleString()} (filesize % 3)
     Actual Codons matched: ${ this.genomeSize.toLocaleString()} ${ this.isStorageBusy ? ' ' : '(so far)' }
@@ -1783,13 +1783,13 @@ class AminoSeeNoEvil {
     this.baseChars = this.getFilesizeInBytes( this.dnafile );
     if ( this.baseChars < 0) { // switch to streaming pipe this.mode,
       this.error("Are you streaming std in? That part isn't written yet!")
-      // process.exit();
       this.isStreamingPipe = true; // cat Human.genome | aminosee
       this.estimatedPixels = 696969; // 696969 flags a missing value in this.debug
       this.magnitude = this.dimension = 6; // close to 69
       log("Could not get filesize, setting for image size of 696,969 pixels, maybe use --codons 1 this is rendered with --codons 696");
       this.baseChars = 696969; // 696969 flags a missing value in this.debug
       this.codonsPerPixel = 696; // small images with _c69 in this.file
+      process.exit();
       return true;
     } else { // use a file
       this.isStreamingPipe = false; // cat Human.genome | aminosee
@@ -3196,11 +3196,11 @@ class AminoSeeNoEvil {
     }
 
     if ( this.args.magnitude || this.args.m) {
-      this.magnitude = Math.round(this.args.magnitude)
+      this.magnitude = 'custom'
       this.dimension = this.magnitude; // users choice over ride all this nonsense
       output(`Ideal magnitude: ${computerWants} using custom magnitude: ${ this.dimension }`);
     } else {
-      this.magnitude = "auto";
+      this.magnitude = 'auto';
       log(`Ideal magnitude: ${computerWants} using auto-magnitude: ${ this.dimension }`);
     }
 
@@ -3700,11 +3700,10 @@ class AminoSeeNoEvil {
 
     this.setupProject()
 
-    if ( this.magnitude != "auto") {
-      this.dimension = this.magnitude; // Math.round( this.args.magnitude || this.args.m);
-    } else {
-      this.dimension = defaultMagnitude;
-    }
+    // if ( this.magnitude == "auto") {
+    //
+    //   this.dimension = defaultMagnitude;
+    // }
     if ( this.args.ratio || this.args.r) {
       log("Looks better with --ratio=square in my humble opinion")
     } else {
@@ -3714,14 +3713,14 @@ class AminoSeeNoEvil {
     output("output test patterns to /calibration/ folder. dnafile: " + this.dnafile ) ;
     this.mkdir('calibration');
     if ( this.howMany < 0 ) { this.quit(0); return false;}
-    if ( this.magnitude > 10 ) { log(`I think this will crash node, only one way to find out!`); }
-    output(`TEST PATTERNS GENERATION    m${ this.magnitude} c${ this.codonsPerPixel }`);
+    if ( this.dimension > 10 ) { log(`I think this will crash node, only one way to find out!`); }
+    output(`TEST PATTERNS GENERATION    m${ this.dimension} c${ this.codonsPerPixel }`);
     log("Use -m to try different dimensions. -m 9 requires 1.8 GB RAM");
     log("Use --no-reg to remove registration marks at 0%, 25%, 50%, 75%, 100%. It looks a little cleaner without them ");
-    bugtxt(`pix      ${hilbPixels[ this.magnitude]} `);
+    bugtxt(`pix      ${hilbPixels[ this.dimension]} `);
 
     this.loopCounter = 0; // THIS REPLACES THE FOR LOOP, INCREMENET BY ONE EACH FUNCTION CALL AND USE IF.
-    this.howMany =  this.magnitude;// - this.loopCounter;
+    this.howMany =  this.dimension;// - this.loopCounter;
     if ( cb !== undefined ) {
       this.runCycle(cb); // runs in a callback loop
     } else {
@@ -3735,7 +3734,7 @@ class AminoSeeNoEvil {
     }
     this.loopCounter++
     this.howMany--;
-    if (this.loopCounter+1 >  this.magnitude) {
+    if (this.loopCounter+1 >  this.dimension) {
       this.testStop();
       // this.saveHTML(this.openOutputs);
       // termDrawImage();
@@ -3890,7 +3889,7 @@ class AminoSeeNoEvil {
     }
     this.rgbArray = antiAliasArray;
   }
-  optimumDimension (pix) { // give it pix it returns a  this.magnitude that fits inside it
+  optimumDimension (pix) { // give it pix it returns a  this.dimension that fits inside it
     let dim = 0;
     let rtxt = `[HILBERT] Calculating largest Hilbert curve image that can fit inside ${ twosigbitsTolocale(pix)} pixels, and over sampling factor of ${overSampleFactor}: `;
     while (pix > (hilbPixels[dim] * overSampleFactor)) {
@@ -3899,7 +3898,7 @@ class AminoSeeNoEvil {
         // rtxt+= (`ERROR this.optimumDimension  [${hilbPixels[dim]}] pix ${pix} dim ${dim} `);
       }
       if (dim > defaultMagnitude) {
-        if (  this.magnitude && dim > theoreticalMaxMagnitude ) {
+        if (  this.dimension && dim > theoreticalMaxMagnitude ) {
           output("Hilbert dimensions above 8 will likely exceed nodes heap memory and/or call stack. mag 11 sure does. spin up the fans.")
           dim = theoreticalMaxMagnitude;
           break
@@ -3912,7 +3911,7 @@ class AminoSeeNoEvil {
     }
     if (dim>0) { dim--; } // was off by 1
 
-    rtxt+= ` <<<--- chosen  this.magnitude: ${dim} `;
+    rtxt+= ` <<<--- chosen  this.dimension: ${dim} `;
     bugtxt(rtxt);
     if (this.devmode == true) { bugtxt(rtxt) }
     return dim;
@@ -4521,7 +4520,17 @@ class AminoSeeNoEvil {
         let c =      hsvToRgb( theHue/360, 0.5, 1.0 );
         let z =      item.z;
         let i =      item.index + 1;
-        let src =    item.src;
+
+        let linear_master =    item.src;
+        let hilbert_master =    item.src;
+        let linear_preview =    item.src;
+        let hilerbt_preview =    item.src;
+
+        // this.pepTable[h].hilbert_master = this.aminoFilenameIndex(h)[0];
+        // this.pepTable[h].linear_master = this.aminoFilenameIndex(h)[1];
+        // this.pepTable[h].hilbert_preview = this.aminoFilenameIndex(h)[0];
+        // this.pepTable[h].linear_preview = this.aminoFilenameIndex(h)[1];
+
         let vector = i - (quant/2);
         let zoom = 3;
         // bugtxt( src );

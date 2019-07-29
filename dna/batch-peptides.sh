@@ -8,7 +8,7 @@ aminosee_do () {
 best_way () {
   aminosee $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 &
   sleep 1
-  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --junk 
+  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --junk
   # aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 -peptide="Stop Codons"
   aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --peptide=Glutamic_acid &
   aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --peptide=Aspartic_acid
@@ -214,15 +214,15 @@ find_way_peptides () {
 echo $1 $2 $3 $4 $5 $6 $7
 # parallel_peptides 50KB_TestPattern.txt  megabase.fa
 
-parallel_peptides $1 $2 $3 $4 $5 $6 $7 $8
+parallel_peptides $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
 sleep 1
 echo WILL NOW RENDER ALL IN FOLDER
 echo WILL NOW RENDER ALL IN FOLDER
 echo WILL NOW RENDER ALL IN FOLDER
 sleep 5
-asterix_peptides -c500 --recycle $1 $2 $3 $4 $5 $6 $7
+# asterix_peptides -c500 --recycle $1 $2 $3 $4 $5 $6 $7
 
-# series_peptides $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --keyboard
+series_peptides $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --keyboard
 # series_peptides * $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --keyboard
 # find_way_peptides $1 $2 $3 $4 $5 $6 $7
 # parallel_peptides  --reg $1 $2 $3 $4 $5 $6 $7

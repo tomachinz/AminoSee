@@ -52,8 +52,8 @@ cp -r node_modules/lazyness/*                                    dist/root/node_
 cp -r public/*                                                   dist/root/public
 
 # for the awesome shell window:
-cp    node_modules/xterm/dist/xterm.js                           public/
-cp    node_modules/xterm/dist/xterm.css                          public/
+cp    node_modules/xterm/dist/xterm.js                           src/public/
+cp    node_modules/xterm/dist/xterm.css                          src/public/
 
 #
 # echo creating distributions
