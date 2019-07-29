@@ -169,7 +169,7 @@ I need a kind sponsor to please to purchase a license for AminoSee to use Georgh
 
 ## The Colour Lookup Table   
 ```
-***Amino Acids   Hue°	RGB	              Count     Description***
+*Amino Acids*   Hue°	RGB	              Count     Description
 Amber	        47°   255,227,128       666,921   STOP CODONS
 Tryptophan    188°  128,238,255       893,683   Group I: Nonpolar amino acids
 Methionine    110°  149,255,128       944,572   START Codon
