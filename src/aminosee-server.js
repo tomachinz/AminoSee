@@ -113,6 +113,9 @@ function startCrossSpawnHttp(p) { // Spawn background server
     didStart = false;
     if ( data.indexOf('EADDRINUSE') != -1 ) {
       output(`Port ${port} is in use`);
+    } else if ( data.indexOf('ENOENT') != -1 ) {
+      output(`ENOENT error`);
+      // output( data );
     } else {
       output(`Unknown error:`);
       output( data );
@@ -121,14 +124,16 @@ function startCrossSpawnHttp(p) { // Spawn background server
   evilSpawn.on('close', (code) => {
     output( chalk.inverse(`Server process quit with` ) + ` [${code}] Use --kill to get forceful about starting that server`);
   });
-
   log(chalk.bgBlue.yellow("IDEA: Maybe send some bitcoin to the under-employed creator tom@funk.co.nz to convince him to work on it?"));
   log("Control-C to quit. This requires http-server, install that with:");
   log("sudo npm install --global http-server");
   return didStart
 }
-function starthttpserver() {
-  let options = [ outputPath, `-p`, port, '-o' ]
+function starthttpserver(options) {
+  if ( options === undefined ) {
+    options = [ outputPath, `-p`, port, '-o' ]
+  }
+
   const theserver = require('http-server');
   theserver.createServer(options);
 }
@@ -276,6 +281,7 @@ function start(o) { // return the port number
 }
 function setOutputPath(o) {
   if (o === undefined) { o = aminosee.outputPath }
+  output(`AMINOSEE.OUTPUTPATH = ${aminosee.outputPath}`)
   outputPath = o;
   filenameServerLock = path.resolve(`${outputPath}/aminosee_server_lock.txt`);
   // output(`(server) im planning to run server at: ` + outputPath);
@@ -297,17 +303,17 @@ function open(relative) {
   output("Opening page: " + relative);
 }
 // module.exports.getServerURL = function (path) {
-function getServerURL(path) {
+function getServerURL(fullpath) {
   return '? its a bug';
 
   let internalIp = require('internal-ip');
-  if (path == undefined) {
-    path = "/megabase/main.html";
+  if (fullpath == undefined) {
+    fullpath = "/megabase/main.html";
   } else {
-    path = `/${path}/main.html`;
+    fullpath = `/${fullpath}/main.html`;
   }
-  serverURL = `http://${internalIp.v4.sync()}:${port}${path}`;
-  // output(`serverURL ${serverURL}`);
+  serverURL = `http://${internalIp.v4.sync()}:${port}${fullpath}`;
+  output(`serverURL ${serverURL}`);
   return serverURL;
 }
 
