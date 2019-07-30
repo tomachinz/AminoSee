@@ -876,7 +876,7 @@ class AminoSeeNoEvil {
       for (let h=0; h < this.pepTable.length; h++) {
         const pep =  this.pepTable[h];
         this.currentPeptide = pep.Codon;
-        this.pepTable[h].src = this.aminoFilenameIndex(h)[0];
+        // this.pepTable[h].src = this.aminoFilenameIndex(h)[0];
         this.pepTable[h].hilbert_master = this.aminoFilenameIndex(h)[0];
         this.pepTable[h].linear_master = this.aminoFilenameIndex(h)[1];
         this.pepTable[h].hilbert_preview = this.aminoFilenameIndex(h)[0];
@@ -986,7 +986,12 @@ class AminoSeeNoEvil {
       for (let h=0; h< this.pepTable.length; h++) {
         this.pepTable[h].Histocount = 0;
         this.pepTable[h].z = h;
-        this.pepTable[h].src = this.aminoFilenameIndex(h)[0];
+        // this.pepTable[h].src = this.aminoFilenameIndex(h)[0];
+        // this.pepTable[h].src = this.aminoFilenameIndex(h)[0];
+        this.pepTable[h].hilbert_master = this.aminoFilenameIndex(h)[0];
+        this.pepTable[h].linear_master = this.aminoFilenameIndex(h)[1];
+        this.pepTable[h].hilbert_preview = this.aminoFilenameIndex(h)[0];
+        this.pepTable[h].linear_preview = this.aminoFilenameIndex(h)[1];
       }
       for (let h=0; h < dnaTriplets.length; h++) {
         dnaTriplets[h].Histocount = 0;
@@ -2224,21 +2229,22 @@ class AminoSeeNoEvil {
 
     let histogramJson =  this.getRenderObject();
     let histogramFile = this.generateFilenameHistogram();
-    if ( doesFileExist( histogramFile ) ) {
-      let loadedJson = readParseJson( histogramFile );
-      console.log( beautify( JSON.stringify( loadedJson ), null, 2, 100) )
-      this.pepTable = loadedJson.pepTable
-    }
-    process.exit();
-    let hypertext
+    // if ( doesFileExist( histogramFile ) ) {
+    //   let loadedJson = readParseJson( histogramFile );
+    //   console.log( beautify( JSON.stringify( loadedJson ), null, 2, 100) )
+      // this.pepTable = loadedJson.pepTable
+    // }
+    // process.exit();
+    let hypertext, filename
     if ( this.test === true ) {
       hypertext = this.htmlTemplate( this.testSummary() );
     } else {
       hypertext = this.htmlTemplate( histogramJson );
     }
 
-    let histotext = beautify( JSON.stringify( histogramJson ), null, 2, 100);
-    output( histotxt )
+    // let histotext = beautify( JSON.stringify( histogramJson ), null, 2, 100);
+    let histotext =  JSON.stringify( histogramJson );
+    // output( beautify( JSON.stringify( histogramJson ), null, 2, 100) )
     this.fileWrite( this.fileHTML, hypertext );
     this.fileWrite( histogramFile, histotext );
     if (this.userCPP == "auto" && this.magnitude == "auto" && this.artistic == false) {
@@ -4528,11 +4534,11 @@ class AminoSeeNoEvil {
         let z =      item.z;
         let i =      item.index + 1;
 
-        let linear_master =    item.src;
-        let hilbert_master =    item.src;
-        let linear_preview =    item.src;
-        let hilerbt_preview =    item.src;
-
+        let linear_master =    item.linear_master;
+        let hilbert_master =    item.hilbert_master;
+        let linear_preview =    item.linear_master;
+        let hilbert_preview =    item.hilbert_master;
+        let src = hilbert_master;
         // this.pepTable[h].hilbert_master = this.aminoFilenameIndex(h)[0];
         // this.pepTable[h].linear_master = this.aminoFilenameIndex(h)[1];
         // this.pepTable[h].hilbert_preview = this.aminoFilenameIndex(h)[0];
