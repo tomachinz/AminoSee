@@ -61,7 +61,7 @@ function setupPrefs() {
 
 }
 function log(txt) {
-  output( txt )
+  //output( txt )
 }
 // function getArgs() {
 //   return this.args;
@@ -77,7 +77,7 @@ function buildServer() {
   // this.openHtml = true;
   // that.setupKeyboardUI();
   // output("HELLO**********************")
-  output(`Building server to ${outputPath}`)
+  log(`Building server to ${outputPath}`)
   data.saySomethingEpic();
   let sFiles = [
     { "source": appPath + 'public',            "dest": outputPath + '/public' },
@@ -96,20 +96,20 @@ function startCrossSpawnHttp(p) { // Spawn background server
   let didStart = false;
   if (p !== undefined) { port = p }
   let options = [ outputPath + "/", `-p`, port, '-o' ]
-  output(chalk.yellow(`starting up with ${options.toString()}`))
+  output(chalk.yellow(`Starting web server - doc root: ${options.toString()} ${chalk.underline(getServerURL())}`))
   let evilSpawn
   try {
     evilSpawn = spawn('http-server', options, { stdio: 'pipe' });
     didStart = true;
   } catch(err) {
-    output(err)
+    log(err)
     didStart = false;
   }
   evilSpawn.stdout.on('data', (data) => {
     output(data);
   });
   evilSpawn.stderr.on('data', (data) => {
-    output( `error with ${chalk.inverse(url)}`);
+    log( `error with ${chalk.inverse(url)}`);
     didStart = false;
     if ( data.indexOf('EADDRINUSE') != -1 ) {
       output(`Port ${port} is in use`);
@@ -118,11 +118,11 @@ function startCrossSpawnHttp(p) { // Spawn background server
       // output( data );
     } else {
       output(`Unknown error:`);
-      output( data );
+      log( data );
     }
   });
   evilSpawn.on('close', (code) => {
-    output( chalk.inverse(`Server process quit with` ) + ` [${code}] Use --kill to get forceful about starting that server`);
+    log( chalk.inverse(`Server process quit with` ) + ` [${code}] Use --kill to get forceful about starting that server`);
   });
   log(chalk.bgBlue.yellow("IDEA: Maybe send some bitcoin to the under-employed creator tom@funk.co.nz to convince him to work on it?"));
   log("Control-C to quit. This requires http-server, install that with:");
@@ -167,7 +167,7 @@ function startServeHandler() {
   }
   try {
     serveHandler.listen(options, () => {
-      output(`Running at ` + chalk.underline(getServerURL()));
+      log(`Running at ` + chalk.underline(getServerURL()));
     });
     return true
   } catch(err) {
@@ -259,15 +259,15 @@ function start(o) { // return the port number
   if ( o === undefined && doesFolderExist(path.resolve(`/snapshot/`) )  ) {
     o = `/snapshot/public`
   }
-  output(`Attempting to start server at: ${ o } on port ${ port }`)
+  log(`Attempting to start server at: ${ o } on port ${ port }`)
   setupPrefs()
   outputPath = o;
   setOutputPath(o)
   if ( serverLock() ) {
-    output("Server already started. If you think this is not true, remove the lock file: " + filenameServerLock);
+    log("Server already started. If you think this is not true, remove the lock file: " + filenameServerLock);
     startCrossSpawnHttp(43210)
   } else {
-    output("No locks found, Starting server ");
+    log("No locks found, Starting server ");
     log(`filenameServerLock: ${filenameServerLock}`)
     buildServer();
     // starthttpserver();
@@ -281,7 +281,7 @@ function start(o) { // return the port number
 }
 function setOutputPath(o) {
   if (o === undefined) { o = aminosee.outputPath }
-  output(`AMINOSEE.OUTPUTPATH = ${aminosee.outputPath}`)
+  log(`AMINOSEE.OUTPUTPATH = ${aminosee.outputPath}`)
   outputPath = o;
   filenameServerLock = path.resolve(`${outputPath}/aminosee_server_lock.txt`);
   // output(`(server) im planning to run server at: ` + outputPath);
@@ -304,7 +304,7 @@ function open(relative) {
 }
 // module.exports.getServerURL = function (path) {
 function getServerURL(fullpath) {
-  return '? its a bug';
+  // return '? its a bug';
 
   let internalIp = require('internal-ip');
   if (fullpath == undefined) {

@@ -6,32 +6,32 @@ aminosee_do () {
   echo $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 FINISHED RENDER
 }
 best_way () {
-  aminosee $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 &
+  aminosee $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 -q &
   sleep 1
-  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --junk
+  # aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --junk
   # aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 -peptide="Stop Codons"
-  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --peptide=Glutamic_acid &
-  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --peptide=Aspartic_acid
-  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --peptide=Ochre &
-  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --peptide=Amber &
-  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --peptide=Opal
-  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --peptide=Methionine &
-  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --peptide=Cysteine &
-  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --peptide=Glycine &
-  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --peptide=Alanine
-  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --peptide=Valine &
-  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --peptide=Leucine &
-  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --peptide=Isoleucine &
-  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --peptide=Phenylalanine &
-  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --peptide=Proline
-  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --peptide=Tryptophan &
-  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --peptide=Serine &
-  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --peptide=Threonine &
-  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --peptide=Glutamine &
-  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --peptide=Asparagine &
-  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --peptide=Tyrosine
-  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --peptide=Arginine &
-  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --peptide=Lysine &
+  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --quiet --keyboard --peptide=Glutamic_acid &
+  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --quiet --keyboard --peptide=Aspartic_acid
+  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --quiet --keyboard --peptide=Ochre &
+  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --quiet --keyboard --peptide=Amber &
+  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --quiet --keyboard --peptide=Opal
+  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --quiet --keyboard --peptide=Methionine &
+  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --quiet --keyboard --peptide=Cysteine &
+  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --quiet --keyboard --peptide=Glycine &
+  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --quiet --keyboard --peptide=Alanine
+  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --quiet --keyboard --peptide=Valine &
+  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --quiet --keyboard --peptide=Leucine &
+  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --quiet --keyboard --peptide=Isoleucine &
+  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --quiet --keyboard --peptide=Phenylalanine &
+  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --quiet --keyboard --peptide=Proline
+  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --quiet --keyboard --peptide=Tryptophan &
+  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --quiet --keyboard --peptide=Serine &
+  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --quiet --keyboard --peptide=Threonine &
+  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --quiet --keyboard --peptide=Glutamine &
+  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --quiet --keyboard --peptide=Asparagine &
+  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --quiet --keyboard --peptide=Tyrosine
+  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --quiet --keyboard --peptide=Arginine &
+  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --quiet --keyboard --peptide=Lysine &
   aminosee_do $1 $2 $3 $4 --peptide=Histidine
 }
 series_peptides () {
@@ -42,29 +42,29 @@ series_peptides () {
   echo "                                         =///"
   aminosee    $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 &
   sleep 1
-  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --peptide=Glutamic_acid
-  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --peptide=Aspartic_acid
-  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --peptide=Ochre
-  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --peptide=Amber
-  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --peptide=Opal
-  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --peptide=Methionine
-  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --peptide=Cysteine
-  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --peptide=Glycine
-  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --peptide=Alanine
-  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --peptide=Valine
-  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --peptide=Leucine
-  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --peptide=Isoleucine
-  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --peptide=Phenylalanine
-  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --peptide=Proline
-  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --peptide=Tryptophan
-  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --peptide=Serine
-  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --peptide=Threonine
-  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --peptide=Glutamine
-  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --peptide=Asparagine
-  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --peptide=Tyrosine
-  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --peptide=Arginine
-  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --peptide=Lysine
-  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --peptide=Histidine
+  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --quiet --keyboard --peptide=Glutamic_acid
+  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --quiet --keyboard --peptide=Aspartic_acid
+  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --quiet --keyboard --peptide=Ochre
+  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --quiet --keyboard --peptide=Amber
+  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --quiet --keyboard --peptide=Opal
+  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --quiet --keyboard --peptide=Methionine
+  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --quiet --keyboard --peptide=Cysteine
+  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --quiet --keyboard --peptide=Glycine
+  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --quiet --keyboard --peptide=Alanine
+  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --quiet --keyboard --peptide=Valine
+  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --quiet --keyboard --peptide=Leucine
+  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --quiet --keyboard --peptide=Isoleucine
+  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --quiet --keyboard --peptide=Phenylalanine
+  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --quiet --keyboard --peptide=Proline
+  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --quiet --keyboard --peptide=Tryptophan
+  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --quiet --keyboard --peptide=Serine
+  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --quiet --keyboard --peptide=Threonine
+  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --quiet --keyboard --peptide=Glutamine
+  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --quiet --keyboard --peptide=Asparagine
+  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --quiet --keyboard --peptide=Tyrosine
+  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --quiet --keyboard --peptide=Arginine
+  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --quiet --keyboard --peptide=Lysine
+  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --quiet --keyboard --peptide=Histidine
   echo "                                         =///"
   echo "-------------------------------------------"
   echo FINISHED TWIN THREAD DECODE FOR $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11
@@ -80,28 +80,28 @@ parallel_peptides () {
   echo "                                         =///"
   aminosee    $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 &
   sleep 1
-  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --peptide=Glutamic_acid &
-  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --peptide=Aspartic_acid &
-  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --peptide=Ochre
-  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --peptide=Amber &
-  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --peptide=Opal &
-  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --peptide=Methionine &
-  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --peptide=Cysteine &
-  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --peptide=Glycine
-  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --peptide=Alanine &
-  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --peptide=Valine &
-  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --peptide=Leucine &
-  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --peptide=Isoleucine &
-  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --peptide=Phenylalanine &
-  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --peptide=Proline
-  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --peptide=Tryptophan &
-  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --peptide=Serine &
-  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --peptide=Threonine &
-  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --peptide=Glutamine &
-  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --peptide=Asparagine &
-  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --peptide=Tyrosine &
-  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --peptide=Arginine &
-  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --peptide=Lysine &
+  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --quiet --keyboard --peptide=Glutamic_acid &
+  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --quiet --keyboard --peptide=Aspartic_acid &
+  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --quiet --keyboard --peptide=Ochre
+  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --quiet --keyboard --peptide=Amber &
+  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --quiet --keyboard --peptide=Opal &
+  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --quiet --keyboard --peptide=Methionine &
+  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --quiet --keyboard --peptide=Cysteine &
+  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --quiet --keyboard --peptide=Glycine
+  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --quiet --keyboard --peptide=Alanine &
+  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --quiet --keyboard --peptide=Valine &
+  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --quiet --keyboard --peptide=Leucine &
+  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --quiet --keyboard --peptide=Isoleucine &
+  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --quiet --keyboard --peptide=Phenylalanine &
+  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --quiet --keyboard --peptide=Proline
+  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --quiet --keyboard --peptide=Tryptophan &
+  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --quiet --keyboard --peptide=Serine &
+  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --quiet --keyboard --peptide=Threonine &
+  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --quiet --keyboard --peptide=Glutamine &
+  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --quiet --keyboard --peptide=Asparagine &
+  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --quiet --keyboard --peptide=Tyrosine &
+  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --quiet --keyboard --peptide=Arginine &
+  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --quiet --keyboard --peptide=Lysine &
   aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 -peptide=Histidine &
   aminosee_do $1 $2 $3 $4 $5 $6 $7
 
@@ -123,29 +123,29 @@ asterix_peptides () {
   echo "                                         =///"
   aminosee    *        $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 &
   sleep 1
-  nice aminosee  -q  * $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --peptide=Glutamic_acid &
-  nice aminosee  -q  * $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --peptide=Aspartic_acid &
-  nice aminosee  -q  * $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --peptide=Ochre
-  nice aminosee      * $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --peptide=Amber &
-  nice aminosee  -q  * $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --peptide=Opal &
-  nice aminosee  -q  * $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --peptide=Methionine &
-  nice aminosee  -q  * $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --peptide=Cysteine &
-  nice aminosee  -q  * $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --peptide=Glycine
-  nice aminosee    * $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --peptide=Alanine &
-  nice aminosee  -q  * $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --peptide=Valine &
-  nice aminosee  -q  * $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --peptide=Leucine &
-  nice aminosee  -q  * $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --peptide=Isoleucine &
-  nice aminosee  -q  * $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --peptide=Phenylalanine &
-  nice aminosee  -q  * $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --peptide=Proline
-  nice aminosee    * $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --peptide=Tryptophan &
-  nice aminosee  -q  * $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --peptide=Serine &
-  nice aminosee  -q  * $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --peptide=Threonine &
-  nice aminosee  -q  * $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --peptide=Glutamine &
-  nice aminosee    * $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --peptide=Asparagine &
-  nice aminosee  -q  * $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --peptide=Tyrosine &
-  nice aminosee  -q  * $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --peptide=Arginine &
-  nice aminosee  -q  * $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --peptide=Lysine &
-  nice aminosee    * $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --peptide=Histidine
+  nice aminosee  -q  * $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --quiet --keyboard --peptide=Glutamic_acid &
+  nice aminosee  -q  * $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --quiet --keyboard --peptide=Aspartic_acid &
+  nice aminosee  -q  * $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --quiet --keyboard --peptide=Ochre
+  nice aminosee      * $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --quiet --keyboard --peptide=Amber &
+  nice aminosee  -q  * $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --quiet --keyboard --peptide=Opal &
+  nice aminosee  -q  * $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --quiet --keyboard --peptide=Methionine &
+  nice aminosee  -q  * $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --quiet --keyboard --peptide=Cysteine &
+  nice aminosee  -q  * $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --quiet --keyboard --peptide=Glycine
+  nice aminosee    * $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --quiet --keyboard --peptide=Alanine &
+  nice aminosee  -q  * $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --quiet --keyboard --peptide=Valine &
+  nice aminosee  -q  * $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --quiet --keyboard --peptide=Leucine &
+  nice aminosee  -q  * $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --quiet --keyboard --peptide=Isoleucine &
+  nice aminosee  -q  * $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --quiet --keyboard --peptide=Phenylalanine &
+  nice aminosee  -q  * $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --quiet --keyboard --peptide=Proline
+  nice aminosee    * $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --quiet --keyboard --peptide=Tryptophan &
+  nice aminosee  -q  * $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --quiet --keyboard --peptide=Serine &
+  nice aminosee  -q  * $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --quiet --keyboard --peptide=Threonine &
+  nice aminosee  -q  * $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --quiet --keyboard --peptide=Glutamine &
+  nice aminosee    * $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --quiet --keyboard --peptide=Asparagine &
+  nice aminosee  -q  * $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --quiet --keyboard --peptide=Tyrosine &
+  nice aminosee  -q  * $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --quiet --keyboard --peptide=Arginine &
+  nice aminosee  -q  * $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --quiet --keyboard --peptide=Lysine &
+  nice aminosee    * $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --quiet --keyboard --peptide=Histidine
 
   # sleep 1
   # aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 -peptide="Start Codons"

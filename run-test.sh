@@ -10,17 +10,15 @@ test_do () {
 }
 
 success () {
-  echo
   echo __________________________________________
-  echo $1
-  echo
+  echo $1 $2
   echo
 }
-npm run genversion &
-npm run credits &
+npm run genversion
+npm run credits
 echo aminosee $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
 echo STARTING SERVER TO RUN IN BACKGROUND
-aminosee --serve &
+# aminosee --serve &
 aminosee
 test_do "FORCED RENDER OF SMALL GENOME: $FAST" -f $FAST $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
 test_do "QUIET MODE" -q $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12

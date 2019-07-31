@@ -25,7 +25,7 @@ cat src/ascii-logo.txt                                              >>       bui
 LINES=$(cat build/toms_source.txt | wc -l)
 
 cp src/ascii-logo.txt $CREDITS
-tail -f $CREDITS &
+tail $CREDITS
 echo >> $CREDITS
 echo "Thanks to Christos Georghiou who designed the 'See No Evil Hear No Evil Monkeys' http://christosgeorghiou.com/" >> $CREDITS
 echo >> $CREDITS
@@ -34,15 +34,18 @@ echo $LINES lines of code >> $CREDITS
 echo "File drag and drop code by http://twitter.com/craigbuckler" >> $CREDITS
 echo "http://optimalworks.net/ http://sitepoint.com/"  >> $CREDITS
 echo >> $CREDITS
+tail $CREDITS
 # npm list # for bystanders
 npm list | wc -l >>  $CREDITS # actually
+tail $CREDITS
 echo >> $CREDITS
 echo as at $DATE the following open source node npm packages used: >>  $CREDITS
 echo >> $CREDITS
 echo >>  $CREDITS
 npm list >>  $CREDITS
+tail $CREDITS
 # clear
 # cat $CREDITS
-open $CREDITS
+# open $CREDITS
 sleep 1
-killall tail
+# killall tail

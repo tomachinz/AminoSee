@@ -459,7 +459,7 @@ class AminoSeeNoEvil {
     if ( args.ratio || args.r ) {
       this.ratio = args.ratio;
       if ( this.ratio && this.ratio != true ) { // this is for: aminosee --test -r
-        this.ratio = this.ratio.toLowerCase();
+        this.ratio = ratio.toLowerCase();
       }
       if ( this.ratio == "fixed" || this.ratio == "fix") {
         this.ratio = "fix";
@@ -842,17 +842,17 @@ class AminoSeeNoEvil {
       this.debugColumns = this.setDebugCols(); // Math.round(term.width / 3);
       this.msPerUpdate  = minUpdateTime;
 
-      if ( this.updates == true) {
-        if (tx > 400) {     // cover entire screen!
-          this.termMarginLeft = this.debugColumns * 2;
-        } else {
-          this.termMarginLeft = 2;
-        }
-        this.msPerUpdate  = minUpdateTime
-      } else {
-        this.termMarginLeft = 0;
-        this.msPerUpdate  =  this.maxMsPerUpdate ;
-      }
+      // if ( this.updates == true) {
+      //   if (tx > 400) {     // cover entire screen!
+      //     this.termMarginLeft = this.debugColumns * 2;
+      //   } else {
+      //     this.termMarginLeft = 2;
+      //   }
+      //   this.msPerUpdate  = minUpdateTime
+      // } else {
+      //   this.termMarginLeft = 0;
+      //   this.msPerUpdate  =  this.maxMsPerUpdate ;
+      // }
       if ( this.dnabg == true) {
         this.termMarginTop = Math.round(((term.height - this.termDisplayHeight) - this.termStatsHeight) / 3);
       } else {
@@ -935,6 +935,7 @@ class AminoSeeNoEvil {
         pepTable: this.pepTable,
         summary: zumari
       }
+      // output(histogramJson  )
       // return beautify( histogramJson, null, 2, 100);
       return histogramJson;
     }
@@ -1109,10 +1110,10 @@ class AminoSeeNoEvil {
           // }
           if ( key.name == 'Space' || key.name == 'Enter') {
             clearCheck();
-            that.msPerUpdate  = 200;
+            that.msPerUpdate  = minUpdateTime;
           }
           if ( key.name == 'u') {
-            that.msPerUpdate  = 200;
+            that.msPerUpdate  = minUpdateTime;
             if ( that.updates == true) {
               that.updates = false;
               clearTimeout( that.updatesTimer);
@@ -2572,6 +2573,9 @@ class AminoSeeNoEvil {
     }
 
   }
+  junkTick() {
+
+  }
   processLine(l) {
     // mode('process line')
     this.status = 'process line ' + this.howMany;
@@ -2598,38 +2602,24 @@ class AminoSeeNoEvil {
         this.charClock++;
         this.errorClock++;
         this.red  = 0;
-        this.green  = 0;
+        this.green = 0;
         this.blue  = 0;
         if (column > lineLength) {
           this.breakClock++;
           break
         }
       }
-      codon += c; // add the base
+      codon += c; // add the base to codon the working triplet memory
       if (codon == "..." || codon == "NNN") {
         this.currentTriplet = codon;
         if (codon == "NNN" ) {
           // this.pepTable.find(isNoncoding).Histocount++;
           this.pepTable.find("Non-coding").Histocount++;
+          let r = this.pepTable.find( (pep) => { pep.Codon == str });
+
         }
         codon="";
-        bugtxt( this.red + this.green + this.blue );
-        if ( this.red + this.green + this.blue >0) { // this is a fade out to show headers.
-          //  this.red  -= this.codonsPerPixel;
-          //  this.green -= this.codonsPerPixel;
-          //  this.blue -= this.codonsPerPixel;
-          this.red--;
-          this.green--;
-          this.blue--;
-          // this.paintPixel();
-        } else {
-          // do nothing this maybe a non-coding header section in the file.
-          // this.status   = "header";
-          //  this.msPerUpdate  = 100;
-        }
         this.errorClock++;
-
-
       } else if (codon.length ==  3) {
         this.currentTriplet = codon;
         this.pixelStacking++;
@@ -4375,9 +4365,9 @@ class AminoSeeNoEvil {
     }
     peptideToHue(str) {
       console.warn(`str ${str}`);
-      let r = this.pepTable.find( (pep) => { pep.Codon == str });
-      console.warn(r);
-      return r.Hue;
+      let peptide = this.pepTable.find( (pep) => { pep.Codon == str });
+      console.warn(peptide);
+      return peptide.Hue;
     }
     getCodonIndex(str) {
       return this.pepTable.indexOf(str)
@@ -4515,8 +4505,8 @@ class AminoSeeNoEvil {
       let html = " ";
       let summary = histogramJson.summary;
       let pepTable = histogramJson.pepTable;
-      output(histogramJson.toString())
-      let name = summary.name;
+      // output(beautify(summary))
+      // let name = histogramJson.summary.name;
       // let refimage = summary.refimage;
       // let linearimage = summary.linearimage;
       // let i = -1;
@@ -4533,7 +4523,7 @@ class AminoSeeNoEvil {
         let c =      hsvToRgb( theHue/360, 0.5, 1.0 );
         let z =      item.z;
         let i =      item.index + 1;
-
+        let name =   item.name;
         let linear_master =    item.linear_master;
         let hilbert_master =    item.hilbert_master;
         let linear_preview =    item.linear_master;
@@ -5270,7 +5260,7 @@ class AminoSeeNoEvil {
       // term.moveTo( 0, 0 )
       out('loading terminal image');
       // output(chalk.inverse("Terminal image: " +  basename(fullpath)))
-      term.drawImage( fullpath, { shrink: { width: tx / 2,  height: ty } }, () => {
+      term.drawImage( fullpath, { shrink: { width: tx / 2,  height: ty / 2} }, () => {
         output("Terminal image: " + chalk.inverse(  basename(fullpath) ) + " " +  reason)
         // term.restoreCursor();
         if ( cb !== undefined ) { cb() }
@@ -5390,6 +5380,7 @@ class AminoSeeNoEvil {
     if ( this.brute == false) { return false; }
 
     for (let i = 0; i < cliInstance.pepTable.length; i++) {
+      output(`initialise ${i}`)
       cliInstance.pepTable[i].lm_rgbArray = []
       cliInstance.pepTable[i].hm_rgbArray = []
     }
