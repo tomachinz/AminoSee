@@ -1,6 +1,6 @@
 {
   "name": "aminosee",
-  "version": "1.20.3",
+  "version": "1.20.4",
   "owner": "Thomas Bieder Atkinson",
   "author": "Tom Atkinson <tom@funk.co.nz>",
   "website": "http://aminosee.funk.nz",
@@ -20,7 +20,8 @@
     "copyright": "Copyright © 2018-2019 Tom Atkinson",
     "icon": "src/public/favicon.png",
     "directories": [
-      "src/public/**"
+      "src/public/**",
+      "www"
     ],
     "mac": {
       "category": [
@@ -31,7 +32,7 @@
   },
   "dependencies": {
     "fs-extra": "^8.1.0",
-    "genversion": "^2.1.1",
+    "genversion": "^2.2.0",
     "hammerjs": "^2.0.8",
     "http-server": "^0.11.1",
     "node-fetch": "^2.6.0",
@@ -53,7 +54,7 @@
     "event-stream": "^4.0.1",
     "get-cursor-position": "^1.0.5",
     "hilbert-2d": "0.0.1",
-    "humanize-duration": "^3.20.0",
+    "humanize-duration": "^3.20.1",
     "internal-ip": "^4.3.0",
     "json-beautify": "^1.1.0",
     "keypress": "^0.2.1",
@@ -73,10 +74,10 @@
     "serve": "^11.1.0",
     "serve-handler": "^6.1.0",
     "sliced": "^1.0.1",
-    "spdy": "^4.0.0",
+    "spdy": "^4.0.1",
     "stream-file": "^0.2.4",
     "systeminformation": "^4.14.4",
-    "terminal-kit": "^1.28.39",
+    "terminal-kit": "^1.29.1",
     "through": "^2.3.8",
     "uniq": "^1.0.1",
     "vows": "^0.8.2",

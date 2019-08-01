@@ -7,17 +7,17 @@
 
 Thanks to Christos Georghiou who designed the 'See No Evil Hear No Evil Monkeys' http://christosgeorghiou.com/
 
-Checkout the music from the drummer who wrote     9217 of code for this app at https://www.funk.co.nz/tomachi
-9217 lines of code
+Checkout the music from the drummer who wrote    46085 of code for this app at https://www.funk.co.nz/tomachi
+46085 lines of code
 File drag and drop code by http://twitter.com/craigbuckler
 http://optimalworks.net/ http://sitepoint.com/
 
-    1664
+    1665
 
-as at Thu 1 Aug 2019 01:03:10 NZST the following open source node npm packages used:
+as at Thu 1 Aug 2019 22:24:02 NZST the following open source node npm packages used:
 
 
-aminosee@1.20.3 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
+aminosee@1.20.4 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
 ├─┬ @gmod/indexedfasta@1.0.13
 │ ├─┬ @babel/runtime-corejs2@7.4.5
 │ │ ├── core-js@2.6.8
@@ -603,7 +603,7 @@ aminosee@1.20.3 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
 │ ├─┬ jsonfile@4.0.0
 │ │ └── graceful-fs@4.1.15 deduped
 │ └── universalify@0.1.2
-├─┬ genversion@2.1.1
+├─┬ genversion@2.2.0
 │ ├── commander@2.20.0
 │ ├─┬ find-package@1.0.0
 │ │ └── parents@1.0.1 deduped
@@ -636,7 +636,7 @@ aminosee@1.20.3 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
 │ │ └── mkdirp@0.5.1 deduped
 │ └─┬ union@0.4.6
 │   └── qs@2.3.3
-├── humanize-duration@3.20.0
+├── humanize-duration@3.20.1
 ├─┬ internal-ip@4.3.0
 │ ├─┬ default-gateway@4.2.0
 │ │ ├─┬ execa@1.0.0
@@ -787,7 +787,7 @@ aminosee@1.20.3 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
 │ │     └─┬ readable-stream@2.3.6
 │ │       ├── core-util-is@1.0.2 deduped
 │ │       ├── inherits@2.0.3 deduped
-│ │       ├── isarray@1.0.0
+│ │       ├── isarray@1.0.0 deduped
 │ │       ├── process-nextick-args@2.0.0 deduped
 │ │       ├── safe-buffer@5.1.2 deduped
 │ │       ├── string_decoder@1.1.1 deduped
@@ -1620,7 +1620,7 @@ aminosee@1.20.3 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
 │ ├── path-to-regexp@2.2.1
 │ └── range-parser@1.2.0
 ├── sliced@1.0.1
-├─┬ spdy@4.0.0
+├─┬ spdy@4.0.1
 │ ├─┬ debug@4.1.1
 │ │ └── ms@2.1.1 deduped
 │ ├── handle-thing@2.0.0
@@ -1651,7 +1651,7 @@ aminosee@1.20.3 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
 │     └── minimalistic-assert@1.0.1
 ├── stream-file@0.2.4
 ├── systeminformation@4.14.4
-├─┬ terminal-kit@1.28.39
+├─┬ terminal-kit@1.29.1
 │ ├─┬ @cronvel/get-pixels@3.3.1
 │ │ ├── jpeg-js@0.1.2
 │ │ ├── ndarray@1.0.18 deduped
@@ -1662,6 +1662,7 @@ aminosee@1.20.3 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
 │ │ ├── node-bitmap@0.0.1
 │ │ ├── omggif@1.0.10
 │ │ └── pngjs@2.3.1
+│ ├── chroma-js@2.0.4
 │ ├── lazyness@1.1.1
 │ ├─┬ ndarray@1.0.18
 │ │ ├── iota-array@1.0.0
@@ -1669,7 +1670,7 @@ aminosee@1.20.3 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
 │ ├── nextgen-events@1.1.1
 │ ├─┬ seventh@0.7.27
 │ │ └── setimmediate@1.0.5
-│ ├── string-kit@0.9.9
+│ ├── string-kit@0.9.10
 │ └── tree-kit@0.6.1
 ├── three@0.106.2
 ├── through@2.3.8

@@ -458,8 +458,8 @@ class AminoSeeNoEvil {
     bugtxt(` this.maxpix: ${  this.maxpix } this.dimension: ${ this.dimension }`);
     if ( args.ratio || args.r ) {
       this.ratio = args.ratio;
-      if ( this.ratio && this.ratio != true ) { // this is for: aminosee --test -r
-        this.ratio = ratio.toLowerCase();
+      if ( this.test ) { // this is for: aminosee --test -r
+        this.ratio = this.ratio.toLowerCase();
       }
       if ( this.ratio == "fixed" || this.ratio == "fix") {
         this.ratio = "fix";
@@ -1453,7 +1453,6 @@ class AminoSeeNoEvil {
 
     // if (doesFileExist(this.filePNG) && this.force == false) {
     //   bugtxt(`isStorageBusy ${this.isStorageBusy}`)
-    //   termDrawImage(this.filePNG, `File already rendered`);
     //   let msg = `Already rendered ${ maxWidth(60, this.justNameOfPNG) }. Storage: [${this.isStorageBusy}]`;
     //   output(msg);
     //   this.openOutputs();
@@ -3337,7 +3336,6 @@ class AminoSeeNoEvil {
     this.isDiskFinLinear = true;
     if ( this.artistic || this.quiet == false ) {
       this.previousImage = this.filePNG;
-      // termDrawImage(this.previousImage, `linear finished`)
     }
     if ( this.test ) {
       mode(`Calibration linear generation done. Waiting on (${ this.storage()})`);
@@ -3739,7 +3737,6 @@ class AminoSeeNoEvil {
     if (this.loopCounter+1 >  this.dimension) {
       this.testStop();
       // this.saveHTML(this.openOutputs);
-      // termDrawImage();
       if ( cb !== undefined ) { cb() }
       // this.quit(0);
       return false;
@@ -5261,7 +5258,7 @@ class AminoSeeNoEvil {
       out('loading terminal image');
       // output(chalk.inverse("Terminal image: " +  basename(fullpath)))
       term.drawImage( fullpath, { shrink: { width: tx / 2,  height: ty / 2} }, () => {
-        output("Terminal image: " + chalk.inverse(  basename(fullpath) ) + " " +  reason)
+        // output("Terminal image: " + chalk.inverse(  basename(fullpath) ) + " " +  reason)
         // term.restoreCursor();
         if ( cb !== undefined ) { cb() }
       })
