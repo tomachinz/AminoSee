@@ -2571,7 +2571,7 @@ class AminoSeeNoEvil {
       } catch(e) {  bugtxt( "Issue with keyboard this.mode: " + e ) }
     }
     term.eraseDisplayBelow();
-    this.printRadMessage([ ` ${(killServersOnQuit ?  'AminoSee has shutdown' : ' ' )}`, `${( this.verbose ?  ' Exit code: '+ code : '' )}`,  (killServersOnQuit == false ? server.getServerURL() : ' '), this.howMany ]);
+    // this.printRadMessage([ ` ${(killServersOnQuit ?  'AminoSee has shutdown' : ' ' )}`, `${( this.verbose ?  ' Exit code: '+ code : '' )}`,  (killServersOnQuit == false ? server.getServerURL() : ' '), this.howMany ]);
     this.destroyProgress();
     process.exitCode = code;
     this.removeLocks();
