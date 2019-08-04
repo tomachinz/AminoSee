@@ -1,6 +1,6 @@
 {
   "name": "aminosee",
-  "version": "1.20.7",
+  "version": "1.20.8",
   "owner": "Thomas Bieder Atkinson",
   "author": "Tom Atkinson <tom@funk.co.nz>",
   "website": "http://aminosee.funk.nz",
@@ -89,7 +89,7 @@
     "clean": "rimraf ./dist ./build",
     "crash": "node --inspect 27MB_TestPattern.txt --peptide=Ochre 3MB_TestPattern.txt 50KB_TestPattern.txt batch-peptides.sh batch-process.sh Gorilla_gorGor4_chr2B.fa",
     "gource": "./gource.sh",
-    "test": "echo 'requires cli programs: time, lighthouse, vows etc' ; time ./run-test.sh ;",
+    "test": "echo 'requires cli programs: time, lighthouse, vows etc' ; time ./run-test.sh -q ;",
     "start": "node bin/aminosee",
     "serve": "node ./bin/aminosee.js",
     "inspect": "node --inspect bin/aminosee.js dna/27MB_TestPattern.txt /Volumes/aminosee/dna/Brown_Kiwi_NW_013982187v1.fa   /Volumes/aminosee/dna/Brown_Kiwi_NW_013982187v1.fa  -f -c1000 -vd --debug",

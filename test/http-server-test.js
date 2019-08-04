@@ -132,14 +132,14 @@ vows.describe('http-server').addBatch({
         cors: true,
         corsHeaders: 'X-Test'
       });
-      server.listen(8082);
+      server.listen(4321);
       this.callback(null, server);
     },
     'and given OPTIONS request': {
       topic: function () {
         request({
           method: 'OPTIONS',
-          uri: 'http://localhost:8082/',
+          uri: 'http://localhost:4321/',
           headers: {
             'Access-Control-Request-Method': 'GET',
             Origin: 'http://example.com',

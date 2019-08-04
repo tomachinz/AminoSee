@@ -23,7 +23,7 @@
 	<link href='https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz:700,400,200,100' rel='stylesheet' type='text/css'>
 	<link href="https://www.funk.co.nz/css/menu.css" rel="stylesheet">
 	<!-- <link href="/css/menu.css" rel="stylesheet"> -->
-	<link href="https://www.funk.co.nz/css/funk2014.css" rel="stylesheet">
+	<link href="https://www.funk.co.nz/css/funk2019.css" rel="stylesheet">
 	<!-- <link href="/css/funk2014.css" rel="stylesheet"> -->
 	<!-- Funk.nz menubar include -->
 	<!-- Google Tag Manager -->
@@ -70,11 +70,11 @@
 
 						<form action="../">
 						<select name="selectedGenome" onchange="fileChanged(this.options[this.selectedIndex].value)">
-						<option value="output/megabase/megabase.fa_linear-Reference_c1_sqr_sci.png" selected>Megabase</option>
-						<option value="output/Brown_Kiwi_013982187v1.fa_linear_leucine_c123.6_sci.png">Brown Kiwi</option>
+						<option value="output/megabase/megabase.fa_linear__Reference_c1_sqr_sci.png" selected>Megabase</option>
+						<option value="output/Brown_Kiwi_013982187v1.fa_linear__Reference_c123.6_sci.png">Brown Kiwi</option>
 						<option value="calibration/AminoSee_Calibration_reg_linear_8.png">AminoSee Calibration Large</option>
 						<option value="calibration/AminoSee_Calibration_reg_linear_2.png">AminoSee Calibration Small</option>
-						<option value="output/Caenorhabdihromosome-V.fa_linear_reg_c1.7_fix_sci.png">C.elegans</option>
+						<option value="output/Caenorhabditisel.dna_sm.toplevel/images/Caenorhabditisel.dna_sm.toplevel.fa_linear__Reference_c4_fix_sci.png">C.elegans</option>
 						<option value="public/seenoevilmonkeys.jpg">AminoSeeNoEvil Monkeys</option>
 						<option value="/images/nav/funk-logo-140px.png">Funk Logo 140px</option>
 						</select>
@@ -96,8 +96,8 @@
 			<div id="status" class="headingStatus">
 				...loading...
 				<div id="oi">
-					<img id="current_image" src="output/megabase/images/megabase.fa_linear-Reference_c1_sqr_sci.png" width="64px" height="64px">
-					<img id="offscreen_image" src="output/megabase/images/megabase.fa_linear-Reference_c1_sqr_sci.png" class="hidden">
+					<img id="current_image" src="output/megabase/images/megabase.fa_linear__Reference_c1_sqr_sci.png" width="64px" height="64px">
+					<img id="offscreen_image" src="output/megabase/images/megabase.fa_linear__Reference_c1_sqr_sci.png" class="hidden">
 				</div>
 			</div>
 			<div id="stats" class="stats whitetext">

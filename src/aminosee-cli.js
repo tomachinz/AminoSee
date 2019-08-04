@@ -248,7 +248,6 @@ class AminoSeeNoEvil {
     this.devmode = false; // kills the auto opening of reports etc
     this.quiet = false;
     this.verbose = false; // not recommended. will slow down due to console.
-    this.debug = false; // not recommended. will slow down due to console.
     this.force = false; // this.force overwrite existing PNG and HTML reports
     this.artistic = false; // for Charlie
     this.dnabg = false; // firehose your screen with DNA!
@@ -302,10 +301,11 @@ class AminoSeeNoEvil {
     // output(logo());
     this.setNextFile();
     if ( args.debug || debug == true) {
-      this.debug = true;
+      debug = true;
+      this.debug = debug;
       output('debug mode ENABLED');
     } else {
-      this.debug = false;
+      this.debug = debug;
     }
     url = projectprefs.aminosee.url;
     if (url === undefined) {
@@ -650,13 +650,14 @@ class AminoSeeNoEvil {
         this.openFileExplorer = false;
         this.openImage = false;
       }
-      if ( args.quiet || args.q) { // needs to be at top so changes can be overridden! but after this.debug.
+      if ( args.quiet || args.q ) { // needs to be at top so changes can be overridden! but after this.debug.
         output("quiet mode enabled.");
         this.quiet = true;
         this.verbose = false;
         this.dnabg = false;
         this.updates = false;
         this.clear = false;
+        this.openImage = false;
         webserverEnabled = false;
         this.raceDelay = 1; // yeah it makes it go faster
       } else {
@@ -735,7 +736,7 @@ class AminoSeeNoEvil {
           this.setupKeyboardUI();
           // countdown('Press [Q] to exit or wait ', 15000, process.exit);
           let that = this;
-          countdown('Press [Q] to exit or wait ', 15000, () => {
+          countdown('Press [Q] to exit or wait ', this.raceDelay * 217, () => {
             that.gracefulQuit();
           });
 
@@ -990,7 +991,7 @@ class AminoSeeNoEvil {
       this.isStorageBusy = false;
       // this.currentFile = this.args._[0].toString();
       // this.dnafile = path.resolve( this.currentFile )
-
+      this.outputPath = getOutputFolder();
       for (let h=0; h< this.pepTable.length; h++) {
         this.pepTable[h].Histocount = 0;
         this.pepTable[h].z = h;
@@ -1387,8 +1388,9 @@ class AminoSeeNoEvil {
         log(`Not rendering presently. ${this.busy()}`)
       }
       if ( this.howMany < 0 ) {
-        mode(`outa work - last render`)
-        this.quit(0);
+        reason = `outa work - last render`;
+        mode(reason)
+        this.quit(0, reason);
         return false;
       }
       if ( this.dnafile === undefined || this.currentFile === undefined) {
@@ -1563,14 +1565,15 @@ class AminoSeeNoEvil {
       this.error('look thread re-rentry: ' + reason);
     }
     if ( this.test == true ) { // uses a loop not polling.
-      this.error('test is in look for work?');
+      output('test is in look for work?');
+
     }
     if (this.howMany <= 0) {
       mode('Happiness.');
       saySomethingEpic();
       log(chalk.bgRed.yellow(this.status ));
       // this.printRadMessage( this.status )
-      this.quit(0, this.status  )
+      this.quit(0, this.status )
       return false;
     }
     let file;
@@ -1798,14 +1801,15 @@ class AminoSeeNoEvil {
     if (this.dnafile  == funknzlabel) { log('no'); return false; }
     this.baseChars = this.getFilesizeInBytes( this.dnafile );
     if ( this.baseChars < 0) { // switch to streaming pipe this.mode,
-      this.error("Are you streaming std in? That part isn't written yet!")
-      this.isStreamingPipe = true; // cat Human.genome | aminosee
-      this.estimatedPixels = 696969; // 696969 flags a missing value in this.debug
-      this.magnitude = this.dimension = 6; // close to 69
-      log("Could not get filesize, setting for image size of 696,969 pixels, maybe use --codons 1 this is rendered with --codons 696");
-      this.baseChars = 696969; // 696969 flags a missing value in this.debug
-      this.codonsPerPixel = 696; // small images with _c69 in this.file
-      process.exit();
+      return false;
+      // this.error("Are you streaming std in? That part isn't written yet!")
+      // this.isStreamingPipe = true; // cat Human.genome | aminosee
+      // this.estimatedPixels = 696969; // 696969 flags a missing value in this.debug
+      // this.magnitude = this.dimension = 6; // close to 69
+      // log("Could not get filesize, setting for image size of 696,969 pixels, maybe use --codons 1 this is rendered with --codons 696");
+      // this.baseChars = 696969; // 696969 flags a missing value in this.debug
+      // this.codonsPerPixel = 696; // small images with _c69 in this.file
+      // process.exit();
       return true;
     } else { // use a file
       this.isStreamingPipe = false; // cat Human.genome | aminosee
@@ -2131,7 +2135,6 @@ class AminoSeeNoEvil {
       this.isDiskFinHTML = false;
       this.isDiskFinHilbert = false;
       this.isDiskFinLinear = false;
-      // this.renderLock = true;
     } else { // free!
       out(`Disk is unlocked! (this is ok)`)
       this.isStorageBusy = false;
@@ -2391,7 +2394,9 @@ class AminoSeeNoEvil {
     }
     if ( this.renderLock == true) {
       this.error(`Thread re-entered popAndPollOrBust due to: ${reason}`)
-    } else { out(`About to pop / shift`) }
+    } else {
+      out(`About to pop / shift`)
+    }
     try {
       file = this.args._.shift().toString(); // file = this.args._.pop().toString();
       // file = this.args._.pop().toString(); // file = this.args._.pop().toString();
@@ -2402,7 +2407,7 @@ class AminoSeeNoEvil {
     this.howMany = this.args._.length;
     this.setNextFile();
 
-    if ( file.indexOf('...') != -1) {
+    if ( file.indexOf('...') !== -1) {
       mode( 'Cant use files with three dots in the file ... (for some reason?)');
       this.popAndPollOrBust(this.status );
       // this.quit(0, 'no more commands' );
@@ -2435,11 +2440,11 @@ class AminoSeeNoEvil {
   postRenderPoll(reason) { // renderLock on late, off early
     if ( reason === undefined) { this.error(`reason must be defined for postRenderPoll`) }
     output(chalk.inverse(`Finishing saving (${reason}), ${this.busy()} waiting on ${ this.storage() } ${ this.howMany } files to go.`));
-    if ( this.renderLock !== true) { // re-entrancy filter
+    if ( this.renderLock !== true &&  this.test == false ) { // re-entrancy filter
       output(chalk.bgRed("Not rendering (may halt), thread entered postRenderPoll: " + reason))
-      return true
+      // return true;
     }
-    // if (this.test) { this.isDiskFinHTML = true }
+    if (this.test) { this.isDiskFinHTML = true }
     // try to avoid messing with globals of a already running render!
     // sort through and load a file into "nextFile"
     // if its the right this.extension go to sleep
@@ -2447,12 +2452,15 @@ class AminoSeeNoEvil {
     // log(chalk.inverse( fixedWidth(24, this.justNameOfDNA))  + " postRenderPoll reason: " + reason);
     if ( this.isDiskFinLinear !== false && this.isDiskFinHilbert !== false  && this.isDiskFinHTML !== false ) {
       output(` [ storage threads ready: ${chalk.inverse( this.storage() )} ] test: ${this.test}`);
-      this.setIsDiskBusy( false );
+      // this.setIsDiskBusy( false );
       this.openOutputs();
 
-      if ( this.test ) {
+      if ( this.test == true) {
         this.renderLock = false;
-        this.runCycle()
+        output(` [ test: ${this.test}`);
+        // this.runCycle();
+        // let that = gimmeDat()
+        cliInstance.runCycle();
       } else {
 
         this.removeLocks();
@@ -2511,6 +2519,7 @@ class AminoSeeNoEvil {
 
   quit(code, reason) {
     if ( reason === undefined) {
+      this.error(`must set reason ${this.mode }`)
       if ( this !== undefined) {
         reason = this.status
       } else {
@@ -2547,9 +2556,9 @@ class AminoSeeNoEvil {
       } else {
         output('Not disabling keyboard mode.')
       }
-
+      return true;
     } else {
-      output(chalk.bgWhite.red (`process.exit going on. last file: ${ this.dnafile } currently: ${this.busy()} percent complete ${  this.percentComplete}`));
+      output(chalk.bgWhite.red (`Active process.exit going on. last file: ${ this.dnafile } currently: ${this.busy()} percent complete ${  this.percentComplete}`));
     }
     if (killServersOnQuit == true) {
       if (webserverEnabled == true) { // control-c kills server
@@ -2565,7 +2574,7 @@ class AminoSeeNoEvil {
       } catch(e) {  bugtxt( "Issue with keyboard this.mode: " + e ) }
     }
     term.eraseDisplayBelow();
-    // this.printRadMessage([ ` ${(killServersOnQuit ?  'AminoSee has shutdown' : ' ' )}`, `${( this.verbose ?  ' Exit code: '+ code : '' )}`,  (killServersOnQuit == false ? server.getServerURL() : ' '), this.howMany ]);
+    this.printRadMessage([ ` ${(killServersOnQuit ?  'AminoSee has shutdown' : ' ' )}`, `${( this.verbose ?  ' Exit code: '+ code : '' )}`,  (killServersOnQuit == false ? server.getServerURL() : ' '), this.howMany ]);
     this.destroyProgress();
     process.exitCode = code;
     this.removeLocks();
@@ -2673,161 +2682,164 @@ class AminoSeeNoEvil {
 
         //  blends colour on one pixel
         if ( this.pixelStacking >= this.codonsPerPixel) {
-
-
-          if ( this.artistic != true) { // REGULAR MODE
-
-
-            this.red  =  this.mixRGBA[0];
-            this.green  =  this.mixRGBA[1];
-            this.blue  =  this.mixRGBA[2];
-            this.alpha =  this.mixRGBA[3];
-            this.paintPixel(); // FULL BRIGHTNESS
-            // reset inks, using this.codonsPerPixel cycles for each pixel:
-            this.mixRGBA[0] =   0;
-            this.mixRGBA[1] =   0;
-            this.mixRGBA[2] =   0;
-            this.mixRGBA[3] =   0;
-            this.red  = 0;
-            this.green  = 0;
-            this.blue  = 0;
-            this.alpha = 0;
-
-            // end science this.mode
-          } else {
-            // ************ ARTISTIC this.mode
-            if (this.isHighlightCodon) {
-              if ( artisticHighlightLength >= 12) {
-                this.red  =  this.mixRGBA[0]/12;
-                this.green  =  this.mixRGBA[1]/12;
-                this.blue  =  this.mixRGBA[2]/12;
-                this.paintPixel();
-                this.red  +=  this.mixRGBA[0]/12;
-                this.green  +=  this.mixRGBA[1]/12;
-                this.blue  +=  this.mixRGBA[2]/12;
-                this.paintPixel();
-                this.red  +=  this.mixRGBA[0]/12;
-                this.green  +=  this.mixRGBA[1]/12;
-                this.blue  +=  this.mixRGBA[2]/12;
-                this.paintPixel();
-                this.red  +=  this.mixRGBA[0]/12;
-                this.green  +=  this.mixRGBA[1]/12;
-                this.blue  +=  this.mixRGBA[2]/12;
-                this.paintPixel();
-                this.red  +=  this.mixRGBA[0]/12;
-                this.green  +=  this.mixRGBA[1]/12;
-                this.blue  +=  this.mixRGBA[2]/12;
-                this.paintPixel();
-                this.red  +=  this.mixRGBA[0]/12;
-                this.green  +=  this.mixRGBA[1]/12;
-                this.blue  +=  this.mixRGBA[2]/12;
-                this.paintPixel();
-
-
-
-                this.red  =  this.mixRGBA[0]/12;
-                this.green  =  this.mixRGBA[1]/12;
-                this.blue  =  this.mixRGBA[2]/12;
-                this.paintPixel();
-                this.red  +=  this.mixRGBA[0]/12;
-                this.green  +=  this.mixRGBA[1]/12;
-                this.blue  +=  this.mixRGBA[2]/12;
-                this.paintPixel();
-                this.red  +=  this.mixRGBA[0]/12;
-                this.green  +=  this.mixRGBA[1]/12;
-                this.blue  +=  this.mixRGBA[2]/12;
-                this.paintPixel();
-                this.red  +=  this.mixRGBA[0]/12;
-                this.green  +=  this.mixRGBA[1]/12;
-                this.blue  +=  this.mixRGBA[2]/12;
-                this.paintPixel();
-                this.red  +=  this.mixRGBA[0]/12;
-                this.green  +=  this.mixRGBA[1]/12;
-                this.blue  +=  this.mixRGBA[2]/12;
-                this.paintPixel();
-                this.red  +=  this.mixRGBA[0]/12;
-                this.green  +=  this.mixRGBA[1]/12;
-                this.blue  +=  this.mixRGBA[2]/12;
-                this.paintPixel();
-              }
-              this.red  +=  this.mixRGBA[0]/3;
-              this.green  +=  this.mixRGBA[1]/3;
-              this.blue  +=  this.mixRGBA[2]/3;
-              this.paintPixel();
-              this.red  +=  this.mixRGBA[0]/3;
-              this.green  +=  this.mixRGBA[1]/3;
-              this.blue  +=  this.mixRGBA[2]/3;
-              this.paintPixel();
-              this.red  =  this.mixRGBA[0];
-              this.green  =  this.mixRGBA[1];
-              this.blue  =  this.mixRGBA[2];
-              this.paintPixel();
-              this.red  += 200;
-              this.green  += 200;
-              this.blue  += 200;
-              this.paintPixel();
-              this.red  =  this.mixRGBA[0]/2;
-              this.green  =  this.mixRGBA[1]/2;
-              this.blue  =  this.mixRGBA[2]/2;
-              this.paintPixel();
-              this.red  = 0;
-              this.green  = 0;
-              this.blue  = 0;
-              this.paintPixel(); // END WITH BLACK
-              this.pixelStacking = 0;
-              this.mixRGBA[0] =   0;
-              this.mixRGBA[1] =   0;
-              this.mixRGBA[2] =   0;
-              //
-            } else { // non highlight pixel end // ARTISTIC MODE BELOW
-              this.red  = 0;
-              this.green  = 0;
-              this.blue  = 0;
-              this.alpha = 255; // Full black
-              this.paintPixel(); // 1. START WITH BLACK
-              this.red  =  this.mixRGBA[0]/2;
-              this.green  =  this.mixRGBA[1]/2;
-              this.blue  =  this.mixRGBA[2]/2;
-              this.alpha = 128; // HALF TRANSLUCENT GLINT
-              this.paintPixel(); // 2.
-              this.red  += 99; // <-- THIS IS THE WHITE GLINT
-              this.green  += 99; // <-- THIS IS THE WHITE GLINT
-              this.blue  += 99; // <-- THIS IS THE WHITE GLINT
-              this.alpha = 255; // fully opaque from here
-              this.paintPixel(); // 3.
-              this.red  =  this.mixRGBA[0];
-              this.green  =  this.mixRGBA[1];
-              this.blue  =  this.mixRGBA[2];
-              this.paintPixel(); // 4. <<--- Full colour pixel! from here it fades out
-
-              for(let ac = 0; ac < artisticHighlightLength - 5; ac++ ) { // Subtract the four pix above and the one below
-                this.red  =  this.red  / 1.2;
-                this.green  =  this.green  / 1.2;
-                this.blue  =  this.blue  / 1.2;
-                this.paintPixel(); // 12 - 4 = 7 cycles hopefully
-              }
-
-              this.red  =  this.red  / 1.1;
-              this.green  =  this.green  / 1.1;
-              this.blue  =  this.blue  / 1.1;
-              this.alpha = 128;
-              this.paintPixel(); // 12th.
-              // reset inks:
-              this.pixelStacking = 0;
-              this.mixRGBA[0] =   0;
-              this.mixRGBA[1] =   0;
-              this.mixRGBA[2] =   0;
-            }
-
-
-          } // this.artistic this.mode
-
+          this.renderPixel()
         } // end pixel stacking
         codon = ""; // wipe for next time
       } // end codon.length ==  3
     } // END OF line LOOP! thats one line but  this.mixRGBA can survive lines
   } // end processLine
 
+  renderPixel() {
+
+
+
+      if ( this.artistic != true) { // REGULAR MODE
+
+
+        this.red  =  this.mixRGBA[0];
+        this.green  =  this.mixRGBA[1];
+        this.blue  =  this.mixRGBA[2];
+        this.alpha =  this.mixRGBA[3];
+        this.paintPixel(); // FULL BRIGHTNESS
+        // reset inks, using this.codonsPerPixel cycles for each pixel:
+        this.mixRGBA[0] =   0;
+        this.mixRGBA[1] =   0;
+        this.mixRGBA[2] =   0;
+        this.mixRGBA[3] =   0;
+        this.red  = 0;
+        this.green  = 0;
+        this.blue  = 0;
+        this.alpha = 0;
+
+        // end science this.mode
+      } else {
+        // ************ ARTISTIC this.mode
+        if (this.isHighlightCodon) {
+          if ( artisticHighlightLength >= 12) {
+            this.red  =  this.mixRGBA[0]/12;
+            this.green  =  this.mixRGBA[1]/12;
+            this.blue  =  this.mixRGBA[2]/12;
+            this.paintPixel();
+            this.red  +=  this.mixRGBA[0]/12;
+            this.green  +=  this.mixRGBA[1]/12;
+            this.blue  +=  this.mixRGBA[2]/12;
+            this.paintPixel();
+            this.red  +=  this.mixRGBA[0]/12;
+            this.green  +=  this.mixRGBA[1]/12;
+            this.blue  +=  this.mixRGBA[2]/12;
+            this.paintPixel();
+            this.red  +=  this.mixRGBA[0]/12;
+            this.green  +=  this.mixRGBA[1]/12;
+            this.blue  +=  this.mixRGBA[2]/12;
+            this.paintPixel();
+            this.red  +=  this.mixRGBA[0]/12;
+            this.green  +=  this.mixRGBA[1]/12;
+            this.blue  +=  this.mixRGBA[2]/12;
+            this.paintPixel();
+            this.red  +=  this.mixRGBA[0]/12;
+            this.green  +=  this.mixRGBA[1]/12;
+            this.blue  +=  this.mixRGBA[2]/12;
+            this.paintPixel();
+
+
+
+            this.red  =  this.mixRGBA[0]/12;
+            this.green  =  this.mixRGBA[1]/12;
+            this.blue  =  this.mixRGBA[2]/12;
+            this.paintPixel();
+            this.red  +=  this.mixRGBA[0]/12;
+            this.green  +=  this.mixRGBA[1]/12;
+            this.blue  +=  this.mixRGBA[2]/12;
+            this.paintPixel();
+            this.red  +=  this.mixRGBA[0]/12;
+            this.green  +=  this.mixRGBA[1]/12;
+            this.blue  +=  this.mixRGBA[2]/12;
+            this.paintPixel();
+            this.red  +=  this.mixRGBA[0]/12;
+            this.green  +=  this.mixRGBA[1]/12;
+            this.blue  +=  this.mixRGBA[2]/12;
+            this.paintPixel();
+            this.red  +=  this.mixRGBA[0]/12;
+            this.green  +=  this.mixRGBA[1]/12;
+            this.blue  +=  this.mixRGBA[2]/12;
+            this.paintPixel();
+            this.red  +=  this.mixRGBA[0]/12;
+            this.green  +=  this.mixRGBA[1]/12;
+            this.blue  +=  this.mixRGBA[2]/12;
+            this.paintPixel();
+          }
+          this.red  +=  this.mixRGBA[0]/3;
+          this.green  +=  this.mixRGBA[1]/3;
+          this.blue  +=  this.mixRGBA[2]/3;
+          this.paintPixel();
+          this.red  +=  this.mixRGBA[0]/3;
+          this.green  +=  this.mixRGBA[1]/3;
+          this.blue  +=  this.mixRGBA[2]/3;
+          this.paintPixel();
+          this.red  =  this.mixRGBA[0];
+          this.green  =  this.mixRGBA[1];
+          this.blue  =  this.mixRGBA[2];
+          this.paintPixel();
+          this.red  += 200;
+          this.green  += 200;
+          this.blue  += 200;
+          this.paintPixel();
+          this.red  =  this.mixRGBA[0]/2;
+          this.green  =  this.mixRGBA[1]/2;
+          this.blue  =  this.mixRGBA[2]/2;
+          this.paintPixel();
+          this.red  = 0;
+          this.green  = 0;
+          this.blue  = 0;
+          this.paintPixel(); // END WITH BLACK
+          this.pixelStacking = 0;
+          this.mixRGBA[0] =   0;
+          this.mixRGBA[1] =   0;
+          this.mixRGBA[2] =   0;
+          //
+        } else { // non highlight pixel end // ARTISTIC MODE BELOW
+          this.red  = 0;
+          this.green  = 0;
+          this.blue  = 0;
+          this.alpha = 255; // Full black
+          this.paintPixel(); // 1. START WITH BLACK
+          this.red  =  this.mixRGBA[0]/2;
+          this.green  =  this.mixRGBA[1]/2;
+          this.blue  =  this.mixRGBA[2]/2;
+          this.alpha = 128; // HALF TRANSLUCENT GLINT
+          this.paintPixel(); // 2.
+          this.red  += 99; // <-- THIS IS THE WHITE GLINT
+          this.green  += 99; // <-- THIS IS THE WHITE GLINT
+          this.blue  += 99; // <-- THIS IS THE WHITE GLINT
+          this.alpha = 255; // fully opaque from here
+          this.paintPixel(); // 3.
+          this.red  =  this.mixRGBA[0];
+          this.green  =  this.mixRGBA[1];
+          this.blue  =  this.mixRGBA[2];
+          this.paintPixel(); // 4. <<--- Full colour pixel! from here it fades out
+
+          for(let ac = 0; ac < artisticHighlightLength - 5; ac++ ) { // Subtract the four pix above and the one below
+            this.red  =  this.red  / 1.2;
+            this.green  =  this.green  / 1.2;
+            this.blue  =  this.blue  / 1.2;
+            this.paintPixel(); // 12 - 4 = 7 cycles hopefully
+          }
+
+          this.red  =  this.red  / 1.1;
+          this.green  =  this.green  / 1.1;
+          this.blue  =  this.blue  / 1.1;
+          this.alpha = 128;
+          this.paintPixel(); // 12th.
+          // reset inks:
+          this.pixelStacking = 0;
+          this.mixRGBA[0] =   0;
+          this.mixRGBA[1] =   0;
+          this.mixRGBA[2] =   0;
+        }
+
+
+      } // this.artistic this.mode
+  }
   aminoFilenameIndex(id) { // return the this.dnafile for this amino acid for the report
     let backupPeptide = this.peptide;
     let backupHighlight = this.isHighlightSet;
@@ -3220,7 +3232,7 @@ class AminoSeeNoEvil {
     this.hilbertImage = [hilpix*4];
     this.shrinkFactor = linearpix / hilpix;//  array.length / 4;
     this.codonsPerPixelHILBERT = this.codonsPerPixel /  this.shrinkFactor;
-    log(`Linear pix: ${linearpix.toLocaleString()} > reduction: X${  this.shrinkFactor } = ${hilbPixels[ this.dimension ].toLocaleString()} pixels ${ this.dimension }th this.dimension hilbert curve`);
+    // log(`Linear pix: ${linearpix.toLocaleString()} > reduction: X${  this.shrinkFactor } = ${hilbPixels[ this.dimension ].toLocaleString()} pixels ${ this.dimension }th this.dimension hilbert curve`);
     this.codonsPerPixelHILBERT = this.codonsPerPixel* this.shrinkFactor;
     this.fileHILBERT = `${ this.outputPath }/${ this.justNameOfDNA}/images/${ this.generateFilenameHilbert() }`;
 
@@ -3359,7 +3371,7 @@ class AminoSeeNoEvil {
   bothKindsTestPattern( cb ) {
     if (this.renderLock == false) {
       this.error("error render lock fail in test patterns")
-      return false;
+      // return false;
     }
     let h = require('hilbert-2d');
     let hilpix = hilbPixels[ this.dimension ];
@@ -3408,8 +3420,8 @@ class AminoSeeNoEvil {
     }
 
 
-
-    // this.setIsDiskBusy( true );
+    this.renderLock = false;
+    this.setIsDiskBusy( true );
     const hilbertImage = this.hilbertImage;
     const rgbArray = this.rgbArray;
     // this.saveDocsSync();
@@ -3434,7 +3446,7 @@ class AminoSeeNoEvil {
       .on('finish', (err, resolve) => {
         // if (err) { log(`not sure if that saved: ${err}`)}
         // if (resolve) { log(`not sure if that saved: ${err} ${ this.storage()} `) }
-        // this.isDiskFinHilbert = true;
+        this.isDiskFinHilbert = true;
         this.hilbertFinished();
       })
     }).then(  ).catch( out('HILBERT catch') );
@@ -3463,6 +3475,7 @@ class AminoSeeNoEvil {
         // if (err) { log(`not sure if that saved: ${err}`)}
         // if (resolve) { log(`not sure if that saved: ${err} ${ this.storage()} `) }
         this.isDiskFinHTML = true;
+        this.isDiskFinLinear = true;
         this.linearFinished()
         termDrawImage( this.filePNG, `linear curve` )
         if (cb !== undefined) { cb() }
@@ -3723,7 +3736,11 @@ class AminoSeeNoEvil {
 
     output("output test patterns to /calibration/ folder. dnafile: " + this.dnafile ) ;
     this.mkdir('calibration');
-    if ( this.howMany < 0 ) { this.quit(0); return false;}
+    if ( this.howMany < 0 ) {
+      reason = `calibration ${this.howMany} `
+      this.quit(0, reason);
+      return false;
+    }
     if ( this.dimension > 10 ) { log(`I think this will crash node, only one way to find out!`); }
     output(`TEST PATTERNS GENERATION    m${ this.dimension} c${ this.codonsPerPixel }`);
     log("Use -m to try different dimensions. -m 9 requires 1.8 GB RAM");
@@ -3745,6 +3762,8 @@ class AminoSeeNoEvil {
     }
     this.loopCounter++
     this.howMany--;
+    // this.setIsDiskBusy( true )
+    this.renderLock = true;
     if (this.loopCounter+1 >  this.dimension) {
       this.testStop();
       // this.saveHTML(this.openOutputs);
@@ -3760,14 +3779,19 @@ class AminoSeeNoEvil {
 
     // both kinds is currently making it's own calls to postRenderPoll
     this.bothKindsTestPattern(() => { // renderLock must be true
-      this.setIsDiskBusy( true )
+      // this.setIsDiskBusy( false )
       // this.saveDocsSync();
       // that.isDiskFinHTML = true;
       // this.renderLock = false;
-      output(`test patterns returned`)
+      output(`test patterns returned`);
+      // if ( cb !== undefined ) {
+      //   this.runCycle(cb); // runs in a callback loop
+      // } else {
+        // this.runCycle(); // runs in a callback loop
+      // }
       // that.runCycle(cb)
       // closure();
-      // this.postRenderPoll(`test patterns returned`);
+      this.postRenderPoll(`test patterns returned`);
       // if ( cb ) { cb() }
     }); // <<--------- sets up both linear and hilbert arrays but only saves the Hilbert.
     return true;
@@ -3797,14 +3821,13 @@ class AminoSeeNoEvil {
     this.baseChars = 0;
     this.charClock = -1; // gets around zero length check
     this.pixelClock = -1; // gets around zero length check
-    this.quit(0);
+    // this.quit(0, 'test stop');
   }
   testInit ( magnitude ) {
     let testPath = path.resolve(this.outputPath + "/calibration");
     let regmarks = this.getRegmarks();
     let highlight = "";
 
-    this.renderLock = true;
     this.dimension =  magnitude;
 
     if ( this.peptide == "Opal" || this.peptide == "Blue") {
@@ -3838,7 +3861,7 @@ class AminoSeeNoEvil {
     this.estimatedPixels =  this.baseChars;
     this.charClock =  this.baseChars;
     this.pixelClock =  this.baseChars;
-    this.setIsDiskBusy( false )
+    // this.setIsDiskBusy( true )
     return true;
   }
 
@@ -5249,14 +5272,14 @@ class AminoSeeNoEvil {
       cliInstance.gracefulQuit();
       // this.destroyProgress();
       process.exitCode = 130;
-      cliInstance.quit(130);
+      cliInstance.quit(130, "SIGTERM");
       process.exit(); // this.now the "exit" event will fire
     });
     process.on("SIGINT", function() {
       cliInstance.gracefulQuit();
       // this.destroyProgress();
       process.exitCode = 130;
-      cliInstance.quit(130);
+      cliInstance.quit(130, "SIGINT");
       process.exit(); // this.now the "exit" event will fire
     });
     function termDrawImage(fullpath, reason, cb) {
