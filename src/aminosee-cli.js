@@ -19,7 +19,7 @@ const lineBreak = `
 `;
 // const settings = require('./aminosee-settings');
 const version = require('./aminosee-version');
-// const server = require('./aminosee-server');
+const server = require('./aminosee-server');
 const data = require('./aminosee-data');
 // const StdInPipe = require('./aminosee-stdinpipe');
 const doesFileExist = data.doesFileExist;
@@ -110,7 +110,7 @@ function populateArgs(procArgv) { // returns args
     boolean: [ 'artistic', 'clear', 'chrome', 'devmode', 'debug', 'demo', 'dnabg', 'explorer', 'file', 'force', 'firefox', 'gui', 'html', 'image', 'keyboard', 'list', 'progress', 'quiet', 'reg', 'recycle', 'redraw', 'serve', 'safari', 'test', 'updates', 'verbose', 'view' ],
     string: [ 'url', 'outpath', 'triplet', 'peptide', 'ratio', 'port' ],
     alias: { a: 'artistic', b: 'dnabg', c: 'codons', d: 'devmode', f: 'force', h: 'help', k: 'keyboard', m: 'magnitude', o: 'outpath', out: 'outpath', output: 'outpath', p: 'peptide', i: 'image', t: 'triplet', u: 'updates', q: 'quiet', r: 'reg', w: 'width', v: 'verbose', x: 'explorer', finder: 'explorer', view: 'html'  },
-    default: { html: true, image: true, dnabg: false, clear: false, explorer: false, quiet: false, keyboard: false, progress: true, redraw: true, updates: true, serve: false, gui: true },
+    default: { html: true, image: true, clear: false, explorer: false, quiet: false, keyboard: false, progress: true, redraw: true, updates: true, serve: true, gui: true },
     stopEarly: false
   } // NUMERIC INPUTS: codons, magnitude, width, maxpix
   let args = minimist(procArgv.slice(2), options)
@@ -212,7 +212,7 @@ class AminoSeeNoEvil {
 
 
     this.args = args; // populateArgs(procArgv);// this.args;
-    webserverEnabled = false;
+    webserverEnabled = true;
 
     batchSize = this.howMany;
     isShuttingDown = false;
@@ -295,10 +295,7 @@ class AminoSeeNoEvil {
     // termSize();
     // this.resized(tx, ty);
     // this.previousImage = this.justNameOfDNA
-    if ( webserverEnabled ) {
-      server.buildServer()
-    }
-    // output(logo());
+    output(logo());
     this.setNextFile();
     if ( args.debug || debug == true) {
       debug = true;
@@ -2442,7 +2439,7 @@ class AminoSeeNoEvil {
     output(chalk.inverse(`Finishing saving (${reason}), ${this.busy()} waiting on ${ this.storage() } ${ this.howMany } files to go.`));
     if ( this.renderLock !== true &&  this.test == false ) { // re-entrancy filter
       output(chalk.bgRed("Not rendering (may halt), thread entered postRenderPoll: " + reason))
-      // return true;
+      return true;
     }
     if (this.test) { this.isDiskFinHTML = true }
     // try to avoid messing with globals of a already running render!
@@ -4022,7 +4019,7 @@ class AminoSeeNoEvil {
       output( chalk.bgRed( this.status  + ' /  this.error start {{{ ----------- ' + chalk.inverse( err.toString() ) + ' ----------- }}} end. Not rendering (may halt), thread entered postRenderPoll: ${reason}'))
       output();
     }
-    if ( debug ) {
+    if ( debug == true ) {
       throw new Error(err)
       // process.exit();
     }

@@ -6,8 +6,8 @@ SLOW='dna/27MB_TestPattern.txt'
 NICE=1
 test_do () {
   success $1 "START__ $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 _________"
-  nice -n $NICE aminosee $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
-  NICE=$((NICE + 1))
+  nice aminosee $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
+  # NICE=$((NICE + 1))
   success $1 "END____ $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 _________"
 }
 
@@ -17,10 +17,12 @@ success () {
   echo
 }
 npm run genversion
-nice npm run credits & 
+nice npm run credits &
 echo aminosee $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
+echo STOPPPING SERVER
+aminosee --stop
 echo STARTING SERVER TO RUN IN BACKGROUND
-# aminosee --serve &
+aminosee --serve &
 aminosee
 test_do "FORCED RENDER OF SMALL GENOME: $FAST" -f $FAST $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
 test_do "QUIET MODE" -q $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
@@ -47,22 +49,21 @@ test_do " --ratio=GOL" $MEDIUM *  $FAST --keyboard $1 $2 $3 $4 --ratio=GOL
 test_do "*  $SLOW  $MEDIUM" *  $SLOW  $MEDIUM -c10 -k $1 $2 $3 $4
 test_do "GGG" $FAST  $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12  --reg -t=ggg
 test_do "*" *  $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12      &
-sleep 1
 echo
 echo "-------------------------------------------"
-# echo HALFWAY TESTING FOR $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12  $6
 echo ABOUT TO START OPENING WINDOWS AROUND THE PLACE
 echo "-------------------------------------------"
 echo
+sleep 1
 echo THIS SHOULD OPEN REPORT EVEN IF IT ALREADY EXISTS
 test_do "html" $FAST -p=proline --html
 nice aminosee $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12  -q --ratio=fix --peptide=Arginine --html
 nice aminosee --help  $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12   --no-image &
 nice aminosee --demo   $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12   --no-html --image &
 echo calibration TESTS ARE KNOWN TO BE BUGGY AT PRESENT:
-test_do "Calibratn" --test
-test_do "doing aminosee serve and opening a file" --serve $MEDIUM  $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12  --no-html --explorer &
-open http://localhost:4321 &
+test_do "Calibration" --test
+test_do "doing aminosee serve and opening a file" --serve $MEDIUM  $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12  --no-html --explorer
+# open http://localhost:4321 &
 sleep 1
 echo KILLING ALL AMINOSEE SERVERS IN 5 seconds
 sleep 1
@@ -74,15 +75,11 @@ echo LETS TYR THE ELECTRON APP GUI
 echo "-------------------------------------------"
 echo "                                         =///"
 # npm run gui &
-sleep 1
-echo "                                         =///"
-echo "-------------------------------------------"
-echo COMPLETED TESTING FOR $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12  $6
-echo "-------------------------------------------"
-echo "                                         =///"
+# sleep 1
+
 clear
 # killall "aminosee.funk.nz 27MB_TestPattern 34.94MB"
-lighthouse http://localhost:4321 --output-path=test --view;
+lighthouse http://localhost:4321  --view;
 eslint src/aminosee-cli.js
 vows --spec --isolate
 echo Stopping server in 1 second
@@ -90,9 +87,17 @@ sleep 1
 killall node
 killall aminosee.funk.nz
 sleep 1
+
+echo "                                         =///"
+echo "-------------------------------------------"
+echo COMPLETED TESTING FOR $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12  $6
+echo "-------------------------------------------"
+echo "                                         =///"
+
 echo ALL TESTS NON-BLOCKING!
 echo done
 echo
 echo will compile macOS binary in 2 minutes
 sleep 120
+
 npm run macos

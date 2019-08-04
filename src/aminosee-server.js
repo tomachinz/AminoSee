@@ -14,6 +14,7 @@ const os = require('os');
 const httpserver = require('http-server'); // cant have - in js
 const spawn = require('cross-spawn');
 const fs = require('fs-extra'); // drop in replacement = const fs = require('fs')
+const debug = false;
 const lockFileMessage = `
 aminosee.funk.nz DNA Viewer by Tom Atkinson.
 This is a temporary lock file, so I dont start too many servers. Its safe to erase these files, and I've made a script in /dna/ to batch delete them all in one go. Normally these are deleted when render is complete, or with Control-C and graceful shutdown.`;
@@ -112,7 +113,7 @@ function startCrossSpawnHttp(p) { // Spawn background server
     log( `error with ${chalk.inverse(url)}`);
     didStart = false;
     if ( data.indexOf('EADDRINUSE') != -1 ) {
-      output(`Port ${port} is in use`);
+      log(`Port ${port} is in use`);
     } else if ( data.indexOf('ENOENT') != -1 ) {
       output(`ENOENT error`);
       // output( data );
@@ -307,10 +308,14 @@ function getServerURL(fullpath) {
   // return '? its a bug';
 
   let internalIp = require('internal-ip');
+  let indexfile = ""
+  if ( debug ) {
+    indexfile = "main.html"
+  }
   if (fullpath == undefined) {
-    fullpath = "/megabase/main.html";
+    fullpath = `/`;
   } else {
-    fullpath = `/${fullpath}/main.html`;
+    fullpath = `/${fullpath}/${indexfile}`;
   }
   serverURL = `http://${internalIp.v4.sync()}:${port}${fullpath}`;
   output(`serverURL ${serverURL}`);
@@ -356,7 +361,7 @@ function symlinkGUI(cb) { // does:  ln -s /Users.....AminoSee/public, /Users....
   }
 }
 
-module.exports.getServerURL = () => { getServerURL() }
+module.exports.getServerURL = () => { getServerURL( outputPath ) }
 module.exports.startServeHandler = () => { startServeHandler() }
 module.exports.startCrossSpawnHttp = () => { startCrossSpawnHttp() }
 module.exports.open = open

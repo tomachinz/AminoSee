@@ -55,11 +55,11 @@ async function run() {
       await app.exposeFunction('aminosee', _ => ['hello world', 'megabase']);
       // app.serveFolder( path.resolve( os.homedir + "/AminoSee_output" ) );
       // app.serveFolder( path.resolve( os.homedir + "/AminoSee_output" ) );
-      app.serveFolder( path.join(__dirname, 'www'));
+      // app.serveFolder( path.join(__dirname, 'www'));
 
       // Navigate to the main page of your app.
       // await app.load('public/home.html');
-      await app.load('http://localhost:4321/public/index.html').then( () => { console.log(`rugby was the winner`) }).catch( await app.load('http://localhost:43210/public/index.html') );
+      await app.load('http://localhost:4321/').then( () => { console.log(`rugby was the winner`) }).catch( await app.load('http://localhost:43210/') );
     })();
   }
   // startCarlo();
@@ -135,7 +135,7 @@ async function run() {
             width: 1000,
             height: 500,
             channel: ['canary', 'stable'],
-            icon: path.join(__dirname, '/app_icon.png'),
+            icon: path.join(__dirname, 'public/512_icon.png'),
             args: process.env.DEV === 'true' ? ['--auto-open-devtools-for-tabs'] : [],
             localDataDir: path.join(os.homedir(), '.carlosysteminfo'),
           });
@@ -147,7 +147,7 @@ async function run() {
     app.on('exit', () => process.exit());
     // New windows are opened when this app is started again from command line.
     app.on('window', window => window.load('index.html'));
-    app.serveFolder(path.join(__dirname, 'www'));
+    // app.serveFolder(path.join(__dirname, 'www'));
     await app.exposeFunction('systeminfo', systeminfo);
     await app.load('index.html');
     return app;
