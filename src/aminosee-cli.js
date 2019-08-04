@@ -730,7 +730,10 @@ class AminoSeeNoEvil {
           this.keyboard = true;
           this.setupKeyboardUI();
           // countdown('Press [Q] to exit or wait ', 15000, process.exit);
-          countdown('Press [Q] to exit or wait ', 15000);
+          let that = this;
+          countdown('Press [Q] to exit or wait ', 15000, () => {
+            that.gracefulQuit();
+          });
 
         } else {
           output();
@@ -1230,7 +1233,7 @@ class AminoSeeNoEvil {
     gracefulQuit(code) {
       if (code == undefined) { code = 0; }
       mode( `Graceful shutdown in progress... ${threads.length} threads code ${code}`);
-      output(this.status )
+      // output(this.status )
       this.removeLocks(process.exit());
       var that = this;
       isShuttingDown = true;
@@ -2535,6 +2538,8 @@ class AminoSeeNoEvil {
       }
       if ( this.keyboard ) {
         destroyKeyboardUI();
+      } else {
+        output('Not disabling keyboard mode.')
       }
 
     } else {
@@ -5377,7 +5382,7 @@ class AminoSeeNoEvil {
     if ( this.brute == false) { return false; }
 
     for (let i = 0; i < cliInstance.pepTable.length; i++) {
-      output(`initialise ${i}`)
+      log(`initialise ${i}`)
       cliInstance.pepTable[i].lm_rgbArray = []
       cliInstance.pepTable[i].hm_rgbArray = []
     }
