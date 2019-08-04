@@ -110,4 +110,4 @@ npm install -v
 # cd ../
 #
 # open ./build.sh
-# open ./gource.sh
+open ./gource.sh

@@ -91,6 +91,6 @@ sleep 1
 echo ALL TESTS NON-BLOCKING!
 echo done
 echo
-echo will compile macOS binary if 2 minutes
+echo will compile macOS binary in 2 minutes
 sleep 120
 npm run macos

@@ -1,6 +1,6 @@
 {
   "name": "aminosee",
-  "version": "1.20.5",
+  "version": "1.20.6",
   "owner": "Thomas Bieder Atkinson",
   "author": "Tom Atkinson <tom@funk.co.nz>",
   "website": "http://aminosee.funk.nz",
@@ -31,6 +31,7 @@
     }
   },
   "dependencies": {
+    "chalk": "^2.4.2",
     "fs-extra": "^8.1.0",
     "genversion": "^2.2.0",
     "hammerjs": "^2.0.8",
@@ -47,7 +48,6 @@
     "browserify": "^16.3.0",
     "bytes": "^3.1.0",
     "carlo": "^0.9.46",
-    "chalk": "^2.4.2",
     "cross-spawn": "^6.0.5",
     "dat.gui": "^0.7.6",
     "eslint": "^6.1.0",
