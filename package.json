@@ -60,6 +60,7 @@
     "internal-ip": "^4.3.0",
     "json-beautify": "^1.1.0",
     "keypress": "^0.2.1",
+    "lazyness": "^1.1.1",
     "local-web-server": "^3.0.7",
     "minimist": "^1.2.0",
     "nexe": "^3.3.2",
