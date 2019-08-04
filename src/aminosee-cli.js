@@ -19,7 +19,7 @@ const lineBreak = `
 `;
 // const settings = require('./aminosee-settings');
 const version = require('./aminosee-version');
-const server = require('./aminosee-server');
+// const server = require('./aminosee-server');
 const data = require('./aminosee-data');
 // const StdInPipe = require('./aminosee-stdinpipe');
 const doesFileExist = data.doesFileExist;
@@ -34,7 +34,6 @@ const debug = false; // should be false for PRODUCTION
 const path = require('path');
 const Preferences = require("preferences");
 const beautify = require("json-beautify");
-
 const spawn = require('cross-spawn');
 const stream = require('stream');
 const async = require('async-kit'); // amazing lib
@@ -111,7 +110,7 @@ function populateArgs(procArgv) { // returns args
     boolean: [ 'artistic', 'clear', 'chrome', 'devmode', 'debug', 'demo', 'dnabg', 'explorer', 'file', 'force', 'firefox', 'gui', 'html', 'image', 'keyboard', 'list', 'progress', 'quiet', 'reg', 'recycle', 'redraw', 'serve', 'safari', 'test', 'updates', 'verbose', 'view' ],
     string: [ 'url', 'outpath', 'triplet', 'peptide', 'ratio', 'port' ],
     alias: { a: 'artistic', b: 'dnabg', c: 'codons', d: 'devmode', f: 'force', h: 'help', k: 'keyboard', m: 'magnitude', o: 'outpath', out: 'outpath', output: 'outpath', p: 'peptide', i: 'image', t: 'triplet', u: 'updates', q: 'quiet', r: 'reg', w: 'width', v: 'verbose', x: 'explorer', finder: 'explorer', view: 'html'  },
-    default: { html: true, image: true, dnabg: false, clear: false, explorer: false, quiet: false, keyboard: false, progress: true, redraw: true, updates: true, serve: true, gui: true },
+    default: { html: true, image: true, dnabg: false, clear: false, explorer: false, quiet: false, keyboard: false, progress: true, redraw: true, updates: true, serve: false, gui: true },
     stopEarly: false
   } // NUMERIC INPUTS: codons, magnitude, width, maxpix
   let args = minimist(procArgv.slice(2), options)
@@ -213,7 +212,7 @@ class AminoSeeNoEvil {
 
 
     this.args = args; // populateArgs(procArgv);// this.args;
-    webserverEnabled = true;
+    webserverEnabled = false;
 
     batchSize = this.howMany;
     isShuttingDown = false;
@@ -297,7 +296,9 @@ class AminoSeeNoEvil {
     // termSize();
     // this.resized(tx, ty);
     // this.previousImage = this.justNameOfDNA
-    // server.buildServer()
+    if ( webserverEnabled ) {
+      server.buildServer()
+    }
     // output(logo());
     this.setNextFile();
     if ( args.debug || debug == true) {
@@ -629,8 +630,11 @@ class AminoSeeNoEvil {
       }
       // test = this.test;
       if ( args.stop ) {
+        if ( webserverEnabled ) {
+          server.stop();
+        }
+
         this.webserverEnabled = false;
-        server.stop();
         if (this) {
           this.gracefulQuit(130)
         } else {
@@ -726,7 +730,7 @@ class AminoSeeNoEvil {
         } else if ( !this.quiet) {
           output(' ');
           // log('Closing in ')
-          const carlo = require('./aminosee-carlo');
+          // const carlo = require('./aminosee-carlo');
           this.keyboard = true;
           this.setupKeyboardUI();
           // countdown('Press [Q] to exit or wait ', 15000, process.exit);
@@ -1064,8 +1068,10 @@ class AminoSeeNoEvil {
             // args = [];
             that.debug = true;
             that.devmode = true;
-            killServersOnQuit = true;
-            server.stop();
+            if ( webserverEnabled ) {
+              killServersOnQuit = true;
+              server.stop();
+            }
             destroyKeyboardUI();
             // setTimeout(()=> {
             that.gracefulQuit(130);
@@ -1161,11 +1167,11 @@ class AminoSeeNoEvil {
     }
     toggleServer() {
       webserverEnabled = !webserverEnabled;
-      if (webserverEnabled) {
+      if ( webserverEnabled ) {
         log('start server')
 
         pushCli('serve');
-        // server.start( this.outputPath )(this);
+        server.start( this.outputPath )(this);
         // this.blockingServer();
       } else {
         killServers();
@@ -4778,7 +4784,9 @@ class AminoSeeNoEvil {
           if ( cb !== undefined ) { cb() }
         },
         function( cb ) {
-          server.start( that.outputPath );
+          if ( webserverEnabled ) {
+            server.start( that.outputPath );
+          }
           that.mkRenderFolders();
           symlinkGUI(cb);
         }
@@ -5148,7 +5156,7 @@ class AminoSeeNoEvil {
       this.renderLock = false;
       spawn('nice', ['killall', 'node', '', '0'], { stdio: 'pipe' });
       spawn('nice', ['killall', 'aminosee.funk.nz', '', '0'], { stdio: 'pipe' });
-      if (server != undefined) {
+      if ( server !== undefined && webserverEnabled ) {
         log("closing server")
         server.close();
       } else {

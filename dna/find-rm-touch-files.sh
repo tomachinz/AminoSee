@@ -22,13 +22,12 @@ echo "Deleting these touch files: $LOCKFILES"
     find $DASHF . -name $LOCKFILES -exec rm -v {} \;
 sleep 2
 
- # find -f .  -name '*_LOCK*.aminosee.touch'
- # macos
+# find -f ./output/  'AminoSee_BUSY_LOCK*.txt'
+# find -f ./output/ | grep linear | grep -E "linear_[ABCDEFGHIJKLMNOPQRSTUVWXYZ]"
+# macos
 
+# find   .  -name 'AminoSee_BUSY_LOCK*.txt'
+# linux
 
- # find   .  -name 'AminoSee_BUSY_LOCK*.txt'
- # linux
-
-
- # find   .  -name '*Glutamic*acid*'
-  # find   .  -name '*_*ic*acid*png' -exec rm -v {} \;
+# then add this to the end to delete the files shown:
+# find   .  -name '*_*ic*acid*png' -exec rm -v {} \;
