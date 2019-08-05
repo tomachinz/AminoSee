@@ -1,6 +1,6 @@
 {
   "name": "aminosee",
-  "version": "1.20.9",
+  "version": "1.20.10",
   "owner": "Thomas Bieder Atkinson",
   "author": "Tom Atkinson <tom@funk.co.nz>",
   "website": "http://aminosee.funk.nz",
@@ -101,7 +101,7 @@
     "genversion": "genversion src/aminosee-version.js",
     "browserify": "echo DISABLED browserify bin/aminosee.js -o public/bundle.js",
     "minify": "uglify public/bundle.js -o public/bundle.min.js",
-    "pkg": "npm run macos &amp;  nice npm run win32 &amp; nice npm run win64 &amp; nice npm run linux",
+    "pkg": "npm run macos &amp;  nice npm run win32 &amp; nice npm run win64 ; nice npm run linux",
     "zip": "zip -8 -r ./dist/AminoSee_macos.zip ./dist/AminoSee_macos  &amp; nice zip -8 -r ./dist/AminoSee_win.zip ./dist/AminoSee_win &amp; nice zip -8 -r ./dist/AminoSee_linux.zip ./dist/AminoSee_linux",
     "runmac": "open ./dist/AminoSee_macos/aminosee",
     "runlinux": "open ./dist/AminoSee_linux/aminosee",

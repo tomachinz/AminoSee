@@ -2436,9 +2436,9 @@ class AminoSeeNoEvil {
   }
   postRenderPoll(reason) { // renderLock on late, off early
     if ( reason === undefined) { this.error(`reason must be defined for postRenderPoll`) }
-    output(chalk.inverse(`Finishing saving (${reason}), ${this.busy()} waiting on ${ this.storage() } ${ this.howMany } files to go.`));
+    log(chalk.inverse(`Finishing saving (${reason}), ${this.busy()} waiting on ${ this.storage() } ${ this.howMany } files to go.`));
     if ( this.renderLock !== true &&  this.test == false ) { // re-entrancy filter
-      output(chalk.bgRed("Not rendering (may halt), thread entered postRenderPoll: " + reason))
+      log(chalk.bgRed("Not rendering (may halt), thread entered postRenderPoll: " + reason))
       return true;
     }
     if (this.test) { this.isDiskFinHTML = true }
@@ -2446,7 +2446,7 @@ class AminoSeeNoEvil {
     // sort through and load a file into "nextFile"
     // if its the right this.extension go to sleep
     // check if all the disk is finished and if so change the locks
-    // log(chalk.inverse( fixedWidth(24, this.justNameOfDNA))  + " postRenderPoll reason: " + reason);
+    log(chalk.inverse( fixedWidth(24, this.justNameOfDNA))  + " postRenderPoll reason: " + reason);
     if ( this.isDiskFinLinear !== false && this.isDiskFinHilbert !== false  && this.isDiskFinHTML !== false ) {
       output(` [ storage threads ready: ${chalk.inverse( this.storage() )} ] test: ${this.test}`);
       // this.setIsDiskBusy( false );
@@ -2454,7 +2454,7 @@ class AminoSeeNoEvil {
 
       if ( this.test == true) {
         this.renderLock = false;
-        output(` [ test: ${this.test}`);
+        log(` [ test: ${this.test}`);
         // this.runCycle();
         // let that = gimmeDat()
         cliInstance.runCycle();
@@ -2466,7 +2466,7 @@ class AminoSeeNoEvil {
       }
 
     } else {
-      output(` [ ${reason} wait on storage: ${chalk.inverse( this.storage() )}  ] `);
+      log(` [ ${reason} wait on storage: ${chalk.inverse( this.storage() )}  ] `);
     }
   }
   getFilesizeInBytes(file) {
@@ -2537,7 +2537,7 @@ class AminoSeeNoEvil {
       log("still saving to storage") // maybe this happens during gracefull shutdown
     }
     if (this.howMany > 0 ) {
-      output(`There is more work (${this.howMany}) . Rendering: ${this.busy()} Load: ${os.loadavg()}`);
+      log(`There is more work (${this.howMany}) . Rendering: ${this.busy()} Load: ${os.loadavg()}`);
       if ( this.renderLock ) {
         return true;
       }
@@ -2555,7 +2555,7 @@ class AminoSeeNoEvil {
       }
       return true;
     } else {
-      output(chalk.bgWhite.red (`Active process.exit going on. last file: ${ this.dnafile } currently: ${this.busy()} percent complete ${  this.percentComplete}`));
+      log(chalk.bgWhite.red (`Active process.exit going on. last file: ${ this.dnafile } currently: ${this.busy()} percent complete ${  this.percentComplete}`));
     }
     if (killServersOnQuit == true) {
       if (webserverEnabled == true) { // control-c kills server
@@ -2887,7 +2887,13 @@ class AminoSeeNoEvil {
     <!-- ////////////////////////////////////////
     ${radMessage}
     -->
-
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+    <script>
+         (adsbygoogle = window.adsbygoogle || []).push({
+              google_ad_client: "ca-pub-0729228399056705",
+              enable_page_level_ads: true
+         });
+    </script>
     <script src="https://www.funk.co.nz/aminosee/public/three.min.js"></script>
     <script src="https://www.funk.co.nz/aminosee/public/jquery.min.js"></script>
     <script src="https://www.funk.co.nz/aminosee/public/hilbert3D.js"></script>
@@ -3340,7 +3346,7 @@ class AminoSeeNoEvil {
   htmlFinished() {
     this.isDiskFinHTML = true;
     mode(`HTML done. Waiting on (${ this.storage()})`);
-    output( this.status )
+    log( this.status )
     this.postRenderPoll('htmlFinished ' + this.fileHTML);
   }
   hilbertFinished() {

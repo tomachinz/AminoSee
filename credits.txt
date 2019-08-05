@@ -12,9 +12,9 @@ Checkout the music from the drummer who wrote    17376 of code for this app at h
 File drag and drop code by http://twitter.com/craigbuckler
 http://optimalworks.net/ http://sitepoint.com/
 
-    1665
+    1666
 
-as at Mon 5 Aug 2019 09:21:40 NZST the following open source node npm packages used:
+as at Mon 5 Aug 2019 09:33:07 NZST the following open source node npm packages used:
 
 
 aminosee@1.20.9 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
@@ -653,6 +653,7 @@ aminosee@1.20.9 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
 │ └── ipaddr.js@1.9.0
 ├── json-beautify@1.1.0
 ├── keypress@0.2.1
+├── lazyness@1.1.1
 ├─┬ local-web-server@3.0.7
 │ ├─┬ lws@2.0.3
 │ │ ├─┬ ansi-escape-sequences@4.1.0
@@ -1663,7 +1664,7 @@ aminosee@1.20.9 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
 │ │ ├── omggif@1.0.10
 │ │ └── pngjs@2.3.1
 │ ├── chroma-js@2.0.4
-│ ├── lazyness@1.1.1
+│ ├── lazyness@1.1.1 deduped
 │ ├─┬ ndarray@1.0.18
 │ │ ├── iota-array@1.0.0
 │ │ └── is-buffer@1.1.6 deduped
