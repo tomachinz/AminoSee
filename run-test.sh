@@ -101,3 +101,5 @@ echo will compile macOS binary in 2 minutes
 sleep 120
 
 npm run macos
+sleep 60
+./build-gui.sh

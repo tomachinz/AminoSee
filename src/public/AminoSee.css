@@ -163,15 +163,15 @@ form, input, textarea {
 #info {
   /* white-space: nowrap; */
   position: absolute;
-  width: 70%;
-  margin-left: 15%;
+  /* width: 70%; */
+  /* margin-left: 15%; */
   margin-right: 15%;
   color: #ffffff;
   padding: 16px;
   font-family: Monospace;
-  text-align: center;
+  text-align: right;
   z-index: 10;
-  height: 40%
+  height: 40%;
 }
 
 #supercontainer {
@@ -418,7 +418,7 @@ a:hover {
   background-color: white;
   padding: 16px;
   white-space: nowrap;
-  text-align: center;
+  /* text-align: center; */
 }
 
 #drag-file {

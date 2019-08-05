@@ -45,6 +45,7 @@ const epicQuotes = [
   `Thats us we outa here cousin! Sweet-as-a-Kina-in-a-creek (as they say in NZ)`,
   `According to https://www.nature.com/news/2006/061009/full/news061009-10.html the smallest organism found so far has 182 genes!`
 ]
+let args;
 // async function getSequenceNames(fastaFilePath) {
 //   const t = new IndexedFasta({
 //     path: fastaFilePath,
@@ -61,7 +62,7 @@ function readParseJson(file) {
   return JSON.parse(fs.readFileSync(file));
 }
 function createSymlink(src, dest) { // source is the original, dest is the symlink
-  log(src, " --> " , dest);
+  console.log(src, " --> " , dest);
   try { // the idea is to copy the GUI into the output folder to.... well enable it to render cos its a web app!
     let existing = doesFileExist(dest);
     if (existing == true) {
@@ -83,12 +84,12 @@ function out(txt) {
 }
 function deleteFile(file) {
   try {
-    fs.unlinkSync(file, (err) => {
+    fs.unlinkSync(path.resolve(file), (err) => {
       log("Removing file OK...")
-      if (err) { log(err)  }
+      if (err) { console.log(err)  }
     });
   } catch (err) {
-    log(err)
+    bugtxt(err)
   }
 }
 function recordFile(file, contents, cb) {
@@ -873,7 +874,7 @@ function saveJSON() {
   // var jsonObj = JSON.parse(jsonData);
   // console.log(jsonObj);
   // stringify JSON Object
-  let histoJSON = path.normalize( path.resolve(`${currentOutputPath}/${justNameOfDNA}/${justNameOfDNA}_histogram.json`) );
+  let histoJSON =  path.resolve(`${currentOutputPath}/${justNameOfDNA}/${justNameOfDNA}_histogram.json`);
   output(`currentOutputPath is ${currentOutputPath}`);
   fs.writeFile(histoJSON, JSON.stringify(pepTable), 'utf8', function (err) {
     if (err) {
@@ -945,13 +946,17 @@ function output(txt) {
   console.log(`data: ${txt}`)
 }
 function log(txt) {
-  output(txt)
+  output(`[log] ${txt}`)
 }
 function bugtxt(txt) {
   // let args = AminoSeeNoEvil.getArgs();
   if (this.debug == true ) {
-    output(txt)
+    output(`[bugtxt] ${txt}`)
   }
+}
+function setArgs( TheArgs ) {
+  args = TheArgs;
+  log( `args received: ${args}`)
 }
 const siteDescription = `A unique visualisation of DNA or RNA residing in text files, AminoSee is a way to render huge genomics files into a PNG image using an infinite space filling curve from 18th century! Computation is done locally, and the files do not leave your machine. A back-end terminal daemon cli command that can be scripted is combined with a front-end GUI in Electron, AminoSee features asynchronous streaming processing enabling arbitrary size files to be processed. It has been tested with files in excess of 4 GB and does not need the whole file in memory at any time. Due to issues with the 'aminosee *' command, a batch script is provided for bulk rendering in the dna/ folder. Alertively use the GUI to Drag and drop files to render a unique colour view of RNA or DNA stored in text files, output to PNG graphics file, then launches an WebGL browser that projects the image onto a 3D Hilbert curve for immersive viewing, using THREEjs. Command line options alow one to filter by peptide.`;
 
@@ -969,3 +974,4 @@ module.exports.extensions = extensions;
 module.exports.dnaTriplets = dnaTriplets;
 module.exports.saySomethingEpic = saySomethingEpic;
 module.exports.readParseJson = readParseJson;
+module.exports.setArgs = setArgs;

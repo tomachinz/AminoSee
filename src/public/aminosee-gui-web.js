@@ -911,6 +911,7 @@ function toggleControls() {
     document.getElementById('stats').style.visibility = 'hidden';
     document.getElementById('stats').style.display = 'none';
     document.getElementById('controls').style.visibility = 'hidden';
+    document.getElementById('butbar').style.visibility = 'hidden';
     document.getElementById('description').classList.add('hidden');
     document.getElementById('description').classList.add('hidden');
     document.getElementById('monkeys').classList.add('tiny');
@@ -924,6 +925,7 @@ function toggleControls() {
     document.getElementById('stats').style.visibility = 'visible';
     document.getElementById('stats').style.display = 'block';
     document.getElementById('controls').style.visibility = 'visible';
+    document.getElementById('butbar').style.visibility = 'visible';
     document.getElementById('description').classList.remove('hidden');
     document.getElementById('description').classList.add('hidable');
     document.getElementById('h2').classList.remove('hidden');

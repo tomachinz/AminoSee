@@ -1,14 +1,15 @@
+const carlo = require('carlo');
 const os = require('os');
 const path = require('path')
+// const socket = require('./public/aminosee-web-socket')
 const Preferences = require('preferences');
 const si = require('systeminformation');
-const carlo = require('./aminosee-carlo');
 const data = require('./aminosee-data');
 const aminosee = require('./aminosee-cli');
 const setupPrefs = aminosee.setupPrefs;
 
 
-async function run() {
+async function runCarlo() {
   const [backend] = await carlo.loadParams();
   const alexaTop5 = [
     'https://google.com', 'https://youtube.com',
@@ -39,29 +40,29 @@ async function run() {
 
   }
 
-  function startCarlo() {
-    (async () => {
-      // Launch the browser.
-      const app = await carlo.launch();
-
-      // Terminate Node.js process on app window closing.
-      app.on('exit', () => process.exit());
-
-      // Tell carlo where your web files are located.
-      // app.serveFolder(__dirname);
-
-      // Expose 'env' function in the web environment.
-      await app.exposeFunction('env', _ => process.env);
-      await app.exposeFunction('aminosee', _ => ['hello world', 'megabase']);
-      // app.serveFolder( path.resolve( os.homedir + "/AminoSee_output" ) );
-      // app.serveFolder( path.resolve( os.homedir + "/AminoSee_output" ) );
-      // app.serveFolder( path.join(__dirname, 'www'));
-
-      // Navigate to the main page of your app.
-      // await app.load('public/home.html');
-      await app.load('http://localhost:4321/').then( () => { console.log(`rugby was the winner`) }).catch( await app.load('http://localhost:43210/') );
-    })();
-  }
+  // function startCarlo() {
+  //   (async () => {
+  //     // Launch the browser.
+  //     const app = await carlo.launch();
+  //
+  //     // Terminate Node.js process on app window closing.
+  //     app.on('exit', () => process.exit());
+  //
+  //     // Tell carlo where your web files are located.
+  //     // app.serveFolder(__dirname);
+  //
+  //     // Expose 'env' function in the web environment.
+  //     await app.exposeFunction('env', _ => process.env);
+  //     await app.exposeFunction('aminosee', _ => ['hello world', 'megabase']);
+  //     // app.serveFolder( path.resolve( os.homedir + "/AminoSee_output" ) );
+  //     // app.serveFolder( path.resolve( os.homedir + "/AminoSee_output" ) );
+  //     // app.serveFolder( path.join(__dirname, 'www'));
+  //
+  //     // Navigate to the main page of your app.
+  //     // await app.load('public/home.html');
+  //     await app.load('http://localhost:4321/').then( () => { console.log(`rugby was the winner`) }).catch( await app.load('http://localhost:43210/') );
+  //   })();
+  // }
   // startCarlo();
   //
   // function setupPrefs() {
@@ -118,26 +119,27 @@ async function run() {
    * limitations under the License.
    */
 
-  'use strict';
 
-  // const carlo = require('carlo');
   // const os = require('os');
   // const path = require('path');
   // const si = require('systeminformation');
+
 
   async function run() {
     let app;
     try {
       app = await carlo.launch(
           {
-            bgcolor: '#2b2e3b',
-            title: 'Systeminfo App',
-            width: 1000,
-            height: 500,
+            bgcolor: '#012345',
+            title: 'AminoSee DNA Viewer',
+            width: 1400,
+            height: 600,
             channel: ['canary', 'stable'],
             icon: path.join(__dirname, 'public/512_icon.png'),
-            args: process.env.DEV === 'true' ? ['--auto-open-devtools-for-tabs'] : [],
-            localDataDir: path.join(os.homedir(), '.carlosysteminfo'),
+            args: process.env.DEV === 'true' ? ['--auto-open-devtools-for-tabs', '--allow-insecure-localhost', '--webpack-dev-server', '--https'] : [],
+            userDataDir: path.join(__dirname, '.carlosysteminfo' ),
+            localDataDir: path.join(__dirname, '/AminoSee_Output' ),
+            serveOrigin: 'https://10.0.0.5:4567'
           });
     } catch(e) {
       // New window is opened in the running instance.
@@ -146,10 +148,18 @@ async function run() {
     }
     app.on('exit', () => process.exit());
     // New windows are opened when this app is started again from command line.
-    app.on('window', window => window.load('index.html'));
-    // app.serveFolder(path.join(__dirname, 'www'));
+    // app.on('window', window => window.load('http://10.0.0.24:43210/public/'));
+    app.on('window', window => window.load('/index.html'));
+
+    // let o =  path.join(os.homedir(), '/AminoSee_Output');
+    let o = path.join(__dirname, 'www');
+
+    console.log(`serving: ${o}`)
+    app.serveFolder(o);
+    // await app.runCarlo()
     await app.exposeFunction('systeminfo', systeminfo);
-    await app.load('index.html');
+    // await app.load('http://10.0.0.24:43210/public/');
+    await app.load('/index.html');
     return app;
   }
 
@@ -164,3 +174,4 @@ async function run() {
   }
 
   module.exports = { run };
+  // module.exports.startCarlo = { startCarlo };

@@ -224,11 +224,13 @@ function stop() {
   log(filenameServerLock)
   deleteFile(filenameServerLock);
   if (serverLock()) {
-    const killServe =    spawn('nice', ['killall', 'node', '', '0'], { stdio: 'pipe' });
-    const killAminosee = spawn('nice', ['killall', 'aminosee.funk.nz', '', '0'], { stdio: 'pipe' });
+    // const killServe =    spawn('nice', ['killall', 'node', '', '0'], { stdio: 'pipe' });
+    const killServe =    spawn('nice', ['killall', 'node', '', '0']);
+    // const killAminosee = spawn('nice', ['killall', 'aminosee.funk.nz', '', '0'], { stdio: 'pipe' });
+    const killAminosee = spawn('nice', ['killall', 'aminosee.funk.nz', '', '0'] );
     if (server != undefined) {
       log("closing server")
-      // server.close();
+      server.close();
     } else {
       log("no server running")
     }

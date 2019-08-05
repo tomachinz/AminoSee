@@ -1,7 +1,7 @@
 #!/bin/bash
   if [ $(uname)=Darwin ]; then
     # echo macos
-    DASHF=" -f "
+    DASHF=" ./output/ "
   fi
 
   if [ $(uname)=Linux ]; then
@@ -20,13 +20,16 @@ echo "About to delete these touch files matching: $LOCKFILES"
 sleep 5
 echo "Deleting these touch files: $LOCKFILES"
     find $DASHF . -name $LOCKFILES -exec rm -v {} \;
+    find ./output/ -name AminoSee_BUSY_LOCK*.txt  -exec rm -v {} \;
+    find ./output/ -name AminoSee_BUSY_LOCK*.txt  -exec rm -v {} \;
+    find  .  -name 'AminoSee_BUSY_LOCK*.txt' -exec rm -v {} \;
 sleep 2
 
 # find -f ./output/  'AminoSee_BUSY_LOCK*.txt'
 # find -f ./output/ | grep linear | grep -E "linear_[ABCDEFGHIJKLMNOPQRSTUVWXYZ]"
 # macos
-
-# find   .  -name 'AminoSee_BUSY_LOCK*.txt'
+# find ./output/ -name AminoSee_BUSY_LOCK*.txt  -exec rm -v {} \;
+# find   .  -name 'AminoSee_BUSY_LOCK*.txt'  -exec rm -v {} \;
 # linux
 
 # then add this to the end to delete the files shown:

@@ -1,6 +1,6 @@
 {
   "name": "aminosee",
-  "version": "1.20.10",
+  "version": "1.20.11",
   "owner": "Thomas Bieder Atkinson",
   "author": "Tom Atkinson <tom@funk.co.nz>",
   "website": "http://aminosee.funk.nz",
@@ -37,9 +37,10 @@
     "hammerjs": "^2.0.8",
     "http-server": "^0.11.1",
     "node-fetch": "^2.6.0",
+    "phoenix": "^1.4.9",
     "preferences": "^1.0.2",
+    "terminal-kit": "^1.29.3",
     "three": "^0.106.2",
-    "terminal-kit": "^1.29.1",
     "xterm": "^3.14.5"
   },
   "devDependencies": {
@@ -65,6 +66,7 @@
     "minimist": "^1.2.0",
     "nexe": "^3.3.2",
     "node-gyp": "^5.0.3",
+    "node-pty": "^0.8.1",
     "npm-merge-driver": "^2.3.5",
     "open": "^6.4.0",
     "parse-apache-directory-index": "^1.2.1",
@@ -94,6 +96,7 @@
     "start": "node bin/aminosee",
     "serve": "node ./bin/aminosee.js",
     "inspect": "node --inspect bin/aminosee.js dna/27MB_TestPattern.txt /Volumes/aminosee/dna/Brown_Kiwi_NW_013982187v1.fa   /Volumes/aminosee/dna/Brown_Kiwi_NW_013982187v1.fa  -f -c1000 -vd --debug",
+    "inspect2": "node --inspect bin/aminosee.js dna/50KB_TestPattern.txt -f -vd --debug",
     "build": "npm run clean; nice npm run build-web ; nice time npm run macos",
     "build-old": "./build-lib.sh ; ./build-gui.sh ; nice time npm run build-web ; nice time npm run pkg",
     "build-all": "npm run clean ; ./build-lib.sh ; npm run build-web ; npm run pkg; npm run zip",
@@ -137,15 +140,20 @@
       "src/*.js"
     ],
     "assets": [
+      "dist/root/**/*",
       "bin/pos.node",
       "node_modules/opn/**",
       "node_modules/terminal-kit/**",
       "node_modules/get-cursor-position/**",
+      "node_modules/opn/xdg-open",
       "bin/**",
       "src/**",
       "www/**/*",
+      "public/**/*",
       "src/public/**/*",
       "package.json",
+      "dna/3MB_TestPattern.txt",
+      "dna/50KB_TestPattern.txt",
       "dna/megabase.fa"
     ]
   }

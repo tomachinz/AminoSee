@@ -7,17 +7,17 @@
 
 Thanks to Christos Georghiou who designed the 'See No Evil Hear No Evil Monkeys' http://christosgeorghiou.com/
 
-Checkout the music from the drummer who wrote    17376 of code for this app at https://www.funk.co.nz/tomachi
-17376 lines of code
+Checkout the music from the drummer who wrote     9014 of code for this app at https://www.funk.co.nz/tomachi
+9014 lines of code
 File drag and drop code by http://twitter.com/craigbuckler
 http://optimalworks.net/ http://sitepoint.com/
 
-    1666
+    1669
 
-as at Mon 5 Aug 2019 09:33:07 NZST the following open source node npm packages used:
+as at Tue 6 Aug 2019 11:34:06 NZST the following open source node npm packages used:
 
 
-aminosee@1.20.9 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
+aminosee@1.20.11 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
 ├─┬ @gmod/indexedfasta@1.0.13
 │ ├─┬ @babel/runtime-corejs2@7.4.5
 │ │ ├── core-js@2.6.8
@@ -1346,6 +1346,8 @@ aminosee@1.20.9 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
 │ │ ├── safe-buffer@5.1.2 deduped
 │ │ └── yallist@3.0.3
 │ └── which@1.3.1 deduped
+├─┬ node-pty@0.8.1
+│ └── nan@2.12.1
 ├─┬ npm-merge-driver@2.3.5
 │ ├─┬ mkdirp@0.5.1
 │ │ └── minimist@0.0.8
@@ -1439,6 +1441,7 @@ aminosee@1.20.9 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
 │   ├── lodash.reduce@4.6.0
 │   ├── lodash.reject@4.6.0
 │   └── lodash.some@4.6.0
+├── phoenix@1.4.9
 ├── png.js@0.2.1
 ├── pngjs@3.4.0
 ├─┬ preferences@1.0.2
@@ -1652,7 +1655,7 @@ aminosee@1.20.9 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
 │     └── minimalistic-assert@1.0.1
 ├── stream-file@0.2.4
 ├── systeminformation@4.14.4
-├─┬ terminal-kit@1.29.1
+├─┬ terminal-kit@1.29.3
 │ ├─┬ @cronvel/get-pixels@3.3.1
 │ │ ├── jpeg-js@0.1.2
 │ │ ├── ndarray@1.0.18 deduped

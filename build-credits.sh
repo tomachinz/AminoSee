@@ -11,16 +11,19 @@ rm -v $CREDITS
 
 
 cat src/public/aminosee-gui-web.js                                  >>       build/toms_source.txt
+cat src/public/aminosee-web-socket.js                               >>       build/toms_source.txt
 cat src/aminosee-server.js                                          >>       build/toms_source.txt
 cat src/aminosee-data.js                                            >>       build/toms_source.txt
 cat src/aminosee-cli.js                                             >>       build/toms_source.txt
+cat src/aminosee-carlo.js                                           >>       build/toms_source.txt
 cat src/aminosee-settings.js                                        >>       build/toms_source.txt
 cat src/aminosee-version.js                                         >>       build/toms_source.txt
 cat src/aminosee-stdinpipe.js                                       >>       build/toms_source.txt
-cat src/main.js                                                     >>       build/toms_source.txt
-cat src/renderer.js                                                 >>       build/toms_source.txt
-cat src/console.js                                                  >>       build/toms_source.txt
+# cat src/main.js                                                     >>       build/toms_source.txt
+# cat src/renderer.js                                                 >>       build/toms_source.txt
+# cat src/console.js                                                  >>       build/toms_source.txt
 cat src/ascii-logo.txt                                              >>       build/toms_source.txt
+cat src/index.html                                                  >>       build/toms_source.txt
 
 LINES=$(cat build/toms_source.txt | wc -l)
 
