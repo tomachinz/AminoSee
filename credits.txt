@@ -7,14 +7,14 @@
 
 Thanks to Christos Georghiou who designed the 'See No Evil Hear No Evil Monkeys' http://christosgeorghiou.com/
 
-Checkout the music from the drummer who wrote    90249 of code for this app at https://www.funk.co.nz/tomachi
-90249 lines of code
+Checkout the music from the drummer who wrote    99279 of code for this app at https://www.funk.co.nz/tomachi
+99279 lines of code
 File drag and drop code by http://twitter.com/craigbuckler
 http://optimalworks.net/ http://sitepoint.com/
 
-    1669
+    1676
 
-as at Tue 6 Aug 2019 12:53:12 NZST the following open source node npm packages used:
+as at Tue 6 Aug 2019 12:57:35 NZST the following open source node npm packages used:
 
 
 aminosee@1.20.11 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
@@ -459,6 +459,13 @@ aminosee@1.20.11 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
 │ └─┬ which@1.3.1
 │   └── isexe@2.0.0
 ├── dat.gui@0.7.6
+├─┬ ecstatic@4.1.2
+│ ├── charset@1.0.1
+│ ├── he@1.2.0
+│ ├── mime@2.4.4
+│ ├── minimist@1.2.0 deduped
+│ ├── on-finished@2.3.0 deduped
+│ └── url-join@4.0.1
 ├─┬ eslint@6.1.0
 │ ├─┬ @babel/code-frame@7.5.5
 │ │ └─┬ @babel/highlight@7.5.0
@@ -616,7 +623,7 @@ aminosee@1.20.11 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
 │ ├── colors@1.0.3
 │ ├── corser@2.0.1
 │ ├─┬ ecstatic@3.3.2
-│ │ ├── he@1.2.0
+│ │ ├── he@1.2.0 deduped
 │ │ ├── mime@1.6.0
 │ │ ├── minimist@1.2.0 deduped
 │ │ └── url-join@2.0.5

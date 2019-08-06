@@ -1,6 +1,6 @@
 {
   "name": "aminosee",
-  "version": "1.20.11",
+  "version": "1.20.12",
   "owner": "Thomas Bieder Atkinson",
   "author": "Tom Atkinson <tom@funk.co.nz>",
   "website": "http://aminosee.funk.nz",
@@ -53,6 +53,7 @@
     "carlo": "^0.9.46",
     "cross-spawn": "^6.0.5",
     "dat.gui": "^0.7.6",
+    "ecstatic": "^4.1.2",
     "eslint": "^6.1.0",
     "event-stream": "^4.0.1",
     "get-cursor-position": "^1.0.5",
