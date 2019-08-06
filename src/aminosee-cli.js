@@ -3635,7 +3635,7 @@ class AminoSeeNoEvil {
             hite=1;
           }
         }
-        while ( pix > width*hite) {
+        while ( pix > wid * hite) {
           log(`linear image hite: ${hite} pixels by 960`);
           hite++;
         }
