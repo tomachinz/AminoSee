@@ -3350,13 +3350,11 @@ class AminoSeeNoEvil {
         dimension = computerWants; // give him what he wants
       }
 
-      let hilpix = hilbPixels[ dimension ];
-      let shrinkFactor = linearpix / hilpix; // THE GUTS OF IT
-
+      hilpix = hilbPixels[ dimension ];
+      shrinkFactor = linearpix / hilpix; // THE GUTS OF IT
       codonsPerPixelHILBERT = this.codonsPerPixel /  shrinkFactor;
 
-
-      output(`Ideal magnitude: ${computerWants} using ${this.magnitude} magnitude: ${ dimension } shrinkFactor pre ${  shrinkFactor } = linearpix ${linearpix } /  hilpix ${hilpix} this.fileHILBERT after shrinking: dimension: ${ dimension }  shrinkFactor post ${ twosigbitsTolocale( shrinkFactor)} this.codonsPerPixel ${ this.codonsPerPixel } codonsPerPixelHILBERT ${ codonsPerPixelHILBERT }`);
+      // output(`Ideal magnitude: ${computerWants} using ${this.magnitude} magnitude: ${ dimension } shrinkFactor pre ${  shrinkFactor } = linearpix ${linearpix } /  hilpix ${hilpix} this.fileHILBERT after shrinking: dimension: ${ dimension }  shrinkFactor post ${ twosigbitsTolocale( shrinkFactor)} this.codonsPerPixel ${ this.codonsPerPixel } codonsPerPixelHILBERT ${ codonsPerPixelHILBERT }`);
 
       return {
         shrinkFactor: shrinkFactor,

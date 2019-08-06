@@ -7,17 +7,17 @@
 
 Thanks to Christos Georghiou who designed the 'See No Evil Hear No Evil Monkeys' http://christosgeorghiou.com/
 
-Checkout the music from the drummer who wrote    99279 of code for this app at https://www.funk.co.nz/tomachi
-99279 lines of code
+Checkout the music from the drummer who wrote     9092 of code for this app at https://www.funk.co.nz/tomachi
+9092 lines of code
 File drag and drop code by http://twitter.com/craigbuckler
 http://optimalworks.net/ http://sitepoint.com/
 
-    1676
+    1757
 
-as at Tue 6 Aug 2019 12:57:35 NZST the following open source node npm packages used:
+as at Wed 7 Aug 2019 03:57:21 NZST the following open source node npm packages used:
 
 
-aminosee@1.20.11 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
+aminosee@1.21.0 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
 ├─┬ @gmod/indexedfasta@1.0.13
 │ ├─┬ @babel/runtime-corejs2@7.4.5
 │ │ ├── core-js@2.6.8
@@ -38,6 +38,35 @@ aminosee@1.20.11 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
 ├─┬ async-kit@2.2.4
 │ ├── nextgen-events@0.14.6
 │ └── tree-kit@0.5.27
+├─┬ autocannon@4.0.0
+│ ├── chalk@2.4.2 deduped
+│ ├─┬ cli-table3@0.5.1
+│ │ ├── colors@1.3.3
+│ │ ├── object-assign@4.1.1
+│ │ └─┬ string-width@2.1.1
+│ │   ├── is-fullwidth-code-point@2.0.0
+│ │   └─┬ strip-ansi@4.0.0
+│ │     └── ansi-regex@3.0.0
+│ ├── color-support@1.1.3
+│ ├── cross-argv@1.0.0
+│ ├── has-async-hooks@1.0.0
+│ ├─┬ hdr-histogram-js@1.1.4
+│ │ ├── base64-js@1.3.1
+│ │ └── pako@1.0.6
+│ ├─┬ hdr-histogram-percentiles-obj@2.0.1
+│ │ └── hdr-histogram-js@1.1.4 deduped
+│ ├── http-parser-js@0.5.1
+│ ├─┬ hyperid@2.0.2
+│ │ ├── uuid@3.3.2 deduped
+│ │ └── uuid-parse@1.1.0
+│ ├── manage-path@2.0.0
+│ ├── minimist@1.2.0 deduped
+│ ├── on-net-listen@1.1.2
+│ ├── pretty-bytes@5.3.0
+│ ├── progress@2.0.3
+│ ├── reinterval@1.1.0
+│ ├── retimer@2.0.0
+│ └── timestring@6.0.0
 ├─┬ body-parser@1.19.0
 │ ├── bytes@3.1.0 deduped
 │ ├── content-type@1.0.4
@@ -64,9 +93,11 @@ aminosee@1.20.11 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
 │   ├── media-typer@0.3.0
 │   └─┬ mime-types@2.1.24
 │     └── mime-db@1.40.0
+├─┬ browser-resolve@1.11.3
+│ └── resolve@1.1.7
 ├─┬ browserify@16.3.0
 │ ├─┬ assert@1.5.0
-│ │ ├── object-assign@4.1.1
+│ │ ├── object-assign@4.1.1 deduped
 │ │ └─┬ util@0.10.3
 │ │   └── inherits@2.0.1
 │ ├─┬ browser-pack@6.1.0
@@ -90,10 +121,9 @@ aminosee@1.20.11 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
 │ │ │ │ └── util-deprecate@1.0.2 deduped
 │ │ │ └── xtend@4.0.1 deduped
 │ │ └── umd@3.0.3
-│ ├─┬ browser-resolve@1.11.3
-│ │ └── resolve@1.1.7
+│ ├── browser-resolve@1.11.3 deduped
 │ ├─┬ browserify-zlib@0.2.0
-│ │ └── pako@1.0.6
+│ │ └── pako@1.0.6 deduped
 │ ├─┬ buffer@5.2.1
 │ │ ├── base64-js@1.3.0
 │ │ └── ieee754@1.1.12
@@ -569,7 +599,7 @@ aminosee@1.20.11 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
 │ │ ├── prelude-ls@1.1.2 deduped
 │ │ ├── type-check@0.3.2 deduped
 │ │ └── wordwrap@1.0.0
-│ ├── progress@2.0.3
+│ ├── progress@2.0.3 deduped
 │ ├── regexpp@2.0.1
 │ ├── semver@6.2.0
 │ ├─┬ strip-ansi@5.2.0
@@ -644,18 +674,72 @@ aminosee@1.20.11 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
 │ └─┬ union@0.4.6
 │   └── qs@2.3.3
 ├── humanize-duration@3.20.1
+├─┬ husky@3.0.2
+│ ├── chalk@2.4.2 deduped
+│ ├─┬ cosmiconfig@5.2.1
+│ │ ├─┬ import-fresh@2.0.0
+│ │ │ ├─┬ caller-path@2.0.0
+│ │ │ │ └─┬ caller-callsite@2.0.0
+│ │ │ │   └── callsites@2.0.0
+│ │ │ └── resolve-from@3.0.0
+│ │ ├── is-directory@0.3.1
+│ │ ├── js-yaml@3.13.1 deduped
+│ │ └─┬ parse-json@4.0.0
+│ │   ├─┬ error-ex@1.3.2
+│ │   │ └── is-arrayish@0.2.1
+│ │   └── json-parse-better-errors@1.0.2
+│ ├─┬ execa@1.0.0
+│ │ ├── cross-spawn@6.0.5 deduped
+│ │ ├─┬ get-stream@4.1.0
+│ │ │ └─┬ pump@3.0.0
+│ │ │   ├─┬ end-of-stream@1.4.1
+│ │ │   │ └── once@1.4.0 deduped
+│ │ │   └── once@1.4.0 deduped
+│ │ ├── is-stream@1.1.0
+│ │ ├─┬ npm-run-path@2.0.2
+│ │ │ └── path-key@2.0.1 deduped
+│ │ ├── p-finally@1.0.0
+│ │ ├── signal-exit@3.0.2
+│ │ └── strip-eof@1.0.0
+│ ├── get-stdin@7.0.0
+│ ├─┬ is-ci@2.0.0
+│ │ └── ci-info@2.0.0
+│ ├── opencollective-postinstall@2.0.2
+│ ├─┬ pkg-dir@4.2.0
+│ │ └─┬ find-up@4.1.0
+│ │   ├─┬ locate-path@5.0.0
+│ │   │ └─┬ p-locate@4.1.0
+│ │   │   └─┬ p-limit@2.2.0
+│ │   │     └── p-try@2.2.0
+│ │   └── path-exists@4.0.0
+│ ├─┬ please-upgrade-node@3.1.1
+│ │ └── semver-compare@1.0.0
+│ ├─┬ read-pkg@5.2.0
+│ │ ├── @types/normalize-package-data@2.4.0
+│ │ ├─┬ normalize-package-data@2.5.0
+│ │ │ ├─┬ hosted-git-info@2.8.2
+│ │ │ │ └─┬ lru-cache@5.1.1
+│ │ │ │   └── yallist@3.0.3 deduped
+│ │ │ ├── resolve@1.11.0 deduped
+│ │ │ ├── semver@5.6.0 deduped
+│ │ │ └─┬ validate-npm-package-license@3.0.4
+│ │ │   ├─┬ spdx-correct@3.1.0
+│ │ │   │ ├── spdx-expression-parse@3.0.0 deduped
+│ │ │   │ └── spdx-license-ids@3.0.5
+│ │ │   └─┬ spdx-expression-parse@3.0.0
+│ │ │     ├── spdx-exceptions@2.2.0
+│ │ │     └── spdx-license-ids@3.0.5 deduped
+│ │ ├─┬ parse-json@5.0.0
+│ │ │ ├── @babel/code-frame@7.5.5 deduped
+│ │ │ ├── error-ex@1.3.2 deduped
+│ │ │ ├── json-parse-better-errors@1.0.2 deduped
+│ │ │ └── lines-and-columns@1.1.6
+│ │ └── type-fest@0.6.0
+│ ├── run-node@1.0.0
+│ └── slash@3.0.0
 ├─┬ internal-ip@4.3.0
 │ ├─┬ default-gateway@4.2.0
-│ │ ├─┬ execa@1.0.0
-│ │ │ ├── cross-spawn@6.0.5 deduped
-│ │ │ ├─┬ get-stream@4.1.0
-│ │ │ │ └── pump@3.0.0 deduped
-│ │ │ ├── is-stream@1.1.0
-│ │ │ ├─┬ npm-run-path@2.0.2
-│ │ │ │ └── path-key@2.0.1 deduped
-│ │ │ ├── p-finally@1.0.0
-│ │ │ ├── signal-exit@3.0.2
-│ │ │ └── strip-eof@1.0.0
+│ │ ├── execa@1.0.0 deduped
 │ │ └── ip-regex@2.1.0
 │ └── ipaddr.js@1.9.0
 ├── json-beautify@1.1.0
@@ -1246,10 +1330,7 @@ aminosee@1.20.11 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
 │ │ │ └── mimic-response@1.0.1 deduped
 │ │ ├── duplexer3@0.1.4
 │ │ ├─┬ get-stream@4.1.0
-│ │ │ └─┬ pump@3.0.0
-│ │ │   ├─┬ end-of-stream@1.4.1
-│ │ │   │ └── once@1.4.0 deduped
-│ │ │   └── once@1.4.0 deduped
+│ │ │ └── pump@3.0.0 deduped
 │ │ ├── lowercase-keys@1.0.1
 │ │ ├── mimic-response@1.0.1
 │ │ ├── p-cancelable@1.1.0
