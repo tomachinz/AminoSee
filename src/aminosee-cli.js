@@ -422,7 +422,7 @@ class AminoSeeNoEvil {
       this.codonsPerPixel = defaultC;
       this.userCPP = "auto";
     }
-    // let computerWants = this.optimumDimension (linearpix);
+    // let computerWants = optimumDimension (linearpix);
     if ( args.maxpix ) {
       let usersPix = Math.round( args.maxpix )
       if ( usersPix < 1000000 ) {
@@ -933,7 +933,7 @@ class AminoSeeNoEvil {
         opacity: this.opacity,
         magnitude:  this.magnitude,
         dimension:  this.dimension,
-        optimumDimension: this.optimumDimension ( this.estimatedPixels, this.magnitude ),
+        optimumDimension: optimumDimension ( this.estimatedPixels, this.magnitude ),
         darkenFactor: this.darkenFactor,
         highlightFactor: this.highlightFactor,
         correction: 'Ceiling',
@@ -1864,7 +1864,7 @@ class AminoSeeNoEvil {
     } else { // use a file
       this.isStreamingPipe = false; // cat Human.genome | aminosee
       this.estimatedPixels =  this.baseChars / 3; // divide by 4 times 3
-      this.dimension = this.optimumDimension ( this.estimatedPixels, this.magnitude);
+      this.dimension = optimumDimension ( this.estimatedPixels, this.magnitude);
     }
 
 
@@ -2383,7 +2383,7 @@ class AminoSeeNoEvil {
       output(`Thread re-entry during locking`)
       return false;
     } else {
-      log(`Locking threads for render`)
+      output(`Locking threads for render`)
     }
     this.renderLock = true;
     this.tLock( );
@@ -3329,38 +3329,7 @@ class AminoSeeNoEvil {
     }
 
 
-    calculateShrinkage( linearpix ) { // danger: can change this.file of Hilbert images!
-      // give it a large number of pixels
-      // it will choose a hilbert dimension
-      // and return the shrinkage factor, codons per pixel hilbert
-      let dimension, magnitude, hilpix, codonsPerPixelHILBERT, shrinkFactor
-      let computerWants = this.optimumDimension (linearpix);
 
-      if ( computerWants > defaultMagnitude ) {
-        output(`This genome could be output at a higher resolution of ${hilbPixels[computerWants].toLocaleString()} than the default of ${computerWants}, you could try -m 8 or -m 9 if your machine is muscular, but it might core dump. -m10 would be 67,108,864 pixels but node runs out of stack before I get there on my 16 GB macOS. -Tom.`)
-        dimension = defaultMagnitude;
-      } else if (computerWants < 0) {
-        dimension = 0; // its an array index
-        this.error(`That image is way too small to make an image out of?`);
-      }
-
-      if ( this.magnitude == "custom" ) {
-        dimension = this.magnitude; // users choice over ride all this nonsense
-      } else {
-        dimension = computerWants; // give him what he wants
-      }
-
-      hilpix = hilbPixels[ dimension ];
-      shrinkFactor = linearpix / hilpix; // THE GUTS OF IT
-      codonsPerPixelHILBERT = this.codonsPerPixel /  shrinkFactor;
-
-      // output(`Ideal magnitude: ${computerWants} using ${this.magnitude} magnitude: ${ dimension } shrinkFactor pre ${  shrinkFactor } = linearpix ${linearpix } /  hilpix ${hilpix} this.fileHILBERT after shrinking: dimension: ${ dimension }  shrinkFactor post ${ twosigbitsTolocale( shrinkFactor)} this.codonsPerPixel ${ this.codonsPerPixel } codonsPerPixelHILBERT ${ codonsPerPixelHILBERT }`);
-
-      return {
-        shrinkFactor: shrinkFactor,
-        codonsPerPixelHILBERT: codonsPerPixelHILBERT
-      };
-    }
 
 
     // resample the large 760px wide linear image into a smaller square hilbert curve
@@ -4054,28 +4023,7 @@ class AminoSeeNoEvil {
       }
       this.rgbArray = antiAliasArray;
     }
-    optimumDimension (pix, magauto) { // give it pix it returns a HILBERT dimension that fits inside it with good over-sampling margins
-      let dim = 0;
-      let rtxt = `[HILBERT] Calculating largest Hilbert curve image that can fit inside ${ twosigbitsTolocale(pix)} pixels, and over sampling factor of ${overSampleFactor}: `;
-      while (pix > (hilbPixels[dim] * overSampleFactor)) {
-        if (dim > defaultMagnitude) {
-          if ( magauto == 'custom' && dim > theoreticalMaxMagnitude ) {
-            output(`Hilbert dimensions above 8 will likely exceed nodes heap memory and/or call stack. mag 11 sure does. spin up the fans. Capped your custom dimension to the ${ theoreticalMaxMagnitude }th order.`)
-            dim = theoreticalMaxMagnitude;
-            break
-          } else if ( magauto == 'auto') {
-            dim = defaultMagnitude;
-            break
-          }
-        }
-        dim++;
-      }
-      if (dim > 0) { dim--; } // was off by 1
 
-      rtxt+= ` <<<--- chosen  this.dimension: ${dim} `;
-      log(rtxt);
-      return dim;
-    }
 
     dot(i, x, t) {
       // this.debugFreq = throttledFreq();
@@ -5617,6 +5565,60 @@ class AminoSeeNoEvil {
     function prettyDate(today) {
       var options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
       return today.toLocaleString(options) + "  " + today.toLocaleDateString(options); // Saturday, September 17, 2016
+    }
+    function calculateShrinkage( linearpix ) { // danger: can change this.file of Hilbert images!
+      // give it a large number of pixels
+      // it will choose a hilbert dimension
+      // and return the shrinkage factor, codons per pixel hilbert
+      let dimension, magnitude, hilpix, codonsPerPixelHILBERT, shrinkFactor
+      let computerWants = optimumDimension (linearpix, 'auto');
+
+      if ( computerWants > defaultMagnitude ) {
+        output(`This genome could be output at a higher resolution of ${hilbPixels[computerWants].toLocaleString()} than the default of ${computerWants}, you could try -m 8 or -m 9 if your machine is muscular, but it might core dump. -m10 would be 67,108,864 pixels but node runs out of stack before I get there on my 16 GB macOS. -Tom.`)
+        dimension = defaultMagnitude;
+      } else if (computerWants < 0) {
+        dimension = 0; // its an array index
+        this.error(`That image is way too small to make an image out of?`);
+      }
+
+      if ( this.magnitude == "custom" ) {
+        dimension = this.magnitude; // users choice over ride all this nonsense
+      } else {
+        dimension = computerWants; // give him what he wants
+      }
+
+      hilpix = hilbPixels[ dimension ];
+      shrinkFactor = linearpix / hilpix; // THE GUTS OF IT
+      codonsPerPixelHILBERT = this.codonsPerPixel /  shrinkFactor;
+
+      // output(`Ideal magnitude: ${computerWants} using ${this.magnitude} magnitude: ${ dimension } shrinkFactor pre ${  shrinkFactor } = linearpix ${linearpix } /  hilpix ${hilpix} this.fileHILBERT after shrinking: dimension: ${ dimension }  shrinkFactor post ${ twosigbitsTolocale( shrinkFactor)} this.codonsPerPixel ${ this.codonsPerPixel } codonsPerPixelHILBERT ${ codonsPerPixelHILBERT }`);
+
+      return {
+        shrinkFactor: shrinkFactor,
+        codonsPerPixelHILBERT: codonsPerPixelHILBERT
+      };
+    }
+    function optimumDimension (pix, magauto) { // give it pix it returns a HILBERT dimension that fits inside it with good over-sampling margins
+      let dim = 0;
+      let rtxt = `[HILBERT] Calculating largest Hilbert curve image that can fit inside ${ twosigbitsTolocale(pix)} pixels, and over sampling factor of ${overSampleFactor}: `;
+      while (pix > (hilbPixels[dim] * overSampleFactor)) {
+        if (dim > defaultMagnitude) {
+          if ( magauto == 'custom' && dim > theoreticalMaxMagnitude ) {
+            output(`Hilbert dimensions above 8 will likely exceed nodes heap memory and/or call stack. mag 11 sure does. spin up the fans. Capped your custom dimension to the ${ theoreticalMaxMagnitude }th order.`)
+            dim = theoreticalMaxMagnitude;
+            break
+          } else if ( magauto == 'auto') {
+            dim = defaultMagnitude;
+            break
+          }
+        }
+        dim++;
+      }
+      if (dim > 0) { dim--; } // was off by 1
+
+      rtxt+= ` <<<--- chosen  this.dimension: ${dim} `;
+      log(rtxt);
+      return dim;
     }
     module.exports.getOutputFolder = getOutputFolder;
     module.exports.nicePercent = nicePercent;
