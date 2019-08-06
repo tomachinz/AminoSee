@@ -3,4 +3,4 @@
   ╠═╣││││││││ │╚═╗├┤ ├┤    ║║║║║╠═╣  ╚╗╔╝│├┤ │││├┤ ├┬┘
   ╩ ╩┴ ┴┴┘└┘└─┘╚═╝└─┘└─┘  ═╩╝╝╚╝╩ ╩   ╚╝ ┴└─┘└┴┘└─┘┴└─
   by Tom Atkinson          aminosee.funk.nz
-  ah-mee no-see         "I See It this.now - I AminoSee it!"
+  ah-mee no-see         "I See It Now != I AminoSee it!"

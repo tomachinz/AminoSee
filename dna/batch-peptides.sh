@@ -223,7 +223,7 @@ sleep 5
 asterix_peptides $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
 
 
-# series_peptides * $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --keyboard
+# series_peptides * $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 
 # find_way_peptides $1 $2 $3 $4 $5 $6 $7
 # parallel_peptides  --reg $1 $2 $3 $4 $5 $6 $7
 # find_way_peptides  --reg

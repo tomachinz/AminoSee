@@ -1055,7 +1055,7 @@ class AminoSeeNoEvil {
         out('got "keypress"', key);
 
         if ( key ) {
-          if ( key.name == 'q' || key.name == 'Escape') {
+          if ( key.name == 'q' || key.name == 'Esc') {
             output("Gracefull Shutdown in progress... will finish this render then quit.")
             printRadMessage( this.status )
             killServersOnQuit = false;
@@ -1271,7 +1271,10 @@ class AminoSeeNoEvil {
       } else {
         if (code = 130) {
           this.calcUpdate();
+          if ( this ) {
           this.destroyProgress();
+        }
+
           this.removeLocks(process.exit());
         }
       }
@@ -2094,6 +2097,7 @@ class AminoSeeNoEvil {
     output('  --reg     put registration marks @ 25% 50% 75% and 100%');
     output('  --test                 create calibration test patterns');
     output('  --keyboard -k enable interactive mode, use control-c to end');
+    output('  maybe dont use interactive keyboard mode in batch scripts');
     output('  --firefox --chrome --safari changes default browser to open images');
     output('  --clear');
     output('  --html --no-html             open HTML report when done');
@@ -2577,6 +2581,11 @@ class AminoSeeNoEvil {
           return true;
         }
       }
+      if ( this.keyboard ) {
+        destroyKeyboardUI();
+      } else {
+        output('Not disabling keyboard mode.')
+      }
       if (code == 0) {
         if (isElectron == true){
           output("Electron mode clean exit.")
@@ -2601,11 +2610,7 @@ class AminoSeeNoEvil {
       //     // process.stdin.resume();
       //   } catch(e) {  bugtxt( "Issue with keyboard this.mode: " + e ) }
       // }
-      if ( this.keyboard ) {
-        destroyKeyboardUI();
-      } else {
-        output('Not disabling keyboard mode.')
-      }
+
 
       term.eraseDisplayBelow();
       // printRadMessage([ ` ${(killServersOnQuit ?  'AminoSee has shutdown' : ' ' )}`, `${( this.verbose ?  ' Exit code: '+ code : '' )}`,  (killServersOnQuit == false ? server.getServerURL() : ' '), this.howMany ]);
@@ -3583,6 +3588,7 @@ class AminoSeeNoEvil {
     // }
     savePNG(cb) {
       let pixels, height, width = 0;
+      output(`savePNG`)
       try {
         pixels = ( this.rgbArray.length / 4);
       }
@@ -5283,7 +5289,7 @@ class AminoSeeNoEvil {
       });
       process.on("SIGINT", function() {
         cliInstance.gracefulQuit();
-        this.destroyProgress();
+        // this.destroyProgress();
         process.exitCode = 130;
         cliInstance.quit(130, "SIGINT");
         process.exit(); // this.now the "exit" event will fire
