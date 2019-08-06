@@ -110,7 +110,7 @@ function populateArgs(procArgv) { // returns args
     boolean: [ 'artistic', 'clear', 'chrome', 'devmode', 'debug', 'demo', 'dnabg', 'explorer', 'file', 'force', 'firefox', 'gui', 'html', 'image', 'keyboard', 'list', 'progress', 'quiet', 'reg', 'recycle', 'redraw', 'serve', 'safari', 'test', 'updates', 'verbose', 'view' ],
     string: [ 'url', 'outpath', 'triplet', 'peptide', 'ratio', 'port' ],
     alias: { a: 'artistic', b: 'dnabg', c: 'codons', d: 'devmode', f: 'force', h: 'help', k: 'keyboard', m: 'magnitude', o: 'outpath', out: 'outpath', output: 'outpath', p: 'peptide', i: 'image', t: 'triplet', u: 'updates', q: 'quiet', r: 'reg', w: 'width', v: 'verbose', x: 'explorer', finder: 'explorer', view: 'html'  },
-    default: { html: true, brute: false, image: true, clear: false, explorer: false, quiet: false, keyboard: false, progress: false, redraw: true, updates: true, serve: true, gui: true },
+    default: { html: true, brute: false, image: true, clear: false, explorer: false, quiet: false, keyboard: false, progress: false, redraw: true, updates: true, serve: true, gui: false },
     stopEarly: false
   } // NUMERIC INPUTS: codons, magnitude, width, maxpix
   let args = minimist(procArgv.slice(2), options)
@@ -656,6 +656,7 @@ class AminoSeeNoEvil {
           let that = this;
           countdown('Press [Q] to exit or wait ', this.raceDelay * 817, () => {
             carlo.catch();
+            carlo.close();
             that.gracefulQuit(0);
           });
       } else { output( `Try using  --gui for the graphical user interface`)}
@@ -1051,12 +1052,20 @@ class AminoSeeNoEvil {
       process.stdin.resume(); // means start consuming
       // listen for the "keypress" event
       process.stdin.once('keypress', function (ch, key) {
-        // log('got "keypress"', key);
+        out('got "keypress"', key);
 
         if ( key ) {
+          if ( key.name == 'q' || key.name == 'Escape') {
+            output("Gracefull Shutdown in progress... will finish this render then quit.")
+            printRadMessage( this.status )
+            killServersOnQuit = false;
+            that.gracefulQuit(0, `Slow`);
+            // that.quit(7, 'Q / Escape - leaving webserver running in background')
+          }
           if ( key.name == 't') {
             mode('pushing this.test onto render queue')
-            that.args._.push('test');
+            cliInstance.args._.push('test');
+            cliInstance.howMany = cliInstance.args.length;
           }
           if ( key.name == 'c') {
             clearCheck();
@@ -1086,12 +1095,7 @@ class AminoSeeNoEvil {
             that.gracefulQuit(130);
             // }, 500)
           }
-          if ( key.name == 'q' || key.name == 'Escape') {
-            output("Gracefull Shutdown in progress... will finish this render then quit.")
-            killServersOnQuit = false;
-            that.gracefulQuit();
-            // that.quit(7, 'Q / Escape - leaving webserver running in background')
-          }
+
           if ( key.name == 'b') {
             clearCheck();
             that.togglednabg();
@@ -1246,12 +1250,14 @@ class AminoSeeNoEvil {
       }
     }
     gracefulQuit(code) {
-      if (code == undefined) { code = 0; }
       mode( `Graceful shutdown in progress... ${threads.length} threads code ${code}`);
-      // output(this.status )
-      this.removeLocks(process.exit());
-      var that = this;
+      this.args._ = [];
       isShuttingDown = true;
+      // try {
+      // } catch(e) {
+      // }
+      output(this.status )
+      // var that = this;
       bugtxt( this.status );
       bugtxt("webserverEnabled: " + webserverEnabled + " killServersOnQuit: "+ killServersOnQuit)
       try {
@@ -1260,16 +1266,16 @@ class AminoSeeNoEvil {
       } catch(e) {
 
       }
-      try {
+      if (code == undefined) {
+        code = 0;
+      } else {
         if (code = 130) {
-          this.args._ = [];
           this.calcUpdate();
-          // this.destroyProgress();
+          this.destroyProgress();
           this.removeLocks(process.exit());
         }
-      } catch(e) {
-
       }
+      this.quit(code, 'graceful');
     }
     background(callback) {
       // const spawn = require('cross-spawn');
@@ -1580,7 +1586,7 @@ class AminoSeeNoEvil {
       mode('Happiness.');
       saySomethingEpic();
       log(chalk.bgRed.yellow(this.status ));
-      // this.printRadMessage( this.status )
+      // printRadMessage( this.status )
       this.quit(0, this.status )
       return false;
     }
@@ -1685,7 +1691,10 @@ class AminoSeeNoEvil {
 
       }));
     } catch(e) {
-      output("Catch in Init ERROR:"  + e)
+      log("Unknown error was caught during streaming init")
+      if ( e == 'EISDIR') {
+        output(`[EISDIR] Attempted to red a directory as if it were a file.`)
+      }
     }
 
     log("FINISHED INIT " + that.howMany);
@@ -2106,7 +2115,7 @@ class AminoSeeNoEvil {
     output('     aminosee *         (render all files with default settings');
     term.down( this.termStatsHeight);
     if ( this.quiet == false) {
-      this.printRadMessage( [ `software version ${version}` ] );
+      printRadMessage( [ `software version ${version}` ] );
     }
 
     this.setupKeyboardUI(); // allows fast quit with [Q]
@@ -2574,11 +2583,7 @@ class AminoSeeNoEvil {
         } else {
           output("CLI mode clean exit.")
         }
-        if ( this.keyboard ) {
-          destroyKeyboardUI();
-        } else {
-          output('Not disabling keyboard mode.')
-        }
+
         return true;
       } else {
         log(chalk.bgWhite.red (`Active process.exit going on. last file: ${ this.dnafile } currently: ${this.busy()} percent complete ${  this.percentComplete}`));
@@ -2590,14 +2595,20 @@ class AminoSeeNoEvil {
       } else if (webserverEnabled == true) {
         log("If you get a lot of servers running, use Control-C instead of [Q] to issues a 'killall node' command to kill all of them")
       }
-      if ( this.keyboard == true) {
-        try {
-          process.stdin.setRawMode(false);
-          // process.stdin.resume();
-        } catch(e) {  bugtxt( "Issue with keyboard this.mode: " + e ) }
+      // if ( this.keyboard == true) {
+      //   try {
+      //     process.stdin.setRawMode(false);
+      //     // process.stdin.resume();
+      //   } catch(e) {  bugtxt( "Issue with keyboard this.mode: " + e ) }
+      // }
+      if ( this.keyboard ) {
+        destroyKeyboardUI();
+      } else {
+        output('Not disabling keyboard mode.')
       }
+
       term.eraseDisplayBelow();
-      // this.printRadMessage([ ` ${(killServersOnQuit ?  'AminoSee has shutdown' : ' ' )}`, `${( this.verbose ?  ' Exit code: '+ code : '' )}`,  (killServersOnQuit == false ? server.getServerURL() : ' '), this.howMany ]);
+      // printRadMessage([ ` ${(killServersOnQuit ?  'AminoSee has shutdown' : ' ' )}`, `${( this.verbose ?  ' Exit code: '+ code : '' )}`,  (killServersOnQuit == false ? server.getServerURL() : ' '), this.howMany ]);
       this.destroyProgress();
       process.exitCode = code;
       this.removeLocks();
@@ -4121,12 +4132,7 @@ class AminoSeeNoEvil {
 
 
 
-    prettyDate() {
-      var options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-      var today  = new Date();
 
-      return today.toLocaleString(options) + "  " + today.toLocaleDateString(options); // Saturday, September 17, 2016
-    }
     returnRadMessage(array) {
       let returnText = "";
       if (array == undefined) {
@@ -4141,49 +4147,12 @@ class AminoSeeNoEvil {
       returnText += terminalRGB(`╩ ╩┴ ┴┴┘└┘└─┘╚═╝└─┘└─┘  ═╩╝╝╚╝╩ ╩   ╚╝ ┴└─┘└┴┘└─┘┴└─  ${array[2]}`, 128, 240, 240);
       returnText += terminalRGB(` by Tom Atkinson          aminosee.funk.nz            ${array[3]}`, 225, 225, 130);
       returnText += terminalRGB(`  ah-mee-no-see     'I See It Now - I AminoSee it!'   ${array[4]}`, 255, 180,  90);
-      returnText += terminalRGB(`   ${ this.prettyDate()}   v${version}            ${array[5]}`          , 220, 120,  70);
+      returnText += terminalRGB(`   ${ prettyDate(new Date())}   v${version}            ${array[5]}`          , 220, 120,  70);
       returnText += terminalRGB(array[6], 200, 105,   60);
       returnText += terminalRGB(array[7], 200, 32,   32);
       return returnText;
     }
-    printRadMessage(arr) {
-      // output( returnRadMessage(arr) );
-      if (arr == undefined) {
-        arr = ["    ________", "    ________", "    ________", "    ________", "    ________", "", "Output path:", this.outputPath ];
-        // arr = [ "    ________", "    ________", "    ________", "    ________", "    ________", "", "Output path:"," " ];
-      }
-      while ( arr.length < 9 ) {
-        arr.push("    ________");
-      }
-      let radMargin = this.termMarginLeft;
-      if ( this.renderLock == false) { radMargin = 3; }
-      term.eraseLine();
-      // output();term.eraseLine();
-      output( terminalRGB(arr[0], 200, 32,   32) ); term.eraseLine();
-      term.right(radMargin);
-      if ( term.width > wideScreen ) {
-        output( terminalRGB(`╔═╗┌┬┐┬┌┐┌┌─┐╔═╗┌─┐┌─┐  ╔╦╗╔╗╔╔═╗  ╦  ╦┬┌─┐┬ ┬┌─┐┬─┐  ${arr[1]}`, 255, 60,  250) ); term.right(radMargin); term.eraseLine();
-        output( terminalRGB(`╠═╣││││││││ │╚═╗├┤ ├┤    ║║║║║╠═╣  ╚╗╔╝│├┤ │││├┤ ├┬┘  ${arr[2]}`, 170, 150, 255) ); term.right(radMargin); term.eraseLine();
-        output( terminalRGB(`╩ ╩┴ ┴┴┘└┘└─┘╚═╝└─┘└─┘  ═╩╝╝╚╝╩ ╩   ╚╝ ┴└─┘└┴┘└─┘┴└─  ${arr[3]}`, 128, 240, 240) ); term.right(radMargin); term.eraseLine();
-        output( terminalRGB(` by Tom Atkinson          aminosee.funk.nz            ${arr[4]}`, 225, 225, 130) ); term.right(radMargin); term.eraseLine();
-        output( terminalRGB(`  ah-mee-no-see     'I See It Now - I AminoSee it!'   ${arr[5]}`, 255, 180,  90) ); term.right(radMargin); term.eraseLine();
-        output( terminalRGB(`   ${ this.prettyDate()}   v${version} ${arr[6]}`          , 220, 120,  70) ); term.right(radMargin); term.eraseLine();
-        output( terminalRGB(arr[7], 200, 105,   60) ); term.right(radMargin); term.eraseLine();
-        output( terminalRGB(arr[8], 200, 32,   32) ); term.eraseLine();
-      } else {
-        output( terminalRGB(`╔═╗┌┬┐┬┌┐┌┌─┐╔═╗┌─┐┌─┐ ${arr[1]}`, 255, 60,  250) ); term.right(radMargin); term.eraseLine();
-        output( terminalRGB(`╠═╣││││││││ │╚═╗├┤ ├┤  ${arr[2]}`, 170, 150, 255) ); term.right(radMargin); term.eraseLine();
-        output( terminalRGB(`╩ ╩┴ ┴┴┘└┘└─┘╚═╝└─┘└─┘ ${arr[3]}`, 128, 240, 240) ); term.right(radMargin); term.eraseLine();
-        output( terminalRGB(` by Tom Atkinson       ${arr[4]}`, 225, 225, 130) ); term.right(radMargin); term.eraseLine();
-        output( terminalRGB(`  ah-mee-no-see        ${arr[5]}`, 255, 180,  90) ); term.right(radMargin); term.eraseLine();
-        output( terminalRGB(`${ this.prettyDate()} v${version} ${arr[6]} `, 220, 120,  70) ); term.right(radMargin); term.eraseLine();
-        output( terminalRGB(arr[7], 200, 105,   60) ); term.right(radMargin); term.eraseLine();
-        output( terminalRGB(arr[8], 200, 32,   32) ); term.eraseLine();
-      }
 
-      // term.right(radMargin);
-      // output(); term.right(radMargin); term.eraseLine();
-    }
 
 
     fastUpdate() {
@@ -4299,7 +4268,7 @@ class AminoSeeNoEvil {
       }
       this.rawDNA = funknzlabel;
       term.moveTo(1 + this.termMarginLeft,1 + this.termMarginTop);
-      this.printRadMessage(array);
+      printRadMessage(array);
       // term.right( this.termMarginLeft );
       output(`Done: ${chalk.rgb(128, 255, 128).inverse( nicePercent(this.percentComplete) )} Elapsed: ${ fixedWidth(12, humanizeDuration( this.msElapsed )) } Remain: ${humanizeDuration( this.timeRemain)}`);
       output(`${ twosigbitsTolocale( gbprocessed )} GB All time total on ${chalk.yellow( hostname )} ${ cliruns.toLocaleString()} jobs run total`);
@@ -5307,14 +5276,14 @@ class AminoSeeNoEvil {
       // }
       process.on("SIGTERM", () => {
         cliInstance.gracefulQuit();
-        // this.destroyProgress();
+        this.destroyProgress();
         process.exitCode = 130;
         cliInstance.quit(130, "SIGTERM");
         process.exit(); // this.now the "exit" event will fire
       });
       process.on("SIGINT", function() {
         cliInstance.gracefulQuit();
-        // this.destroyProgress();
+        this.destroyProgress();
         process.exitCode = 130;
         cliInstance.quit(130, "SIGINT");
         process.exit(); // this.now the "exit" event will fire
@@ -5543,6 +5512,43 @@ class AminoSeeNoEvil {
     //     else { log( 'WEEEEE DONE Yay! Done!' ) ; }
     //   });
     // }
+
+    function  printRadMessage(arr) {
+          // output( returnRadMessage(arr) );
+          if (arr == undefined) {
+            arr = ["    ________", "    ________", "    ________", "    ________", "    ________", "", "Output path:", cliInstance.outputPath ];
+            // arr = [ "    ________", "    ________", "    ________", "    ________", "    ________", "", "Output path:"," " ];
+          }
+          while ( arr.length < 9 ) {
+            arr.push("    ________");
+          }
+          let radMargin = cliInstance.termMarginLeft;
+          term.eraseLine();
+
+          output( terminalRGB(arr[0], 255, 32,   32) ); term.eraseLine();
+          term.right(radMargin);
+          if ( term.width > wideScreen ) {
+            output( terminalRGB(`╔═╗┌┬┐┬┌┐┌┌─┐╔═╗┌─┐┌─┐  ╔╦╗╔╗╔╔═╗  ╦  ╦┬┌─┐┬ ┬┌─┐┬─┐  ${arr[1]}`, 255, 60,  250) ); term.right(radMargin); term.eraseLine();
+            output( terminalRGB(`╠═╣││││││││ │╚═╗├┤ ├┤    ║║║║║╠═╣  ╚╗╔╝│├┤ │││├┤ ├┬┘  ${arr[2]}`, 170, 150, 255) ); term.right(radMargin); term.eraseLine();
+            output( terminalRGB(`╩ ╩┴ ┴┴┘└┘└─┘╚═╝└─┘└─┘  ═╩╝╝╚╝╩ ╩   ╚╝ ┴└─┘└┴┘└─┘┴└─  ${arr[3]}`, 128, 240, 240) ); term.right(radMargin); term.eraseLine();
+            output( terminalRGB(` by Tom Atkinson          aminosee.funk.nz            ${arr[4]}`, 225, 225, 130) ); term.right(radMargin); term.eraseLine();
+            output( terminalRGB(`  ah-mee-no-see     'I See It Now - I AminoSee it!'   ${arr[5]}`, 255, 180,  90) ); term.right(radMargin); term.eraseLine();
+            output( terminalRGB(`   ${ prettyDate(new Date())}   v${version} ${arr[6]}`          , 220, 120,  70) ); term.right(radMargin); term.eraseLine();
+            output( terminalRGB(arr[7], 220, 80,   80) ); term.right(radMargin); term.eraseLine();
+            output( terminalRGB(arr[8], 255, 32,   32) ); term.eraseLine();
+          } else {
+            output( terminalRGB(`╔═╗┌┬┐┬┌┐┌┌─┐╔═╗┌─┐┌─┐ ${arr[1]}`, 255, 60,  250) ); term.right(radMargin); term.eraseLine();
+            output( terminalRGB(`╠═╣││││││││ │╚═╗├┤ ├┤  ${arr[2]}`, 170, 150, 255) ); term.right(radMargin); term.eraseLine();
+            output( terminalRGB(`╩ ╩┴ ┴┴┘└┘└─┘╚═╝└─┘└─┘ ${arr[3]}`, 128, 240, 240) ); term.right(radMargin); term.eraseLine();
+            output( terminalRGB(` by Tom Atkinson       ${arr[4]}`, 225, 225, 130) ); term.right(radMargin); term.eraseLine();
+            output( terminalRGB(`  ah-mee-no-see        ${arr[5]}`, 255, 180,  90) ); term.right(radMargin); term.eraseLine();
+            output( terminalRGB(`${ prettyDate(new Date())} v${version} ${arr[6]} `, 220, 120,  70) ); term.right(radMargin); term.eraseLine();
+            output( terminalRGB(arr[7], 220, 80,   80) ); term.right(radMargin); term.eraseLine();
+            output( terminalRGB(arr[8], 255, 32,   32) ); term.eraseLine();
+          }
+
+        }
+
     function cleanString(s) {
       let ret = "";
       s = removeLineBreaks(s);
@@ -5551,6 +5557,10 @@ class AminoSeeNoEvil {
         ret += cleanChar(s.charAt(i));
       }
       return ret;
+    }
+    function prettyDate(today) {
+      var options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+      return today.toLocaleString(options) + "  " + today.toLocaleDateString(options); // Saturday, September 17, 2016
     }
     module.exports.getOutputFolder = getOutputFolder;
     module.exports.nicePercent = nicePercent;
