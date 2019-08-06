@@ -86,7 +86,7 @@ function deleteFile(file) {
   try {
     fs.unlinkSync(path.resolve(file), (err) => {
       log("Removing file OK...")
-      if (err) { console.log(err)  }
+      if (err) { bugtxt(err)  }
     });
   } catch (err) {
     bugtxt(err)

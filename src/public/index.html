@@ -18,7 +18,7 @@
 	<script src="aminosee-web-socket.js"></script>
 	<!-- <script src="carlo.js"></script> -->
 	<script src="dat.gui.min.js"></script>
-	<link rel="stylesheet" type="text/css" media="all" href="filedrag.css" />
+	<link rel="shortcut icon" href="256_icon.png" sizes="256x256" />
 	<!-- <script src="node_modules/jquery/dist/jquery.min.js"></script> -->
 	<!-- <script src="node_modules/three/build/three.min.js"></script> -->
 	<!-- <script src="bundle.js"></script> -->
@@ -55,7 +55,9 @@
 	<!-- End Google Tag Manager -->
 </head>
 
-<body id="webgl" class="black nocse" onload="run()">
+<body id="webgl" class="black nocse" onload="run(); onload();">
+
+
 	<!-- Funk.nz menubar include -->
 	<!-- Google Tag Manager -->
 	<noscript><iframe src="//www.googletagmanager.com/ns.html?id=GTM-P8JX" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
@@ -232,7 +234,10 @@
 
 					<div id="messages">
 						<p>Status Messages</p>
-
+						<div class="content">
+							<div class="heading">AminoSeeNoEvil</div>
+							<div id="grids"></div>
+						</div>
 					</div>
 
 

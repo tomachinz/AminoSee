@@ -28,9 +28,12 @@ let histogramJson = { foo: "bar " };
 let stackOimages = document.getElementById('stackOimages');
 // let urlprefix = `../`;
 let urlprefix = `output/`;
-if ( document.location.indexOf('funk.co.nz') == -1 ) {
+let docloc =  document.location;
+
+if ( docloc.indexOf('funk.co.nz') == -1 ) {
   console.log(`Not production`)
   urlprefix = `../`
+  alert('dev')
 } else {
   console.log(`Running on funk.co.nz domain`)
   urlprefix = `funk.co.nz/aminosee/output/`;
