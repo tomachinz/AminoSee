@@ -64,6 +64,7 @@ const netFoldername = "/output"; // terse for networks
 const funknzlabel = "aminosee.funk.nz"
 const closeBrowser = "If the process apears frozen, it's waiting for your this.browser or image viewer to quit. Escape with [ CONTROL-C ] or use --no-image --no-html";
 const defaultC = 1; // back when it could not handle 3+GB files.
+const previewCodonsPerPixel = 500; // larger number gives smaller images
 const artisticHighlightLength = 36; // px only use in artistic this.mode. must be 6 or 12 currently
 const defaultMagnitude = 8; // max for auto setting
 const theoreticalMaxMagnitude = 10; // max for auto setting
@@ -110,7 +111,7 @@ function populateArgs(procArgv) { // returns args
     boolean: [ 'artistic', 'clear', 'chrome', 'devmode', 'debug', 'demo', 'dnabg', 'explorer', 'file', 'force', 'firefox', 'gui', 'html', 'image', 'keyboard', 'list', 'progress', 'quiet', 'reg', 'recycle', 'redraw', 'serve', 'safari', 'test', 'updates', 'verbose', 'view' ],
     string: [ 'url', 'outpath', 'triplet', 'peptide', 'ratio', 'port' ],
     alias: { a: 'artistic', b: 'dnabg', c: 'codons', d: 'devmode', f: 'force', h: 'help', k: 'keyboard', m: 'magnitude', o: 'outpath', out: 'outpath', output: 'outpath', p: 'peptide', i: 'image', t: 'triplet', u: 'updates', q: 'quiet', r: 'reg', w: 'width', v: 'verbose', x: 'explorer', finder: 'explorer', view: 'html'  },
-    default: { html: true, brute: false, image: true, clear: false, explorer: false, quiet: false, keyboard: false, progress: false, redraw: true, updates: true, serve: true, gui: false },
+    default: { html: true, brute: true, image: false, clear: false, explorer: false, quiet: false, keyboard: false, progress: true, redraw: true, updates: true, serve: false, gui: false },
     stopEarly: false
   } // NUMERIC INPUTS: codons, magnitude, width, maxpix
   let args = minimist(procArgv.slice(2), options)
@@ -138,7 +139,7 @@ function bruteForce(cs) {
         redraw: true,
         updates: false,
       }
-      newJob( job );
+      // newJob( job );
     }, 800 * i)
   }
 }
@@ -242,7 +243,7 @@ class AminoSeeNoEvil {
     this.debugGears = 1;
     this.done = 0;
     this.suopIters = 0;
-    this.raceDelay = 100; // so i learnt a lot on this project. one day this line shall disappear replaced by promises.
+    this.raceDelay = 500; // so i learnt a lot on this project. one day this line shall disappear replaced by promises.
     this.darkenFactor = 0.125; // if user has chosen to highlight an amino acid others are darkened
     this.highlightFactor = 8.0; // highten brightening.
     this.devmode = false; // kills the auto opening of reports etc
@@ -883,7 +884,6 @@ class AminoSeeNoEvil {
     }
 
     getRenderObject() { // return part of the histogramJson obj
-      // this.calculateShrinkage();
       bugtxt(`codonsPerPixelHILBERT inside this.getRenderObject is ${ this.codonsPerPixelHILBERT }`)
       let linearimage, refimage;
       for (let h=0; h < this.pepTable.length; h++) {
@@ -933,7 +933,7 @@ class AminoSeeNoEvil {
         opacity: this.opacity,
         magnitude:  this.magnitude,
         dimension:  this.dimension,
-        optimumDimension: this.optimumDimension ( this.estimatedPixels ),
+        optimumDimension: this.optimumDimension ( this.estimatedPixels, this.magnitude ),
         darkenFactor: this.darkenFactor,
         highlightFactor: this.highlightFactor,
         correction: 'Ceiling',
@@ -1395,7 +1395,7 @@ class AminoSeeNoEvil {
     pollForStream(reason) { // render lock must be off before calling. aim: start the render, or look for work
       // take current file and test if it can be rendered
       mode('pre-polling ' + reason);
-      log(this.status )
+      output(this.status )
       // var that = this;
       if ( this.renderLock == true ) {
         bugtxt(`thread re-entry inside pollForStream: ${ this.justNameOfDNA} ${ this.busy() } ${ this.storage() } reason: ${reason}`);
@@ -1416,26 +1416,26 @@ class AminoSeeNoEvil {
         this.quit(0, reason);
         return false;
       }
-      if ( this.isShuttingDown == false && this.howMany <= 0 ) { this.quit(0, "ran out of files to process") }
-      if ( doesFolderExist(this.dnafile ) ) { // && this.currentFile !== ""
       if (this.currentFile == undefined) { return false; }
-      let newCommand = `${this.currentFile}/*`
-      let msg = `${this.dnafile }
-      Folder (${this.currentFile}) provided as input instead of a file. ${this.howMany} If you meant to render everything in there, try using an asterix on CLI: aminosee ${newCommand}`
-      // output(msg)
-      // pushCli(newCommand)
-      this.popAndPollOrBust(msg)
-      // this.resetAndPop(msg)
-      return false;
-    }
-    if (!this.checkFileExtension( this.currentFile)) {
-      let msg = `${this.currentFile} wrong file extension. Must be one of ${ extensions } `
-      out( this.busy() )
-      if ( this.howMany > 0 ) {
+      if ( this.isShuttingDown == false && this.howMany <= 0 ) { this.quit(0, "ran out of files to process") }
+      if ( doesFolderExist(this.dnafile ) ) {
+        let newCommand = `${this.currentFile}/*`;
+        let msg = `${this.dnafile }
+        Folder (${this.currentFile}) provided as input instead of a file. ${this.howMany} If you meant to render everything in there, try using an asterix on CLI: aminosee ${newCommand}`;
+        output(msg)
+        // pushCli(newCommand)
         this.popAndPollOrBust(msg)
+        // this.resetAndPop(msg)
+        return false;
       }
-      return false;
-    }
+      if (!this.checkFileExtension( this.currentFile)) {
+        let msg = `${this.currentFile} wrong file extension. Must be one of ${ extensions } `
+        out( this.busy() )
+        if ( this.howMany > 0 ) {
+          this.popAndPollOrBust(msg)
+        }
+        return false;
+      }
     // if (doesFileExist(this.dnafile )  === false) {
     //   this.popAndPollOrBust(`${this.dnafile }  No File Found`);
     //   return false;
@@ -1459,11 +1459,22 @@ class AminoSeeNoEvil {
     mode(`pollForStream ${reason}`)
     this.setupProject();
     this.autoconfCodonsPerPixel();
-    this.setupFNames(); // will have incorrect Hilbert file name. Need to wait until after render to check if exists.
+    this.setupLinearNames(); // will not include Hilbert file name. Need to wait until after render and setupHilbertFilenames
     let msg = `>>> PREFLIGHT <<< ${ this.howMany } ${ fixedWidth(24,  this.currentFile)} then ${ fixedWidth(24,  this.nextFile)} reason: ${reason}`
     log(msg);
     redoLine(msg)
     log('Checking for previous render'+ this.filePNG)
+
+    if ( this.checkFileExtension( this.currentFile ) == false)  {
+      this.popAndPollOrBust("File Format not supported: " + chalk.inverse( this.getFileExtension( this.currentFile)) + ` supported: ${ extensions }`)
+      return false;
+    }
+    if (doesFolderExist(this.dnafile ) ) {
+      msg = `${this.currentFile} is a folder not a file, will try to re-issue job as ${this.currentFile}/* to process all in dir`
+      pushCli( `${basename( this.currentFile )}/*` );
+      this.popAndPollOrBust(msg);
+      return true;
+    }
 
     if (doesFileExist(this.filePNG) && this.force == false) {
       bugtxt(`isStorageBusy ${this.isStorageBusy} Storage: [${this.isStorageBusy}]`)
@@ -1471,47 +1482,28 @@ class AminoSeeNoEvil {
       let msg = `Already rendered ${ maxWidth(60, this.justNameOfPNG) }.`;
       log(msg);
       this.openOutputs();
-      setTimeout( () => {
+      // setTimeout( () => {
         this.popAndPollOrBust(msg);
-      }, this.raceDelay)
+      // }, this.raceDelay)
       return false;
     } else {
       log(`Job to be rendered.`)
     }
 
-    // if (doesFileExist(this.filePNG) && this.force == false) {
-    //   bugtxt(`isStorageBusy ${this.isStorageBusy}`)
-    //   let msg = `Already rendered ${ maxWidth(60, this.justNameOfPNG) }. Storage: [${this.isStorageBusy}]`;
-    //   output(msg);
-    //   this.openOutputs();
-    //   this.popAndPollOrBust(msg);
-    //   return false;
-    // } else {
-    //   log(`Job to be rendered.`)
-    // }
-    if ( this.checkFileExtension( this.currentFile ) == false)  {
-      this.popAndPollOrBust("File Format not supported: " + chalk.inverse( this.getFileExtension( this.currentFile)) + ` supported: ${ extensions }`)
-      return false;
-    }
-    if (doesFolderExist(this.dnafile ) ) {
-      msg = `${this.currentFile} is a folder not a file, will try to re-issue job as ${this.currentFile}/* to process all in dir`
-      // pushCli( `${basename( this.currentFile )}/*` );
-      this.popAndPollOrBust(msg);
-      return true;
-    }
+
     if (this.howMany < 0) { isShuttingDown = true;}
 
     if ( this.checkLocks( this.fileTouch)) {
       output("Render already in progress by another thread for: " + this.justNameOfPNG);
       log("Either use --force or delete this lock file: ");
       log(`Touchfile: ${chalk.underline( this.fileTouch )}`);
-      setTimeout( () => {
+      // setTimeout( () => {
         if ( this.renderLock == false ) {
           this.popAndPollOrBust('Polling');
         } else {
           output("Render already in progress by another thread for: " + this.justNameOfPNG + " due to presence of " + this.fileTouch); // <---  another node maybe working on, NO RENDER
         }
-      }, this.raceDelay )
+      // }, this.raceDelay )
       return false;
     }
     mode("Lock OK proceeding to render...");
@@ -1644,7 +1636,7 @@ class AminoSeeNoEvil {
     this.rgbArray = [];
     this.initialiseArrays();
 
-    this.hilbertImage = [];
+    // this.hilbertImage = [];
     bugtxt(`Loading ${ this.dnafile } Filesize ${bytes( this.baseChars)}`);
     if ( this.clear == true) {
       term.up(this.termDisplayHeight + this.termStatsHeight*2);
@@ -1713,7 +1705,38 @@ class AminoSeeNoEvil {
       this.pepTable[i].lm_array = [0,0,0,0]
       this.pepTable[i].hm_array = [0,0,0,0]
       this.pepTable[i].mixRGBA  = [0,0,0,0]
+    }
+
   }
+  diskStorm(cb) {
+    output("WE BE STORMIN")
+    // if ( this.brute == false) { return false; }
+    output("LIKE NORMAN")
+
+    for (let i = 0; i < this.pepTable.length; i++) {
+      let pep = this.pepTable[ i ]
+      output(`saving amino acid layer ${ pep.Codon } `)
+
+      // saveLinearPNG();
+
+      mode(`disk storm`)
+      let pixels, width, height = 0;
+      let pwh = this.pixWidHeight();
+
+      pixels = pwh[0]
+      width  = pwh[1]
+      height = pwh[2]
+
+      if ( i == this.pepTable.length -1 ) {
+        genericPNG( pep.lm_array, width, height, pep.linear_master, cb)
+      } else {
+        genericPNG( pep.lm_array, width, height, pep.linear_master)
+      }
+
+      // this.pepTable[i].lm_array = [0,0,0,0]
+      // this.pepTable[i].hm_array = [0,0,0,0]
+      // this.pepTable[i].mixRGBA  = [0,0,0,0]
+    }
 
   }
   streamStarted() {
@@ -1841,7 +1864,7 @@ class AminoSeeNoEvil {
     } else { // use a file
       this.isStreamingPipe = false; // cat Human.genome | aminosee
       this.estimatedPixels =  this.baseChars / 3; // divide by 4 times 3
-      this.dimension = this.optimumDimension ( this.estimatedPixels);
+      this.dimension = this.optimumDimension ( this.estimatedPixels, this.magnitude);
     }
 
 
@@ -1935,10 +1958,12 @@ class AminoSeeNoEvil {
     return ret;
   }
   setupHilbertFilenames() {
-    this.calculateShrinkage(); // REQUIRES INFO FROM HERE FOR HILBERT BUT THAT INFO NOT EXIST UNTIL WE KNOW HOW MANY PIXELS CAME OUT OF THE DNA!
+    // REQUIRES RENDERING TO MEMORY PRIOR
+    let { shrinkFactor, codonsPerPixelHILBERT } = calculateShrinkage( this.pixelClock );
+    this.shrinkFactor = shrinkFactor;
+    this.codonsPerPixelHILBERT = codonsPerPixelHILBERT;
     this.fileHILBERT = `${ this.outputPath }/${ this.justNameOfDNA }/images/${ this.generateFilenameHilbert() }`;
   }
-
 
   generateFilenameHistogram() {
     this.fileHistogram = path.normalize( path.resolve(`${ this.outputPath }/${ this.justNameOfDNA}/aminosee_histogram.json`) );
@@ -1957,7 +1982,7 @@ class AminoSeeNoEvil {
     this.justNameOfPNG =         `${ this.justNameOfDNA}.${ this.extension }_linear${ this.highlightFilename() }_c${ onesigbitTolocale( this.codonsPerPixel )}${ this.getImageType() }.png`;
     return this.justNameOfPNG;
   }
-  generateFilenameHilbert() {
+  generateFilenameHilbert() { // needs  this.dimension
     if ( this.test) {
       // the this.dnafile should be set already fingers crossed.
       // this.justNameOfHILBERT =     `${ this.justNameOfDNA}.${ this.extension }_HILBERT${ this.highlightFilename() }_m${ this.dimension }_c${ onesigbitTolocale( this.codonsPerPixelHILBERT )}${ this.getRegmarks()}.png`;
@@ -1972,15 +1997,14 @@ class AminoSeeNoEvil {
     return this.justNameOfHTML;
   }
 
-  setupFNames() { // must not be called during creation of hilbert image
-    if ( this.renderLock == true) {
-      this.error('thread re-entry inside setupFNames')
-      return false;
-    }
-    mode("setupFNames " + this.currentFile);
+  setupLinearNames() { // must not be called during creation of hilbert image
+    // if ( this.renderLock == true) {
+    //   this.error('thread re-entry inside setupLinearNames')
+    //   return false;
+    // }
+    mode("setupLinearNames " + this.currentFile);
 
     if (isShuttingDown) {     output(`isShuttingDown: [${ isShuttingDown }]`)  }
-    // this.calculateShrinkage(); // REQUIRES INFO FROM HERE FOR HILBERT BUT THAT INFO NOT EXIST UNTIL WE KNOW HOW MANY PIXELS CAME OUT OF THE DNA!
     this.dnafile = path.resolve(this.currentFile);
     this.justNameOfCurrentFile  = basename( this.dnafile );
     this.extension = this.getFileExtension( this.currentFile );
@@ -1991,10 +2015,25 @@ class AminoSeeNoEvil {
     if ( this.justNameOfDNA.length > maxCanonical ) {
       this.justNameOfDNA = this.justNameOfDNA.substring(0,maxCanonical/2) + this.justNameOfDNA.substring( this.justNameOfDNA.length-( maxCanonical /2), this.justNameOfDNA.length);
     }
+
+    const cppBackup = this.codonsPerPixel;
+    const hcpBackup = this.codonsPerPixelHILBERT;
+
+    for (let i = 0; i < this.pepTable.length; i++) {
+      this.pepTable[i].linear_master   = this.qualifyPath(`images/${ this.generateFilenamePNG()     }`);
+      this.pepTable[i].hilbert_master  = this.qualifyPath(`images/${ this.generateFilenameHilbert() }`);
+      previewCodonsPerPixel
+
+      this.pepTable[i].linear_preview  =
+      this.pepTable[i].hilbert_preview =
+      out(`initialise ${i}`)
+
+    }
+
     this.fileTouch =   this.qualifyPath( this.generateFilenameTouch()  );
     this.fileHTML =    this.qualifyPath( this.generateFilenameHTML()   );
     this.filePNG =     this.qualifyPath(`images/${ this.generateFilenamePNG()     }`);
-    this.fileHILBERT = this.qualifyPath(`images/${ this.generateFilenameHilbert() }`);
+    // this.fileHILBERT = this.qualifyPath(`images/${ this.generateFilenameHilbert() }`);
     this.fullURL          = `${url}/${this.justNameOfDNA}/`;//`${this.justNameOfHTML}`;
     // this.fancyFilenames();
     this.setNextFile();
@@ -2200,6 +2239,8 @@ class AminoSeeNoEvil {
     log(chalk.inverse(`Finished linear render of ${ this.justNameOfDNA} ${ pixels } = ${ this.pixelClock }`))
     term.eraseDisplayBelow();
 
+
+
     if (this.test) { // the calibration generates its own image
       this.shrinkFactor = 1;
     } else { // regular DNA processing
@@ -2219,9 +2260,12 @@ class AminoSeeNoEvil {
     this.calcUpdate();
     this.setupHilbertFilenames();
     this.fancyFilenames();
-
+    this.diskStorm( () => {
+      log(`disk storm has returned`)
+    })
 
     var that = this; // closure
+
     mode('async.series')
     // async.waterfall( [
     async.series( [
@@ -2229,6 +2273,10 @@ class AminoSeeNoEvil {
         mode('async start ' + that.currentFile)
         that.savePNG( cb );
       },
+      // function ( cb ) {
+      //   mode('disk storm' + that.currentFile)
+      //   that.diskStorm( cb )
+      // },
       function ( cb ) {
         that.saveHTML(  ); // saveHTML no longer calls htmlFinished, its so that.openOutputs has time to open it
         cb();
@@ -2329,6 +2377,8 @@ class AminoSeeNoEvil {
   }
   touchLockAndStartStream() { // saves CPU waste. delete lock when all files are saved, not just the png.
     mode("touchLockAndStartStream");
+    output("I feel like touching a mutex lock and dancing")
+
     if ( this.renderLock == true ) {
       output(`Thread re-entry during locking`)
       return false;
@@ -2336,7 +2386,6 @@ class AminoSeeNoEvil {
       log(`Locking threads for render`)
     }
     this.renderLock = true;
-    // output("Start")
     this.tLock( );
     this.initStream()
   }
@@ -2693,7 +2742,7 @@ class AminoSeeNoEvil {
           this.mixRGBA[2] += parseFloat( this.codonRGBA[2].valueOf() * pixelGamma ); // * blue
           this.mixRGBA[3] += 255 * pixelGamma; // * full opacity
 
-          if ( this.brute ) {
+          if ( this.brute == true ) {
             for ( let i = 0; i < this.pepTable.length; i++ ) {
               let pep = this.pepTable[ i ].Codon;
               pixelGamma = getGamma( pep );
@@ -2702,7 +2751,7 @@ class AminoSeeNoEvil {
               this.pepTable[ i ].mixRGBA[1] += parseFloat( this.codonRGBA[1].valueOf() * pixelGamma ); // * green
               this.pepTable[ i ].mixRGBA[2] += parseFloat( this.codonRGBA[2].valueOf() * pixelGamma ); // * blue
               this.pepTable[ i ].mixRGBA[3] += 255 * pixelGamma; // * full opacity
-              // bugtxt( this.pepTable[ i ].src);
+              output( this.pepTable[ i ].src);
             }
           }
 
@@ -3230,7 +3279,7 @@ class AminoSeeNoEvil {
           this.isDiskFinHilbert = false;
           this.isDiskFinHTML = true;
           this.isDiskFinLinear = true;
-          this.calculateShrinkage();
+          this.setupHilbertFilenames();
           this.rgbArray = this.data;
           // this.saveHilbert( this.hilbertFinished);
           saveDocuments();
@@ -3280,40 +3329,39 @@ class AminoSeeNoEvil {
     }
 
 
-    calculateShrinkage() { // danger: can change this.file of Hilbert images!
-
-      let linearpix = this.rgbArray.length / 4;
+    calculateShrinkage( linearpix ) { // danger: can change this.file of Hilbert images!
+      // give it a large number of pixels
+      // it will choose a hilbert dimension
+      // and return the shrinkage factor, codons per pixel hilbert
+      let dimension, magnitude, hilpix, codonsPerPixelHILBERT, shrinkFactor
       let computerWants = this.optimumDimension (linearpix);
 
       if ( computerWants > defaultMagnitude ) {
         output(`This genome could be output at a higher resolution of ${hilbPixels[computerWants].toLocaleString()} than the default of ${computerWants}, you could try -m 8 or -m 9 if your machine is muscular, but it might core dump. -m10 would be 67,108,864 pixels but node runs out of stack before I get there on my 16 GB macOS. -Tom.`)
-        this.dimension = defaultMagnitude;
+        dimension = defaultMagnitude;
       } else if (computerWants < 0) {
-        this.dimension = 0; // its an array index
+        dimension = 0; // its an array index
         this.error(`That image is way too small to make an image out of?`);
-      } else {
-        this.dimension = computerWants; // give him what he wants
       }
 
-      if ( this.args.magnitude || this.args.m) {
-        this.magnitude = 'custom'
-        this.dimension = this.magnitude; // users choice over ride all this nonsense
-        output(`Ideal magnitude: ${computerWants} using custom magnitude: ${ this.dimension }`);
+      if ( this.magnitude == "custom" ) {
+        dimension = this.magnitude; // users choice over ride all this nonsense
       } else {
-        this.magnitude = 'auto';
-        log(`Ideal magnitude: ${computerWants} using auto-magnitude: ${ this.dimension }`);
+        dimension = computerWants; // give him what he wants
       }
 
-      let hilpix = hilbPixels[ this.dimension ];;
-      this.hilbertImage = [hilpix*4];
-      this.shrinkFactor = linearpix / hilpix;//  array.length / 4;
-      this.codonsPerPixelHILBERT = this.codonsPerPixel /  this.shrinkFactor;
-      // log(`Linear pix: ${linearpix.toLocaleString()} > reduction: X${  this.shrinkFactor } = ${hilbPixels[ this.dimension ].toLocaleString()} pixels ${ this.dimension }th this.dimension hilbert curve`);
-      this.codonsPerPixelHILBERT = this.codonsPerPixel* this.shrinkFactor;
-      this.fileHILBERT = `${ this.outputPath }/${ this.justNameOfDNA}/images/${ this.generateFilenameHilbert() }`;
+      let hilpix = hilbPixels[ dimension ];
+      let shrinkFactor = linearpix / hilpix; // THE GUTS OF IT
 
-      bugtxt(` this.shrinkFactor pre ${  this.shrinkFactor } = linearpix ${linearpix } /  hilpix ${hilpix}  `);
-      bugtxt(`this.fileHILBERT after shrinking: ${ this.fileHILBERT } this.dimension: ${ this.dimension }  this.shrinkFactor post ${ twosigbitsTolocale( this.shrinkFactor)} this.codonsPerPixel ${ this.codonsPerPixel } this.codonsPerPixelHILBERT ${ this.codonsPerPixelHILBERT }`);
+      codonsPerPixelHILBERT = this.codonsPerPixel /  shrinkFactor;
+
+
+      output(`Ideal magnitude: ${computerWants} using ${this.magnitude} magnitude: ${ dimension } shrinkFactor pre ${  shrinkFactor } = linearpix ${linearpix } /  hilpix ${hilpix} this.fileHILBERT after shrinking: dimension: ${ dimension }  shrinkFactor post ${ twosigbitsTolocale( shrinkFactor)} this.codonsPerPixel ${ this.codonsPerPixel } codonsPerPixelHILBERT ${ codonsPerPixelHILBERT }`);
+
+      return {
+        shrinkFactor: shrinkFactor,
+        codonsPerPixelHILBERT: codonsPerPixelHILBERT
+      };
     }
 
 
@@ -3348,7 +3396,7 @@ class AminoSeeNoEvil {
       // }
       term.eraseDisplayBelow();
       mode('save hilbert');
-      output(chalk.bgBlue.yellow( " Getting in touch with my man from 1891...   ॐ    David Hilbert    ॐ    " ));// In the " + this.dimension + "th dimension and reduced by " + threesigbitsTolocale( this.shrinkFactor) );
+      output(chalk.bgBlue.yellow( " Getting in touch with my man from 1891...   ॐ    David Hilbert    ॐ    " ));// In the " + this.dimension + "th dimension and reduced by " + threesigbitsTolocale( shrinkFactor) );
       bugtxt( this.justNameOfDNA);
       let hilpix = hilbPixels[ this.dimension ];
       this.resampleByFactor( this.shrinkFactor );
@@ -3579,18 +3627,11 @@ class AminoSeeNoEvil {
 
 
     }
-    // saveLinearPNG(cb, filename, array) { // FAILED REFACTOR
-    //   this.filePNG = this.dnafile;
-    //   this.width = width;
-    //   this.height = height;
-    //   this.rgbArray = array;
-    //   this.savePNG(cb)
-    // }
-    savePNG(cb) {
-      let pixels, height, width = 0;
-      output(`savePNG`)
+    pixWidHeight() {
+      let pix, wid, hite = 0;
+
       try {
-        pixels = ( this.rgbArray.length / 4);
+        pix = ( this.rgbArray.length / 4);
       }
       catch (err) {
         this.resetAndPop(`NOT ENOUGH PIXELS ${err}`);
@@ -3598,47 +3639,63 @@ class AminoSeeNoEvil {
       }
 
       if ( this.ratio == "sqr" || this.ratio == "hil") {
-        width = Math.round(Math.sqrt(pixels));
-        height = width;
-        while ( pixels > width*height) {
-          log(` [w: ${width} h: ${height}] `)
-          width++;
-          height++;
+        wid = Math.round(Math.sqrt(pix));
+        hite = wid;
+        while ( pix > wid * hite) {
+          log(` [w: ${wid} h: ${hite}] `)
+          wid++;
+          hite++;
         }
       } // SQUARE RATIO
 
       if ( this.ratio == "gol") {
         let phi = ((Math.sqrt(5) + 1) / 2) ; // 1.618033988749895
-        let bleed = pixels * phi; // was a good guess!
-        width = Math.sqrt(bleed); // need some extra pixels sometimes
-        height = width; // 1mp = 1000 x 1000
-        height =  ( width * phi ) - width; // 16.18 - 6.18 = 99.99
-        width = bleed / height;
-        height = Math.round(height);
-        width = Math.round(width) - height;
+        let bleed = pix * phi; // was a good guess!
+        wid = Math.sqrt(bleed); // need some extra pixels sometimes
+        hite = wid; // 1mp = 1000 x 1000
+        hite =  ( wid * phi ) - wid; // 16.18 - 6.18 = 99.99
+        wid = bleed / hite;
+        hite = Math.round(hite);
+        wid = Math.round(wid) - hite;
       } else if ( this.ratio == "fix") {
-        if (pixels <= widthMax) {
-          width = pixels;
-          height = 1;
+        if (pix <= widthMax) {
+          wid = pix;
+          hite = 1;
         } else {
-          width = widthMax;
-          height = Math.round(pixels / widthMax); // you can have half a line. more and its an extra vert line
-          if (height<1) {
-            height=1;
+          wid = widthMax;
+          hite = Math.round(pix / widthMax); // you can have half a line. more and its an extra vert line
+          if (hite<1) {
+            hite=1;
           }
         }
-        while ( pixels > width*height) {
-          log(`linear image height: ${height} pixels by 960`);
-          height++;
+        while ( pix > width*hite) {
+          log(`linear image hite: ${hite} pixels by 960`);
+          hite++;
         }
       } // GOLDEN RATIO
 
-      if ( pixels <= width*height) {
-        log("Image allocation is OK: " + pixels + " <= width x height = " + ( width * height ));
+      if ( pix <= wid * hite) {
+        log("Image allocation is OK: " + pix + " <= width x hite = " + ( wid * hite ));
       } else {
-        this.resetAndPop(`MEGA FAIL: TOO MANY ARRAY PIXELS NOT ENOUGH IMAGE SIZE: array pixels: ${pixels} <  width x height = ${width*height}`);
+        let msg = `MEGA FAIL: TOO MANY ARRAY PIXELS NOT ENOUGH IMAGE SIZE: array pixels: ${pix} <  width x hite = ${wid * hite}`
+        this.error(msg)
+        this.resetAndPop(msg);
         return false;
       }
+      let a =  [ pix, wid, hite ]
+      return a
+    }
+
+
+    savePNG(cb) {
+      output(`savePNG`)
+      let pixels, width, height = 0;
+      let pwh = this.pixWidHeight();
+
+      pixels = pwh[0]
+      width  = pwh[1]
+      height = pwh[2]
+
       var stringy = {
         file: this.filePNG,
         width: width,
@@ -3999,31 +4056,26 @@ class AminoSeeNoEvil {
       }
       this.rgbArray = antiAliasArray;
     }
-    optimumDimension (pix) { // give it pix it returns a  this.dimension that fits inside it
+    optimumDimension (pix, magauto) { // give it pix it returns a HILBERT dimension that fits inside it with good over-sampling margins
       let dim = 0;
       let rtxt = `[HILBERT] Calculating largest Hilbert curve image that can fit inside ${ twosigbitsTolocale(pix)} pixels, and over sampling factor of ${overSampleFactor}: `;
       while (pix > (hilbPixels[dim] * overSampleFactor)) {
-        // rtxt += ` dim ${dim}: ${hilbPixels[dim]} `;
-        if (dim % 666 == 0 && dim > 666) {
-          // rtxt+= (`ERROR this.optimumDimension  [${hilbPixels[dim]}] pix ${pix} dim ${dim} `);
-        }
         if (dim > defaultMagnitude) {
-          if (  this.dimension && dim > theoreticalMaxMagnitude ) {
-            output("Hilbert dimensions above 8 will likely exceed nodes heap memory and/or call stack. mag 11 sure does. spin up the fans.")
+          if ( magauto == 'custom' && dim > theoreticalMaxMagnitude ) {
+            output(`Hilbert dimensions above 8 will likely exceed nodes heap memory and/or call stack. mag 11 sure does. spin up the fans. Capped your custom dimension to the ${ theoreticalMaxMagnitude }th order.`)
             dim = theoreticalMaxMagnitude;
             break
-          } else {
+          } else if ( magauto == 'auto') {
             dim = defaultMagnitude;
             break
           }
         }
         dim++;
       }
-      if (dim>0) { dim--; } // was off by 1
+      if (dim > 0) { dim--; } // was off by 1
 
       rtxt+= ` <<<--- chosen  this.dimension: ${dim} `;
-      bugtxt(rtxt);
-      if (this.devmode == true) { bugtxt(rtxt) }
+      log(rtxt);
       return dim;
     }
 
@@ -4276,7 +4328,7 @@ class AminoSeeNoEvil {
       term.moveTo(1 + this.termMarginLeft,1 + this.termMarginTop);
       printRadMessage(array);
       // term.right( this.termMarginLeft );
-      output(`Done: ${chalk.rgb(128, 255, 128).inverse( nicePercent(this.percentComplete) )} Elapsed: ${ fixedWidth(12, humanizeDuration( this.msElapsed )) } Remain: ${humanizeDuration( this.timeRemain)}`);
+      // output(`Done: ${chalk.rgb(128, 255, 128).inverse( nicePercent(this.percentComplete) )} Elapsed: ${ fixedWidth(12, humanizeDuration( this.msElapsed )) } Remain: ${humanizeDuration( this.timeRemain)}`);
       output(`${ twosigbitsTolocale( gbprocessed )} GB All time total on ${chalk.yellow( hostname )} ${ cliruns.toLocaleString()} jobs run total`);
       this.progUpdate( this.percentComplete );
       output(`Report URL: ${chalk.underline( this.fullURL )}`)
@@ -4314,11 +4366,13 @@ class AminoSeeNoEvil {
           }
         }
         this.updatesTimer = setTimeout(() => {
+          log("drawing again if rendering.... " +  this.msPerUpdate )
           if ( this.renderLock == true && this.howMany >= 0 ) { // this.status   == "stream") { // || this.updates) {
             this.drawHistogram(); // MAKE THE HISTOGRAM AGAIN LATER
+          } else {
+            output('COLIN!')
           }
         },  this.msPerUpdate );
-        bugtxt("drawing again in " +  this.msPerUpdate )
       } else { output('DNA render done') }
     }
     memToString() {
@@ -5471,8 +5525,6 @@ class AminoSeeNoEvil {
         })
         resolve();
       }).then( bugtxt('LINEAR then') ).catch( bugtxt('LINEAR catch') );
-
-
 
     }
     // function runDemo() {

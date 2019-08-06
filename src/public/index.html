@@ -29,10 +29,8 @@
 	<!-- <script src="renderer.js"></script> -->
 	<link rel="stylesheet" type="text/css" href="AminoSee.css">
 	<link href='https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz:700,400,200,100' rel='stylesheet' type='text/css'>
-	<link href="https://www.funk.co.nz/css/menu.css" rel="stylesheet">
-	<!-- <link href="/css/menu.css" rel="stylesheet"> -->
-	<link href="https://dev.funk.co.nz/css/funk2019.css" rel="stylesheet">
-	<!-- <link href="/css/funk2014.css" rel="stylesheet"> -->
+	<link href="/css/menu.css" rel="stylesheet">
+	<link href="/css/funk2019.css" rel="stylesheet">
 	<!-- Funk.nz menubar include -->
 	<!-- Google Tag Manager -->
 	<noscript><iframe src="//www.googletagmanager.com/ns.html?id=GTM-P8JX" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
@@ -201,8 +199,13 @@
 			<br>
 			<label class="fineprint whitetext"><input type="checkbox" id="autostop" name="autostop" value="pause after running for 5 minutes" onchange="autostopChanged()" checked>pause after running for 5 minutes</label>
 			<br>
+			<audio controls="controls" accesskey="space" title="audio logo" class="white small hidable">
+				<source src="aminosee_audio_logo.mp3" type="audio/mpeg">
+				<source src="aminosee_audio_logo.ogg" type="audio/ogg">
+				Your browser does not support the HTML5 Audio element.
+			</audio>
 			<br>
-			<h1>Welcome, try the <a href="Brown_Kiwi_NW_013982187v1/main.html" style="color: #eeeeff;">Brown Kiwi</a> or <a href="Caenorhabditiseldna-chromosome-V/main.html" style="color: #eeeeff;">C.elegans</a> or <a href="../" style="color: #eeeeff;">
+			<h1>Welcome, try the <a href="Brown_Kiwi_NW_013982187v1/" style="color: #eeeeff;">Brown Kiwi</a> or <a href="Caenorhabditiseldna-chromosome-V/" style="color: #eeeeff;">C.elegans</a> or <a href="../" style="color: #eeeeff;">
 					Browse
 					Full List</a> </h1> * 3D
 			mode
@@ -232,12 +235,9 @@
 
 
 
-					<div id="messages">
-						<p>Status Messages</p>
-						<div class="content">
-							<div class="heading">AminoSeeNoEvil</div>
-							<div id="grids"></div>
-						</div>
+					<div class="content">
+						<div class="heading">AminoSeeNoEvil</div>
+						<div id="grids"></div>
 					</div>
 
 
@@ -246,26 +246,33 @@
 						<h2 id="h2">DNA/RNA Chromosome Viewer</h2>
 						<p id="description" class="small hidable">A new way to view DNA that attributes a colour hue to each Amino acid codon triplet</p>
 
+
+
+
 						<form id="upload" action="filedrag.html" method="POST" enctype="multipart/form-data">
 							<fieldset>
 								<legend>HTML File Upload</legend>
 								<input type="hidden" id="MAX_FILE_SIZE" name="MAX_FILE_SIZE" value="300000" />
-								<div style="text-align: left;">
-									<label for="fileselect">Files to upload:</label><br>
+								<div>
+									<label for="fileselect">click to choose DNA file</label>
 									<input type="file" id="fileselect" name="fileselect[]" multiple="multiple" />
+									<div id="filedrag">or drag and drop files here</div>
 								</div>
-								<div id="filedrag" class="" style="display: block;">or drop files here</div>
 								<div id="submitbutton">
-									<button type="submit">Upload Files</button>
+									<button type="submit">upload</button>
 								</div>
 							</fieldset>
 						</form>
+						<div id="messages">
+							<p>Status Messages</p>
+						</div>
+						<p class="fineprint"><b>File drag and drop code by <a href="http://twitter.com/craigbuckler">Craig Buckler</a></b>
+							<br> <a href="http://optimalworks.net/">OptimalWorks.net</a> | <a href="http://sitepoint.com/">SitePoint.com</a></p>
+						<script src="filedrag.js"></script>
 
-						<audio controls="controls" accesskey="space" title="audio logo">
-							<source src="aminosee_audio_logo.mp3" type="audio/mpeg">
-							<source src="aminosee_audio_logo.ogg" type="audio/ogg">
-							Your browser does not support the HTML5 Audio element.
-						</audio>
+
+
+
 
 
 
@@ -286,8 +293,8 @@
 			<div id="status" class="headingStatus">
 				...loading...
 				<div id="oi">
-					<img id="current_image" src="Brown_Kiwi_NW_013982187v1/images/Brown_Kiwi_NW_013982187v1.fa_HILBERT__Reference_m6_c1,600.4.png" width="64" height="64">
-					<img id="offscreen_image" src="Brown_Kiwi_NW_013982187v1/images/Brown_Kiwi_NW_013982187v1.fa_HILBERT__Reference_m6_c1,600.4.png" class="hidden">
+					<img id="current_image" src="Brown_Kiwi_NW_013982187v1/images/Brown_Kiwi_NW_013982187v1.fa_linear__Reference_c65_fix_sci.png" width="64" height="64">
+					<img id="offscreen_image" src="Brown_Kiwi_NW_013982187v1/images/Brown_Kiwi_NW_013982187v1.fa_linear__Reference_c65_fix_sci.png" class="hidden">
 				</div>
 			</div>
 			<div id="stats" class="stats whitetext">

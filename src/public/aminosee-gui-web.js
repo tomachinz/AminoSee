@@ -28,14 +28,18 @@ let histogramJson = { foo: "bar " };
 let stackOimages = document.getElementById('stackOimages');
 // let urlprefix = `../`;
 let urlprefix = `output/`;
-let docloc =  document.location;
+let docloc = document.location.href;
 
 if ( docloc.indexOf('funk.co.nz') == -1 ) {
-  console.log(`Not production`)
+  // alert(`Not production, enabling devmode`)
+  devmode = true;
   urlprefix = `../`
-  alert('dev')
+  if ( docloc.indexOf('devmode') == -1 ) {
+    document.location.href = docloc + "?devmode"
+  }
 } else {
-  console.log(`Running on funk.co.nz domain`)
+  // devmode = false;
+  console.log(`Runnig on funk.co.nz domain`)
   urlprefix = `funk.co.nz/aminosee/output/`;
 }
 if(window.addEventListener) {
@@ -65,8 +69,8 @@ function mout(i) {
   let el = document.getElementById(id);
   el.style.zIndex = 100 + i;
 }
-function fileChanged(f) {
-  if (f == undefined) { f = 'megabase' }
+function fileChanged(f) { // http://127.0.0.1:8888/aminosee/output/Brown_Kiwi_NW_013982187v1/aminosee_histogram.json
+  if (f == undefined) { f = 'Brown_Kiwi_NW_013982187v1' }
   let histoURL = `${urlprefix}${f}aminosee_histogram.json`;
   let path = window.location.pathname;
   let newURL = `${path}#?selectedGenome=${f}`;
@@ -79,12 +83,15 @@ function fileChanged(f) {
   loadHistogramJson(histoURL)
 }
 function loadHistogramJson(histoURL) {
+  let histogramJson;
   console.log("FETCH"); // filename
   fetch( histoURL )
   .then(response => response.json())
-  .then(histogramJson => {
-    console.log(histogramJson);
+  .then(json => {
+    console.log(json);
+    histogramJson = json;
     buildPage(histogramJson);
+    return histogramJson
   }).catch();
 }
 function removesprites() {
@@ -124,7 +131,7 @@ function toggleDevmode() {
   }
 }
 function pageLoaded() {
-  loadHistogramJson(urlprefix + 'megabase/aminosee_histogram.json');
+  loadHistogramJson(urlprefix + 'Brown_Kiwi_NW_013982187v1/aminosee_histogram.json');
   initVariables();
   sceneCameraSetup();
   setScene();
@@ -138,7 +145,7 @@ function pageLoaded() {
   // parseApache()
 }
 function jsonTest() {
-  fetch('output/megabase/aminosee_histogram.json')
+  fetch('output/Brown_Kiwi_NW_013982187v1/aminosee_histogram.json')
   .then(function(response) {
     return response.json();
   })
@@ -1668,24 +1675,24 @@ Developed by Craig Buckler (@craigbuckler) of OptimalWorks.net
 	function Init() {
 
 		var fileselect = $id("fileselect"),
-			filedrag = $id("filedrag"),
+			    filedrag = $id("filedrag"),
 			submitbutton = $id("submitbutton");
 
 		// file select
-		fileselect.addEventListener("change", FileSelectHandler, false);
+		// fileselect.addEventListener("change", FileSelectHandler, false);
 
 		// is XHR2 available?
 		var xhr = new XMLHttpRequest();
 		if (xhr.upload) {
 
 			// file drop
-			filedrag.addEventListener("dragover", FileDragHover, false);
-			filedrag.addEventListener("dragleave", FileDragHover, false);
-			filedrag.addEventListener("drop", FileSelectHandler, false);
-			filedrag.style.display = "block";
+			// filedrag.addEventListener("dragover", FileDragHover, false);
+			// filedrag.addEventListener("dragleave", FileDragHover, false);
+			// filedrag.addEventListener("drop", FileSelectHandler, false);
+			// filedrag.style.display = "block";
 
 			// remove submit button
-			submitbutton.style.display = "none";
+			// submitbutton.style.display = "none";
 		}
 
 	}

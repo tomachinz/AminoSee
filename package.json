@@ -31,6 +31,7 @@
     }
   },
   "dependencies": {
+    "autocannon": "^4.0.0",
     "chalk": "^2.4.2",
     "fs-extra": "^8.1.0",
     "genversion": "^2.2.0",
@@ -71,7 +72,6 @@
     "node-pty": "^0.8.1",
     "npm-merge-driver": "^2.3.5",
     "open": "^6.4.0",
-    "osx-temperature-sensor": "^1.0.3",
     "parse-apache-directory-index": "^1.2.1",
     "png.js": "^0.2.1",
     "pngjs": "^3.4.0",
