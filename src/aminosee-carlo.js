@@ -149,17 +149,19 @@ async function runCarlo() {
     app.on('exit', () => process.exit());
     // New windows are opened when this app is started again from command line.
     // app.on('window', window => window.load('http://10.0.0.24:43210/public/'));
-    app.on('window', window => window.load('/index.html'));
+    app.on('window', window => window.load('www/index.html'));
 
     // let o =  path.join(os.homedir(), '/AminoSee_Output');
-    let o = path.join(__dirname, 'www');
+    // let o = path.join(__dirname, 'public');
+    // let o = path.join(__dirname, 'www');
+    let o = path.resolve(__dirname);
 
     console.log(`serving: ${o}`)
     app.serveFolder(o);
     // await app.runCarlo()
     await app.exposeFunction('systeminfo', systeminfo);
     // await app.load('http://10.0.0.24:43210/public/');
-    await app.load('/index.html');
+    await app.load('www/index.html');
     return app;
   }
 

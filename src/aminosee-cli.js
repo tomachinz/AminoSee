@@ -29,7 +29,6 @@ const asciiart = data.asciiart;
 const extensions = data.extensions;
 const saySomethingEpic = data.saySomethingEpic;
 const readParseJson = data.readParseJson;
-const debug = false; // should be false for PRODUCTION
 // OPEN SOURCE PACKAGES FROM NPM
 const path = require('path');
 const Preferences = require("preferences");
@@ -93,6 +92,9 @@ tx = ty = cliruns = gbprocessed = 0;
 let isShuttingDown = false;
 let threads = []; // an array of AminoSeNoEvil instances.
 let clear = false;
+let debug = true; // should be false for PRODUCTION
+let brute = false; // used while accelerating the render 20x
+
 module.exports = () => {
   isElectron = false;
   mode('exports');
@@ -111,7 +113,7 @@ function populateArgs(procArgv) { // returns args
     boolean: [ 'artistic', 'clear', 'chrome', 'devmode', 'debug', 'demo', 'dnabg', 'explorer', 'file', 'force', 'firefox', 'gui', 'html', 'image', 'keyboard', 'list', 'progress', 'quiet', 'reg', 'recycle', 'redraw', 'serve', 'safari', 'test', 'updates', 'verbose', 'view' ],
     string: [ 'url', 'outpath', 'triplet', 'peptide', 'ratio', 'port' ],
     alias: { a: 'artistic', b: 'dnabg', c: 'codons', d: 'devmode', f: 'force', h: 'help', k: 'keyboard', m: 'magnitude', o: 'outpath', out: 'outpath', output: 'outpath', p: 'peptide', i: 'image', t: 'triplet', u: 'updates', q: 'quiet', r: 'reg', w: 'width', v: 'verbose', x: 'explorer', finder: 'explorer', view: 'html'  },
-    default: { html: true, brute: true, image: false, clear: false, explorer: false, quiet: false, keyboard: false, progress: true, redraw: true, updates: true, serve: false, gui: false },
+    default: { html: true, brute: false, image: false, clear: false, explorer: false, quiet: false, keyboard: false, progress: true, redraw: true, updates: true, serve: false, gui: false },
     stopEarly: false
   } // NUMERIC INPUTS: codons, magnitude, width, maxpix
   let args = minimist(procArgv.slice(2), options)
@@ -296,13 +298,14 @@ class AminoSeeNoEvil {
     // termSize();
     // this.resized(tx, ty);
     // this.previousImage = this.justNameOfDNA
-    output(logo());
+    // output(logo());
     this.setNextFile();
     if ( args.debug || debug == true) {
-      // debug = true;
+      debug = true;
       this.debug = debug;
       output('debug mode ENABLED');
     } else {
+      debug = false;
       this.debug = debug;
     }
     url = projectprefs.aminosee.url;
@@ -452,7 +455,7 @@ class AminoSeeNoEvil {
       // this.magnitude = defaultMagnitude;
       this.magnitude = "auto";
       this.dimension = defaultMagnitude;
-      output(`Using auto magnitude with limit ${defaultMagnitude}th dimension`)
+      log(`Using auto magnitude with limit ${defaultMagnitude}th dimension`)
     }
     bugtxt(` this.maxpix: ${  this.maxpix } this.dimension: ${ this.dimension }`);
     if ( args.ratio || args.r ) {
@@ -641,10 +644,10 @@ class AminoSeeNoEvil {
         }
       }
       if ( args.gui ) {
-        log(`Running AminoSee graphical user interface...`);
+        log(`Running AminoSee graphical user interface... use --no-gui to prevent GUI`);
         this.gui = true;
       } else {
-        output("Disabled the GUI (graphical user interface)")
+        output("GUI diabled. Use --gui to enable")
         this.openHtml = false;
         this.openFileExplorer = false;
         this.openImage = false;
@@ -660,7 +663,7 @@ class AminoSeeNoEvil {
             carlo.close();
             that.gracefulQuit(0);
           });
-      } else { output( `Try using  --gui for the graphical user interface`)}
+      } else { log( `Try using  --gui for the graphical user interface`)}
       if ( args.quiet || args.q ) { // needs to be at top so changes can be overridden! but after this.debug.
         output("quiet mode enabled.");
         this.quiet = true;
@@ -679,7 +682,7 @@ class AminoSeeNoEvil {
       if ( this.isHighlightSet ) {
         output(`Custom peptide ${blueWhite( this.peptide )} set. Others will be mostly transparent. Triplet: ${ blueWhite( this.triplet ) }`);
       } else {
-        output(`No custom peptide set.`);
+        log(`No custom peptide set.`);
       }
       bugtxt( `args: [${args.toString()}]`)
       if ( args.get ) {
@@ -698,10 +701,12 @@ class AminoSeeNoEvil {
         listDNA();
       }
       if ( args.brute ) {
-        this.brute = true;
+        output("Using brute force")
+
+        brute = true;
         // bruteForce( args._[0] )
       } else {
-        this.brute = false;
+        brute = false;
       }
 
       bugtxt(`the args -->> ${this.args}`)
@@ -1698,7 +1703,7 @@ class AminoSeeNoEvil {
     term.eraseDisplayBelow();
   }
   initialiseArrays() {
-    if ( this.brute == false) { return false; }
+    if ( brute === false) { return false; }
 
     for (let i = 0; i < this.pepTable.length; i++) {
       out(`initialise ${i}`)
@@ -1710,7 +1715,7 @@ class AminoSeeNoEvil {
   }
   diskStorm(cb) {
     output("WE BE STORMIN")
-    // if ( this.brute == false) { return false; }
+    if ( brute == false) { return false; }
     output("LIKE NORMAN")
 
     for (let i = 0; i < this.pepTable.length; i++) {
@@ -1998,10 +2003,10 @@ class AminoSeeNoEvil {
   }
 
   setupLinearNames() { // must not be called during creation of hilbert image
-    // if ( this.renderLock == true) {
-    //   this.error('thread re-entry inside setupLinearNames')
-    //   return false;
-    // }
+    if ( this.renderLock == true) {
+      this.error('thread re-entry inside setupLinearNames')
+      return false;
+    }
     mode("setupLinearNames " + this.currentFile);
 
     if (isShuttingDown) {     output(`isShuttingDown: [${ isShuttingDown }]`)  }
@@ -2742,7 +2747,7 @@ class AminoSeeNoEvil {
           this.mixRGBA[2] += parseFloat( this.codonRGBA[2].valueOf() * pixelGamma ); // * blue
           this.mixRGBA[3] += 255 * pixelGamma; // * full opacity
 
-          if ( this.brute == true ) {
+          if ( brute == true ) {
             for ( let i = 0; i < this.pepTable.length; i++ ) {
               let pep = this.pepTable[ i ].Codon;
               pixelGamma = getGamma( pep );
@@ -2796,7 +2801,7 @@ class AminoSeeNoEvil {
         this.rgbArray.push(Math.round( this.alpha));
 
 
-        if ( this.brute == true ) {
+        if ( brute == true ) {
           for ( let i = 0; i < this.pepTable.length; i++ ) {
             let pep = this.pepTable[ i ];
             pixelGamma = getGamma( pep.Codon );

@@ -29,8 +29,8 @@
 	<!-- <script src="renderer.js"></script> -->
 	<link rel="stylesheet" type="text/css" href="AminoSee.css">
 	<link href='https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz:700,400,200,100' rel='stylesheet' type='text/css'>
-	<link href="/css/menu.css" rel="stylesheet">
-	<link href="/css/funk2019.css" rel="stylesheet">
+	<link href="https://www.funk.co.nz/css/menu.css" rel="stylesheet">
+	<link href="https://www.funk.co.nz/css/funk2019.css" rel="stylesheet">
 	<!-- Funk.nz menubar include -->
 	<!-- Google Tag Manager -->
 	<noscript><iframe src="//www.googletagmanager.com/ns.html?id=GTM-P8JX" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
@@ -92,17 +92,17 @@
 					<div id="gsc-control-cse">
 						<script>
 							(function() {
-								var cx = '009784352838369446998:kll8tgkuhfk';
-								var gcse = document.createElement('script');
-								gcse.type = 'text/javascript';
-								gcse.async = true;
-								gcse.src = 'https://cse.google.com/cse.js?cx=' + cx;
-								var s = document.getElementsByTagName('script')[0];
-								s.parentNode.insertBefore(gcse, s);
+							var cx = '009784352838369446998:kll8tgkuhfk';
+							var gcse = document.createElement('script');
+							gcse.type = 'text/javascript';
+							gcse.async = true;
+							gcse.src = 'https://cse.google.com/cse.js?cx=' + cx;
+							var s = document.getElementsByTagName('script')[0];
+							s.parentNode.insertBefore(gcse, s);
 
-								document.getElementById("gsc-control-cse").style.width = "256px";
-							})();
-							</script>
+							document.getElementById("gsc-control-cse").style.width = "256px";
+						})();
+						</script>
 						<gcse:search style=""></gcse:search>
 					</div>
 				</li>
@@ -168,11 +168,11 @@
 				<option value="50KB_TestPattern/">50 KB Test Pattern</option>
 
 				<!-- <option value="Brown_Kiwi_NW_013982187v1/" selected>Brown Kiwi</option>
-											<option value="calibration/AminoSee_Calibration_reg_linear_8.png">AminoSee Calibration Large</option>
-											<option value="calibration/AminoSee_Calibration_reg_linear_2.png">AminoSee Calibration Small</option>
-											<option value="Caenorhabdihromosome-V.fa_linear_reg_c1.7_fix_sci.png">C.elegans</option>
-											<option value="seenoevilmonkeys.jpg">AminoSeeNoEvil Monkeys</option>
-											<option value="/images/nav/funk-logo-140px.png">Funk Logo 140px</option> -->
+				<option value="calibration/AminoSee_Calibration_reg_linear_8.png">AminoSee Calibration Large</option>
+				<option value="calibration/AminoSee_Calibration_reg_linear_2.png">AminoSee Calibration Small</option>
+				<option value="Caenorhabdihromosome-V.fa_linear_reg_c1.7_fix_sci.png">C.elegans</option>
+				<option value="seenoevilmonkeys.jpg">AminoSeeNoEvil Monkeys</option>
+				<option value="/images/nav/funk-logo-140px.png">Funk Logo 140px</option> -->
 			</select>
 		</form>
 		<div id="viewPortSize" class="bottom_right" style="display: none; background-color: rgb(0, 0, 0); color: rgb(255, 255, 255); font-size: 12px;"></div>
@@ -189,14 +189,14 @@
 			<input type="button" id="perspective" name="perspective" value="Perspective [V]iew" onclick="toggleView()" class="flex-item">
 			<input type="button" id="reset" name="reset" value="Reset [U]" onclick="reset()" class="flex-item">
 			<input type="button" id="testcolour" name="testcolour" value="Test Colours [T]" onclick="testColour()" class="flex-item">
-			<input type="button" id="loadImage" name="loadImage" value="Load Image [L]" onclick="loadImage()" class="flex-item">
-			<input type="button" id="fileupload" name="fileupload" value="Upload DNA" onclick="toggleFileUpload()" class="flex-item">
-			<br>
+			<!-- <input type="button" id="loadImage" name="loadImage" value="Load Image [L]" onclick="loadImage()" class="flex-item"> -->
+			<!-- <input type="button" id="fileupload" name="fileupload" value="Upload DNA" onclick="toggleFileUpload()" class="flex-item"> -->
+			<!-- <br>
 			<input type="button" class="tinyButton flex-item" name="A" value="Left [A]" onclick="cursorLeft()">
 			<input type="button" class="tinyButton flex-item" name="W" value="Fwd  [W]" onclick="cursorUp()">
 			<input type="button" class="tinyButton flex-item" name="S" value="Back [S]" onclick="cursorDown()">
 			<input type="button" class="tinyButton flex-item" name="D" value="Right[D]" onclick="cursorRight()">
-			<br>
+			<br> -->
 			<label class="fineprint whitetext"><input type="checkbox" id="autostop" name="autostop" value="pause after running for 5 minutes" onchange="autostopChanged()" checked>pause after running for 5 minutes</label>
 			<br>
 			<audio controls="controls" accesskey="space" title="audio logo" class="white small hidable">
@@ -249,28 +249,6 @@
 
 
 
-						<form id="upload" action="filedrag.html" method="POST" enctype="multipart/form-data">
-							<fieldset>
-								<legend>HTML File Upload</legend>
-								<input type="hidden" id="MAX_FILE_SIZE" name="MAX_FILE_SIZE" value="300000" />
-								<div>
-									<label for="fileselect">click to choose DNA file</label>
-									<input type="file" id="fileselect" name="fileselect[]" multiple="multiple" />
-									<div id="filedrag">or drag and drop files here</div>
-								</div>
-								<div id="submitbutton">
-									<button type="submit">upload</button>
-								</div>
-							</fieldset>
-						</form>
-						<div id="messages">
-							<p>Status Messages</p>
-						</div>
-						<p class="fineprint"><b>File drag and drop code by <a href="http://twitter.com/craigbuckler">Craig Buckler</a></b>
-							<br> <a href="http://optimalworks.net/">OptimalWorks.net</a> | <a href="http://sitepoint.com/">SitePoint.com</a></p>
-						<script src="filedrag.js"></script>
-
-
 
 
 
@@ -314,22 +292,22 @@
 
 				<h6>loading</h6>
 				<pre>
-							...loading...
-						</pre>
+									...loading...
+								</pre>
 			</div>
 		</div>
 
 		<div id="controls" onclick="resume()" style="text-align: center;">
 			<!-- <div id="fileheader">
-				<label class="custom-file-upload">
-					Upload DNA in Fasta or GBK format
-					<input type="file" id="choosefiles" name="file" value="example-sequence.fa" multiple /></label>
-				<input disabled type="button" id="cancel" class="fineprint small hidden" name="cancel" value="Cancel" onclick="cancel()">
-				<span class="fineprint whitetext">Any ASCII text file containing DNA or RNA sequences will work</span>
-				<br />
-				Hire Me: <a href="https://tomachi.co/about/hire-me">for recruiters</a>
-				<output id="list"></output>
-			</div> -->
+							<label class="custom-file-upload">
+							Upload DNA in Fasta or GBK format
+							<input type="file" id="choosefiles" name="file" value="example-sequence.fa" multiple /></label>
+							<input disabled type="button" id="cancel" class="fineprint small hidden" name="cancel" value="Cancel" onclick="cancel()">
+							<span class="fineprint whitetext">Any ASCII text file containing DNA or RNA sequences will work</span>
+							<br />
+							Hire Me: <a href="https://tomachi.co/about/hire-me">for recruiters</a>
+							<output id="list"></output>
+						</div> -->
 
 			<br>
 
@@ -338,10 +316,39 @@
 			<div id="progress_bar" class="">
 				<div class="percent">0%</div>
 			</div>
+
 			<div id="modalBox" class="hidden">
 				im normally hidden
 				<input type="button" id="modalBoxButton" value="OK [ENTER]">
 			</div>
+
+			<div id="fileBox" class="hidable">
+				UPLOADS
+				<form id="upload" action="filedrag.html" method="POST" enctype="multipart/form-data">
+					<fieldset>
+						<legend>HTML File Upload</legend>
+						<input type="hidden" id="MAX_FILE_SIZE" name="MAX_FILE_SIZE" value="300000" />
+						<div>
+							<label for="fileselect">click to choose DNA file</label>
+							<input type="file" id="fileselect" name="fileselect[]" multiple="multiple" />
+							<div id="filedrag">or drag and drop files here</div>
+						</div>
+						<div id="submitbutton">
+							<button type="submit">upload</button>
+						</div>
+					</fieldset>
+				</form>
+				<div id="messages">
+					<p>Status Messages</p>
+				</div>
+				<p class="fineprint"><b>File drag and drop code by <a href="http://twitter.com/craigbuckler">Craig Buckler</a></b>
+					<br> <a href="http://optimalworks.net/">OptimalWorks.net</a> | <a href="http://sitepoint.com/">SitePoint.com</a></p>
+				<script src="filedrag.js"></script>
+
+				<input type="button" id="modalBoxButton" value="Cancel [ENTER]">
+			</div>
+
+
 			<div class="footer"></div>
 		</div>
 	</div>
