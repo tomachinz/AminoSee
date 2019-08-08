@@ -6,3 +6,5 @@ eval $COMMAND
 echo
 echo remove the --dry-run to do it for real:
 echo $COMMAND
+
+# /usr/bin/rsync --archive --verbose  --dry-run --stats --exclude='**/*linear*' tom@cheese:/home/tom/Sites/AminoSee/dna/AminoSee_Output/ /Users/tom/AminoSee_Output/ 
