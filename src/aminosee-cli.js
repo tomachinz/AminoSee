@@ -92,7 +92,7 @@ tx = ty = cliruns = gbprocessed = 0;
 let isShuttingDown = false;
 let threads = []; // an array of AminoSeNoEvil instances.
 let clear = false;
-let debug = true; // should be false for PRODUCTION
+let debug = false; // should be false for PRODUCTION
 let brute = false; // used while accelerating the render 20x
 
 module.exports = () => {
@@ -598,8 +598,8 @@ class AminoSeeNoEvil {
         webserverEnabled = true;
         server.stop(); // this helps.
       } else {
-        // output("Webserver Disabled ")
-        // webserverEnabled = false;
+        output("Webserver Disabled ")
+        webserverEnabled = false;
       }
       if ( args.clear || args.c) {
         output("screen clearing enabled.");
@@ -2024,21 +2024,22 @@ class AminoSeeNoEvil {
     const cppBackup = this.codonsPerPixel;
     const hcpBackup = this.codonsPerPixelHILBERT;
 
-    for (let i = 0; i < this.pepTable.length; i++) {
-      this.pepTable[i].linear_master   = this.qualifyPath(`images/${ this.generateFilenamePNG()     }`);
-      this.pepTable[i].hilbert_master  = this.qualifyPath(`images/${ this.generateFilenameHilbert() }`);
-      previewCodonsPerPixel
-
-      this.pepTable[i].linear_preview  =
-      this.pepTable[i].hilbert_preview =
-      out(`initialise ${i}`)
-
+    if ( brute == true ) {
+      for (let i = 0; i < this.pepTable.length; i++) {
+        this.pepTable[i].linear_master   = this.qualifyPath(`images/${ this.generateFilenamePNG()     }`);
+        this.pepTable[i].hilbert_master  = this.qualifyPath(`images/${ this.generateFilenameHilbert() }`);
+        previewCodonsPerPixel
+        this.pepTable[i].linear_preview  =
+        this.pepTable[i].hilbert_preview =
+        out(`initialise ${i}`)
+      }
     }
+
 
     this.fileTouch =   this.qualifyPath( this.generateFilenameTouch()  );
     this.fileHTML =    this.qualifyPath( this.generateFilenameHTML()   );
     this.filePNG =     this.qualifyPath(`images/${ this.generateFilenamePNG()     }`);
-    // this.fileHILBERT = this.qualifyPath(`images/${ this.generateFilenameHilbert() }`);
+    this.fileHILBERT = this.qualifyPath(`images/${ this.generateFilenameHilbert() }`);
     this.fullURL          = `${url}/${this.justNameOfDNA}/`;//`${this.justNameOfHTML}`;
     // this.fancyFilenames();
     this.setNextFile();
@@ -4659,11 +4660,11 @@ class AminoSeeNoEvil {
       wTitle(txt) // put it on the terminal windowbar or in tmux
     }
     function wTitle(txt) {
-      if (this === undefined) {
+      if (this == undefined) {
         // let that = gimmeDat();
         term.windowTitle(`[ no this ${txt}]`);
       } else {
-        term.windowTitle(`@[${txt}] ${ this.args}`);
+        term.windowTitle(`@[${txt}] ${ this.args }`);
         // term.windowTitle(`[${this.howMany}] ${ this.highlightOrNothin() } ${this.status } ${ this.justNameOfDNA } ${maxWidth(120,txt)} (next: ${ this.nextFile}) (AminoSee@${hostname})`);
       }
 

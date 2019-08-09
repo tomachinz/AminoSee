@@ -3,22 +3,23 @@ test_do #!/bin/sh
 FAST='dna/50KB_TestPattern.txt'
 MEDIUM='dna/3MB_TestPattern.txt'
 SLOW='dna/27MB_TestPattern.txt'
-test_do () {
-  success $1 "START__ $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 _________"
-  nice aminosee $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
-  success $1 "END____ $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 _________"
-}
-
 success () {
   echo __________________________________________
   echo $1 $2
   echo
 }
-npm run genversion
-nice npm run credits &
+test_do () {
+  echo $1 "START__ $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 _________"
+  nice aminosee $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
+  echo $1 "END____ $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 _________"
+}
+
+
+nice npm run build-web &
+sleep 1
 echo aminosee $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
-echo STOPPPING SERVER
-aminosee --stop
+# echo STOPPPING SERVER
+# aminosee --stop
 echo STARTING SERVER TO RUN IN BACKGROUND
 aminosee --serve &
 aminosee
@@ -27,7 +28,7 @@ test_do "QUIET MODE" -q $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
 test_do "VERBOSE MODE" -v $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
 test_do "USING INCORRECT SINGLE DASH FOR -help" -help $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
 test_do "THREE OF SAME FILE IN A ROW: $FAST WITH PEPTIDE=AMBER" $FAST $FAST $FAST --peptide=amber $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
-test_do "Wonky caps: -p=aspartic_ACID" $FAST $1 $2   --force --peptide="aspartic_ACID" $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
+# test_do "Wonky caps: -p=aspartic_ACID" $FAST  --force --peptide=aspartic_ACID $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
 test_do "gluTAMIC_aCID" $FAST -fb --peptide="gluTAMIC_aCID" $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
 test_do "PROGRESS BARS" $MEDIUM $FAST $1 $2 --force --peptide=opal -q --progress --dnabg $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
 test_do "GARBAGE FILENAMES FUZZING like   txt.txt.txt etc" $SLOW actualFileToThelieftistoseeifbatchrendersthroughthis junk asdfadsf $FAST qwert dna/1KB_TestPattern.txt  txt.txt.txt $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
@@ -56,8 +57,8 @@ sleep 1
 echo THIS SHOULD OPEN REPORT EVEN IF IT ALREADY EXISTS
 test_do "html" $FAST -p=proline --html
 nice aminosee $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12  -q --ratio=fix --peptide=Arginine --html
-nice aminosee --help  $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12   --no-image &
-nice aminosee --demo   $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12   --no-html --image &
+nice aminosee --help  $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12   --no-image
+nice aminosee --demo   $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12   --no-html --image
 echo calibration TESTS ARE KNOWN TO BE BUGGY AT PRESENT:
 test_do "Calibration" --test
 test_do "doing aminosee serve and opening a file" --serve $MEDIUM  $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12  --no-html --explorer

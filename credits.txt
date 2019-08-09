@@ -7,17 +7,17 @@
 
 Thanks to Christos Georghiou who designed the 'See No Evil Hear No Evil Monkeys' http://christosgeorghiou.com/
 
-Checkout the music from the drummer who wrote    18212 of code for this app at https://www.funk.co.nz/tomachi
-18212 lines of code
+Checkout the music from the drummer who wrote    91066 of code for this app at https://www.funk.co.nz/tomachi
+91066 lines of code
 File drag and drop code by http://twitter.com/craigbuckler
 http://optimalworks.net/ http://sitepoint.com/
 
     1757
 
-as at Wed 7 Aug 2019 19:55:26 NZST the following open source node npm packages used:
+as at Fri 9 Aug 2019 15:58:58 NZST the following open source node npm packages used:
 
 
-aminosee@1.21.1 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
+aminosee@1.21.2 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
 ├─┬ @gmod/indexedfasta@1.0.13
 │ ├─┬ @babel/runtime-corejs2@7.4.5
 │ │ ├── core-js@2.6.8
