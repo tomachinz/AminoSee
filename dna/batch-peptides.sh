@@ -40,6 +40,7 @@ series_peptides () {
   echo STARTING MULTI-THREAD DECODE FOR  $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
   echo "-------------------------------------------"
   echo "                                         =///"
+  sleep 1
   aminosee    $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 &
   sleep 1
   aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --quiet  --peptide=Glutamic_acid
@@ -213,9 +214,13 @@ find_way_peptides () {
 }
 echo $1 $2 $3 $4 $5 $6 $7
 # parallel_peptides 50KB_TestPattern.txt  megabase.fa
-series_peptides $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
+# series_peptides $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
 parallel_peptides $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
 sleep 1
+echo WILL NOW RENDER ALL IN FOLDER
+echo WILL NOW RENDER ALL IN FOLDER
+echo WILL NOW RENDER ALL IN FOLDER
+echo WILL NOW RENDER ALL IN FOLDER
 echo WILL NOW RENDER ALL IN FOLDER
 echo WILL NOW RENDER ALL IN FOLDER
 echo WILL NOW RENDER ALL IN FOLDER
@@ -223,7 +228,7 @@ sleep 5
 asterix_peptides $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
 
 
-# series_peptides * $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 
+# series_peptides * $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
 # find_way_peptides $1 $2 $3 $4 $5 $6 $7
 # parallel_peptides  --reg $1 $2 $3 $4 $5 $6 $7
 # find_way_peptides  --reg

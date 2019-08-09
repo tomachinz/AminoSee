@@ -30,7 +30,7 @@ ah-mee no-see       "I See It Now != I AminoSee it!"
 // 4 - Render lock failed.
 // 5 - Crash during DNA render.
 // 6 - Failed to allocate correct image size (doh!)
-// 7 - Quit but leave web server running in background
+// 7 - Quit but leave web server running inbackground
 // 126 - Command invoked cannot execute
 // 127 - “command not found”
 // 128 - Invalid argument to exit
@@ -970,6 +970,8 @@ function setArgs( TheArgs ) {
   if ( debug ) {
     log( `args received: `);
     console.log( args );
+    log( `args received: `);
+
   }
 
 }
