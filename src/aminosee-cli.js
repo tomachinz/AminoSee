@@ -4682,15 +4682,18 @@ class AminoSeeNoEvil {
       wTitle(txt) // put it on the terminal windowbar or in tmux
     }
     function wTitle(txt) {
-      if (this === undefined) {
+      if (this == undefined) {
+       txt = hostname
+      }
+      if (this == undefined) {
         // let that = gimmeDat();
-        term.windowTitle(`@[ no this ${txt}]`);
+        term.windowTitle(`!~[ ${txt}]`);
       } else {
         if ( this.justNameOfDNA ) {
-          term.windowTitle(`[ ${txt}] ${ this.justNameOfDNA } _AminoSeeNoEvil_`);
+          term.windowTitle(`[ ${txt} ] ${ this.justNameOfDNA } _AminoSeeNoEvil_@${hostname}`);
 
         } else {
-          term.windowTitle(`[ ${txt}]  _AminoSeeNoEvil_`);
+          term.windowTitle(`[ ${txt}] _AminoSeeNoEvil_${hostname}`);
 
         }
         // term.windowTitle(`[${this.howMany}] ${ this.highlightOrNothin() } ${ status } ${ this.justNameOfDNA } ${maxWidth(120,txt)} (next: ${ this.nextFile}) (AminoSee@${hostname})`);
