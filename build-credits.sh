@@ -2,7 +2,7 @@
 CREDITS="src/public/credits.txt"
 TIMESTAMP=$(date +%s)
 DATE=$(date)
-TOMSSOURCE=toms_source_temp.txt
+TOMSSOURCE="toms_source_temp.txt"
 echo GENERATE CREDITS.TXT FILE
 mkdir -p build
 rm -rf build/TOBEDELETED
