@@ -40,7 +40,7 @@
     "node-fetch": "^2.6.0",
     "phoenix": "^1.4.9",
     "preferences": "^1.0.2",
-    "terminal-kit": "^1.29.3",
+    "terminal-kit": "^1.30.0",
     "three": "^0.106.2",
     "xterm": "^3.14.5"
   },
