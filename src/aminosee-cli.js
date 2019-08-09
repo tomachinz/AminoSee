@@ -1407,7 +1407,7 @@ class AminoSeeNoEvil {
     pollForStream(reason) { // render lock must be off before calling. aim: start the render, or look for work
       // take current file and test if it can be rendered
       mode('pre-polling ' + reason);
-      output( status )
+      log( status )
       // var that = this;
       if ( this.renderLock == true ) {
         bugtxt(`thread re-entry inside pollForStream: ${ this.justNameOfDNA} ${ this.busy() } ${ this.storage() } reason: ${reason}`);
