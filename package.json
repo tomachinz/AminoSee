@@ -1,6 +1,6 @@
 {
   "name": "aminosee",
-  "version": "1.21.2",
+  "version": "1.22.0",
   "owner": "Thomas Bieder Atkinson",
   "author": "Tom Atkinson <tom@funk.co.nz>",
   "website": "http://aminosee.funk.nz",
@@ -105,7 +105,7 @@
     "inspect2": "node --inspect bin/aminosee.js dna/50KB_TestPattern.txt -f -vd --debug",
     "build": "npm run clean; nice npm run build-web ; nice time npm run macos",
     "build-old": "./build-lib.sh ; ./build-gui.sh ; nice time npm run build-web ; nice time npm run pkg",
-    "build-all": "npm run clean ; ./build-lib.sh ; npm run build-web ; npm run pkg; npm run zip",
+    "build-all": "npm run test ; npm run clean ; ./build-lib.sh ; npm run build-web ; npm run pkg; npm run zip",
     "build-web": "npm run genversion ;  npm run browserify  ; npm run minify ; npm run credits",
     "genversion": "genversion src/aminosee-version.js",
     "browserify": "echo DISABLED browserify bin/aminosee.js -o bin/bundle.js",

@@ -53,8 +53,8 @@ cat __aminoseeTEMP.txt  >>  $CREDITS
 # sleep 1
 echo Finished building $CREDITS
 
-
-# exit 1
 trap 'exit 0' TERM
-
 (killall -m tail 2>&1) >/dev/null
+sleep 2
+echo Finished building $CREDITS
+exit 0

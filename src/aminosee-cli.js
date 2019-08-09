@@ -245,7 +245,7 @@ class AminoSeeNoEvil {
     this.debugGears = 1;
     this.done = 0;
     this.suopIters = 0;
-    this.raceDelay = 500; // so i learnt a lot on this project. one day this line shall disappear replaced by promises.
+    this.raceDelay = 6; // so i learnt a lot on this project. one day this line shall disappear replaced by promises.
     this.darkenFactor = 0.125; // if user has chosen to highlight an amino acid others are darkened
     this.highlightFactor = 8.0; // highten brightening.
     this.devmode = false; // kills the auto opening of reports etc
@@ -364,6 +364,7 @@ class AminoSeeNoEvil {
       this.outputPath = getOutputFolder();
     }
     if ( args.keyboard || args.k ) {
+      output(`KEYBOARD MODE HAS SOME BUGS ATM SORRY`)
       this.keyboard = true;
       this.termDisplayHeight += 4; // display bigger
       if ( this.verbose == true) {
@@ -372,9 +373,9 @@ class AminoSeeNoEvil {
     } else {
       this.keyboard = false;
     }
+
     if ( args.port ) {
       this.port = Math.round( args.port );
-      output
     } else {
       this.port = defaultPort;
     }
@@ -519,7 +520,7 @@ class AminoSeeNoEvil {
       this.highlightFactor = 1.0; // set to zero to i notice any bugs
       this.isHighlightSet = false;
     } else {
-      output(`peptide  ${ this.peptide } this.triplet ${ this.triplet }`);
+      output(`peptide  ${ chalk.inverse(this.peptide) } triplet ${ chalk.inverse( this.triplet )}`);
       this.isHighlightSet = true;
       this.report = false; // disable html report
     }
@@ -570,10 +571,10 @@ class AminoSeeNoEvil {
         this.dnabg = true
       } // if you actually use the program, this easter egg starts showing raw DNA as the background after 100 megs or 69 runs.
       if ( args.dnabg || args.s) {
-        log("this.dnabg mode enabled.");
+        log("dnabg mode enabled.");
         this.dnabg = true;
       } else {
-        log("this.dnabg mode disabled.");
+        log("dnabg mode disabled.");
         this.dnabg = false;
       }
 
@@ -597,10 +598,11 @@ class AminoSeeNoEvil {
       }
       if ( args.serve || args.s) {
         webserverEnabled = true;
-        server.stop(); // this helps.
       } else {
         output("Webserver Disabled ")
         webserverEnabled = false;
+        server.stop(); // this helps.
+
       }
       if ( args.clear || args.c) {
         output("screen clearing enabled.");
@@ -744,9 +746,10 @@ class AminoSeeNoEvil {
         } else {
           log('not first run')
         }
-        output(`Try running  --->>>        aminosee help`);
-        output(`usage        --->>>        aminosee [*/dna-file.txt] [--help|--test|--demo|--force|--html|--image|--keyboard]     `); //" Closing in 2 seconds.")
-        output(`example      --->>>        aminosee Human_Genome.txt Gorilla.dna Chimp.fa Orangutan.gbk --image `); //" Closing in 2 seconds.")
+        output(`Try running ->        aminosee Human_Genome.txt Gorilla.dna Chimp.fa Orangutan.gbk --image`);
+        output(`usage   --->>>        aminosee [*/dna-file.txt] [--help|--test|--demo|--force|--html|--image|--keyboard]     `); //" Closing in 2 seconds.")
+        output(`example --->>>        aminosee --help `); //" Closing in 2 seconds.")
+        log()
         if ( this.verbose == true && this.quiet == false) {
           this.helpCmd(args);
         } else if ( !this.quiet) {
@@ -1758,7 +1761,7 @@ class AminoSeeNoEvil {
     mode(`Stream started at ${ formatAMPM(this.startDate) }`);
     this.tLock();
     var that = this;
-    output(`Started render of ${this.justNameOfPNG} next is ${this.nextFile}`);
+    output(`Started ${ ( this.force ? 'forced ' : '' ) }render of ${this.justNameOfPNG} next is ${this.nextFile}`);
     if ( this.renderLock == true ) {
       if ( this.updates == true) {
         // this.drawHistogram();
@@ -2223,7 +2226,7 @@ class AminoSeeNoEvil {
       this.isDiskFinHilbert = false;
       this.isDiskFinLinear = false;
     } else { // free!
-      output(`...completed writing to storage.`)
+      output(`...completed writing to storage ${this.justNameOfDNA}.`)
       this.isStorageBusy = false;
       this.isDiskFinHTML = true;
       this.isDiskFinHilbert = true;
@@ -2402,7 +2405,7 @@ class AminoSeeNoEvil {
       output(`Thread re-entry during locking`)
       return false;
     } else {
-      output(`Locking threads for render`)
+      log(`Locking threads for render`)
     }
     this.renderLock = true;
     this.tLock( );
@@ -4679,11 +4682,17 @@ class AminoSeeNoEvil {
       wTitle(txt) // put it on the terminal windowbar or in tmux
     }
     function wTitle(txt) {
-      if (this == undefined) {
+      if (this === undefined) {
         // let that = gimmeDat();
-        term.windowTitle(`[ no this ${txt}]`);
+        term.windowTitle(`@[ no this ${txt}]`);
       } else {
-        term.windowTitle(`@[${txt}] ${ this.args }`);
+        if ( this.justNameOfDNA ) {
+          term.windowTitle(`[ ${txt}] ${ this.justNameOfDNA } _AminoSeeNoEvil_`);
+
+        } else {
+          term.windowTitle(`[ ${txt}]  _AminoSeeNoEvil_`);
+
+        }
         // term.windowTitle(`[${this.howMany}] ${ this.highlightOrNothin() } ${ status } ${ this.justNameOfDNA } ${maxWidth(120,txt)} (next: ${ this.nextFile}) (AminoSee@${hostname})`);
       }
 

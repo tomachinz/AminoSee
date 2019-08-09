@@ -24,6 +24,7 @@ const defaulturl = `http://localhost:4321/?devmode`
 let outputPath, filenameServerLock, url, projectprefs, userprefs, port, cliruns, gbprocessed;
 url = defaulturl
 port = 4321;
+process.title = `aminosee.funk.nz_server`;
 
 [ userprefs, projectprefs ] = setupPrefs();
 
@@ -225,9 +226,9 @@ function stop() {
   deleteFile(filenameServerLock);
   if (serverLock()) {
     // const killServe =    spawn('nice', ['killall', 'node', '', '0'], { stdio: 'pipe' });
-    const killServe =    spawn('nice', ['killall', 'node', '', '0']);
+    // const killServe =    spawn('nice', ['killall', 'node', '', '0']);
     // const killAminosee = spawn('nice', ['killall', 'aminosee.funk.nz', '', '0'], { stdio: 'pipe' });
-    const killAminosee = spawn('nice', ['killall', 'aminosee.funk.nz', '', '0'] );
+    const killAminosee = spawn('nice', ['killall', 'aminosee.funk.nz_server', '', '0'] );
     if (server != undefined) {
       log("closing server")
       server.close();
