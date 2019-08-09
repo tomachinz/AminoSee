@@ -1,5 +1,5 @@
 #!/bin/sh
-CREDITS="credits.txt"
+CREDITS="src/public/credits.txt"
 TIMESTAMP=$(date +%s)
 DATE=$(date)
 TOMSSOURCE=toms_source_temp.txt
@@ -28,7 +28,7 @@ cat src/index.html                                                  >>       bui
 LINES=$(cat build/toms_source.txt | wc -l)
 
 cp src/ascii-logo.txt $CREDITS
-tail $CREDITS
+tail -f $CREDITS &
 echo >> $CREDITS
 echo "Thanks to Christos Georghiou who designed the 'See No Evil Hear No Evil Monkeys' http://christosgeorghiou.com/" >> $CREDITS
 echo >> $CREDITS
@@ -37,18 +37,24 @@ echo $LINES lines of code >> $CREDITS
 echo "File drag and drop code by http://twitter.com/craigbuckler" >> $CREDITS
 echo "http://optimalworks.net/ http://sitepoint.com/"  >> $CREDITS
 echo >> $CREDITS
-tail $CREDITS
 # npm list # for bystanders
-npm list | wc -l >>  $CREDITS # actually
-tail $CREDITS
+echo Count of packages used: >> $CREDITS
+npm list > __aminoseeTEMP.txt
+cat __aminoseeTEMP.txt | wc -l >> $CREDITS
 echo >> $CREDITS
 echo as at $DATE the following open source node npm packages used: >>  $CREDITS
 echo >> $CREDITS
 echo >>  $CREDITS
-npm list >>  $CREDITS
-tail $CREDITS
+cat __aminoseeTEMP.txt  >>  $CREDITS
+# tail $CREDITS
 # clear
 # cat $CREDITS
 # open $CREDITS
-sleep 1
-# killall tail
+# sleep 1
+echo Finished building $CREDITS
+
+
+# exit 1
+trap 'exit 0' TERM
+
+(killall -m tail 2>&1) >/dev/null

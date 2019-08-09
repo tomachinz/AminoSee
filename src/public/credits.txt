@@ -7,14 +7,15 @@
 
 Thanks to Christos Georghiou who designed the 'See No Evil Hear No Evil Monkeys' http://christosgeorghiou.com/
 
-Checkout the music from the drummer who wrote    91066 of code for this app at https://www.funk.co.nz/tomachi
-91066 lines of code
+Checkout the music from the drummer who wrote   337590 of code for this app at https://www.funk.co.nz/tomachi
+337590 lines of code
 File drag and drop code by http://twitter.com/craigbuckler
 http://optimalworks.net/ http://sitepoint.com/
 
-    1757
+Count of packages used:
+    1759
 
-as at Fri 9 Aug 2019 15:58:58 NZST the following open source node npm packages used:
+as at Fri 9 Aug 2019 17:27:40 NZST the following open source node npm packages used:
 
 
 aminosee@1.21.2 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
@@ -35,6 +36,7 @@ aminosee@1.21.2 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
 │ └── es6-promisify@6.0.1
 ├─┬ ascii-histogram@1.2.1
 │ └── printf@0.1.3
+├── async@3.1.0
 ├─┬ async-kit@2.2.4
 │ ├── nextgen-events@0.14.6
 │ └── tree-kit@0.5.27
@@ -1495,6 +1497,7 @@ aminosee@1.21.2 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
 │     └── camelcase@4.1.0
 ├─┬ open@6.4.0
 │ └── is-wsl@1.1.0
+├── osx-temperature-sensor@1.0.3
 ├─┬ parse-apache-directory-index@1.2.1
 │ └─┬ cheerio@0.22.0
 │   ├─┬ css-select@1.2.0
@@ -1608,7 +1611,7 @@ aminosee@1.21.2 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
 │ │ └── safe-buffer@5.1.2 deduped
 │ └── uuid@3.3.2
 ├─┬ save@2.4.0
-│ ├─┬ async@2.6.2
+│ ├─┬ async@2.6.3
 │ │ └── lodash@4.17.14 deduped
 │ ├─┬ event-stream@4.0.1
 │ │ ├── duplexer@0.1.1 deduped

@@ -84,7 +84,7 @@ const wideScreen = 140; // shrinks terminal display
 // BigInt.prototype.toJSON = function() { return this.toString(); }; // shim for big int
 // BigInt.prototype.toBSON = function() { return this.toString(); }; // Add a `toBSON()` to enable MongoDB to store BigInts as strings
 const targetPixels = 8000000; // for big genomes use setting flag -c 1 to achieve highest resolution and bypass this taret max render size
-let isElectron, jobArgs, killServersOnQuit, webserverEnabled, cliInstance, tx, ty, termPixels, cliruns, gbprocessed, projectprefs, userprefs, genomes, progato, commandString, batchSize, quiet, url, port;
+let isElectron, jobArgs, killServersOnQuit, webserverEnabled, cliInstance, tx, ty, termPixels, cliruns, gbprocessed, projectprefs, userprefs, genomes, progato, commandString, batchSize, quiet, url, port, status;
 let opens = 0; // session local counter to avoid having way too many windows opened.
 let dnaTriplets = data.dnaTriplets;
 termPixels = 69;
@@ -1062,7 +1062,7 @@ class AminoSeeNoEvil {
         if ( key ) {
           if ( key.name == 'q' || key.name == 'Esc') {
             output("Gracefull Shutdown in progress... will finish this render then quit.")
-            printRadMessage( this.status )
+            printRadMessage(  status )
             killServersOnQuit = false;
             that.gracefulQuit(0, `Slow`);
             // that.quit(7, 'Q / Escape - leaving webserver running in background')
@@ -1077,7 +1077,7 @@ class AminoSeeNoEvil {
           }
           if ( key.ctrl && key.name == 'c') {
             process.stdin.pause(); // stop sending control-c here, send that.now to parent, which is gonna kill us on the second go with control-c
-            this.status  = "TERMINATED WITH CONTROL-C";
+             status  = "TERMINATED WITH CONTROL-C";
             isShuttingDown = true;
             if (that.devmode == true) {
               setTimeout(()=> {
@@ -1086,7 +1086,7 @@ class AminoSeeNoEvil {
             } else {
               that.removeLocks();
             }
-            log( this.status );
+            log(  status );
             // that.updates = false;
             // args = [];
             that.debug = true;
@@ -1261,9 +1261,9 @@ class AminoSeeNoEvil {
       // try {
       // } catch(e) {
       // }
-      output(this.status )
+      output( status )
       // var that = this;
-      bugtxt( this.status );
+      bugtxt(  status );
       bugtxt("webserverEnabled: " + webserverEnabled + " killServersOnQuit: "+ killServersOnQuit)
       try {
         this.nextFile = "shutdown";
@@ -1382,7 +1382,7 @@ class AminoSeeNoEvil {
 
     storage() {
       // return `${(isDiskFinLinear ? 'Linear ' : '')} ${(isDiskFinHilbert ? 'Hilbert ' : '')} ${(isDiskFinHTML ? 'HTML ' : '' )}`;
-      return `${( !this.isDiskFinLinear ? 'Linear ' : 'OK')} ${( !this.isDiskFinHilbert ? 'Hilbert ' : 'OK')} ${( !this.isDiskFinHTML ? 'HTML ' : 'OK' )}`;
+      return `${( !this.isDiskFinLinear ? 'Linear' : 'OK ')} ${( !this.isDiskFinHilbert ? 'Hilbert' : 'OK ')} ${( !this.isDiskFinHTML ? 'HTML' : 'OK ' )}`;
     }
 
     setNextFile() {
@@ -1400,7 +1400,7 @@ class AminoSeeNoEvil {
     pollForStream(reason) { // render lock must be off before calling. aim: start the render, or look for work
       // take current file and test if it can be rendered
       mode('pre-polling ' + reason);
-      output(this.status )
+      output( status )
       // var that = this;
       if ( this.renderLock == true ) {
         bugtxt(`thread re-entry inside pollForStream: ${ this.justNameOfDNA} ${ this.busy() } ${ this.storage() } reason: ${reason}`);
@@ -1512,7 +1512,7 @@ class AminoSeeNoEvil {
       return false;
     }
     mode("Lock OK proceeding to render...");
-    log(chalk.cyan( this.status ))
+    log(chalk.cyan(  status ))
     setTimeout( () => {
       if ( this.renderLock == false ) {
         this.touchLockAndStartStream(); // <--- THIS IS WHERE MAGIC STARTS
@@ -1558,7 +1558,7 @@ class AminoSeeNoEvil {
     if (reason === undefined) { this.error('must set a reason when using reset') }
     // if (this.renderLock == true) { output("ERROR: thread entered resetAndPop()"); return false}
     mode(`RESET JOB. Reason ${reason} Storage: (${ this.storage()} ${ this.busy()}) current: ${ this.currentFile } next: ${ this.nextFile}`)
-    output(this.status );
+    output( status );
     output( reason );
     this.setIsDiskBusy( false )
     // this.isDiskFinHTML = this.isDiskFinLinear = this.isDiskFinHilbert = true;
@@ -1585,9 +1585,9 @@ class AminoSeeNoEvil {
     if (this.howMany <= 0) {
       mode('Happiness.');
       saySomethingEpic();
-      log(chalk.bgRed.yellow(this.status ));
-      // printRadMessage( this.status )
-      this.quit(0, this.status )
+      log(chalk.bgRed.yellow( status ));
+      // printRadMessage(  status )
+      this.quit(0,  status )
       return false;
     }
     let file;
@@ -1595,7 +1595,8 @@ class AminoSeeNoEvil {
       file = this.args._[0].toString();
 
     } catch(err) {
-      log(`this.args._[0].toString() = ${this.args._[0].toString()}`)
+      // log(`this.args._[0].toString() = ${this.args._[0].toString()}`)
+      return false;
     }
 
     if ( file == funknzlabel ) {
@@ -1611,7 +1612,7 @@ class AminoSeeNoEvil {
   }
   initStream() {
     mode("Initialising Stream");
-    output(this.status)
+    output( status )
 
     if ( isShuttingDown == true ) { output("Sorry shutting down."); return false;}
     if ( this.renderLock == false) {
@@ -2204,13 +2205,13 @@ class AminoSeeNoEvil {
   }
   setIsDiskBusy(boolean) {
     if (boolean) { // busy!
-      out(`Disk is locked! (this is ok)`)
+      output(`Disk is locked! (this is ok)`)
       this.isStorageBusy = true;
       this.isDiskFinHTML = false;
       this.isDiskFinHilbert = false;
       this.isDiskFinLinear = false;
     } else { // free!
-      out(`Disk is unlocked! (this is ok)`)
+      output(`Disk is unlocked! (this is ok)`)
       this.isStorageBusy = false;
       this.isDiskFinHTML = true;
       this.isDiskFinHilbert = true;
@@ -2500,7 +2501,7 @@ class AminoSeeNoEvil {
 
     if ( file.indexOf('...') !== -1) {
       mode( 'Cant use files with three dots in the file ... (for some reason?)');
-      this.popAndPollOrBust(this.status );
+      this.popAndPollOrBust( status );
       // this.quit(0, 'no more commands' );
       return false;
     }
@@ -2532,7 +2533,7 @@ class AminoSeeNoEvil {
     if ( reason === undefined) { this.error(`reason must be defined for postRenderPoll`) }
     log(chalk.inverse(`Finishing saving (${reason}), ${this.busy()} waiting on ${ this.storage() } ${ this.howMany } files to go.`));
     if ( this.renderLock !== true &&  this.test == false ) { // re-entrancy filter
-      log(chalk.bgRed("Not rendering (may halt), thread entered postRenderPoll: " + reason))
+      this.error(chalk.bgRed("Not rendering (may halt), thread entered postRenderPoll: " + reason))
       return true;
     }
     if (this.test) { this.isDiskFinHTML = true }
@@ -2541,7 +2542,7 @@ class AminoSeeNoEvil {
     // if its the right this.extension go to sleep
     // check if all the disk is finished and if so change the locks
     log(chalk.inverse( fixedWidth(24, this.justNameOfDNA))  + " postRenderPoll reason: " + reason);
-    if ( this.isDiskFinLinear !== false && this.isDiskFinHilbert !== false  && this.isDiskFinHTML !== false ) {
+    if ( this.isDiskFinLinear && this.isDiskFinHilbert && this.isDiskFinHTML ) {
       output(` [ storage threads ready: ${chalk.inverse( this.storage() )} ] test: ${this.test}`);
       // this.setIsDiskBusy( false );
       this.openOutputs();
@@ -2551,12 +2552,18 @@ class AminoSeeNoEvil {
         log(` [ test: ${this.test}`);
           // this.runCycle();
           // let that = gimmeDat()
-          cliInstance.runCycle();
-        } else {
+          setTimeout( () => {
+            if ( this.renderLock = false ) {
+              log('runCycle ' + this.howMany)
+              cliInstance.runCycle();
+            } else {
+              this.error('thread re-entered just before runCycle')
+            }
 
+          }, this.raceDelay)
+        } else {
           this.removeLocks();
           this.resetAndPop(`Great success with render of (${this.justNameOfDNA}) but: ${this.busy()} ${this.storage()}`);
-
         }
 
       } else {
@@ -2612,7 +2619,7 @@ class AminoSeeNoEvil {
       if ( reason === undefined) {
         log(`must set reason ${this.mode }`)
         if ( this !== undefined) {
-          reason = this.status
+          reason =  status
         } else {
           reason = `not set`
         }
@@ -2691,7 +2698,7 @@ class AminoSeeNoEvil {
     }
     processLine(l) {
       // mode(`process sequence line number ${this.streamLineNr}`)
-      this.status = `process sequence line number ${this.streamLineNr}`;
+       status = `process sequence line number ${this.streamLineNr}`;
       this.streamLineNr++;
       if (this.rawDNA.length < this.termPixels) {
         this.rawDNA = cleanString(l) + this.rawDNA;
@@ -3440,7 +3447,7 @@ class AminoSeeNoEvil {
     htmlFinished() {
       this.isDiskFinHTML = true;
       mode(`HTML done. Waiting on (${ this.storage()})`);
-      log( this.status )
+      log(  status )
       this.postRenderPoll('htmlFinished ' + this.fileHTML);
     }
     hilbertFinished() {
@@ -3515,10 +3522,11 @@ class AminoSeeNoEvil {
         this.rgbArray[cursorLinear+2] = this.hilbertImage[hilbertLinear+2];
         this.rgbArray[cursorLinear+3] = this.hilbertImage[hilbertLinear+3];
       }
+      output( `Completed hilbert curve of the ${ this.dimension }th dimension out of: ${this.howMany}`);
 
 
-      this.renderLock = false;
-      this.setIsDiskBusy( true );
+      // this.renderLock = false;
+      // this.setIsDiskBusy( true );
       const hilbertImage = this.hilbertImage;
       const rgbArray = this.rgbArray;
       // this.saveDocsSync();
@@ -3713,8 +3721,8 @@ class AminoSeeNoEvil {
     }
     openOutputs() {
       mode("open files "+ this.currentFile);
-      // output( this.status );
-      // output( this.status );
+      // output(  status );
+      // output(  status );
       if ( this.currentFile == funknzlabel ) { return false }
       if ( this.devmode == true )  { log( this.renderObjToString() ); }
       log( closeBrowser ); // tell user process maybe blocked
@@ -3898,7 +3906,7 @@ class AminoSeeNoEvil {
         // }
         // that.runCycle(cb)
         // closure();
-        this.postRenderPoll(`test patterns returned`);
+        // this.postRenderPoll(`test patterns returned`);
         // if ( cb ) { cb() }
       }); // <<--------- sets up both linear and hilbert arrays but only saves the Hilbert.
       return true;
@@ -3968,7 +3976,8 @@ class AminoSeeNoEvil {
       this.estimatedPixels =  this.baseChars;
       this.charClock =  this.baseChars;
       this.pixelClock =  this.baseChars;
-      // this.setIsDiskBusy( true )
+      this.renderLock = true;
+      this.setIsDiskBusy( true )
       return true;
     }
 
@@ -4100,7 +4109,7 @@ class AminoSeeNoEvil {
       mode(`Error: [${err}] ${this.justNameOfDNA} ${this.busy()}`)
       if ( this.quiet == false ) {
         // output();
-        log( chalk.bgRed( this.status  + ' /  this.error start {{{ ----------- ' + chalk.inverse( err.toString() ) + ' ----------- }}} end. Not rendering (may halt), thread entered postRenderPoll: ${reason}'))
+        output( chalk.bgRed(  status  + ` /  error start {{{ ----------- ${ chalk.inverse( err.toString() ) }  ----------- }}} `));
         output();
       }
       if ( debug == true ) {
@@ -4319,7 +4328,7 @@ class AminoSeeNoEvil {
         }
         this.updatesTimer = setTimeout(() => {
           log("drawing again if rendering.... " +  this.msPerUpdate )
-          if ( this.renderLock == true && this.howMany >= 0 ) { // this.status   == "stream") { // || this.updates) {
+          if ( this.renderLock == true && this.howMany >= 0 ) { //  status   == "stream") { // || this.updates) {
             this.drawHistogram(); // MAKE THE HISTOGRAM AGAIN LATER
           } else {
             output('COLIN!')
@@ -4665,7 +4674,7 @@ class AminoSeeNoEvil {
         term.windowTitle(`[ no this ${txt}]`);
       } else {
         term.windowTitle(`@[${txt}] ${ this.args }`);
-        // term.windowTitle(`[${this.howMany}] ${ this.highlightOrNothin() } ${this.status } ${ this.justNameOfDNA } ${maxWidth(120,txt)} (next: ${ this.nextFile}) (AminoSee@${hostname})`);
+        // term.windowTitle(`[${this.howMany}] ${ this.highlightOrNothin() } ${ status } ${ this.justNameOfDNA } ${maxWidth(120,txt)} (next: ${ this.nextFile}) (AminoSee@${hostname})`);
       }
 
     }
@@ -4678,7 +4687,7 @@ class AminoSeeNoEvil {
         if (this.test === true) {
           splitScreen += chalk.rgb(64,64,64).inverse( fixedWidth( debugColumns - 10,  `[Test: ${this.howMany} ${ nicePercent(this.percentComplete) } Highlt${( this.isHighlightSet ? this.peptide + " " : " ")} >>>    `));
         } else {
-          splitScreen += chalk.rgb(64,64,64).inverse( fixedWidth( debugColumns - 10,  `[Jbs: ${this.howMany} this.status  : ${ this.status } Crrnt: ${maxWidth(12, this.currentFile)} Nxt: ${maxWidth(12, this.nextFile)} ${ nicePercent(this.percentComplete) } ${ cliInstance.storage()} Highlt${( this.isHighlightSet ? this.peptide + " " : " ")} >>>    `));
+          splitScreen += chalk.rgb(64,64,64).inverse( fixedWidth( debugColumns - 10,  `[Jbs: ${this.howMany}  status  : ${  status } Crrnt: ${maxWidth(12, this.currentFile)} Nxt: ${maxWidth(12, this.nextFile)} ${ nicePercent(this.percentComplete) } ${ cliInstance.storage()} Highlt${( this.isHighlightSet ? this.peptide + " " : " ")} >>>    `));
         }
         splitScreen += fixedWidth( debugColumns,` ${txt} `);
         term.eraseLine();
@@ -5129,12 +5138,11 @@ class AminoSeeNoEvil {
       function mode(txt) { // good for this.debugging
         wTitle(txt);
         var that = gimmeDat()
+        status = txt;
         if ( that.debug ) {
           out(txt);
-          that.status   = txt;
         } else if (that.quiet == false){
           redoLine(txt);
-          cliInstance.status   = txt;
         }
       }
       function gimmeDat() {

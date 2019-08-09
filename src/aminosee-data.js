@@ -45,7 +45,8 @@ const epicQuotes = [
   `Thats us we outa here cousin! Sweet-as-a-Kina-in-a-creek (as they say in NZ)`,
   `According to https://www.nature.com/news/2006/061009/full/news061009-10.html the smallest organism found so far has 182 genes!`
 ]
-let args;
+let args, debug;
+debug = false;
 // async function getSequenceNames(fastaFilePath) {
 //   const t = new IndexedFasta({
 //     path: fastaFilePath,
@@ -946,7 +947,9 @@ function output(txt) {
   console.log(`data: ${txt}`)
 }
 function log(txt) {
-  output(`[log] ${txt}`)
+  if ( debug ) {
+    output(`[log] ${txt}`)
+  }
 }
 function bugtxt(txt) {
   // let args = AminoSeeNoEvil.getArgs();
@@ -956,7 +959,19 @@ function bugtxt(txt) {
 }
 function setArgs( TheArgs ) {
   args = TheArgs;
-  log( `args received: ${args}`)
+
+  if ( args.debug ) {
+    debug = true;
+    output('debug mode ENABLED');
+  } else {
+    debug = false;
+    log( `debug mode DISABLED`)
+  }
+  if ( debug ) {
+    log( `args received: `);
+    console.log( args );
+  }
+
 }
 const siteDescription = `A unique visualisation of DNA or RNA residing in text files, AminoSee is a way to render huge genomics files into a PNG image using an infinite space filling curve from 18th century! Computation is done locally, and the files do not leave your machine. A back-end terminal daemon cli command that can be scripted is combined with a front-end GUI in Electron, AminoSee features asynchronous streaming processing enabling arbitrary size files to be processed. It has been tested with files in excess of 4 GB and does not need the whole file in memory at any time. Due to issues with the 'aminosee *' command, a batch script is provided for bulk rendering in the dna/ folder. Alertively use the GUI to Drag and drop files to render a unique colour view of RNA or DNA stored in text files, output to PNG graphics file, then launches an WebGL browser that projects the image onto a 3D Hilbert curve for immersive viewing, using THREEjs. Command line options alow one to filter by peptide.`;
 
