@@ -1067,7 +1067,7 @@ class AminoSeeNoEvil {
       process.stdin.resume(); // means start consuming
       // listen for the "keypress" event
       process.stdin.once('keypress', function (ch, key) {
-        out('got "keypress"', key);
+        out(`got eypress: ${ chalk.inverse( key )`);
 
         if ( key ) {
           if ( key.name == 'q' || key.name == 'Esc') {
