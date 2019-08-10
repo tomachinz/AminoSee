@@ -161,7 +161,8 @@ async function runCarlo() {
     // await app.runCarlo()
     await app.exposeFunction('systeminfo', systeminfo);
     // await app.load('http://10.0.0.24:43210/public/');
-    await app.load('public/index.html');
+    // await app.load('public/index.html');
+    await app.load('www/index.html');
     return app;
   }
 
