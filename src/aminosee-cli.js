@@ -351,14 +351,7 @@ class AminoSeeNoEvil {
         this.usersOutpath = path.resolve(path.normalize( args.outpath));
         this.error(`Could not find output path: ${this.usersOutpath}, creating it this.now`);
         this.outputPath = this.usersOutpath;
-        if ( this.mkdir() ) {
-          log('Success');
-        } else {
-          this.error("That's weird. Couldn't create a writable output folder at: " + this.outputPath + " maybe try not using custom flag? --output");
-          // this.outputPath = homedirPath;
-          this.quit(0, `cant create output folder`);
-          // return false;
-        }
+
       }
     } else {
       this.outputPath = getOutputFolder();
@@ -719,6 +712,15 @@ class AminoSeeNoEvil {
       }
 
       data.setArgs( args )
+
+      if ( this.mkdir() ) {
+        log('Success');
+      } else {
+        output("That's weird. Couldn't create a writable output folder at: " + this.outputPath + " maybe try not using custom flag? --output");
+        // this.outputPath = homedirPath;
+        // this.quit(0, `cant create output folder`);
+        // return false;
+      }
 
       if ( this.howMany > 0 ) {
         output(chalk.green(`${chalk.underline("Job items:")} ${this.howMany}`))
@@ -3826,6 +3828,7 @@ class AminoSeeNoEvil {
     mkdir(relative, cb) { // returns true if a fresh dir was created
       if ( relative === undefined) { relative = ''}
       let dir2make = path.resolve( `${ this.outputPath }/${relative}` );
+      output('make folder: '+ dir2make)
       if ( doesFolderExist(this.outputPath) == false ) {
         try {
           fs.mkdirSync(this.outputPath, function (err, result) {

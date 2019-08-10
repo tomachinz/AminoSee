@@ -19,9 +19,9 @@ test_do () {
   echo $1 "END____ $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 _________"
 }
 
-
-nice npm run build-web &
-sleep 1
+npm run genversion
+# nice npm run build-web &
+# sleep 1
 echo aminosee $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
 # echo STOPPPING SERVER
 # aminosee --stop
