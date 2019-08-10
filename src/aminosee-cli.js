@@ -113,7 +113,7 @@ function populateArgs(procArgv) { // returns args
     boolean: [ 'artistic', 'clear', 'chrome', 'devmode', 'debug', 'demo', 'dnabg', 'explorer', 'file', 'force', 'firefox', 'gui', 'html', 'image', 'keyboard', 'list', 'progress', 'quiet', 'reg', 'recycle', 'redraw', 'serve', 'safari', 'test', 'updates', 'verbose', 'view' ],
     string: [ 'url', 'outpath', 'triplet', 'peptide', 'ratio', 'port' ],
     alias: { a: 'artistic', b: 'dnabg', c: 'codons', d: 'devmode', f: 'force', h: 'help', k: 'keyboard', m: 'magnitude', o: 'outpath', out: 'outpath', output: 'outpath', p: 'peptide', i: 'image', t: 'triplet', u: 'updates', q: 'quiet', r: 'reg', w: 'width', v: 'verbose', x: 'explorer', finder: 'explorer', view: 'html'  },
-    default: { html: true, brute: false, image: false, clear: false, explorer: false, quiet: false, keyboard: false, progress: true, redraw: true, updates: true, serve: false, gui: false },
+    default: { debug: true, html: true, brute: false, image: false, clear: false, explorer: false, quiet: false, keyboard: false, progress: true, redraw: true, updates: true, serve: false, gui: false },
     stopEarly: false
   } // NUMERIC INPUTS: codons, magnitude, width, maxpix
   let args = minimist(procArgv.slice(2), options)
@@ -764,7 +764,7 @@ class AminoSeeNoEvil {
         return true;
       }
       countdown('.', 3000, () => {
-        output(':)')
+        output(`:)  ${ this.justNameOfDNA  }`)
         // this.quit();
       });
     }
@@ -1443,6 +1443,7 @@ class AminoSeeNoEvil {
         // this.resetAndPop(msg)
         return false;
       }
+      if ( this.test ) { log("RETURNING FALSE"); return false; }
       if (!this.checkFileExtension( this.currentFile)) {
         let msg = `${this.currentFile} wrong file extension. Must be one of ${ extensions } `
         out( this.busy() )
@@ -1768,7 +1769,7 @@ class AminoSeeNoEvil {
       }
       this.progUpdate({ title: 'DNA File Render step 1/3', items: this.howMany, syncMode: true })
       setTimeout(() => {
-        if ( this.renderLock == true ) {
+        if ( this.renderLock == true && this.percentComplete > 0 ) {
           that.manageLocks(5000)
         } else {
           output(`no locks`)
@@ -1781,7 +1782,7 @@ class AminoSeeNoEvil {
   }
   manageLocks(time) {
     if ( this.lockTimer !== undefined) { clearTimeout(this.lockTimer) }
-    if ( isShuttingDown) { return false }
+    if ( isShuttingDown == true ) { return false }
     var that = this;
 
     this.lockTimer = setTimeout( () => {
@@ -2576,6 +2577,9 @@ class AminoSeeNoEvil {
         } else {
           output("DONE")
           this.removeLocks();
+          if ( this.howMany < 1) {
+            this.isShuttingDown = true;
+          }
           this.resetAndPop(`Great success with render of (${this.justNameOfDNA}) but: ${this.busy()} ${this.storage()}`);
         }
       } else {
@@ -2588,7 +2592,10 @@ class AminoSeeNoEvil {
         const fileSizeInBytes = stats.size
         return fileSizeInBytes
       } catch(err) {
-        this.resetAndPop("File not found: " + file);
+        let msg = "File not found: " + file
+        mode(msg)
+        output( chalk.inverse(msg) )
+        this.resetAndPop(msg);
         return -1; // -1 is signal for failure or unknown size (stream).
       }
     }
@@ -4199,7 +4206,7 @@ class AminoSeeNoEvil {
 
 
       if ( this.charClock == 0 ||  this.baseChars == 0) {
-        this.percentComplete = 0.01;//(( this.charClock+1) / ( this.baseChars+1)); // avoid div by zero below a lot
+        this.percentComplete = 0;//(( this.charClock+1) / ( this.baseChars+1)); // avoid div by zero below a lot
       } else {
         this.percentComplete = this.charClock /  this.baseChars; // avoid div by zero below a lot
       }
@@ -5143,7 +5150,9 @@ class AminoSeeNoEvil {
         countdown(`Closing in ${humanizeDuration(max32bitInteger)}`, 5000, this.gracefulQuit());
       }
       function countdown(text, timeMs, cb) {
-        redoLine(text + humanizeDuration ( deresSeconds(timeMs) ) );
+        let msg = text + humanizeDuration ( deresSeconds(timeMs) ) ;
+        // redoLine(msg);
+        out(msg)
         if ( timeMs > 0 ) {
           setTimeout(() => {
             if ( cb !== undefined ) {
@@ -5153,7 +5162,8 @@ class AminoSeeNoEvil {
             }
           },  500 )
         } else {
-          redoLine(' ');
+          // redoLine(' ');
+          out('.')
           if ( cb !== undefined ) { cb() }
         }
       }

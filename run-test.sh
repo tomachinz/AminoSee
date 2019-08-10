@@ -1,4 +1,4 @@
-test_do #!/bin/sh
+#!/bin/sh
 # test should run quickly and quit.
 FAST='dna/50KB_TestPattern.txt'
 MEDIUM='dna/3MB_TestPattern.txt'
@@ -9,7 +9,12 @@ success () {
   echo
 }
 test_do () {
-  echo $1 "START__ $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 _________"
+  echo $1
+  echo $1
+  echo $1
+  echo $1
+  echo $1
+  echo "START__ $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 _________"
   nice aminosee $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
   echo $1 "END____ $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 _________"
 }
@@ -23,6 +28,7 @@ echo aminosee $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
 echo STARTING SERVER TO RUN IN BACKGROUND
 aminosee --serve &
 aminosee
+test_do "Curious back walk bug"  -d --debug  $FAST Influenza-A-virus-H9N2-NC_004905.gbk Streptococcus_virus_2972.gbk
 test_do "FORCED RENDER OF SMALL GENOME: $FAST" -f $FAST $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
 test_do "QUIET MODE" -q $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
 test_do "VERBOSE MODE" -v $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
@@ -31,7 +37,7 @@ test_do "THREE OF SAME FILE IN A ROW: $FAST WITH PEPTIDE=AMBER" $FAST $FAST $FAS
 test_do "Wonky caps: -p=aspartic_ACID" $FAST  --force --peptide=aspartic_ACID $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
 test_do "gluTAMIC_aCID" $FAST -fb --peptide="gluTAMIC_aCID" $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
 test_do "PROGRESS BARS" $MEDIUM $FAST $1 $2 --force --peptide=opal -q --progress --dnabg $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
-test_do "GARBAGE FILENAMES FUZZING like   txt.txt.txt etc" $SLOW actualFileToThelieftistoseeifbatchrendersthroughthis junk asdfadsf $FAST qwert dna/1KB_TestPattern.txt  txt.txt.txt $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
+test_do "GARBAGE FILENAMES FUZZING like   txt.txt.txt etc" $SLOW actualFileToThelieftistoseeifbatchrendersthroughthis junk asdfadsf $FAST qwert txt.txt.txt $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
 test_do "Triplet ACT Square ratio"  $FAST $1  --triplet=ACT --ratio=sqr $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
 test_do "Triplet TTT and Proline (was not designed to do both)" $FAST    --triplet=TTT --peptide=Proline --ratio=sqr   $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
 test_do "Triplet CAT ratio sqr" $FAST    --triplet=CAT --ratio=sqr  $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
@@ -77,7 +83,6 @@ echo "                                         =///"
 # sleep 1
 
 clear
-# killall "aminosee.funk.nz 27MB_TestPattern 34.94MB"
 lighthouse http://localhost:4321  --view;
 eslint src/aminosee-cli.js
 vows --spec --isolate

@@ -1,6 +1,6 @@
 {
   "name": "aminosee",
-  "version": "1.22.0",
+  "version": "1.22.1",
   "owner": "Thomas Bieder Atkinson",
   "author": "Tom Atkinson <tom@funk.co.nz>",
   "website": "http://aminosee.funk.nz",
@@ -90,8 +90,9 @@
     "through": "^2.3.8",
     "uniq": "^1.0.1",
     "vows": "^0.8.2",
-    "xmlhttprequest": "^1.8.0"
-  },
+    "xmlhttprequest": "^1.8.0",
+    "webpack-node-externals": "^1.7.2"
+},
   "scripts": {
     "demo": "node bin/aminosee demo",
     "credits": "./build-credits.sh",
