@@ -15,7 +15,7 @@ http://optimalworks.net/ http://sitepoint.com/
 Count of packages used:
     1759
 
-as at Sat 10 Aug 2019 15:31:28 NZST the following open source node npm packages used:
+as at Sat 10 Aug 2019 15:50:13 NZST the following open source node npm packages used:
 
 
 aminosee@1.22.1 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee

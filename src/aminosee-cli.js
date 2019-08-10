@@ -663,7 +663,7 @@ class AminoSeeNoEvil {
           let that = this;
           countdown('Press [Q] to exit or wait ', this.raceDelay * 817, () => {
             carlo.catch();
-            carlo.close();
+            // carlo.close();
             that.gracefulQuit(0);
           });
       } else { log( `Try using  --gui for the graphical user interface`)}
