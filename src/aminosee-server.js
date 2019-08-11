@@ -24,6 +24,7 @@ const defaulturl = `http://localhost:4321/?devmode`
 let outputPath, filenameServerLock, url, projectprefs, userprefs, port, cliruns, gbprocessed;
 url = defaulturl
 port = 4321;
+backupPort = 43210;
 process.title = `aminosee.funk.nz_server`;
 
 [ userprefs, projectprefs ] = setupPrefs();
@@ -259,17 +260,22 @@ function close() {
     // aminosee.bugtxt(e);
   }
 }
+function readLockPort(file) {
+  return Math.round( (fs.readFileSync(file))); // my way of casting it to a number
+}
 function start(o) { // return the port number
   if ( o === undefined && doesFolderExist(path.resolve(`/snapshot/`) )  ) {
     o = `/snapshot/public`
   }
-  log(`Attempting to start server at: ${ o } on port ${ port }`)
+  // log(`Attempting to start server at: ${ o } on port ${ port }`)
   setupPrefs()
   outputPath = o;
   setOutputPath(o)
   if ( serverLock() ) {
-    log("Server already started. If you think this is not true, remove the lock file: " + filenameServerLock);
-    startCrossSpawnHttp(43210)
+    port = readLockPort(filenameServerLock)
+
+    log(`Server already started, using lock file port of (${port}). If you think this is not true, remove the lock file: ${ path.normalize( filenameServerLock )}`);
+    // startCrossSpawnHttp(43210)
   } else {
     log("No locks found, Starting server ");
     log(`filenameServerLock: ${filenameServerLock}`)
@@ -329,12 +335,12 @@ function getServerURL(fullpath) {
 function serverLock() {
   // output(`Checking server lock at: ${filenameServerLock}`)
   if ( doesFileExist(filenameServerLock) ) {
-    // output('Server already running ');
+    log('Server already running ');
     return true;
   } else {
+    output('Server starting up...');
     // output('Server NOT already running ');
     recordFile(filenameServerLock, port, () => {
-      output('Server starting up');
     })
     return false
   }

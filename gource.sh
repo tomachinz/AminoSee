@@ -7,7 +7,7 @@ sleep 1
 eval $COMMAND
 echo About to encode the video soon, using this...:
 # ENCODE="$COMMAND -o - | ffmpeg -y -r 60 -f image2pipe -vcodec ppm -i - -vcodec libx264 -preset ultrafast -pix_fmt yuv420p -crf 1 -threads 0 -bf 0 gource.mp4"
-ENCODE="$COMMAND -o - | ffmpeg -y -r 60 -f image2pipe -vcodec ppm -i - -vcodec libx264  -b:v 2600k  -preset slow -pix_fmt yuv420p -crf 1 -threads 0 -bf 0 $OUTPUTFILE"
+ENCODE="$COMMAND -o - | ffmpeg -y -r 60 -f image2pipe -vcodec ppm -i - -vcodec libx264  -b:v 2000k  -preset slow -pix_fmt yuv420p -crf 1 -threads 0 -bf 0 $OUTPUTFILE"
 echo $ENCODE
 sleep 5
 eval $ENCODE

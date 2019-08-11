@@ -83,8 +83,14 @@ echo "                                         =///"
 # sleep 1
 
 clear
-lighthouse http://localhost:4321  --view;
-eslint src/aminosee-cli.js
+lighthouse http://localhost:4321  --view --output-path=./test/ --save-assets 
+
+ESLINT="test/eslint-errors.txt"
+rm $ESLINT >/dev/null
+touch $ESLINT
+tail -f $ESLINT &
+eslint src/aminosee-cli.js > $ESLINT
+
 vows --spec --isolate
 echo Stopping server in 1 second
 sleep 1
@@ -107,3 +113,7 @@ echo done
 # npm run macos
 # sleep 60
 # ./build-gui.sh
+sleep 1
+trap 'exit 0' TERM
+(killall -m tail 2>&1) >/dev/null
+exit 0

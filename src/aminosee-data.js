@@ -971,7 +971,6 @@ function setArgs( TheArgs ) {
     log( `args received: `);
     console.log( args );
     log( `args received: `);
-
   }
 
 }

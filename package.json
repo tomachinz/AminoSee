@@ -1,6 +1,6 @@
 {
   "name": "aminosee",
-  "version": "1.22.2",
+  "version": "1.22.3",
   "owner": "Thomas Bieder Atkinson",
   "author": "Tom Atkinson <tom@funk.co.nz>",
   "website": "http://aminosee.funk.nz",
@@ -75,6 +75,7 @@
     "npm-merge-driver": "^2.3.5",
     "open": "^6.4.0",
     "parse-apache-directory-index": "^1.2.1",
+    "pkg": "^4.4.0",
     "png.js": "^0.2.1",
     "pngjs": "^3.4.0",
     "remove": "^0.1.5",
