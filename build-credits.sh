@@ -46,6 +46,7 @@ echo as at $DATE the following open source node npm packages used: >>  $CREDITS
 echo >> $CREDITS
 echo >>  $CREDITS
 cat __aminoseeTEMP.txt  >>  $CREDITS
+rm __aminoseeTEMP.txt
 # tail $CREDITS
 # clear
 # cat $CREDITS

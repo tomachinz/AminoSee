@@ -1,6 +1,6 @@
 {
   "name": "aminosee",
-  "version": "1.22.3",
+  "version": "1.22.4",
   "owner": "Thomas Bieder Atkinson",
   "author": "Tom Atkinson <tom@funk.co.nz>",
   "website": "http://aminosee.funk.nz",
@@ -29,6 +29,37 @@
         "public.app-category.medical"
       ]
     }
+  },
+  "scripts": {
+    "demo": "node bin/aminosee demo",
+    "credits": "./build-credits.sh",
+    "clean": "rimraf ./dist ./build",
+    "crash": "node --inspect 27MB_TestPattern.txt --peptide=Ochre 3MB_TestPattern.txt 50KB_TestPattern.txt batch-peptides.sh batch-process.sh Gorilla_gorGor4_chr2B.fa",
+    "gource": "./gource.sh",
+    "test": "echo 'requires cli programs: time, lighthouse, vows etc' ; time ./run-test.sh -q ;",
+    "start": "node bin/aminosee",
+    "serve": "node ./bin/aminosee.js",
+    "inspect": "node --inspect bin/aminosee.js dna/27MB_TestPattern.txt /Volumes/aminosee/dna/Brown_Kiwi_NW_013982187v1.fa   /Volumes/aminosee/dna/Brown_Kiwi_NW_013982187v1.fa  -f -c1000 -vd --debug",
+    "inspect2": "node --inspect bin/aminosee.js dna/50KB_TestPattern.txt -f -vd --debug",
+    "build": "nice npm run build-web ; nice time npm run macos",
+    "build-old": "./build-lib.sh ; ./build-gui.sh ; nice time npm run build-web ; nice time npm run pkg",
+    "build-all": "npm run test ; ./build-lib.sh ; npm run build-web ; npm run pkg; npm run zip",
+    "build-web": "npm run genversion ;  npm run browserify  ; npm run minify ; npm run credits",
+    "genversion": "genversion src/aminosee-version.js",
+    "browserify": "echo DISABLED browserify bin/aminosee.js -o bin/bundle.js",
+    "minify": "uglify bin/bundle.js -o bin/bundle.min.js",
+    "pkg": "npm run macos &amp;  nice npm run win32 &amp; nice npm run win64 ; nice npm run linux ; npm run zip",
+    "zip": "zip -8 -r ./dist/AminoSee_macos.zip ./dist/AminoSee_macos  &amp; nice zip -8 -r ./dist/AminoSee_win.zip ./dist/AminoSee_win &amp; nice zip -8 -r ./dist/AminoSee_linux.zip ./dist/AminoSee_linux",
+    "runmac": "echo OPENING compiled app first with no options, then with --gui ; ./dist/AminoSee_macos/aminosee ; sleep 1 ;  ./dist/AminoSee_macos/aminosee  --gui",
+    "runlinux": "open ./dist/AminoSee_linux/aminosee",
+    "macos": "echo MACOS ; pkg . --targets macos   --output ./dist/AminoSee_macos/aminosee ; ./dist/AminoSee_macos/aminosee",
+    "win32": "echo WIN32 ; pkg . --targets win-x86 --output ./dist/AminoSee_win/aminosee-win32.exe",
+    "win64": "echo WIN64 ; pkg . --targets win-x64 --output ./dist/AminoSee_win/aminosee.exe",
+    "linux": "echo LINUX ; pkg . --targets linux   --output ./dist/AminoSee_linux/aminosee",
+    "_macos": "echo MACOS ; pkg . --targets macos   --output ./dist/AminoSee_macos/aminosee-macos   ; zip -8 -r ./dist/AminoSee_macos.zip ./dist/AminoSee_macos",
+    "_win32": "echo WIN32 ; pkg . --targets win-x86 --output ./dist/AminoSee_win/aminosee-win32.exe ;",
+    "_win64": "echo WIN64 ; pkg . --targets win-x64 --output ./dist/AminoSee_win/aminosee-win64.exe ; zip -8 -r ./dist/AminoSee_win.zip ./dist/AminoSee_win",
+    "_linux": "echo LINUX ; pkg . --targets linux   --output ./dist/AminoSee_linux/aminosee-linux   ; zip -8 -r ./dist/AminoSee_linux.zip ./dist/AminoSee_linux"
   },
   "dependencies": {
     "autocannon": "^4.0.0",
@@ -93,37 +124,6 @@
     "webpack-node-externals": "^1.7.2",
     "xmlhttprequest": "^1.8.0"
   },
-  "scripts": {
-    "demo": "node bin/aminosee demo",
-    "credits": "./build-credits.sh",
-    "clean": "rimraf ./dist ./build",
-    "crash": "node --inspect 27MB_TestPattern.txt --peptide=Ochre 3MB_TestPattern.txt 50KB_TestPattern.txt batch-peptides.sh batch-process.sh Gorilla_gorGor4_chr2B.fa",
-    "gource": "./gource.sh",
-    "test": "echo 'requires cli programs: time, lighthouse, vows etc' ; time ./run-test.sh -q ;",
-    "start": "node bin/aminosee",
-    "serve": "node ./bin/aminosee.js",
-    "inspect": "node --inspect bin/aminosee.js dna/27MB_TestPattern.txt /Volumes/aminosee/dna/Brown_Kiwi_NW_013982187v1.fa   /Volumes/aminosee/dna/Brown_Kiwi_NW_013982187v1.fa  -f -c1000 -vd --debug",
-    "inspect2": "node --inspect bin/aminosee.js dna/50KB_TestPattern.txt -f -vd --debug",
-    "build": "nice npm run build-web ; nice time npm run macos",
-    "build-old": "./build-lib.sh ; ./build-gui.sh ; nice time npm run build-web ; nice time npm run pkg",
-    "build-all": "npm run test ; ./build-lib.sh ; npm run build-web ; npm run pkg; npm run zip",
-    "build-web": "npm run genversion ;  npm run browserify  ; npm run minify ; npm run credits",
-    "genversion": "genversion src/aminosee-version.js",
-    "browserify": "echo DISABLED browserify bin/aminosee.js -o bin/bundle.js",
-    "minify": "uglify bin/bundle.js -o bin/bundle.min.js",
-    "pkg": "npm run macos &amp;  nice npm run win32 &amp; nice npm run win64 ; nice npm run linux ; npm run zip",
-    "zip": "zip -8 -r ./dist/AminoSee_macos.zip ./dist/AminoSee_macos  &amp; nice zip -8 -r ./dist/AminoSee_win.zip ./dist/AminoSee_win &amp; nice zip -8 -r ./dist/AminoSee_linux.zip ./dist/AminoSee_linux",
-    "runmac": "echo OPENING compiled app first with no options, then with --gui ; ./dist/AminoSee_macos/aminosee ; sleep 1 ;  ./dist/AminoSee_macos/aminosee  --gui",
-    "runlinux": "open ./dist/AminoSee_linux/aminosee",
-    "macos": "echo MACOS ; pkg . --targets macos   --output ./dist/AminoSee_macos/aminosee ; ./dist/AminoSee_macos/aminosee",
-    "win32": "echo WIN32 ; pkg . --targets win-x86 --output ./dist/AminoSee_win/aminosee-win32.exe",
-    "win64": "echo WIN64 ; pkg . --targets win-x64 --output ./dist/AminoSee_win/aminosee.exe",
-    "linux": "echo LINUX ; pkg . --targets linux   --output ./dist/AminoSee_linux/aminosee",
-    "_macos": "echo MACOS ; pkg . --targets macos   --output ./dist/AminoSee_macos/aminosee-macos   ; zip -8 -r ./dist/AminoSee_macos.zip ./dist/AminoSee_macos",
-    "_win32": "echo WIN32 ; pkg . --targets win-x86 --output ./dist/AminoSee_win/aminosee-win32.exe ;",
-    "_win64": "echo WIN64 ; pkg . --targets win-x64 --output ./dist/AminoSee_win/aminosee-win64.exe ; zip -8 -r ./dist/AminoSee_win.zip ./dist/AminoSee_win",
-    "_linux": "echo LINUX ; pkg . --targets linux   --output ./dist/AminoSee_linux/aminosee-linux   ; zip -8 -r ./dist/AminoSee_linux.zip ./dist/AminoSee_linux"
-  },
   "keywords": [
     "dna",
     "genomics",
@@ -147,21 +147,19 @@
       "src/*.js"
     ],
     "assets": [
-      "dist/root/**/*",
+      "bin/**",
       "bin/pos.node",
+      "dist/root/**/*",
+      "dna/3MB_TestPattern.txt",
+      "dna/50KB_TestPattern.txt",
+      "dna/megabase.fa",
       "node_modules/opn/**",
       "node_modules/terminal-kit/**",
       "node_modules/get-cursor-position/**",
       "node_modules/opn/xdg-open",
-      "bin/**",
-      "src/**",
-      "www/**/*",
-      "public/**/*",
+      "src/www/**/*",
       "src/public/**/*",
-      "package.json",
-      "dna/3MB_TestPattern.txt",
-      "dna/50KB_TestPattern.txt",
-      "dna/megabase.fa"
+      "package.json"
     ]
   }
 }

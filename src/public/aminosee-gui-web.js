@@ -23,8 +23,8 @@ spinning = true;
 colorsReady = false;
 zoom = 2; //  defalt 2
 distance = 900; // default 900
-let stateObj = { foo: "bar" };
-let histogramJson = { foo: "bar " };
+let stateObj = { txt: "loading..." };
+let histogramJson = { txt: "loading..." };
 let stackOimages = document.getElementById('stackOimages');
 // let urlprefix = `../`;
 let urlprefix = `output/`;
@@ -76,9 +76,8 @@ function fileChanged(f) { // http://127.0.0.1:8888/aminosee/output/Brown_Kiwi_NW
   let newURL = `${path}#?selectedGenome=${f}`;
   // let image = `${f}/images/${justNameOfPNG}`
   history.pushState(stateObj, justNameOfFile, newURL);
-  // document.getElementById('oi').innerHTML = `<img id="current_image" src="${image}" width="64px" height="64px">`;
+  document.getElementById('oi').innerHTML = `<img id="current_image" src="${image}" width="64px" height="64px">`;
   setupFNames();
-  // console.log(current_image);
   loadImage();
   loadHistogramJson(histoURL)
 }
@@ -130,8 +129,15 @@ function toggleDevmode() {
     togglePause(); // done twice to re-trigger the autopause
   }
 }
+function attachHandlers() {
+  <!--  onmouseover="mover(this)" onmouseout="mout(this)" -->
+              <tr class="pepTable" id="row_${i}" style="background-color: hsl( ${theHue} , 50%, 100%);">
+
+}
 function pageLoaded() {
-  loadHistogramJson(urlprefix + 'Brown_Kiwi_NW_013982187v1/aminosee_histogram.json');
+  fileChanged('Brown_Kiwi_NW_013982187v1')
+  // loadHistogramJson(urlprefix + 'Brown_Kiwi_NW_013982187v1/aminosee_histogram.json');
+  attachHandlers();
   initVariables();
   sceneCameraSetup();
   setScene();

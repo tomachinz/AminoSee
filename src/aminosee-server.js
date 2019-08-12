@@ -64,7 +64,7 @@ function setupPrefs() {
 
 }
 function log(txt) {
-  //output( txt )
+  output( txt )
 }
 // function getArgs() {
 //   return this.args;
@@ -75,7 +75,8 @@ function output(txt) {
 
 function buildServer() {
   const appFilename = require.main.filename; //     /bin/aminosee.js is 11 chars
-  const appPath = path.normalize(appFilename.substring(0, appFilename.length-15));// cut 4 off to remove /dna
+  // const appPath = path.normalize(appFilename.substring(0, appFilename.length-15));// cut 4 off to remove /dna
+  const appPath = __dirname;
 
   // this.openHtml = true;
   // that.setupKeyboardUI();
@@ -136,9 +137,9 @@ function starthttpserver(options) {
   if ( options === undefined ) {
     options = [ outputPath, `-p`, port, '-o' ]
   }
-
   const theserver = require('http-server');
   theserver.createServer(options);
+  return theserver
 }
 function startServeHandler() {
   setOutputPath()
@@ -223,27 +224,15 @@ module.exports = (options) => {
 
 function stop() {
   output(`Stopping server`);
-  log(filenameServerLock)
+  output(`removing lock file... ${filenameServerLock}`)
   deleteFile(filenameServerLock);
+  output(`...lock file removed.`)
   if (serverLock()) {
     // const killServe =    spawn('nice', ['killall', 'node', '', '0'], { stdio: 'pipe' });
     // const killServe =    spawn('nice', ['killall', 'node', '', '0']);
-    // const killAminosee = spawn('nice', ['killall', 'aminosee.funk.nz', '', '0'], { stdio: 'pipe' });
-    const killAminosee = spawn('nice', ['killall', 'aminosee.funk.nz_server', '', '0'] );
-    if (server != undefined) {
-      log("closing server")
-      server.close();
-    } else {
-      log("no server running")
-    }
-  }
-  try {
-    fs.unlinkSync(filenameServerLock, (err) => {
-      log("Removing server locks OK...")
-      if (err) { log('ish'); console.warn(err);  }
-    });
-  } catch (err) {
-    log("No server locks to remove: " + err);
+    spawn('nice', ['killall', 'aminosee.funk.nz', '', '0'], { stdio: 'pipe' });
+    spawn('nice', ['killall', 'aminosee.funk.nz_server', '', '0'], { stdio: 'pipe' });
+    // const killAminosee = spawn('nice', ['killall', 'aminosee.funk.nz_server', '', '0'] );
   }
 }
 
@@ -267,25 +256,23 @@ function start(o) { // return the port number
   if ( o === undefined && doesFolderExist(path.resolve(`/snapshot/`) )  ) {
     o = `/snapshot/public`
   }
-  // log(`Attempting to start server at: ${ o } on port ${ port }`)
+  log(`Attempting to start server at: ${ o } on port ${ port }`)
   setupPrefs()
-  outputPath = o;
+  outputPath = o
   setOutputPath(o)
+  buildServer()
+  let options = [ outputPath, `-p`, port, '-o' ]
+
   if ( serverLock() ) {
     port = readLockPort(filenameServerLock)
-
-    log(`Server already started, using lock file port of (${port}). If you think this is not true, remove the lock file: ${ path.normalize( filenameServerLock )}`);
-    // startCrossSpawnHttp(43210)
+    output(`Server already started, using lock file port of (${port}). If you think this is not true, remove the lock file: ${ path.normalize( filenameServerLock )}`);
+    starthttpserver(options);
+    // startCrossSpawnHttp(port)
   } else {
     log("No locks found, Starting server ");
     log(`filenameServerLock: ${filenameServerLock}`)
-    buildServer();
-    // starthttpserver();
-    // if ( startCrossSpawnHttp(port) == false ) {
-    //   output(`Problem with port ${port} `);
-    //   port = 43210;
-      startCrossSpawnHttp(port)
-    // }
+    starthttpserver(options);
+    // startCrossSpawnHttp(port)
   }
   return port
 }

@@ -124,22 +124,24 @@ async function runCarlo() {
   // const path = require('path');
   // const si = require('systeminformation');
 
+  // args: process.env.DEV === 'true' ? ['--auto-open-devtools-for-tabs', '--allow-insecure-localhost', '--webpack-dev-server', '--https'] : [],
+
 
   async function run() {
     let app;
     try {
       app = await carlo.launch(
-          {
+          { //             localDataDir: path.join(__dirname, '/AminoSee_Output' ),
+          // userDataDir: path.join(__dirname, '.carlosysteminfo' ),
+
             bgcolor: '#012345',
             title: 'AminoSee DNA Viewer',
             width: 1400,
             height: 600,
             channel: ['canary', 'stable'],
             icon: path.join(__dirname, 'public/512_icon.png'),
-            args: process.env.DEV === 'true' ? ['--auto-open-devtools-for-tabs', '--allow-insecure-localhost', '--webpack-dev-server', '--https'] : [],
-            userDataDir: path.join(__dirname, '.carlosysteminfo' ),
-            localDataDir: path.join(__dirname, '/AminoSee_Output' ),
-            serveOrigin: 'https://10.0.0.5:4567'
+            args: [ '--allow-insecure-localhost', '--webpack-dev-server'],
+            serveOrigin: 'http://localhost:4567'
           });
     } catch(e) {
       // New window is opened in the running instance.
@@ -155,14 +157,14 @@ async function runCarlo() {
     // let o = path.join(__dirname, 'public');
     // let o = path.join(__dirname, 'www');
     let o = path.resolve(__dirname);
-
     console.log(`serving: ${o}`)
-    app.serveFolder(o);
-    // await app.runCarlo()
+    await app.serveFolder(o);
     await app.exposeFunction('systeminfo', systeminfo);
+    await app.load('www/index.html');
+
+    // await app.runCarlo()
     // await app.load('http://10.0.0.24:43210/public/');
     // await app.load('public/index.html');
-    await app.load('www/index.html');
     return app;
   }
 
