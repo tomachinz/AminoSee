@@ -70,7 +70,7 @@ function log(txt) {
 //   return this.args;
 // }
 function output(txt) {
-    console.log(chalk.inverse(`${defaulturl} `) + ' [' + txt + ']');
+    console.log(chalk.inverse(` `) + ' [' + txt + ']');
 }
 
 function buildServer() {
@@ -81,7 +81,7 @@ function buildServer() {
   // this.openHtml = true;
   // that.setupKeyboardUI();
   // output("HELLO**********************")
-  log(`Building server to ${outputPath}`)
+  log(`Building server to ${outputPath}  ${defaulturl}`)
   data.saySomethingEpic();
   let sFiles = [
     { "source": appPath + 'src/public',            "dest": outputPath + '/public' },
@@ -270,8 +270,8 @@ function start(o) { // return the port number
     log("No locks found, Starting server ");
     log(`filenameServerLock: ${filenameServerLock}`)
   }
-  output( starthttpserver(options) );
-  // startCrossSpawnHttp(port)
+  // output( starthttpserver(options) );
+  startCrossSpawnHttp(port)
   // startServeHandler(o, port)
 
   return port

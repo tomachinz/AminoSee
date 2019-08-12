@@ -171,12 +171,13 @@ function pushCli(cs) { // used by Electron GUI
 function setupApp() {
   [ userprefs, projectprefs ] = setupPrefs();
 
-  if ( this.progress ) {
+  if ( this.updateProgress == true ) {
     progato = term.progressBar( {
       width: 80 ,
       title: 'Daily tasks:' ,
       eta: true ,
       percent: true ,
+      inline: true,
       items: remain
     } ) ;
   }
@@ -244,7 +245,7 @@ class AminoSeeNoEvil {
     this.report = true; // html reports can be dynamically disabled
     this.test = false;
     this.updates = true;
-    // this.updateProgress = false; // whether to show the progress bars
+    this.updateProgress = true; // whether to show the progress bars
     this.stats = true;
     this.recycEnabled = false; // bummer had to disable it
     this.renderLock = false; // not rendering right this.now obviously
@@ -307,7 +308,7 @@ class AminoSeeNoEvil {
       this.quiet = true;
       this.verbose = false;
       this.dnabg = false;
-      this.updates = false;
+      this.updates = false;  //this.updates
       this.clear = false;
       this.openImage = false;
       this.raceDelay = 1; // yeah it makes it go faster
@@ -354,7 +355,7 @@ class AminoSeeNoEvil {
     } else {
       output(`Using URL prefix: ${url}`)
     }
-    if ( args.progres ) {
+    if ( args.progress ) {
       this.updateProgress = true; // whether to show the progress bars
       log('progress bars enabled');
     } else {
@@ -445,8 +446,9 @@ class AminoSeeNoEvil {
       }
     }
     if ( args.magnitude || args.m ) {
-      this.magnitude = "custom";
+      output( args.magnitude )
       this.dimension = Math.round( args.magnitude );
+      this.magnitude = "custom";
       if ( this.dimension < 3 ) {
         this.dimension = 3;
         output("Magnitude must be an integer number between 3 and 9. Using -m 3 for 4096 pixel curve.");
@@ -658,8 +660,8 @@ class AminoSeeNoEvil {
         this.setupKeyboardUI();
         let that = this;
         // countdown('Press [Q] to exit or wait ', this.raceDelay * 8170, () => {
-          // carlo.catch();
-          // that.gracefulQuit(0);
+        // carlo.catch();
+        // that.gracefulQuit(0);
         // });
       } else {
         log( `Try using  --gui for the graphical user interface`)
@@ -777,6 +779,9 @@ class AminoSeeNoEvil {
         // ];
 
         // let countDown = remain ;
+
+
+
         // progato = term.progressBar( {
         // 	width: 80 ,
         // 	title: 'Daily tasks:' ,
@@ -857,6 +862,7 @@ class AminoSeeNoEvil {
 
     resized(tx, ty) {
       clearCheck();
+      term.eraseDisplayBelow()
       termSize();
       termDrawImage(this.filePNG, `resized`);
       this.setDebugCols();
@@ -887,7 +893,7 @@ class AminoSeeNoEvil {
         }
       }
       clearTimeout( this.updatesTimer )
-      if ( this.renderLock == true ) { this.drawHistogram() }
+      if ( this.renderLock == true && this.quiet == false) { this.drawHistogram() }
     }
     cli(argumentsArray) {
       output(`cli argumentsArray [${argumentsArray.toString()}]`)
@@ -968,7 +974,7 @@ class AminoSeeNoEvil {
         summary: zumari
       }
       // output(histogramJson  )
-      // return beautify( histogramJson, null, 2, 100);
+      output( beautify( histogramJson, null, 2, 100) );
       return histogramJson;
     }
 
@@ -1047,7 +1053,7 @@ class AminoSeeNoEvil {
         if ( progato !== undefined && obj !== undefined) {
           this.fastUpdate();
           redoLine(`Progress ${obj}`)
-          progato.update(obj);
+          // progato.update(obj);
         }
       } else {
         bugtxt(`progress dummy function: ${obj}`)
@@ -1473,7 +1479,7 @@ class AminoSeeNoEvil {
       mode(`pollForStream ${reason}`)
       this.setupProject();
       this.autoconfCodonsPerPixel();
-      // this.setupLinearNames(); // will not include Hilbert file name. Need to wait until after render and setupHilbertFilenames
+      this.setupLinearNames(); // will not include Hilbert file name. Need to wait until after render and setupHilbertFilenames
       let msg = `>>> PREFLIGHT <<< ${ remain } ${ path.normalize( this.currentFile )} reason: ${reason}`
       log(msg);
       redoLine(msg)
@@ -1593,8 +1599,22 @@ class AminoSeeNoEvil {
       if ( this.renderLock == true ) { // re-entrancy filter
         this.error('look thread re-rentry: ' + reason);
       }
+
+
+      let file;
+      try {
+        file = this.args._[0].toString();
+      } catch(err) {
+        log(`Catch: this.args._[0].toString() = ${this.args._[0].toString()}`)
+        runcb(cb);
+        return false;
+      }
+      this.currentFile = file;
+      this.dnafile = path.resolve(file);
       if ( this.test == true ) { // uses a loop not polling.
-        this.error('test is in look for work?');
+        // this.error('test is in look for work?');
+        log('test is in look for work?');
+        return false;
       }
       if (remain <= 0) {
         mode('Happiness.');
@@ -1605,14 +1625,6 @@ class AminoSeeNoEvil {
         runcb(cb);
         return false;
       }
-      let file;
-      try {
-        file = this.args._[0].toString();
-      } catch(err) {
-        log(`Catch: this.args._[0].toString() = ${this.args._[0].toString()}`)
-        runcb(cb);
-        return false;
-      }
 
       if ( file == funknzlabel ) {
         this.error('funknzlabel')
@@ -1620,8 +1632,7 @@ class AminoSeeNoEvil {
         runcb(cb);
         return false;
       }
-      this.currentFile = file;
-      this.dnafile = path.resolve(file);
+
       this.setNextFile();
       this.pollForStream(`Ready: ${this.currentFile}`);
       runcb(cb);
@@ -1646,7 +1657,7 @@ class AminoSeeNoEvil {
       this.autoconfCodonsPerPixel();
       this.autoconfCodonsPerPixel();
       // this.mkRenderFolders(); // create /images etc
-      // this.setupProgress();
+      this.setupProgress();
       this.rawDNA = "@"
       this.extension = this.getFileExtension( this.currentFile );
       this.percentComplete = 0;
@@ -1654,7 +1665,6 @@ class AminoSeeNoEvil {
       this.pixelStacking = 0; // how we fit more than one codon on each pixel
       this.pixelClock = 0; // which pixel are we painting?
       this.msElapsed  = 0;
-
       this.rgbArray = [];
       this.initialiseArrays();
 
@@ -1768,7 +1778,7 @@ class AminoSeeNoEvil {
       var that = this;
       output(`Started ${ ( this.force ? 'forced ' : '' ) }render of ${this.justNameOfPNG} next is ${this.nextFile}`);
       if ( this.renderLock == true ) {
-        if ( this.updates == true) {
+        if ( this.updates == true && this.quiet == false) {
           // this.drawHistogram();
           that.drawHistogram();
         } else {
@@ -1779,7 +1789,7 @@ class AminoSeeNoEvil {
           if ( this.renderLock == true && this.percentComplete > 0 ) {
             that.manageLocks(5000)
           } else {
-            output(`render of ${ this.justNameOfPNG } completed quickly`)
+            output(`render of ${ this.justNameOfPNG } completed`)
           }
         }, 3000);
       } else {
@@ -1987,7 +1997,14 @@ class AminoSeeNoEvil {
       this.shrinkFactor = shrinkFactor;
       this.codonsPerPixelHILBERT = codonsPerPixelHILBERT;
       this.fileHILBERT = `${ this.outputPath }/${ this.justNameOfDNA }/images/${ this.generateFilenameHilbert() }`;
-      output( this.fileHILBERT )
+      output( this.fileHILBERT + codonsPerPixelHILBERT )
+      output( this.fileHILBERT + codonsPerPixelHILBERT )
+      output( this.fileHILBERT + codonsPerPixelHILBERT )
+      output( this.fileHILBERT + codonsPerPixelHILBERT )
+      output( this.fileHILBERT + codonsPerPixelHILBERT )
+      output( this.fileHILBERT + codonsPerPixelHILBERT )
+      output( this.fileHILBERT + codonsPerPixelHILBERT )
+      output( this.fileHILBERT + codonsPerPixelHILBERT )
       output( this.fileHILBERT )
       output( this.fileHILBERT )
       output( this.fileHILBERT )
@@ -2059,11 +2076,11 @@ class AminoSeeNoEvil {
 
       if ( brute == true ) {
         for (let i = 0; i < this.pepTable.length; i++) {
-          this.pepTable[i].linear_master   = this.qualifyPath(`images/${ this.generateFilenamePNG()     }`);
-          this.pepTable[i].hilbert_master  = this.qualifyPath(`images/${ this.generateFilenameHilbert() }`);
-          previewCodonsPerPixel
-          this.pepTable[i].linear_preview  =
-          this.pepTable[i].hilbert_preview =
+          // this.pepTable[i].linear_master   = this.qualifyPath(`images/${ this.generateFilenamePNG()     }`);
+          // this.pepTable[i].hilbert_master  = this.qualifyPath(`images/${ this.generateFilenameHilbert() }`);
+          // previewCodonsPerPixel
+          // this.pepTable[i].linear_preview  =
+          // this.pepTable[i].hilbert_preview =
           out(`initialise ${i}`)
         }
       }
@@ -2071,8 +2088,8 @@ class AminoSeeNoEvil {
 
       this.fileTouch =   this.qualifyPath( this.generateFilenameTouch()  );
       this.fileHTML =    this.qualifyPath( this.generateFilenameHTML()   );
-      this.filePNG =     this.qualifyPath(`images/${ this.generateFilenamePNG()     }`);
-      this.fileHILBERT = this.qualifyPath(`images/${ this.generateFilenameHilbert() }`);
+      this.filePNG =     this.qualifyPath(`images/${ this.generateFilenamePNG()}`);
+      // this.fileHILBERT = this.qualifyPath(`images/${ this.generateFilenameHilbert() }`);
       this.fullURL          = `${url}/${this.justNameOfDNA}/`;//`${this.justNameOfHTML}`;
       // this.fancyFilenames();
       this.setNextFile();
@@ -2256,13 +2273,15 @@ class AminoSeeNoEvil {
 
     saveDocsSync() {
       let pixels = 0;
+
       mode('Saving... ' + path.normalize( this.justNameOfPNG ));
       output(status)
       if ( this.renderLock == false) {
         this.error("How is this even possible. renderLock should be true until all storage is complete");
         return false;
       }
-      // this.percentComplete = 1; // to be sure it shows 100% complete
+      this.percentComplete = 1; // to be sure it shows 100% complete
+      this.calcUpdate();
       try {
         pixels = ( this.rgbArray.length / 4);
       }
@@ -2282,26 +2301,20 @@ class AminoSeeNoEvil {
       output(chalk.inverse(`Finished linear render of ${ this.justNameOfDNA} ${ pixels } = ${ this.pixelClock }`))
       term.eraseDisplayBelow();
 
-
-
       if (this.test) { // the calibration generates its own image
         this.shrinkFactor = 1;
       } else { // regular DNA processing
         cliruns = userprefs.aminosee.cliruns;
         cliruns++;
         userprefs.aminosee.cliruns = cliruns; // increment run counter. for a future high score table stat and things maybe.
-
         gbprocessed  = userprefs.aminosee.gbprocessed;
         gbprocessed +=  this.baseChars / 1024 / 1024 / 1024; // increment disk counter.
         userprefs.aminosee.gbprocessed = gbprocessed; // i have a superstition this way is less likely to conflict with other threads
-
         genomes = projectprefs.aminosee.genomes;
         genomes.push(this.justNameOfDNA);
         projectprefs.aminosee.genomes = dedupeArray( genomes );
       }
       // clearTimeout( updatesTimer)
-      this.calcUpdate();
-      this.fancyFilenames();
       // this.diskStorm( () => {
       //   log(`disk storm has returned`)
       // })
@@ -2309,8 +2322,8 @@ class AminoSeeNoEvil {
       var that = this; // closure
 
       mode('main render async.series')
-      // async.waterfall( [
-      async.series( [
+      async.waterfall( [
+      // async.series( [
         function ( cb ) {
           mode('async start ' + that.currentFile)
           that.savePNG( cb );
@@ -2324,6 +2337,7 @@ class AminoSeeNoEvil {
       ])
       .exec( function( error, results ) {
         output( 'Saving complete............... next: ' + this.nextFile ) ;
+        // this.fancyFilenames();
         // that.postRenderPoll(`End of async.series`)
         if ( error ) { log( 'Doh! ' + error ) ; }
       })
@@ -2420,8 +2434,7 @@ class AminoSeeNoEvil {
     }
     touchLockAndStartStream() { // saves CPU waste. delete lock when all files are saved, not just the png.
       mode("touchLockAndStartStream");
-      output("I feel like touching a mutex lock and dancing")
-
+      log("I feel like touching a mutex lock and dancing")
       if ( this.renderLock == true ) {
         output(`Thread re-entry during locking`)
         return false;
@@ -2433,12 +2446,15 @@ class AminoSeeNoEvil {
       this.initStream()
     }
     blurb() {
-      return `Started DNA render ${ this.currentFile } at ${ formatAMPM( this.startDate)}, and after ${humanizeDuration( this.runningDuration)} completed ${ nicePercent(this.percentComplete)} of the ${bytes(  this.baseChars)} file at ${bytes( this.bytesPerMs*1000)} per second. Estimated ${humanizeDuration( this.timeRemain)} to go with ${  this.genomeSize.toLocaleString()} r/DNA triplets decoded, and ${ this.pixelClock.toLocaleString()} pixels painted.
+      return `
+      Started DNA render ${ this.currentFile } at ${ formatAMPM( this.startDate)}, and after ${humanizeDuration( this.runningDuration)} completed ${ nicePercent(this.percentComplete)} of the ${bytes(  this.baseChars)} file at ${bytes( this.bytesPerMs*1000)} per second.
+      Estimated ${humanizeDuration( this.timeRemain)} to go with ${  this.genomeSize.toLocaleString()} r/DNA triplets decoded, and ${ this.pixelClock.toLocaleString()} pixels painted.
       File ${remain} / ${batchSize} issued by ${ isElectron ? 'Electron GUI' : 'Terminal CLI' } on ${ os.platform() } on ${ hostname }.
       ${ this.memToString()} currently ${this.busy()}
       CPU load:    [ ${ this.loadAverages()} ]`
     }
     tLock(cb) {
+      clearCheck();
       this.calcUpdate();
       const outski = `
       AminoSee DNA Viewer by Tom Atkinson.
@@ -2452,7 +2468,6 @@ class AminoSeeNoEvil {
 
       ${ this.blurb() }
       ${ version } ${ this.timestamp } ${ hostname }
-
       ${this.renderObjToString()}`; //////////////// <<< END OF TEMPLATE
       //////////////////////////////////////////
       this.fileWrite(
@@ -2461,7 +2476,7 @@ class AminoSeeNoEvil {
         cb
       );
       if ( this.msElapsed > 10000) {
-        termDrawImage(this.filePNG, `lock file`);
+        // termDrawImage( this.filePNG, `lock file`);
       }
       if ( !this.quiet ) {
         // term.saveCursor()
@@ -2560,11 +2575,12 @@ class AminoSeeNoEvil {
       // this.popShiftOrBust(`failed filesystem checks`);
       // } else {
       // }
+      this.prepareState(`in ${ humanizeDuration( this.raceDelay )} prepare state ` + ( this.test ? 'test mode' : 'dna mode' ) ); // <<<<-------------- THATS WHERE THE ACTION GOES
+
       // this.touchLockAndStartStream();
-      var that = this;
-      setTimeout( () => {
-        that.prepareState(`in ${ humanizeDuration( this.raceDelay )} prepare state ` + ( this.test ? 'test mode' : 'dna mode' ) ); // <<<<-------------- THATS WHERE THE ACTION GOES
-      }, this.raceDelay)
+      // var that = this;
+      // setTimeout( () => {
+      // }, this.raceDelay)
 
     }
     postRenderPoll(reason) { // renderLock on late, off early
@@ -2588,15 +2604,15 @@ class AminoSeeNoEvil {
         if ( this.test == true ) {
           this.renderLock = false;
           output(` [ Starting another cycle in ${ humanizeDuration( this.raceDelay )}`);
-            // setTimeout( () => {
-              output('runCycle ' + remain + ' lock: '+ this.renderLock)
-              if ( this.renderLock == false ) {
-                this.runCycle();
-                // cliInstance.runCycle();
-              } else {
-                log('thread re-entered just before runCycle')
-              }
-            // }, this.raceDelay)
+            setTimeout( () => {
+            output('runCycle ' + remain + ' lock: '+ this.renderLock)
+            if ( this.renderLock == false ) {
+              this.runCycle();
+              cliInstance.runCycle();
+            } else {
+              log('thread re-entered just before runCycle')
+            }
+            }, this.raceDelay)
           } else {
             output("DONE")
             this.removeLocks();
@@ -3215,15 +3231,15 @@ class AminoSeeNoEvil {
             html += `
             <!--  onmouseover="mover(this)" onmouseout="mout(this)" -->
             <tr class="pepTable" id="row_${i}" style="background-color: hsl( ${theHue} , 50%, 100%);">
-              <td style="background-color: white;"> ${ this.pepTable[i].Codon} </td>
-              <td style="background-color: rgb(${richC});"><p class="fineprint" style="background-color: black; background-color: rgba(0,0,0,0.5); color: white;">${theHue}&#xB0;</p></td>
-              <td style="background-color: rgb(${c}); color: black; font-weight: bold; "> <p class="fineprint" style="background-color: white; background-color: rgba(255,255,255,0.5); color: black;">${c}</p></td>
-              <td>${ this.pepTable[i].Histocount.toLocaleString()}</td>
-              <td>${ this.pepTable[i].Description}</td>
-              <td style="background-color: white;"><a href="images/${ imghil }" class="button" title="Amino filter: ${ thePep }"><img width="48" height="16" class="blackback" src="images/${ imghil }" alt="${ this.justNameOfDNA } ${ thePep }"></a></td>
-              <td style="background-color: white;">
-              <a href="images/${ imglin }" class="button" title="Amino filter: ${ thePep }"><img width="48" height="16" class="blackback" src="images/${ imglin }" alt="${ this.justNameOfDNA } ${ thePep }"></a>
-              </td>
+            <td style="background-color: white;"> ${ this.pepTable[i].Codon} </td>
+            <td style="background-color: rgb(${richC});"><p class="fineprint" style="background-color: black; background-color: rgba(0,0,0,0.5); color: white;">${theHue}&#xB0;</p></td>
+            <td style="background-color: rgb(${c}); color: black; font-weight: bold; "> <p class="fineprint" style="background-color: white; background-color: rgba(255,255,255,0.5); color: black;">${c}</p></td>
+            <td>${ this.pepTable[i].Histocount.toLocaleString()}</td>
+            <td>${ this.pepTable[i].Description}</td>
+            <td style="background-color: white;"><a href="images/${ imghil }" class="button" title="Amino filter: ${ thePep }"><img width="48" height="16" class="blackback" src="images/${ imghil }" alt="${ this.justNameOfDNA } ${ thePep }"></a></td>
+            <td style="background-color: white;">
+            <a href="images/${ imglin }" class="button" title="Amino filter: ${ thePep }"><img width="48" height="16" class="blackback" src="images/${ imglin }" alt="${ this.justNameOfDNA } ${ thePep }"></a>
+            </td>
             </tr>
             `
           }
@@ -3411,21 +3427,23 @@ class AminoSeeNoEvil {
           runcb(cb);
           return false;
         }
-        // this.setupHilbertFilenames();
-        // if ( this.skipExistingFile( this.fileHILBERT) == true ) {
-        //   output("Existing hilbert image found - skipping projection: " + this.fileHILBERT);
-        //   if ( this.openImage) {
-        //     bugtxt('opening');
-        //     this.openOutputs();
-        //   } else {
-        //     log("Use --image to see this in default browser")
-        //   }
-        //   this.isDiskFinHilbert = true;
-        //   this.previousImage = this.fileHILBERT;
-        //   var closure = () => { return this.fileHILBERT }
-        //   cb();
-        //   return false;
-        // }
+        this.setupHilbertFilenames();
+
+
+        if ( this.skipExistingFile( this.fileHILBERT) == true ) {
+          output("Existing hilbert image found - skipping projection: " + this.fileHILBERT);
+          if ( this.openImage) {
+            bugtxt('opening');
+            this.openOutputs();
+          } else {
+            log("Use --image to see this in default browser")
+          }
+          this.isDiskFinHilbert = true;
+          this.previousImage = this.fileHILBERT;
+          var closure = () => { return this.fileHILBERT }
+          cb();
+          return false;
+        }
         term.eraseDisplayBelow();
         mode('save hilbert');
         output(chalk.bgBlue.yellow( ` Getting in touch with my man from 1891...   ॐ    David Hilbert    ॐ    `) + this.fileHILBERT);// In the " + this.dimension + "th dimension and reduced by " + threesigbitsTolocale( shrinkFactor) );
@@ -3771,11 +3789,9 @@ class AminoSeeNoEvil {
             bugtxt("linear Save OK " +  that.storage());
             that.linearFinished();
             runcb(cb);
-
           })
           // resolve();
         }).then( bugtxt('LINEAR then') ).catch( bugtxt('LINEAR catch') );
-
         // if ( cb !== undefined ) { cb() }
         return retProm;
       }
@@ -4285,13 +4301,11 @@ class AminoSeeNoEvil {
       drawProgress() {
         this.fastUpdate();
         progato.update(  this.percentComplete ) ;
-
         if (remain >= 0 ) {
           clearTimeout( this.progTimer)
           this.progTimer = setTimeout(() => {
             if (  this.percentComplete < 0.99 &&  this.timeRemain > 2001) {
               this.drawProgress();
-              // electron.updatePercent( this.percentComplete )
             } else {
               progato.stop();
             }
@@ -4326,7 +4340,7 @@ class AminoSeeNoEvil {
           `| Next update:${ fixedWidth(6,  this.msPerUpdate .toLocaleString())}ms`,
           `| CPU: ${ fixedWidth(10, bytes( this.bytesPerMs*1000))} /sec ${ fixedWidth(5, this.codonsPerSec.toLocaleString())}K acids /sec`,
           `| Next file >>> ${maxWidth(24, this.nextFile)}`,
-          `| Codons:${ fixedWidth(14, " " +  this.genomeSize.toLocaleString())} Pixels:${ fixedWidth(10, " " + this.pixelClock.toLocaleString())} Last Acid: ${chalk.inverse.rgb(ceiling( this.red ), ceiling( this.green ), ceiling( this.blue )).bgWhite.bold( fixedWidth(16, "  " + this.aminoacid + "   ") ) } Host: ${hostname}`,
+          `| Codons:${ fixedWidth(14, " " +  this.genomeSize.toLocaleString())} Pixels:${ fixedWidth(10, " " + this.pixelClock.toLocaleString())}  Host: ${hostname}`,
           `  DNA Sample: ${ fixedWidth(60, this.rawDNA) } ${ this.showFlags()}`,
           `  RunID: ${chalk.rgb(128, 0, 0).bgWhite( this.timestamp )} acids per pixel: ${ twosigbitsTolocale( this.codonsPerPixel )}`
         ];
@@ -4361,7 +4375,12 @@ class AminoSeeNoEvil {
         term.right( this.termMarginLeft );
         output();
         if (term.height > this.termStatsHeight + this.termDisplayHeight) {
-          output(histogram(aacdata, { bar: '/', width: this.debugColumns*2, sort: true, map: aacdata.Histocount} ));
+          output(`Last Acid: ${chalk.inverse.rgb(ceiling( this.red ), ceiling( this.green ), ceiling( this.blue )).bgWhite.bold( fixedWidth(16, "  " + this.aminoacid + "   ") ) }` +
+            chalk.rgb(this.peakRed, 0, 0).inverse.bgBlue(  maxWidth(8, `R:${this.peakRed}` )) +
+            chalk.rgb(0, this.peakGreen, 0).inverse.bgRed( maxWidth(11, `G:${this.peakGreen}` )) +
+            chalk.rgb(0, 0, this.peakBlue).inverse.bgYellow(maxWidth(9, `B:${this.peakBlue}` ))
+          )
+          output( histogram(aacdata, { bar: '/', width: this.debugColumns*2, sort: true, map: aacdata.Histocount} ));
           output();
           output();
           if (this.keyboard) {
@@ -4372,1354 +4391,1348 @@ class AminoSeeNoEvil {
           // output( `pepTable ${ beautify( this.pepTable ) }` );
           // output( `${  this.rgbArray.length  } ${  this.pepTable[5].lm_array.length  }` );
           // term.up(5);
-          output(`Last red: ${ chalk.rgb(this.peakRed, 0, 0).inverse.bgBlue( minWidth(3, this.peakRed )) } Last  green : ${ chalk.rgb(0, this.peakGreen, 0).inverse.bgRed(  minWidth(3, this.peakGreen )) } Last  blue : ${ chalk.rgb(0, 0, this.peakBlue).inverse.bgYellow(  minWidth(3, this.peakBlue )) }`)
-          // term.up(this.termDisplayHeight - 2)
-        } else {
-          output();
-          output(chalk.bold.italic(`Increase the height of your terminal for realtime histogram. Genome size: ${ this.genomeSize}`));
-          output();
-        }
 
-        if ( this.renderLock == true && remain >= 0 ) { // dont update if not rendering
-          if ( this.msPerUpdate  <  this.maxMsPerUpdate ) {
-            this.msPerUpdate  += 50; // this.updates will slow over time on big jobs
-            if (this.devmode == true) {
-              this.msPerUpdate  += 100; // this.updates will slow over time on big jobs
-              if (this.debug == true) {
-                this.msPerUpdate  += 100;
+                // term.up(this.termDisplayHeight - 2)
+              } else {
+                output();
+                output(chalk.bold.italic(`Increase the height of your terminal for realtime histogram. Genome size: ${ this.genomeSize}`));
+                output();
               }
-            }
-          }
-          this.updatesTimer = setTimeout(() => {
-            log("drawing again if rendering.... " +  this.msPerUpdate )
-            if ( this.renderLock == true && remain >= 0 ) { //  status   == "stream") { // || this.updates) {
-              this.drawHistogram(); // MAKE THE HISTOGRAM AGAIN LATER
-            } else {
-              output('COLIN!')
-            }
-          },  this.msPerUpdate );
-        } else { output('DNA render done') }
-      }
-      memToString() {
-        let memReturn = `Memory load: [ `;
-          // const arr = [1, 2, 3, 4, 5, 6, 9, 7, 8, 9, 10];
-          const arr = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-          arr.reverse();
-          const used = process.memoryUsage();
-          for (let key in used) {
-            memReturn += `${key} ${Math.round(used[key] / 1024 / 1024 * 100) / 100} MB `;
-          }
-          return memReturn + " ] ";
-        }
-        loadAverages() {
-          const l0 = os.loadavg()[0];
-          const l1 = os.loadavg()[1];
-          const l2 = os.loadavg()[2];
-          return twosigbitsTolocale(l0) + " / " + twosigbitsTolocale(l1) + " / " + twosigbitsTolocale(l2);
-        }
-        highlightOrNothin() { // no highlight, no return!
-          return ( this.isHighlightSet ?  this.peptideOrNothing() + this.tripletOrNothing()  : "" )
-        }
-        peptideOrNothing() {
-          return ( this.peptide == "none" ? "" : this.peptide )
-        }
-        tripletOrNothing() {
-          return ( this.triplet == "none" ? "" : this.triplet )
-        }
-        isTriplet( obj ) {
-          const elTripo = obj.DNA;
-          const result = cleanChar(elTripo.substring(0,1)) + cleanChar(elTripo.substring(1,2))  +  cleanChar(elTripo.substring(2,3))
-          if (result.length == 3) {
-            return true;
-          } else {
-            return false;
-          }
-        }
-        isHighlightTriplet(array) {
-          return array.DNA == this.triplet;
-        }
-        isCurrentPeptide(pep) {
-          // return p.Codon == this.peptide || p.Codon == this.triplet;
-          return pep.Codon.toLowerCase() == this.peptide.toLowerCase();
-        }
-        isStartCodon(pep) {
-          return pep.Codon == "Methionine";
-        }
-        isStopCodon(pep) {
-          return (pep.Codon == "Amber" || pep.Codon == "Ochre" || pep.Codon == "Opal" );
-        }
-        isStartTOTAL(pep) {
-          return (pep.Codon == "Start Codons" )
-        }
-        isStopTOTAL(pep) {
-          return (pep.Codon == "Stop Codons" )
-        }
-        isNoncoding(pep) {
-          return pep.Codon == "Non-coding NNN"
-        }
-        isPeptide(pep) {
-          return pep.Codon == this.peptide
-        }
-        throttleOut( ratio, str){
-          if (Math.random() < this.ratio) { return str }
-          return "";
-        }
-        isNormalTriplet(normaltrip) {
-          return dnaTriplets => dnaTriplets.DNA.toUpperCase() === normaltrip.toUpperCase();
-        }
 
-        tidyTripletName(str) {
-          for ( let i =0; i < dnaTriplets.length; i++) {
-            if ( spaceTo_( dnaTriplets[i].DNA.toUpperCase() ) == spaceTo_( str.toUpperCase() ) ) {
-              return dnaTriplets[i].DNA
-            }
-          }
-          return "none";
-        }
-
-        tripletToCodon(str) {
-          this.currentTriplet = str;
-          return dnaTriplets.find( this.isTriplet).DNA;
-        }
-        tripletToHue(str) {
-          console.warn(str);
-          let hue = dnaTriplets.find( this.isTriplet).Hue;
-          if (hue !== undefined) {
-            return hue
-          } else {
-            return 120
-          }
-          return 120
-        }
-        peptideToHue(str) {
-          console.warn(`str ${str}`);
-          let peptide = this.pepTable.find( (pep) => { pep.Codon == str });
-          console.warn(peptide);
-          return peptide.Hue;
-        }
-        getCodonIndex(str) {
-          return this.pepTable.indexOf(str)
-        }
-        getTripletIndex(str) {
-          return dnaTriplets.indexOf( str )
-        }
-        // take 3 letters, convert into a Uint8ClampedArray with 4 items
-
-
-        codonToRGBA(cod) {
-          // STOP CODONS are hard coded as   index 24 in this.pepTable array       "Description": "One of Opal, Ochre, or Amber",
-          // START CODONS are hard coded as  ndex 23 in this.pepTable array       "Description": "Count of Methionine",
-          // Non-coding NNN this.triplets are hard coded as index 0 in this.pepTable array
-          this.aminoacid = "ERROR";
-          this.currentTriplet = cod;
-          this.debugFreq = this.throttledFreq(3);
-
-          let theMatch = dnaTriplets.find( this.isTriplet).DNA
-          for (let z=0; z < dnaTriplets.length; z++) {
-            if (cod == dnaTriplets[z].DNA) { // SUCCESSFUL MATCH (convert to map)
-              this.aminoacid = dnaTriplets[z].Codon;
-              dnaTriplets[z].Histocount++;
-              this.dot( this.genomeSize, this.debugFreq, `z = ${z} theMatch ${theMatch} <==> ${cod} ${this.aminoacid}`); // show each 10,000th (or so) base pair.
-
-              for (let h=0; h< this.pepTable.length; h++) { // update this.pepTable
-                if (this.aminoacid == this.pepTable[h].Codon) {
-                  this.pepTable[h].Histocount++;
-                  // this.pepTable[h].Histocount++;
-
-                  // let cindex =   this.pepTable[h].Description;
-                  let acidesc = this.pepTable[h].Description;
-                  // bugtxt(`codon index for ${ fixedWidth(20, this.aminoacid)} is ${getCodonIndex(this.aminoacid)} or acidesc = ${acidesc}`)
-                  // let startStops = -1; // for the start/stop codon histogram
-                  if (acidesc == "Stop Codons") {
-                    this.pepTable[24].Histocount++;
-                    // this.pepTable[getCodonIndex(acidesc)]
-                  } else if (acidesc == "Start Codons") {
-                    this.pepTable[23].Histocount++;
-                    // startStops = this.pepTable.indexOf("Start Codons");
+              if ( this.renderLock == true && remain >= 0 ) { // dont update if not rendering
+                if ( this.msPerUpdate  <  this.maxMsPerUpdate ) {
+                  this.msPerUpdate  += 20; // this.updates will slow over time on big jobs
+                  if (this.devmode == true) {
+                    this.msPerUpdate  += 100; // this.updates will slow over time on big jobs
+                    if (this.debug == true) {
+                      this.msPerUpdate  += 100;
+                    }
                   }
-                  break
                 }
+                this.updatesTimer = setTimeout(() => {
+                  log("drawing again if rendering.... " +  this.msPerUpdate )
+                  if ( this.renderLock == true && remain >= 0 ) { //  status   == "stream") { // || this.updates) {
+                    this.drawHistogram(); // MAKE THE HISTOGRAM AGAIN LATER
+                  } else {
+                    output('COLIN!')
+                  }
+                },  this.msPerUpdate );
+              } else { output('DNA render done') }
+            }
+            memToString() {
+              let memReturn = `Memory load: [ `;
+                // const arr = [1, 2, 3, 4, 5, 6, 9, 7, 8, 9, 10];
+                const arr = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+                arr.reverse();
+                const used = process.memoryUsage();
+                for (let key in used) {
+                  memReturn += `${key} ${Math.round(used[key] / 1024 / 1024 * 100) / 100} MB `;
+                }
+                return memReturn + " ] ";
               }
-
-              let hue = dnaTriplets[z].Hue / 360;
-              let tempcolor = hsvToRgb(hue, 1, 1);
-              //  this.red ,  this.green ,  this.blue , ALPHA
-              this.red    = tempcolor[0];
-              this.green  = tempcolor[1];
-              this.blue   = tempcolor[2];
-
-              if ( this.isHighlightSet ) {
-
-                if (this.aminoacid == this.peptide ) {
-                  this.alpha = 255;
-                  log(`isHighlightSet    ${ this.isHighlightSet}   this.aminoacid ${this.aminoacid}`)
+              loadAverages() {
+                const l0 = os.loadavg()[0];
+                const l1 = os.loadavg()[1];
+                const l2 = os.loadavg()[2];
+                return twosigbitsTolocale(l0) + " / " + twosigbitsTolocale(l1) + " / " + twosigbitsTolocale(l2);
+              }
+              highlightOrNothin() { // no highlight, no return!
+                return ( this.isHighlightSet ?  this.peptideOrNothing() + this.tripletOrNothing()  : "" )
+              }
+              peptideOrNothing() {
+                return ( this.peptide == "none" ? "" : this.peptide )
+              }
+              tripletOrNothing() {
+                return ( this.triplet == "none" ? "" : this.triplet )
+              }
+              isTriplet( obj ) {
+                const elTripo = obj.DNA;
+                const result = cleanChar(elTripo.substring(0,1)) + cleanChar(elTripo.substring(1,2))  +  cleanChar(elTripo.substring(2,3))
+                if (result.length == 3) {
+                  return true;
                 } else {
-                  this.alpha = 32; // non highlight alpha makes them almost fully translucent
-                  log(alpha);
+                  return false;
                 }
-              } else {
-                this.alpha = 255; // only custom this.peptide pngs are transparent
               }
-              return [ this.red ,  this.green ,  this.blue , this.alpha];
-            }
-          }
-          let crash;
-          if ( this.aminoacid == "ERROR" ) {
-            this.aminoacid = "ERROR " + cod;
-            crash = true;
-          } else {
-            crash = false;
-
-          }
-          // return [13,255,13,128]; // this colour means "ERROR".
-          return [0,0,0,0]; // this colour means "ERROR".
-        }
-
-
-
-
-
-
-        //PARSE SOURCE CODE
-        // https://www.npmjs.com/package/parse-apache-directory-index
-
-
-
-
-
-
-
-        // stream.pipe(tr).pipe(process.stdout);
-        /** https://stackoverflow.com/questions/13786160/copy-folder-recursively-in-node-js/26038979
-        * Look ma, it's cp -R.
-        * @param {string} src The path to the thing to copy.
-        * @param {string} dest The path to the new copy.
-        */
-        // copyRecursiveSync(src, dest) {
-        //   log(`Will try to recursive copy from ${src} to ${dest}`)
-        //   var exists = doesFileExist(src);
-        //   var stats = exists && fs.statSync(src);
-        //   var isDirectory = exists && stats.isDirectory();
-        //   var existsDest = doesFileExist(dest);
-        //   if (existsDest) {
-        //     log(`Remove the ${dest} folder or file, then I can rebuild the web-server`);
-        //     return false;
-        //   }
-        //   if (exists && isDirectory) {
-        //     var exists = doesFileExist(dest);
-        //     if (exists) {
-        //       log("Remove the /public/ folder and also /index.html, then I can rebuild the web-server");
-        //       return false;
-        //     } else {
-        //       fs.mkdirSync(dest);
-        //     }
-        //     fs.readdirSync(src).forEach(function(childItemName) {
-        //       log(childItemName);
-        //       copyRecursiveSync(path.join(src, childItemName),
-        //       path.join(dest, childItemName));
-        //     });
-        //   } else {
-        //     fs.linkSync(src, dest);
-        //   }
-        // };
-
-
-        imageStack(histogramJson) {
-          mode('imageStack')
-          let html = " ";
-          let summary = histogramJson.summary;
-          let pepTable = histogramJson.pepTable;
-          // output(beautify(summary))
-          // let name = histogramJson.summary.name;
-          // let refimage = summary.refimage;
-          // let linearimage = summary.linearimage;
-          // let i = -1;
-          let quant = pepTable.length; // Ω first command ॐ
-          //   <li>Ω <a href="images/${refimage}">Reference (combined image) <br/>
-          //  <img src="images/${refimage}" id="stack_reference" width="20%" height="20%" style="z-index: ${i}; position: fixed; top: 50%; left: 50%; transform: translate(${(i*4)-40},${(i*4)-40})" alt="${name} Reference image" title="${name} Reference image" onmouseover="mover(this)" onmouseout="mout(this)"></a></li>
-          html += `<ul id="stackOimages">
-          `;
-
-          histogramJson.pepTable.forEach(function(item) {
-            // log(item.toString());
-            let thePep = item.Codon;
-            let theHue = item.Hue;
-            let c =      hsvToRgb( theHue/360, 0.5, 1.0 );
-            let z =      item.z;
-            let i =      item.index + 1;
-            let name =   item.name;
-            let linear_master =    item.linear_master;
-            let hilbert_master =    item.hilbert_master;
-            let linear_preview =    item.linear_master;
-            let hilbert_preview =    item.hilbert_master;
-            let src = hilbert_master;
-            // this.pepTable[h].hilbert_master = this.aminoFilenameIndex(h)[0];
-            // this.pepTable[h].linear_master = this.aminoFilenameIndex(h)[1];
-            // this.pepTable[h].hilbert_preview = this.aminoFilenameIndex(h)[0];
-            // this.pepTable[h].linear_preview = this.aminoFilenameIndex(h)[1];
-
-            let vector = i - (quant/2);
-            let zoom = 3;
-            // bugtxt( src );
-            html +=  i +". ";
-            if (thePep == "Start Codons" || thePep == "Stop Codons" || thePep == "Non-coding NNN") {
-              html += `<!-- ${thePep.Codon} -->`;
-            } else {
-              html += `
-              <li>${i} <a href="images/${src}" title="${name} ${thePep}">${thePep} <br/>
-              <img src="images/${src}" id="stack_${i}" width="20%" height="20%" style="z-index: ${i}; position: fixed; z-index: ${i}; top: 50%; left: 50%; transform: translate(${(i*zoom)-100}px,${(i*zoom)-100}px)" alt="${name} ${thePep}" title="${name} ${thePep}" onmouseover="mover(${i})" onmouseout="mout(${i})"></a></li>
-              `;
-            }
-          });
-          html += `</ul> <!-- END stackOimages MA man -->`;
-          return html;
-        }
-      } // <<< --- END OF CLASS
-
-      function bugtxt(txt) { // full this.debug output
-        if (this !== undefined) {
-          if (this.quiet == false && this.debug == true && this.devmode == true && this.verbose == true)  {
-            bugout(txt);
-          } else {
-            if (this.verbose == true ) {
-              // redoLine(txt);
-            }
-          }
-        } else if (cliInstance !== undefined) {
-          if (cliInstance.quiet == false && cliInstance.debug == true && cliInstance.devmode == true && cliInstance.verbose == true)  {
-            bugout(txt);
-          } else {
-            if (cliInstance.verbose == true ) {
-              // redoLine(txt);
-            }
-          }
-        } else if (debug == true){
-          log(`bugout: ${txt}`)
-        } else {
-          // redoLine(txt)
-        }
-
-      }
-      function output(txt) {
-        if (txt === undefined) { txt = " "} else { wTitle( `${ threads.length } ${txt}` ) }
-        term.eraseLine();
-        if ( debug ) {
-          bugtxt( txt );
-        } else {
-          console.log( txt );
-        }
-        term.eraseLine();
-      }
-      function out(txt) {
-        let that = gimmeDat();
-        if ( that.quiet == false || debug ) {
-          process.stdout.write(chalk.blue(` [ `) + txt + chalk.blue(` ] `))
-        }
-      }
-      function log(txt) {
-        if (this !== undefined) {
-          if (this.quiet == false && this.devmode == true && this.verbose == true ) {
-            // output( fixedWidth(69, `devmode log: [${txt}] `));
-            // output( `devmode log: [${txt}] `);
-          } else if (this.quiet == false){
-            redoLine(txt);
-          }
-        } else if (debug == true) {
-          redoLine(txt)
-        }
-        wTitle(`${txt}`) // put it on the terminal windowbar or in tmux
-      }
-      function wTitle(txt) {
-        if (this === undefined) {
-          txt = hostname
-        }
-        txt = `${remain}/${batchSize} | $${txt} AminoSeeNoEvil @${hostname}`;
-        if (this === undefined) {
-          txt += `!![ ${txt} ]!!`;
-        } else {
-          if ( this.justNameOfDNA ) {
-            txt += `!![ ${txt} ]!!`;
-          } else {
-            txt += `!+[ ${txt} ]+!`;
-          }
-        }
-        term.windowTitle(txt);
-      }
-      function bugout(txt) {
-        if (txt === undefined) { txt = 'txt not set' }
-        // let mem = process.memoryUsage();
-        let splitScreen = "";
-        if (cliInstance !== undefined ) {
-          let debugColumns = this.debugColumns;
-          if (this.test === true) {
-            splitScreen += chalk.rgb(64,64,64).inverse( fixedWidth( debugColumns - 10,  `[Test: ${remain} ${ nicePercent(this.percentComplete) } Highlt${( this.isHighlightSet ? this.peptide + " " : " ")} >>>    `));
-          } else {
-            splitScreen += chalk.rgb(64,64,64).inverse( fixedWidth( debugColumns - 10,  `[Jbs: ${remain}  status  : ${  status } Crrnt: ${maxWidth(12, this.currentFile)} Nxt: ${maxWidth(12, this.nextFile)} ${ nicePercent(this.percentComplete) } ${ cliInstance.storage()} Highlt${( this.isHighlightSet ? this.peptide + " " : " ")} >>>    `));
-          }
-          splitScreen += fixedWidth( debugColumns,` ${txt} `);
-          term.eraseLine();
-          process.stdout.write(splitScreen);
-          // splitScreen = chalk.gray.inverse( fixedWidth( debugColumns - 10, `Cpp: ${ this.codonsPerPixel }  G: ${ this.genomeSize.toLocaleString()} Est: ${ onesigbitTolocale( this.estimatedPixels/1000000)} megapixels ${bytes(  this.baseChars )} RunID: ${ this.timestamp } H dim: ${hilbPixels[ this.dimension ]}]  ${ formatAMPM( this.now )} and ${ this.formatMs( this.now )}ms`));
-        } else if (cliInstance !== undefined){
-          let debugColumns = Math.round(term.Width / 3);
-          splitScreen += chalk.rgb(64,64,64).inverse( fixedWidth( debugColumns - 10,  `[Args: ${cliInstance.args._.length} ${ cliInstance.nicePercent()} ${ cliInstance.storage()} >>>    `));
-            splitScreen += fixedWidth( debugColumns,` ${txt} `);
-            term.eraseLine();
-            process.stdout.write(splitScreen);
-            // splitScreen = chalk.gray.inverse( fixedWidth( debugColumns - 10, ` ${ formatAMPM( Date() )} and ${ this.formatMs( Date().getTime() )}ms`));
-          } else {
-            redoLine( maxWidth( tx, txt) );
-          }
-
-          // output(splitScreen);
-        }
-        function deleteFile(file) {
-          try {
-            fs.unlinkSync(file, (err) => {
-              bugtxt("Removing file OK...")
-              if (err) { bugtxt(err)  }
-            });
-          } catch (err) {
-            bugtxt(err)
-          }
-        }
-        function termSize() {
-          tx = term.width;
-          ty = term.height
-          termPixels = (tx) * (ty-8);
-          cliInstance.termPixels = termPixels;
-
-        }
-        function destroyKeyboardUI() {
-          process.stdin.pause(); // stop eating the this.keyboard!
-          try {
-            process.stdin.setRawMode(false); // back to cooked this.mode
-          } catch(err) {
-            log(`Could not disable raw mode this.keyboard: ${err}`)
-          }
-          // process.stdin.resume(); // DONT EVEN THINK ABOUT IT.
-        }
-        function ceiling(number) {
-          number = Math.ceil(number) // round into integer
-          if (number > 255) {
-            number = 255;
-          } else if (number < 0 ){
-            number = 0;
-          }
-          return number;
-        }
-        function onesigbitTolocale(num) {
-          return (Math.round(num*10)/10).toLocaleString();
-        }
-        function twosigbitsTolocale(num){
-          return (Math.round(num*100)/100).toLocaleString();
-        }
-        function threesigbitsTolocale(num){
-          return (Math.round(num*1000)/1000).toLocaleString();
-        }
-        function variable(v, space) {
-          while (v.length < space) {
-            v = " " + v;
-          }
-          if (v.length > space) {
-            v = v.substring(1,-1);
-          }
-          return
-        }
-        function fixedRightSide(wide, str) {
-          return maxWidth(wide, minWidth(wide, str));
-        }
-        function fixedWidth(wide, str) { // return strings all the same length
-          return minWidthRight(wide, maxWidth(wide, str));
-        }
-        function maxWidth(wide, str) { // shorten it if you need to
-          if ( str === undefined) { return '0'; }
-          if (str) {
-            if (str.length > wide) { str = str.substring(0,wide) }
-          }
-          return str;
-        }
-        function minWidth(wide, str) { // make it wider
-          if ( str === undefined) { str = "*"; }
-          while(str.length < wide) { str += " " }
-          return str;
-        }
-        function minWidthRight(wide, str) { // make it wider
-          if ( str === undefined) { return ' '; }
-          while(str.length < wide) { str += " " }
-          return str;
-        }
-        function blueWhite(txt) {
-          return chalk.bgBlue.white.bold(txt);
-        }
-        function spaceTo_(str) {
-          // log(str);
-          if (str === undefined) {
-            return "";
-          } else {
-            str += "";
-            while(str.indexOf(' ') > -1) { str = str.replace(' ', '_') }
-            return str;
-          }
-        }
-
-
-        function runDemo() {
-          var that = cliInstance;
-          async.series( [
-            function( cb ) {
-              newJob('test')
-              cb()
-            },
-            function( cb ) {
-              that.openImage = true;
-              that.peptide = 'Opal'; // Blue TESTS
-              that.ratio = 'sqr';
-              that.generateTestPatterns(cb);
-              that.openOutputs();
-            },
-            function( cb ) {
-              // that.openImage = true;
-              that.peptide = 'Ochre'; // Red TESTS
-              that.ratio = 'sqr';
-              that.generateTestPatterns(cb);
-            },
-            function( cb ) {
-              // that.openImage = true;
-              that.peptide = 'Arginine'; //  PURPLE TESTS
-              that.ratio = 'sqr';
-              that.generateTestPatterns(cb);
-            },
-            function( cb ) {
-              // that.openImage = true;
-              that.peptide = 'Methionine'; //  that.green  TESTS
-              that.ratio = 'sqr';
-              that.generateTestPatterns(cb);
-            },
-            function ( cb ) {
-              this.openOutputs();
-              if ( cb !== undefined ) { cb() }
-            },
-            function( cb ) {
-              if ( webserverEnabled ) {
-                output('server started: ' +   server.start( that.outputPath ));
+              isHighlightTriplet(array) {
+                return array.DNA == this.triplet;
               }
-              that.mkRenderFolders();
-              symlinkGUI(cb);
-            }
-          ] )
-          .exec( function( error ) {
-            if ( error ) { log( 'Doh!' ) ; }
-            else { log( 'WEEEEE DONE Yay! Done!' ) ; }
-          } ) ;
+              isCurrentPeptide(pep) {
+                // return p.Codon == this.peptide || p.Codon == this.triplet;
+                return pep.Codon.toLowerCase() == this.peptide.toLowerCase();
+              }
+              isStartCodon(pep) {
+                return pep.Codon == "Methionine";
+              }
+              isStopCodon(pep) {
+                return (pep.Codon == "Amber" || pep.Codon == "Ochre" || pep.Codon == "Opal" );
+              }
+              isStartTOTAL(pep) {
+                return (pep.Codon == "Start Codons" )
+              }
+              isStopTOTAL(pep) {
+                return (pep.Codon == "Stop Codons" )
+              }
+              isNoncoding(pep) {
+                return pep.Codon == "Non-coding NNN"
+              }
+              isPeptide(pep) {
+                return pep.Codon == this.peptide
+              }
+              throttleOut( ratio, str){
+                if (Math.random() < this.ratio) { return str }
+                return "";
+              }
+              isNormalTriplet(normaltrip) {
+                return dnaTriplets => dnaTriplets.DNA.toUpperCase() === normaltrip.toUpperCase();
+              }
 
-        }
-        function setupPrefs() {
-          let o = getOutputFolder();
-          log(`output = ${o}`);
-          projectprefs = new Preferences('nz.funk.aminosee.project', {
-            aminosee: {
-              opens: 0,
-              genomes: [ `megabase`, '50KB_TestPattern' ],
-              url: `http://localhost:4321`
-            }
-          }, {
-            encrypt: false,
-            file: path.resolve( o + '/aminosee_project.conf'),
-            format: 'yaml'
-          });
+              tidyTripletName(str) {
+                for ( let i =0; i < dnaTriplets.length; i++) {
+                  if ( spaceTo_( dnaTriplets[i].DNA.toUpperCase() ) == spaceTo_( str.toUpperCase() ) ) {
+                    return dnaTriplets[i].DNA
+                  }
+                }
+                return "none";
+              }
 
-          userprefs = new Preferences('nz.funk.aminosee.user', {
-            aminosee: {
-              cliruns: 0,
-              guiruns: 0,
-              gbprocessed: 0,
-              completed: 0
-            }
-          }, {
-            encrypt: false,
-            file: path.resolve( os.homedir(), '.config/preferences/nz.funk.aminosee.conf'),
-            format: 'yaml'
-          });
-          // Preferences can be accessed directly
-          userprefs.aminosee.cliruns++; // increment run counter. for a future high score table stat and things maybe.
-          cliruns = userprefs.aminosee.cliruns;
-          gbprocessed  = userprefs.aminosee.gbprocessed;
-          genomes = projectprefs.aminosee.genomes;
-          url = projectprefs.aminosee.url;
-          return [ userprefs, projectprefs ]
-        }
-        function logo() {
-          return `${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196).inverse("See")}${chalk.rgb(128,128,128).inverse("No")}${chalk.grey.inverse("Evil")}       v${chalk.rgb(255,255,0).bgBlue(version)}`;
-          // process.stdout.write(`v${chalk.rgb(255,255,0).bgBlue(version)}`);
-        }
-        function removeLineBreaks(txt) {
-          return txt.replace(/(\r\n\t|\n|\r\t)/gm,"");
-        }
-        // remove anything that isn't ATCG, convert U to T
-        function cleanChar(c) {
-          let char = c.toUpperCase();
-          if (char == "A" || char == "C" || char == "G" || char == "T" || char == "U") {
-            if (char == "U") {
-              return "T"; // convert RNA into DNA
-            } else {
-              return char; // add it to the clean string
-            }
-          } else {
-            return "."; // remove line breaks etc. also helps  this.error detect codons.
-          }
-        }
-
-        /**
-        * Converts an RGB color value to HSL. Conversion formula
-        * adapted from http://en.wikipedia.org/wiki/HSL_color_space.
-        * Assumes r, g, and b are contained in the set [0, 255] and
-        * returns h, s, and l in the set [0, 1].
-        *
-        * @param   Number  r       The Red color value
-        * @param   Number  g       The  this.green  color value
-        * @param   Number  b       The  this.blue  color value
-        * @return  Array           The HSL representation
-        */
-        function rgbToHsl(r, g, b) {
-          r /= 255, g /= 255, b /= 255;
-
-          var max = Math.max(r, g, b), min = Math.min(r, g, b);
-          var hue, s, l = (max + min) / 2;
-
-          if (max == min) {
-            hue = s = 0; // achromatic
-          } else {
-            var d = max - min;
-            s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-
-            switch (max) {
-              case r: hue = (g - b) / d + (g < b ? 6 : 0); break;
-              case g: hue = (b - r) / d + 2; break;
-              case b: hue = (r - g) / d + 4; break;
-            }
-
-            hue /= 6;
-          }
-
-          return [ hue, s, l ];
-        }
-
-        /**
-        * Converts an HSL color value to RGB. Conversion formula
-        * adapted from http://en.wikipedia.org/wiki/HSL_color_space.
-        * Assumes h, s, and l are contained in the set [0, 1] and
-        * returns r, g, and b in the set [0, 255].
-        *
-        * @param   Number  h       The hue
-        * @param   Number  s       The saturation
-        * @param   Number  l       The lightness
-        * @return  Array           The RGB representation
-        */
-        function hslToRgb(hue, s, l) {
-          var r, g, b;
-
-          if (s == 0) {
-            r = g = b = l; // achromatic
-          } else {
-
-
-            var q = l < 0.5 ? l * (1 + s) : l + s - l * s;
-            var p = 2 * l - q;
-
-            r = hue2rgb(p, q, hue + 1/3);
-            g = hue2rgb(p, q, hue);
-            b = hue2rgb(p, q, hue - 1/3);
-          }
-
-          return [ r * 255, g * 255, b * 255 ];
-        }
-        function hue2rgb(p, q, t) {
-          if (t < 0) t += 1;
-          if (t > 1) t -= 1;
-          if (t < 1/6) return p + (q - p) * 6 * t;
-          if (t < 1/2) return q;
-          if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
-          return p;
-        }
-        /**
-        * Converts an RGB color value to HSV. Conversion formula
-        * adapted from http://en.wikipedia.org/wiki/HSV_color_space.
-        * Assumes r, g, and b are contained in the set [0, 255] and
-        * returns h, s, and v in the set [0, 1].
-        *
-        * @param   Number  r       The Red color value
-        * @param   Number  g       The  this.green  color value
-        * @param   Number  b       The  this.blue  color value
-        * @return  Array           The HSV representation
-        */
-        function rgbToHsv(r, g, b) {
-          r /= 255, g /= 255, b /= 255;
-
-          var max = Math.max(r, g, b), min = Math.min(r, g, b);
-          var h, s, v = max;
-
-          var d = max - min;
-          s = max == 0 ? 0 : d / max;
-
-          if (max == min) {
-            h = 0; // achromatic
-          } else {
-            switch (max) {
-              case r: h = (g - b) / d + (g < b ? 6 : 0); break;
-              case g: h = (b - r) / d + 2; break;
-              case b: h = (r - g) / d + 4; break;
-            }
-
-            h /= 6;
-          }
-
-          return [ h, s, v ];
-        }
-
-        /**
-        * Converts an HSV color value to RGB. Conversion formula
-        * adapted from http://en.wikipedia.org/wiki/HSV_color_space.
-        * Assumes h, s, and v are contained in the set [0, 1] and
-        * returns r, g, and b in the set [0, 255].
-        *
-        * @param   Number  h       The hue
-        * @param   Number  s       The saturation
-        * @param   Number  v       The value
-        * @return  Array           The RGB representation
-        */
-        function hsvToRgb(h, s, v) {
-          var r, g, b;
-
-          var i = Math.floor(h * 6);
-          var f = h * 6 - i;
-          var p = v * (1 - s);
-          var q = v * (1 - f * s);
-          var t = v * (1 - (1 - f) * s);
-
-          switch (i % 6) {
-            case 0: r = v, g = t, b = p; break;
-            case 1: r = q, g = v, b = p; break;
-            case 2: r = p, g = v, b = t; break;
-            case 3: r = p, g = q, b = v; break;
-            case 4: r = t, g = p, b = v; break;
-            case 5: r = v, g = p, b = q; break;
-          }
-
-          return [ Math.round(r * 255), Math.round(g * 255), Math.round(b * 255) ];
-        }
-
-        // source: https://github.com/oliver-moran/jimp/blob/master/packages/core/src/index.js#L117
-        // function isRawRGBAData(obj) {
-        //   return (
-        //     obj &&
-        //     typeof obj === 'object' &&
-        //     typeof obj.width === 'number' &&
-        //     typeof obj.height === 'number' &&
-        //     (Buffer.isBuffer(obj.data) ||
-        //     obj.data instanceof Uint8Array ||
-        //     (typeof Uint8ClampedArray === 'function' &&
-        //     obj.data instanceof Uint8ClampedArray)) &&
-        //     (obj.data.length === obj.width * obj.height * 4 ||
-        //       obj.data.length === obj.width * obj.height * 3)
-        //     );
-        //   }
-        function basename(f) {
-          return path.basename(f);
-          // if (f === undefined) { f = "was_not_set";  console.warn(f); }
-          // return f.replace(/^.*[\\\/]/, '');
-        }
-
-
-
-        function fileSystemChecks(file) { // make sure file is writable or folder exists etc
-          let problem = false;
-          let name = basename(file)
-          let msg = `Stats for file ${name}` + lineBreak;
-          if (file === undefined) { return false; }
-          if (!doesFileExist(file)) {
-            file = path.resolve(file);
-          }
-          if (!doesFileExist(file)) {
-            return false;
-          }
-          let isDir = doesFolderExist(file);
-
-          try {
-            // Check if the file is ACTUALLY FOLDER.
-            isDir ? msg += 'is not a folder, ' : msg += 'is a folder (will re-issue the job as ), '
-
-            if (!isDir) { ///////// ONLY FILES
-              // Check if the file exists in the current directory.
-              fs.access(file, fs.constants.F_OK, (err) => {
-                if(err) {  msg +=  'does not exist, '   } else  { msg += 'exists, '  }
-              });
-
-              // Check if the file is readable.
-              fs.access(file, fs.constants.R_OK, (err) => {
-                if(err) {  msg +=  'is not readable, '  } else  { msg += 'is readable, ' }
-              });
-
-              // Check if the file is writable.
-              fs.access(file, fs.constants.W_OK, (err) => {
-                if(err) {  msg +=  'is not writable, '} else  { msg += 'is writeable, '  }
-              });
-
-              // Check if the file exists in the current directory, and if it is writable.
-              fs.access(file, fs.constants.F_OK | fs.constants.W_OK, (err) => {
-                if (err) {
-                  msg += 'does not exist or is read-only, '
+              tripletToCodon(str) {
+                this.currentTriplet = str;
+                return dnaTriplets.find( this.isTriplet).DNA;
+              }
+              tripletToHue(str) {
+                console.warn(str);
+                let hue = dnaTriplets.find( this.isTriplet).Hue;
+                if (hue !== undefined) {
+                  return hue
                 } else {
-                  msg += `exists, and it is writable, `
+                  return 120
                 }
+                return 120
+              }
+              peptideToHue(str) {
+                console.warn(`str ${str}`);
+                let peptide = this.pepTable.find( (pep) => { pep.Codon == str });
+                console.warn(peptide);
+                return peptide.Hue;
+              }
+              getCodonIndex(str) {
+                return this.pepTable.indexOf(str)
+              }
+              getTripletIndex(str) {
+                return dnaTriplets.indexOf( str )
+              }
+              // take 3 letters, convert into a Uint8ClampedArray with 4 items
+
+
+              codonToRGBA(cod) {
+                // STOP CODONS are hard coded as   index 24 in this.pepTable array       "Description": "One of Opal, Ochre, or Amber",
+                // START CODONS are hard coded as  ndex 23 in this.pepTable array       "Description": "Count of Methionine",
+                // Non-coding NNN this.triplets are hard coded as index 0 in this.pepTable array
+                this.aminoacid = "ERROR";
+                this.currentTriplet = cod;
+                this.debugFreq = this.throttledFreq(3);
+
+                let theMatch = dnaTriplets.find( this.isTriplet).DNA
+                for (let z=0; z < dnaTriplets.length; z++) {
+                  if (cod == dnaTriplets[z].DNA) { // SUCCESSFUL MATCH (convert to map)
+                    this.aminoacid = dnaTriplets[z].Codon;
+                    dnaTriplets[z].Histocount++;
+                    this.dot( this.genomeSize, this.debugFreq, `z = ${z} theMatch ${theMatch} <==> ${cod} ${this.aminoacid}`); // show each 10,000th (or so) base pair.
+
+                    for (let h=0; h< this.pepTable.length; h++) { // update this.pepTable
+                      if (this.aminoacid == this.pepTable[h].Codon) {
+                        this.pepTable[h].Histocount++;
+                        // this.pepTable[h].Histocount++;
+
+                        // let cindex =   this.pepTable[h].Description;
+                        let acidesc = this.pepTable[h].Description;
+                        // bugtxt(`codon index for ${ fixedWidth(20, this.aminoacid)} is ${getCodonIndex(this.aminoacid)} or acidesc = ${acidesc}`)
+                        // let startStops = -1; // for the start/stop codon histogram
+                        if (acidesc == "Stop Codons") {
+                          this.pepTable[24].Histocount++;
+                          // this.pepTable[getCodonIndex(acidesc)]
+                        } else if (acidesc == "Start Codons") {
+                          this.pepTable[23].Histocount++;
+                          // startStops = this.pepTable.indexOf("Start Codons");
+                        }
+                        break
+                      }
+                    }
+
+                    let hue = dnaTriplets[z].Hue / 360;
+                    let tempcolor = hsvToRgb(hue, 1, 1);
+                    //  this.red ,  this.green ,  this.blue , ALPHA
+                    this.red    = tempcolor[0];
+                    this.green  = tempcolor[1];
+                    this.blue   = tempcolor[2];
+
+                    if ( this.isHighlightSet ) {
+
+                      if (this.aminoacid == this.peptide ) {
+                        this.alpha = 255;
+                        log(`isHighlightSet    ${ this.isHighlightSet}   this.aminoacid ${this.aminoacid}`)
+                      } else {
+                        this.alpha = 32; // non highlight alpha makes them almost fully translucent
+                        log(alpha);
+                      }
+                    } else {
+                      this.alpha = 255; // only custom this.peptide pngs are transparent
+                    }
+                    return [ this.red ,  this.green ,  this.blue , this.alpha];
+                  }
+                }
+                let crash;
+                if ( this.aminoacid == "ERROR" ) {
+                  this.aminoacid = "ERROR " + cod;
+                  crash = true;
+                } else {
+                  crash = false;
+
+                }
+                // return [13,255,13,128]; // this colour means "ERROR".
+                return [0,0,0,0]; // this colour means "ERROR".
+              }
+
+
+
+
+
+
+              //PARSE SOURCE CODE
+              // https://www.npmjs.com/package/parse-apache-directory-index
+
+
+
+
+
+
+
+              // stream.pipe(tr).pipe(process.stdout);
+              /** https://stackoverflow.com/questions/13786160/copy-folder-recursively-in-node-js/26038979
+              * Look ma, it's cp -R.
+              * @param {string} src The path to the thing to copy.
+              * @param {string} dest The path to the new copy.
+              */
+              // copyRecursiveSync(src, dest) {
+              //   log(`Will try to recursive copy from ${src} to ${dest}`)
+              //   var exists = doesFileExist(src);
+              //   var stats = exists && fs.statSync(src);
+              //   var isDirectory = exists && stats.isDirectory();
+              //   var existsDest = doesFileExist(dest);
+              //   if (existsDest) {
+              //     log(`Remove the ${dest} folder or file, then I can rebuild the web-server`);
+              //     return false;
+              //   }
+              //   if (exists && isDirectory) {
+              //     var exists = doesFileExist(dest);
+              //     if (exists) {
+              //       log("Remove the /public/ folder and also /index.html, then I can rebuild the web-server");
+              //       return false;
+              //     } else {
+              //       fs.mkdirSync(dest);
+              //     }
+              //     fs.readdirSync(src).forEach(function(childItemName) {
+              //       log(childItemName);
+              //       copyRecursiveSync(path.join(src, childItemName),
+              //       path.join(dest, childItemName));
+              //     });
+              //   } else {
+              //     fs.linkSync(src, dest);
+              //   }
+              // };
+
+
+              imageStack(histogramJson) {
+                mode('imageStack')
+                let html = " ";
+                let summary = histogramJson.summary;
+                let pepTable = histogramJson.pepTable;
+                // output(beautify(summary))
+                // let name = histogramJson.summary.name;
+                // let refimage = summary.refimage;
+                // let linearimage = summary.linearimage;
+                // let i = -1;
+                let quant = pepTable.length; // Ω first command ॐ
+                //   <li>Ω <a href="images/${refimage}">Reference (combined image) <br/>
+                //  <img src="images/${refimage}" id="stack_reference" width="20%" height="20%" style="z-index: ${i}; position: fixed; top: 50%; left: 50%; transform: translate(${(i*4)-40},${(i*4)-40})" alt="${name} Reference image" title="${name} Reference image" onmouseover="mover(this)" onmouseout="mout(this)"></a></li>
+                html += `<ul id="stackOimages">
+                `;
+
+                histogramJson.pepTable.forEach(function(item) {
+                  // log(item.toString());
+                  let thePep = item.Codon;
+                  let theHue = item.Hue;
+                  let c =      hsvToRgb( theHue/360, 0.5, 1.0 );
+                  let z =      item.z;
+                  let i =      item.index + 1;
+                  let name =   item.name;
+                  let linear_master =    item.linear_master;
+                  let hilbert_master =    item.hilbert_master;
+                  let linear_preview =    item.linear_master;
+                  let hilbert_preview =    item.hilbert_master;
+                  let src = hilbert_master;
+                  // this.pepTable[h].hilbert_master = this.aminoFilenameIndex(h)[0];
+                  // this.pepTable[h].linear_master = this.aminoFilenameIndex(h)[1];
+                  // this.pepTable[h].hilbert_preview = this.aminoFilenameIndex(h)[0];
+                  // this.pepTable[h].linear_preview = this.aminoFilenameIndex(h)[1];
+
+                  let vector = i - (quant/2);
+                  let zoom = 3;
+                  // bugtxt( src );
+                  html +=  i +". ";
+                  if (thePep == "Start Codons" || thePep == "Stop Codons" || thePep == "Non-coding NNN") {
+                    html += `<!-- ${thePep.Codon} -->`;
+                  } else {
+                    html += `
+                    <li>${i} <a href="images/${src}" title="${name} ${thePep}">${thePep} <br/>
+                    <img src="images/${src}" id="stack_${i}" width="20%" height="20%" style="z-index: ${i}; position: fixed; z-index: ${i}; top: 50%; left: 50%; transform: translate(${(i*zoom)-100}px,${(i*zoom)-100}px)" alt="${name} ${thePep}" title="${name} ${thePep}" onmouseover="mover(${i})" onmouseout="mout(${i})"></a></li>
+                    `;
+                  }
+                });
+                html += `</ul> <!-- END stackOimages MA man -->`;
+                return html;
+              }
+            } // <<< --- END OF CLASS
+
+            function bugtxt(txt) { // full this.debug output
+              if (this !== undefined) {
+                if (this.quiet == false && this.debug == true && this.devmode == true && this.verbose == true)  {
+                  bugout(txt);
+                } else {
+                  if (this.verbose == true ) {
+                    // redoLine(txt);
+                  }
+                }
+              } else if (cliInstance !== undefined) {
+                if (cliInstance.quiet == false && cliInstance.debug == true && cliInstance.devmode == true && cliInstance.verbose == true)  {
+                  bugout(txt);
+                } else {
+                  if (cliInstance.verbose == true ) {
+                    // redoLine(txt);
+                  }
+                }
+              } else if (debug == true){
+                log(`bugout: ${txt}`)
+              } else {
+                // redoLine(txt)
+              }
+
+            }
+            function output(txt) {
+              if (txt === undefined) { txt = " "} else { wTitle( `${ threads.length } ${txt}` ) }
+              term.eraseLine();
+              if ( debug ) {
+                bugtxt( txt );
+              } else {
+                console.log( txt );
+              }
+              term.eraseLine();
+            }
+            function out(txt) {
+              let that = gimmeDat();
+              if ( that.quiet == false || debug ) {
+                process.stdout.write(chalk.blue(` [ `) + txt + chalk.blue(` ] `))
+              }
+            }
+            function log(txt) {
+              if (this !== undefined) {
+                if (this.quiet == false && this.devmode == true && this.verbose == true ) {
+                  // output( fixedWidth(69, `devmode log: [${txt}] `));
+                  // output( `devmode log: [${txt}] `);
+                } else if (this.quiet == false){
+                  redoLine(txt);
+                }
+              } else if (debug == true) {
+                redoLine(txt)
+              }
+              wTitle(`${txt}`) // put it on the terminal windowbar or in tmux
+            }
+            function wTitle(txt) {
+              if (this === undefined) {
+                txt = hostname
+              }
+              txt = `${remain}/${batchSize} | $${txt} AminoSeeNoEvil @${hostname}`;
+              if (this === undefined) {
+                txt += `!![ ${txt} ]!!`;
+              } else {
+                if ( this.justNameOfDNA ) {
+                  txt += `!![ ${txt} ]!!`;
+                } else {
+                  txt += `!+[ ${txt} ]+!`;
+                }
+              }
+              term.windowTitle(txt);
+            }
+            function bugout(txt) {
+              if (txt === undefined) { txt = 'txt not set' }
+              // let mem = process.memoryUsage();
+              let splitScreen = "";
+              if (cliInstance !== undefined ) {
+                let debugColumns = this.debugColumns;
+                if (this.test === true) {
+                  splitScreen += chalk.rgb(64,64,64).inverse( fixedWidth( debugColumns - 10,  `[Test: ${remain} ${ nicePercent(this.percentComplete) } Highlt${( this.isHighlightSet ? this.peptide + " " : " ")} >>>    `));
+                } else {
+                  splitScreen += chalk.rgb(64,64,64).inverse( fixedWidth( debugColumns - 10,  `[Jbs: ${remain}  status  : ${  status } Crrnt: ${maxWidth(12, this.currentFile)} Nxt: ${maxWidth(12, this.nextFile)} ${ nicePercent(this.percentComplete) } ${ cliInstance.storage()} Highlt${( this.isHighlightSet ? this.peptide + " " : " ")} >>>    `));
+                }
+                splitScreen += fixedWidth( debugColumns,` ${txt} `);
+                term.eraseLine();
+                process.stdout.write(splitScreen);
+                // splitScreen = chalk.gray.inverse( fixedWidth( debugColumns - 10, `Cpp: ${ this.codonsPerPixel }  G: ${ this.genomeSize.toLocaleString()} Est: ${ onesigbitTolocale( this.estimatedPixels/1000000)} megapixels ${bytes(  this.baseChars )} RunID: ${ this.timestamp } H dim: ${hilbPixels[ this.dimension ]}]  ${ formatAMPM( this.now )} and ${ this.formatMs( this.now )}ms`));
+              } else if (cliInstance !== undefined){
+                let debugColumns = Math.round(term.Width / 3);
+                splitScreen += chalk.rgb(64,64,64).inverse( fixedWidth( debugColumns - 10,  `[Args: ${cliInstance.args._.length} ${ cliInstance.nicePercent()} ${ cliInstance.storage()} >>>    `));
+                  splitScreen += fixedWidth( debugColumns,` ${txt} `);
+                  term.eraseLine();
+                  process.stdout.write(splitScreen);
+                  // splitScreen = chalk.gray.inverse( fixedWidth( debugColumns - 10, ` ${ formatAMPM( Date() )} and ${ this.formatMs( Date().getTime() )}ms`));
+                } else {
+                  redoLine( maxWidth( tx, txt) );
+                }
+
+                // output(splitScreen);
+              }
+              function deleteFile(file) {
+                try {
+                  fs.unlinkSync(file, (err) => {
+                    bugtxt("Removing file OK...")
+                    if (err) { bugtxt(err)  }
+                  });
+                } catch (err) {
+                  bugtxt(err)
+                }
+              }
+              function termSize() {
+                tx = term.width;
+                ty = term.height
+                termPixels = (tx) * (ty-8);
+                cliInstance.termPixels = termPixels;
+
+              }
+              function destroyKeyboardUI() {
+                process.stdin.pause(); // stop eating the this.keyboard!
+                try {
+                  process.stdin.setRawMode(false); // back to cooked this.mode
+                } catch(err) {
+                  log(`Could not disable raw mode this.keyboard: ${err}`)
+                }
+                // process.stdin.resume(); // DONT EVEN THINK ABOUT IT.
+              }
+              function ceiling(number) {
+                number = Math.ceil(number) // round into integer
+                if (number > 255) {
+                  number = 255;
+                } else if (number < 0 ){
+                  number = 0;
+                }
+                return number;
+              }
+              function onesigbitTolocale(num) {
+                return (Math.round(num*10)/10).toLocaleString();
+              }
+              function twosigbitsTolocale(num){
+                return (Math.round(num*100)/100).toLocaleString();
+              }
+              function threesigbitsTolocale(num){
+                return (Math.round(num*1000)/1000).toLocaleString();
+              }
+              function variable(v, space) {
+                while (v.length < space) {
+                  v = " " + v;
+                }
+                if (v.length > space) {
+                  v = v.substring(1,-1);
+                }
+                return
+              }
+              function fixedRightSide(wide, str) {
+                return maxWidth(wide, minWidth(wide, str));
+              }
+              function fixedWidth(wide, str) { // return strings all the same length
+                return minWidthRight(wide, maxWidth(wide, str));
+              }
+              function maxWidth(wide, str) { // shorten it if you need to
+                if ( str === undefined) { return '0'; }
+                if (str) {
+                  if (str.length > wide) { str = str.substring(0,wide) }
+                }
+                return str;
+              }
+              function minWidth(wide, str) { // make it wider
+                str = '***' + str;
+                if ( str === undefined) { str = " "; }
+                while(str.length < wide) { str += "0" }
+                return str;
+              }
+              function minWidthRight(wide, str) { // make it wider
+                if ( str === undefined) { return ' '; }
+                while(str.length < wide) { str += " " }
+                return str;
+              }
+              function blueWhite(txt) {
+                return chalk.bgBlue.white.bold(txt);
+              }
+              function spaceTo_(str) {
+                // log(str);
+                if (str === undefined) {
+                  return "";
+                } else {
+                  str += "";
+                  while(str.indexOf(' ') > -1) { str = str.replace(' ', '_') }
+                  return str;
+                }
+              }
+
+
+              function runDemo() {
+                var that = cliInstance;
+                async.series( [
+                  function( cb ) {
+                    newJob('test')
+                    cb()
+                  },
+                  function( cb ) {
+                    that.openImage = true;
+                    that.peptide = 'Opal'; // Blue TESTS
+                    that.ratio = 'sqr';
+                    that.generateTestPatterns(cb);
+                    that.openOutputs();
+                  },
+                  function( cb ) {
+                    // that.openImage = true;
+                    that.peptide = 'Ochre'; // Red TESTS
+                    that.ratio = 'sqr';
+                    that.generateTestPatterns(cb);
+                  },
+                  function( cb ) {
+                    // that.openImage = true;
+                    that.peptide = 'Arginine'; //  PURPLE TESTS
+                    that.ratio = 'sqr';
+                    that.generateTestPatterns(cb);
+                  },
+                  function( cb ) {
+                    // that.openImage = true;
+                    that.peptide = 'Methionine'; //  that.green  TESTS
+                    that.ratio = 'sqr';
+                    that.generateTestPatterns(cb);
+                  },
+                  function ( cb ) {
+                    this.openOutputs();
+                    if ( cb !== undefined ) { cb() }
+                  },
+                  function( cb ) {
+                    if ( webserverEnabled ) {
+                      output('server started: ' +   server.start( that.outputPath ));
+                    }
+                    that.mkRenderFolders();
+                    symlinkGUI(cb);
+                  }
+                ] )
+                .exec( function( error ) {
+                  if ( error ) { log( 'Doh!' ) ; }
+                  else { log( 'WEEEEE DONE Yay! Done!' ) ; }
+                } ) ;
+
+              }
+              function setupPrefs() {
+                let o = getOutputFolder();
+                log(`output = ${o}`);
+                projectprefs = new Preferences('nz.funk.aminosee.project', {
+                  aminosee: {
+                    opens: 0,
+                    genomes: [ `megabase`, '50KB_TestPattern' ],
+                    url: `http://localhost:4321`
+                  }
+                }, {
+                  encrypt: false,
+                  file: path.resolve( o + '/aminosee_project.conf'),
+                  format: 'yaml'
+                });
+
+                userprefs = new Preferences('nz.funk.aminosee.user', {
+                  aminosee: {
+                    cliruns: 0,
+                    guiruns: 0,
+                    gbprocessed: 0,
+                    completed: 0
+                  }
+                }, {
+                  encrypt: false,
+                  file: path.resolve( os.homedir(), '.config/preferences/nz.funk.aminosee.conf'),
+                  format: 'yaml'
+                });
+                // Preferences can be accessed directly
+                userprefs.aminosee.cliruns++; // increment run counter. for a future high score table stat and things maybe.
+                cliruns = userprefs.aminosee.cliruns;
+                gbprocessed  = userprefs.aminosee.gbprocessed;
+                genomes = projectprefs.aminosee.genomes;
+                url = projectprefs.aminosee.url;
+                return [ userprefs, projectprefs ]
+              }
+              function logo() {
+                return `${chalk.rgb(255, 255, 255).inverse("Amino")}${chalk.rgb(196,196,196).inverse("See")}${chalk.rgb(128,128,128).inverse("No")}${chalk.grey.inverse("Evil")}       v${chalk.rgb(255,255,0).bgBlue(version)}`;
+                // process.stdout.write(`v${chalk.rgb(255,255,0).bgBlue(version)}`);
+              }
+              function removeLineBreaks(txt) {
+                return txt.replace(/(\r\n\t|\n|\r\t)/gm,"");
+              }
+              // remove anything that isn't ATCG, convert U to T
+              function cleanChar(c) {
+                let char = c.toUpperCase();
+                if (char == "A" || char == "C" || char == "G" || char == "T" || char == "U") {
+                  if (char == "U") {
+                    return "T"; // convert RNA into DNA
+                  } else {
+                    return char; // add it to the clean string
+                  }
+                } else {
+                  return "."; // remove line breaks etc. also helps  this.error detect codons.
+                }
+              }
+
+              /**
+              * Converts an RGB color value to HSL. Conversion formula
+              * adapted from http://en.wikipedia.org/wiki/HSL_color_space.
+              * Assumes r, g, and b are contained in the set [0, 255] and
+              * returns h, s, and l in the set [0, 1].
+              *
+              * @param   Number  r       The Red color value
+              * @param   Number  g       The  this.green  color value
+              * @param   Number  b       The  this.blue  color value
+              * @return  Array           The HSL representation
+              */
+              function rgbToHsl(r, g, b) {
+                r /= 255, g /= 255, b /= 255;
+
+                var max = Math.max(r, g, b), min = Math.min(r, g, b);
+                var hue, s, l = (max + min) / 2;
+
+                if (max == min) {
+                  hue = s = 0; // achromatic
+                } else {
+                  var d = max - min;
+                  s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+
+                  switch (max) {
+                    case r: hue = (g - b) / d + (g < b ? 6 : 0); break;
+                    case g: hue = (b - r) / d + 2; break;
+                    case b: hue = (r - g) / d + 4; break;
+                  }
+
+                  hue /= 6;
+                }
+
+                return [ hue, s, l ];
+              }
+
+              /**
+              * Converts an HSL color value to RGB. Conversion formula
+              * adapted from http://en.wikipedia.org/wiki/HSL_color_space.
+              * Assumes h, s, and l are contained in the set [0, 1] and
+              * returns r, g, and b in the set [0, 255].
+              *
+              * @param   Number  h       The hue
+              * @param   Number  s       The saturation
+              * @param   Number  l       The lightness
+              * @return  Array           The RGB representation
+              */
+              function hslToRgb(hue, s, l) {
+                var r, g, b;
+
+                if (s == 0) {
+                  r = g = b = l; // achromatic
+                } else {
+
+
+                  var q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+                  var p = 2 * l - q;
+
+                  r = hue2rgb(p, q, hue + 1/3);
+                  g = hue2rgb(p, q, hue);
+                  b = hue2rgb(p, q, hue - 1/3);
+                }
+
+                return [ r * 255, g * 255, b * 255 ];
+              }
+              function hue2rgb(p, q, t) {
+                if (t < 0) t += 1;
+                if (t > 1) t -= 1;
+                if (t < 1/6) return p + (q - p) * 6 * t;
+                if (t < 1/2) return q;
+                if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+                return p;
+              }
+              /**
+              * Converts an RGB color value to HSV. Conversion formula
+              * adapted from http://en.wikipedia.org/wiki/HSV_color_space.
+              * Assumes r, g, and b are contained in the set [0, 255] and
+              * returns h, s, and v in the set [0, 1].
+              *
+              * @param   Number  r       The Red color value
+              * @param   Number  g       The  this.green  color value
+              * @param   Number  b       The  this.blue  color value
+              * @return  Array           The HSV representation
+              */
+              function rgbToHsv(r, g, b) {
+                r /= 255, g /= 255, b /= 255;
+
+                var max = Math.max(r, g, b), min = Math.min(r, g, b);
+                var h, s, v = max;
+
+                var d = max - min;
+                s = max == 0 ? 0 : d / max;
+
+                if (max == min) {
+                  h = 0; // achromatic
+                } else {
+                  switch (max) {
+                    case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+                    case g: h = (b - r) / d + 2; break;
+                    case b: h = (r - g) / d + 4; break;
+                  }
+
+                  h /= 6;
+                }
+
+                return [ h, s, v ];
+              }
+
+              /**
+              * Converts an HSV color value to RGB. Conversion formula
+              * adapted from http://en.wikipedia.org/wiki/HSV_color_space.
+              * Assumes h, s, and v are contained in the set [0, 1] and
+              * returns r, g, and b in the set [0, 255].
+              *
+              * @param   Number  h       The hue
+              * @param   Number  s       The saturation
+              * @param   Number  v       The value
+              * @return  Array           The RGB representation
+              */
+              function hsvToRgb(h, s, v) {
+                var r, g, b;
+
+                var i = Math.floor(h * 6);
+                var f = h * 6 - i;
+                var p = v * (1 - s);
+                var q = v * (1 - f * s);
+                var t = v * (1 - (1 - f) * s);
+
+                switch (i % 6) {
+                  case 0: r = v, g = t, b = p; break;
+                  case 1: r = q, g = v, b = p; break;
+                  case 2: r = p, g = v, b = t; break;
+                  case 3: r = p, g = q, b = v; break;
+                  case 4: r = t, g = p, b = v; break;
+                  case 5: r = v, g = p, b = q; break;
+                }
+
+                return [ Math.round(r * 255), Math.round(g * 255), Math.round(b * 255) ];
+              }
+
+              // source: https://github.com/oliver-moran/jimp/blob/master/packages/core/src/index.js#L117
+              // function isRawRGBAData(obj) {
+              //   return (
+              //     obj &&
+              //     typeof obj === 'object' &&
+              //     typeof obj.width === 'number' &&
+              //     typeof obj.height === 'number' &&
+              //     (Buffer.isBuffer(obj.data) ||
+              //     obj.data instanceof Uint8Array ||
+              //     (typeof Uint8ClampedArray === 'function' &&
+              //     obj.data instanceof Uint8ClampedArray)) &&
+              //     (obj.data.length === obj.width * obj.height * 4 ||
+              //       obj.data.length === obj.width * obj.height * 3)
+              //     );
+              //   }
+              function basename(f) {
+                return path.basename(f);
+                // if (f === undefined) { f = "was_not_set";  console.warn(f); }
+                // return f.replace(/^.*[\\\/]/, '');
+              }
+
+
+
+              function fileSystemChecks(file) { // make sure file is writable or folder exists etc
+                let problem = false;
+                let name = basename(file)
+                let msg = `Stats for file ${name}` + lineBreak;
+                if (file === undefined) { return false; }
+                if (!doesFileExist(file)) {
+                  file = path.resolve(file);
+                }
+                if (!doesFileExist(file)) {
+                  return false;
+                }
+                let isDir = doesFolderExist(file);
+
+                try {
+                  // Check if the file is ACTUALLY FOLDER.
+                  isDir ? msg += 'is not a folder, ' : msg += 'is a folder (will re-issue the job as ), '
+
+                  if (!isDir) { ///////// ONLY FILES
+                    // Check if the file exists in the current directory.
+                    fs.access(file, fs.constants.F_OK, (err) => {
+                      if(err) {  msg +=  'does not exist, '   } else  { msg += 'exists, '  }
+                    });
+
+                    // Check if the file is readable.
+                    fs.access(file, fs.constants.R_OK, (err) => {
+                      if(err) {  msg +=  'is not readable, '  } else  { msg += 'is readable, ' }
+                    });
+
+                    // Check if the file is writable.
+                    fs.access(file, fs.constants.W_OK, (err) => {
+                      if(err) {  msg +=  'is not writable, '} else  { msg += 'is writeable, '  }
+                    });
+
+                    // Check if the file exists in the current directory, and if it is writable.
+                    fs.access(file, fs.constants.F_OK | fs.constants.W_OK, (err) => {
+                      if (err) {
+                        msg += 'does not exist or is read-only, '
+                      } else {
+                        msg += `exists, and it is writable, `
+                      }
+                    });
+                  }
+                } catch(e) {
+                  output(chalk.inverse("Caught ERROR:") + e)
+                }
+
+                bugtxt(msg + ', and that is all.');
+                return !problem;
+              }
+              function terminalRGB(_text, _r, _g, _b) {
+                return chalk.rgb(_r,_g,_b)(_text);
+              }
+              function showCountdown() {
+                countdown(`Closing in ${humanizeDuration(max32bitInteger)}`, 5000, this.gracefulQuit());
+              }
+              function countdown(text, timeMs, cb) {
+                let msg = text + humanizeDuration ( deresSeconds(timeMs) ) ;
+                // redoLine(msg);
+                out(msg)
+                if ( timeMs > 0 ) {
+                  setTimeout(() => {
+                    if ( cb !== undefined ) {
+                      countdown(text, timeMs - 500, cb);
+                    } else {
+                      countdown(text, timeMs - 500);
+                    }
+                  },  500 )
+                } else {
+                  // redoLine(' ');
+                  out('.')
+                  if ( cb !== undefined ) { cb() }
+                }
+              }
+              function mode(txt) { // good for this.debugging
+                wTitle(txt);
+                var that = gimmeDat()
+                status = txt;
+                if ( debug ) {
+                  out(txt);
+                } else if (that.quiet == false){
+                  redoLine(txt);
+                }
+              }
+              function gimmeDat() {
+                let that;
+                if ( cliInstance !== undefined) {  that = cliInstance }
+                if ( this !== undefined)        {  that = this }
+                if ( that === undefined)        {  that = false }
+                return that;
+              }
+              function redoLine(txt) {
+                term.eraseLine();
+                output(maxWidth( term.width - 2, txt));
+                // var that = gimmeDat();
+                // if (that && debug ) {
+                //   output(maxWidth( term.width - 2, txt));
+                // }
+                term.up( 1 ) ;
+              }
+              function deresSeconds(ms){
+                return Math.round(ms/1000) * 1000;
+              }
+
+              function streamingZip(f) {
+                zipfile = path.resolve(f);
+                fs.createReadStream(zipfile)
+                .pipe(unzipper.Parse())
+                .pipe(stream.Transform({
+                  objectMode: true,
+                  transform: function(entry,e,cb) {
+                    var zipPath = entry.path;
+                    var type = entry.type; // 'Directory' or 'File'
+                    var size = entry.size;
+                    var cb = function (byte) {
+                      output(byte);
+                    }
+                    if (zipPath === "this IS the file I'm looking for") {
+                      entry.pipe(fs.createWriteStream('dna'))
+                      .on('finish',cb);
+                    } else {
+                      entry.autodrain();
+                      if ( cb !== undefined ) { cb( ) }
+                    }
+                  }
+                }));
+              }
+              function formatAMPM(date) { // nice time output
+                var hours = date.getHours();
+                var minutes = date.getMinutes();
+                var secs   = date.getSeconds();
+                var ampm = hours >= 12 ? 'pm' : 'am';
+                hours = hours % 12;
+                hours = hours ? hours : 12; // the hour '0' should be '12'
+                minutes = minutes < 10 ? '0'+minutes : minutes;
+                secs = secs < 10 ? '0'+secs : secs;
+                var strTime = hours + ':' + minutes + ":" + secs + ' ' + ampm;
+                return strTime;
+              }
+              function killServers() {
+                output("ISSUING 'killall node' use 'Q' key to quit without killing all node processes!")
+                this.renderLock = false;
+                spawn('nice', ['killall', 'node', '', '0'], { stdio: 'pipe' });
+                spawn('nice', ['killall', 'aminosee.funk.nz_server', '', '0'], { stdio: 'pipe' });
+                spawn('nice', ['killall', 'aminosee.funk.nz', '', '0'], { stdio: 'pipe' });
+                if ( server !== undefined && webserverEnabled ) {
+                  log("closing server")
+                  server.stop();
+                } else {
+                  bugtxt("no server running?")
+                }
+
+              }
+              function charAtCheck(file) { // if the this.dnafile starts with - return false
+                if ( file === undefined) { return false }
+                if ( file.charAt(0) == '-') {
+                  log(`cant use files that begin with a dash - ${ file }`)
+                  return false;
+                } else { return true }
+              }
+              function bgOpen(file, options, callback) {
+                if ( file === undefined) { this.error(`file must be supplied`) }
+                if ( options === undefined) { let options = { wait: false } }
+                if ( callback === undefined) { open( file, options )  } else {
+                  open( file, options, callback);
+                }
+                projectprefs.aminosee.opens++; // increment open counter.
+              }
+
+              //
+              // function testParse() {
+              //   return parse(`
+              //     <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+              //     <html>
+              //     <head>
+              //     <title>Index of /foo/bar</title>
+              //     </head>
+              //     <body>
+              //     <h1>Index of /foo/bar</h1>
+              //     <table><tr><th><img src="/icons/blank.gif" alt="[ICO]"></th><th><a href="?C=N;O=D">Name</a></th><th><a href="?C=M;O=A">Last modified</a></th><th><a href="?C=S;O=A">Size</a></th><th><a href="?C=D;O=A">Description</a></th></tr><tr><th colspan="5"><hr></th></tr>
+              //     <tr><td valign="top"><img src="/icons/folder.gif" alt="[DIR]"></td><td><a href="beep/">beep/</a>           </td><td align="right">25-May-2016 11:53  </td><td align="right">  - </td><td>&nbsp;</td></tr>
+              //     <tr><td valign="top"><img src="/icons/folder.gif" alt="[DIR]"></td><td><a href="boop20160518/">boop20160518/</a>        </td><td align="right">19-May-2016 17:57  </td><td align="right">  - </td><td>&nbsp;</td></tr>
+              //     <tr><td valign="top"><img src="/icons/folder.gif" alt="[DIR]"></td><td><a href="jazz20160518/">jazz20160518/</a>         </td><td align="right">19-May-2016 19:04  </td><td align="right">  - </td><td>&nbsp;</td></tr>
+              //     <tr><td valign="top"><img src="/icons/folder.gif" alt="[DIR]"></td><td><a href="punk20160518/">punk20160518/</a>    </td><td align="right">19-May-2016 17:47  </td><td align="right">  - </td><td>&nbsp;</td></tr>
+              //     <tr><td valign="top"><img src="/icons/folder.gif" alt="[DIR]"></td><td><a href="space20160518/">space20160518/</a>       </td><td align="right">19-May-2016 19:03  </td><td align="right">  - </td><td>&nbsp;</td></tr>
+              //     <tr><th colspan="5"><hr></th></tr>
+              //     </table>
+              //     </body></html>`);
+              //   }
+              function listDNA() {
+                var XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
+                var xhr = new XMLHttpRequest('https://www.funk.co.nz/aminosee/output/');
+                let txt = xhr.responseText;
+                // testParse();
+                // parse("https://www.funk.co.nz/aminosee/output/")
+                output('list')
+                output(txt)
+                // parse(txt)
+              }
+              // function savePNG2(cb, filename, array, height, width ) {
+              //
+              //   var img_data = Uint8ClampedArray.from( array );
+              //   var img_png = new PNG({
+              //     width: width,
+              //     height: height,
+              //     colorType: 6,
+              //     bgColor: {
+              //       red: 0,
+              //       green: 0,
+              //       blue: 0
+              //     }
+              //   })
+              //
+              //   img_png.data = Buffer.from(img_data);
+              //   let wstream = fs.createWriteStream( this.dnafile );
+              //   new Promise(resolve => {
+              //     img_png.pack()
+              //     .pipe(wstream)
+              //     .on('finish', (err) => {
+              //       bugtxt("HILBERT Save OK ");
+              //       if ( cb !== undefined ) { cb() }
+              //       if ( err ) { log("Error: " + err)}
+              //     })
+              //   }).then( log('PNG2 then') ).catch( log('PNG2 catch') );
+              // }
+              process.on("SIGTERM", () => {
+                cliInstance.gracefulQuit();
+                this.destroyProgress();
+                process.exitCode = 130;
+                cliInstance.quit(130, "SIGTERM");
+                process.exit(); // this.now the "exit" event will fire
               });
+              process.on("SIGINT", function() {
+                cliInstance.gracefulQuit();
+                // this.destroyProgress();
+                process.exitCode = 130;
+                cliInstance.quit(130, "SIGINT");
+                process.exit(); // this.now the "exit" event will fire
+              });
+              function termDrawImage(fullpath, reason, cb) {
+                // if (fullpath === undefined) { fullpath = previousImage }
+                // if (fullpath === undefined) { return false }
+                if (reason === undefined) { reason = `BUG. Reminder: always set a reason` }
+                // if ( that.force == true) { return false }
+                if ( quiet === true ) { out('quiet'); return false; }
+                // term.saveCursor()
+                clearCheck();
+                // term.moveTo( 0, 0 )
+                out('loading terminal image: '+ fullpath );
+                // output(chalk.inverse("Terminal image: " +  basename(fullpath)))
+                term.drawImage( fullpath, { shrink: { width: tx / 2,  height: ty / 2} }, () => {
+                  output(`Terminal image: ${ chalk.inverse(  basename(fullpath) ) } ${ reason}`)
+                  // term.restoreCursor();
+                  if ( cb !== undefined ) { cb() }
+                })
+              }
+              function nicePercent(percent) {
+                if (percent === undefined) { percent = cliInstance.percentComplete; output(`was undef`) }
+                return minWidth(5, (Math.round(  percent*1000) / 10) + "%");
+              }
+              function tidyPeptideName(str) { // give it "OPAL" it gives "Opal". GIVE it aspartic_ACID or "gluTAMic acid". also it gives "none"
+              if (str === undefined) {
+                output(`error with str it equals ${str} will return "none"`)
+                return "none";
+              }
+              try {
+                str = spaceTo_( str.toUpperCase() )
+              } catch(e) {
+                output(`error with str it equals ${str} will return "none"`)
+                return "none";
+              }
+              for ( let i = 0; i < data.pepTable.length; i++) {
+                let compareTo = spaceTo_( data.pepTable[i].Codon.toUpperCase() )
+                if ( compareTo == str ) {
+                  // output(`str  ${str} = ${compareTo}  compareTo: ${data.pepTable[i].Codon} ` + chalk.yellow(`<--  GREAT SUCCESS`))
+                  return data.pepTable[i].Codon
+                } else {
+                  // output(`str  ${str} = ${compareTo}  compareTo: ${data.pepTable[i].Codon}`)
+                }
+              }
+              return "none";
             }
-          } catch(e) {
-            output(chalk.inverse("Caught ERROR:") + e)
-          }
-
-          bugtxt(msg + ', and that is all.');
-          return !problem;
-        }
-        function terminalRGB(_text, _r, _g, _b) {
-          return chalk.rgb(_r,_g,_b)(_text);
-        }
-        function showCountdown() {
-          countdown(`Closing in ${humanizeDuration(max32bitInteger)}`, 5000, this.gracefulQuit());
-        }
-        function countdown(text, timeMs, cb) {
-          let msg = text + humanizeDuration ( deresSeconds(timeMs) ) ;
-          // redoLine(msg);
-          out(msg)
-          if ( timeMs > 0 ) {
-            setTimeout(() => {
-              if ( cb !== undefined ) {
-                countdown(text, timeMs - 500, cb);
+            // function gracefulQuit(code) {
+            //   cliInstance.gracefulQuit(code);
+            // }
+            // hilDecode(i, dimension) {
+            //   let x, y;      // bugtxt(`i, this.dimension  ${i} ${ this.dimension }`)
+            //   [x, y] = MyManHilbert.decode(16,i); // <-- THIS IS WHERE THE MAGIC HILBERT HAPPENS
+            //   if ( this.dimension % 2 == 0 ) { // if even number
+            //     let newY = x;      // ROTATE IMAGE CLOCKWISE 90 DEGREES IF this.dimension IS EVEN NUMBER FRAMES
+            //     x = y
+            //     y = newY;
+            //   }
+            //   return [ x, y ];
+            // }
+            function hilDecode(i, dimension) {
+              // bugtxt(`i, this.dimension  ${i} ${ this.dimension }`)
+              let x, y;
+              [x, y] = MyManHilbert.decode(16,i); // <-- THIS IS WHERE THE MAGIC HILBERT HAPPENS
+              // ROTATE IMAGE CLOCKWISE 90 DEGREES IF this.dimension IS EVEN NUMBER FRAMES
+              if ( dimension % 2 == 0 ) { // if even number
+                let newY = x;
+                x = y
+                y = newY;
+              }
+              return [ x, y ];
+            }
+            function clearCheck() { // maybe clear the terminal
+              if ( this.clear == true) {
+                term.clear();
+                term.eraseDisplayBelow();
               } else {
-                countdown(text, timeMs - 500);
+                term.eraseDisplayBelow();
+                process.stdout.write('[nc]');
               }
-            },  500 )
-          } else {
-            // redoLine(' ');
-            out('.')
-            if ( cb !== undefined ) { cb() }
-          }
-        }
-        function mode(txt) { // good for this.debugging
-          wTitle(txt);
-          var that = gimmeDat()
-          status = txt;
-          if ( debug ) {
-            out(txt);
-          } else if (that.quiet == false){
-            redoLine(txt);
-          }
-        }
-        function gimmeDat() {
-          let that;
-          if ( cliInstance !== undefined) {  that = cliInstance }
-          if ( this !== undefined)        {  that = this }
-          if ( that === undefined)        {  that = false }
-          return that;
-        }
-        function redoLine(txt) {
-          term.eraseLine();
-          output(maxWidth( term.width - 2, txt));
-          // var that = gimmeDat();
-          // if (that && debug ) {
-          //   output(maxWidth( term.width - 2, txt));
-          // }
-          term.up( 1 ) ;
-        }
-        function deresSeconds(ms){
-          return Math.round(ms/1000) * 1000;
-        }
+            }
+            function stopWork(reason) {
+              if (reason === undefined) { this.error(`You have to give a reason`) }
+              cliInstance.gracefulQuit(0, reason)
+            }
+            function getOutputFolder() {
+              let outpath, clusterRender, outFoldername;
+              // to make network / cluster render just "magically work":
+              // look in current dir for specially named folders
+              // /AminoSee_Output/
+              // /output/
+              // if found, use those as they are thought to be network SHARES
+              // if not found setup and use local home folder ~/AminoSee_Output
+              // this way you can create a network cluster quickly by just moving your ~/AminoSee_Output into the same folder as your DNA files
+              // next time you run, it will put the render in same folder
 
-        function streamingZip(f) {
-          zipfile = path.resolve(f);
-          fs.createReadStream(zipfile)
-          .pipe(unzipper.Parse())
-          .pipe(stream.Transform({
-            objectMode: true,
-            transform: function(entry,e,cb) {
-              var zipPath = entry.path;
-              var type = entry.type; // 'Directory' or 'File'
-              var size = entry.size;
-              var cb = function (byte) {
-                output(byte);
-              }
-              if (zipPath === "this IS the file I'm looking for") {
-                entry.pipe(fs.createWriteStream('dna'))
-                .on('finish',cb);
+              // FIRST check for special folders in current directory (this enables network cluster render)
+              // THEN if not found, create and use dirs in home directory (worstation render)
+              if (doesFolderExist( path.resolve( process.cwd() + obviousFoldername) ) ) {
+                clusterRender = true;
+                outFoldername = obviousFoldername;
+              } else if (doesFolderExist(path.resolve(process.cwd() + netFoldername))) {
+                clusterRender = true;
+                outFoldername = netFoldername;
+              } else if (doesFolderExist(path.resolve(os.homedir + obviousFoldername))) {
+                clusterRender = false;
+                outFoldername = obviousFoldername;
+              } else if (doesFolderExist(path.resolve(os.homedir + netFoldername))) {
+                clusterRender = false;
+                outFoldername = netFoldername;
               } else {
-                entry.autodrain();
-                if ( cb !== undefined ) { cb( ) }
+                clusterRender = false;
+                outFoldername = obviousFoldername;
               }
+
+              if (clusterRender == true) {
+                outpath = path.normalize(path.resolve(process.cwd() + outFoldername))  // default location after checking overrides
+                log(`CLUSTER FOLDER ENABLED: ${ blueWhite( blueWhite( path.normalize( outpath )))}`)
+                log(`Enabled by the prseence of a /output/ or /AminoSee_Output/ folder in *current* dir. If not present, local users homedir ~/AminoSee_Output`);
+              } else {
+                outpath = path.normalize(path.resolve(os.homedir + outFoldername))  // default location after checking overrides
+                log(`HOME FOLDER ENABLED: ${ blueWhite( blueWhite( path.normalize( outpath )))}`)
+              }
+              return outpath;
             }
-          }));
-        }
-        function formatAMPM(date) { // nice time output
-          var hours = date.getHours();
-          var minutes = date.getMinutes();
-          var secs   = date.getSeconds();
-          var ampm = hours >= 12 ? 'pm' : 'am';
-          hours = hours % 12;
-          hours = hours ? hours : 12; // the hour '0' should be '12'
-          minutes = minutes < 10 ? '0'+minutes : minutes;
-          secs = secs < 10 ? '0'+secs : secs;
-          var strTime = hours + ':' + minutes + ":" + secs + ' ' + ampm;
-          return strTime;
-        }
-        function killServers() {
-          output("ISSUING 'killall node' use 'Q' key to quit without killing all node processes!")
-          this.renderLock = false;
-          spawn('nice', ['killall', 'node', '', '0'], { stdio: 'pipe' });
-          spawn('nice', ['killall', 'aminosee.funk.nz_server', '', '0'], { stdio: 'pipe' });
-          spawn('nice', ['killall', 'aminosee.funk.nz', '', '0'], { stdio: 'pipe' });
-          if ( server !== undefined && webserverEnabled ) {
-            log("closing server")
-            server.stop();
-          } else {
-            bugtxt("no server running?")
-          }
-
-        }
-        function charAtCheck(file) { // if the this.dnafile starts with - return false
-          if ( file === undefined) { return false }
-          if ( file.charAt(0) == '-') {
-            log(`cant use files that begin with a dash - ${ file }`)
-            return false;
-          } else { return true }
-        }
-        function bgOpen(file, options, callback) {
-          if ( file === undefined) { this.error(`file must be supplied`) }
-          if ( options === undefined) { let options = { wait: false } }
-          if ( callback === undefined) { open( file, options )  } else {
-            open( file, options, callback);
-          }
-          projectprefs.aminosee.opens++; // increment open counter.
-        }
-
-        //
-        // function testParse() {
-        //   return parse(`
-        //     <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
-        //     <html>
-        //     <head>
-        //     <title>Index of /foo/bar</title>
-        //     </head>
-        //     <body>
-        //     <h1>Index of /foo/bar</h1>
-        //     <table><tr><th><img src="/icons/blank.gif" alt="[ICO]"></th><th><a href="?C=N;O=D">Name</a></th><th><a href="?C=M;O=A">Last modified</a></th><th><a href="?C=S;O=A">Size</a></th><th><a href="?C=D;O=A">Description</a></th></tr><tr><th colspan="5"><hr></th></tr>
-        //     <tr><td valign="top"><img src="/icons/folder.gif" alt="[DIR]"></td><td><a href="beep/">beep/</a>           </td><td align="right">25-May-2016 11:53  </td><td align="right">  - </td><td>&nbsp;</td></tr>
-        //     <tr><td valign="top"><img src="/icons/folder.gif" alt="[DIR]"></td><td><a href="boop20160518/">boop20160518/</a>        </td><td align="right">19-May-2016 17:57  </td><td align="right">  - </td><td>&nbsp;</td></tr>
-        //     <tr><td valign="top"><img src="/icons/folder.gif" alt="[DIR]"></td><td><a href="jazz20160518/">jazz20160518/</a>         </td><td align="right">19-May-2016 19:04  </td><td align="right">  - </td><td>&nbsp;</td></tr>
-        //     <tr><td valign="top"><img src="/icons/folder.gif" alt="[DIR]"></td><td><a href="punk20160518/">punk20160518/</a>    </td><td align="right">19-May-2016 17:47  </td><td align="right">  - </td><td>&nbsp;</td></tr>
-        //     <tr><td valign="top"><img src="/icons/folder.gif" alt="[DIR]"></td><td><a href="space20160518/">space20160518/</a>       </td><td align="right">19-May-2016 19:03  </td><td align="right">  - </td><td>&nbsp;</td></tr>
-        //     <tr><th colspan="5"><hr></th></tr>
-        //     </table>
-        //     </body></html>`);
-        //   }
-        function listDNA() {
-          var XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
-          var xhr = new XMLHttpRequest('https://www.funk.co.nz/aminosee/output/');
-          let txt = xhr.responseText;
-          // testParse();
-          // parse("https://www.funk.co.nz/aminosee/output/")
-          output('list')
-          output(txt)
-          // parse(txt)
-        }
-        // function savePNG2(cb, filename, array, height, width ) {
-        //
-        //   var img_data = Uint8ClampedArray.from( array );
-        //   var img_png = new PNG({
-        //     width: width,
-        //     height: height,
-        //     colorType: 6,
-        //     bgColor: {
-        //       red: 0,
-        //       green: 0,
-        //       blue: 0
-        //     }
-        //   })
-        //
-        //   img_png.data = Buffer.from(img_data);
-        //   let wstream = fs.createWriteStream( this.dnafile );
-        //   new Promise(resolve => {
-        //     img_png.pack()
-        //     .pipe(wstream)
-        //     .on('finish', (err) => {
-        //       bugtxt("HILBERT Save OK ");
-        //       if ( cb !== undefined ) { cb() }
-        //       if ( err ) { log("Error: " + err)}
-        //     })
-        //   }).then( log('PNG2 then') ).catch( log('PNG2 catch') );
-        // }
-        process.on("SIGTERM", () => {
-          cliInstance.gracefulQuit();
-          this.destroyProgress();
-          process.exitCode = 130;
-          cliInstance.quit(130, "SIGTERM");
-          process.exit(); // this.now the "exit" event will fire
-        });
-        process.on("SIGINT", function() {
-          cliInstance.gracefulQuit();
-          // this.destroyProgress();
-          process.exitCode = 130;
-          cliInstance.quit(130, "SIGINT");
-          process.exit(); // this.now the "exit" event will fire
-        });
-        function termDrawImage(fullpath, reason, cb) {
-          // if (fullpath === undefined) { fullpath = previousImage }
-          // if (fullpath === undefined) { return false }
-          if (reason === undefined) { reason = `BUG. Reminder: always set a reason` }
-          // if ( that.force == true) { return false }
-          if ( quiet === true ) { out('quiet'); return false; }
-          // term.saveCursor()
-          clearCheck();
-          // term.moveTo( 0, 0 )
-          out('loading terminal image: '+ fullpath );
-          // output(chalk.inverse("Terminal image: " +  basename(fullpath)))
-          term.drawImage( fullpath, { shrink: { width: tx / 2,  height: ty / 2} }, () => {
-            output(`Terminal image: ${ chalk.inverse(  basename(fullpath) ) } ${ reason}`)
-            // term.restoreCursor();
-            if ( cb !== undefined ) { cb() }
-          })
-        }
-        function nicePercent(percent) {
-          if (percent === undefined) { percent = cliInstance.percentComplete; output(`was undef`) }
-          return minWidth(5, (Math.round(  percent*1000) / 10) + "%");
-        }
-        function tidyPeptideName(str) { // give it "OPAL" it gives "Opal". GIVE it aspartic_ACID or "gluTAMic acid". also it gives "none"
-        if (str === undefined) {
-          output(`error with str it equals ${str} will return "none"`)
-          return "none";
-        }
-        try {
-          str = spaceTo_( str.toUpperCase() )
-        } catch(e) {
-          output(`error with str it equals ${str} will return "none"`)
-          return "none";
-        }
-        for ( let i = 0; i < data.pepTable.length; i++) {
-          let compareTo = spaceTo_( data.pepTable[i].Codon.toUpperCase() )
-          if ( compareTo == str ) {
-            // output(`str  ${str} = ${compareTo}  compareTo: ${data.pepTable[i].Codon} ` + chalk.yellow(`<--  GREAT SUCCESS`))
-            return data.pepTable[i].Codon
-          } else {
-            // output(`str  ${str} = ${compareTo}  compareTo: ${data.pepTable[i].Codon}`)
-          }
-        }
-        return "none";
-      }
-      // function gracefulQuit(code) {
-      //   cliInstance.gracefulQuit(code);
-      // }
-      // hilDecode(i, dimension) {
-      //   let x, y;      // bugtxt(`i, this.dimension  ${i} ${ this.dimension }`)
-      //   [x, y] = MyManHilbert.decode(16,i); // <-- THIS IS WHERE THE MAGIC HILBERT HAPPENS
-      //   if ( this.dimension % 2 == 0 ) { // if even number
-      //     let newY = x;      // ROTATE IMAGE CLOCKWISE 90 DEGREES IF this.dimension IS EVEN NUMBER FRAMES
-      //     x = y
-      //     y = newY;
-      //   }
-      //   return [ x, y ];
-      // }
-      function hilDecode(i, dimension) {
-        // bugtxt(`i, this.dimension  ${i} ${ this.dimension }`)
-        let x, y;
-        [x, y] = MyManHilbert.decode(16,i); // <-- THIS IS WHERE THE MAGIC HILBERT HAPPENS
-        // ROTATE IMAGE CLOCKWISE 90 DEGREES IF this.dimension IS EVEN NUMBER FRAMES
-        if ( dimension % 2 == 0 ) { // if even number
-          let newY = x;
-          x = y
-          y = newY;
-        }
-        return [ x, y ];
-      }
-      function   clearCheck() { // maybe clear the terminal
-        if ( this.clear == true) {
-          clearScreen();
-        } else {
-          process.stdout.write('[nc]');
-          term.eraseDisplayBelow();
-        }
-      }
-      function clearScreen() {
-        term.clear();
-      }
-      function stopWork(reason) {
-        if (reason === undefined) { this.error(`You have to give a reason`) }
-        cliInstance.gracefulQuit(0, reason)
-      }
-      function getOutputFolder() {
-        let outpath, clusterRender, outFoldername;
-        // to make network / cluster render just "magically work":
-        // look in current dir for specially named folders
-        // /AminoSee_Output/
-        // /output/
-        // if found, use those as they are thought to be network SHARES
-        // if not found setup and use local home folder ~/AminoSee_Output
-        // this way you can create a network cluster quickly by just moving your ~/AminoSee_Output into the same folder as your DNA files
-        // next time you run, it will put the render in same folder
-
-        // FIRST check for special folders in current directory (this enables network cluster render)
-        // THEN if not found, create and use dirs in home directory (worstation render)
-        if (doesFolderExist( path.resolve( process.cwd() + obviousFoldername) ) ) {
-          clusterRender = true;
-          outFoldername = obviousFoldername;
-        } else if (doesFolderExist(path.resolve(process.cwd() + netFoldername))) {
-          clusterRender = true;
-          outFoldername = netFoldername;
-        } else if (doesFolderExist(path.resolve(os.homedir + obviousFoldername))) {
-          clusterRender = false;
-          outFoldername = obviousFoldername;
-        } else if (doesFolderExist(path.resolve(os.homedir + netFoldername))) {
-          clusterRender = false;
-          outFoldername = netFoldername;
-        } else {
-          clusterRender = false;
-          outFoldername = obviousFoldername;
-        }
-
-        if (clusterRender == true) {
-          outpath = path.normalize(path.resolve(process.cwd() + outFoldername))  // default location after checking overrides
-          log(`CLUSTER FOLDER ENABLED: ${ blueWhite( blueWhite( path.normalize( outpath )))}`)
-          log(`Enabled by the prseence of a /output/ or /AminoSee_Output/ folder in *current* dir. If not present, local users homedir ~/AminoSee_Output`);
-        } else {
-          outpath = path.normalize(path.resolve(os.homedir + outFoldername))  // default location after checking overrides
-          log(`HOME FOLDER ENABLED: ${ blueWhite( blueWhite( path.normalize( outpath )))}`)
-        }
-        return outpath;
-      }
-      function dedupeArray(a) {
-        return [...new Set(a)];
-      }
-      function getArgs() {
-        return this.args;
-      }
-
-      function balanceColour( red, green, blue, alpha) {
-        // find the brightest channel, eg red, green or blue
-        // examples
-        // RGBA: [ 7236.384615384615, 446 711.5 6078.884615384615 8077.961538461538 ]
-        // calculate scale factor from 255 / max
-        let max = Math.max( red, Math.max( green, blue )); // find brightest channel
-        let scaleGamma = 255 / max;
-        if ( alpha < max / 2 ) {
-          alpha /= 1.8;
-        } else {
-          alpha *= 1.8;
-        }
-        if ( alpha > max ) {
-          alpha = max
-        }
-
-        let pixRGBA = [ Math.round(red * scaleGamma), Math.round(green * scaleGamma), Math.round(blue * scaleGamma), Math.round(alpha * scaleGamma)]
-        // if ( Math.random() < 0.00051 ) {
-        //   let sum = red + green + blue;
-        //   output( `RGBA: [ ${ fixedWidth(24,   pixRGBA )} ${max}| ${sum}, ${fixedWidth( 8, red)} ${fixedWidth( 8,  green)} ${ fixedWidth( 8,  blue ) } ${fixedWidth( 8,  alpha ) } ] `)
-        // }
-        return pixRGBA
-      }
-      function genericPNG(rgbArray, width, height, filename, cb) {
-        var img_data = Uint8ClampedArray.from( rgbArray );
-        var img_png = new PNG({
-          width: width,
-          height: height,
-          colorType: 6,
-          bgColor: {
-            red: 0,
-            green: 0,
-            blue: 0
-          }
-        })
-
-        img_png.data = Buffer.from(img_data);
-        let wstream = fs.createWriteStream( filename ); // this.filePNG
-        let retProm =  new Promise((resolve) => {
-          img_png.pack()
-          .pipe(wstream)
-          .on('finish', (err) => {
-            if (err) { log(`Could not create write stream: ${ filename } due to ${err}`) }
-            // bugtxt("linear Save OK " +  that.storage());
-            // that.linearFinished();
-            if ( cb !== undefined ) { cb() }
-          })
-          resolve();
-        }).then( bugtxt('LINEAR then') ).catch( bugtxt('LINEAR catch') );
-
-      }
-      // function runDemo() {
-      //   async.series( [
-      //     function( cb ) {
-      //       this.openImage = true;
-      //       this.peptide = 'Opal'; // Blue TESTS
-      //       this.ratio = 'sqr';
-      //       this.generateTestPatterns(cb);
-      //     },
-      //     function( cb ) {
-      //       // this.openImage = true;
-      //       this.peptide = 'Ochre'; // Red TESTS
-      //       this.ratio = 'sqr';
-      //       this.generateTestPatterns(cb);
-      //     },
-      //     function( cb ) {
-      //       // this.openImage = true;
-      //       this.peptide = 'Arginine'; //  PURPLE TESTS
-      //       this.ratio = 'sqr';
-      //       this.generateTestPatterns(cb);
-      //     },
-      //     function( cb ) {
-      //       // this.openImage = true;
-      //       this.peptide = 'Methionine'; //  this.green  TESTS
-      //       this.ratio = 'sqr';
-      //       this.generateTestPatterns(cb);
-      //     }
-      // function ( cb ) {
-      //   this.args._[0] = this.currentFile;
-      //   this.currentFile = '*';
-      //   this.args._.push( this.currentFile); // DEMO
-      //   this.pollForStream();
-      // },
-      // function( cb ) {
-      //   server.start( this.outputPath );
-      //   this.mkRenderFolders();
-      //   // symlinkGUI(cb);
-      // }
-      //   ])
-      //   .exec( function( error, results ) {
-      //     if (  this.error ) { log( 'Doh!' ) ; }
-      //     else { log( 'WEEEEE DONE Yay! Done!' ) ; }
-      //   });
-      // }
-
-      function  printRadMessage(arr) {
-        // output( returnRadMessage(arr) );
-        if (arr === undefined) {
-          arr = ["    ________", "    ________", "    ________", "    ________", "    ________", "", "Output path:", cliInstance.outputPath ];
-          // arr = [ "    ________", "    ________", "    ________", "    ________", "    ________", "", "Output path:"," " ];
-        }
-        while ( arr.length < 9 ) {
-          arr.push("    ________");
-        }
-        let radMargin = cliInstance.termMarginLeft;
-        term.eraseLine();
-
-        output( terminalRGB(arr[0], 255, 32,   32) ); term.eraseLine();
-        term.right(radMargin);
-        if ( term.width > wideScreen ) {
-          output( terminalRGB(`╔═╗┌┬┐┬┌┐┌┌─┐╔═╗┌─┐┌─┐  ╔╦╗╔╗╔╔═╗  ╦  ╦┬┌─┐┬ ┬┌─┐┬─┐  ${arr[1]}`, 255, 60,  250) ); term.right(radMargin); term.eraseLine();
-          output( terminalRGB(`╠═╣││││││││ │╚═╗├┤ ├┤    ║║║║║╠═╣  ╚╗╔╝│├┤ │││├┤ ├┬┘  ${arr[2]}`, 170, 150, 255) ); term.right(radMargin); term.eraseLine();
-          output( terminalRGB(`╩ ╩┴ ┴┴┘└┘└─┘╚═╝└─┘└─┘  ═╩╝╝╚╝╩ ╩   ╚╝ ┴└─┘└┴┘└─┘┴└─  ${arr[3]}`, 128, 240, 240) ); term.right(radMargin); term.eraseLine();
-          output( terminalRGB(` by Tom Atkinson          aminosee.funk.nz            ${arr[4]}`, 225, 225, 130) ); term.right(radMargin); term.eraseLine();
-          output( terminalRGB(`  ah-mee-no-see     'I See It Now - I AminoSee it!'   ${arr[5]}`, 255, 180,  90) ); term.right(radMargin); term.eraseLine();
-          output( terminalRGB(`   ${ prettyDate(new Date())}   v${version} ${arr[6]}`          , 220, 120,  70) ); term.right(radMargin); term.eraseLine();
-          output( terminalRGB(arr[7], 220, 80,   80) ); term.right(radMargin); term.eraseLine();
-          output( terminalRGB(arr[8], 255, 32,   32) ); term.eraseLine();
-        } else {
-          output( terminalRGB(`╔═╗┌┬┐┬┌┐┌┌─┐╔═╗┌─┐┌─┐ ${arr[1]}`, 255, 60,  250) ); term.right(radMargin); term.eraseLine();
-          output( terminalRGB(`╠═╣││││││││ │╚═╗├┤ ├┤  ${arr[2]}`, 170, 150, 255) ); term.right(radMargin); term.eraseLine();
-          output( terminalRGB(`╩ ╩┴ ┴┴┘└┘└─┘╚═╝└─┘└─┘ ${arr[3]}`, 128, 240, 240) ); term.right(radMargin); term.eraseLine();
-          output( terminalRGB(` by Tom Atkinson       ${arr[4]}`, 225, 225, 130) ); term.right(radMargin); term.eraseLine();
-          output( terminalRGB(`  ah-mee-no-see        ${arr[5]}`, 255, 180,  90) ); term.right(radMargin); term.eraseLine();
-          output( terminalRGB(`${ prettyDate(new Date())} v${version} ${arr[6]} `, 220, 120,  70) ); term.right(radMargin); term.eraseLine();
-          output( terminalRGB(arr[7], 220, 80,   80) ); term.right(radMargin); term.eraseLine();
-          output( terminalRGB(arr[8], 255, 32,   32) ); term.eraseLine();
-        }
-
-      }
-
-      function cleanString(s) {
-        let ret = "";
-        s = removeLineBreaks(s);
-
-        for (let i=0; i< s.length; i++) {
-          ret += cleanChar(s.charAt(i));
-        }
-        return ret;
-      }
-      function prettyDate(today) {
-        var options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-        return today.toLocaleString(options) + "  " + today.toLocaleDateString(options); // Saturday, September 17, 2016
-      }
-      function calculateShrinkage( linearpix ) { // danger: can change this.file of Hilbert images!
-        // give it a large number of pixels
-        // it will choose a hilbert dimension
-        // and return the shrinkage factor, codons per pixel hilbert
-        let dimension, magnitude, hilpix, codonsPerPixelHILBERT, shrinkFactor
-        let computerWants = optimumDimension (linearpix, defaultMagnitude);
-
-        if ( computerWants > defaultMagnitude ) {
-          output(`This genome could be output at a higher resolution of ${hilbPixels[computerWants].toLocaleString()} than the default of ${computerWants}, you could try -m 8 or -m 9 if your machine is muscular, but it might core dump. -m10 would be 67,108,864 pixels but node runs out of stack before I get there on my 16 GB macOS. -Tom.`)
-          dimension = defaultMagnitude;
-        } else if (computerWants < 0) {
-          dimension = 0; // its an array index
-          this.error(`That image is way too small to make an image out of?`);
-        }
-
-        if ( this.magnitude == "custom" ) {
-          dimension = this.dimension; // users choice over ride all this nonsense
-        } else {
-          dimension = computerWants; // give him what he wants
-        }
-
-        hilpix = hilbPixels[ dimension ];
-        shrinkFactor = linearpix / hilpix; // THE GUTS OF IT
-        codonsPerPixelHILBERT = this.codonsPerPixel /  shrinkFactor;
-
-        // output(`Ideal magnitude: ${computerWants} using ${this.dimension} magnitude: ${ dimension } shrinkFactor pre ${  shrinkFactor } = linearpix ${linearpix } /  hilpix ${hilpix} this.fileHILBERT after shrinking: dimension: ${ dimension }  shrinkFactor post ${ twosigbitsTolocale( shrinkFactor)} this.codonsPerPixel ${ this.codonsPerPixel } codonsPerPixelHILBERT ${ codonsPerPixelHILBERT }`);
-
-        return {
-          shrinkFactor: shrinkFactor,
-          codonsPerPixelHILBERT: codonsPerPixelHILBERT
-        };
-      }
-      function optimumDimension (pix, magauto) { // give it pix it returns a HILBERT dimension that fits inside it with good over-sampling margins
-        if ( pix == 0 ) { cliInstance.error(`zero values`); return 7; }
-        let dim = 0;
-        let rtxt = `[HILBERT] Calculating largest Hilbert curve image that can fit inside ${ twosigbitsTolocale(pix)} pixels, and over sampling factor of ${overSampleFactor}: `;
-        while (pix > (hilbPixels[dim] * overSampleFactor)) {
-          if (dim > defaultMagnitude) {
-            if ( magauto == 'custom' && dim > theoreticalMaxMagnitude ) {
-              output(`Hilbert dimensions above 8 will likely exceed nodes heap memory and/or call stack. mag 11 sure does. spin up the fans. Capped your custom dimension to the ${ theoreticalMaxMagnitude }th order.`)
-              dim = theoreticalMaxMagnitude;
-              break
-            } else {
-              dim = defaultMagnitude;
-              break
+            function dedupeArray(a) {
+              return [...new Set(a)];
             }
-          }
-          dim++;
-        }
-        if (dim > 0) { dim--; } // was off by 1
+            function getArgs() {
+              return this.args;
+            }
 
-        rtxt+= ` <<<--- chosen dimension: ${dim} `;
-        log(rtxt);
-        return dim;
-      }
-      function runcb( cb ) {
-        blueWhite( `run callback`)
-        if ( cb !== undefined ) { cb(); }
-      }
-      module.exports.getOutputFolder = getOutputFolder;
-      module.exports.nicePercent = nicePercent;
-      module.exports.createSymlink = createSymlink;
-      module.exports.log = log;
-      module.exports.out = out;
-      module.exports.output = output;
-      module.exports.AminoSeeNoEvil = AminoSeeNoEvil;
-      module.exports.newJob = newJob;
-      module.exports.pushCli = pushCli;
-      module.exports.bruteForce = bruteForce;
-      module.exports.terminalRGB = terminalRGB;
-      module.exports.showCountdown = showCountdown;
-      module.exports.stopWork = stopWork;
-      module.exports.setupPrefs = setupPrefs;
-      module.exports.fileWrite = (a,b,c) => { this.fileWrite(a,b,c) }
-      // module.exports.deleteFile = (file) => { deleteFile(file) }
-      module.exports.deleteFile = deleteFile;
-      module.exports.maxWidth = maxWidth;
-      module.exports.maxWidth = maxWidth;
-      module.exports.getArgs = getArgs;
+            function balanceColour( red, green, blue, alpha) {
+              // find the brightest channel, eg red, green or blue
+              // examples
+              // RGBA: [ 7236.384615384615, 446 711.5 6078.884615384615 8077.961538461538 ]
+              // calculate scale factor from 255 / max
+              let max = Math.max( red, Math.max( green, blue )); // find brightest channel
+              let scaleGamma = 255 / max;
+              if ( alpha < max / 2 ) {
+                alpha /= 1.8;
+              } else {
+                alpha *= 1.8;
+              }
+              if ( alpha > max ) {
+                alpha = max
+              }
+
+              let pixRGBA = [ Math.round(red * scaleGamma), Math.round(green * scaleGamma), Math.round(blue * scaleGamma), Math.round(alpha * scaleGamma)]
+              // if ( Math.random() < 0.00051 ) {
+              //   let sum = red + green + blue;
+              //   output( `RGBA: [ ${ fixedWidth(24,   pixRGBA )} ${max}| ${sum}, ${fixedWidth( 8, red)} ${fixedWidth( 8,  green)} ${ fixedWidth( 8,  blue ) } ${fixedWidth( 8,  alpha ) } ] `)
+              // }
+              return pixRGBA
+            }
+            function genericPNG(rgbArray, width, height, filename, cb) {
+              var img_data = Uint8ClampedArray.from( rgbArray );
+              var img_png = new PNG({
+                width: width,
+                height: height,
+                colorType: 6,
+                bgColor: {
+                  red: 0,
+                  green: 0,
+                  blue: 0
+                }
+              })
+
+              img_png.data = Buffer.from(img_data);
+              let wstream = fs.createWriteStream( filename ); // this.filePNG
+              let retProm =  new Promise((resolve) => {
+                img_png.pack()
+                .pipe(wstream)
+                .on('finish', (err) => {
+                  if (err) { log(`Could not create write stream: ${ filename } due to ${err}`) }
+                  // bugtxt("linear Save OK " +  that.storage());
+                  // that.linearFinished();
+                  if ( cb !== undefined ) { cb() }
+                })
+                resolve();
+              }).then( bugtxt('LINEAR then') ).catch( bugtxt('LINEAR catch') );
+
+            }
+            // function runDemo() {
+            //   async.series( [
+            //     function( cb ) {
+            //       this.openImage = true;
+            //       this.peptide = 'Opal'; // Blue TESTS
+            //       this.ratio = 'sqr';
+            //       this.generateTestPatterns(cb);
+            //     },
+            //     function( cb ) {
+            //       // this.openImage = true;
+            //       this.peptide = 'Ochre'; // Red TESTS
+            //       this.ratio = 'sqr';
+            //       this.generateTestPatterns(cb);
+            //     },
+            //     function( cb ) {
+            //       // this.openImage = true;
+            //       this.peptide = 'Arginine'; //  PURPLE TESTS
+            //       this.ratio = 'sqr';
+            //       this.generateTestPatterns(cb);
+            //     },
+            //     function( cb ) {
+            //       // this.openImage = true;
+            //       this.peptide = 'Methionine'; //  this.green  TESTS
+            //       this.ratio = 'sqr';
+            //       this.generateTestPatterns(cb);
+            //     }
+            // function ( cb ) {
+            //   this.args._[0] = this.currentFile;
+            //   this.currentFile = '*';
+            //   this.args._.push( this.currentFile); // DEMO
+            //   this.pollForStream();
+            // },
+            // function( cb ) {
+            //   server.start( this.outputPath );
+            //   this.mkRenderFolders();
+            //   // symlinkGUI(cb);
+            // }
+            //   ])
+            //   .exec( function( error, results ) {
+            //     if (  this.error ) { log( 'Doh!' ) ; }
+            //     else { log( 'WEEEEE DONE Yay! Done!' ) ; }
+            //   });
+            // }
+
+            function  printRadMessage(arr) {
+              // output( returnRadMessage(arr) );
+              if (arr === undefined) {
+                arr = ["    ________", "    ________", "    ________", "    ________", "    ________", "", "Output path:", cliInstance.outputPath ];
+                // arr = [ "    ________", "    ________", "    ________", "    ________", "    ________", "", "Output path:"," " ];
+              }
+              while ( arr.length < 9 ) {
+                arr.push("    ________");
+              }
+              let radMargin = cliInstance.termMarginLeft;
+              term.eraseLine();
+
+              output( terminalRGB(arr[0], 255, 32,   32) ); term.eraseLine();
+              term.right(radMargin);
+              if ( term.width > wideScreen ) {
+                output( terminalRGB(`╔═╗┌┬┐┬┌┐┌┌─┐╔═╗┌─┐┌─┐  ╔╦╗╔╗╔╔═╗  ╦  ╦┬┌─┐┬ ┬┌─┐┬─┐  ${arr[1]}`, 255, 60,  250) ); term.right(radMargin); term.eraseLine();
+                output( terminalRGB(`╠═╣││││││││ │╚═╗├┤ ├┤    ║║║║║╠═╣  ╚╗╔╝│├┤ │││├┤ ├┬┘  ${arr[2]}`, 170, 150, 255) ); term.right(radMargin); term.eraseLine();
+                output( terminalRGB(`╩ ╩┴ ┴┴┘└┘└─┘╚═╝└─┘└─┘  ═╩╝╝╚╝╩ ╩   ╚╝ ┴└─┘└┴┘└─┘┴└─  ${arr[3]}`, 128, 240, 240) ); term.right(radMargin); term.eraseLine();
+                output( terminalRGB(` by Tom Atkinson          aminosee.funk.nz            ${arr[4]}`, 225, 225, 130) ); term.right(radMargin); term.eraseLine();
+                output( terminalRGB(`  ah-mee-no-see     'I See It Now - I AminoSee it!'   ${arr[5]}`, 255, 180,  90) ); term.right(radMargin); term.eraseLine();
+                output( terminalRGB(`   ${ prettyDate(new Date())}   v${version} ${arr[6]}`          , 220, 120,  70) ); term.right(radMargin); term.eraseLine();
+                output( terminalRGB(arr[7], 220, 80,   80) ); term.right(radMargin); term.eraseLine();
+                output( terminalRGB(arr[8], 255, 32,   32) ); term.eraseLine();
+              } else {
+                output( terminalRGB(`╔═╗┌┬┐┬┌┐┌┌─┐╔═╗┌─┐┌─┐ ${arr[1]}`, 255, 60,  250) ); term.right(radMargin); term.eraseLine();
+                output( terminalRGB(`╠═╣││││││││ │╚═╗├┤ ├┤  ${arr[2]}`, 170, 150, 255) ); term.right(radMargin); term.eraseLine();
+                output( terminalRGB(`╩ ╩┴ ┴┴┘└┘└─┘╚═╝└─┘└─┘ ${arr[3]}`, 128, 240, 240) ); term.right(radMargin); term.eraseLine();
+                output( terminalRGB(` by Tom Atkinson       ${arr[4]}`, 225, 225, 130) ); term.right(radMargin); term.eraseLine();
+                output( terminalRGB(`  ah-mee-no-see        ${arr[5]}`, 255, 180,  90) ); term.right(radMargin); term.eraseLine();
+                output( terminalRGB(`${ prettyDate(new Date())} v${version} ${arr[6]} `, 220, 120,  70) ); term.right(radMargin); term.eraseLine();
+                output( terminalRGB(arr[7], 220, 80,   80) ); term.right(radMargin); term.eraseLine();
+                output( terminalRGB(arr[8], 255, 32,   32) ); term.eraseLine();
+              }
+
+            }
+
+            function cleanString(s) {
+              let ret = "";
+              s = removeLineBreaks(s);
+
+              for (let i=0; i< s.length; i++) {
+                ret += cleanChar(s.charAt(i));
+              }
+              return ret;
+            }
+            function prettyDate(today) {
+              var options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+              return today.toLocaleString(options) + "  " + today.toLocaleDateString(options); // Saturday, September 17, 2016
+            }
+            function calculateShrinkage( linearpix ) { // danger: can change this.file of Hilbert images!
+              // give it a large number of pixels
+              // it will choose a hilbert dimension
+              // and return the shrinkage factor, codons per pixel hilbert
+              let dimension, magnitude, hilpix, codonsPerPixelHILBERT, shrinkFactor
+              let computerWants = optimumDimension (linearpix, defaultMagnitude);
+
+              if ( computerWants > defaultMagnitude ) {
+                output(`This genome could be output at a higher resolution of ${hilbPixels[computerWants].toLocaleString()} than the default of ${computerWants}, you could try -m 8 or -m 9 if your machine is muscular, but it might core dump. -m10 would be 67,108,864 pixels but node runs out of stack before I get there on my 16 GB macOS. -Tom.`)
+                dimension = defaultMagnitude;
+              } else if (computerWants < 0) {
+                dimension = 0; // its an array index
+                this.error(`That image is way too small to make an image out of?`);
+              }
+              if ( this.magnitude == "custom" ) {
+                dimension = this.dimension; // users choice over ride all this nonsense
+              } else {
+                dimension = computerWants; // give him what he wants
+              }
+              hilpix = hilbPixels[ dimension ];
+              shrinkFactor = linearpix / hilpix; // THE GUTS OF IT
+              codonsPerPixelHILBERT = this.codonsPerPixel /  shrinkFactor;
+              return {
+                shrinkFactor: shrinkFactor,
+                codonsPerPixelHILBERT: codonsPerPixelHILBERT
+              };
+            }
+            function optimumDimension (pix, magauto) { // give it pix it returns a HILBERT dimension that fits inside it with good over-sampling margins
+              if ( pix == 0 ) { cliInstance.error(`zero values`); return 7; }
+              let dim = 0;
+              let rtxt = `[HILBERT] Calculating largest Hilbert curve image that can fit inside ${ twosigbitsTolocale(pix)} pixels, and over sampling factor of ${overSampleFactor}: `;
+              while (pix > (hilbPixels[dim] * overSampleFactor)) {
+                if (dim > defaultMagnitude) {
+                  if ( magauto == 'custom' && dim > theoreticalMaxMagnitude ) {
+                    output(`Hilbert dimensions above 8 will likely exceed nodes heap memory and/or call stack. mag 11 sure does. spin up the fans. Capped your custom dimension to the ${ theoreticalMaxMagnitude }th order.`)
+                    dim = theoreticalMaxMagnitude;
+                    break
+                  } else {
+                    dim = defaultMagnitude;
+                    break
+                  }
+                }
+                dim++;
+              }
+              if (dim > 0) { dim--; } // was off by 1
+
+              rtxt+= ` <<<--- chosen dimension: ${dim} `;
+              log(rtxt);
+              return dim;
+            }
+            function runcb( cb ) {
+              blueWhite( `run callback`)
+              if ( cb !== undefined ) { cb(); }
+            }
+            module.exports.getOutputFolder = getOutputFolder;
+            module.exports.nicePercent = nicePercent;
+            module.exports.createSymlink = createSymlink;
+            module.exports.log = log;
+            module.exports.out = out;
+            module.exports.output = output;
+            module.exports.AminoSeeNoEvil = AminoSeeNoEvil;
+            module.exports.newJob = newJob;
+            module.exports.pushCli = pushCli;
+            module.exports.bruteForce = bruteForce;
+            module.exports.terminalRGB = terminalRGB;
+            module.exports.showCountdown = showCountdown;
+            module.exports.stopWork = stopWork;
+            module.exports.setupPrefs = setupPrefs;
+            module.exports.fileWrite = (a,b,c) => { this.fileWrite(a,b,c) }
+            // module.exports.deleteFile = (file) => { deleteFile(file) }
+            module.exports.deleteFile = deleteFile;
+            module.exports.maxWidth = maxWidth;
+            module.exports.maxWidth = maxWidth;
+            module.exports.getArgs = getArgs;
