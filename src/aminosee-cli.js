@@ -1471,7 +1471,7 @@ class AminoSeeNoEvil {
         return false;
       }
       if ( this.checkFileExtension( this.currentFile ) == false)  {
-        this.popShiftOrBust("File Format not supported: " + chalk.inverse( this.getFileExtension( this.currentFile)) + ` supported: ${ extensions }`)
+        this.popShiftOrBust(`File Format not supported: (${ this.getFileExtension( this.currentFile)}) Please try: ${ extensions }`)
         return false;
       }
       // if (doesFolderExist(this.dnafile ) ) {
@@ -1499,13 +1499,13 @@ class AminoSeeNoEvil {
         log(`Lockfile: ${ this.fileTouch }`)
         output(`Render already in progress by another thread for: ${ blueWhite( path.normalize( this.justNameOfPNG ) ) }`); // <---  another node maybe working on, NO RENDER
         log(`Due to presence of lockfile (${path.normalize( this.fileTouch )}). Delete the lockfile or use --force.`);
-        log(`Touchfile: ${chalk.underline( this.fileTouch )}`);
+        output(`Touchfile: ${chalk.underline( this.fileTouch )}`);
         log(`thread was polling, and got jumped  on by a thousand pound gorilla.`)
         this.popShiftOrBust('Polling');
         return false;
       }
       mode("Lock OK proceeding to render...");
-      log(chalk.cyan(  status ))
+      log( status )
       setTimeout( () => {
         if ( this.renderLock == false ) {
           this.touchLockAndStartStream(); // <--- THIS IS WHERE MAGIC STARTS
@@ -3378,12 +3378,12 @@ class AminoSeeNoEvil {
           this.isDiskFinHilbert = false; // concurrency protection
         } else {
           log("Cant output hilbert image when using artistic mode");
-          this.isDiskFinHilbert = true; // doesnt trigger a re-poll.
-          // hilbertFinished();
-          cb();
+          // this.isDiskFinHilbert = true; // doesnt trigger a re-poll.
+          hilbertFinished();
+          runcb(cb);
           return false;
         }
-        this.setupHilbertFilenames();
+        // this.setupHilbertFilenames();
         // if ( this.skipExistingFile( this.fileHILBERT) == true ) {
         //   output("Existing hilbert image found - skipping projection: " + this.fileHILBERT);
         //   if ( this.openImage) {
@@ -3400,7 +3400,7 @@ class AminoSeeNoEvil {
         // }
         term.eraseDisplayBelow();
         mode('save hilbert');
-        output(chalk.bgBlue.yellow( " Getting in touch with my man from 1891...   ॐ    David Hilbert    ॐ    " ));// In the " + this.dimension + "th dimension and reduced by " + threesigbitsTolocale( shrinkFactor) );
+        output(chalk.bgBlue.yellow( ` Getting in touch with my man from 1891...   ॐ    David Hilbert    ॐ    `) + this.fileHILBERT);// In the " + this.dimension + "th dimension and reduced by " + threesigbitsTolocale( shrinkFactor) );
         bugtxt( this.justNameOfDNA);
         let hilpix = hilbPixels[ this.dimension ];
         this.resampleByFactor( this.shrinkFactor );
@@ -4699,26 +4699,23 @@ class AminoSeeNoEvil {
         } else if (debug == true) {
           redoLine(txt)
         }
-        wTitle(`${threads.length}t ${remain}/${batchSize} ${txt}`) // put it on the terminal windowbar or in tmux
+        wTitle(`${txt}`) // put it on the terminal windowbar or in tmux
       }
       function wTitle(txt) {
         if (this === undefined) {
           txt = hostname
         }
+        txt = `${remain}/${batchSize} | $${txt} AminoSeeNoEvil @${hostname}`;
         if (this === undefined) {
-          // let that = gimmeDat();
-          term.windowTitle(`!~[ ${txt}]`);
+          txt += `!![ ${txt} ]!!`;
         } else {
           if ( this.justNameOfDNA ) {
-            term.windowTitle(`[ ${txt} ] ${ this.justNameOfDNA } _AminoSeeNoEvil_@${hostname}`);
-
+            txt += `!![ ${txt} ]!!`;
           } else {
-            term.windowTitle(`[ ${txt}] _AminoSeeNoEvil_${hostname}`);
-
+            txt += `!+[ ${txt} ]+!`;
           }
-          // term.windowTitle(`[${remain}] ${ this.highlightOrNothin() } ${ status } ${ this.justNameOfDNA } ${maxWidth(120,txt)} (next: ${ this.nextFile}) (AminoSee@${hostname})`);
         }
-
+        term.windowTitle(txt);
       }
       function bugout(txt) {
         if (txt === undefined) { txt = 'txt not set' }
