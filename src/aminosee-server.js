@@ -84,8 +84,8 @@ function buildServer() {
   log(`Building server to ${outputPath}`)
   data.saySomethingEpic();
   let sFiles = [
-    { "source": appPath + 'public',            "dest": outputPath + '/public' },
-    { "source": appPath + 'public/favicon.ico',"dest": outputPath + '/favicon.ico' }
+    { "source": appPath + 'src/public',            "dest": outputPath + '/public' },
+    { "source": appPath + 'src/public/favicon.ico',"dest": outputPath + '/favicon.ico' }
   ];
   for (let i=0; i<sFiles.length; i++) {
     let element = sFiles[i]
@@ -137,12 +137,12 @@ function starthttpserver(options) {
   if ( options === undefined ) {
     options = [ outputPath, `-p`, port, '-o' ]
   }
-  const theserver = require('http-server');
-  theserver.createServer(options);
-  return theserver
+  // httpserver = require('http-server');
+  httpserver.createServer(options);
+  return httpserver
 }
-function startServeHandler() {
-  setOutputPath()
+function startServeHandler(o, port) {
+  setOutputPath(o)
 
   const handler = require('serve-handler');
   const http = require('http');
@@ -157,7 +157,7 @@ function startServeHandler() {
     return handler(request, response);//, options);
   })
   let options = {
-    public: www,
+    public: o,
     port: port,
     trailingSlash: true,
     renderSingle: true,
@@ -266,14 +266,14 @@ function start(o) { // return the port number
   if ( serverLock() ) {
     port = readLockPort(filenameServerLock)
     output(`Server already started, using lock file port of (${port}). If you think this is not true, remove the lock file: ${ path.normalize( filenameServerLock )}`);
-    starthttpserver(options);
-    // startCrossSpawnHttp(port)
   } else {
     log("No locks found, Starting server ");
     log(`filenameServerLock: ${filenameServerLock}`)
-    starthttpserver(options);
-    // startCrossSpawnHttp(port)
   }
+  output( starthttpserver(options) );
+  // startCrossSpawnHttp(port)
+  // startServeHandler(o, port)
+
   return port
 }
 function setOutputPath(o) {

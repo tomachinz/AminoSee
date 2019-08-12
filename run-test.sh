@@ -28,7 +28,7 @@ echo aminosee $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
 echo STARTING SERVER TO RUN IN BACKGROUND
 aminosee --serve &
 aminosee
-test_do "Curious back walk bug"  -d --debug  $FAST Influenza-A-virus-H9N2-NC_004905.gbk Streptococcus_virus_2972.gbk
+test_do "Curious back walk bug" -d --debug $FAST Influenza-A-virus-H9N2-NC_004905.gbk Streptococcus_virus_2972.gbk
 test_do "FORCED RENDER OF SMALL GENOME: $FAST" -f $FAST $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
 test_do "QUIET MODE" -q $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
 test_do "VERBOSE MODE" -v $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
@@ -83,7 +83,7 @@ echo "                                         =///"
 # sleep 1
 
 clear
-lighthouse http://localhost:4321  --view --output-path=./test/ --save-assets 
+lighthouse http://localhost:4321  --view --output-path=./test/ --save-assets
 
 ESLINT="test/eslint-errors.txt"
 rm $ESLINT >/dev/null

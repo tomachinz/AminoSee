@@ -104,14 +104,13 @@ module.exports = () => {
   cliInstance = new AminoSeeNoEvil();
   cliInstance.setupJob( populateArgs( process.argv )  );
   threads.push( cliInstance )
-  // cliInstance = newJob( populateArgs( process.argv ) ); // populate args returns the args.
 }
 function populateArgs(procArgv) { // returns args
   const options = {
     boolean: [ 'artistic', 'clear', 'chrome', 'devmode', 'debug', 'demo', 'dnabg', 'explorer', 'file', 'force', 'firefox', 'gui', 'html', 'image', 'keyboard', 'list', 'progress', 'quiet', 'reg', 'recycle', 'redraw', 'serve', 'safari', 'test', 'updates', 'verbose', 'view' ],
     string: [ 'url', 'outpath', 'triplet', 'peptide', 'ratio', 'port' ],
     alias: { a: 'artistic', b: 'dnabg', c: 'codons', d: 'devmode', f: 'force', h: 'help', k: 'keyboard', m: 'magnitude', o: 'outpath', out: 'outpath', output: 'outpath', p: 'peptide', i: 'image', t: 'triplet', u: 'updates', q: 'quiet', r: 'reg', w: 'width', v: 'verbose', x: 'explorer', finder: 'explorer', view: 'html' },
-    default: { brute: false, debug: false,  gui: false, html: true, image: false, clear: false, explorer: false, quiet: false, keyboard: false, progress: true, redraw: true, updates: true, serve: false },
+    default: { brute: false, debug: false,  gui: false, html: true, image: false, clear: true, explorer: false, quiet: false, keyboard: false, progress: true, redraw: true, updates: true, serve: true },
     stopEarly: false
   } // NUMERIC INPUTS: codons, magnitude, width, maxpix
   let args = minimist(procArgv.slice(2), options)
@@ -233,7 +232,7 @@ class AminoSeeNoEvil {
     this.debugGears = 1;
     this.done = 0;
     this.suopIters = 0;
-    this.raceDelay = 500; // so i learnt a lot on this project. one day this line shall disappear replaced by promises.
+    this.raceDelay = 69; // so i learnt a lot on this project. one day this line shall disappear replaced by promises.
     this.darkenFactor = 0.125; // if user has chosen to highlight an amino acid others are darkened
     this.highlightFactor = 8.0; // highten brightening.
     this.devmode = false; // kills the auto opening of reports etc
@@ -245,7 +244,7 @@ class AminoSeeNoEvil {
     this.report = true; // html reports can be dynamically disabled
     this.test = false;
     this.updates = true;
-    this.updateProgress = false; // whether to show the progress bars
+    // this.updateProgress = false; // whether to show the progress bars
     this.stats = true;
     this.recycEnabled = false; // bummer had to disable it
     this.renderLock = false; // not rendering right this.now obviously
@@ -279,6 +278,7 @@ class AminoSeeNoEvil {
     this.pepTable = data.pepTable;
     this.args = args; // populateArgs(procArgv); // this.args;
     try {
+      this.currentFile = args._.toString()
       remain = args._.length;
       batchSize = remain;
     } catch(err) {
@@ -292,8 +292,10 @@ class AminoSeeNoEvil {
     this.maxpix = targetPixels;
     // this.currentFile = funknzlabel;
     // this.nextFile = funknzlabel;
-    // this.dnafile = funknzlabel;
-    // termSize();
+    this.dnafile = path.resolve( this.currentFile );
+    this.justNameOfDNA = path.normalize( this.dnafile )
+
+    termSize();
     // this.resized(tx, ty);
     // this.previousImage = this.justNameOfDNA
     // output(logo());
@@ -720,6 +722,10 @@ class AminoSeeNoEvil {
       if ( remain > 0 ) {
         mode(remain + " Ω first command Ω ")
         output(chalk.green(`${chalk.underline("Job items Ω ")} ${remain}`))
+        // this.dnafile = args._.toString();
+        // this.pollForStream();
+        // this.resetAndPop(status)
+        // this.popShiftOrBust();
         this.prepareState('Ω first command ', () => { // <<<<----- thats where the action is
           output('prepare state returned')
         });
@@ -890,23 +896,31 @@ class AminoSeeNoEvil {
     getRenderObject() { // return part of the histogramJson obj
       bugtxt(`codonsPerPixelHILBERT inside this.getRenderObject is ${ this.codonsPerPixelHILBERT }`)
       let linearimage, refimage;
-      for (let h=0; h < this.pepTable.length; h++) {
-        const pep =  this.pepTable[h];
-        this.currentPeptide = pep.Codon;
-        // this.pepTable[h].src = this.aminoFilenameIndex(h)[0];
-        this.pepTable[h].hilbert_master = this.aminoFilenameIndex(h)[0];
-        this.pepTable[h].linear_master = this.aminoFilenameIndex(h)[1];
-        this.pepTable[h].hilbert_preview = this.aminoFilenameIndex(h)[0];
-        this.pepTable[h].linear_preview = this.aminoFilenameIndex(h)[1];
+      // this.pepTable[h].src = this.aminoFilenameIndex(h)[0];
+      // this.pepTable[h].src = this.filePNG;
 
-        // bugtxt( this.pepTable[h].src);
+      if ( brute ) {
+        for (let h=0; h < this.pepTable.length; h++) {
+          const pep =  this.pepTable[h];
+          this.currentPeptide = pep.Codon;
+          this.pepTable[h].hilbert_master = this.aminoFilenameIndex(h)[0];
+          this.pepTable[h].linear_master = this.aminoFilenameIndex(h)[1];
+          this.pepTable[h].hilbert_preview = this.aminoFilenameIndex(h)[0];
+          this.pepTable[h].linear_preview = this.aminoFilenameIndex(h)[1];
+          bugtxt( this.pepTable[h].src);
+        }
       }
+
       this.currentPeptide = "none"; // get URL for reference image
-      refimage = this.aminoFilenameIndex(-1)[0];
-      linearimage = this.aminoFilenameIndex(-1)[1];
-      // this.pepTable.sort( this.compareHistocount )
+      // refimage = this.aminoFilenameIndex(-1)[0];
+      // linearimage = this.aminoFilenameIndex(-1)[1];
+
+      refimage = this.fileHILBERT
+      linearimage = this.filePNG
+
+      this.pepTable.sort( this.compareHistocount )
       this.pepTable.sort( this.compareHue )
-      // bugtxt( this.pepTable ); // least common amino acids in front
+      bugtxt( this.pepTable ); // least common amino acids in front
       genomes = dedupeArray( genomes )
       let zumari = {
         original_source: this.justNameOfCurrentFile,
@@ -934,11 +948,11 @@ class AminoSeeNoEvil {
         pixelClock: this.pixelClock,
         pixhilbert: hilbPixels[ this.dimension ],
         shrinkFactor: this.shrinkFactor,
-        overSampleFactor: this.overSampleFactor,
+        overSampleFactor: overSampleFactor,
         opacity: this.opacity,
         magnitude:  this.magnitude,
         dimension:  this.dimension,
-        optimumDimension: optimumDimension ( this.estimatedPixels, this.dimension ),
+        optimumDimension: optimumDimension ( this.estimatedPixels, this.magnitude ),
         darkenFactor: this.darkenFactor,
         highlightFactor: this.highlightFactor,
         correction: 'Normalise',
@@ -979,7 +993,7 @@ class AminoSeeNoEvil {
       this.peakGreen  =  this.green ;
       this.peakBlue  =  this.blue ;
       this.percentComplete = 0;
-      this.pixelClock = 0;
+      // this.pixelClock = 0;
       this.currentTriplet = "none";
       this.breakClock = 0;
       this.msElapsed = this.runningDuration = this.charClock = this.percentComplete = this.genomeSize = this.pixelClock = 0;
@@ -1005,15 +1019,15 @@ class AminoSeeNoEvil {
       for (let h=0; h< this.pepTable.length; h++) {
         this.pepTable[h].Histocount = 0;
         this.pepTable[h].z = h;
-        this.pepTable[h].src = this.aminoFilenameIndex(h)[0];
+        // this.pepTable[h].src = this.aminoFilenameIndex(h)[0];
         // IMAGE DATA ARRAYS
         this.pepTable[h].hm_array = [0,0,0,0]
         this.pepTable[h].lm_array = [0,0,0,0]
         this.pepTable[h].mixRGBA  = [0,0,0,0]
         // FILENAMES
-        this.pepTable[h].hilbert_master = this.aminoFilenameIndex(h)[0];
+        // this.pepTable[h].hilbert_master = this.aminoFilenameIndex(h)[0];
         this.pepTable[h].linear_master = this.aminoFilenameIndex(h)[1];
-        this.pepTable[h].hilbert_preview = this.aminoFilenameIndex(h)[0];
+        // this.pepTable[h].hilbert_preview = this.aminoFilenameIndex(h)[0];
         this.pepTable[h].linear_preview = this.aminoFilenameIndex(h)[1];
       }
       for (let h=0; h < dnaTriplets.length; h++) {
@@ -1459,7 +1473,7 @@ class AminoSeeNoEvil {
       mode(`pollForStream ${reason}`)
       this.setupProject();
       this.autoconfCodonsPerPixel();
-      this.setupLinearNames(); // will not include Hilbert file name. Need to wait until after render and setupHilbertFilenames
+      // this.setupLinearNames(); // will not include Hilbert file name. Need to wait until after render and setupHilbertFilenames
       let msg = `>>> PREFLIGHT <<< ${ remain } ${ path.normalize( this.currentFile )} reason: ${reason}`
       log(msg);
       redoLine(msg)
@@ -1875,7 +1889,7 @@ class AminoSeeNoEvil {
       } else { // use a file
         this.isStreamingPipe = false; // cat Human.genome | aminosee
         this.estimatedPixels =  this.baseChars / 3; // divide by 4 times 3
-        this.dimension = optimumDimension ( this.estimatedPixels, this.dimension);
+        this.dimension = optimumDimension ( this.estimatedPixels, this.magnitude );
       }
 
 
@@ -1997,13 +2011,20 @@ class AminoSeeNoEvil {
       this.justNameOfPNG =         `${ this.justNameOfDNA}.${ this.extension }_linear${ this.highlightFilename() }_c${ onesigbitTolocale( this.codonsPerPixel )}${ this.getImageType() }.png`;
       return this.justNameOfPNG;
     }
+    // function genFileHilbert2() {
+    //   this.dimension = optimumDimension ( this.pixelClock, this.dimension);
+    //   this.justNameOfHILBERT =     `${ this.justNameOfDNA}.${ this.extension }_HILBERT${ this.highlightFilename() }_m${ this.dimension }_c${ this.codonsPerPixelHILBERT }${ this.getRegmarks()}.png`;
+    //   this.fileHILBERT = path.resolve( this.justNameOfHILBERT);
+    //   return this.justNameOfHILBERT;
+    // }
+
     generateFilenameHilbert() { // needs  this.dimension
       if ( this.test) {
         // the this.dnafile should be set already fingers crossed.
-        // this.justNameOfHILBERT =     `${ this.justNameOfDNA}.${ this.extension }_HILBERT${ this.highlightFilename() }_m${ this.dimension }_c${ onesigbitTolocale( this.codonsPerPixelHILBERT )}${ this.getRegmarks()}.png`;
+        this.justNameOfHILBERT =     `${ this.justNameOfDNA}.${ this.extension }_HILBERT${ this.highlightFilename() }_m${ this.dimension }_c${ onesigbitTolocale( this.codonsPerPixelHILBERT )}${ this.getRegmarks()}.png`;
       } else {
+        output(` optimumDimension pixelClock dimension  ${optimumDimension ( this.pixelClock, this.dimension)} ${this.pixelClock} ${this.dimension}` )
         this.dimension = optimumDimension ( this.pixelClock, this.dimension);
-
         this.justNameOfHILBERT =     `${ this.justNameOfDNA}.${ this.extension }_HILBERT${ this.highlightFilename() }_m${ this.dimension }_c${ this.codonsPerPixelHILBERT }${ this.getRegmarks()}.png`;
         this.fileHILBERT = path.resolve( this.justNameOfHILBERT);
       }
@@ -2533,7 +2554,8 @@ class AminoSeeNoEvil {
       } catch(err) {
         log('failed file system checks: '+ file)
       }
-      output( chalk.inverse(`${this.busy()} Checking job ${fixedWidth(3,  remain )}: `) +  ' ' + chalk.bgBlue.white( fixedWidth(40, this.currentFile)) + this.highlightOrNothin() +  ' Closing: ' + reason );
+      output( chalk.inverse(`${this.busy()} Checking job ${fixedWidth(3,  remain )}: `) +  ' ' + chalk.bgBlue.white( fixedWidth(40, this.currentFile)) + this.highlightOrNothin());
+      log(  ' Closing: ' + reason );
       // if ( fileSystemChecks(this.dnafile )  == true ) {
       // this.popShiftOrBust(`failed filesystem checks`);
       // } else {
@@ -2995,6 +3017,7 @@ class AminoSeeNoEvil {
 
       }
       aminoFilenameIndex(id) { // return the this.dnafile for this amino acid for the report
+        let returnedHil
         let backupPeptide = this.peptide;
         let backupHighlight = this.isHighlightSet;
         if (id === undefined || id == -1) { // for the reference image
@@ -3007,7 +3030,12 @@ class AminoSeeNoEvil {
           this.isHighlightSet = true; //currentPepHighlight;
         }
         this.peptide = this.currentPeptide; // bad use of globals i agree, well i aint getting paid for this, i do it for the love, so yeah
-        let returnedHil = this.generateFilenameHilbert(); // this.isHighlightSet needs to be false for reference
+        if ( this.renderLock == true ) {
+          returnedHil  = this.generateFilenameHilbert(); // this.isHighlightSet needs to be false for reference
+        } else {
+          returnedHil = "rendering..."
+        }
+
         let returnedPNG = this.generateFilenamePNG(); // this.isHighlightSet needs to be false for reference
 
 
@@ -3970,7 +3998,7 @@ class AminoSeeNoEvil {
         this.genomeSize = 0;
         this.baseChars = 0;
         this.charClock = -1; // gets around zero length check
-        this.pixelClock = -1; // gets around zero length check
+        // this.pixelClock = -1; // gets around zero length check
         // this.quit(0, 'test stop');
       }
       testInit ( magnitude ) {
@@ -4012,7 +4040,7 @@ class AminoSeeNoEvil {
         this.genomeSize =  this.baseChars;
         this.estimatedPixels =  this.baseChars;
         this.charClock =  this.baseChars;
-        this.pixelClock =  this.baseChars;
+        // this.pixelClock =  this.baseChars;
         return true;
       }
 
@@ -4243,7 +4271,7 @@ class AminoSeeNoEvil {
         } else {
           wTitle(msg);
         }
-        output(msg)
+        return msg;
       }
 
       getHistoCount(item, index) {
@@ -4282,7 +4310,7 @@ class AminoSeeNoEvil {
         let text = " ";
         let aacdata = [];
 
-        this.calcUpdate();
+        text += this.calcUpdate();
         this.debugColumns = this.setDebugCols(); // Math.round(term.width / 3);
         term.eraseDisplayBelow();
         termSize();
@@ -4344,17 +4372,17 @@ class AminoSeeNoEvil {
           // output( `pepTable ${ beautify( this.pepTable ) }` );
           // output( `${  this.rgbArray.length  } ${  this.pepTable[5].lm_array.length  }` );
           // term.up(5);
-          output(`Last red: ${ this.peakRed } Last  green : ${ this.peakGreen } Last  blue : ${ this.peakBlue }`)
+          output(`Last red: ${ chalk.rgb(this.peakRed, 0, 0).inverse.bgBlue( minWidth(3, this.peakRed )) } Last  green : ${ chalk.rgb(0, this.peakGreen, 0).inverse.bgRed(  minWidth(3, this.peakGreen )) } Last  blue : ${ chalk.rgb(0, 0, this.peakBlue).inverse.bgYellow(  minWidth(3, this.peakBlue )) }`)
           // term.up(this.termDisplayHeight - 2)
         } else {
           output();
-          output(chalk.italic(`Increase the height of your terminal for realtime histogram. Genome size: ${ this.genomeSize}`));
+          output(chalk.bold.italic(`Increase the height of your terminal for realtime histogram. Genome size: ${ this.genomeSize}`));
           output();
         }
 
         if ( this.renderLock == true && remain >= 0 ) { // dont update if not rendering
           if ( this.msPerUpdate  <  this.maxMsPerUpdate ) {
-            this.msPerUpdate  += 100; // this.updates will slow over time on big jobs
+            this.msPerUpdate  += 50; // this.updates will slow over time on big jobs
             if (this.devmode == true) {
               this.msPerUpdate  += 100; // this.updates will slow over time on big jobs
               if (this.debug == true) {
@@ -4812,8 +4840,8 @@ class AminoSeeNoEvil {
           return str;
         }
         function minWidth(wide, str) { // make it wider
-          if ( str === undefined) { str = "0"; }
-          while(str.length < wide) { str = " " + str }
+          if ( str === undefined) { str = "*"; }
+          while(str.length < wide) { str += " " }
           return str;
         }
         function minWidthRight(wide, str) { // make it wider
@@ -5621,7 +5649,7 @@ class AminoSeeNoEvil {
         // it will choose a hilbert dimension
         // and return the shrinkage factor, codons per pixel hilbert
         let dimension, magnitude, hilpix, codonsPerPixelHILBERT, shrinkFactor
-        let computerWants = optimumDimension (linearpix, 'auto');
+        let computerWants = optimumDimension (linearpix, defaultMagnitude);
 
         if ( computerWants > defaultMagnitude ) {
           output(`This genome could be output at a higher resolution of ${hilbPixels[computerWants].toLocaleString()} than the default of ${computerWants}, you could try -m 8 or -m 9 if your machine is muscular, but it might core dump. -m10 would be 67,108,864 pixels but node runs out of stack before I get there on my 16 GB macOS. -Tom.`)
@@ -5649,6 +5677,7 @@ class AminoSeeNoEvil {
         };
       }
       function optimumDimension (pix, magauto) { // give it pix it returns a HILBERT dimension that fits inside it with good over-sampling margins
+        if ( pix == 0 ) { cliInstance.error(`zero values`); return 7; }
         let dim = 0;
         let rtxt = `[HILBERT] Calculating largest Hilbert curve image that can fit inside ${ twosigbitsTolocale(pix)} pixels, and over sampling factor of ${overSampleFactor}: `;
         while (pix > (hilbPixels[dim] * overSampleFactor)) {
@@ -5657,7 +5686,7 @@ class AminoSeeNoEvil {
               output(`Hilbert dimensions above 8 will likely exceed nodes heap memory and/or call stack. mag 11 sure does. spin up the fans. Capped your custom dimension to the ${ theoreticalMaxMagnitude }th order.`)
               dim = theoreticalMaxMagnitude;
               break
-            } else if ( magauto == 'auto') {
+            } else {
               dim = defaultMagnitude;
               break
             }
@@ -5666,7 +5695,7 @@ class AminoSeeNoEvil {
         }
         if (dim > 0) { dim--; } // was off by 1
 
-        rtxt+= ` <<<--- chosen  this.dimension: ${dim} `;
+        rtxt+= ` <<<--- chosen dimension: ${dim} `;
         log(rtxt);
         return dim;
       }
