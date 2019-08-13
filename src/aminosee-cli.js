@@ -111,7 +111,7 @@ function populateArgs(procArgv) { // returns args
     boolean: [ 'artistic', 'clear', 'chrome', 'devmode', 'debug', 'demo', 'dnabg', 'explorer', 'file', 'force', 'firefox', 'gui', 'html', 'image', 'keyboard', 'list', 'progress', 'quiet', 'reg', 'recycle', 'redraw', 'serve', 'safari', 'test', 'updates', 'verbose', 'view' ],
     string: [ 'url', 'output', 'triplet', 'peptide', 'ratio', 'port' ],
     alias: { a: 'artistic', b: 'dnabg', c: 'codons', d: 'devmode', f: 'force', h: 'help', k: 'keyboard', m: 'magnitude', o: 'output', p: 'peptide', i: 'image', t: 'triplet', u: 'updates', q: 'quiet', r: 'reg', w: 'width', v: 'verbose', x: 'explorer', finder: 'explorer', view: 'html' },
-    default: { brute: false, debug: false,  gui: true, html: true, image: false, clear: true, explorer: false, quiet: false, keyboard: true, progress: true, redraw: true, updates: true, serve: true },
+    default: { brute: false, debug: false, gui: false, html: true, image: false, clear: true, explorer: false, quiet: false, keyboard: true, progress: true, redraw: true, updates: true, serve: true },
     stopEarly: false
   } // NUMERIC INPUTS: codons, magnitude, width, maxpix
   let args = minimist(procArgv.slice(2), options)
@@ -294,11 +294,11 @@ class AminoSeeNoEvil {
     this.msPerUpdate  = minUpdateTime; // min milliseconds per update its increased for long renders
     this.termMarginTop = (term.height - this.termDisplayHeight - this.termStatsHeight) / 4;
     this.maxpix = targetPixels;
-    this.currentFile = funknzlabel;
-    this.nextFile = funknzlabel;
+
     this.dnafile = path.resolve( this.currentFile );
     this.justNameOfDNA = path.normalize( this.dnafile )
-
+    // this.currentFile = funknzlabel;
+    this.nextFile = funknzlabel;
     termSize();
     // this.resized(tx, ty);
     this.previousImage = this.justNameOfDNA
@@ -700,9 +700,8 @@ class AminoSeeNoEvil {
       bugtxt(`the args -->> ${this.args}`)
 
       if ( webserverEnabled ) {
-        server.stop(); // this helps. But is a bit violent and thrashy hack.
-        // url = server.start( this.outputPath );
-        // output(`Server running at: ${ chalk.underline( url ) } to stop use: aminosee --stop `)
+        url = server.start( this.outputPath );
+        output(`Server running at: ${ chalk.underline( url ) } to stop use: aminosee --stop `)
         // countdown(`closing in `, 3600, () => { this.gracefulQuit(7) })
       }
 
@@ -754,10 +753,8 @@ class AminoSeeNoEvil {
           this.helpCmd(args);
         } else if ( !this.quiet) {
           output(' ');
-          // log('Closing in ')
         } else {
           output();
-          // countdown('Closing in ', 700, AminoSeeNoEvil.quit);
         }
         // pushCli(` megabase.fa * --test `)
         return true;
@@ -1294,9 +1291,9 @@ class AminoSeeNoEvil {
       }
       if (code == 130) {
         this.calcUpdate();
-        if ( this ) {
-          this.destroyProgress();
-        }
+        // if ( this ) {
+        //   this.destroyProgress();
+        // }
         this.removeLocks(process.exit());
       }
       this.quit(code, 'graceful');
@@ -5376,7 +5373,7 @@ class AminoSeeNoEvil {
               // }
               process.on("SIGTERM", () => {
                 cliInstance.gracefulQuit();
-                this.destroyProgress();
+                // this.destroyProgress();
                 process.exitCode = 130;
                 cliInstance.quit(130, "SIGTERM");
                 process.exit(); // this.now the "exit" event will fire

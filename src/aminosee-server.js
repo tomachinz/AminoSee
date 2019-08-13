@@ -231,13 +231,13 @@ function stop() {
   log(`removing lock file... ${filenameServerLock}`)
   deleteFile(filenameServerLock);
   log(`...lock file removed.`)
-  if (serverLock()) {
+  // if (serverLock()) {
     // const killServe =    spawn('nice', ['killall', 'node', '', '0'], { stdio: 'pipe' });
     // const killServe =    spawn('nice', ['killall', 'node', '', '0']);
-    spawn('nice', ['killall', 'aminosee.funk.nz', '', '0'], { stdio: 'pipe' });
+    // spawn('nice', ['killall', 'aminosee.funk.nz', '', '0'], { stdio: 'pipe' });
     spawn('nice', ['killall', 'aminosee.funk.nz_server', '', '0'], { stdio: 'pipe' });
     // const killAminosee = spawn('nice', ['killall', 'aminosee.funk.nz_server', '', '0'] );
-  }
+  // }
 }
 
 
@@ -257,6 +257,7 @@ function readLockPort(file) {
   return Math.round( (fs.readFileSync(file))); // my way of casting it to a number
 }
 function start(o) { // return the port number
+  stop()
   if ( o === undefined && doesFolderExist(path.resolve(`/snapshot/`))) {
     // o = `/snapshot/public`
     o = path.resolve( os.homedir(), 'AminoSee_Output')
