@@ -103,7 +103,8 @@ function startCrossSpawnHttp(p) { // Spawn background server
   output(chalk.yellow(`Starting web server - doc root: ${options.toString()} ${chalk.underline(getServerURL())}`))
   let evilSpawn
   try {
-    evilSpawn = spawn('http-server', options, { stdio: 'pipe' });
+    // evilSpawn = spawn('http-server', options, { stdio: 'pipe' });
+    evilSpawn = spawn('aminosee', options, { stdio: 'pipe' });
     didStart = true;
   } catch(err) {
     log(err)
@@ -270,7 +271,7 @@ function start(o) { // return the port number
     log("No locks found, Starting server ");
     log(`filenameServerLock: ${filenameServerLock}`)
   }
-  // output( starthttpserver(options) );
+  output( starthttpserver(options) );
   startCrossSpawnHttp(port)
   // startServeHandler(o, port)
 

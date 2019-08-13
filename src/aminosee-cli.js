@@ -199,7 +199,7 @@ class AminoSeeNoEvil {
     this.outputPath = getOutputFolder();
     output( logo() );
 
-    // [ projectprefs, userprefs] = setupPrefs();
+    [ projectprefs, userprefs] = setupPrefs();
   }
 
 
@@ -212,7 +212,9 @@ class AminoSeeNoEvil {
     // for each DNA file, run setupProject
 
     isShuttingDown = false;
-
+    this.genomes = [`megabase`];
+    this.charClock = 0;
+    this.pixelClock = 0;
     this.peptide = this.triplet = this.currentTriplet = this.currentPeptide = "none";
     this.usersPeptide = "not set"
     this.usersTriplet = "not set"
@@ -274,7 +276,7 @@ class AminoSeeNoEvil {
     this.runningDuration = 1; // ms
     this.streamLineNr = 0;
     this.termMarginLeft = 2;
-
+    this.errorClock = 0;
     batchSize = remain;
     this.pepTable = data.pepTable;
     this.args = args; // populateArgs(procArgv); // this.args;
@@ -291,14 +293,14 @@ class AminoSeeNoEvil {
     this.msPerUpdate  = minUpdateTime; // min milliseconds per update its increased for long renders
     this.termMarginTop = (term.height - this.termDisplayHeight - this.termStatsHeight) / 4;
     this.maxpix = targetPixels;
-    // this.currentFile = funknzlabel;
-    // this.nextFile = funknzlabel;
+    this.currentFile = funknzlabel;
+    this.nextFile = funknzlabel;
     this.dnafile = path.resolve( this.currentFile );
     this.justNameOfDNA = path.normalize( this.dnafile )
 
     termSize();
     // this.resized(tx, ty);
-    // this.previousImage = this.justNameOfDNA
+    this.previousImage = this.justNameOfDNA
     // output(logo());
     this.setNextFile();
 
@@ -318,8 +320,8 @@ class AminoSeeNoEvil {
     }
     quiet = this.quiet
     if ( args.outpath || args.output || args.out || args.o) {
-      this.usersOutpath = path.normalize(path.resolve( args.outpath));
-      this.usersOutpath = this.usersOutpath.replace("~", os.homedir);
+      this.usersOutpath = path.resolve( args.outpath ) ;
+      // this.usersOutpath = this.usersOutpath.replace("~", os.homedir);
       if (doesFileExist(this.usersOutpath)) {
         if (fs.statSync(this.usersOutpath).isDirectory == true) {
           output(`Using custom output path ${this.usersOutpath}`);
@@ -730,6 +732,7 @@ class AminoSeeNoEvil {
         // this.popShiftOrBust();
         this.prepareState('Ω first command ', () => { // <<<<----- thats where the action is
           output('prepare state returned')
+          // this.pollForStream();
         });
       } else if ( this.test == true ) {
         output('Ω Running test Ω')
@@ -893,7 +896,7 @@ class AminoSeeNoEvil {
         }
       }
       clearTimeout( this.updatesTimer )
-      if ( this.renderLock == true && this.quiet == false) { this.drawHistogram() }
+      // if ( this.renderLock == true && this.quiet == false) { this.drawHistogram() }
     }
     cli(argumentsArray) {
       output(`cli argumentsArray [${argumentsArray.toString()}]`)
@@ -927,7 +930,6 @@ class AminoSeeNoEvil {
       this.pepTable.sort( this.compareHistocount )
       this.pepTable.sort( this.compareHue )
       bugtxt( this.pepTable ); // least common amino acids in front
-      genomes = dedupeArray( genomes )
       let zumari = {
         original_source: this.justNameOfCurrentFile,
         full_path: this.file,
@@ -1116,19 +1118,19 @@ class AminoSeeNoEvil {
               server.stop();
             }
             destroyKeyboardUI();
-            // setTimeout(()=> {
-            that.gracefulQuit(130);
-            // }, 500)
+            setTimeout(()=> {
+              that.gracefulQuit(130);
+            }, 500)
           }
 
           if ( key.name == 'b') {
             clearCheck();
             that.togglednabg();
           }
-          // if ( key.name == 's') {
-          //   clearCheck();
-          //   that.toggleServer();
-          // }
+          if ( key.name == 's') {
+            clearCheck();
+            that.toggleServer();
+          }
           if ( key.name == 'f') {
             that.toggleForce();
           }
@@ -1152,9 +1154,6 @@ class AminoSeeNoEvil {
             term.clear();
             that.toggleClearScreen();
           }
-          // if ( key.name == 't') {
-          //   linearpixbert();
-          // }
           if ( key.name == 'Space' || key.name == 'Enter') {
             clearCheck();
             that.msPerUpdate  = minUpdateTime;
@@ -1587,7 +1586,7 @@ class AminoSeeNoEvil {
         this.quit(0, `Finito hombre`)
       }
 
-      if (remain >= 0) {
+      if (remain > 0) {
         this.popShiftOrBust(`reset ` + reason);
       } else {
         this.destroyProgress();
@@ -1605,7 +1604,7 @@ class AminoSeeNoEvil {
       try {
         file = this.args._[0].toString();
       } catch(err) {
-        log(`Catch: this.args._[0].toString() = ${this.args._[0].toString()}`)
+        // log(`Catch: this.args._[0].toString() = ${this.args._[0].toString()}`)
         runcb(cb);
         return false;
       }
@@ -1616,11 +1615,11 @@ class AminoSeeNoEvil {
         log('test is in look for work?');
         return false;
       }
-      if (remain <= 0) {
+      if (remain < 1) {
         mode('Happiness.');
         saySomethingEpic();
         log(chalk.bgRed.yellow( status ));
-        // printRadMessage(  status )
+        printRadMessage(  status )
         this.quit(0,  status );
         runcb(cb);
         return false;
@@ -1632,8 +1631,8 @@ class AminoSeeNoEvil {
         runcb(cb);
         return false;
       }
-
       this.setNextFile();
+      // this.touchLockAndStartStream();
       this.pollForStream(`Ready: ${this.currentFile}`);
       runcb(cb);
     }
@@ -1655,8 +1654,7 @@ class AminoSeeNoEvil {
       mode("Ω first command " + remain + " " + this.currentFile);
       this.setIsDiskBusy( false );
       this.autoconfCodonsPerPixel();
-      this.autoconfCodonsPerPixel();
-      // this.mkRenderFolders(); // create /images etc
+      this.mkRenderFolders(); // create /images etc
       this.setupProgress();
       this.rawDNA = "@"
       this.extension = this.getFileExtension( this.currentFile );
@@ -1779,10 +1777,10 @@ class AminoSeeNoEvil {
       output(`Started ${ ( this.force ? 'forced ' : '' ) }render of ${this.justNameOfPNG} next is ${this.nextFile}`);
       if ( this.renderLock == true ) {
         if ( this.updates == true && this.quiet == false) {
-          // this.drawHistogram();
-          that.drawHistogram();
+          this.drawHistogram();
+          // that.drawHistogram();
         } else {
-          output( nicePercent())
+          output('ss '+ nicePercent())
         }
         this.progUpdate({ title: 'DNA File Render step 1/3', items: remain, syncMode: true })
         setTimeout(() => {
@@ -2315,15 +2313,15 @@ class AminoSeeNoEvil {
         projectprefs.aminosee.genomes = dedupeArray( genomes );
       }
       // clearTimeout( updatesTimer)
-      // this.diskStorm( () => {
-      //   log(`disk storm has returned`)
-      // })
+      this.diskStorm( () => {
+        log(`disk storm has returned`)
+      })
 
       var that = this; // closure
 
       mode('main render async.series')
-      async.waterfall( [
-      // async.series( [
+      // async.waterfall( [
+      async.series( [
         function ( cb ) {
           mode('async start ' + that.currentFile)
           that.savePNG( cb );
@@ -3887,7 +3885,7 @@ class AminoSeeNoEvil {
             });
           } catch(e) {
             bugtxt(`Error creating folder: ${e} at location: ${dir2make}`)
-            this.error(`Quiting due to lack of permissions in this directory [${ this.outputPath }] `);
+            // this.error(`Quiting due to lack of permissions in this directory [${ this.outputPath }] `);
           }
         }
         if ( doesFolderExist(dir2make) === false ) {
@@ -4323,12 +4321,10 @@ class AminoSeeNoEvil {
 
         let text = " ";
         let aacdata = [];
-
         text += this.calcUpdate();
         this.debugColumns = this.setDebugCols(); // Math.round(term.width / 3);
         term.eraseDisplayBelow();
         termSize();
-
 
         for (let h=0;h< this.pepTable.length;h++) {       // OPTIMISE i should not be creating a new array each frame!
           aacdata[ this.pepTable[h].Codon] = this.pepTable[h].Histocount ;
@@ -4807,12 +4803,11 @@ class AminoSeeNoEvil {
                 ty = term.height
                 termPixels = (tx) * (ty-8);
                 cliInstance.termPixels = termPixels;
-
               }
               function destroyKeyboardUI() {
                 process.stdin.pause(); // stop eating the this.keyboard!
                 try {
-                  process.stdin.setRawMode(false); // back to cooked this.mode
+                  // process.stdin.setRawMode(false); // back to cooked this.mode
                 } catch(err) {
                   log(`Could not disable raw mode this.keyboard: ${err}`)
                 }
