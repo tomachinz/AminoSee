@@ -84,7 +84,7 @@ const wideScreen = 140; // shrinks terminal display
 // BigInt.prototype.toJSON = function() { return this.toString(); }; // shim for big int
 // BigInt.prototype.toBSON = function() { return this.toString(); }; // Add a `toBSON()` to enable MongoDB to store BigInts as strings
 const targetPixels = 8000000; // for big genomes use setting flag -c 1 to achieve highest resolution and bypass this taret max render size
-let isElectron, jobArgs, killServersOnQuit, webserverEnabled, cliInstance, tx, ty, termPixels, cliruns, gbprocessed, projectprefs, userprefs, genomes, progato, commandString, batchSize, quiet, url, port, status, remain;
+let isElectron, jobArgs, killServersOnQuit, webserverEnabled, cliInstance, tx, ty, termPixels, cliruns, gbprocessed, projectprefs, userprefs, genomesRendered, progato, commandString, batchSize, quiet, url, port, status, remain;
 let opens = 0; // session local counter to avoid having way too many windows opened.
 let dnaTriplets = data.dnaTriplets;
 termPixels = 69;
@@ -96,6 +96,7 @@ let clear = false;
 let debug = false; // should be false for PRODUCTION
 let brute = false; // used while accelerating the render 20x
 webserverEnabled = true;
+genomesRendered = ['megabase']
 
 module.exports = () => {
   isElectron = false;
@@ -108,9 +109,9 @@ module.exports = () => {
 function populateArgs(procArgv) { // returns args
   const options = {
     boolean: [ 'artistic', 'clear', 'chrome', 'devmode', 'debug', 'demo', 'dnabg', 'explorer', 'file', 'force', 'firefox', 'gui', 'html', 'image', 'keyboard', 'list', 'progress', 'quiet', 'reg', 'recycle', 'redraw', 'serve', 'safari', 'test', 'updates', 'verbose', 'view' ],
-    string: [ 'url', 'outpath', 'triplet', 'peptide', 'ratio', 'port' ],
-    alias: { a: 'artistic', b: 'dnabg', c: 'codons', d: 'devmode', f: 'force', h: 'help', k: 'keyboard', m: 'magnitude', o: 'outpath', out: 'outpath', output: 'outpath', p: 'peptide', i: 'image', t: 'triplet', u: 'updates', q: 'quiet', r: 'reg', w: 'width', v: 'verbose', x: 'explorer', finder: 'explorer', view: 'html' },
-    default: { brute: false, debug: false,  gui: false, html: true, image: false, clear: true, explorer: false, quiet: false, keyboard: false, progress: true, redraw: true, updates: true, serve: true },
+    string: [ 'url', 'output', 'triplet', 'peptide', 'ratio', 'port' ],
+    alias: { a: 'artistic', b: 'dnabg', c: 'codons', d: 'devmode', f: 'force', h: 'help', k: 'keyboard', m: 'magnitude', o: 'output', p: 'peptide', i: 'image', t: 'triplet', u: 'updates', q: 'quiet', r: 'reg', w: 'width', v: 'verbose', x: 'explorer', finder: 'explorer', view: 'html' },
+    default: { brute: false, debug: false,  gui: true, html: true, image: false, clear: true, explorer: false, quiet: false, keyboard: true, progress: true, redraw: true, updates: true, serve: true },
     stopEarly: false
   } // NUMERIC INPUTS: codons, magnitude, width, maxpix
   let args = minimist(procArgv.slice(2), options)
@@ -144,7 +145,7 @@ function bruteForce(cs) {
 }
 function pushCli(cs) { // used by Electron GUI
   commandString = `node aminosee ${cs} --image --force --quiet`;// let commandArray = [`node`, `aminosee`, commandString];
-  output(chalk.inverse(`Starting AminoSee now with CLI:`) + ` isElectron: [${isElectron}]`)
+  output(chalk.inverse(`Starting AminoSee now with pushClI: [${ cs }]`))
   let commandArray = commandString.split(" ");
   jobArgs = populateArgs( commandArray );
   log(`Command: ${commandString}`);
@@ -212,7 +213,7 @@ class AminoSeeNoEvil {
     // for each DNA file, run setupProject
 
     isShuttingDown = false;
-    this.genomes = [`megabase`];
+    genomesRendered = [`megabase`];
     this.charClock = 0;
     this.pixelClock = 0;
     this.peptide = this.triplet = this.currentTriplet = this.currentPeptide = "none";
@@ -235,7 +236,7 @@ class AminoSeeNoEvil {
     this.debugGears = 1;
     this.done = 0;
     this.suopIters = 0;
-    this.raceDelay = 69; // so i learnt a lot on this project. one day this line shall disappear replaced by promises.
+    this.raceDelay = 1; // so i learnt a lot on this project. one day this line shall disappear replaced by promises.
     this.darkenFactor = 0.125; // if user has chosen to highlight an amino acid others are darkened
     this.highlightFactor = 8.0; // highten brightening.
     this.devmode = false; // kills the auto opening of reports etc
@@ -319,7 +320,8 @@ class AminoSeeNoEvil {
       log('not using quiet mode. ')
     }
     quiet = this.quiet
-    if ( args.outpath || args.output || args.out || args.o) {
+    if ( args.output || args.o ) {
+      output(args.o)
       this.usersOutpath = path.resolve( args.outpath ) ;
       // this.usersOutpath = this.usersOutpath.replace("~", os.homedir);
       if (doesFileExist(this.usersOutpath)) {
@@ -353,9 +355,6 @@ class AminoSeeNoEvil {
     if ( args.url ) {
       url = args.url;
       projectprefs.aminosee.url = url;
-      output(`Custom URL set: ${url}`);
-    } else {
-      output(`Using URL prefix: ${url}`)
     }
     if ( args.progress ) {
       this.updateProgress = true; // whether to show the progress bars
@@ -466,7 +465,7 @@ class AminoSeeNoEvil {
       this.dimension = defaultMagnitude;
       log(`Using auto magnitude with limit ${defaultMagnitude}th dimension`)
     }
-    output(`Max pixels: ${ this.maxpix } Hilbert curve dimension: ${ this.dimension } ${ this.magnitude }`);
+    log(`Max pixels: ${ this.maxpix } Hilbert curve dimension: ${ this.dimension } ${ this.magnitude }`);
     if ( args.ratio || args.r ) {
       this.ratio = args.ratio;
       if ( this.test ) { // this is for: aminosee --test -r
@@ -576,11 +575,6 @@ class AminoSeeNoEvil {
         log("not opening html");
         this.openHtml = false;
       }
-
-      if ( cliruns > 69 || gbprocessed  > 0.1 || opens > 24 && Math.random() > 0.8) {
-        output(`Easter egg: enabling dnabg mode!!`)
-        this.dnabg = true
-      } // if you actually use the program, this easter egg starts showing raw DNA as the background after 100 megs or 69 runs.
       if ( args.dnabg || args.s) {
         log("dnabg mode enabled.");
         this.dnabg = true;
@@ -588,7 +582,10 @@ class AminoSeeNoEvil {
         log("dnabg mode disabled.");
         this.dnabg = false;
       }
-
+      if ( cliruns > 69 || gbprocessed  > 0.2 || opens > 24 && Math.random() >= 0.94) {
+        log(`Easter egg: enabling dnabg mode!!`)
+        this.dnabg = true
+      } // if you actually use the program, this easter egg starts showing raw DNA as the background after 100 megs or 69 runs.
       if ( args.force || args.f) {
         output("force overwrite enabled.");
         this.force = true;
@@ -609,6 +606,7 @@ class AminoSeeNoEvil {
       }
       if ( args.serve || args.s ) {
         webserverEnabled = true;
+        output(`Using URL prefix: ${url}`)
       } else {
         output("Webserver Disabled ")
         webserverEnabled = false;
@@ -703,8 +701,8 @@ class AminoSeeNoEvil {
 
       if ( webserverEnabled ) {
         server.stop(); // this helps. But is a bit violent and thrashy hack.
-        url = server.start( this.outputPath );
-        output(`Server running at: ${ chalk.underline( url ) } to stop use: aminosee --stop `)
+        // url = server.start( this.outputPath );
+        // output(`Server running at: ${ chalk.underline( url ) } to stop use: aminosee --stop `)
         // countdown(`closing in `, 3600, () => { this.gracefulQuit(7) })
       }
 
@@ -761,7 +759,7 @@ class AminoSeeNoEvil {
           output();
           // countdown('Closing in ', 700, AminoSeeNoEvil.quit);
         }
-
+        // pushCli(` megabase.fa * --test `)
         return true;
       }
       // countdown('.', 4000, () => {
@@ -795,17 +793,18 @@ class AminoSeeNoEvil {
         // this.drawProgress();
 
 
+        // if ( remain > 0 ) {
+        //           progato = term.progressBar({
+        //             width: term.width - 20,
+        //             title: `Booting up at ${ formatAMPM( new Date())} on ${hostname}`,
+        //             eta: true,
+        //             percent: true,
+        //             inline: true
+        //           });
+        //           term.moveTo(1 + this.termMarginLeft,1 + this.termMarginTop);
+        //           this.drawProgress();
+        // }
 
-
-        progato = term.progressBar({
-          width: term.width - 20,
-          title: `Booting up at ${ formatAMPM( new Date())} on ${hostname}`,
-          eta: true,
-          percent: true,
-          inline: true
-        });
-        // term.moveTo(1 + this.termMarginLeft,1 + this.termMarginTop);
-        this.drawProgress();
       }
     }
     startProgress() {
@@ -941,7 +940,7 @@ class AminoSeeNoEvil {
         url: url,
         cliruns: cliruns,
         gbprocessed: gbprocessed,
-        genomes: genomes,
+        genomes: genomesRendered,
         hostname: hostname,
         version: version,
         flags: (  this.force ? "F" : ""    )+(  this.userCPP == "auto"  ? `C${ this.userCPP }` : ""    )+(  this.devmode ? "D" : ""    )+(  this.args.ratio || this.args.r ? `${ this.ratio }` : "   "    )+(  this.args.magnitude || this.args.m ? `M${ this.dimension }` : "   "    ),
@@ -976,7 +975,7 @@ class AminoSeeNoEvil {
         summary: zumari
       }
       // output(histogramJson  )
-      output( beautify( histogramJson, null, 2, 100) );
+      // output( beautify( histogramJson, null, 2, 100) );
       return histogramJson;
     }
 
@@ -1450,6 +1449,7 @@ class AminoSeeNoEvil {
         output(msg)
         log(`${this.dnafile}`)
         countdown(`opening ${asterix} in `, 4000, () => {
+          output(`Pushing...`)
           pushCli(asterix);
         })
         this.popShiftOrBust(msg)
@@ -1493,25 +1493,25 @@ class AminoSeeNoEvil {
         this.popShiftOrBust(`File Format not supported: (${ this.getFileExtension( this.currentFile)}) Please try: ${ extensions }`)
         return false;
       }
-      // if (doesFolderExist(this.dnafile ) ) {
-      //   msg = `${this.currentFile} is a folder not a file, will try to re-issue job as ${this.currentFile}/* to process all in dir`
-      //   // pushCli( `${basename( this.currentFile )}/*` );
-      //   this.popShiftOrBust(msg);
-      //   return true;
-      // }
+      if (doesFolderExist(this.dnafile ) ) {
+        msg = `${this.currentFile} is a folder not a file, will try to re-issue job as ${this.currentFile}/* to process all in dir`
+        // pushCli( `${basename( this.currentFile )}/*` );
+        this.popShiftOrBust(msg);
+        return true;
+      }
 
       if (doesFileExist(this.filePNG) && this.force == false) {
         bugtxt(`isStorageBusy ${this.isStorageBusy} Storage: [${this.isStorageBusy}]`)
         termDrawImage(this.filePNG, `File already rendered`);
         let msg = `Already rendered ${ maxWidth(60, this.justNameOfPNG) }.`;
-        log(msg);
+        output(msg);
         this.openOutputs();
-        // setTimeout( () => {
-        this.popShiftOrBust(msg);
-        // }, this.raceDelay)
+        setTimeout( () => {
+          if ( this.renderLock == false ) {
+            this.popShiftOrBust(msg);
+          }
+        }, this.raceDelay)
         return false;
-      } else {
-        output( blueWhite(`Job to be rendered...`))
       }
 
       if ( this.checkLocks( this.fileTouch )) {
@@ -1521,6 +1521,12 @@ class AminoSeeNoEvil {
         output(`Touchfile: ${chalk.underline( this.fileTouch )}`);
         log(`thread was polling, and got jumped  on by a thousand pound gorilla.`)
         this.popShiftOrBust('Polling');
+
+        setTimeout( () => {
+          if ( this.renderLock == false ) {
+            this.popShiftOrBust(msg);
+          }
+        }, this.raceDelay)
         return false;
       }
       mode("Lock OK proceeding to render...");
@@ -1639,7 +1645,7 @@ class AminoSeeNoEvil {
     initStream() {
       mode("Initialising Stream");
       output( status )
-
+      this.timestamp = Math.round(+new Date()/1000);
       if ( isShuttingDown == true ) { output("Sorry shutting down."); return false;}
       if ( this.renderLock == false) {
         this.error("RENDER LOCK FAILED. This is an  this.error I'd like reported. Please run with --devmode option enabled and send the logs to aminosee@funk.co.nz");
@@ -1991,22 +1997,10 @@ class AminoSeeNoEvil {
     }
     setupHilbertFilenames() {
       // REQUIRES RENDERING TO MEMORY PRIOR
-      let { shrinkFactor, codonsPerPixelHILBERT } = calculateShrinkage( this.pixelClock );
+      let { shrinkFactor, codonsPerPixelHILBERT } = calculateShrinkage( this.pixelClock, this.dimension, this.codonsPerPixel );
       this.shrinkFactor = shrinkFactor;
-      this.codonsPerPixelHILBERT = codonsPerPixelHILBERT;
+      this.codonsPerPixelHILBERT = onesigbitTolocale( codonsPerPixelHILBERT );
       this.fileHILBERT = `${ this.outputPath }/${ this.justNameOfDNA }/images/${ this.generateFilenameHilbert() }`;
-      output( this.fileHILBERT + codonsPerPixelHILBERT )
-      output( this.fileHILBERT + codonsPerPixelHILBERT )
-      output( this.fileHILBERT + codonsPerPixelHILBERT )
-      output( this.fileHILBERT + codonsPerPixelHILBERT )
-      output( this.fileHILBERT + codonsPerPixelHILBERT )
-      output( this.fileHILBERT + codonsPerPixelHILBERT )
-      output( this.fileHILBERT + codonsPerPixelHILBERT )
-      output( this.fileHILBERT + codonsPerPixelHILBERT )
-      output( this.fileHILBERT )
-      output( this.fileHILBERT )
-      output( this.fileHILBERT )
-      output( this.fileHILBERT )
     }
 
     generateFilenameHistogram() {
@@ -2027,7 +2021,7 @@ class AminoSeeNoEvil {
       return this.justNameOfPNG;
     }
     // function genFileHilbert2() {
-    //   this.dimension = optimumDimension ( this.pixelClock, this.dimension);
+    //   this.dimension = optimumDimension ( this.pixelClock, this.magnitude);
     //   this.justNameOfHILBERT =     `${ this.justNameOfDNA}.${ this.extension }_HILBERT${ this.highlightFilename() }_m${ this.dimension }_c${ this.codonsPerPixelHILBERT }${ this.getRegmarks()}.png`;
     //   this.fileHILBERT = path.resolve( this.justNameOfHILBERT);
     //   return this.justNameOfHILBERT;
@@ -2038,8 +2032,8 @@ class AminoSeeNoEvil {
         // the this.dnafile should be set already fingers crossed.
         this.justNameOfHILBERT =     `${ this.justNameOfDNA}.${ this.extension }_HILBERT${ this.highlightFilename() }_m${ this.dimension }_c${ onesigbitTolocale( this.codonsPerPixelHILBERT )}${ this.getRegmarks()}.png`;
       } else {
-        output(` optimumDimension pixelClock dimension  ${optimumDimension ( this.pixelClock, this.dimension)} ${this.pixelClock} ${this.dimension}` )
-        this.dimension = optimumDimension ( this.pixelClock, this.dimension);
+        this.dimension = optimumDimension ( this.pixelClock, this.magnitude);
+        log(`codonsPerPixelHILBERT: [${ this.codonsPerPixelHILBERT }] optimumDimension pixelClock dimension  ${ this.dimension } ${this.pixelClock} ${this.dimension}` )
         this.justNameOfHILBERT =     `${ this.justNameOfDNA}.${ this.extension }_HILBERT${ this.highlightFilename() }_m${ this.dimension }_c${ this.codonsPerPixelHILBERT }${ this.getRegmarks()}.png`;
         this.fileHILBERT = path.resolve( this.justNameOfHILBERT);
       }
@@ -2215,7 +2209,10 @@ class AminoSeeNoEvil {
         printRadMessage( [ `software version ${version}` ] );
       }
 
+      if ( this.keybaord ) {
       this.setupKeyboardUI(); // allows fast quit with [Q]
+      }
+
 
       if ( this.help == true) {
         this.openHtml = true;
@@ -2308,9 +2305,11 @@ class AminoSeeNoEvil {
         gbprocessed  = userprefs.aminosee.gbprocessed;
         gbprocessed +=  this.baseChars / 1024 / 1024 / 1024; // increment disk counter.
         userprefs.aminosee.gbprocessed = gbprocessed; // i have a superstition this way is less likely to conflict with other threads
-        genomes = projectprefs.aminosee.genomes;
-        genomes.push(this.justNameOfDNA);
-        projectprefs.aminosee.genomes = dedupeArray( genomes );
+        // genomesRendered = projectprefs.aminosee.genomes;
+        // output(genomesRendered )
+        genomesRendered.push(this.justNameOfDNA);
+        output(genomesRendered )
+        projectprefs.aminosee.genomes = dedupeArray( genomesRendered );
       }
       // clearTimeout( updatesTimer)
       this.diskStorm( () => {
@@ -2537,9 +2536,7 @@ class AminoSeeNoEvil {
       } else {
         out(`About to pop / shift`)
       }
-      if ( remain < 1 ) {
-        return true;
-      }
+
       try {
         file = this.args._.shift().toString(); // file = this.args._.pop().toString();
         // file = this.args._.pop().toString(); // file = this.args._.pop().toString();
@@ -2569,6 +2566,10 @@ class AminoSeeNoEvil {
       }
       output( chalk.inverse(`${this.busy()} Checking job ${fixedWidth(3,  remain )}: `) +  ' ' + chalk.bgBlue.white( fixedWidth(40, this.currentFile)) + this.highlightOrNothin());
       log(  ' Closing: ' + reason );
+      if ( remain < 1 ) {
+        return true;
+      }
+
       // if ( fileSystemChecks(this.dnafile )  == true ) {
       // this.popShiftOrBust(`failed filesystem checks`);
       // } else {
@@ -2617,7 +2618,8 @@ class AminoSeeNoEvil {
             if ( remain < 1) {
               isShuttingDown = true;
             }
-            this.resetAndPop(`Great success with render of (${this.justNameOfDNA}) but: ${this.busy()} ${this.storage()}`);
+            this.resetAndPop(`Great success with render of (${this.justNameOfDNA})`);
+            log(` but: ${this.busy()} ${this.storage()}`);
           }
         } else {
           log(` [ ${reason} wait on storage: ${chalk.inverse( this.storage() )}  ] `);
@@ -3458,7 +3460,7 @@ class AminoSeeNoEvil {
           if ( i % this.debugFreq == 0) {
             this.percentComplete = i/hilpix;
             this.progUpdate( this.percentComplete )
-            redoLine(`Space filling ${nicePercent(this.percentComplete)} `);
+            redoLine(`Space filling ${nicePercent( this.percentComplete )} `);
           }
 
           let hilbX, hilbY;
@@ -4369,12 +4371,11 @@ class AminoSeeNoEvil {
         output(`Report URL: ${chalk.underline( this.fullURL )}`)
         term.down(1);
         term.right( this.termMarginLeft );
-        output();
         if (term.height > this.termStatsHeight + this.termDisplayHeight) {
           output(`Last Acid: ${chalk.inverse.rgb(ceiling( this.red ), ceiling( this.green ), ceiling( this.blue )).bgWhite.bold( fixedWidth(16, "  " + this.aminoacid + "   ") ) }` +
-            chalk.rgb(this.peakRed, 0, 0).inverse.bgBlue(  maxWidth(8, `R:${this.peakRed}` )) +
-            chalk.rgb(0, this.peakGreen, 0).inverse.bgRed( maxWidth(11, `G:${this.peakGreen}` )) +
-            chalk.rgb(0, 0, this.peakBlue).inverse.bgYellow(maxWidth(9, `B:${this.peakBlue}` ))
+            chalk.rgb(this.peakRed, 0, 0).inverse.bgBlue(  maxWidth(8, `R:  ${this.peakRed}` )) +
+            chalk.rgb(0, this.peakGreen, 0).inverse.bgRed( maxWidth(11, `G:  ${this.peakGreen}` )) +
+            chalk.rgb(0, 0, this.peakBlue).inverse.bgYellow(maxWidth(9, `B:  ${this.peakBlue}` ))
           )
           output( histogram(aacdata, { bar: '/', width: this.debugColumns*2, sort: true, map: aacdata.Histocount} ));
           output();
@@ -4383,6 +4384,8 @@ class AminoSeeNoEvil {
             output(interactiveKeysGuide);
           }
           output( this.blurb() )
+          output();
+
           // output( `pepTable ${ beautify(  JSON.stringify ( this.pepTable)  ) }` );
           // output( `pepTable ${ beautify( this.pepTable ) }` );
           // output( `${  this.rgbArray.length  } ${  this.pepTable[5].lm_array.length  }` );
@@ -4960,7 +4963,7 @@ class AminoSeeNoEvil {
                 userprefs.aminosee.cliruns++; // increment run counter. for a future high score table stat and things maybe.
                 cliruns = userprefs.aminosee.cliruns;
                 gbprocessed  = userprefs.aminosee.gbprocessed;
-                genomes = projectprefs.aminosee.genomes;
+                genomesRendered = projectprefs.aminosee.genomes;
                 url = projectprefs.aminosee.url;
                 return [ userprefs, projectprefs ]
               }
@@ -5657,28 +5660,33 @@ class AminoSeeNoEvil {
               var options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
               return today.toLocaleString(options) + "  " + today.toLocaleDateString(options); // Saturday, September 17, 2016
             }
-            function calculateShrinkage( linearpix ) { // danger: can change this.file of Hilbert images!
+            function calculateShrinkage( linearpix, dim, cpp ) { // danger: can change this.file of Hilbert images!
               // give it a large number of pixels
               // it will choose a hilbert dimension
               // and return the shrinkage factor, codons per pixel hilbert
-              let dimension, magnitude, hilpix, codonsPerPixelHILBERT, shrinkFactor
-              let computerWants = optimumDimension (linearpix, defaultMagnitude);
+              let magnitude, hilpix, codonsPerPixelHILBERT, shrinkFactor
+              let computerWants = optimumDimension (linearpix, 'auto');
 
-              if ( computerWants > defaultMagnitude ) {
-                output(`This genome could be output at a higher resolution of ${hilbPixels[computerWants].toLocaleString()} than the default of ${computerWants}, you could try -m 8 or -m 9 if your machine is muscular, but it might core dump. -m10 would be 67,108,864 pixels but node runs out of stack before I get there on my 16 GB macOS. -Tom.`)
-                dimension = defaultMagnitude;
-              } else if (computerWants < 0) {
-                dimension = 0; // its an array index
-                this.error(`That image is way too small to make an image out of?`);
-              }
-              if ( this.magnitude == "custom" ) {
-                dimension = this.dimension; // users choice over ride all this nonsense
-              } else {
-                dimension = computerWants; // give him what he wants
-              }
-              hilpix = hilbPixels[ dimension ];
+              // if ( computerWants > defaultMagnitude ) {
+              //   output(`This genome could be output at a higher resolution of ${hilbPixels[computerWants].toLocaleString()} than the default of ${computerWants}, you could try -m 8 or -m 9 if your machine is muscular, but it might core dump. -m10 would be 67,108,864 pixels but node runs out of stack before I get there on my 16 GB macOS. -Tom.`)
+              //   dimension = defaultMagnitude;
+              // } else if (computerWants < 3) {
+              //   dimension = 3; // its an array index
+              //   this.error(`That image is way too small to make an image out of?`);
+              // }
+
+              // if ( this.magnitude == "custom" ) {
+              //   dimension = this.dimension; // users choice over ride all this nonsense
+              // } else {
+              //   dimension = computerWants; // give him what he wants
+              // }
+
+
+              hilpix = hilbPixels[ dim ];
               shrinkFactor = linearpix / hilpix; // THE GUTS OF IT
-              codonsPerPixelHILBERT = this.codonsPerPixel /  shrinkFactor;
+              codonsPerPixelHILBERT = cpp * shrinkFactor;
+              this.codonsPerPixelHILBERT = codonsPerPixelHILBERT;
+              output(`shrinkFactor [${shrinkFactor}] codons per pixel [${cpp}]`)
               return {
                 shrinkFactor: shrinkFactor,
                 codonsPerPixelHILBERT: codonsPerPixelHILBERT

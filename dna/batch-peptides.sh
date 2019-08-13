@@ -2,8 +2,14 @@
 aminosee_do () {
   echo $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 START RENDER
   sleep 1
-  nice aminosee  $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12  --no-updates --no-image
+  aminosee -q $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --no-image &
+  sleep 1
+  nice aminosee --index -c360 $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --no-image
+  echo
+  echo
   echo $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 FINISHED RENDER
+  echo
+  echo
 }
 best_way () {
   aminosee $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 -q &

@@ -1,15 +1,11 @@
 var Terminal = require('xterm').Terminal;
-
-// var term = new Terminal();
 let term = new Terminal({
   cursorBlink: true,
 })
 term.open(document.getElementById('terminal'));
 term.write('Greets from \x1B[1;3;31mxterm.js\x1B[0m $ ')
-
 // var os = require('os');
 var pty = require('node-pty');
-
 // Initialize node-pty with an appropriate shell
 const shell = process.env[os.platform() === 'win32' ? 'COMSPEC' : 'SHELL'];
 const ptyProcess = pty.spawn(shell, [], {
@@ -19,11 +15,8 @@ const ptyProcess = pty.spawn(shell, [], {
   cwd: process.cwd(),
   env: process.env
 });
-
-// Initialize xterm.js and attach it to the DOM
-const xterm = new Terminal();
+const xterm = new Terminal(); // Initialize xterm.js and attach it to the DOM
 xterm.open(document.getElementById('xterm'));
-
 // Setup communication between xterm.js and node-pty
 xterm.on('data', (data) => {
   ptyProcess.write(data);
@@ -32,25 +25,48 @@ ptyProcess.on('data', function (data) {
   xterm.write(data);
 });
 
-
 // import Terminal from 'xterm'
-
 let channel = socket.channel("terminal:1", {})
 channel.join()
 channel.on('output', ({output}) => term.write(output)) // From the Channel
-
-
-
-
 term.open(document.getElementById('terminal-container'))
 term.on('data', (data) => channel.push('input', {input: data})) // To the Channel
-
 aminosee('test').then(result => document.body.textContent = result);
 
 
 
+async function onload() {
+  const data = await systeminfo();
+  const pushCli = await pushCli();
+  pushCli('--test -m8')
+  const grids = document.getElementById('grids');
+  const blur = new Set(['serial', 'uuid', 'sku', 'hostname']);
+  const keys = Object.keys(data).sort();
+  for (const type of keys) {
+    const info = data[type];
+    const placeholder = createChild(grids, 'div', 'grid-placeholder');
+    const grid = createChild(placeholder, 'div', 'grid');
+    createChild(grid, 'div', 'header').textContent = type;
+    const infos = Object.keys(info).sort();
+    for (const key of infos) {
+      if (typeof info[key] === 'object') continue;
+      createChild(grid, 'div').textContent = key;
+      const value = createChild(grid, 'div', 'value');
+      value.textContent = info[key];
+      if (blur.has(key))
+        value.classList.add('blur');
+    }
+  }
+  document.body.style.opacity = 1;
+}
 
-
+function createChild(parent, tag, className) {
+  const elem = document.createElement(tag);
+  if (className)
+    elem.className = className;
+  parent.appendChild(elem);
+  return elem;
+}
 
 
 /*  from: https://www.sitepoint.com/html5-file-drag-and-drop/ goes with
@@ -67,7 +83,7 @@ Developed by Craig Buckler (@craigbuckler) of OptimalWorks.net
 
 
 	// output information
-	function Output(msg) {
+	function output(msg) {
 		var m = $id("messages");
 		m.innerHTML = msg + m.innerHTML;
 	}
@@ -101,8 +117,9 @@ Developed by Craig Buckler (@craigbuckler) of OptimalWorks.net
 	// output file information
 	function ParseFile(file) {
     let fullpath = path.resolve( file.name );
-
-		Output(
+    alert( fullpath)
+    output( fullpath )
+		output(
 			"<p>File information: <strong>" + file.name +
       "</strong> path: <strong>" + fullpath +
       "</strong> type: <strong>" + file.type +
@@ -111,7 +128,6 @@ Developed by Craig Buckler (@craigbuckler) of OptimalWorks.net
 		);
 
 	}
-
 
 	// initialize
 	function Init() {

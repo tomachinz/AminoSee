@@ -21,12 +21,12 @@ This is a temporary lock file, so I dont start too many servers. Its safe to era
 // const version = aminosee.version;
 // const webserverEnabled = true;
 const defaulturl = `http://localhost:4321/?devmode`
-let outputPath, filenameServerLock, url, projectprefs, userprefs, port, cliruns, gbprocessed;
+let outputPath, filenameServerLock, url, projectprefs, userprefs, port, cliruns, gbprocessed, args;
 url = defaulturl
 port = 4321;
 backupPort = 43210;
 process.title = `aminosee.funk.nz_server`;
-
+args = { verbose: false }
 [ userprefs, projectprefs ] = setupPrefs();
 
 function setupPrefs() {
@@ -64,7 +64,10 @@ function setupPrefs() {
 
 }
 function log(txt) {
+  if ( args.verbose ) {
   output( txt )
+  }
+
 }
 // function getArgs() {
 //   return this.args;
@@ -224,10 +227,10 @@ module.exports = (options) => {
 
 
 function stop() {
-  output(`Stopping server`);
-  output(`removing lock file... ${filenameServerLock}`)
+  log(`Stopping server`);
+  log(`removing lock file... ${filenameServerLock}`)
   deleteFile(filenameServerLock);
-  output(`...lock file removed.`)
+  log(`...lock file removed.`)
   if (serverLock()) {
     // const killServe =    spawn('nice', ['killall', 'node', '', '0'], { stdio: 'pipe' });
     // const killServe =    spawn('nice', ['killall', 'node', '', '0']);
@@ -240,7 +243,7 @@ function stop() {
 
 function close() {
   try {
-    if (serveHandler != undefined) {
+    if (serveHandler !== undefined) {
       output("Stoping server");
       serveHandler.close();
     } else {
@@ -254,8 +257,9 @@ function readLockPort(file) {
   return Math.round( (fs.readFileSync(file))); // my way of casting it to a number
 }
 function start(o) { // return the port number
-  if ( o === undefined && doesFolderExist(path.resolve(`/snapshot/`) )  ) {
-    o = `/snapshot/public`
+  if ( o === undefined && doesFolderExist(path.resolve(`/snapshot/`))) {
+    // o = `/snapshot/public`
+    o = path.resolve( os.homedir(), 'AminoSee_Output')
   }
   log(`Attempting to start server at: ${ o } on port ${ port }`)
   setupPrefs()
@@ -272,7 +276,7 @@ function start(o) { // return the port number
     log(`filenameServerLock: ${filenameServerLock}`)
   }
   output( starthttpserver(options) );
-  startCrossSpawnHttp(port)
+  // startCrossSpawnHttp(port)
   // startServeHandler(o, port)
 
   return port

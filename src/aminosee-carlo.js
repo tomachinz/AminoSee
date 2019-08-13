@@ -7,7 +7,7 @@ const si = require('systeminformation');
 const data = require('./aminosee-data');
 const aminosee = require('./aminosee-cli');
 const setupPrefs = aminosee.setupPrefs;
-
+const pushCli = aminosee.pushCli;
 
 async function runCarlo() {
   const [backend] = await carlo.loadParams();
@@ -139,7 +139,7 @@ async function runCarlo() {
             width: 1400,
             height: 600,
             channel: ['canary', 'stable'],
-            icon: path.join(__dirname, 'public/512_icon.png'),
+            icon: path.join(__dirname, 'src/public/512_icon.png'),
             args: [ '--allow-insecure-localhost', '--webpack-dev-server'],
             serveOrigin: 'http://localhost:4567'
           });
@@ -160,6 +160,7 @@ async function runCarlo() {
     console.log(`serving: ${o}`)
     await app.serveFolder(o);
     await app.exposeFunction('systeminfo', systeminfo);
+    await app.exposeFunction('pushCli', pushCli);
     await app.load('www/index.html');
 
     // await app.runCarlo()

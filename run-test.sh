@@ -9,11 +9,13 @@ success () {
   echo
 }
 test_do () {
+  echo __________________________________________
+  echo
+  echo
+  echo
   echo $1
-  echo $1
-  echo $1
-  echo $1
-  echo $1
+  echo
+  echo
   echo "START__ $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 _________"
   nice aminosee $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
   echo $1 "END____ $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 _________"
@@ -28,8 +30,8 @@ echo aminosee $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
 echo STARTING SERVER TO RUN IN BACKGROUND
 aminosee --serve &
 aminosee
+test_do "FORCED RENDER" -fv $MEDIUM $FAST $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
 test_do "Curious back walk bug" -d --debug $FAST Influenza-A-virus-H9N2-NC_004905.gbk Streptococcus_virus_2972.gbk
-test_do "FORCED RENDER OF SMALL GENOME: $FAST" -f $FAST $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
 test_do "QUIET MODE" -q $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
 test_do "VERBOSE MODE" -v $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
 test_do "USING INCORRECT SINGLE DASH FOR -help" -help $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
