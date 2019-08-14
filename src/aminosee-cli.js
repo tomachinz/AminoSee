@@ -103,9 +103,13 @@ module.exports = () => {
   mode('exports');
   setupApp();
   cliInstance = new AminoSeeNoEvil();
-  cliInstance.setupJob( populateArgs( process.argv )  );
+  cliInstance.setupJob( populateArgs( process.argv ), `module exports`  );
   mode(`module exit`)
   // threads.push( cliInstance )
+
+  countdown(`Try [Ctrl]-[C] or [Q] key to quit server or wait`, 360000, () => {
+    output("Free version server will now quit. aminosee@funk.co.nz if that's an issue for ya")
+  })
 }
 function populateArgs(procArgv) { // returns args
   const options = {
@@ -215,7 +219,7 @@ function newJob( job ) { // used node and CLI tool.
 
   // nuThread.setupJob( process.argv );
 
-  nuThread.setupJob( job ); // do stuff that is needed even just to run "aminosee" with no options.
+  nuThread.setupJob( job, `new job ${job}` ); // do stuff that is needed even just to run "aminosee" with no options.
   return nuThread;
 }
 
@@ -223,15 +227,13 @@ class AminoSeeNoEvil {
   constructor() { // CLI commands, this.files, *
     this.outputPath = getOutputFolder();
     output( logo() );
-
     [ projectprefs, userprefs] = setupPrefs();
   }
 
 
-  setupJob( args ) {
-    mode('setup job ' + args)
-    output( `setup job: ${ args } ` )
-    log(  status );
+  setupJob( args, reason ) {
+    mode('setup job ' + reason)
+    output( `setup job:  ${status}   ${reason} ${ maxWidth(32,   args.toString() ) }` )
     // do stuff aside from creating any changes. eg if you just run "aminosee" by itself.
     // for each render batch sent through newJob, here is where "this" be instantiated once per newJob
     // for each DNA file, run setupProject
@@ -783,8 +785,8 @@ class AminoSeeNoEvil {
         output();
         output();
 
+
         // pushCli(`--serve`)
-        output("HELLO")
         setImmediate( () => {
           output(`:)       [${ this.justNameOfDNA  }]`)
         })
@@ -1231,7 +1233,7 @@ class AminoSeeNoEvil {
       if ( webserverEnabled ) {
         log('start server')
 
-        pushCli('--serve');
+        // pushCli('--serve');
         // output( server.start( this.outputPath ) ) ;
         output( server.starthttpserver() ) ;
       } else {
@@ -1443,7 +1445,7 @@ class AminoSeeNoEvil {
         output(`${this.dnafile}`)
         countdown(`opening ${asterix} in `, 1000, () => {
           output(`Pushing...`)
-          pushCli(asterix);
+          // pushCli(asterix);
         })
         this.popShiftOrBust(msg)
         // this.resetAndPop(msg)
@@ -5370,13 +5372,17 @@ class AminoSeeNoEvil {
               //   }).then( log('PNG2 then') ).catch( log('PNG2 catch') );
               // }
               process.on("SIGTERM", () => {
-                cliInstance.gracefulQuit();
+                let sig = `SIGTERM`
+                output(`Received ${sig} signal`)
+                // cliInstance.gracefulQuit();
                 // this.destroyProgress();
                 process.exitCode = 130;
                 // cliInstance.quit(130, "SIGTERM");
-                process.exit(); // this.now the "exit" event will fire
+                // process.exit(); // this.now the "exit" event will fire
               });
               process.on("SIGINT", function() {
+                let sig = `SIGINT`
+                output(`Received ${sig} signal`)
                 cliInstance.gracefulQuit();
                 // this.destroyProgress();
                 process.exitCode = 130;
@@ -5502,6 +5508,7 @@ class AminoSeeNoEvil {
                 outpath = path.normalize(path.resolve(os.homedir + outFoldername))  // default location after checking overrides
                 log(`HOME FOLDER ENABLED: ${ blueWhite( blueWhite( path.normalize( outpath )))}`)
               }
+              output(`output path: ${outpath} status: ${status}`)
               return outpath;
             }
             function dedupeArray(a) {
