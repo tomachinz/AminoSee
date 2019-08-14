@@ -285,6 +285,7 @@ class AminoSeeNoEvil {
       this.currentFile = args._.toString()
       remain = args._.length;
       batchSize = remain;
+      this.dnafile = path.resolve( this.currentFile );
     } catch(err) {
       remain = 0;
       batchSize = 0;
@@ -295,8 +296,7 @@ class AminoSeeNoEvil {
     this.termMarginTop = (term.height - this.termDisplayHeight - this.termStatsHeight) / 4;
     this.maxpix = targetPixels;
 
-    this.dnafile = path.resolve( this.currentFile );
-    this.justNameOfDNA = path.normalize( this.dnafile )
+    // this.justNameOfDNA = path.normalize( this.currentFile )
     // this.currentFile = funknzlabel;
     this.nextFile = funknzlabel;
     termSize();
@@ -607,6 +607,7 @@ class AminoSeeNoEvil {
       if ( args.serve || args.s ) {
         webserverEnabled = true;
         output(`Using URL prefix: ${url}`)
+        server.starthttpserver();
       } else {
         output("Webserver Disabled ")
         webserverEnabled = false;
@@ -1204,8 +1205,8 @@ class AminoSeeNoEvil {
         log('start server')
 
         pushCli('--serve');
-        output( server.start( this.outputPath ) ) ;
-        // this.blockingServer();
+        // output( server.start( this.outputPath ) ) ;
+        output( server.starthttpserver() ) ;
       } else {
         killServers();
       }
@@ -1276,11 +1277,7 @@ class AminoSeeNoEvil {
       mode( `Graceful shutdown in progress... ${threads.length} threads code ${code}`);
       this.args._ = [];
       isShuttingDown = true;
-      // try {
-      // } catch(e) {
-      // }
       output( status )
-      // var that = this;
       bugtxt(  status );
       bugtxt("webserverEnabled: " + webserverEnabled + " killServersOnQuit: "+ killServersOnQuit)
       try {
@@ -1291,38 +1288,10 @@ class AminoSeeNoEvil {
       }
       if (code == 130) {
         this.calcUpdate();
-        // if ( this ) {
-        //   this.destroyProgress();
-        // }
         this.removeLocks(process.exit());
       }
       this.quit(code, 'graceful');
     }
-    background(callback) {
-      // const spawn = require('cross-spawn');
-      // Spawn NPM asynchronously
-      // const evilSpawn = spawn('npm', ['list', '-g', '-depth', '0'], { stdio: 'pipe' }); // inline can quit
-      // const evilSpawn = spawn('aminosee', ['open', 'explorer'], { stdio: 'inherit' }); // background
-      // evilSpawn.stdout.on('data', (data) => {
-      //   output(`${chalk.inverse('aminosee serve')}${chalk(': ')}${data}`);
-      // });
-      // evilSpawn.stderr.on('data', (data) => {
-      //   output(`${chalk.inverse('aminosee  this.error')}${chalk(': ')}${data}`);
-      // });
-      // evilSpawn.on('close', (code) => {
-      //   output(`child process quit with code ${code}`);
-      // });
-    }
-    // function* generatorOpen(file, options) {
-    //
-    //   if (options === undefined) {
-    //     options = { wait: false }
-    //   }
-    //   let this.result = (async (file, options) => {
-    //     await open(file, options);
-    //   })();
-    //   yield this.result;
-    // }
 
     downloadMegabase(cb) {
       this.currentFile = 'megabase.fa';
@@ -1539,9 +1508,9 @@ class AminoSeeNoEvil {
 
     firstRun() {
       output(chalk.bgRed   ("First run demo!"));
-      // output(chalk.bgYellow("First run demo!"));
-      // output(chalk.bgGreen ("First run demo!"));
-      // runDemo();
+      output(chalk.bgYellow("First run demo!"));
+      output(chalk.bgGreen ("First run demo!"));
+      runDemo();
     }
     //   startStreamingPng() {
     //     pixelStream = pStream(); // readable stream
@@ -2207,7 +2176,7 @@ class AminoSeeNoEvil {
       }
 
       if ( this.keybaord ) {
-      this.setupKeyboardUI(); // allows fast quit with [Q]
+        this.setupKeyboardUI(); // allows fast quit with [Q]
       }
 
 
@@ -2217,14 +2186,11 @@ class AminoSeeNoEvil {
         this.openFileExplorer = true;
         // if ( this.keyboard == true) { // this not need done twice
         // }
-        // countdown('Press [Q] to quit this.now, [S] to launch a web server in background thread or wait ', 4000, blockingServer());
+        // countdown('Press [Q] to quit this.now, [S] to launch a web server in background thread or wait ', 15000, blockingServer());
         // countdown('Press [S] to launch a web server in background thread or quit in ', 4000);
         // setTimeout( () => {
         //   countdown("Closing in " , 6000, process.exit  );
         // }, 4000)
-      } else {
-        // output('This is a terminal CLI (command line interface) program. Run it from the DOS prompt / Terminal.app / shell.', 4000);
-        // countdown('Press [Q] to quit now, closing in ', 4000 );
       }
     }
 
@@ -2685,7 +2651,7 @@ class AminoSeeNoEvil {
         output(`Received quit(${code}) ${reason}`);
         if ( this.isDiskFinLinear && this.isDiskFinHilbert && this.isDiskFinHTML) {
           if ( this.renderLock == true ) {
-            output("still rendering") // maybe this happens during gracefull shutdown
+            log("still rendering") // maybe this happens during gracefull shutdown
             return false;
           }
         } else {
@@ -4807,7 +4773,7 @@ class AminoSeeNoEvil {
               function destroyKeyboardUI() {
                 process.stdin.pause(); // stop eating the this.keyboard!
                 try {
-                  // process.stdin.setRawMode(false); // back to cooked this.mode
+                  process.stdin.setRawMode(false); // back to cooked this.mode
                 } catch(err) {
                   log(`Could not disable raw mode this.keyboard: ${err}`)
                 }
@@ -5727,11 +5693,9 @@ class AminoSeeNoEvil {
             module.exports.pushCli = pushCli;
             module.exports.bruteForce = bruteForce;
             module.exports.terminalRGB = terminalRGB;
-            module.exports.showCountdown = showCountdown;
             module.exports.stopWork = stopWork;
             module.exports.setupPrefs = setupPrefs;
             module.exports.fileWrite = (a,b,c) => { this.fileWrite(a,b,c) }
-            // module.exports.deleteFile = (file) => { deleteFile(file) }
             module.exports.deleteFile = deleteFile;
             module.exports.maxWidth = maxWidth;
             module.exports.maxWidth = maxWidth;

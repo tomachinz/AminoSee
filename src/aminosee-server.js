@@ -25,7 +25,7 @@ let outputPath, filenameServerLock, url, projectprefs, userprefs, port, cliruns,
 url = defaulturl
 port = 4321;
 backupPort = 43210;
-process.title = `aminosee.funk.nz_server`;
+// process.title = `aminosee.funk.nz_server`;
 args = { verbose: false }
 [ userprefs, projectprefs ] = setupPrefs();
 
@@ -81,7 +81,7 @@ function buildServer() {
   // const appPath = path.normalize(appFilename.substring(0, appFilename.length-15));// cut 4 off to remove /dna
   const appPath = __dirname;
 
-  // this.openHtml = true;
+  this.openHtml = true;
   // that.setupKeyboardUI();
   // output("HELLO**********************")
   log(`Building server to ${outputPath}  ${defaulturl}`)
@@ -102,7 +102,7 @@ function buildServer() {
 function startCrossSpawnHttp(p) { // Spawn background server
   let didStart = false;
   if (p !== undefined) { port = p }
-  let options = [ outputPath + "/", `-p`, port, '-o' ]
+  let options = [ `--serve`, outputPath + "/", `-p`, port, '-o' ]
   output(chalk.yellow(`Starting web server - doc root: ${options.toString()} ${chalk.underline(getServerURL())}`))
   let evilSpawn
   try {
@@ -143,6 +143,8 @@ function starthttpserver(options) {
   }
   // httpserver = require('http-server');
   httpserver.createServer(options);
+  process.title = `aminosee.funk.nz_server`;
+
   return httpserver
 }
 function startServeHandler(o, port) {
@@ -156,7 +158,6 @@ function startServeHandler(o, port) {
   const serveHandler = http.createServer((request, response) => {
     // You pass two more arguments for config and middleware
     // More details here: https://github.com/zeit/serve-handler#options
-
     response.write('struth!');
     return handler(request, response);//, options);
   })
@@ -277,8 +278,9 @@ function start(o) { // return the port number
     log(`filenameServerLock: ${filenameServerLock}`)
   }
   output( starthttpserver(options) );
-  // startCrossSpawnHttp(port)
+  startCrossSpawnHttp(backupPort)
   // startServeHandler(o, port)
+  process.title = `aminosee.funk.nz_server`;
 
   return port
 }
@@ -363,6 +365,8 @@ function symlinkGUI(cb) { // does:  ln -s /Users.....AminoSee/public, /Users....
   }
 }
 
+module.exports.starthttpserver = () => { starthttpserver() }
+module.exports.getServerURL = () => { getServerURL( outputPath ) }
 module.exports.getServerURL = () => { getServerURL( outputPath ) }
 module.exports.startServeHandler = () => { startServeHandler() }
 module.exports.startCrossSpawnHttp = () => { startCrossSpawnHttp() }

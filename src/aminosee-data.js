@@ -63,7 +63,7 @@ function readParseJson(file) {
   return JSON.parse(fs.readFileSync(file));
 }
 function createSymlink(src, dest) { // source is the original, dest is the symlink
-  console.log(src, " --> " , dest);
+  log(src, " --> " , dest);
   try { // the idea is to copy the GUI into the output folder to.... well enable it to render cos its a web app!
     let existing = doesFileExist(dest);
     if (existing == true) {
