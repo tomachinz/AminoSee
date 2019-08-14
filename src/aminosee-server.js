@@ -21,7 +21,7 @@ This is a temporary lock file, so I dont start too many servers. Its safe to era
 // const version = aminosee.version;
 // const webserverEnabled = true;
 const defaulturl = `http://localhost:4321/?devmode`
-let outputPath, filenameServerLock, url, projectprefs, userprefs, port, cliruns, gbprocessed, args;
+let outputPath, filenameServerLock, url, projectprefs, userprefs, port, cliruns, gbprocessed, args, theserver;
 url = defaulturl
 port = 4321;
 backupPort = 43210;
@@ -97,19 +97,21 @@ function buildServer() {
   }
 
 }
+function selfSpawn() {
 
+}
 
-function startCrossSpawnHttp(p) { // Spawn background server
+function spawnBackground(p) { // Spawn background server
   let didStart = false;
   if (p !== undefined) { port = p }
-  let options = [ `--serve`, outputPath + "/", `-p`, port, '-o' ]
-      options = [ `--serve`, outputPath + "/", `-p`, port ]
+  let options = [ outputPath + '/', `-p`, port, '-o' ]
+  let optionsAminoSee = [ `--serve`, outputPath + "/", `-p`, port ]
   output(options.toString())
   output(chalk.yellow(`Starting web server - doc root: ${options.toString()} ${chalk.underline(getServerURL())}`))
   let evilSpawn
   try {
     evilSpawn = spawn('http-server', options, { stdio: 'pipe' });
-    // evilSpawn = spawn('aminosee', options, { stdio: 'pipe' });
+    // evilSpawn = spawn('aminosee', optionsAminoSee, { stdio: 'pipe' });
     didStart = true;
   } catch(err) {
     log(err)
@@ -139,16 +141,14 @@ function startCrossSpawnHttp(p) { // Spawn background server
   log("sudo npm install --global http-server");
   return didStart
 }
-function starthttpserver(options) {
+function foregroundserver(options) {
   if ( options === undefined ) {
     options = [ outputPath, `-p`, port, '-o' ]
   }
-  output(`server path: ${outputPath} ${url}`)
-  // httpserver = require('http-server');
-  httpserver.createServer(options);
+  // output(`server path: ${outputPath} ${url}`)
+  theserver = httpserver.createServer(options);
   process.title = `aminosee.funk.nz_server`;
-
-  return httpserver
+  return theserver
 }
 function startServeHandler(o, port) {
   setOutputPath(o)
@@ -161,7 +161,8 @@ function startServeHandler(o, port) {
   const serveHandler = http.createServer((request, response) => {
     // You pass two more arguments for config and middleware
     // More details here: https://github.com/zeit/serve-handler#options
-    response.write('struth!');
+    // response.write('struth!');
+    var response = handler;
     return handler(request, response);//, options);
   })
   let options = {
@@ -187,6 +188,7 @@ function startServeHandler(o, port) {
     // aminosee.bugtxt(err)
     return false
   }
+  output(`startServeHandler complete`)
 }
 
 
@@ -260,17 +262,37 @@ function close() {
 function readLockPort(file) {
   return Math.round( (fs.readFileSync(file))); // my way of casting it to a number
 }
+function setArgs( TheArgs ) {
+  args = TheArgs;
+  if ( args.debug ) {
+    debug = true;
+    output('debug mode ENABLED');
+  } else {
+    debug = false;
+    log( `debug mode DISABLED`)
+  }
+  if ( debug ) {
+    log( `args received: `);
+    console.log( args );
+    log( `args received: `);
+  }
+}
 function start(o) { // return the port number
-  stop()
   if ( o === undefined && doesFolderExist(path.resolve(`/snapshot/`))) {
-    // o = `/snapshot/public`
     o = path.resolve( os.homedir(), 'AminoSee_Output')
   }
+
+  if ( args.stop == true ) { output(`Two issues...: you call the start function but args object is configured for stop = true, and you need to call setArgs(args) prior to start()`) }
+
+  stop()
+
   setupPrefs()
   outputPath = o
   setOutputPath(o)
   buildServer()
-  let options = [ outputPath, `-p`, port, '-o' ]
+  // let options = [ outputPath, `-p`, port, '-o' ]
+  let options = [ outputPath + '/', `-p`, port, '-o' ]
+
   log(`Attempting to start server with options: ${ options.toString() }`)
 
   if ( serverLock() == true ) {
@@ -280,8 +302,9 @@ function start(o) { // return the port number
     log("No locks found, Starting server ");
     log(`filenameServerLock: ${filenameServerLock}`)
   }
-  output( starthttpserver(options) );
-  startCrossSpawnHttp(backupPort)
+
+  foregroundserver(options); // blocking version
+  spawnBackground(options); // works great but relies on http-server being installed globally
   // startServeHandler(o, port)
   process.title = `aminosee.funk.nz_server`;
 
@@ -296,9 +319,10 @@ function setOutputPath(o) {
 }
 function setArgs(a) {
   if (a === undefined) { error(`args needs to be set!`) }
-  outputPath = o;
+  args = a;
+  outputPath = args.output;
   filenameServerLock = path.resolve(`${outputPath}/aminosee_server_lock.txt`);
-  // output(`(server) im planning to run server at: ` + outputPath);
+  output(`args received`);
 }
 function error(err) {
   output(err)
@@ -373,12 +397,13 @@ function symlinkGUI(cb) { // does:  ln -s /Users.....AminoSee/public, /Users....
   }
 }
 
-module.exports.starthttpserver = () => { starthttpserver() }
+module.exports.foregroundserver = () => { foregroundserver() }
 module.exports.getServerURL = () => { getServerURL( outputPath ) }
 module.exports.startServeHandler = () => { startServeHandler() }
-module.exports.startCrossSpawnHttp = () => { startCrossSpawnHttp() }
+module.exports.spawnBackground = () => { spawnBackground() }
 module.exports.open = open
 module.exports.stop = stop
 module.exports.start = start
 module.exports.setOutputPath = setOutputPath
 module.exports.close = close
+module.exports.setArgs = setArgs;

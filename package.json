@@ -1,6 +1,6 @@
 {
   "name": "aminosee",
-  "version": "1.22.9",
+  "version": "1.23.1",
   "owner": "Thomas Bieder Atkinson",
   "author": "Tom Atkinson <tom@funk.co.nz>",
   "website": "http://aminosee.funk.nz",
@@ -51,7 +51,7 @@
     "update": "./update.sh",
     "pkg": "npm run macos &amp; sleep 1 ;  nice npm run win32 &amp; sleep 1 ; nice npm run win64 ; nice npm run linux ; npm run zip",
     "zip": "zip -8 -r ./dist/AminoSee_macos.zip ./dist/AminoSee_macos  &amp; nice zip -8 -r ./dist/AminoSee_win.zip ./dist/AminoSee_win &amp; nice zip -8 -r ./dist/AminoSee_linux.zip ./dist/AminoSee_linux",
-    "runmac": "echo OPENING compiled app first with no options, then with --gui  ./dist/AminoSee_macos/aminosee ; sleep 1 ;  ./dist/AminoSee_macos/aminosee  --gui",
+    "runmac": "./dist/AminoSee_macos/aminosee  --gui",
     "runlinux": "open ./dist/AminoSee_linux/aminosee",
     "macos": "echo MACOS ; pkg . --targets macos   --output ./dist/AminoSee_macos/aminosee ; ./dist/AminoSee_macos/aminosee",
     "win32": "echo WIN32 ; pkg . --targets win-x86 --output ./dist/AminoSee_win/aminosee-win32.exe",

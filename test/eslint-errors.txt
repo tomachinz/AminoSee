@@ -52,16 +52,12 @@
   4002:20  error  'changeClothes' is not defined                              no-undef
   4004:20  error  'changeClothes' is not defined                              no-undef
   4159:31  error  Empty block statement                                       no-empty
-  4207:11  error  Unexpected console statement                                no-console
   4220:13  error  'byteIndex' is assigned a value but never used              no-unused-vars
   4258:18  error  'remain' is assigned to itself                              no-self-assign
   4294:27  error  'index' is defined but never used                           no-unused-vars
   4320:69  error  Unnecessary semicolon                                       no-extra-semi
   4325:13  error  'text' is assigned a value but never used                   no-unused-vars
-  4504:17  error  Unexpected console statement                                no-console
   4511:17  error  Unreachable code                                            no-unreachable
-  4514:17  error  Unexpected console statement                                no-console
-  4516:17  error  Unexpected console statement                                no-console
   4577:29  error  'alpha' is not defined                                      no-undef
   4585:21  error  'crash' is assigned a value but never used                  no-unused-vars
   4649:21  error  'summary' is assigned a value but never used                no-unused-vars
@@ -71,7 +67,6 @@
   4672:23  error  'linear_preview' is assigned a value but never used         no-unused-vars
   4673:23  error  'hilbert_preview' is assigned a value but never used        no-unused-vars
   4680:23  error  'vector' is assigned a value but never used                 no-unused-vars
-  4728:17  error  Unexpected console statement                                no-console
   4835:24  error  'threesigbitsTolocale' is defined but never used            no-unused-vars
   4838:24  error  'variable' is defined but never used                        no-unused-vars
   4847:24  error  'fixedRightSide' is defined but never used                  no-unused-vars
@@ -88,10 +83,11 @@
   5264:25  error  'cb' is already defined                                     no-redeclare
   5310:24  error  'bgOpen' is defined but never used                          no-unused-vars
   5312:51  error  'options' is assigned a value but never used                no-unused-vars
-  5560:19  error  'retProm' is assigned a value but never used                no-unused-vars
-  5670:19  error  'magnitude' is defined but never used                       no-unused-vars
-  5671:19  error  'computerWants' is assigned a value but never used          no-unused-vars
+  5395:58  error  'previousImage' is not defined                              no-undef
+  5561:19  error  'retProm' is assigned a value but never used                no-unused-vars
+  5671:19  error  'magnitude' is defined but never used                       no-unused-vars
+  5672:19  error  'computerWants' is assigned a value but never used          no-unused-vars
 
-✖ 91 problems (91 errors, 0 warnings)
+✖ 87 problems (87 errors, 0 warnings)
   1 error and 0 warnings potentially fixable with the `--fix` option.
 

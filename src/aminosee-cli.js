@@ -95,7 +95,7 @@ let threads = []; // an array of AminoSeNoEvil instances.
 let clear = false;
 let debug = false; // should be false for PRODUCTION
 let brute = false; // used while accelerating the render 20x
-webserverEnabled = true;
+webserverEnabled = false;
 genomesRendered = ['megabase']
 
 module.exports = () => {
@@ -114,7 +114,7 @@ function populateArgs(procArgv) { // returns args
     boolean: [ 'artistic', 'clear', 'chrome', 'devmode', 'debug', 'demo', 'dnabg', 'explorer', 'file', 'force', 'firefox', 'gui', 'html', 'image', 'keyboard', 'list', 'progress', 'quiet', 'reg', 'recycle', 'redraw', 'serve', 'safari', 'test', 'updates', 'verbose', 'view' ],
     string: [ 'url', 'output', 'triplet', 'peptide', 'ratio', 'port' ],
     alias: { a: 'artistic', b: 'dnabg', c: 'codons', d: 'devmode', f: 'force', h: 'help', k: 'keyboard', m: 'magnitude', o: 'output', p: 'peptide', i: 'image', t: 'triplet', u: 'updates', q: 'quiet', r: 'reg', w: 'width', v: 'verbose', x: 'explorer', finder: 'explorer', view: 'html' },
-    default: { brute: false, debug: false, gui: true, html: true, image: false, clear: true, explorer: false, quiet: false, keyboard: false, progress: true, redraw: true, updates: true, serve: false },
+    default: { brute: false, debug: false, gui: false, html: true, image: false, clear: true, explorer: false, quiet: false, keyboard: false, progress: true, redraw: true, updates: true, serve: false },
     stopEarly: false
   } // NUMERIC INPUTS: codons, magnitude, width, maxpix
   let args = minimist(procArgv.slice(2), options)
@@ -125,6 +125,10 @@ function populateArgs(procArgv) { // returns args
   // return this.args;
 }
 function bruteForce(cs) {
+
+
+return false;
+
   let pepTable = data.pepTable;
   output("Fast Batch Enabled. Length: " + pepTable.length);
   for (let i=1; i < data.pepTable.length-1; i++) {
@@ -234,7 +238,8 @@ class AminoSeeNoEvil {
     // do stuff aside from creating any changes. eg if you just run "aminosee" by itself.
     // for each render batch sent through newJob, here is where "this" be instantiated once per newJob
     // for each DNA file, run setupProject
-
+    server.start()
+    // server.setArgs( args )
     isShuttingDown = false;
     genomesRendered = [`megabase`];
     this.charClock = 0;
@@ -630,10 +635,10 @@ class AminoSeeNoEvil {
       if ( args.serve || args.s ) {
         webserverEnabled = true;
         output(`Using URL prefix: ${url}`)
-        server.starthttpserver();
+        // server.foregroundserver();
       } else {
-        output("Webserver Disabled ")
-        webserverEnabled = false;
+        // output("Webserver Disabled ")
+        // webserverEnabled = false;
       }
       if ( args.clear || args.c) {
         output("screen clearing enabled.");
@@ -665,20 +670,19 @@ class AminoSeeNoEvil {
         this.test = false;
       }
       if ( args.stop ) {
+        output("GUI diabled. Use --gui to enable")
         server.stop();
         webserverEnabled = false;
         this.gui = false;
-      } else if ( args.gui ) {
-        log(`Running AminoSee graphical user interface... use --no-gui to prevent GUI`);
-        this.gui = true;
-      } else {
-        output("GUI diabled. Use --gui to enable")
         this.openHtml = false;
         this.openFileExplorer = false;
         this.openImage = false;
         this.gui = false;
       }
-
+      if ( args.gui ) {
+        log(`Running AminoSee graphical user interface... use --no-gui to prevent GUI`);
+        this.gui = true;
+      }
 
 
       if ( this.isHighlightSet ) {
@@ -703,7 +707,6 @@ class AminoSeeNoEvil {
       }
       if ( args.brute ) {
         output("Using brute force")
-
         brute = true;
         // bruteForce( args._[0] )
       } else {
@@ -718,7 +721,6 @@ class AminoSeeNoEvil {
         countdown(`Try [Ctrl]-[C] or [Q] key to quit server or wait`, 360000, () => {
           output("Free version server will now quit. aminosee@funk.co.nz if that's an issue for ya")
         })
-
       }
 
 
@@ -772,7 +774,7 @@ class AminoSeeNoEvil {
         output(`example --->>>        aminosee --help `); //" Closing in 2 seconds.")
         output();
         output();
-
+        this.gui = true;
 
         // pushCli(`--serve`)
         setImmediate( () => {
@@ -935,7 +937,7 @@ class AminoSeeNoEvil {
       // this.pepTable[h].src = this.aminoFilenameIndex(h)[0];
       // this.pepTable[h].src = this.filePNG;
 
-      if ( brute ) {
+      if ( brute == true ) {
         for (let h=0; h < this.pepTable.length; h++) {
           const pep =  this.pepTable[h];
           this.currentPeptide = pep.Codon;
@@ -945,6 +947,8 @@ class AminoSeeNoEvil {
           this.pepTable[h].linear_preview = this.aminoFilenameIndex(h)[1];
           bugtxt( this.pepTable[h].src);
         }
+      } else {
+        log(`not brute`)
       }
 
       this.currentPeptide = "none"; // get URL for reference image
@@ -1236,7 +1240,7 @@ class AminoSeeNoEvil {
 
         // pushCli('--serve');
         // output( server.start( this.outputPath ) ) ;
-        output( server.starthttpserver() ) ;
+        output( server.foregroundserver() ) ;
       } else {
         killServers();
       }
@@ -1733,7 +1737,7 @@ class AminoSeeNoEvil {
       term.eraseDisplayBelow();
     }
     initialiseArrays() {
-      if ( brute === false) { return false; }
+      if ( brute == false) { return false; }
 
       for (let i = 0; i < this.pepTable.length; i++) {
         out(`initialise ${i}`)
@@ -1977,7 +1981,9 @@ class AminoSeeNoEvil {
       return f.substring(0, f.length - ( this.getFileExtension(f).length+1));
     }
     highlightFilename() {
-      // bugtxt(`Call to highlight this.dnafile made`)
+      // current peptide and current triplet are the ones being check in this pixel
+      // they are compared to this.peptide and this.triplet which maybe set to 'none'
+      // in which case isHighlightSet should be false for reference
       let ret = "";
       if ( this.isHighlightSet == false) {
         ret += `__Reference`;
@@ -1990,7 +1996,7 @@ class AminoSeeNoEvil {
           ret += `__Reference`;
         }
       }
-      // log(`ret: ${ret} this.currentTriplet: ${currentTriplet}  this.currentPeptide ${ this.currentPeptide}`);
+      output(`ret: ${ blueWhite( ret)} this.currentTriplet: ${this.currentTriplet}  this.currentPeptide ${ this.currentPeptide}`);
       return ret;
     }
     setupHilbertFilenames() {
@@ -4369,7 +4375,7 @@ class AminoSeeNoEvil {
         output(`${chalk.rgb(128, 255, 128).inverse( nicePercent(this.percentComplete) )} complete ${ fixedWidth(12, humanizeDuration( this.msElapsed )) }elapsed ${humanizeDuration( this.timeRemain)} remain`);
         output(`${ twosigbitsTolocale( gbprocessed )} GB All time total on ${chalk.yellow( hostname )} ${ cliruns.toLocaleString()} jobs run total`);
         this.progUpdate( this.percentComplete );
-        output(`Report URL: ${chalk.underline( this.fullURL )}`)
+        output(`Report URL: ${chalk.underline( this.fullURL + chalk.bgBlue('images/' + this.justNameOfPNG) )}`)
         term.down(1);
         term.right( this.termMarginLeft );
         if (term.height > this.termStatsHeight + this.termDisplayHeight) {
