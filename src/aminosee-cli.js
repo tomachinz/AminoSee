@@ -133,7 +133,6 @@ function bruteForce(cs) {
       output( ` > ` + pep);
       let job = { _: [ cs ],
         peptide: pep,
-        quiet: true,
         q: false,
         gui: false,
         keyboard: false,
@@ -679,19 +678,7 @@ class AminoSeeNoEvil {
         this.openImage = false;
         this.gui = false;
       }
-      if ( this.gui == true ) {
-        log(`starting carlo and enabling keyboard mode press [Q] to quit`)
-        const carlo = require('./aminosee-carlo').run();
-        this.keyboard = true;
-        this.setupKeyboardUI();
-        // let that = this;
-        // countdown('Press [Q] to exit or wait ', this.raceDelay * 8170, () => {
-        // carlo.catch();
-        // that.gracefulQuit(0);
-        // });
-      } else {
-        log( `Try using  --gui for the graphical user interface`)
-      }
+
 
 
       if ( this.isHighlightSet ) {
@@ -794,6 +781,19 @@ class AminoSeeNoEvil {
         return true;
       }
 
+      if ( this.gui == true && this.quiet == false ) {
+        log(`starting carlo and enabling keyboard mode press [Q] to quit`)
+        const carlo = require('./aminosee-carlo').run();
+        this.keyboard = true;
+        this.setupKeyboardUI();
+        // let that = this;
+        // countdown('Press [Q] to exit or wait ', this.raceDelay * 8170, () => {
+        // carlo.catch();
+        // that.gracefulQuit(0);
+        // });
+      } else {
+        log( `Try using  --gui for the graphical user interface. And not --quiet`)
+      }
     }
     setupProgress() {
       if ( this.updateProgress == true) {
