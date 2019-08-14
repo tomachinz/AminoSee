@@ -26,7 +26,6 @@ url = defaulturl
 port = 4321;
 backupPort = 43210;
 // process.title = `aminosee.funk.nz_server`;
-args = { verbose: true }
 [ userprefs, projectprefs ] = setupPrefs();
 
 function setupPrefs() {
@@ -151,7 +150,6 @@ function foregroundserver(options) {
   return theserver
 }
 function startServeHandler(o, port) {
-  setOutputPath(o)
 
   const handler = require('serve-handler');
   const http = require('http');
@@ -277,18 +275,23 @@ function setArgs( TheArgs ) {
     log( `args received: `);
   }
 }
-function start(o) { // return the port number
-  if ( o === undefined && doesFolderExist(path.resolve(`/snapshot/`))) {
-    o = path.resolve( os.homedir(), 'AminoSee_Output')
+function start(a) { // return the port number
+  if ( a === undefined ) {
+    args = {
+      verbose: true,
+      output: path.resolve( os.homedir(), 'AminoSee_Output')
+    }
+  } else {
+    args = a
   }
+  outputPath = args.output
+  filenameServerLock = path.resolve(`${outputPath}/aminosee_server_lock.txt`);
 
   if ( args.stop == true ) { output(`Two issues...: you call the start function but args object is configured for stop = true, and you need to call setArgs(args) prior to start()`) }
 
   stop()
 
   setupPrefs()
-  outputPath = o
-  setOutputPath(o)
   buildServer()
   // let options = [ outputPath, `-p`, port, '-o' ]
   let options = [ outputPath + '/', `-p`, port, '-o' ]
@@ -310,13 +313,7 @@ function start(o) { // return the port number
 
   return port
 }
-function setOutputPath(o) {
-  if (o === undefined) { o = aminosee.outputPath }
-  log(`AMINOSEE.OUTPUTPATH = ${aminosee.outputPath}`)
-  outputPath = o;
-  filenameServerLock = path.resolve(`${outputPath}/aminosee_server_lock.txt`);
-  // output(`(server) im planning to run server at: ` + outputPath);
-}
+
 function setArgs(a) {
   if (a === undefined) { error(`args needs to be set!`) }
   args = a;
@@ -398,12 +395,11 @@ function symlinkGUI(cb) { // does:  ln -s /Users.....AminoSee/public, /Users....
 }
 
 module.exports.foregroundserver = () => { foregroundserver() }
-module.exports.getServerURL = () => { getServerURL( outputPath ) }
+module.exports.getServerURL = () => { getServerURL( outputPath )}
 module.exports.startServeHandler = () => { startServeHandler() }
 module.exports.spawnBackground = () => { spawnBackground() }
 module.exports.open = open
 module.exports.stop = stop
 module.exports.start = start
-module.exports.setOutputPath = setOutputPath
 module.exports.close = close
 module.exports.setArgs = setArgs;

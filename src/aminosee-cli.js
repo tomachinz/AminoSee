@@ -238,7 +238,6 @@ class AminoSeeNoEvil {
     // do stuff aside from creating any changes. eg if you just run "aminosee" by itself.
     // for each render batch sent through newJob, here is where "this" be instantiated once per newJob
     // for each DNA file, run setupProject
-    server.start()
     // server.setArgs( args )
     isShuttingDown = false;
     genomesRendered = [`megabase`];
@@ -264,7 +263,7 @@ class AminoSeeNoEvil {
     this.debugGears = 1;
     this.done = 0;
     this.suopIters = 0;
-    this.raceDelay = 1; // so i learnt a lot on this project. one day this line shall disappear replaced by promises.
+    this.raceDelay = 200; // so i learnt a lot on this project. one day this line shall disappear replaced by promises.
     this.darkenFactor = 0.125; // if user has chosen to highlight an amino acid others are darkened
     this.highlightFactor = 8.0; // highten brightening.
     this.devmode = false; // kills the auto opening of reports etc
@@ -716,7 +715,8 @@ class AminoSeeNoEvil {
       bugtxt(`the args -->> ${this.args}`)
 
       if ( webserverEnabled ) {
-        url = server.start( this.outputPath );
+        args.output = this.outputPath
+        url = server.start( args );
         output(`Server running at: ${ chalk.underline( url ) } to stop use: aminosee --stop `)
         countdown(`Try [Ctrl]-[C] or [Q] key to quit server or wait`, 360000, () => {
           output("Free version server will now quit. aminosee@funk.co.nz if that's an issue for ya")
@@ -734,7 +734,7 @@ class AminoSeeNoEvil {
       }
 
 
-      output(`OUTPUT FOLDER:   ${ blueWhite( blueWhite( path.normalize( this.outputPath )))}`)
+      log(`OUTPUT FOLDER:   ${ blueWhite( blueWhite( path.normalize( this.outputPath )))}`)
 
 
       // remain = args._.length;
@@ -1449,7 +1449,7 @@ class AminoSeeNoEvil {
         output(msg)
         output(`${this.dnafile}`)
         countdown(`opening ${asterix} in `, 1000, () => {
-          output(`Pushing...`)
+          output(`Pushing folder for processing... ${asterix}`)
           // pushCli(asterix);
         })
         this.popShiftOrBust(msg)
@@ -1996,7 +1996,7 @@ class AminoSeeNoEvil {
           ret += `__Reference`;
         }
       }
-      output(`ret: ${ blueWhite( ret)} this.currentTriplet: ${this.currentTriplet}  this.currentPeptide ${ this.currentPeptide}`);
+      bugtxt(`ret: ${ blueWhite( ret)} this.currentTriplet: ${this.currentTriplet}  this.currentPeptide ${ this.currentPeptide}`);
       return ret;
     }
     setupHilbertFilenames() {
