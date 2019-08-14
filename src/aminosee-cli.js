@@ -5391,8 +5391,9 @@ class AminoSeeNoEvil {
                 process.exit(); // this.now the "exit" event will fire
               });
               function termDrawImage(fullpath, reason, cb) {
-                // if (fullpath === undefined) { fullpath = previousImage }
-                // if (fullpath === undefined) { return false }
+                if ( this.quiet ) { return false; }
+                if (fullpath === undefined) { fullpath = previousImage }
+                if (fullpath === undefined) { return false }
                 if (reason === undefined) { reason = `BUG. Reminder: always set a reason` }
                 // if ( that.force == true) { return false }
                 if ( quiet === true ) { out('quiet'); return false; }

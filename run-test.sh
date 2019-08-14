@@ -16,8 +16,9 @@ test_do () {
   echo $1
   echo
   echo
-  echo "START__ $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 _________"
+  echo "START__ aminosee  $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 _________"
   nice aminosee $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
+  echo
   echo $1 "END____ $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 _________"
 }
 
@@ -27,16 +28,16 @@ aminosee --stop
 npm run genversion
 # nice npm run build-web &
 # sleep 1
-aminosee
+aminosee -q
 echo aminosee $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
 aminosee $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
 
 # echo STARTING SERVER TO RUN IN BACKGROUND
 # aminosee --serve &
 
-test_do "FORCED RENDER" -fv $MEDIUM $FAST $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
-test_do "Curious back walk bug" -d --debug $FAST Influenza-A-virus-H9N2-NC_004905.gbk Streptococcus_virus_2972.gbk
-test_do "QUIET MODE" -q $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
+test_do "FORCED RENDER (HAS BUG SEEMS TO BLOCK TEST)" -fv $MEDIUM $FAST $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
+test_do "Curious back walk bug" -d --debug $FAST Influenza-A-virus-H9N2-NC_004905.gbk Streptococcus_virus_2972.gbk $1
+test_do "QUIET MODE WITH PARAMS" -q $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
 test_do "VERBOSE MODE" -v $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
 test_do "USING INCORRECT SINGLE DASH FOR -help" -help $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
 test_do "THREE OF SAME FILE IN A ROW: $FAST WITH PEPTIDE=AMBER" $FAST $FAST $FAST --peptide=amber $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
@@ -67,13 +68,13 @@ echo "-------------------------------------------"
 echo
 sleep 1
 echo THIS SHOULD OPEN REPORT EVEN IF IT ALREADY EXISTS
-test_do "html" $FAST -p=proline --html
+test_do "html"  $1 $FAST -p=proline --html
 nice aminosee $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12  -q --ratio=fix --peptide=Arginine --html
 nice aminosee --help  $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12   --no-image
 nice aminosee --demo   $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12   --no-html --image
 echo calibration TESTS ARE KNOWN TO BE BUGGY AT PRESENT:
-test_do "Calibration" --test
-test_do "doing aminosee serve and opening a file" --serve $MEDIUM  $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12  --no-html --explorer
+test_do "Calibration" --test $1
+test_do "doing aminosee serve and opening a file" --serve $MEDIUM  $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12  --no-html --explorer &
 # open http://localhost:4321 &
 sleep 1
 echo KILLING ALL AMINOSEE SERVERS IN 5 seconds
@@ -98,6 +99,7 @@ tail -f $ESLINT &
 eslint src/aminosee-cli.js > $ESLINT
 
 vows --spec --isolate
+aminosee --stop
 echo Stopping server in 1 second
 sleep 1
 killall node

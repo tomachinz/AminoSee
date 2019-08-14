@@ -1,0 +1,97 @@
+
+/Users/tom/Dropbox/Sites/funk.co.nz/aminosee/src/aminosee-cli.js
+    31:7   error  'readParseJson' is assigned a value but never used          no-unused-vars
+    35:7   error  'beautify' is assigned a value but never used               no-unused-vars
+    66:7   error  'previewCodonsPerPixel' is assigned a value but never used  no-unused-vars
+   134:11  error  'job' is assigned a value but never used                    no-unused-vars
+   786:15  error  'carlo' is assigned a value but never used                  no-unused-vars
+  1286:21  error  'force' is not defined                                      no-undef
+  1287:30  error  'force' is not defined                                      no-undef
+  1296:45  error  'updates' is not defined                                    no-undef
+  1297:11  error  'update' is not defined                                     no-undef
+  1297:19  error  Empty block statement                                       no-empty
+  1299:14  error  Empty block statement                                       no-empty
+  1316:18  error  Empty block statement                                       no-empty
+  1338:15  error  'runTerminalCommand' is not defined                         no-undef
+  1379:11  error  'temp' is assigned a value but never used                   no-unused-vars
+  1381:40  error  'aPeptideCodon' is not defined                              no-undef
+  1758:13  error  'pixels' is assigned a value but never used                 no-unused-vars
+  1900:9   error  Unreachable code                                            no-unreachable
+  2064:13  error  'cppBackup' is assigned a value but never used              no-unused-vars
+  2065:13  error  'hcpBackup' is assigned a value but never used              no-unused-vars
+  2148:13  error  'args' is defined but never used                            no-unused-vars
+  2330:31  error  'results' is defined but never used                         no-unused-vars
+  2489:22  error  'fileBug' is not defined                                    no-undef
+  2492:9   error  'fileBug' is not defined                                    no-undef
+  2799:19  error  'r' is assigned a value but never used                      no-unused-vars
+  2799:67  error  'str' is not defined                                        no-undef
+  2822:30  error  'getGamma' is not defined                                   no-undef
+  2876:15  error  'pixelGamma' is not defined                                 no-undef
+  2876:28  error  'getGamma' is not defined                                   no-undef
+  3353:9   error  'recycleHistogram' is not defined                           no-undef
+  3353:41  error  'generateFilenameHistogram' is not defined                  no-undef
+  3359:27  error  'decodePNG' is not defined                                  no-undef
+  3366:13  error  'saveDocuments' is not defined                              no-undef
+  3427:11  error  'hilbertFinished' is not defined                            no-undef
+  3444:15  error  'closure' is assigned a value but never used                no-unused-vars
+  3509:21  error  'resolve' is defined but never used                         no-unused-vars
+  3512:26  error  'err' is defined but never used                             no-unused-vars
+  3625:21  error  'resolve' is defined but never used                         no-unused-vars
+  3628:26  error  'err' is defined but never used                             no-unused-vars
+  3628:31  error  'resolve' is defined but never used                         no-unused-vars
+  3653:21  error  'resolve' is defined but never used                         no-unused-vars
+  3656:26  error  'err' is defined but never used                             no-unused-vars
+  3656:31  error  'resolve' is defined but never used                         no-unused-vars
+  3750:13  error  'pixels' is assigned a value but never used                 no-unused-vars
+  3785:37  error  'resolve' is defined but never used                         no-unused-vars
+  3933:11  error  'reason' is not defined                                     no-undef
+  3934:24  error  'reason' is not defined                                     no-undef
+  3971:13  error  'that' is assigned a value but never used                   no-unused-vars
+  3995:28  error  'brushTeeth' is not defined                                 no-undef
+  3996:27  error  'getRoomTemperature' is not defined                         no-undef
+  4002:20  error  'changeClothes' is not defined                              no-undef
+  4004:20  error  'changeClothes' is not defined                              no-undef
+  4159:31  error  Empty block statement                                       no-empty
+  4207:11  error  Unexpected console statement                                no-console
+  4220:13  error  'byteIndex' is assigned a value but never used              no-unused-vars
+  4258:18  error  'remain' is assigned to itself                              no-self-assign
+  4294:27  error  'index' is defined but never used                           no-unused-vars
+  4320:69  error  Unnecessary semicolon                                       no-extra-semi
+  4325:13  error  'text' is assigned a value but never used                   no-unused-vars
+  4504:17  error  Unexpected console statement                                no-console
+  4511:17  error  Unreachable code                                            no-unreachable
+  4514:17  error  Unexpected console statement                                no-console
+  4516:17  error  Unexpected console statement                                no-console
+  4577:29  error  'alpha' is not defined                                      no-undef
+  4585:21  error  'crash' is assigned a value but never used                  no-unused-vars
+  4649:21  error  'summary' is assigned a value but never used                no-unused-vars
+  4666:23  error  'c' is assigned a value but never used                      no-unused-vars
+  4667:23  error  'z' is assigned a value but never used                      no-unused-vars
+  4670:23  error  'linear_master' is assigned a value but never used          no-unused-vars
+  4672:23  error  'linear_preview' is assigned a value but never used         no-unused-vars
+  4673:23  error  'hilbert_preview' is assigned a value but never used        no-unused-vars
+  4680:23  error  'vector' is assigned a value but never used                 no-unused-vars
+  4728:17  error  Unexpected console statement                                no-console
+  4835:24  error  'threesigbitsTolocale' is defined but never used            no-unused-vars
+  4838:24  error  'variable' is defined but never used                        no-unused-vars
+  4847:24  error  'fixedRightSide' is defined but never used                  no-unused-vars
+  4927:21  error  'symlinkGUI' is not defined                                 no-undef
+  5003:24  error  'rgbToHsl' is defined but never used                        no-unused-vars
+  5038:24  error  'hslToRgb' is defined but never used                        no-unused-vars
+  5075:24  error  'rgbToHsv' is defined but never used                        no-unused-vars
+  5206:24  error  'showCountdown' is defined but never used                   no-unused-vars
+  5255:17  error  'zipfile' is not defined                                    no-undef
+  5256:37  error  'zipfile' is not defined                                    no-undef
+  5257:23  error  'unzipper' is not defined                                   no-undef
+  5262:25  error  'type' is assigned a value but never used                   no-unused-vars
+  5263:25  error  'size' is assigned a value but never used                   no-unused-vars
+  5264:25  error  'cb' is already defined                                     no-redeclare
+  5310:24  error  'bgOpen' is defined but never used                          no-unused-vars
+  5312:51  error  'options' is assigned a value but never used                no-unused-vars
+  5560:19  error  'retProm' is assigned a value but never used                no-unused-vars
+  5670:19  error  'magnitude' is defined but never used                       no-unused-vars
+  5671:19  error  'computerWants' is assigned a value but never used          no-unused-vars
+
+✖ 91 problems (91 errors, 0 warnings)
+  1 error and 0 warnings potentially fixable with the `--fix` option.
+
