@@ -104,14 +104,15 @@ module.exports = () => {
   setupApp();
   cliInstance = new AminoSeeNoEvil();
   cliInstance.setupJob( populateArgs( process.argv )  );
-  threads.push( cliInstance )
+  mode(`module exit`)
+  // threads.push( cliInstance )
 }
 function populateArgs(procArgv) { // returns args
   const options = {
     boolean: [ 'artistic', 'clear', 'chrome', 'devmode', 'debug', 'demo', 'dnabg', 'explorer', 'file', 'force', 'firefox', 'gui', 'html', 'image', 'keyboard', 'list', 'progress', 'quiet', 'reg', 'recycle', 'redraw', 'serve', 'safari', 'test', 'updates', 'verbose', 'view' ],
     string: [ 'url', 'output', 'triplet', 'peptide', 'ratio', 'port' ],
     alias: { a: 'artistic', b: 'dnabg', c: 'codons', d: 'devmode', f: 'force', h: 'help', k: 'keyboard', m: 'magnitude', o: 'output', p: 'peptide', i: 'image', t: 'triplet', u: 'updates', q: 'quiet', r: 'reg', w: 'width', v: 'verbose', x: 'explorer', finder: 'explorer', view: 'html' },
-    default: { brute: false, debug: false, gui: false, html: true, image: false, clear: true, explorer: false, quiet: false, keyboard: true, progress: true, redraw: true, updates: true, serve: true },
+    default: { brute: false, debug: false, gui: false, html: true, image: false, clear: true, explorer: false, quiet: false, keyboard: false, progress: true, redraw: true, updates: true, serve: true },
     stopEarly: false
   } // NUMERIC INPUTS: codons, magnitude, width, maxpix
   let args = minimist(procArgv.slice(2), options)
@@ -143,9 +144,32 @@ function bruteForce(cs) {
     }, 800 * i)
   }
 }
-function pushCli(cs) { // used by Electron GUI
-  commandString = `node aminosee ${cs} --image --force --quiet`;// let commandArray = [`node`, `aminosee`, commandString];
-  output(chalk.inverse(`Starting AminoSee now with pushClI: [${ cs }]`))
+function pushCli(cs) {
+  commandString = `aminosee ${cs} --image --force --quiet`;// let commandArray = [`node`, `aminosee`, commandString];
+  output(chalk.inverse(`Starting AminoSee now with pushClI:
+    ${chalk.italic( cs )}`))
+
+
+
+    // var thing = function selfSpawn() {
+    //   // const evilSpawn = spawn('aminosee', ['serve', '', '', '0'], { stdio: 'pipe' });
+    //   const evilSpawn = spawn( commandString, { stdio: 'pipe' });
+    //   evilSpawn.stdout.on('data', (data) => {
+    //     output(`${chalk.inverse('aminosee-cli serve')}${chalk(': ')}${data}  ${evilSpawn.name}`);
+    //   });
+    //   evilSpawn.stderr.on('data', (data) => {
+    //     output(`${chalk.inverse('aminosee-cli  this.error')}${chalk(': ')}${data}`);
+    //   });
+    //   evilSpawn.on('close', (code) => {
+    //     output(`child process quit with code ${code}`);
+    //   });
+    // }
+    // thing()
+    // return true;
+
+
+
+
   let commandArray = commandString.split(" ");
   jobArgs = populateArgs( commandArray );
   log(`Command: ${commandString}`);
@@ -656,10 +680,11 @@ class AminoSeeNoEvil {
         this.gui = false;
       }
       if ( this.gui == true ) {
+        log(`starting carlo and enabling keyboard mode press [Q] to quit`)
         const carlo = require('./aminosee-carlo').run();
         this.keyboard = true;
         this.setupKeyboardUI();
-        let that = this;
+        // let that = this;
         // countdown('Press [Q] to exit or wait ', this.raceDelay * 8170, () => {
         // carlo.catch();
         // that.gracefulQuit(0);
@@ -731,6 +756,12 @@ class AminoSeeNoEvil {
         this.prepareState('Ω first command ', () => { // <<<<----- thats where the action is
           output('prepare state returned')
           // this.pollForStream();
+
+          setImmediate( () => {
+            output(`:)       [${ this.justNameOfDNA  }]`)
+          })
+
+
         });
       } else if ( this.test == true ) {
         output('Ω Running test Ω')
@@ -746,24 +777,20 @@ class AminoSeeNoEvil {
         } else {
           log('not first run')
         }
-        output(`Try running ->        aminosee Human_Genome.txt Gorilla.dna Chimp.fa Orangutan.gbk --image`);
+        output(`Try running ->        ${ chalk.italic( 'aminosee Human_Genome.txt Gorilla.dna Chimp.fa Orangutan.gbk --image')}`);
         output(`usage   --->>>        aminosee [*/dna-file.txt] [--help|--test|--demo|--force|--html|--image|--keyboard]     `); //" Closing in 2 seconds.")
         output(`example --->>>        aminosee --help `); //" Closing in 2 seconds.")
-        log()
-        if ( this.verbose == true && this.quiet == false) {
-          this.helpCmd(args);
-        } else if ( !this.quiet) {
-          output(' ');
-        } else {
-          output();
-        }
-        // pushCli(` megabase.fa * --test `)
+        output();
+        output();
+
+        // pushCli(`--serve`)
+        output("HELLO")
+        setImmediate( () => {
+          output(`:)       [${ this.justNameOfDNA  }]`)
+        })
         return true;
       }
-      // countdown('.', 4000, () => {
-      // output(`:)  ${ this.justNameOfDNA  }`)
-      // this.quit();
-      // });
+
     }
     setupProgress() {
       if ( this.updateProgress == true) {
@@ -844,7 +871,7 @@ class AminoSeeNoEvil {
     //     bugout(txt);
     //   } else {
     //     if (this.verbose == true ) {
-    //       redoLine(txt);
+    //       redoline(txt);
     //     }
     //   }
     // }
@@ -1051,7 +1078,7 @@ class AminoSeeNoEvil {
       if ( this.updateProgress == true) {
         if ( progato !== undefined && obj !== undefined) {
           this.fastUpdate();
-          redoLine(`Progress ${obj}`)
+          redoline(`Progress ${obj}`)
           // progato.update(obj);
         }
       } else {
@@ -1116,7 +1143,7 @@ class AminoSeeNoEvil {
             }
             destroyKeyboardUI();
             setTimeout(()=> {
-              that.gracefulQuit(130);
+              that.gracefulQuit(0);
             }, 500)
           }
 
@@ -1274,7 +1301,7 @@ class AminoSeeNoEvil {
       if (code === undefined) {
         code = 0;
       }
-      mode( `Graceful shutdown in progress... ${threads.length} threads code ${code}`);
+      mode( `Graceful shutdown in progress... status ${ status } threads${threads.length}  code ${code}`);
       this.args._ = [];
       isShuttingDown = true;
       output( status )
@@ -1387,7 +1414,7 @@ class AminoSeeNoEvil {
         this.error(status)
         return false;
       } else {
-        redoLine(`Polling for work... ${this.busy()}`)
+        redoline(`Polling for work... ${this.busy()}`)
       }
       if ( remain < 0 ) {
         reason = `outa work - last render`;
@@ -1409,12 +1436,12 @@ class AminoSeeNoEvil {
         return false;
       }
       if ( doesFolderExist(this.dnafile ) ) { // FOLDER CHECK
-        let asterix = `${this.currentFile}/*`
+        let asterix = `${path.normalize( this.currentFile)}/*`
         let msg = `Folder (${this.currentFile}) provided as input instead of a file or files. If you meant to render everything in (${this.currentFile}), try using an asterix on CLI:
         aminosee ${asterix}`;
         output(msg)
-        log(`${this.dnafile}`)
-        countdown(`opening ${asterix} in `, 4000, () => {
+        output(`${this.dnafile}`)
+        countdown(`opening ${asterix} in `, 1000, () => {
           output(`Pushing...`)
           pushCli(asterix);
         })
@@ -1447,7 +1474,7 @@ class AminoSeeNoEvil {
       this.setupLinearNames(); // will not include Hilbert file name. Need to wait until after render and setupHilbertFilenames
       let msg = `>>> PREFLIGHT <<< ${ remain } ${ path.normalize( this.currentFile )} reason: ${reason}`
       log(msg);
-      redoLine(msg)
+      redoline(msg)
       log('Checking for previous render'+ this.filePNG)
 
       if (this.extension == "zip") {
@@ -1475,6 +1502,8 @@ class AminoSeeNoEvil {
         setTimeout( () => {
           if ( this.renderLock == false ) {
             this.popShiftOrBust(msg);
+          } else {
+            output(`Not popping due to busy.`)
           }
         }, this.raceDelay)
         return false;
@@ -1577,7 +1606,7 @@ class AminoSeeNoEvil {
         file = this.args._[0].toString();
       } catch(err) {
         // log(`Catch: this.args._[0].toString() = ${this.args._[0].toString()}`)
-        runcb(cb);
+        // runcb(cb);
         return false;
       }
       this.currentFile = file;
@@ -2114,7 +2143,7 @@ class AminoSeeNoEvil {
     }
 
     helpCmd(args) {
-
+      mode(`Showing help command --help`)
       output(chalk.bgBlue.bold.italic(`Welcome to the AminoSee DNA Viewer!`));
       output(siteDescription);
       output(chalk.bgBlue (`USAGE:`));
@@ -2482,7 +2511,7 @@ class AminoSeeNoEvil {
 
     popShiftOrBust(reason) { // ironic its now a .shift()
       // pop the array, the poll for stream or quit
-      bugtxt( `popShiftOrBust: ${this.busy()} `)
+      output( `popShiftOrBust: ${this.busy()} `)
       let file;
       remain = this.args._.length;
       if ( debug ) {
@@ -2513,12 +2542,12 @@ class AminoSeeNoEvil {
       if ( file.indexOf('...') !== -1) {
         mode( 'Cant use files with three dots in the file ... (for some reason?)');
         this.popShiftOrBust( status );
-        // this.quit(0, 'no more commands' );
+        this.quit(0, 'no more commands' );
         return false;
       }
       if ( file === undefined) {
         mode('undefined after resolve: ' + file)
-        // this.quit(0, 'no more commands' );
+        this.quit(0, 'no more commands' );
         return false;
       }
       try {
@@ -2527,17 +2556,23 @@ class AminoSeeNoEvil {
       } catch(err) {
         log('failed file system checks: '+ file)
       }
-      output( chalk.inverse(`${this.busy()} Checking job ${fixedWidth(3,  remain )}: `) +  ' ' + chalk.bgBlue.white( fixedWidth(40, this.currentFile)) + this.highlightOrNothin());
+      let msg =  chalk.inverse(`${this.busy()} Checking job ${fixedWidth(3,  remain )}: `) +  ' ' + chalk.bgBlue.white( fixedWidth(40, this.currentFile)) + this.highlightOrNothin()
+      if ( this.verbose ) {
+        output(msg);
+      } else {
+        redoline(msg)
+      }
       log(  ' Closing: ' + reason );
       if ( remain < 1 ) {
+        this.quit(0, 'no more commands' );
         return true;
       }
 
-      // if ( fileSystemChecks(this.dnafile )  == true ) {
-      // this.popShiftOrBust(`failed filesystem checks`);
-      // } else {
-      // }
-      this.prepareState(`in ${ humanizeDuration( this.raceDelay )} prepare state ` + ( this.test ? 'test mode' : 'dna mode' ) ); // <<<<-------------- THATS WHERE THE ACTION GOES
+      if ( fileSystemChecks(this.dnafile )  == false ) {
+        this.popShiftOrBust(`failed filesystem checks`);
+        return false;
+      }
+      this.prepareState( this.dnafile ); // <<<<-------------- THATS WHERE THE ACTION GOES
 
       // this.touchLockAndStartStream();
       // var that = this;
@@ -2669,7 +2704,7 @@ class AminoSeeNoEvil {
         if ( this.keyboard ) {
           destroyKeyboardUI();
         } else {
-          output('Not disabling keyboard mode.')
+          log('Not disabling keyboard mode.')
         }
         if (code == 0) {
           if (isElectron == true){
@@ -3423,7 +3458,7 @@ class AminoSeeNoEvil {
           if ( i % this.debugFreq == 0) {
             this.percentComplete = i/hilpix;
             this.progUpdate( this.percentComplete )
-            redoLine(`Space filling ${nicePercent( this.percentComplete )} `);
+            redoline(`Space filling ${nicePercent( this.percentComplete )} `);
           }
 
           let hilbX, hilbY;
@@ -4134,14 +4169,14 @@ class AminoSeeNoEvil {
       //   output(txt);
       // }
       out(txt) {
-        // redoLine(txt);
+        // redoline(txt);
         // output(txt);
         // return true;
 
         if (txt === undefined || this.quiet == true) { return false;}
         term.eraseDisplayBelow;
         // output(`[${txt}] `)
-        redoLine(txt);
+        redoline(txt);
         if ( this.updates == true && this.renderLock == true) {
           term.right( this.termMarginLeft );
         }
@@ -4169,7 +4204,7 @@ class AminoSeeNoEvil {
           console.warn(`[ ${txt} ] `);
         } else {
           log( chalk.rgb( this.red, this.green, this.blue )(`[ `) + chalk(txt) + chalk.rgb( this.red, this.green, this.blue )(` ]`));
-          // redoLine( chalk.rgb( this.red, this.green, this.blue )(`[ `) + chalk(txt) + chalk.rgb( this.red, this.green, this.blue )(` ]`));
+          // redoline( chalk.rgb( this.red, this.green, this.blue )(`[ `) + chalk(txt) + chalk.rgb( this.red, this.green, this.blue )(` ]`));
           // output(chalk.rgb( this.red, this.green, this.blue )(`[ `) + chalk(txt) + chalk.rgb( this.red, this.green, this.blue )(`[ `));
         }
       }
@@ -4663,7 +4698,7 @@ class AminoSeeNoEvil {
                   bugout(txt);
                 } else {
                   if (this.verbose == true ) {
-                    // redoLine(txt);
+                    // redoline(txt);
                   }
                 }
               } else if (cliInstance !== undefined) {
@@ -4671,13 +4706,13 @@ class AminoSeeNoEvil {
                   bugout(txt);
                 } else {
                   if (cliInstance.verbose == true ) {
-                    // redoLine(txt);
+                    // redoline(txt);
                   }
                 }
               } else if (debug == true){
                 log(`bugout: ${txt}`)
               } else {
-                // redoLine(txt)
+                // redoline(txt)
               }
 
             }
@@ -4703,10 +4738,10 @@ class AminoSeeNoEvil {
                   // output( fixedWidth(69, `devmode log: [${txt}] `));
                   // output( `devmode log: [${txt}] `);
                 } else if (this.quiet == false){
-                  redoLine(txt);
+                  redoline(txt);
                 }
               } else if (debug == true) {
-                redoLine(txt)
+                redoline(txt)
               }
               wTitle(`${txt}`) // put it on the terminal windowbar or in tmux
             }
@@ -4749,7 +4784,7 @@ class AminoSeeNoEvil {
                   process.stdout.write(splitScreen);
                   // splitScreen = chalk.gray.inverse( fixedWidth( debugColumns - 10, ` ${ formatAMPM( Date() )} and ${ this.formatMs( Date().getTime() )}ms`));
                 } else {
-                  redoLine( maxWidth( tx, txt) );
+                  redoline( maxWidth( tx, txt) );
                 }
 
                 // output(splitScreen);
@@ -5170,7 +5205,7 @@ class AminoSeeNoEvil {
               }
               function countdown(text, timeMs, cb) {
                 let msg = text + humanizeDuration ( deresSeconds(timeMs) ) ;
-                // redoLine(msg);
+                // redoline(msg);
                 out(msg)
                 if ( timeMs > 0 ) {
                   setTimeout(() => {
@@ -5181,7 +5216,7 @@ class AminoSeeNoEvil {
                     }
                   },  500 )
                 } else {
-                  // redoLine(' ');
+                  // redoline(' ');
                   out('.')
                   if ( cb !== undefined ) { cb() }
                 }
@@ -5193,7 +5228,7 @@ class AminoSeeNoEvil {
                 if ( debug ) {
                   out(txt);
                 } else if (that.quiet == false){
-                  redoLine(txt);
+                  redoline(txt);
                 }
               }
               function gimmeDat() {
@@ -5203,13 +5238,10 @@ class AminoSeeNoEvil {
                 if ( that === undefined)        {  that = false }
                 return that;
               }
-              function redoLine(txt) {
+              function redoline(txt) {
                 term.eraseLine();
-                output(maxWidth( term.width - 2, txt));
-                // var that = gimmeDat();
-                // if (that && debug ) {
-                //   output(maxWidth( term.width - 2, txt));
-                // }
+                // output(maxWidth( term.width - 2, txt));
+                output(txt);
                 term.up( 1 ) ;
               }
               function deresSeconds(ms){
@@ -5341,14 +5373,14 @@ class AminoSeeNoEvil {
                 cliInstance.gracefulQuit();
                 // this.destroyProgress();
                 process.exitCode = 130;
-                cliInstance.quit(130, "SIGTERM");
+                // cliInstance.quit(130, "SIGTERM");
                 process.exit(); // this.now the "exit" event will fire
               });
               process.on("SIGINT", function() {
                 cliInstance.gracefulQuit();
                 // this.destroyProgress();
                 process.exitCode = 130;
-                cliInstance.quit(130, "SIGINT");
+                // cliInstance.quit(130, "SIGINT");
                 process.exit(); // this.now the "exit" event will fire
               });
               function termDrawImage(fullpath, reason, cb) {

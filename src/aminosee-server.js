@@ -26,7 +26,7 @@ url = defaulturl
 port = 4321;
 backupPort = 43210;
 // process.title = `aminosee.funk.nz_server`;
-args = { verbose: false }
+args = { verbose: true }
 [ userprefs, projectprefs ] = setupPrefs();
 
 function setupPrefs() {
@@ -103,6 +103,7 @@ function startCrossSpawnHttp(p) { // Spawn background server
   let didStart = false;
   if (p !== undefined) { port = p }
   let options = [ `--serve`, outputPath + "/", `-p`, port, '-o' ]
+  output(options.toString())
   output(chalk.yellow(`Starting web server - doc root: ${options.toString()} ${chalk.underline(getServerURL())}`))
   let evilSpawn
   try {
@@ -141,6 +142,7 @@ function starthttpserver(options) {
   if ( options === undefined ) {
     options = [ outputPath, `-p`, port, '-o' ]
   }
+  output(`server path: ${outputPath} ${url}`)
   // httpserver = require('http-server');
   httpserver.createServer(options);
   process.title = `aminosee.funk.nz_server`;
@@ -263,14 +265,14 @@ function start(o) { // return the port number
     // o = `/snapshot/public`
     o = path.resolve( os.homedir(), 'AminoSee_Output')
   }
-  log(`Attempting to start server at: ${ o } on port ${ port }`)
   setupPrefs()
   outputPath = o
   setOutputPath(o)
   buildServer()
   let options = [ outputPath, `-p`, port, '-o' ]
+  log(`Attempting to start server with options: ${ options.toString() }`)
 
-  if ( serverLock() ) {
+  if ( serverLock() == true ) {
     port = readLockPort(filenameServerLock)
     output(`Server already started, using lock file port of (${port}). If you think this is not true, remove the lock file: ${ path.normalize( filenameServerLock )}`);
   } else {
@@ -322,7 +324,12 @@ function getServerURL(fullpath) {
     fullpath = `/${fullpath}/${indexfile}`;
   }
   serverURL = `http://${internalIp.v4.sync()}:${port}${fullpath}`;
-  output(`serverURL ${serverURL}`);
+  output(`serverURL returns ${serverURL} and also ${url}`);
+  if ( serverURL !== url ) {
+    output(`Maybe this is a bug, and I am exploring various web servers and runinng multiples in this version, so I got confused. You mite want to set the server URL base with:`)
+    output(`aminosee --url=${serverURL}`)
+    log(`this is useful if you have a front-side proxy or are uploading your files to static hosting at a different domain eg I used --url=https://www.funk.co.nz/aminosee for my site`)
+  }
   return serverURL;
 }
 
@@ -366,7 +373,6 @@ function symlinkGUI(cb) { // does:  ln -s /Users.....AminoSee/public, /Users....
 }
 
 module.exports.starthttpserver = () => { starthttpserver() }
-module.exports.getServerURL = () => { getServerURL( outputPath ) }
 module.exports.getServerURL = () => { getServerURL( outputPath ) }
 module.exports.startServeHandler = () => { startServeHandler() }
 module.exports.startCrossSpawnHttp = () => { startCrossSpawnHttp() }
