@@ -106,17 +106,15 @@ module.exports = () => {
   cliInstance.setupJob( populateArgs( process.argv ), `module exports`  );
   mode(`module exit`)
   // threads.push( cliInstance )
+  output( status )
 
-  countdown(`Try [Ctrl]-[C] or [Q] key to quit server or wait`, 360000, () => {
-    output("Free version server will now quit. aminosee@funk.co.nz if that's an issue for ya")
-  })
 }
 function populateArgs(procArgv) { // returns args
   const options = {
     boolean: [ 'artistic', 'clear', 'chrome', 'devmode', 'debug', 'demo', 'dnabg', 'explorer', 'file', 'force', 'firefox', 'gui', 'html', 'image', 'keyboard', 'list', 'progress', 'quiet', 'reg', 'recycle', 'redraw', 'serve', 'safari', 'test', 'updates', 'verbose', 'view' ],
     string: [ 'url', 'output', 'triplet', 'peptide', 'ratio', 'port' ],
     alias: { a: 'artistic', b: 'dnabg', c: 'codons', d: 'devmode', f: 'force', h: 'help', k: 'keyboard', m: 'magnitude', o: 'output', p: 'peptide', i: 'image', t: 'triplet', u: 'updates', q: 'quiet', r: 'reg', w: 'width', v: 'verbose', x: 'explorer', finder: 'explorer', view: 'html' },
-    default: { brute: false, debug: false, gui: false, html: true, image: false, clear: true, explorer: false, quiet: false, keyboard: false, progress: true, redraw: true, updates: true, serve: true },
+    default: { brute: false, debug: false, gui: true, html: true, image: false, clear: true, explorer: false, quiet: false, keyboard: false, progress: true, redraw: true, updates: true, serve: false },
     stopEarly: false
   } // NUMERIC INPUTS: codons, magnitude, width, maxpix
   let args = minimist(procArgv.slice(2), options)
@@ -730,7 +728,10 @@ class AminoSeeNoEvil {
       if ( webserverEnabled ) {
         url = server.start( this.outputPath );
         output(`Server running at: ${ chalk.underline( url ) } to stop use: aminosee --stop `)
-        // countdown(`closing in `, 3600, () => { this.gracefulQuit(7) })
+        countdown(`Try [Ctrl]-[C] or [Q] key to quit server or wait`, 360000, () => {
+          output("Free version server will now quit. aminosee@funk.co.nz if that's an issue for ya")
+        })
+
       }
 
 

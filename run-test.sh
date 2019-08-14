@@ -21,15 +21,19 @@ test_do () {
   echo $1 "END____ $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 _________"
 }
 
+echo STOPPPING SERVER
+aminosee --stop
+
 npm run genversion
 # nice npm run build-web &
 # sleep 1
-echo aminosee $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
-# echo STOPPPING SERVER
-# aminosee --stop
-echo STARTING SERVER TO RUN IN BACKGROUND
-aminosee --serve &
 aminosee
+echo aminosee $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
+aminosee $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
+
+# echo STARTING SERVER TO RUN IN BACKGROUND
+# aminosee --serve &
+
 test_do "FORCED RENDER" -fv $MEDIUM $FAST $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
 test_do "Curious back walk bug" -d --debug $FAST Influenza-A-virus-H9N2-NC_004905.gbk Streptococcus_virus_2972.gbk
 test_do "QUIET MODE" -q $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12

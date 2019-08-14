@@ -103,6 +103,7 @@ function startCrossSpawnHttp(p) { // Spawn background server
   let didStart = false;
   if (p !== undefined) { port = p }
   let options = [ `--serve`, outputPath + "/", `-p`, port, '-o' ]
+      options = [ `--serve`, outputPath + "/", `-p`, port ]
   output(options.toString())
   output(chalk.yellow(`Starting web server - doc root: ${options.toString()} ${chalk.underline(getServerURL())}`))
   let evilSpawn
