@@ -1449,7 +1449,7 @@ class AminoSeeNoEvil {
         output(msg)
         output(`${this.dnafile}`)
         countdown(`opening ${asterix} in `, 1000, () => {
-          output(`Pushing folder for processing... ${asterix}`)
+          output(`Pushing folder for processing... ${asterix} (disabled)`)
           // pushCli(asterix);
         })
         this.popShiftOrBust(msg)
@@ -2520,7 +2520,7 @@ class AminoSeeNoEvil {
 
     popShiftOrBust(reason) { // ironic its now a .shift()
       // pop the array, the poll for stream or quit
-      output( `popShiftOrBust: ${this.busy()} `)
+      bugtxt( `popShiftOrBust: ${this.busy()} `)
       let file;
       remain = this.args._.length;
       if ( debug ) {
@@ -5516,7 +5516,7 @@ class AminoSeeNoEvil {
                 outpath = path.normalize(path.resolve(os.homedir + outFoldername))  // default location after checking overrides
                 log(`HOME FOLDER ENABLED: ${ blueWhite( blueWhite( path.normalize( outpath )))}`)
               }
-              output(`output path: ${outpath} status: ${status}`)
+              bugtxt(`output path: ${outpath} status: ${status}`)
               return outpath;
             }
             function dedupeArray(a) {
