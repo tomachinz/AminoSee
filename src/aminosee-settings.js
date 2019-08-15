@@ -1,5 +1,4 @@
 const aminosee = require('./aminosee-cli');
-
 // let pjson = require('../package.json');
 let fs = require('fs');
 let path = require('path');
@@ -14,7 +13,6 @@ let packagefile = base + '/package.json';
 
 function gracefulShutdown() {
   aminosee.log("[custom sigterm received] @Aminosee settings.js");
-
   aminosee.gracefulQuit();
   // process.exit(); // now the "exit" event will fire
 }

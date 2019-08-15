@@ -8,6 +8,7 @@ const data = require('./aminosee-data');
 const aminosee = require('./aminosee-cli');
 const setupPrefs = aminosee.setupPrefs;
 const pushCli = aminosee.pushCli;
+const port = 6543;
 
 async function runCarlo() {
   const [backend] = await carlo.loadParams();
@@ -139,9 +140,9 @@ async function runCarlo() {
             width: 1400,
             height: 600,
             channel: ['canary', 'stable'],
-            icon: path.join(__dirname, 'src/public/512_icon.png'),
+            icon: path.join(__dirname, 'public/512_icon.png'),
             args: [ '--allow-insecure-localhost', '--webpack-dev-server'],
-            serveOrigin: 'http://localhost:4567'
+            serveOrigin: `http://localhost:${port}`
           });
     } catch(e) {
       // New window is opened in the running instance.
@@ -161,7 +162,7 @@ async function runCarlo() {
     await app.serveFolder(o);
     await app.exposeFunction('systeminfo', systeminfo);
     await app.exposeFunction('pushCli', pushCli);
-    await app.load('www/index.html');
+    await app.load('www/systeminfo.html');
 
     // await app.runCarlo()
     // await app.load('http://10.0.0.24:43210/public/');

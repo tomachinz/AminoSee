@@ -14,7 +14,7 @@ const os = require('os');
 const httpserver = require('http-server'); // cant have - in js
 const spawn = require('cross-spawn');
 const fs = require('fs-extra'); // drop in replacement = const fs = require('fs')
-const debug = false;
+let debug = false;
 const lockFileMessage = `
 aminosee.funk.nz DNA Viewer by Tom Atkinson.
 This is a temporary lock file, so I dont start too many servers. Its safe to erase these files, and I've made a script in /dna/ to batch delete them all in one go. Normally these are deleted when render is complete, or with Control-C and graceful shutdown.`;
@@ -63,10 +63,9 @@ function setupPrefs() {
 
 }
 function log(txt) {
-  if ( args.verbose ) {
-  output( txt )
+  if ( args.verbose == true) {
+    output( txt )
   }
-
 }
 // function getArgs() {
 //   return this.args;
@@ -144,7 +143,7 @@ function foregroundserver(options) {
   if ( options === undefined ) {
     options = [ outputPath, `-p`, port, '-o' ]
   }
-  // output(`server path: ${outputPath} ${url}`)
+  output(`server path: ${outputPath} ${port} ${url}`)
   theserver = httpserver.createServer(options);
   process.title = `aminosee.funk.nz_server`;
   return theserver
@@ -231,6 +230,8 @@ module.exports = (options) => {
 
 
 function stop() {
+
+  setArgs();
   log(`Stopping server`);
   log(`removing lock file... ${filenameServerLock}`)
   deleteFile(filenameServerLock);
@@ -260,11 +261,28 @@ function close() {
 function readLockPort(file) {
   return Math.round( (fs.readFileSync(file))); // my way of casting it to a number
 }
+
 function setArgs( TheArgs ) {
-  args = TheArgs;
+  if ( TheArgs === undefined ) {
+    args = {
+      verbose: true,
+      output: path.resolve( os.homedir(), 'AminoSee_Output'),
+      serve: true
+    }
+    log(`using default args`)
+
+  } else {
+    args = TheArgs
+    log(`using dynamic args`)
+  }
+
+  outputPath = args.output;
+  filenameServerLock = path.resolve(`${outputPath}/aminosee_server_lock.txt`);
+  debug = args.debug;
+  // console.log( args )
   if ( args.debug ) {
     debug = true;
-    output('debug mode ENABLED');
+    log('debug mode ENABLED');
   } else {
     debug = false;
     log( `debug mode DISABLED`)
@@ -276,51 +294,37 @@ function setArgs( TheArgs ) {
   }
 }
 function start(a) { // return the port number
-  if ( a === undefined ) {
-    args = {
-      verbose: true,
-      output: path.resolve( os.homedir(), 'AminoSee_Output')
-    }
-  } else {
-    args = a
-  }
+
+  setArgs(a)
+  log(`Attempting to start server with args: ${ a.toString() }`)
+  process.title = `aminosee.funk.nz_server`;
   outputPath = args.output
   filenameServerLock = path.resolve(`${outputPath}/aminosee_server_lock.txt`);
-
-  if ( args.stop == true ) { output(`Two issues...: you call the start function but args object is configured for stop = true, and you need to call setArgs(args) prior to start()`) }
-
+  if ( args.stop == true ) { log(`Two issues...: you call the start function but args object is configured for stop = true, and you need to call setArgs(args) prior to start()`) }
   stop()
-
   setupPrefs()
   buildServer()
   // let options = [ outputPath, `-p`, port, '-o' ]
   let options = [ outputPath + '/', `-p`, port, '-o' ]
-
-  log(`Attempting to start server with options: ${ options.toString() }`)
-
   if ( serverLock() == true ) {
     port = readLockPort(filenameServerLock)
-    output(`Server already started, using lock file port of (${port}). If you think this is not true, remove the lock file: ${ path.normalize( filenameServerLock )}`);
+    log(`Server already started, using lock file port of (${port}). If you think this is not true, remove the lock file: ${ path.normalize( filenameServerLock )}`);
   } else {
     log("No locks found, Starting server ");
     log(`filenameServerLock: ${filenameServerLock}`)
   }
-
-  foregroundserver(options); // blocking version
-  spawnBackground(options); // works great but relies on http-server being installed globally
+  if ( args.serve == true ) {
+    output('Foreground')
+    foregroundserver(options); // blocking version
+  } else {
+    output('Backround')
+    spawnBackground(options); // works great but relies on http-server being installed globally
+  }
   // startServeHandler(o, port)
-  process.title = `aminosee.funk.nz_server`;
-
   return port
 }
 
-function setArgs(a) {
-  if (a === undefined) { error(`args needs to be set!`) }
-  args = a;
-  outputPath = args.output;
-  filenameServerLock = path.resolve(`${outputPath}/aminosee_server_lock.txt`);
-  output(`args received`);
-}
+
 function error(err) {
   output(err)
   if (debug) {
