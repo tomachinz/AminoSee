@@ -57,7 +57,7 @@ async function runCarlo() {
   //     await app.exposeFunction('aminosee', _ => ['hello world', 'megabase']);
   //     // app.serveFolder( path.resolve( os.homedir + "/AminoSee_output" ) );
   //     // app.serveFolder( path.resolve( os.homedir + "/AminoSee_output" ) );
-  //     // app.serveFolder( path.join(__dirname, 'www'));
+  //     // app.serveFolder( path.join(__dirname, 'public'));
   //
   //     // Navigate to the main page of your app.
   //     // await app.load('public/home.html');
@@ -152,18 +152,18 @@ async function runCarlo() {
     app.on('exit', () => process.exit());
     // New windows are opened when this app is started again from command line.
     // app.on('window', window => window.load('http://10.0.0.24:43210/public/'));
-    // app.on('window', window => window.load('www/index.html'));
+    // app.on('window', window => window.load('public/index.html'));
 
     // let o =  path.join(os.homedir(), '/AminoSee_Output');
     // let o = path.join(__dirname, 'public');
-    // let o = path.join(__dirname, 'www');
+    // let o = path.join(__dirname, 'public');
     let o = path.resolve(__dirname);
     console.log(`serving: ${o}`)
-    pushCli('--serve')
+    pushCli('dna/megabase.fa')
     await app.serveFolder(o);
     await app.exposeFunction('systeminfo', systeminfo);
     await app.exposeFunction('pushCli', pushCli);
-    await app.load('www/systeminfo.html');
+    await app.load('public/systeminfo.html');
 
     // await app.runCarlo()
     // await app.load('http://10.0.0.24:43210/public/');

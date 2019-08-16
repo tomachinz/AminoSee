@@ -154,49 +154,34 @@ function pushCli(cs) {
   output(chalk.inverse(`Starting AminoSee now with pushClI:
     ${chalk.italic( commandString )}`))
 
-
-
-    // var thing = function selfSpawn() {
-    //   // const evilSpawn = spawn('aminosee', ['serve', '', '', '0'], { stdio: 'pipe' });
-    //   const evilSpawn = spawn( commandString, { stdio: 'pipe' });
-    //   evilSpawn.stdout.on('data', (data) => {
-    //     output(`${chalk.inverse('aminosee-cli serve')}${chalk(': ')}${data}  ${evilSpawn.name}`);
-    //   });
-    //   evilSpawn.stderr.on('data', (data) => {
-    //     output(`${chalk.inverse('aminosee-cli  this.error')}${chalk(': ')}${data}`);
-    //   });
-    //   evilSpawn.on('close', (code) => {
-    //     output(`child process quit with code ${code}`);
-    //   });
-    // }
-    // thing()
-    // return true;
-
-
-
-
-    let commandArray = commandString.split(" ");
-    jobArgs = populateArgs( commandArray );
-    log(`Command: ${commandString}`);
-    log(jobArgs);
-
-    for (let i=0; i < commandArray.length; i++) {
-      let job = commandArray[i];
-      if (charAtCheck(job)) { // no files can start with - first char this.file
-        if (fileSystemChecks(job)) {
-          log(`pushing job into render queuee: [${job}]`)
-          jobArgs._.push(job)
-        } else {
-          log(`umm: [${job}]`)
-        }
+if ( renderLock ) {
+  output(`Job is already running, adding it to the queue`)
+  jobArgs.push( cs )
+} else {
+  let commandArray = commandString.split(" ");
+  jobArgs = populateArgs( commandArray );
+  log(`Command: ${commandString}`);
+  log(jobArgs);
+  for (let i=0; i < commandArray.length; i++) {
+    let job = commandArray[i];
+    if (charAtCheck(job)) { // no files can start with - first char this.file
+      if (fileSystemChecks(job)) {
+        log(`pushing job into render queuee: [${job}]`)
+        jobArgs._.push(job)
       } else {
-        log(`configuring parameter: [${job}]`)
+        log(`umm: [${job}]`)
       }
+    } else {
+      log(`configuring parameter: [${job}]`)
     }
+  }
+  let thread = newJob(jobArgs);
+  threads.push( thread );
 
-    let thread = newJob(jobArgs);
-    // let thread = newJob( commandString );
-    threads.push( thread );
+}
+
+
+
   }
   function setupApp() {
     [ userprefs, projectprefs ] = setupPrefs();
@@ -300,7 +285,7 @@ function pushCli(cs) {
       this.peakBlue  = 0.1010101010;
       this.rawDNA ="@loading DNA Stream..."; // this.debug
       this.outFoldername = `/AminoSee_Output`;
-      this.justNameOfDNA = 'aminosee-is-looking-for-files-containing-ascii-DNA.txt';
+      this.justNameOfDNA = 'ascii-DNA.txt';
       this.browser = 'firefox';
       this.loopCounter = 0;
       this.termPixels = 69;//Math.round((term.width) * (term.height-8));
@@ -739,8 +724,8 @@ function pushCli(cs) {
         if ( this.gui == true && this.quiet == false ) {
           log(`starting carlo and enabling keyboard mode press [Q] to quit`)
           const carlo = require('./aminosee-carlo').run();
-          // this.keyboard = true;
-          // this.setupKeyboardUI();
+          this.keyboard = true;
+          this.setupKeyboardUI();
           // let that = this;
           // countdown('Press [Q] to exit or wait ', this.raceDelay * 8170, () => {
           // carlo.catch();
@@ -751,6 +736,7 @@ function pushCli(cs) {
         }
 
         remain = args._.length;
+
         if ( remain > 0 ) {
           mode(remain + " Ω first command Ω ")
           output(chalk.green(`${chalk.underline("Job items Ω ")} ${remain}`))
@@ -758,13 +744,13 @@ function pushCli(cs) {
           // this.pollForStream();
           // this.resetAndPop(status)
           // this.popShiftOrBust();
-          this.prepareState('Ω first command ', () => { // <<<<----- thats where the action is
-            log('prepare state returned')
-            // this.pollForStream();
-
-            setImmediate( () => {
-              log(`:)       [${ this.justNameOfDNA  }]`)
-            })
+          setImmediate( () => {
+            this.prepareState('Ω first command ', () => { // <<<<----- thats where the action is
+              log('prepare state returned');               // this.pollForStream();
+              setImmediate( () => {
+                log(`:)       [${ this.justNameOfDNA  }]`)
+              })
+          })
 
 
           });
@@ -782,9 +768,10 @@ function pushCli(cs) {
           } else {
             log('not first run')
           }
-          output(`Try running ->        ${ chalk.italic( 'aminosee Human_Genome.txt Gorilla.dna Chimp.fa Orangutan.gbk --image')}`);
-          output(`usage   --->>>        aminosee [*/dna-file.txt] [--help|--test|--demo|--force|--html|--image|--keyboard]     `); //" Closing in 2 seconds.")
-          output(`example --->>>        aminosee --help `); //" Closing in 2 seconds.")
+          output(`Try running -->>>    ${ chalk.italic( 'aminosee Human_Genome.txt Gorilla.dna Chimp.fa Orangutan.gbk --image')}`);
+          output(`usage      --->>>    ${ chalk.italic( 'aminosee [*/dna-file.txt] [--help|--test|--demo|--force|--html|--image|--keyboard]    ')}`);
+          output(`example    --->>>    ${ chalk.italic( 'aminosee --help ')}`);
+          output(`user interface ->    ${ chalk.italic( 'aminosee --gui ')}`);
           output();
           output();
           this.gui = true;
@@ -3855,39 +3842,40 @@ function pushCli(cs) {
           } else {
             log(`Not opening HTML`)
           }
-          if ( this.isHilbertPossible  == true && this.openImage == true && this.artistic == false) {
+          if ( this.openImage == true ) {
             log(`Opening ${ this.justNameOfHILBERT} 2D hilbert space-filling image.`);
             this.opensImage++;
             projectprefs.aminosee.opens++; // increment open counter.
-            open( this.fileHILBERT).then(() => {
+            open( this.fileHILBERT ).then(() => {
               log("hilbert image closed");
-            }).catch(function () {  log("open( this.fileHILBERT)") });
-          } else if ( this.openImage == true) { // open the linear if there is no hilbert, for art mode
+            }).catch(function () {  });
+          }
+          if ( this.isHilbertPossible == false) { // open the linear if there is no hilbert, for art mode
             output(`Opening ${ this.justNameOfPNG} 1D linear projection image.`);
             this.opensImage++;
             projectprefs.aminosee.opens++; // increment open counter.
             open( this.filePNG ).then(() => {
               log("regular png image closed");
-            }).catch(function () {  this.error("open( this.filePNG )") });
+            }).catch(function () { });
           } else {
             log(`Use --html or --image to automatically open files after render, and "aminosee demo" to generate this.test pattern and download a 1 MB DNA file from aminosee.funk.nz`)
             log(`values of this.openHtml ${ this.openHtml }   this.openImage ${ this.openImage}`);
           }
-          if ( this.opensFile > 3) { // notice the s
-            log('i figured that was enough windows, will not open more windows')
-            this.openFileExplorer = false;
-            return false;
-          }
-          if ( this.opensImage > 3) {
-            log('i figured that was enough windows, will not open more windows')
-            this.openImage = false;
-            return false;
-          }
-          if ( this.opensHtml > 3) {
-            log('i figured that was enough windows, will not open more windows')
-            this.openHtml = false;
-            return false;
-          }
+          // if ( this.opensFile > 3) { // notice the s
+          //   log('i figured that was enough windows, will not open more windows')
+          //   this.openFileExplorer = false;
+          //   return false;
+          // }
+          // if ( this.opensImage > 3) {
+          //   log('i figured that was enough windows, will not open more windows')
+          //   this.openImage = false;
+          //   return false;
+          // }
+          // if ( this.opensHtml > 3) {
+          //   log('i figured that was enough windows, will not open more windows')
+          //   this.openHtml = false;
+          //   return false;
+          // }
           if ( opens == 0 ) {
             log(`not opening ${opens} times`)
           } else {
@@ -4106,8 +4094,9 @@ function pushCli(cs) {
           this.progUpdate({ title: 'Resample by X' + shrinkX, items: remain, syncMode: true })
           for (let z = 0; z<downsampleSize; z++) { // 2x AA this.pixelClock is the number of pixels in linear
             if ( z % this.debugFreq == 0) {
-              this.percentComplete = z/downsampleSize;
-              this.progUpdate(  this.percentComplete )
+              this.percentComplete = nicePercent( z/downsampleSize );
+              this.progUpdate(   this.percentComplete  )
+              redoline(  this.percentComplete )
             }
             let sum = z*4;
             let clk = sampleClock*4; // starts on 0
@@ -4198,6 +4187,7 @@ function pushCli(cs) {
             output();
           }
           if ( debug == true ) {
+            output(`DEBUG MODE IS ENABLED. STOPPING: ${err}`)
             throw new Error(err)
             // process.exit();
           } else {
@@ -4962,7 +4952,7 @@ function pushCli(cs) {
         }
         function setupPrefs() {
           let o = getOutputFolder();
-          log(`output = ${o}`);
+          blueWhite(`output = ${o}`);
           projectprefs = new Preferences('nz.funk.aminosee.project', {
             aminosee: {
               opens: 0,

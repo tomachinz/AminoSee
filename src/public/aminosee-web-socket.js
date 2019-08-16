@@ -139,7 +139,7 @@ Developed by Craig Buckler (@craigbuckler) of OptimalWorks.net
 			submitbutton = $id("submitbutton");
 
 		// file select
-		// fileselect.addEventListener("change", FileSelectHandler, false);
+		fileselect.addEventListener("change", FileSelectHandler, false);
 
 		// is XHR2 available?
 		var xhr = new XMLHttpRequest();
