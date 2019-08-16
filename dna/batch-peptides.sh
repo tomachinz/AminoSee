@@ -4,7 +4,7 @@ aminosee_do () {
   sleep 1
   aminosee --no-image $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 &
   sleep 1
-  nice aminosee --quiet --index -c360 --ratio=sqr $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
+  nice aminosee --quiet --index -m5 -c100 --ratio=sqr $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
   echo $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 FINISHED RENDER
 }
 

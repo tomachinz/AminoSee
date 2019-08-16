@@ -7,7 +7,7 @@ by Tom Atkinson          aminosee.funk.nz
 ah-mee no-see         "I see it now...  I AminoSee it!"
 `;
 
-const siteDescription = `A unique visualisation of DNA or RNA residing in text files, AminoSee is a way to render huge genomics files into a PNG image using an infinite space filling curve from 18th century! Computation is done locally, and the files do not leave your machine. A back-end terminal daemon cli command that can be scripted is combined with a front-end GUI in Electron, AminoSee features asynchronous streaming processing enabling arbitrary size files to be processed. It has been tested with files in excess of 4 GB and does not need the whole file in memory at any time. Due to issues with the 'aminosee *' command, a batch script is provided for bulk rendering in the dna/ folder. Alertively use the GUI to Drag and drop files to render a unique colour view of RNA or DNA stoRed in text files, output to PNG graphics file, then launches an WebGL this.browser that projects the image onto a 3D Hilbert curve for immersive viewing, using THREEjs. Command line options alow one to filter by this.peptide.`;
+const siteDescription = `A unique visualisation of DNA or RNA residing in text files, AminoSee is a way to render huge genomics files into a PNG image using an infinite space filling curve from 18th century! Computation is done locally, and the files do not leave your machine. A back-end terminal daemon cli command that can be scripted is combined with a front-end GUI using the Carlo, AminoSee features asynchronous streaming processing enabling arbitrary size files to be processed. It has been tested with files in excess of 4 GB and does not need the whole file in memory at any time. Due to issues with the 'aminosee *' command, a batch script is provided for bulk rendering in the dna/ folder. Alertively use the GUI to Drag and drop files to render a unique colour view of RNA or DNA stoRed in text files, output to PNG graphics file, then launches an WebGL this.browser that projects the image onto a 3D Hilbert curve for immersive viewing, using THREEjs. Command line options alow one to filter by this.peptide.`;
 
 const interactiveKeysGuide = `
 Interactive control:    D            (devmode)  Q   (graceful quit next save)
@@ -84,7 +84,7 @@ const wideScreen = 140; // shrinks terminal display
 // BigInt.prototype.toJSON = function() { return this.toString(); }; // shim for big int
 // BigInt.prototype.toBSON = function() { return this.toString(); }; // Add a `toBSON()` to enable MongoDB to store BigInts as strings
 const targetPixels = 8000000; // for big genomes use setting flag -c 1 to achieve highest resolution and bypass this taret max render size
-let cfile, streamLineNr, renderLock, isElectron, jobArgs, killServersOnQuit, webserverEnabled, cliInstance, tx, ty, termPixels, cliruns, gbprocessed, projectprefs, userprefs, genomesRendered, progato, commandString, batchSize, quiet, url, port, status, remain;
+let cfile, streamLineNr, renderLock, jobArgs, killServersOnQuit, webserverEnabled, cliInstance, tx, ty, termPixels, cliruns, gbprocessed, projectprefs, userprefs, genomesRendered, progato, commandString, batchSize, quiet, url, port, status, remain;
 let opens = 0; // session local counter to avoid having way too many windows opened.
 let dnaTriplets = data.dnaTriplets;
 termPixels = 69;
@@ -99,7 +99,6 @@ webserverEnabled = false;
 genomesRendered = ['megabase']
 renderLock = false;
 module.exports = () => {
-  isElectron = false;
   mode('exports');
   setupApp();
   cliInstance = new AminoSeeNoEvil();
@@ -246,15 +245,13 @@ if ( renderLock ) {
       this.outFoldername = "";
       this.genomeSize = 0;
       this.killServersOnQuit = true;
-      this.isElectron = true;
       this.maxMsPerUpdate  = 15000; // milliseconds per updatethis.maxpix = targetPixels; //
       this.timeRemain = 1;
       this.debugGears = 1;
       this.done = 0;
-      this.suopIters = 0;
-      this.raceDelay = 500; // so i learnt a lot on this project. one day this line shall disappear replaced by promises.
-      this.darkenFactor = 0.125; // if user has chosen to highlight an amino acid others are darkened
-      this.highlightFactor = 8.0; // highten brightening.
+      this.raceDelay = 200; // so i learnt a lot on this project. one day this line shall disappear replaced by promises.
+      this.darkenFactor = 0.25; // if user has chosen to highlight an amino acid others are darkened
+      this.highlightFactor = 4.0; // highten brightening.
       this.devmode = false; // kills the auto opening of reports etc
       this.quiet = false;
       this.verbose = false; // not recommended. will slow down due to console.
@@ -914,7 +911,7 @@ if ( renderLock ) {
           }
         }
         // clearTimeout( this.updatesTimer )
-        if ( renderLock == true && args.updates == true) { this.drawHistogram() }
+        // if ( renderLock == true && args.updates == true) { this.drawHistogram() }
         // this.drawHistogram()
       }
       cli(argumentsArray) {
@@ -1535,7 +1532,7 @@ if ( renderLock ) {
 
           if ( renderLock == false ) {
             this.touchLockAndStartStream(); // <--- THIS IS WHERE MAGIC STARTS
-            this.drawHistogram();
+            // this.drawHistogram();
           } else {
             log("Thread drain at end of poll.")
           }
@@ -1692,7 +1689,7 @@ if ( renderLock ) {
           log('Not recycling');
         }
         // startStreamingPng();
-        process.title = `aminosee.funk.nz (${ this.justNameOfDNA} ${bytes( this.estimatedPixels*4)} ${ this.highlightOrNothin() } c${ this.codonsPerPixel })`;
+        process.title = `aminosee.funk.nz (${ this.justNameOfDNA} ${bytes( this.estimatedPixels*4)} ${ this.highlightOrNothin() } c${ this.codonsPerPixel } m${this.dimension})`;
         this.streamStarted();
 
         try {
@@ -2436,7 +2433,7 @@ if ( renderLock ) {
         let msg = `
         Started DNA render ${ this.justNameOfPNG } at ${ formatAMPM( this.startDate)}, and after ${humanizeDuration( this.runningDuration)} completed ${ nicePercent(this.percentComplete)} of the ${bytes(  this.baseChars)} file at ${bytes( this.bytesPerMs*1000)} per second.
         Estimated ${humanizeDuration( this.timeRemain)} to go with ${  this.genomeSize.toLocaleString()} r/DNA triplets decoded, and ${ this.pixelClock.toLocaleString()} pixels painted.
-        File ${remain} / ${batchSize} issued by ${ isElectron ? 'Electron GUI' : 'Terminal CLI' } on ${ os.platform() } on ${ hostname }.
+        File ${remain} / ${batchSize} on ${ os.platform() } on ${ hostname }.
         ${ this.memToString()} currently ${this.busy()}
         CPU load:    [ ${ this.loadAverages()} ]`
         // output(msg)
@@ -2772,6 +2769,7 @@ if ( renderLock ) {
           if (this.rawDNA.length < this.termPixels) {
             this.rawDNA = cleanString(l) + this.rawDNA;
           }
+          let pixelGamma = 1; //this.getGamma( pep );
           let lineLength = l.length; // replaces  this.baseChars
           let codon = "";
           this.currentTriplet = "none";
@@ -2813,7 +2811,7 @@ if ( renderLock ) {
               this.pixelStacking++;
               this.genomeSize++;
               this.codonRGBA =  this.codonToRGBA(codon); // this will this.report this.alpha info
-              let pixelGamma = 1;//getGamma( pep );
+              pixelGamma = this.getGamma( codon );
 
               // this line will be removed at some stage:
               this.mixRGBA[0] += parseFloat( this.codonRGBA[0].valueOf() * pixelGamma ); // * red
@@ -2824,7 +2822,7 @@ if ( renderLock ) {
               if ( brute == true ) {
                 for ( let i = 0; i < this.pepTable.length; i++ ) {
                   let pep = this.pepTable[ i ].Codon;
-                  pixelGamma = getGamma( pep );
+                  pixelGamma = this.getGamma( pep );
                   // mix is only zerod by renderPixel()
                   this.pepTable[ i ].mixRGBA[0] += parseFloat( this.codonRGBA[0].valueOf() * pixelGamma ); // * red
                   this.pepTable[ i ].mixRGBA[1] += parseFloat( this.codonRGBA[1].valueOf() * pixelGamma ); // * green
@@ -2878,7 +2876,7 @@ if ( renderLock ) {
             if ( brute == true ) {
               for ( let i = 0; i < this.pepTable.length; i++ ) {
                 let pep = this.pepTable[ i ];
-                pixelGamma = getGamma( pep.Codon );
+                pixelGamma = this.getGamma( pep.Codon );
                 bc = balanceColour( pep.mixRGBA[0], pep.mixRGBA[1], pep.mixRGBA[2], pep.mixRGBA[3] );
 
                 this.red =   bc[0]; // oops that was overkill ah well
@@ -3437,15 +3435,15 @@ if ( renderLock ) {
 
           this.setupHilbertFilenames();
 
-          if ( doesFileExist( this.fileHILBERT) == true ) {
-            output("Existing hilbert image found - skipping projection: " + this.fileHILBERT);
-            this.openOutputs();
-            this.isDiskFinHilbert = true;
-            this.previousImage = this.fileHILBERT;
-            var closure = () => { return this.fileHILBERT }
-            runcb(cb);
-            return false;
-          }
+          // if ( doesFileExist( this.fileHILBERT) == true ) {
+          //   output("Existing hilbert image found - skipping projection: " + this.fileHILBERT);
+          //   this.openOutputs();
+          //   this.isDiskFinHilbert = true;
+          //   this.previousImage = this.fileHILBERT;
+          //   var closure = () => { return this.fileHILBERT }
+          //   runcb(cb);
+          //   return false;
+          // }
           term.eraseDisplayBelow();
           mode('save hilbert');
           output(chalk.bgBlue.yellow( ` Getting in touch with my man from 1891...   ॐ    David Hilbert    ॐ    `) + this.fileHILBERT);// In the " + this.dimension + "th dimension and reduced by " + threesigbitsTolocale( shrinkFactor) );
@@ -4349,8 +4347,8 @@ if ( renderLock ) {
             output(`     To disable real-time DNA background use any of --no-dnabg --no-updates --quiet -q  (${tx},${ty})`);
             // }
           } else {
-            // term.moveTo(1 + this.termMarginLeft,1);
-            output("here ye be")
+            term.moveTo(1 + this.termMarginLeft,1);
+            // output("here ye be")
           }
           this.rawDNA = funknzlabel;
           if ( this.updates == true ) {

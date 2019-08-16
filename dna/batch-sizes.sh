@@ -3,9 +3,8 @@ FAST=megabase.fa
 QUICK=Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa
 
 aminosee_do () {
-  nice aminosee --quiet --ratio=sqr --reg $1 $2 $3 $4 $5 $6 &
-  echo "nice -n $1 aminosee $2 $3 $4 $5 $6     &"
-  sleep 1
+  nice aminosee --quiet --ratio=sqr --reg --force $1 $2 $3 $4 $5 $6 &
+  sleep 20
 }
 
 
@@ -17,10 +16,6 @@ many_size_hilbert() {
   echo "-------------------------------------------"
   echo "                                         =///"
 
-
-
-  aminosee_do   -m1  $1 $2 $3 $4 $5 $6
-  aminosee_do   -m2  $1 $2 $3 $4 $5 $6
   aminosee_do   -m3  $1 $2 $3 $4 $5 $6
   aminosee_do   -m4  $1 $2 $3 $4 $5 $6
   aminosee_do   -m5  $1 $2 $3 $4 $5 $6
