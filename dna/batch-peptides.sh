@@ -6,9 +6,7 @@ aminosee_do () {
   sleep 1
   nice aminosee --index -c360 $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --no-image
   echo
-  echo
   echo $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 FINISHED RENDER
-  echo
   echo
 }
 best_way () {
@@ -85,7 +83,7 @@ parallel_peptides () {
   echo STARTING MULTI-THREAD DECODE FOR $1 $2 $3 $4 $5 $6 $7
   echo "-------------------------------------------"
   echo "                                         =///"
-  aminosee    $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 &
+  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 &
   sleep 1
   aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --quiet  --peptide=Glutamic_acid &
   aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --quiet  --peptide=Aspartic_acid &
@@ -109,7 +107,7 @@ parallel_peptides () {
   aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --quiet  --peptide=Tyrosine &
   aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --quiet  --peptide=Arginine &
   aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --quiet  --peptide=Lysine &
-  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 -peptide=Histidine &
+  aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12          --peptide=Histidine &
   aminosee_do $1 $2 $3 $4 $5 $6 $7
 
   # sleep 1
@@ -222,7 +220,7 @@ echo $1 $2 $3 $4 $5 $6 $7
 # parallel_peptides 50KB_TestPattern.txt  megabase.fa
 # series_peptides $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
 parallel_peptides $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
-sleep 1
+sleep 60
 echo WILL NOW RENDER ALL IN FOLDER
 echo WILL NOW RENDER ALL IN FOLDER
 echo WILL NOW RENDER ALL IN FOLDER

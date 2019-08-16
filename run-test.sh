@@ -12,11 +12,9 @@ test_do () {
   echo __________________________________________
   echo
   echo
-  echo
   echo $1
   echo
-  echo
-  echo "START__ aminosee  $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 _________"
+  echo START__ aminosee  $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 _________
   nice aminosee $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
   echo
   echo $1 "END____ $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 _________"
