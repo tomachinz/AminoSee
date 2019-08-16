@@ -459,6 +459,7 @@ if ( renderLock ) {
           }
         }
       }
+      // this is weird: load the value into dimension; if set its custom if not its auto.
       if ( args.magnitude || args.m ) {
         output( args.magnitude )
         this.dimension = Math.round( args.magnitude );
@@ -470,7 +471,7 @@ if ( renderLock ) {
           this.dimension = theoreticalMaxMagnitude;
           this.maxpix = 32000000;
           output("Magnitude must be an integer number between 3 and 9 or so. 9 you may run out of memory.");
-        } else if (  this.dimension > 6 &&  this.dimension < 9) {
+        } else if (  this.dimension > 2 &&  this.dimension < 9) {
           output(`Using custom output magnitude: ${ this.dimension }`);
         }
       } else {
@@ -1884,12 +1885,6 @@ if ( renderLock ) {
       // CODONS PER PIXEL
       autoconfCodonsPerPixel() {
         mode('autoconf')
-        // requires  this.baseChars  this.maxpix
-        //  this.baseChars is like  this.genomeSize but the esetimation of it based on filesize
-        // internally, we signal streamed pipe input from standard in as -1 filesize
-        // therefore if filesize = -1 then streaming pipe mode is enabled.
-        // the goal is to set this.codonsPerPixel
-        //
         if (this.dnafile  == funknzlabel) { log('no'); return false; }
         this.baseChars = this.getFilesizeInBytes( this.dnafile );
         if ( this.baseChars < 0) { // switch to streaming pipe this.mode,
@@ -1907,14 +1902,17 @@ if ( renderLock ) {
           this.isStreamingPipe = false; // cat Human.genome | aminosee
           this.estimatedPixels =  this.baseChars / 3; // divide by 4 times 3
           if ( this.estimatedPixels > 256 ) {
-            this.dimension = optimumDimension ( this.estimatedPixels, this.magnitude );
+            if ( this.magnitude == 'auto') {
+              this.dimension = optimumDimension ( this.estimatedPixels, this.magnitude );
+            }
           } else {
-            output(`Not enough pixels to form image`)
+            let msg = `Not enough pixels to form image`;
+            this.resetAndPop(msg);
+            return false;
           }
         }
 
-
-        if ( this.estimatedPixels <  this.maxpix ) { // for sequence smaller than the screen
+        if ( this.estimatedPixels < this.maxpix ) { // for sequence smaller than the screen
           if ( this.userCPP !== "auto" )  {
             log("its not recommended to use anything other than --codons 1 for small genomes")
           } else {
@@ -1923,13 +1921,13 @@ if ( renderLock ) {
         }
 
         if ( this.userCPP !== "auto" ) {
-          // output(`Manual zoom level override enabled at: ${ this.userCPP } codons per pixel.`);
+          output(`Manual zoom level override enabled at: ${ this.userCPP } codons per pixel.`);
           this.codonsPerPixel = this.userCPP;
         } else {
-          // log("Automatic codons per pixel setting")
+          log("Automatic codons per pixel setting")
         }
 
-        if ( this.estimatedPixels >  this.maxpix ) { // for seq bigger than screen        this.codonsPerPixel = this.estimatedPixels /  this.maxpix*overSampleFactor;
+        if ( this.estimatedPixels > this.maxpix ) { // for seq bigger than screen        this.codonsPerPixel = this.estimatedPixels /  this.maxpix*overSampleFactor;
           this.codonsPerPixel = Math.round( this.estimatedPixels /  this.maxpix ); // THIS IS THE CORE FUNCTION
           if ( this.userCPP == "auto" ) {
             if ( this.userCPP < this.codonsPerPixel) {
@@ -1965,20 +1963,6 @@ if ( renderLock ) {
           this.ratio = 'fix'; // small genomes like "the flu" look better square.
         }
 
-        // set highlight factor such  that:
-        // if cpp is 1 it is 1
-        // if cpp is 2 it is 1.5
-        // if cpp is 3 it is 1
-        // if cpp is 4 it is 2.5
-        // if cpp is 10 it is 6.5
-
-        // if ( this.codonsPerPixel < 5 ) {
-        //   this.highlightFactor = 1 + ( this.codonsPerPixel/2);
-        // } else if ( this.codonsPerPixel < 64 )  {
-        //   this.highlightFactor = this.codonsPerPixel / 8 ;
-        // } else if ( this.codonsPerPixel > 64 ) {
-        //   this.highlightFactor = 16 + ( 255 / this.codonsPerPixel) ;
-        // }
         return this.codonsPerPixel;
       }
 
