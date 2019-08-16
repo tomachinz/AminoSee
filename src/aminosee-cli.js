@@ -150,9 +150,9 @@ function bruteForce(cs) {
   }
 }
 function pushCli(cs) {
-  commandString = `aminosee ${cs} --image --force --quiet`;// let commandArray = [`node`, `aminosee`, commandString];
+  commandString = `aminosee ${cs}`;// let commandArray = [`node`, `aminosee`, commandString];
   output(chalk.inverse(`Starting AminoSee now with pushClI:
-    ${chalk.italic( cs )}`))
+    ${chalk.italic( commandString )}`))
 
 
 
@@ -789,7 +789,7 @@ function pushCli(cs) {
           output();
           this.gui = true;
 
-          // pushCli(`--serve`)
+          // pushCli(`--test`)
           setImmediate( () => {
             output(`:)       [${ this.justNameOfDNA  }]`)
           })
@@ -2310,7 +2310,7 @@ function pushCli(cs) {
         }
         this.setupHilbertFilenames();
         this.setIsDiskBusy( true );
-        output(chalk.inverse(`Finished linear render of ${ this.justNameOfDNA} ${ pixels } = ${ this.pixelClock }`))
+        output(chalk.inverse(`Finished linear render of ${ this.justNameOfDNA} ${ pixels } = ${ this.pixelClock } saving images`))
         term.eraseDisplayBelow();
 
         if (this.test) { // the calibration generates its own image
@@ -2521,7 +2521,8 @@ function pushCli(cs) {
         this.percentComplete = 1;
         mode('remove locks');
         bugtxt('remove locks with ' + remain + ' files in queue. this.fileTouch: ' + this.fileTouch)
-        renderLock = false
+        renderLock = false;
+        process.title = `aminosee.funk.nz`
         remain--
         clearTimeout( this.updatesTimer);
         clearTimeout( this.progTimer);
@@ -2638,7 +2639,7 @@ function pushCli(cs) {
         // check if all the disk is finished and if so change the locks
         if ( this.isDiskFinLinear == true && this.isDiskFinHilbert == true && this.isDiskFinHTML == true ) {
           output(` [ storage threads ready: ${chalk.inverse( this.storage() )} ] test: ${this.test} reason: ${reason}`);
-          // this.setIsDiskBusy( false );
+          this.setIsDiskBusy( false );
           this.openOutputs();
 
           if ( this.test == true ) {

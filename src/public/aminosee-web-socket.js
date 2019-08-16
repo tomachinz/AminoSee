@@ -37,8 +37,8 @@ aminosee('test').then(result => document.body.textContent = result);
 
 async function onload() {
   const data = await systeminfo();
-  const pushCli = await pushCli();
-  pushCli('--test -m8')
+  const pushCli = await pushCli('--test -m8');
+  // pushCli('--test -m8')
   const grids = document.getElementById('grids');
   const blur = new Set(['serial', 'uuid', 'sku', 'hostname']);
   const keys = Object.keys(data).sort();
@@ -126,6 +126,8 @@ Developed by Craig Buckler (@craigbuckler) of OptimalWorks.net
 			"</strong> size: <strong>" + file.size +
 			"</strong> bytes</p>"
 		);
+
+    const render = await pushCli( fullpath );
 
 	}
 

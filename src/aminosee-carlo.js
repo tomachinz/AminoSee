@@ -159,6 +159,7 @@ async function runCarlo() {
     // let o = path.join(__dirname, 'www');
     let o = path.resolve(__dirname);
     console.log(`serving: ${o}`)
+    pushCli('--serve')
     await app.serveFolder(o);
     await app.exposeFunction('systeminfo', systeminfo);
     await app.exposeFunction('pushCli', pushCli);
