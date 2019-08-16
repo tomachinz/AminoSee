@@ -10,11 +10,8 @@ success () {
 }
 test_do () {
   echo __________________________________________
-  echo
-  echo
   echo $1
-  echo
-  echo START__ aminosee  $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 _________
+  echo START__ aminosee  $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 
   nice aminosee $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
   echo
   echo $1 "END____ $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 _________"
@@ -35,7 +32,7 @@ aminosee $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
 test_do "FORCED RENDER (HAS BUG SEEMS TO BLOCK TEST)" -fv $MEDIUM $FAST $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
 test_do "Curious back walk bug" -d --debug $FAST Influenza-A-virus-H9N2-NC_004905.gbk Streptococcus_virus_2972.gbk $1
 test_do "QUIET MODE WITH PARAMS" -q $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
-test_do "VERBOSE MODE" -v $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
+test_do "VERBOSE MODE" -v  -p=Lysine  $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
 test_do "USING INCORRECT SINGLE DASH FOR -help" -help $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
 test_do "THREE OF SAME FILE IN A ROW: $FAST WITH PEPTIDE=AMBER" $FAST $FAST $FAST --peptide=amber $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
 test_do "Wonky caps: -p=aspartic_ACID" $FAST  --force --peptide=aspartic_ACID $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
@@ -68,13 +65,13 @@ echo "-------------------------------------------"
 echo
 sleep 1
 echo THIS SHOULD OPEN REPORT EVEN IF IT ALREADY EXISTS
-test_do "html PROLINE" $1 $FAST -p=Lysine --html
-nice aminosee $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12  -q --ratio=fix --peptide=Arginine --html
-nice aminosee --help  $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12   --no-image
-nice aminosee --demo   $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12   --no-html --image
+test_do "html PROLINE" $1 $FAST --html
+nice aminosee --image -q --ratio=fix --peptide=Arginine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
+nice aminosee --help   --no-image $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
+nice aminosee --demo --no-html --explorer $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
 echo calibration TESTS ARE KNOWN TO BE BUGGY AT PRESENT:
 test_do "Calibration" --test $1
-test_do "doing aminosee serve and opening a file" --serve $MEDIUM  $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12  --no-html --explorer &
+test_do "doing aminosee serve and opening a file" --serve $MEDIUM  $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12   &
 # open http://localhost:4321 &
 sleep 1
 echo KILLING ALL AMINOSEE SERVERS IN 5 seconds
