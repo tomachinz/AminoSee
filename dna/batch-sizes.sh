@@ -3,8 +3,9 @@ FAST=megabase.fa
 QUICK=Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa
 
 aminosee_do () {
-  nice -n $1 aminosee $2 $3 $4 $5 $6 -q
+  nice aminosee --quiet --ratio=sqr --reg $1 $2 $3 $4 $5 $6 &
   echo "nice -n $1 aminosee $2 $3 $4 $5 $6     &"
+  sleep 1
 }
 
 
@@ -17,26 +18,24 @@ many_size_hilbert() {
   echo "                                         =///"
 
 
-  aminosee_do 1 $1 $2 $3 $4 $5 $6               --ratio=gold &
-  sleep 3
-  aminosee_do 2 $1 $2 $3 $4 $5 $6       -c 10   --ratio=gold &
-  aminosee_do 3 $1 $2 $3 $4 $5 $6       -c 50   --ratio=gold &
-  aminosee_do 4 $1 $2 $3 $4 $5 $6       -c 100  --ratio=gold &
-  aminosee_do 5 $1 $2 $3 $4 $5 $6       -c 500  --ratio=gold &
-  aminosee_do 6 $1 $2 $3 $4 $5 $6       -c 1000 --ratio=gold
 
+  aminosee_do   -m1  $1 $2 $3 $4 $5 $6
+  aminosee_do   -m2  $1 $2 $3 $4 $5 $6
+  aminosee_do   -m3  $1 $2 $3 $4 $5 $6
+  aminosee_do   -m4  $1 $2 $3 $4 $5 $6
+  aminosee_do   -m5  $1 $2 $3 $4 $5 $6
+  aminosee_do   -m6  $1 $2 $3 $4 $5 $6
+  aminosee_do   -m7  $1 $2 $3 $4 $5 $6
+  nice aminosee --reg -m8  $1 $2 $3 $4 $5 $6
+  aminosee  --reg -m9  $1 $2 $3 $4 $5 $6
 
-  aminosee_do 1  --ratio=sqr -m 1 --reg $1 $2 $3 $4 $5 $6 &
-  sleep 3
-  aminosee_do 2  --ratio=sqr -m 2 --reg $1 $2 $3 $4 $5 $6 &
-  aminosee_do 3  --ratio=sqr -m 3 --reg $1 $2 $3 $4 $5 $6 &
-  aminosee_do 4  --ratio=sqr -m 4 --reg $1 $2 $3 $4 $5 $6 &
-  aminosee_do 5  --ratio=sqr -m 5 --reg $1 $2 $3 $4 $5 $6 &
-  aminosee_do 6  --ratio=sqr -m 6 --reg $1 $2 $3 $4 $5 $6 &
-  aminosee_do 7  --ratio=sqr -m 7 --reg $1 $2 $3 $4 $5 $6 &
-  aminosee_do 7  --ratio=sqr -m 8 --reg $1 $2 $3 $4 $5 $6 &
-  aminosee_do 7  --ratio=sqr -m 9 --reg $1 $2 $3 $4 $5 $6
-
+    # aminosee_do $1 $2 $3 $4 $5 $6
+    # aminosee_do $1 $2 $3 $4 $5 $6       -c 10
+    # aminosee_do $1 $2 $3 $4 $5 $6       -c 50
+    # aminosee_do $1 $2 $3 $4 $5 $6       -c 100
+    # aminosee_do $1 $2 $3 $4 $5 $6       -c 500
+    # aminosee_do $1 $2 $3 $4 $5 $6       -c 1000 --ratio=gold
+    #
 
 
 }
