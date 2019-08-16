@@ -4751,6 +4751,8 @@ function pushCli(cs) {
           console.log( txt );
         }
         term.eraseLine();
+        // wTitle(`${  txt }`) // put it on the terminal windowbar or in tmux
+
       }
       function out(txt) {
         // let that = gimmeDat();
@@ -4770,7 +4772,7 @@ function pushCli(cs) {
         } else if (debug == true) {
           redoline(txt)
         }
-        wTitle(`${txt}`) // put it on the terminal windowbar or in tmux
+        // wTitle(`${ removeNonAscii( txt ) }`) // put it on the terminal windowbar or in tmux
       }
       function wTitle(txt) {
         if (this === undefined) {
