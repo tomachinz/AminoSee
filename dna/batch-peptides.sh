@@ -220,16 +220,16 @@ echo $1 $2 $3 $4 $5 $6 $7
 # parallel_peptides 50KB_TestPattern.txt  megabase.fa
 # series_peptides $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
 parallel_peptides $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
-sleep 60
-echo WILL NOW RENDER ALL IN FOLDER
-echo WILL NOW RENDER ALL IN FOLDER
-echo WILL NOW RENDER ALL IN FOLDER
-echo WILL NOW RENDER ALL IN FOLDER
-echo WILL NOW RENDER ALL IN FOLDER
-echo WILL NOW RENDER ALL IN FOLDER
-echo WILL NOW RENDER ALL IN FOLDER
-sleep 5
-asterix_peptides $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
+# sleep 60
+# echo WILL NOW RENDER ALL IN FOLDER
+# echo WILL NOW RENDER ALL IN FOLDER
+# echo WILL NOW RENDER ALL IN FOLDER
+# echo WILL NOW RENDER ALL IN FOLDER
+# echo WILL NOW RENDER ALL IN FOLDER
+# echo WILL NOW RENDER ALL IN FOLDER
+# echo WILL NOW RENDER ALL IN FOLDER
+# sleep 5
+# asterix_peptides $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
 
 
 # series_peptides * $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12

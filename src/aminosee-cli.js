@@ -112,7 +112,7 @@ module.exports = () => {
 function populateArgs(procArgv) { // returns args
   const options = {
     boolean: [ 'artistic', 'clear', 'chrome', 'devmode', 'debug', 'demo', 'dnabg', 'explorer', 'file', 'force', 'firefox', 'gui', 'html', 'image', 'keyboard', 'list', 'progress', 'quiet', 'reg', 'recycle', 'redraw', 'serve', 'safari', 'test', 'updates', 'verbose', 'view' ],
-    string: [ 'url', 'output', 'triplet', 'peptide', 'ratio', 'port' ],
+    string: [ 'url', 'output', 'triplet', 'peptide', 'ratio' ],
     alias: { a: 'artistic', b: 'dnabg', c: 'codons', d: 'devmode', f: 'force', h: 'help', k: 'keyboard', m: 'magnitude', o: 'output', p: 'peptide', i: 'image', t: 'triplet', u: 'updates', q: 'quiet', r: 'reg', w: 'width', v: 'verbose', x: 'explorer', finder: 'explorer', view: 'html' },
     default: { brute: false, debug: false, gui: false, html: true, image: true, clear: true, explorer: false, quiet: false, keyboard: false, progress: true, redraw: true, updates: true, serve: false },
     stopEarly: false
@@ -440,7 +440,7 @@ function pushCli(cs) {
         this.browser = 'safari';
         output(`default this.browser set to open automatically in ${ this.browser }`);
       }
-      if ( args.image || args.i && args.quiet ) {
+      if ( args.image || args.i ) {
         this.openImage = true;
         log(`will automatically open image`)
       } else {
@@ -1512,13 +1512,15 @@ function pushCli(cs) {
         }
 
         if (doesFileExist(this.filePNG) && this.force == false) {
-          bugtxt(`isStorageBusy ${this.isStorageBusy} Storage: [${this.isStorageBusy}]`)
-          termDrawImage(this.filePNG, `File already rendered`);
-          let msg = `Already rendered ${ maxWidth(60, this.justNameOfPNG) }. highlight set: ${this.isHighlightSet} peptide: ${this.peptide} triplet ${this.triplet}`;
-          output(msg);
+          log(`isStorageBusy ${this.isStorageBusy} Storage: [${this.isStorageBusy}]`)
           this.openOutputs();
+          termDrawImage(this.filePNG, `File already rendered!!`);
+          let msg = `Already rendered ?? ${ maxWidth(60, this.justNameOfPNG) }. highlight set: ${this.isHighlightSet} peptide: ${this.peptide} triplet ${this.triplet}`;
+          output(msg);
           // this.popShiftOrBust(msg);
-          this.resetAndPop(msg);
+          setTimeout( () => {
+            this.resetAndPop(msg);
+          }, this.raceDelay)
           return false;
         }
 
@@ -2397,7 +2399,7 @@ function pushCli(cs) {
         // }
         // process.exit();
         let hypertext, filename
-        if ( this.test === true ) {
+        if ( this.test == true ) {
           hypertext = this.htmlTemplate( this.testSummary() );
         } else {
           hypertext = this.htmlTemplate( histogramJson );
@@ -2623,7 +2625,7 @@ function pushCli(cs) {
       postRenderPoll(reason) { // renderLock on late, off early
         log(`post render reason: ${ blueWhite( reason )}`);
 
-        if ( reason == undefined) { (`reason must be defined for postRenderPoll`) }
+        if ( reason === undefined) { (`reason must be defined for postRenderPoll`) }
           output(chalk.inverse(`Finishing saving (${reason}), ${this.busy()} waiting on ${ this.storage() } ${ remain } files to go.`));
         if ( renderLock == false ) { // re-entrancy filter
           output(chalk.bgRed("Not rendering (may halt), thread entered postRenderPoll: " + reason))
@@ -3454,27 +3456,23 @@ function pushCli(cs) {
             log("projecting linear array to 2D hilbert curve");
             this.isDiskFinHilbert = false; // concurrency protection
           } else {
-            log("Cant output hilbert image when using artistic mode");
-            // this.isDiskFinHilbert = true; // doesnt trigger a re-poll.
+            if ( this.artistic ) {
+              output("Cant output hilbert image when using artistic mode");
+            }
             hilbertFinished();
             runcb(cb);
             return false;
           }
+
           this.setupHilbertFilenames();
 
-
-          if ( this.skipExistingFile( this.fileHILBERT) == true ) {
+          if ( doesFileExist( this.fileHILBERT) == true ) {
             output("Existing hilbert image found - skipping projection: " + this.fileHILBERT);
-            if ( this.openImage) {
-              bugtxt('opening');
-              this.openOutputs();
-            } else {
-              log("Use --image to see this in default browser")
-            }
+            this.openOutputs();
             this.isDiskFinHilbert = true;
             this.previousImage = this.fileHILBERT;
             var closure = () => { return this.fileHILBERT }
-            cb();
+            runcb(cb);
             return false;
           }
           term.eraseDisplayBelow();
@@ -3556,6 +3554,7 @@ function pushCli(cs) {
           mode(`Hilbert curve done (${this.justNameOfHILBERT}). Waiting on (${ this.storage()})`);
           log( status )
           this.isDiskFinHilbert = true;
+          this.openOutputs();
           termDrawImage(this.fileHILBERT, `hilbert curve`)
           this.postRenderPoll('hilbertFinished ' );
         }
@@ -3822,13 +3821,13 @@ function pushCli(cs) {
         }
         openOutputs() {
           mode("open files "+ this.currentFile);
-          // output(  status );
+          blueWhite(  status );
           // output(  status );
           if ( this.currentFile == funknzlabel ) { return false }
           if ( this.devmode == true )  { log( this.renderObjToString() ); }
           log( closeBrowser ); // tell user process maybe blocked
           bugtxt(` this.openHtml, this.openImage, this.openFileExplorer `, this.openHtml, this.openImage, this.openFileExplorer );
-          if ( this.openFileExplorer === true) {
+          if ( this.openFileExplorer == true) {
             output(`Opening render output folder in File Manager ${ this.outputPath }`);
             // bgOpen()
             open(this.outputPath, () => {
@@ -3848,7 +3847,7 @@ function pushCli(cs) {
                 log("browser closed");
               }).catch(function () {  this.error(`open( ${this.fileHTML} )`)});
             } else {
-              open( url + this.justNameOfDNA + `/main.html`, {app: 'firefox', wait: false}).then(() => {
+              open( url + this.justNameOfDNA + `/main.html`, {wait: false}).then(() => {
                 log("browser closed");
               }).catch(function () {  this.error("open( this.fileHTML)")});
 
@@ -3856,14 +3855,14 @@ function pushCli(cs) {
           } else {
             log(`Not opening HTML`)
           }
-          if ( this.isHilbertPossible  === true && this.openImage === true && this.artistic == false) {
+          if ( this.isHilbertPossible  == true && this.openImage == true && this.artistic == false) {
             log(`Opening ${ this.justNameOfHILBERT} 2D hilbert space-filling image.`);
             this.opensImage++;
             projectprefs.aminosee.opens++; // increment open counter.
             open( this.fileHILBERT).then(() => {
               log("hilbert image closed");
             }).catch(function () {  log("open( this.fileHILBERT)") });
-          } else if ( this.openImage === true) { // open the linear if there is no hilbert, for art mode
+          } else if ( this.openImage == true) { // open the linear if there is no hilbert, for art mode
             output(`Opening ${ this.justNameOfPNG} 1D linear projection image.`);
             this.opensImage++;
             projectprefs.aminosee.opens++; // increment open counter.
@@ -3915,7 +3914,7 @@ function pushCli(cs) {
               // this.error(`Quiting due to lack of permissions in this directory [${ this.outputPath }] `);
             }
           }
-          if ( doesFolderExist(dir2make) === false ) {
+          if ( doesFolderExist(dir2make) == false ) {
             log(`Creating fresh directory: ${dir2make}`);
             try {
               fs.mkdirSync(dir2make, function (err, result) {
@@ -4798,7 +4797,7 @@ function pushCli(cs) {
         let splitScreen = "";
         if (cliInstance !== undefined ) {
           let debugColumns = this.colDebug;
-          if (this.test === true) {
+          if (this.test == true) {
             splitScreen += chalk.rgb(64,64,64).inverse( fixedWidth( debugColumns - 10,  `[Test: ${remain} ${ nicePercent(this.percentComplete) } Highlt${( this.isHighlightSet ? this.peptide + " " : " ")} >>>    `));
           } else {
             splitScreen += chalk.rgb(64,64,64).inverse( fixedWidth( debugColumns - 10,  `[Jbs: ${remain}  status  : ${  status } Crrnt: ${maxWidth(12, this.currentFile)} Nxt: ${maxWidth(12, this.nextFile)} ${ nicePercent(this.percentComplete) } ${ cliInstance.storage()} Highlt${( this.isHighlightSet ? this.peptide + " " : " ")} >>>    `));
@@ -5293,7 +5292,7 @@ function pushCli(cs) {
               var cb = function (byte) {
                 output(byte);
               }
-              if (zipPath === "this IS the file I'm looking for") {
+              if (zipPath == "this IS the file I'm looking for") {
                 entry.pipe(fs.createWriteStream('dna'))
                 .on('finish',cb);
               } else {
@@ -5427,7 +5426,7 @@ function pushCli(cs) {
           if (fullpath === undefined) { return false }
           if (reason === undefined) { reason = `BUG. Reminder: always set a reason` }
           // if ( that.force == true) { return false }
-          if ( quiet === true ) { out('quiet'); return false; }
+          if ( quiet == true ) { out('quiet'); return false; }
           // term.saveCursor()
           clearCheck();
           out('loading terminal image: '+ fullpath );
@@ -5760,7 +5759,7 @@ function pushCli(cs) {
       }
       function removeNonAscii(str) {
 
-        if ((str===null) || (str===''))
+        if ((str===null) || (str==''))
         return false;
         else
         str = str.toString();

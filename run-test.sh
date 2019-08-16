@@ -22,7 +22,6 @@ test_do () {
 
 echo STOPPPING SERVER
 aminosee --stop
-
 npm run genversion
 # nice npm run build-web &
 # sleep 1
@@ -43,13 +42,16 @@ test_do "Wonky caps: -p=aspartic_ACID" $FAST  --force --peptide=aspartic_ACID $1
 test_do "gluTAMIC_aCID" $FAST -fb --peptide="gluTAMIC_aCID" $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
 test_do "PROGRESS BARS" $MEDIUM $FAST $1 $2 --force --peptide=opal -q --progress --dnabg $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
 # tes_do "GARBAGE FILENAMES FUZZING like   txt.txt.txt etc" $SLOW actualFileToThelieftistoseeifbatchrendersthroughthis junk asdfadsf $FAST qwert txt.txt.txt $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
-test_do "Triplet ACT Square ratio"  $FAST $1  --triplet=ACT --ratio=sqr $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
-test_do "Triplet TTT and Proline (was not designed to do both)" $FAST    --triplet=TTT --peptide=Proline --ratio=sqr   $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
-test_do "Triplet CAT ratio sqr" $FAST    --triplet=CAT --ratio=sqr  $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
-test_do "m5 Golden" $FAST   -m5 --ratio=gol   $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
-test_do "c100 Golden" $FAST  -c100 --ratio=golden $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
-# echo KEYBOARD MODE TEST
-# test_do "Ochre"         $FAST      $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12  --force --ratio=gol --peptide=Ochre --keyboard
+
+echo THE NEXT ONES RENDER NON-STANDARD
+test_do "Triplet ACT Square ratio"  $FAST $MEDIUM --triplet=ACT --ratio=sqr
+test_do "Triplet TTT and ochre (was not designed to do both)" $FAST    --triplet=TTT --peptide=ochre --ratio=sqr
+test_do "Triplet CAT ratio sqr" $FAST $MEDIUM   --triplet=CAT --ratio=sqr
+test_do "m5 Golden" $FAST $MEDIUM  -m5 --ratio=gol
+test_do "c100 Golden" $FAST $MEDIUM  -c100 --ratio=golden
+test_do "c100 Golden regmarks" $FAST $MEDIUM  -c2 --regmarks --ratio=gol
+echo KEYBOARD MODE TEST
+test_do "Ochre KEYBOARD"         $FAST      $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 --peptide=Methionine --keyboard
 # test_do "Amber"         $FAST      $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12   --force --no-updates -m7 --ratio=sqr --peptide=Amber
 # test_do "Methionine"    $FAST      $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12  --no-updates -m5 --peptide=Methionine --ratio=sqr
 # test_do " -m 8 --peptide=Cysteine" $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12  -m 8 --peptide=Cysteine
@@ -66,7 +68,7 @@ echo "-------------------------------------------"
 echo
 sleep 1
 echo THIS SHOULD OPEN REPORT EVEN IF IT ALREADY EXISTS
-test_do "html"  $1 $FAST -p=proline --html
+test_do "html PROLINE" $1 $FAST -p=Lysine --html
 nice aminosee $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12  -q --ratio=fix --peptide=Arginine --html
 nice aminosee --help  $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12   --no-image
 nice aminosee --demo   $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12   --no-html --image
