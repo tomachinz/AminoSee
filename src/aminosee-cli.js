@@ -2576,14 +2576,14 @@ if ( renderLock ) {
           log('failed file system checks: '+ file)
           return false
         }
-        let msg =  chalk.inverse(`${this.busy()} Checking job ${fixedWidth(3,  remain )}: `) +  ' ' + chalk.bgBlue.white( fixedWidth(40, this.currentFile)) + this.highlightOrNothin()
+        let msg =  chalk.inverse(`${this.busy()} Checking job ${fixedWidth(3,  remain )}/${batchSize}: `) +  ' ' + chalk.bgBlue.white( fixedWidth(40, this.currentFile)) + this.highlightOrNothin()
         if ( this.verbose ) {
           output(msg);
         } else {
           redoline(msg)
         }
-        log(  ' Closing: ' + reason );
         if ( remain < 1 ) {
+          output(  ' Finito: ' + reason );
           this.quit(0, 'no more commands' );
           return true;
         }
@@ -4411,7 +4411,7 @@ if ( renderLock ) {
 
         if ( renderLock == true && remain >= 0 ) { // dont update if not rendering
           if ( this.msPerUpdate  <  this.maxMsPerUpdate ) {
-            this.msPerUpdate  += 20; // this.updates will slow over time on big jobs
+            this.msPerUpdate  += 50; // this.updates will slow over time on big jobs
             if (this.devmode == true) {
               this.msPerUpdate  += 100; // this.updates will slow over time on big jobs
               if (debug == true) {

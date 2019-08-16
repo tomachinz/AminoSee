@@ -33,8 +33,6 @@ term.open(document.getElementById('terminal-container'))
 term.on('data', (data) => channel.push('input', {input: data})) // To the Channel
 aminosee('test').then(result => document.body.textContent = result);
 
-
-
 async function onload() {
   const data = await systeminfo();
   const pushCli = await pushCli('--test -m8');
