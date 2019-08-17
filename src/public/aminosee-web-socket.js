@@ -1,4 +1,3 @@
-var Terminal = require('xterm').Terminal;
 let term = new Terminal({
   cursorBlink: true,
 })
@@ -33,9 +32,18 @@ term.open(document.getElementById('terminal-container'))
 term.on('data', (data) => channel.push('input', {input: data})) // To the Channel
 aminosee('test').then(result => document.body.textContent = result);
 
+
+function createChild(parent, tag, className) {
+  const elem = document.createElement(tag);
+  if (className)
+    elem.className = className;
+  parent.appendChild(elem);
+  return elem;
+}
+
 async function onload() {
   const data = await systeminfo();
-  const pushCli = await pushCli('--test -m8');
+  // const pushCli = await pushCli('--test -m8');
   // pushCli('--test -m8')
   const grids = document.getElementById('grids');
   const blur = new Set(['serial', 'uuid', 'sku', 'hostname']);
@@ -115,17 +123,21 @@ Developed by Craig Buckler (@craigbuckler) of OptimalWorks.net
 	// output file information
 	function ParseFile(file) {
     let fullpath = path.resolve( file.name );
-    alert( fullpath)
+    // const render = await pushCli( fullpath );
+    console.log('test')
+    shimyShim('hello')
+    pushCli('dna/megabase.fa')
+
+    // alert( fullpath)
     output( fullpath )
 		output(
-			"<p>File information: <strong>" + file.name +
+			"<p>File BIG ONE information: <strong>" + file.name +
       "</strong> path: <strong>" + fullpath +
       "</strong> type: <strong>" + file.type +
 			"</strong> size: <strong>" + file.size +
 			"</strong> bytes</p>"
 		);
 
-    const render = await pushCli( fullpath );
 
 	}
 

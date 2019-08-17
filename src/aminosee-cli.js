@@ -110,7 +110,7 @@ module.exports = () => {
 }
 function populateArgs(procArgv) { // returns args
   const options = {
-    boolean: [ 'artistic', 'clear', 'chrome', 'devmode', 'debug', 'demo', 'dnabg', 'explorer', 'file', 'force', 'firefox', 'gui', 'html', 'image', 'keyboard', 'list', 'progress', 'quiet', 'reg', 'recycle', 'redraw', 'serve', 'safari', 'test', 'updates', 'verbose', 'view' ],
+    boolean: [ 'artistic', 'clear', 'chrome', 'devmode', 'debug', 'demo', 'dnabg', 'explorer', 'file', 'force', 'firefox', 'gui', 'html', 'image', 'keyboard', 'list', 'progress', 'quiet', 'reg', 'recycle', 'redraw', 'slow', 'serve', 'safari', 'test', 'updates', 'verbose', 'view' ],
     string: [ 'url', 'output', 'triplet', 'peptide', 'ratio' ],
     alias: { a: 'artistic', b: 'dnabg', c: 'codons', d: 'devmode', f: 'force', h: 'help', k: 'keyboard', m: 'magnitude', o: 'output', p: 'peptide', i: 'image', t: 'triplet', u: 'updates', q: 'quiet', r: 'reg', w: 'width', v: 'verbose', x: 'explorer', finder: 'explorer', view: 'html' },
     default: { brute: false, debug: false, gui: false, html: true, image: true, clear: true, explorer: false, quiet: false, keyboard: false, progress: true, redraw: true, updates: true, serve: false },
@@ -352,6 +352,11 @@ if ( renderLock ) {
         this.outputPath = getOutputFolder();
       }
       bugtxt(`output path: ${ this.outputPath }`)
+      if ( args.slow ) {
+        let amount = 3000;
+        this.raceDelay += amount;
+        output(`${humanizeDuration( amount )} delay time added between jobs`);
+      }
       if ( args.debug || debug == true) {
         debug = true;
         output('debug mode ENABLED');
@@ -1131,7 +1136,7 @@ if ( renderLock ) {
                   output(`Because you are using --devmode, the lock file is not deleted. This is useful during development because I can quickly that.test new code by starting then interupting the render with Control-c. Then, when I use 'aminosee * -f -d' I can have new versions rende that.red  but skip super large genomes that would take 5 mins or more to render. I like to see that they begin to render then break and retry; this way AminoSee will skip the large genome becauyse it has a lock file, saving me CPU during development. Lock files are safe to delete.`)
                 }, 500)
               } else {
-                that.removeLocks();
+                removeLocks( this.fileTouch, this.devmode );
               }
               log(  status );
               // that.updates = false;
@@ -1316,7 +1321,7 @@ if ( renderLock ) {
         }
         if (code == 130) {
           this.calcUpdate();
-          this.removeLocks(process.exit());
+          removeLocks( this.fileTouch, this.devmode, process.exit() );
         }
         this.quit(code, 'graceful');
       }
@@ -2413,7 +2418,7 @@ if ( renderLock ) {
           out('¢');
         } catch(err) {
           log(`[catch] Issue with saving: ${file} ${err}`);
-          if ( cb !== undefined ) { cb() }
+          runcb( cb )
         }
       }
       touchLockAndStartStream() { // saves CPU waste. delete lock when all files are saved, not just the png.
@@ -2487,25 +2492,7 @@ if ( renderLock ) {
         }
       }
 
-      removeLocks(cb) { // just remove the lock files.
-        this.percentComplete = 1;
-        mode('remove locks');
-        bugtxt('remove locks with ' + remain + ' files in queue. this.fileTouch: ' + this.fileTouch)
-        renderLock = false;
-        process.title = `aminosee.funk.nz`
-        remain--
-        clearTimeout( this.updatesTimer);
-        clearTimeout( this.progTimer);
 
-        if (this.devmode == true) {
-          output(`Because you are using --devmode, the lock file is not deleted. This is useful during development of the app because when I interupt the render with Control-c, AminoSee will skip that file next time, unless I use --force. Lock files are safe to delete at any time.`)
-        } else {
-          deleteFile( this.fileTouch);
-        }
-
-        if ( cb !== undefined ) { cb() }
-      }
-      // check if its cool to poll for stream but dont pop the array:
 
       popShiftOrBust(reason) { // ironic its now a shift
         // pop the array, the poll for stream or quit
@@ -2617,7 +2604,9 @@ if ( renderLock ) {
 
           } else {
               log("DONE")
-              this.removeLocks();
+              clearTimeout( this.updatesTimer);
+              clearTimeout( this.progTimer);
+              removeLocks( this.fileTouch, this.devmode);
               if ( remain < 1) {
                 isShuttingDown = true;
               }
@@ -2741,7 +2730,7 @@ if ( renderLock ) {
           // printRadMessage([ ` ${(killServersOnQuit ?  'AminoSee has shutdown' : ' ' )}`, `${( this.verbose ?  ' Exit code: '+ code : '' )}`,  (killServersOnQuit == false ? server.getServerURL() : ' '), remain ]);
           this.destroyProgress();
           process.exitCode = code;
-          this.removeLocks();
+          removeLocks( this.fileTouch, this.devmode );
           destroyKeyboardUI();
 
           if (code > 0) {
@@ -2751,13 +2740,9 @@ if ( renderLock ) {
                 this.args._ = [];
                 term.processExit(code);
                 process.exit()
-              }, this.raceDelay  * 2)
+              }, this.raceDelay)
             })
           }
-
-        }
-        junkTick() {
-
         }
         processLine(l) {
           if ( renderLock == false ) { this.error(`thread entered process line`)}
@@ -5738,6 +5723,23 @@ if ( renderLock ) {
 
         return str.replace(/[^\x20-\x7E]/g, '');
       }
+      function  removeLocks(lockfile, devmode, cb) { // just remove the lock files.
+          // this.percentComplete = 1;
+          mode( 'remove locks');
+          bugtxt( 'remove locks with ' + remain + ' files in queue. fileTouch: ' + lockfile )
+          renderLock = false;
+          process.title = `aminosee.funk.nz`
+          remain--;
+
+          if ( devmode == true ) {
+            output(`Because you are using --devmode, the lock file is not deleted. This is useful during development of the app because when I interupt the render with Control-c, AminoSee will skip that file next time, unless I use --force. Lock files are safe to delete at any time.`)
+          } else {
+            deleteFile( lockfile );
+          }
+          runcb( cb )
+        }
+
+      module.exports.removeLocks = removeLocks;
       module.exports.removeNonAscii = removeNonAscii;
       module.exports.getOutputFolder = getOutputFolder;
       module.exports.nicePercent = nicePercent;

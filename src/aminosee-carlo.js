@@ -1,4 +1,5 @@
 const carlo = require('carlo');
+const Terminal = require('xterm').Terminal;
 const os = require('os');
 const path = require('path')
 // const socket = require('./public/aminosee-web-socket')
@@ -8,6 +9,7 @@ const data = require('./aminosee-data');
 const aminosee = require('./aminosee-cli');
 const setupPrefs = aminosee.setupPrefs;
 const pushCli = aminosee.pushCli;
+const removeLocks = aminosee.removeLocks;
 const port = 6543;
 
 async function runCarlo() {
@@ -149,7 +151,12 @@ async function runCarlo() {
       console.log('Reusing the running instance');
       return;
     }
-    app.on('exit', () => process.exit());
+    app.on('exit', () => {
+      removeLocks();
+      setTimeout(() => {
+        process.exit();
+      }, 1000);
+    });
     // New windows are opened when this app is started again from command line.
     // app.on('window', window => window.load('http://10.0.0.24:43210/public/'));
     // app.on('window', window => window.load('public/index.html'));
@@ -159,16 +166,23 @@ async function runCarlo() {
     // let o = path.join(__dirname, 'public');
     let o = path.resolve(__dirname);
     console.log(`serving: ${o}`)
-    pushCli('dna/megabase.fa')
     await app.serveFolder(o);
     await app.exposeFunction('systeminfo', systeminfo);
     await app.exposeFunction('pushCli', pushCli);
+    await app.exposeFunction('removeLocks', removeLocks);
+    await app.exposeFunction('shimyShim', shimyShim);
+    await app.exposeFunction('Terminal', Terminal);
+
     await app.load('public/systeminfo.html');
 
     // await app.runCarlo()
     // await app.load('http://10.0.0.24:43210/public/');
     // await app.load('public/index.html');
     return app;
+  }
+  async function shimyShim(txt) {
+    console.log(txt)
+    return txt;
   }
 
   async function systeminfo() {
