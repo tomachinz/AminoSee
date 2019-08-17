@@ -916,7 +916,7 @@ if ( renderLock ) {
           }
         }
         // clearTimeout( this.updatesTimer )
-        // if ( renderLock == true && args.updates == true) { this.drawHistogram() }
+        if ( renderLock == true && this.updates == true) { this.drawHistogram() }
         // this.drawHistogram()
       }
       cli(argumentsArray) {
@@ -1504,8 +1504,8 @@ if ( renderLock ) {
         if (doesFileExist(this.filePNG) && this.force == false) {
           log(`isStorageBusy ${this.isStorageBusy} Storage: [${this.isStorageBusy}]`)
           this.openOutputs();
-          termDrawImage(this.filePNG, `File already rendered!!`);
-          let msg = `Already rendered ?? ${ maxWidth(60, this.justNameOfPNG) }. highlight set: ${this.isHighlightSet} peptide: ${this.peptide} triplet ${this.triplet}`;
+          termDrawImage(this.filePNG, `File already rendered`);
+          let msg = `Already rendered ${ maxWidth(60, this.justNameOfPNG) }. highlight: ${this.isHighlightSet} ${this.peptide}  triplet: ${this.triplet} ${this.dimension}`;
           output(msg);
           // this.popShiftOrBust(msg);
           setTimeout( () => {
@@ -1537,7 +1537,6 @@ if ( renderLock ) {
 
           if ( renderLock == false ) {
             this.touchLockAndStartStream(); // <--- THIS IS WHERE MAGIC STARTS
-            // this.drawHistogram();
           } else {
             log("Thread drain at end of poll.")
           }
@@ -1735,6 +1734,9 @@ if ( renderLock ) {
         // term.up( this.termStatsHeight);
         // clearCheck();
         term.eraseDisplayBelow();
+        setTimeout( () => {
+          if ( renderLock == true && this.updates == true) { this.drawHistogram() }
+        }, this.raceDelay)
       }
       initialiseArrays() {
         if ( brute == false) { return false; }
@@ -1965,6 +1967,16 @@ if ( renderLock ) {
           this.ratio = 'fix'; // small genomes like "the flu" look better square.
         }
 
+        /// if user has set -m5 to reduce size from the default -m7
+        // then drop the auto value by 1 for each below the default.
+        if ( this.magnitude == 'custom' ) {
+          let increase = defaultMagnitude - this.dimension;
+          this.codonsPerPixel = this.codonsPerPixel + increase
+          output(`Increased codons per pixel by ${increase} to ${this.codonsPerPixel}`)
+        } else {
+          output(`Codons per pixel is ${this.codonsPerPixel}`)
+
+        }
         return this.codonsPerPixel;
       }
 
@@ -4388,11 +4400,9 @@ if ( renderLock ) {
           }
           this.updatesTimer = setTimeout(() => {
             log("drawing again if rendering.... " +  this.msPerUpdate )
-            if ( renderLock == true ) { //  status   == "stream") { // || this.updates) {
-
+            if ( renderLock == true && this.updates == true ) { //  status   == "stream") { // || this.updates) {
               this.drawHistogram(); // MAKE THE HISTOGRAM AGAIN LATER
-              output('draw hist')
-
+              bugtxt('draw hist')
             } else {
               output('COLIN!')
             }
