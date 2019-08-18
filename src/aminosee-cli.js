@@ -1510,7 +1510,7 @@ if ( renderLock ) {
           // this.popShiftOrBust(msg);
           setTimeout( () => {
             this.resetAndPop(msg);
-          }, this.raceDelay)
+          }, this.raceDelay * 3)
           return false;
         }
 
@@ -1792,7 +1792,7 @@ if ( renderLock ) {
             if ( this.updates == true && this.quiet == false) {
               this.calcUpdate();
               // this.drawHistogram();
-              // that.drawHistogram();
+              // that.draw Histogram();
             } else {
               output('ss '+ nicePercent())
             }
