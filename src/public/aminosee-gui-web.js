@@ -1,6 +1,6 @@
 // "use strict";
 
-let hilbertPoints, herbs, zoom, progress, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, justNameOfFile, filename, verbose, spline, point, vertices, colorsReady, controlsShowing, devmode, fileUploadShowing, maxcolorpix, nextColors, cpu, subdivisions, userFeedback, contextBitmap, pauseIntent, linewidth, isElectron;
+let hilbertPoints, herbs, zoom, progress, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, justNameOfFile, filename, verbose, spline, point, vertices, colorsReady, controlsShowing, devmode, fileUploadShowing, maxcolorpix, nextColors, cpu, subdivisions, userFeedback, contextBitmap, pauseIntent, linewidth, pepTable;
 let sprites = []
 pauseIntent = false;
 maxcolorpix = 262144; // for large genomes
@@ -102,7 +102,7 @@ function removesprites() {
 }
 
 function buildPage(histogramJson) {
-  let pepTable = histogramJson.pepTable;
+  pepTable = histogramJson.pepTable;
   summary = histogramJson.summary;
   justNameOfFile = summary.name;
   removesprites()
@@ -130,9 +130,11 @@ function toggleDevmode() {
   }
 }
 function attachHandlers() {
-  <!--  onmouseover="mover(this)" onmouseout="mout(this)" -->
-              <tr class="pepTable" id="row_${i}" style="background-color: hsl( ${theHue} , 50%, 100%);">
-
+  for (let pepTableIndex = 0; pepTableIndex < pepTable.length;  pepTableIndex++) {
+    let element = document.getElementById(`row_${pepTableIndex}`)
+    element.addEventListener('mouseover', mover)
+    element.addEventListener('mouseout', mout)
+  }
 }
 function pageLoaded() {
   fileChanged('Brown_Kiwi_NW_013982187v1')
@@ -243,33 +245,33 @@ function init2D() {
 function getParameterFromURL( param ) { // extract filename to load from url
   let href = window.location.href;
   let index = href.indexOf( param );
-  if ( index != -1 ) { // if its not not there
+  if ( index !== -1 ) { // if its not not there
     param = href.substring(index); // its gonna grab everything past here thats a bug
 
     index = param.indexOf('=');
-    if ( index != -1 ) {
+    if ( index !== -1 ) {
       param = param.substring(index + 1); //CHOP OFF THE =
     }
 
     index = param.indexOf('&'); // fixed by stopping at &, should probably add # and ? and =
-    if ( index != -1) {
+    if ( index !== -1) {
       param = param.substring(0, index);
     }
 
     index = param.indexOf('#'); // fixed by stopping at &, should probably add # and ? and =
-    if ( index != -1) {
+    if ( index !== -1) {
       param = param.substring(0, index);
     }
 
     index = param.indexOf('?'); // fixed by stopping at &, should probably add # and ? and =
-    if ( index != -1) {
+    if ( index !== -1) {
       param = param.substring(0, index);
     }
 
 
   } else {
     // param = `output/Brown_Kiwi_NW_013982187v1/images/Brown_Kiwi_NW_013982187v1.fa_HILBERT__Reference_m7_c397.2.png`;
-    param = `ERROR_timetofixme`;
+    param = `not possible. no param set in URL: ${href}`;
   }
   console.log(`loading ${param}`);
   return param;
@@ -1015,7 +1017,7 @@ function setTimeoutPause() {
   }
 }
 function togglePause() {
-  if (paused != true) {
+  if (paused !== true) {
     let txt = "[P]aused";
     statModal(txt);
     document.getElementById('pause').value = "Play [P]";
@@ -1084,7 +1086,7 @@ function hammerIt(elm) {
     }
 
     //pan
-    if (scale != 1) {
+    if (scale !== 1) {
       posX = last_posX + ev.deltaX;
       posY = last_posY + ev.deltaY;
       max_pos_x = Math.ceil((scale - 1) * el.clientWidth / 2);
@@ -1116,7 +1118,7 @@ function hammerIt(elm) {
       last_posY = posY < max_pos_y ? posY : max_pos_y;
     }
 
-    if (scale != 1) {
+    if (scale !== 1) {
       transform =
       "translate3d(" + posX + "px," + posY + "px, 0) " +
       "scale3d(" + scale + ", " + scale + ", 1)";
@@ -1261,7 +1263,7 @@ function onKeyPress( event ) {
       'eventValue' : value_for_Event_Value
     });
     // console.log(theKey +  " tracked key: " + value_for_Event_Label + " paused: " + paused);
-    if (paused == true && theKey != "P") {
+    if (paused == true && theKey !== "P") {
       togglePause();
     }
 
@@ -1312,7 +1314,7 @@ function positionStack() {
     let theHue = pepTable[i].Hue;
     let c =      hsvToRgb( theHue/360, 0.5, 1.0 );
 
-    if (thePep != "Non-coding_NNN"  && thePep != "Start_Codons" && thePep != "Stop_Codons") {
+    if (thePep !== "Non-coding_NNN"  && thePep !== "Start_Codons" && thePep !== "Stop_Codons") {
       hhh += `<a href="${aminoFilenameIndex(i)}" onmouseover="mover(${i})" onmouseout="mout(${i})"><img src="${aminoFilenameIndex(i)}" id="stack_${i}" width="256" height="256" style="z-index: ${1000+i}; position: absolute; top: ${i*2}px; left: ${i*12}px;" alt="${pepTable[i].Codon}" title="${pepTable[i].Codon}"></a>`;
     } else {
       log("non-coding nnn image not output");
@@ -1346,7 +1348,7 @@ function onDocumentTouchMove( event ) {
 }
 
 function animate() {
-  if (paused != true) {
+  if (paused !== true) {
     requestAnimationFrame( animate );
   }
   render();
@@ -1587,7 +1589,7 @@ function imageStack(histogramJson) {
     let theHue = pepTable[i].Hue;
     let c =      hsvToRgb( theHue/360, 0.5, 1.0 );
 
-    if (thePep != "Non-coding_NNN"  && thePep != "Start_Codons" && thePep != "Stop_Codons") {
+    if (thePep !== "Non-coding_NNN"  && thePep !== "Start_Codons" && thePep !== "Stop_Codons") {
       hhh += `<a href="${aminoFilenameIndex(i)}" onmouseover="mover(${i})" onmouseout="mout(${i})"><img src="${aminoFilenameIndex(i)}" id="stack_${i}" width="256" height="256" style="z-index: ${1000+i}; position: absolute; top: ${i*2}px; left: ${i*12}px;" alt="${pepTable[i].Codon}" title="${pepTable[i].Codon}"></a>`;
     } else {
       log("non-coding nnn image not output");

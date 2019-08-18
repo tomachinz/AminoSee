@@ -9,17 +9,24 @@ funk.co.nz-aminosee/
 dist/
 backup/
 src/public/gource.mp4
-
-# this kludge is so i can have a shell script in there "process-all-files-in-cd.sh"
+calibration
+AminoSee_*.png
 dna/*.fa
 dna/*.mfa
 dna/*.gbk
+dna/*.gff
 dna/*.gb
-cat dna/*.png
+dna/*.png
 dna/*.html
 dna/*.touch
-AminoSee_*.png
+audio
+demo
+AminoSee_Output
 
+# this kludge is so i can have a shell script in there "process-all-files-in-cd.sh"
+test/reports
+build
+.clinic
 
 # Logs
 logs

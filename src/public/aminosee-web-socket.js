@@ -1,8 +1,32 @@
-let term = new Terminal({
-  cursorBlink: true,
-})
-term.open(document.getElementById('terminal'));
-term.write('Greets from \x1B[1;3;31mxterm.js\x1B[0m $ ')
+// No idea what these are about. Just copied them from the demo code
+     Terminal.applyAddon(attach);
+     Terminal.applyAddon(fit);
+     Terminal.applyAddon(winptyCompat);
+     // The terminal
+     const xterm = new Terminal();
+     // No idea what this does
+     xterm.winptyCompatInit();
+     // This kinda makes sense
+     const container = document.getElementById('terminal');
+     xterm.open(container);
+     // Open the websocket connection to the backend
+     const protocol = (location.protocol === 'https:') ? 'wss://' : 'ws://';
+     const port = location.port ? `:${location.port}` : '';
+     const socketUrl = `${protocol}${location.hostname}${port}/shell`;
+     const socket = new WebSocket(socketUrl);
+     // Attach the socket to the terminal
+     socket.onopen = (ev) => { xterm.attach(socket); };
+     // Not going to worry about close/error for the websocket
+// 
+//
+//
+//
+// let xterm = new Terminal({
+//   cursorBlink: true,
+// })
+// let xterm = term;
+xterm.open(document.getElementById('terminal'));
+xterm.write('Greets from \x1B[1;3;31mxterm.js\x1B[0m $ ')
 // var os = require('os');
 var pty = require('node-pty');
 // Initialize node-pty with an appropriate shell
@@ -14,7 +38,7 @@ const ptyProcess = pty.spawn(shell, [], {
   cwd: process.cwd(),
   env: process.env
 });
-const xterm = new Terminal(); // Initialize xterm.js and attach it to the DOM
+// const xterm = new Terminal(); // Initialize xterm.js and attach it to the DOM
 xterm.open(document.getElementById('xterm'));
 // Setup communication between xterm.js and node-pty
 xterm.on('data', (data) => {
@@ -27,9 +51,9 @@ ptyProcess.on('data', function (data) {
 // import Terminal from 'xterm'
 let channel = socket.channel("terminal:1", {})
 channel.join()
-channel.on('output', ({output}) => term.write(output)) // From the Channel
-term.open(document.getElementById('terminal-container'))
-term.on('data', (data) => channel.push('input', {input: data})) // To the Channel
+channel.on('output', ({output}) => xterm.write(output)) // From the Channel
+xterm.open(document.getElementById('terminal-container'))
+xterm.on('data', (data) => channel.push('input', {input: data})) // To the Channel
 aminosee('test').then(result => document.body.textContent = result);
 
 
@@ -128,7 +152,7 @@ Developed by Craig Buckler (@craigbuckler) of OptimalWorks.net
     shimyShim('hello')
     pushCli('dna/megabase.fa')
 
-    // alert( fullpath)
+    alert( fullpath)
     output( fullpath )
 		output(
 			"<p>File BIG ONE information: <strong>" + file.name +

@@ -1,5 +1,8 @@
 const carlo = require('carlo');
-const Terminal = require('xterm').Terminal;
+// const Terminal = require('xterm').Terminal;
+const term = require('terminal-kit').terminal;
+const pty = require('node-pty');
+
 const os = require('os');
 const path = require('path')
 // const socket = require('./public/aminosee-web-socket')
@@ -127,7 +130,9 @@ async function runCarlo() {
   // const path = require('path');
   // const si = require('systeminformation');
 
-  // args: process.env.DEV === 'true' ? ['--auto-open-devtools-for-tabs', '--allow-insecure-localhost', '--webpack-dev-server', '--https'] : [],
+  // args: (process.env.DEV === 'true' ? ['--auto-open-devtools-for-tabs', '--allow-insecure-localhost', '--webpack-dev-server', '--https'] : []),
+  // args: [ '--allow-insecure-localhost', '--webpack-dev-server'],
+  // args: [ '--allow-insecure-localhost', '--webpack-dev-server', '--auto-open-devtools-for-tabs'],
 
 
   async function run() {
@@ -143,7 +148,7 @@ async function runCarlo() {
             height: 600,
             channel: ['canary', 'stable'],
             icon: path.join(__dirname, 'public/512_icon.png'),
-            args: [ '--allow-insecure-localhost', '--webpack-dev-server'],
+            args: [ '--allow-insecure-localhost', '--webpack-dev-server', '--auto-open-devtools-for-tabs'],
             serveOrigin: `http://localhost:${port}`
           });
     } catch(e) {
@@ -171,9 +176,11 @@ async function runCarlo() {
     await app.exposeFunction('pushCli', pushCli);
     await app.exposeFunction('removeLocks', removeLocks);
     await app.exposeFunction('shimyShim', shimyShim);
-    await app.exposeFunction('Terminal', Terminal);
+    await app.exposeFunction('term', term);
+    await app.exposeFunction('path', path);
 
     await app.load('public/systeminfo.html');
+    // await app.load('public/filedrag.html');
 
     // await app.runCarlo()
     // await app.load('http://10.0.0.24:43210/public/');

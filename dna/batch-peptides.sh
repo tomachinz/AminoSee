@@ -56,8 +56,7 @@ asterix_peptides () {
   echo STARTING MULTI-THREAD DECODE FOR $1 $2 $3 $4 $5 $6 $7
   echo "-------------------------------------------"
   echo "                                         =///"
-  aminosee_do     --quiet             * $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 &
-  nice aminosee -c360 --index --quiet * $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
+  aminosee_do                * $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 &
   sleep 1
   aminosee_do --slow --quiet *  --peptide=Glutamic_acid $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 &
   aminosee_do --slow --quiet *  --peptide=Aspartic_acid $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 &
@@ -147,18 +146,19 @@ find_way_peptides () {
   echo "-------------------------------------------"
   echo "                                         =///"
 }
-echo $1 $2 $3 $4 $5 $6 $7
+echo  $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
 # parallel_peptides 50KB_TestPattern.txt  megabase.fa
 # series_peptides $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
 parallel_peptides $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
+
+echo WILL NOW RENDER ALL IN FOLDER
+echo WILL NOW RENDER ALL IN FOLDER
+echo WILL NOW RENDER ALL IN FOLDER
+echo WILL NOW RENDER ALL IN FOLDER
+echo WILL NOW RENDER ALL IN FOLDER
+echo WILL NOW RENDER ALL IN FOLDER
+echo WILL NOW RENDER ALL IN FOLDER
 sleep 10
-echo WILL NOW RENDER ALL IN FOLDER
-echo WILL NOW RENDER ALL IN FOLDER
-echo WILL NOW RENDER ALL IN FOLDER
-echo WILL NOW RENDER ALL IN FOLDER
-echo WILL NOW RENDER ALL IN FOLDER
-echo WILL NOW RENDER ALL IN FOLDER
-echo WILL NOW RENDER ALL IN FOLDER
 
 asterix_peptides $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
 # sleep 10

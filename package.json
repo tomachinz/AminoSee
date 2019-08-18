@@ -1,6 +1,6 @@
 {
   "name": "aminosee",
-  "version": "1.23.8",
+  "version": "1.23.9",
   "owner": "Thomas Bieder Atkinson",
   "author": "Tom Atkinson <tom@funk.co.nz>",
   "website": "http://aminosee.funk.nz",
@@ -20,8 +20,7 @@
     "copyright": "Copyright © 2018-2019 Tom Atkinson",
     "icon": "src/public/favicon.png",
     "directories": [
-      "src/public/**",
-      "src/www/**"
+      "src/public/**"
     ],
     "mac": {
       "category": [
@@ -152,14 +151,10 @@
     "assets": [
       "bin/**",
       "bin/pos.node",
-      "dna/3MB_TestPattern.txt",
-      "dna/50KB_TestPattern.txt",
-      "dna/megabase.fa",
       "node_modules/opn/**",
       "node_modules/terminal-kit/**",
       "node_modules/get-cursor-position/**",
       "node_modules/opn/xdg-open",
-      "src/www/**/*",
       "src/public/**/*",
       "package.json"
     ]
