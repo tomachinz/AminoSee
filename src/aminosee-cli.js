@@ -74,7 +74,7 @@ const widthMax = 960; // i wanted these to be tall and slim kinda like the most 
 const defaultPort = 4321;
 const max32bitInteger = 2147483647;
 const minUpdateTime = 800;
-const openLocalHtml = false; // affects auto-open HTML.
+const openLocalHtml = true; // affects auto-open HTML.
 const wideScreen = 140; // shrinks terminal display
 // let bodyParser = require('body-parser');
 // const gv = require('genversion');
@@ -1628,6 +1628,7 @@ if ( renderLock ) {
         cfile = this.currentFile;
         this.dnafile = path.resolve(file);
         remain = this.args._.length;
+
         if ( this.test == true ) { // uses a loop not polling.
           // this.error('test is in look for work?');
           log('test is in look for work?');
@@ -2310,10 +2311,10 @@ if ( renderLock ) {
           gbprocessed +=  this.baseChars / 1024 / 1024 / 1024; // increment disk counter.
           userprefs.aminosee.gbprocessed = gbprocessed; // i have a superstition this way is less likely to conflict with other threads
           genomesRendered = projectprefs.aminosee.genomes;
-          output(genomesRendered )
           genomesRendered.push(this.justNameOfDNA);
-          output(genomesRendered )
-          projectprefs.aminosee.genomes = dedupeArray( genomesRendered );
+          genomesRendered = dedupeArray( genomesRendered ); // de dupe in case of re-renders
+          projectprefs.aminosee.genomes = genomesRendered;
+          log(genomesRendered )
         }
         // clearTimeout( updatesTimer)
         this.diskStorm( () => {
@@ -3132,17 +3133,17 @@ if ( renderLock ) {
 
           <a href="../../" class="button">AminoSee Home</a> | <a href="../" class="button">Parent</a>
 
-          <h1>AminoSee DNA Render Summary for ${ this.currentFile }</h1>
-          <h2>${ this.justNameOfDNA}</h2>
+          <h1>${ this.justNameOfDNA}</h1>
+          <h2>M${this.dimension} C${this.codonsPerPixel} H$${this.codonsPerPixelHILBERT}</h2>
+          </h3>AminoSee DNA Render Summary for ${ this.currentFile } ${ this.artistc ? 'Artistic' : 'Science' } render mode</h3>
+
           ${( this.test ? " this.test " : this.imageStack( histogramJson ))}
 
-
-
-          <a href="#scrollLINEAR" class="button" title"Click To Scroll Down To See LINEAR"><br />
+          <a href="images/${ this.justNameOfPNG }" class="button" title"Click To Scroll Down To See LINEAR"><br />
           <img id="oi" width="128" height="128" style="border: 4px black; background: black;" src="images/${ this.justNameOfPNG }">
           1D Linear Map Image
           </a>
-          <a href="#scrollHILBERT" class="button" title"Click To Scroll Down To See 2D Hilbert Map"><br />
+          <a href="images/${ this.justNameOfHILBERT }" class="button" title"Click To Scroll Down To See 2D Hilbert Map"><br />
           <img width="128" height="128" style="border: 4px black background: black;" src="images/${ this.justNameOfHILBERT }">
           2D Hilbert Map Image
           </a>
@@ -4357,31 +4358,34 @@ if ( renderLock ) {
           output(`${ twosigbitsTolocale( gbprocessed )} GB All time total on ${chalk.yellow( hostname )} ${ cliruns.toLocaleString()} jobs run total`);
           this.progUpdate( this.percentComplete );
           output(`Report URL: ${chalk.underline( this.fullURL + chalk.bgBlue('images/' + this.justNameOfPNG) )}`)
+          output(`Input path: ${chalk.underline(  path.dirname( this.dnafile ) + '/' + chalk.bgBlue(  this.currentFile) )}`)
           output(`Output path: ${chalk.underline( this.outputPath + '/' + chalk.bgBlue(  this.justNameOfDNA) )}`)
-          term.down(1);
-          term.right( this.termMarginLeft );
-          if (term.height > this.termStatsHeight + this.termDisplayHeight) {
-            output(`Last Acid: ${chalk.inverse.rgb(ceiling( this.red ), ceiling( this.green ), ceiling( this.blue )).bgWhite.bold( fixedWidth(16, "  " + this.aminoacid + "   ") ) }` +
+          output(`Last Acid: ${chalk.inverse.rgb(ceiling( this.red ), ceiling( this.green ), ceiling( this.blue )).bgWhite.bold( fixedWidth(16, "  " + this.aminoacid + "   ") ) }` +
             chalk.rgb(this.peakRed, 0, 0).inverse.bgBlue(  maxWidth(8, `R:  ${this.peakRed}` )) +
             chalk.rgb(0, this.peakGreen, 0).inverse.bgRed( maxWidth(11, `G:  ${this.peakGreen}` )) +
             chalk.rgb(0, 0, this.peakBlue).inverse.bgYellow(maxWidth(9, `B:  ${this.peakBlue}` ))
           )
-          term.eraseDisplayBelow();
-          output( histogram(aacdata, { bar: '/', width: this.colDebug*2, sort: true, map: aacdata.Histocount} ));
-          output();
-          output();
-          if (this.keyboard) {
-            output(interactiveKeysGuide);
-          }
           output( this.blurb() )
-          output();
+          term.down(1);
+          term.right( this.termMarginLeft );
+          if (term.height > this.termStatsHeight + this.termDisplayHeight) {
+            term.eraseDisplayBelow();
 
-          // output( `pepTable ${ beautify(  JSON.stringify ( this.pepTable)  ) }` );
-          // output( `pepTable ${ beautify( this.pepTable ) }` );
-          // output( `${  this.rgbArray.length  } ${  this.pepTable[5].lm_array.length  }` );
-          // term.up(5);
+            output();
+            if (this.keyboard) {
+              output(interactiveKeysGuide);
+            }
+            output();
+            output( histogram(aacdata, { bar: '/', width: this.colDebug*2, sort: true, map: aacdata.Histocount} ));
+            output();
 
-          // term.up(this.termDisplayHeight - 2)
+
+            // output( `pepTable ${ beautify(  JSON.stringify ( this.pepTable)  ) }` );
+            // output( `pepTable ${ beautify( this.pepTable ) }` );
+            // output( `${  this.rgbArray.length  } ${  this.pepTable[5].lm_array.length  }` );
+            // term.up(5);
+
+            // term.up(this.termDisplayHeight - 2)
         } else {
           output();
           output(chalk.bold.italic(`Increase the height of your terminal for realtime histogram. Genome size: ${ this.genomeSize}`));
@@ -5481,16 +5485,16 @@ if ( renderLock ) {
 
         // FIRST check for special folders in current directory (this enables network cluster render)
         // THEN if not found, create and use dirs in home directory (worstation render)
-        if (doesFolderExist( path.resolve( process.cwd() + obviousFoldername) ) ) {
+        if (doesFolderExist( path.resolve( process.cwd(), obviousFoldername))) {
           clusterRender = true;
           outFoldername = obviousFoldername;
-        } else if (doesFolderExist(path.resolve(process.cwd() + netFoldername))) {
+        } else if (doesFolderExist(path.resolve(process.cwd(), netFoldername))) {
           clusterRender = true;
           outFoldername = netFoldername;
-        } else if (doesFolderExist(path.resolve(os.homedir + obviousFoldername))) {
+        } else if (doesFolderExist(path.resolve(os.homedir, obviousFoldername))) {
           clusterRender = false;
           outFoldername = obviousFoldername;
-        } else if (doesFolderExist(path.resolve(os.homedir + netFoldername))) {
+        } else if (doesFolderExist(path.resolve(os.homedir, netFoldername))) {
           clusterRender = false;
           outFoldername = netFoldername;
         } else {
@@ -5499,11 +5503,11 @@ if ( renderLock ) {
         }
 
         if (clusterRender == true) {
-          outpath = path.normalize(path.resolve(process.cwd() + outFoldername))  // default location after checking overrides
+          outpath = path.normalize(path.resolve(process.cwd(), outFoldername))  // default location after checking overrides
           log(`CLUSTER FOLDER ENABLED: ${ blueWhite( blueWhite( path.normalize( outpath )))}`)
           log(`Enabled by the prseence of a /output/ or /AminoSee_Output/ folder in *current* dir. If not present, local users homedir ~/AminoSee_Output`);
         } else {
-          outpath = path.normalize(path.resolve(os.homedir + outFoldername))  // default location after checking overrides
+          outpath = path.normalize(path.resolve(os.homedir , outFoldername))  // default location after checking overrides
           log(`HOME FOLDER ENABLED: ${ blueWhite( blueWhite( path.normalize( outpath )))}`)
         }
         bugtxt(`output path: ${outpath} status: ${status}`)
