@@ -1,10 +1,9 @@
 #!/bin/sh
 aminosee_do () {
   echo $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 START RENDER
+  aminosee --slow --no-image $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 &
   sleep 1
-  aminosee --slow --quiet --no-image $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 &
-  sleep 1
-  nice aminosee --slow --quiet --index -m5 --ratio=sqr $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
+  nice aminosee --quiet --index -m5 --ratio=sqr $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
   echo $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 FINISHED RENDER
 }
 
@@ -14,29 +13,29 @@ parallel_peptides () {
   echo STARTING MULTI-THREAD DECODE FOR $1 $2 $3 $4 $5 $6 $7
   echo "-------------------------------------------"
   echo "                                         =///"
-  aminosee_do  --quiet $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 &
+  aminosee_do       $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
   sleep 1
-  aminosee_do  --quiet  --peptide=Glutamic_acid $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 &
-  aminosee_do  --quiet  --peptide=Aspartic_acid $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 &
+  aminosee_do  --quiet  --peptide=Glutamic_acid $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
+  aminosee_do  --quiet  --peptide=Aspartic_acid $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
   aminosee_do  --quiet  --peptide=Ochre
-  aminosee_do  --quiet  --peptide=Amber $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 &
-  aminosee_do  --quiet  --peptide=Opal $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 &
+  aminosee_do  --quiet  --peptide=Amber $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
+  aminosee_do  --quiet  --peptide=Opal $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
   aminosee_do  --quiet  --peptide=Methionine
-  aminosee_do  --quiet  --peptide=Cysteine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 &
+  aminosee_do  --quiet  --peptide=Cysteine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
   aminosee_do  --quiet  --peptide=Glycine
-  aminosee_do  --quiet  --peptide=Alanine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 &
-  aminosee_do  --quiet  --peptide=Valine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 &
+  aminosee_do  --quiet  --peptide=Alanine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
+  aminosee_do  --quiet  --peptide=Valine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
   aminosee_do  --quiet  --peptide=Leucine
-  aminosee_do  --quiet  --peptide=Isoleucine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 &
-  aminosee_do  --quiet  --peptide=Phenylalanine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 &
+  aminosee_do  --quiet  --peptide=Isoleucine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
+  aminosee_do  --quiet  --peptide=Phenylalanine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
   aminosee_do  --quiet  --peptide=Proline
-  aminosee_do  --quiet  --peptide=Tryptophan $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 &
-  aminosee_do  --quiet  --peptide=Serine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 &
+  aminosee_do  --quiet  --peptide=Tryptophan $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
+  aminosee_do  --quiet  --peptide=Serine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
   aminosee_do  --quiet  --peptide=Threonine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
-  aminosee_do  --quiet  --peptide=Glutamine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 &
+  aminosee_do  --quiet  --peptide=Glutamine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
   aminosee_do  --quiet  --peptide=Asparagine
-  aminosee_do  --quiet  --peptide=Tyrosine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 &
-  aminosee_do  --quiet  --peptide=Arginine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 &
+  aminosee_do  --quiet  --peptide=Tyrosine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
+  aminosee_do  --quiet  --peptide=Arginine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
   aminosee_do  --quiet  --peptide=Lysine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
   aminosee_do           --peptide=Histidine  $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
 
@@ -56,29 +55,29 @@ asterix_peptides () {
   echo STARTING MULTI-THREAD DECODE FOR $1 $2 $3 $4 $5 $6 $7
   echo "-------------------------------------------"
   echo "                                         =///"
-  aminosee_do                * $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 &
+  aminosee_do      --slow    * $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 &
   sleep 1
-  aminosee_do --slow --quiet *  --peptide=Glutamic_acid $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 &
-  aminosee_do --slow --quiet *  --peptide=Aspartic_acid $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 &
+  aminosee_do --slow --quiet *  --peptide=Glutamic_acid $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
+  aminosee_do --slow --quiet *  --peptide=Aspartic_acid $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
   aminosee_do --slow --quiet *  --peptide=Ochre $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
-  aminosee_do --slow --quiet *  --peptide=Amber $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 &
-  aminosee_do --slow --quiet *  --peptide=Opal $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 &
+  aminosee_do --slow --quiet *  --peptide=Amber $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
+  aminosee_do --slow --quiet *  --peptide=Opal $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
   aminosee_do --slow --quiet *  --peptide=Methionine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
-  aminosee_do --slow --quiet *  --peptide=Cysteine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 &
-  aminosee_do --slow --quiet *  --peptide=Glycine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 &
+  aminosee_do --slow --quiet *  --peptide=Cysteine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
+  aminosee_do --slow --quiet *  --peptide=Glycine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
   aminosee_do --slow --quiet *  --peptide=Alanine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
-  aminosee_do --slow --quiet *  --peptide=Valine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 &
-  aminosee_do --slow --quiet *  --peptide=Leucine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 &
+  aminosee_do --slow --quiet *  --peptide=Valine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
+  aminosee_do --slow --quiet *  --peptide=Leucine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
   aminosee_do --slow --quiet *  --peptide=Isoleucine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
-  aminosee_do --slow --quiet *  --peptide=Phenylalanine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 &
-  aminosee_do --slow --quiet *  --peptide=Proline $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 &
+  aminosee_do --slow --quiet *  --peptide=Phenylalanine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
+  aminosee_do --slow --quiet *  --peptide=Proline $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
   aminosee_do --slow --quiet *  --peptide=Tryptophan $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
-  aminosee_do --slow --quiet *  --peptide=Serine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 &
-  aminosee_do --slow --quiet *  --peptide=Threonine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 &
+  aminosee_do --slow --quiet *  --peptide=Serine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
+  aminosee_do --slow --quiet *  --peptide=Threonine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
   aminosee_do --slow --quiet *  --peptide=Glutamine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
-  aminosee_do --slow --quiet *  --peptide=Asparagine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 &
+  aminosee_do --slow --quiet *  --peptide=Asparagine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
   aminosee_do --slow --quiet *  --peptide=Tyrosine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
-  aminosee_do --slow --quiet *  --peptide=Arginine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 &
+  aminosee_do --slow --quiet *  --peptide=Arginine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
   aminosee_do --slow --quiet *  --peptide=Lysine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
   aminosee_do         *  --peptide=Histidine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
 
@@ -149,6 +148,10 @@ find_way_peptides () {
 echo  $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
 # parallel_peptides 50KB_TestPattern.txt  megabase.fa
 # series_peptides $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
+parallel_peptides $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 &
+sleep 1
+parallel_peptides $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 &
+sleep 1
 parallel_peptides $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
 
 echo WILL NOW RENDER ALL IN FOLDER

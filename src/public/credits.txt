@@ -7,8 +7,8 @@
 
 Thanks to Christos Georghiou who designed the 'See No Evil Hear No Evil Monkeys' http://christosgeorghiou.com/
 
-Checkout the music from the drummer who wrote     9407 of code for this app at https://www.funk.co.nz/tomachi
-9407 lines of code
+Checkout the music from the drummer who wrote    18944 of code for this app at https://www.funk.co.nz/tomachi
+18944 lines of code
 File drag and drop code by http://twitter.com/craigbuckler
 http://optimalworks.net/ http://sitepoint.com/
 File drag and drop code by http://twitter.com/craigbuckler Craig Buckler
@@ -17,12 +17,12 @@ http://optimalworks.net/ OptimalWorks.net http://sitepoint.com/
 Based on OpenShift guest https://github.com/mrdoob/three.js/blob/8413a860aa95ed29c79cbb7f857c97d7880d260f/examples/canvas_lines_colors.html
 
 Count of packages used:
-    2181
+    2153
 
-as at Sun 18 Aug 2019 23:00:39 NZST the following open source node npm packages used:
+as at Mon 19 Aug 2019 01:40:22 NZST the following open source node npm packages used:
 
 
-aminosee@1.23.9 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
+aminosee@1.24.1 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
 ├─┬ @gmod/indexedfasta@1.0.13
 │ ├─┬ @babel/runtime-corejs2@7.4.5
 │ │ ├── core-js@2.6.8
@@ -100,7 +100,7 @@ aminosee@1.23.9 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
 │     └── mime-db@1.40.0
 ├─┬ browser-resolve@1.11.3
 │ └── resolve@1.1.7
-├─┬ browserify@16.3.0
+├─┬ browserify@16.5.0
 │ ├─┬ assert@1.5.0
 │ │ ├── object-assign@4.1.1 deduped
 │ │ └─┬ util@0.10.3
@@ -115,16 +115,7 @@ aminosee@1.23.9 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
 │ │ ├── defined@1.0.0 deduped
 │ │ ├── JSONStream@1.3.5 deduped
 │ │ ├── safe-buffer@5.1.2 deduped
-│ │ ├─┬ through2@2.0.5
-│ │ │ ├─┬ readable-stream@2.3.6
-│ │ │ │ ├── core-util-is@1.0.2 deduped
-│ │ │ │ ├── inherits@2.0.3 deduped
-│ │ │ │ ├── isarray@1.0.0
-│ │ │ │ ├── process-nextick-args@2.0.0 deduped
-│ │ │ │ ├── safe-buffer@5.1.2 deduped
-│ │ │ │ ├── string_decoder@1.1.1 deduped
-│ │ │ │ └── util-deprecate@1.0.2 deduped
-│ │ │ └── xtend@4.0.1 deduped
+│ │ ├── through2@2.0.5 deduped
 │ │ └── umd@3.0.3
 │ ├── browser-resolve@1.11.3 deduped
 │ ├─┬ browserify-zlib@0.2.0
@@ -253,22 +244,13 @@ aminosee@1.23.9 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
 │ │ ├── JSONStream@1.3.5 deduped
 │ │ ├── shasum@1.0.2 deduped
 │ │ ├── subarg@1.0.0 deduped
-│ │ └─┬ through2@2.0.5
-│ │   ├─┬ readable-stream@2.3.6
-│ │   │ ├── core-util-is@1.0.2 deduped
-│ │   │ ├── inherits@2.0.3 deduped
-│ │   │ ├── isarray@1.0.0
-│ │   │ ├── process-nextick-args@2.0.0 deduped
-│ │   │ ├── safe-buffer@5.1.2 deduped
-│ │   │ ├── string_decoder@1.1.1 deduped
-│ │   │ └── util-deprecate@1.0.2 deduped
-│ │   └── xtend@4.0.1 deduped
+│ │ └── through2@2.0.5 deduped
 │ ├── domain-browser@1.2.0
 │ ├─┬ duplexer2@0.1.4
 │ │ └─┬ readable-stream@2.3.6
 │ │   ├── core-util-is@1.0.2 deduped
 │ │   ├── inherits@2.0.3 deduped
-│ │   ├── isarray@1.0.0
+│ │   ├── isarray@1.0.0 deduped
 │ │   ├── process-nextick-args@2.0.0 deduped
 │ │   ├── safe-buffer@5.1.2 deduped
 │ │   ├── string_decoder@1.1.1 deduped
@@ -290,29 +272,19 @@ aminosee@1.23.9 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
 │ ├── https-browserify@1.0.0
 │ ├── inherits@2.0.3
 │ ├─┬ insert-module-globals@7.2.0
-│ │ ├─┬ acorn-node@1.7.0
-│ │ │ ├── acorn@6.1.1 deduped
-│ │ │ ├── acorn-dynamic-import@4.0.0
-│ │ │ ├── acorn-walk@6.2.0
-│ │ │ └── xtend@4.0.1 deduped
+│ │ ├─┬ acorn-node@1.8.2
+│ │ │ ├── acorn@7.0.0
+│ │ │ ├── acorn-walk@7.0.0
+│ │ │ └── xtend@4.0.2
 │ │ ├── combine-source-map@0.8.0 deduped
 │ │ ├── concat-stream@1.6.2 deduped
 │ │ ├── is-buffer@1.1.6
 │ │ ├── JSONStream@1.3.5 deduped
 │ │ ├── path-is-absolute@1.0.1 deduped
-│ │ ├── process@0.11.10
-│ │ ├─┬ through2@2.0.5
-│ │ │ ├─┬ readable-stream@2.3.6
-│ │ │ │ ├── core-util-is@1.0.2 deduped
-│ │ │ │ ├── inherits@2.0.3 deduped
-│ │ │ │ ├── isarray@1.0.0
-│ │ │ │ ├── process-nextick-args@2.0.0 deduped
-│ │ │ │ ├── safe-buffer@5.1.2 deduped
-│ │ │ │ ├── string_decoder@1.1.1 deduped
-│ │ │ │ └── util-deprecate@1.0.2 deduped
-│ │ │ └── xtend@4.0.1 deduped
+│ │ ├── process@0.11.10 deduped
+│ │ ├── through2@2.0.5 deduped
 │ │ ├─┬ undeclared-identifiers@1.1.3
-│ │ │ ├── acorn-node@1.7.0 deduped
+│ │ │ ├── acorn-node@1.8.2 deduped
 │ │ │ ├── dash-ast@1.0.0
 │ │ │ ├── get-assigned-identifiers@1.2.0
 │ │ │ ├── simple-concat@1.0.0
@@ -328,7 +300,7 @@ aminosee@1.23.9 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
 │ │   └─┬ readable-stream@2.3.6
 │ │     ├── core-util-is@1.0.2 deduped
 │ │     ├── inherits@2.0.3 deduped
-│ │     ├── isarray@1.0.0
+│ │     ├── isarray@1.0.0 deduped
 │ │     ├── process-nextick-args@2.0.0 deduped
 │ │     ├── safe-buffer@5.1.2 deduped
 │ │     ├── string_decoder@1.1.1 deduped
@@ -341,7 +313,7 @@ aminosee@1.23.9 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
 │ │ ├── concat-stream@1.6.2 deduped
 │ │ ├── defined@1.0.0 deduped
 │ │ ├─┬ detective@5.2.0
-│ │ │ ├── acorn-node@1.7.0 deduped
+│ │ │ ├── acorn-node@1.8.2 deduped
 │ │ │ ├── defined@1.0.0 deduped
 │ │ │ └── minimist@1.2.0 deduped
 │ │ ├── duplexer2@0.1.4 deduped
@@ -351,7 +323,7 @@ aminosee@1.23.9 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
 │ │ ├─┬ readable-stream@2.3.6
 │ │ │ ├── core-util-is@1.0.2 deduped
 │ │ │ ├── inherits@2.0.3 deduped
-│ │ │ ├── isarray@1.0.0
+│ │ │ ├── isarray@1.0.0 deduped
 │ │ │ ├── process-nextick-args@2.0.0 deduped
 │ │ │ ├── safe-buffer@5.1.2 deduped
 │ │ │ ├── string_decoder@1.1.1 deduped
@@ -362,15 +334,13 @@ aminosee@1.23.9 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
 │ │ │ └─┬ readable-stream@2.3.6
 │ │ │   ├── core-util-is@1.0.2 deduped
 │ │ │   ├── inherits@2.0.3 deduped
-│ │ │   ├── isarray@1.0.0
+│ │ │   ├── isarray@1.0.0 deduped
 │ │ │   ├── process-nextick-args@2.0.0 deduped
 │ │ │   ├── safe-buffer@5.1.2 deduped
 │ │ │   ├── string_decoder@1.1.1 deduped
 │ │ │   └── util-deprecate@1.0.2 deduped
 │ │ ├── subarg@1.0.0 deduped
-│ │ ├─┬ through2@2.0.5
-│ │ │ ├── readable-stream@2.3.6 deduped
-│ │ │ └── xtend@4.0.1 deduped
+│ │ ├── through2@2.0.5 deduped
 │ │ └── xtend@4.0.1 deduped
 │ ├── os-browserify@0.3.0
 │ ├─┬ parents@1.0.1
@@ -383,7 +353,7 @@ aminosee@1.23.9 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
 │ │ └─┬ readable-stream@2.3.6
 │ │   ├── core-util-is@1.0.2 deduped
 │ │   ├── inherits@2.0.3 deduped
-│ │   ├── isarray@1.0.0
+│ │   ├── isarray@1.0.0 deduped
 │ │   ├── process-nextick-args@2.0.0 deduped
 │ │   ├── safe-buffer@5.1.2 deduped
 │ │   ├── string_decoder@1.1.1 deduped
@@ -400,49 +370,47 @@ aminosee@1.23.9 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
 │ │ └── path-parse@1.0.6
 │ ├─┬ shasum@1.0.2
 │ │ ├─┬ json-stable-stringify@0.0.1
-│ │ │ └── jsonify@0.0.0 deduped
+│ │ │ └── jsonify@0.0.0
 │ │ └─┬ sha.js@2.4.11
 │ │   ├── inherits@2.0.3 deduped
 │ │   └── safe-buffer@5.1.2 deduped
-│ ├─┬ shell-quote@1.6.1
-│ │ ├── array-filter@0.0.1
-│ │ ├── array-map@0.0.0
-│ │ ├── array-reduce@0.0.0
-│ │ └── jsonify@0.0.0
+│ ├── shell-quote@1.7.1
 │ ├─┬ stream-browserify@2.0.2
 │ │ ├── inherits@2.0.3 deduped
 │ │ └─┬ readable-stream@2.3.6
 │ │   ├── core-util-is@1.0.2 deduped
 │ │   ├── inherits@2.0.3 deduped
-│ │   ├── isarray@1.0.0
+│ │   ├── isarray@1.0.0 deduped
 │ │   ├── process-nextick-args@2.0.0 deduped
 │ │   ├── safe-buffer@5.1.2 deduped
 │ │   ├── string_decoder@1.1.1 deduped
 │ │   └── util-deprecate@1.0.2 deduped
-│ ├─┬ stream-http@2.8.3
+│ ├─┬ stream-http@3.1.0
 │ │ ├── builtin-status-codes@3.0.0
 │ │ ├── inherits@2.0.3 deduped
-│ │ ├─┬ readable-stream@2.3.6
-│ │ │ ├── core-util-is@1.0.2 deduped
+│ │ ├─┬ readable-stream@3.3.0
 │ │ │ ├── inherits@2.0.3 deduped
-│ │ │ ├── isarray@1.0.0
-│ │ │ ├── process-nextick-args@2.0.0 deduped
-│ │ │ ├── safe-buffer@5.1.2 deduped
 │ │ │ ├── string_decoder@1.1.1 deduped
 │ │ │ └── util-deprecate@1.0.2 deduped
-│ │ ├── to-arraybuffer@1.0.1
 │ │ └── xtend@4.0.1 deduped
 │ ├─┬ string_decoder@1.1.1
 │ │ └── safe-buffer@5.1.2 deduped
 │ ├─┬ subarg@1.0.0
 │ │ └── minimist@1.2.0 deduped
 │ ├─┬ syntax-error@1.4.0
-│ │ └── acorn-node@1.7.0 deduped
+│ │ └── acorn-node@1.8.2 deduped
 │ ├─┬ through2@2.0.5
-│ │ ├── readable-stream@2.3.6 deduped
+│ │ ├─┬ readable-stream@2.3.6
+│ │ │ ├── core-util-is@1.0.2 deduped
+│ │ │ ├── inherits@2.0.3 deduped
+│ │ │ ├── isarray@1.0.0 deduped
+│ │ │ ├── process-nextick-args@2.0.0 deduped
+│ │ │ ├── safe-buffer@5.1.2 deduped
+│ │ │ ├── string_decoder@1.1.1 deduped
+│ │ │ └── util-deprecate@1.0.2 deduped
 │ │ └── xtend@4.0.1 deduped
 │ ├─┬ timers-browserify@1.4.2
-│ │ └── process@0.11.10
+│ │ └── process@0.11.10 deduped
 │ ├── tty-browserify@0.0.1
 │ ├─┬ url@0.11.0
 │ │ ├── punycode@1.3.2
@@ -940,7 +908,7 @@ aminosee@1.23.9 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
 │ │ │ └── ms@2.0.0
 │ │ ├─┬ doctrine@1.3.0
 │ │ │ ├── esutils@2.0.2 deduped
-│ │ │ └── isarray@1.0.0
+│ │ │ └── isarray@1.0.0 deduped
 │ │ ├─┬ es6-map@0.1.5
 │ │ │ ├── d@1.0.1 deduped
 │ │ │ ├── es5-ext@0.10.50 deduped
@@ -1060,7 +1028,7 @@ aminosee@1.23.9 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
 │ └─┬ union@0.4.6
 │   └── qs@2.3.3
 ├── humanize-duration@3.20.1
-├─┬ husky@3.0.2
+├─┬ husky@3.0.4
 │ ├── chalk@2.4.2 deduped
 │ ├─┬ cosmiconfig@5.2.1
 │ │ ├─┬ import-fresh@2.0.0
@@ -1098,14 +1066,12 @@ aminosee@1.23.9 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
 │ │   │   └─┬ p-limit@2.2.0
 │ │   │     └── p-try@2.2.0
 │ │   └── path-exists@4.0.0
-│ ├─┬ please-upgrade-node@3.1.1
+│ ├─┬ please-upgrade-node@3.2.0
 │ │ └── semver-compare@1.0.0
 │ ├─┬ read-pkg@5.2.0
 │ │ ├── @types/normalize-package-data@2.4.0
 │ │ ├─┬ normalize-package-data@2.5.0
-│ │ │ ├─┬ hosted-git-info@2.8.2
-│ │ │ │ └─┬ lru-cache@5.1.1
-│ │ │ │   └── yallist@3.0.3 deduped
+│ │ │ ├── hosted-git-info@2.8.4
 │ │ │ ├── resolve@1.11.0 deduped
 │ │ │ ├── semver@5.6.0 deduped
 │ │ │ └─┬ validate-npm-package-license@3.0.4
@@ -2117,7 +2083,16 @@ aminosee@1.23.9 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
 │ │ ├── on-headers@1.0.1
 │ │ ├── safe-buffer@5.1.2 deduped
 │ │ └── vary@1.1.2
-│ ├── serve-handler@6.1.0 deduped
+│ ├─┬ serve-handler@6.1.0
+│ │ ├── bytes@3.0.0
+│ │ ├── content-disposition@0.5.2 deduped
+│ │ ├── fast-url-parser@1.1.3 deduped
+│ │ ├─┬ mime-types@2.1.18
+│ │ │ └── mime-db@1.33.0
+│ │ ├── minimatch@3.0.4 deduped
+│ │ ├── path-is-inside@1.0.2 deduped
+│ │ ├── path-to-regexp@2.2.1
+│ │ └── range-parser@1.2.0 deduped
 │ └─┬ update-check@1.5.2
 │   ├─┬ registry-auth-token@3.3.2
 │   │ ├─┬ rc@1.2.8
@@ -2128,7 +2103,7 @@ aminosee@1.23.9 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
 │   │ └── safe-buffer@5.1.2 deduped
 │   └─┬ registry-url@3.1.0
 │     └── rc@1.2.8 deduped
-├─┬ serve-handler@6.1.0
+├─┬ serve-handler@6.1.1
 │ ├── bytes@3.0.0
 │ ├── content-disposition@0.5.2
 │ ├─┬ fast-url-parser@1.1.3
@@ -2163,15 +2138,12 @@ aminosee@1.23.9 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
 │   │ │ └── util-deprecate@1.0.2 deduped
 │   │ └── wbuf@1.7.3 deduped
 │   ├── obuf@1.1.2
-│   ├─┬ readable-stream@3.3.0
-│   │ ├── inherits@2.0.3 deduped
-│   │ ├── string_decoder@1.1.1 deduped
-│   │ └── util-deprecate@1.0.2 deduped
+│   ├── readable-stream@3.3.0 deduped
 │   └─┬ wbuf@1.7.3
 │     └── minimalistic-assert@1.0.1
 ├── stream-file@0.2.4
 ├── systeminformation@4.14.4
-├─┬ terminal-kit@1.29.3
+├─┬ terminal-kit@1.31.1
 │ ├─┬ @cronvel/get-pixels@3.3.1
 │ │ ├── jpeg-js@0.1.2
 │ │ ├── ndarray@1.0.18 deduped
@@ -2188,7 +2160,7 @@ aminosee@1.23.9 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee
 │ │ ├── iota-array@1.0.0
 │ │ └── is-buffer@1.1.6 deduped
 │ ├── nextgen-events@1.1.1
-│ ├─┬ seventh@0.7.27
+│ ├─┬ seventh@0.7.28
 │ │ └── setimmediate@1.0.5
 │ ├── string-kit@0.9.10
 │ └── tree-kit@0.6.1

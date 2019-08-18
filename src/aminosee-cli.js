@@ -810,7 +810,7 @@ function pushCli(cs) {
           output(`user interface ->    ${ chalk.italic( 'aminosee --gui ')}`);
           output();
 
-          if (this.serve) {
+          if (this.serve == true) {
             output('starting mini server')
             cliInstance.setupKeyboardUI();
             cliInstance.updatesTimer = countdown('      [Q] or [Esc] to quit or wait ', 360000, () => {
@@ -819,16 +819,16 @@ function pushCli(cs) {
             server.foregroundserver();
 
           } else {
-            output('Press [ENTER] or [G] to run GUI (graphic user interface) now')
-            cliInstance.setupKeyboardUI();
-            cliInstance.updatesTimer = countdown('      [Q] or [Esc] to quit or wait ', 150, () => {
-              log('boo')
-              try {
-                // carlo.catch();
-              } catch(e) {
-                log(e)
-              }
-            });
+            // output('Press [ENTER] or [G] to run GUI (graphic user interface) now')
+            // cliInstance.setupKeyboardUI();
+            // cliInstance.updatesTimer = countdown('      [Q] or [Esc] to quit or wait ', 150, () => {
+            //   log('boo')
+            //   try {
+            //     // carlo.catch();
+            //   } catch(e) {
+            //     log(e)
+            //   }
+            // });
           }
 
                     // startGUI();
@@ -2487,8 +2487,7 @@ function pushCli(cs) {
         // let histotext = beautify( JSON.stringify( histogramJson ), null, 2, 100);
         let histotext =  JSON.stringify( histogramJson );
         // output( beautify( JSON.stringify( histogramJson ), null, 2, 100) )
-        this.fileWrite( this.fileHTML, hypertext );
-        this.fileWrite( histogramFile, histotext );
+
         if (this.userCPP == "auto" && this.magnitude == "auto" && this.artistic == false && this.index == false) {
           if ( debug ) {
             filename = `${ this.outputPath }/${ this.justNameOfDNA}/main.html`
@@ -2499,6 +2498,13 @@ function pushCli(cs) {
         } else if (this.artistic && this.userCPP == "auto") {
           this.fileWrite(`${ this.outputPath }/${ this.justNameOfDNA}/artistic.html`, hypertext, cb);
         }
+        if ( this.index ) {
+          filename = `${ this.outputPath }/${ this.justNameOfDNA}/index.html`
+          this.fileWrite( filename, hypertext );
+        }
+        this.fileWrite( this.fileHTML, hypertext );
+        this.fileWrite( histogramFile, histotext );
+
         this.htmlFinished();
         // if ( cb !== undefined ) { cb() }
       }
