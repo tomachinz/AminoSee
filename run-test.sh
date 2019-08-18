@@ -5,7 +5,10 @@ MEDIUM='dna/3MB_TestPattern.txt'
 SLOW='dna/27MB_TestPattern.txt'
 NETWORK='/Volumes/aminosee/dna/3MB_TestPattern.txt'
 npm run genversion
-
+echo trying to get to root of project...:
+cd ../dna
+cd ../
+pwd
 test_do () {
   echo __________________________________________
   echo

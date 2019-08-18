@@ -752,10 +752,7 @@ function pushCli(cs) {
           this.keyboard = true;
           this.setupKeyboardUI();
           // let that = this;
-          // countdown('Press [Q] to exit or wait ', this.raceDelay * 8170, () => {
-          // carlo.catch();
-          // that.gracefulQuit(0);
-          // });
+
         } else {
           log( `Try using  --gui for the graphical user interface. And not --quiet`)
         }
@@ -792,17 +789,28 @@ function pushCli(cs) {
           } else {
             log('not first run')
           }
-          output(`Try running -->>>    ${ chalk.italic( 'aminosee Human_Genome.txt Gorilla.dna Chimp.fa Orangutan.gbk --image')}`);
-          output(`usage      --->>>    ${ chalk.italic( 'aminosee [*/dna-file.txt] [--help|--test|--demo|--force|--html|--image|--keyboard]    ')}`);
+          termSize();
+          log(`Your terminal size: (${tx},${ty})`);
+          if ( tx > 82 ) {
+            output(`Try running -->>>    ${ chalk.italic( 'aminosee Human_Genome.txt Gorilla.dna Chimp.fa Orangutan.gbk --image')}`);
+            output(`usage      --->>>    ${ chalk.italic( 'aminosee [*/dna-file.txt] [--help|--test|--demo|--force|--html|--image|--keyboard]    ')}`);
+          }
           output(`example    --->>>    ${ chalk.italic( 'aminosee --help ')}`);
           output(`user interface ->    ${ chalk.italic( 'aminosee --gui ')}`);
           output();
           output();
           this.gui = true;
+          this.setupKeyboardUI();
+          output('Press [ENTER] or [G] to run GUI (graphic user interface) now')
+          this.updatesTimer = countdown('Or [Q] or [Esc] to quit, closing in: ', 15000, () => {
+            destroyKeyboardUI();
+            // carlo.catch();
+            // that.gracefulQuit(0);
+          });
 
           // pushCli(`--test`)
           setImmediate( () => {
-            output(`:)       [${ this.justNameOfDNA  }]`)
+            log(`       [${ this.justNameOfDNA  }]`)
           })
           return true;
         }
@@ -1127,13 +1135,13 @@ function pushCli(cs) {
         }
         process.stdin.resume(); // means start consuming
         // listen for the "keypress" event
-        process.stdin.once('keypress', function (ch, key) {
+        process.stdin.on('keypress', function (ch, key) {
           out(`got keypress: ${ chalk.inverse( key.toString() )}`);
 
           if ( key ) {
             if ( key.name == 'q' || key.name == 'Esc') {
               killServersOnQuit = false;
-
+              clearTimeout( this.updatesTimer )
               that.gracefulQuit(0, `Q esc`);
             }
             if ( key.ctrl && key.name == 'c') {
@@ -1330,6 +1338,8 @@ function pushCli(cs) {
         debug = true;
         this.devmode = true;
         this.updates = false;
+        clearTimeout( progTimer )
+
         if ( webserverEnabled ) {
           killServersOnQuit = true;
           server.stop();
@@ -2590,13 +2600,15 @@ function pushCli(cs) {
           redoline(msg)
         }
         if ( remain < 1 ) {
-          output(  ' Finito: ' + reason );
+          log(  ' Finito: ' + reason );
           this.quit(0, 'no more commands' );
           return true;
         }
 
         if ( fileSystemChecks(this.dnafile )  == false ) {
-          mode(`failed filesystem check: ${this.dnafile}`)
+          if ( this.quiet == false ) {
+            mode(`failed filesystem check: ${this.dnafile}`)
+          }
           willReset = true;
           // this.resetAndPop( status );
           // return false;
@@ -5235,9 +5247,9 @@ function pushCli(cs) {
         function countdown(text, timeMs, cb) {
           let msg = text + humanizeDuration ( deresSeconds(timeMs) ) ;
           // redoline(msg);
-          out(msg)
+          redoline(msg)
           if ( timeMs > 0 ) {
-            setTimeout(() => {
+           progTimer = setTimeout(() => {
               if ( cb !== undefined ) {
                 countdown(text, timeMs - 500, cb);
               } else {
@@ -5246,7 +5258,7 @@ function pushCli(cs) {
             },  500 )
           } else {
             // redoline(' ');
-            out('.')
+            redoline('........')
             if ( cb !== undefined ) { cb() }
           }
         }
@@ -5436,7 +5448,7 @@ function pushCli(cs) {
               // term.restoreCursor();
               if ( cb !== undefined ) { cb() }
             })
-          }, 5000)
+          }, 1000)
 
 
         }
