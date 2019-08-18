@@ -1,6 +1,6 @@
 {
   "name": "aminosee",
-  "version": "1.23.9",
+  "version": "1.24.0",
   "owner": "Thomas Bieder Atkinson",
   "author": "Tom Atkinson <tom@funk.co.nz>",
   "website": "http://aminosee.funk.nz",
@@ -53,7 +53,7 @@
     "runmac": "./dist/AminoSee_macos/aminosee  --gui",
     "runlinux": "open ./dist/AminoSee_linux/aminosee",
     "macos": "echo MACOS ; pkg . --targets macos   --output ./dist/AminoSee_macos/aminosee ; ./dist/AminoSee_macos/aminosee",
-    "win32": "echo WIN32 ; pkg . --targets win-x86 --output ./dist/AminoSee_win/aminosee-win32.exe",
+    "win32": "pkg . --targets win-x86 --output ./dist/AminoSee_win/aminosee-win32.exe",
     "win64": "echo WIN64 ; pkg . --targets win-x64 --output ./dist/AminoSee_win/aminosee.exe",
     "linux": "echo LINUX ; pkg . --targets linux   --output ./dist/AminoSee_linux/aminosee",
     "_macos": "echo MACOS ; pkg . --targets macos   --output ./dist/AminoSee_macos/aminosee-macos   ; zip -8 -r ./dist/AminoSee_macos.zip ./dist/AminoSee_macos",

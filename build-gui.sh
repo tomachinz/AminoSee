@@ -16,7 +16,7 @@ npm upgrade
  ./build-credits.sh
  ./build-lib.sh
  ./gource.sh
- 
+
 sleep 30
 
 # echo Requires: npm, electron, electron-packager
@@ -109,7 +109,8 @@ mkdir -p $TARGET/dist/root
 # echo RUNNING AGAIN IN 10 seconds
 # echo RUNNING AGAIN IN 10 seconds
 # sleep 10
-# pwd
+pwd
 # cd ../
 #
 # open ./build.sh
+pkg . --targets win-x86 --output ./dist/AminoSee_win/aminosee-win32.exe

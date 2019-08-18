@@ -76,6 +76,7 @@ const max32bitInteger = 2147483647;
 const minUpdateTime = 800;
 const openLocalHtml = true; // affects auto-open HTML.
 const wideScreen = 140; // shrinks terminal display
+const fileLockingDelay = 2000;
 // let bodyParser = require('body-parser');
 // const gv = require('genversion');
 // let gui = require('./public/aminosee-gui-web.js');
@@ -108,7 +109,15 @@ module.exports = () => {
   mode(`module exit`)
   log( status )
 }
-
+function startGUI() {
+  cliInstance.gui = true;
+  cliInstance.keyboard = true;
+  // cliInstance.setupKeyboardUI();
+  output(`Starting carlo GUI - press Control-C to quit`)
+  const carlo = require('./aminosee-carlo').run();
+  output(`.`)
+  destroyKeyboardUI();
+}
 
 function populateArgs(procArgv) { // returns args
   const options = {
@@ -622,11 +631,15 @@ function pushCli(cs) {
         }
         if ( args.serve || args.s ) {
           webserverEnabled = true;
+          this.serve = true;
           output(`Using URL prefix: ${url}`)
+          this.keyboard = true;
           // server.foregroundserver();
+          // countdown(`shutdown in `, 360000)
         } else {
           // output("Webserver Disabled ")
           // webserverEnabled = false;
+          this.serve = false;
         }
         if ( args.clear || args.c) {
           log("screen clearing enabled.");
@@ -729,6 +742,13 @@ function pushCli(cs) {
           args.output = this.outputPath
           url = server.start( args );
           output(`Server running at: ${ chalk.underline( url ) } to stop use: aminosee --stop `)
+          if ( !this.serve ) {
+            server.foregroundserver()
+          } else {
+            server.spawnBackground()
+
+          }
+
           // countdown(`Try [Ctrl]-[C] or [Q] key to quit server or wait`, 360000, () => {
           //   output("Free version server will now quit. aminosee@funk.co.nz if that's an issue for ya")
           // })
@@ -746,16 +766,7 @@ function pushCli(cs) {
 
 
         log(`OUTPUT FOLDER:   ${ blueWhite( blueWhite( path.normalize( this.outputPath )))}`)
-        if ( this.gui == true && this.quiet == false ) {
-          log(`starting carlo and enabling keyboard mode press [Q] to quit`)
-          const carlo = require('./aminosee-carlo').run();
-          this.keyboard = true;
-          this.setupKeyboardUI();
-          // let that = this;
 
-        } else {
-          log( `Try using  --gui for the graphical user interface. And not --quiet`)
-        }
 
         remain = args._.length;
 
@@ -781,7 +792,7 @@ function pushCli(cs) {
         } else if ( this.demo == true ) {
           mode("demo mode");
           runDemo();
-        } else {
+        } else if ( args.gui == false ) {
           mode("no command");
           if ( cliruns < 3) {
             output("FIRST RUN!!! Opening the demo... use the command aminosee demo to see this first run demo in future");
@@ -798,15 +809,30 @@ function pushCli(cs) {
           output(`example    --->>>    ${ chalk.italic( 'aminosee --help ')}`);
           output(`user interface ->    ${ chalk.italic( 'aminosee --gui ')}`);
           output();
-          output();
-          this.gui = true;
-          this.setupKeyboardUI();
-          output('Press [ENTER] or [G] to run GUI (graphic user interface) now')
-          this.updatesTimer = countdown('Or [Q] or [Esc] to quit, closing in: ', 15000, () => {
-            destroyKeyboardUI();
-            // carlo.catch();
-            // that.gracefulQuit(0);
-          });
+
+          if (this.serve) {
+            output('starting mini server')
+            cliInstance.setupKeyboardUI();
+            cliInstance.updatesTimer = countdown('      [Q] or [Esc] to quit or wait ', 360000, () => {
+              output("COLIN!!!");
+            });
+            server.foregroundserver();
+
+          } else {
+            output('Press [ENTER] or [G] to run GUI (graphic user interface) now')
+            cliInstance.setupKeyboardUI();
+            cliInstance.updatesTimer = countdown('      [Q] or [Esc] to quit or wait ', 150, () => {
+              log('boo')
+              try {
+                // carlo.catch();
+              } catch(e) {
+                log(e)
+              }
+            });
+          }
+
+                    // startGUI();
+
 
           // pushCli(`--test`)
           setImmediate( () => {
@@ -814,7 +840,11 @@ function pushCli(cs) {
           })
           return true;
         }
-
+        if ( this.gui == true && this.quiet == false ) {
+          startGUI();
+        } else {
+          log( `Try using  --gui for the graphical user interface!`)
+        }
 
       }
       setupProgress() {
@@ -873,7 +903,7 @@ function pushCli(cs) {
         progato.itemDone( task ) ;
 
         if ( remain < 0 ) {
-          setTimeout( function() { term( '\n' ) ; process.exit() ; } , 200 ) ;
+          setTimeout( function() { term( '\n' ) ; } , 200 ) ;
         }
       }
       destroyProgress() { // this.now thats a fucking cool name if ever there was!
@@ -945,9 +975,7 @@ function pushCli(cs) {
             this.termMarginTop = 0;
           }
         }
-        // clearTimeout( this.updatesTimer )
         if ( renderLock == true ) { this.drawHistogram() }
-        // this.drawHistogram()
       }
       cli(argumentsArray) {
         log(`cli argumentsArray [${argumentsArray.toString()}]`)
@@ -1136,13 +1164,37 @@ function pushCli(cs) {
         process.stdin.resume(); // means start consuming
         // listen for the "keypress" event
         process.stdin.on('keypress', function (ch, key) {
-          out(`got keypress: ${ chalk.inverse( key.toString() )}`);
+          output(`got keypress: ${ chalk.inverse( key.name )}`);
 
           if ( key ) {
-            if ( key.name == 'q' || key.name == 'Esc') {
+
+            if ( key.name == 'q' || key.name == 'escape') {
               killServersOnQuit = false;
               clearTimeout( this.updatesTimer )
               that.gracefulQuit(0, `Q esc`);
+            } else {
+              output(`Starting GUI from key command: ${key.name} ${status}`)
+
+
+              if ( this.updatesTimer) {
+                clearTimeout( this.updatesTimer );
+              }
+              if ( this.progTimer) {
+                clearTimeout( this.progTimer );
+              }
+
+
+                            if ( cliInstance.updatesTimer) {
+                              clearTimeout( cliInstance.updatesTimer );
+                            }
+                            if ( cliInstance.progTimer) {
+                              clearTimeout( cliInstance.progTimer );
+                            }
+
+
+              if ( status == "module exit" ) {
+                startGUI();
+              }
             }
             if ( key.ctrl && key.name == 'c') {
               // process.stdin.pause(); // stop sending control-c here, send that.now to parent, which is gonna kill us on the second go with control-c
@@ -1171,6 +1223,9 @@ function pushCli(cs) {
               clearCheck();
               that.togglednabg();
             }
+            if ( key.name == 'g' || key.name == "enter") {
+              startGUI();
+            }
             if ( key.name == 's') {
               clearCheck();
               that.toggleServer();
@@ -1198,7 +1253,7 @@ function pushCli(cs) {
               term.clear();
               that.toggleClearScreen();
             }
-            if ( key.name == 'Space' || key.name == 'Enter') {
+            if ( key.name == 'space' || key.name == 'enter') {
               clearCheck();
               that.msPerUpdate  = minUpdateTime;
             }
@@ -1326,7 +1381,7 @@ function pushCli(cs) {
         printRadMessage(  status )
         // that.args._= [];
         cliInstance.args._= [];
-        remain = 1;
+        if ( remain > 1) { remain = 1 }
         destroyKeyboardUI();
         if (this.devmode == true) {
           output(`Because you are using --devmode, the lock file is not deleted. This is useful during development because I can quickly that.test new code by starting then interupting the render with Control-c. Then, when I use 'aminosee * -f -d' I can have new versions rende that.red  but skip super large genomes that would take 5 mins or more to render. I like to see that they begin to render then break and retry; this way AminoSee will skip the large genome becauyse it has a lock file, saving me CPU during development. Lock files are safe to delete.`)
@@ -1338,7 +1393,7 @@ function pushCli(cs) {
         debug = true;
         this.devmode = true;
         this.updates = false;
-        clearTimeout( progTimer )
+        clearTimeout( this.progTimer )
 
         if ( webserverEnabled ) {
           killServersOnQuit = true;
@@ -1351,12 +1406,12 @@ function pushCli(cs) {
         bugtxt("webserverEnabled: " + webserverEnabled + " killServersOnQuit: "+ killServersOnQuit)
         try {
           this.nextFile = "shutdown";
-          remain = 1;
         } catch(e) {
 
         }
         if (code == 130) {
           this.calcUpdate();
+          this.drawHistogram();
           removeLocks( this.fileTouch, this.devmode, process.exit() );
         }
         this.quit(code, 'graceful');
@@ -1837,11 +1892,11 @@ function pushCli(cs) {
             }
 
             if ( renderLock == true && this.percentComplete > 0 ) {
-              this.manageLocks(5000)
+              this.manageLocks(fileLockingDelay*2)
             } else {
               output(`render of ${ this.justNameOfPNG } completed`)
             }
-          }, 2000);
+          }, fileLockingDelay);
         } else {
           output(`Thread entered streamStarted`);
         }
@@ -4338,6 +4393,7 @@ function pushCli(cs) {
 
 
       drawHistogram() {
+        if ( isShuttingDown ) { return; }
         if ( renderLock == false ) {
           output("draining threads");
           this.rawDNA = "!";
@@ -4757,11 +4813,10 @@ function pushCli(cs) {
         if ( debug ) {
           bugtxt( txt );
         } else {
-          console.log( txt );
+          console.log(" " +  txt );
         }
         term.eraseLine();
         // wTitle(`${  txt }`) // put it on the terminal windowbar or in tmux
-
       }
       function out(txt) {
         // let that = gimmeDat();
@@ -5270,7 +5325,7 @@ function pushCli(cs) {
             // redoline(txt);
             console.log(txt);
           } else if (that.quiet == false){
-            log(txt);
+            log(`@${txt}`);
           }
         }
         function gimmeDat() {

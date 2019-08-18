@@ -148,8 +148,8 @@ async function runCarlo() {
             height: 600,
             channel: ['canary', 'stable'],
             icon: path.join(__dirname, 'public/512_icon.png'),
-            args: [ '--allow-insecure-localhost', '--webpack-dev-server', '--auto-open-devtools-for-tabs'],
-            serveOrigin: `http://localhost:${port}`
+            args: [ '--allow-insecure-localhost', '--webpack-dev-server', '--auto-open-devtools-for-tabs']
+            // serveOrigin: `http://localhost:${port}`
           });
     } catch(e) {
       // New window is opened in the running instance.
