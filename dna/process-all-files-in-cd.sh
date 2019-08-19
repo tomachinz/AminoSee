@@ -11,21 +11,6 @@ aminosee_do_foreground() {
   nice -n $1 aminosee $2 $3 $4 $5 $6 $7
 }
 
-many_size_hilbert() {
-  echo "                                         =///"
-  echo "-------------------------------------------"
-  echo STARTING PARALLEL DECODE FOR $1
-  echo "-------------------------------------------"
-  echo "                                         =///"
-
-  aminosee_do            1 -m 3 $1 $2 $3
-  aminosee_do            2 -m 4 $1 $2 $3
-  aminosee_do            3 -m 5 $1 $2 $3
-  aminosee_do_foreground 4 -m 6 $1 $2 $3
-  aminosee_do_foreground 5 -m 7 $1 $2 $3
-  aminosee_do_foreground 6 -m 8 $1 $2 $3
-}
-
 parallel_peptides () {
   echo "                                         =///"
   echo "-------------------------------------------"
@@ -69,8 +54,6 @@ aminosee_do_foreground 7 $1 $2 $3 $4 --peptide=Histidine
 # parallel_peptides Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa $1 $2 $3
 # parallel_peptides Human-GRCh38.p12_chr2.gbk $1 $2 $3
 # parallel_peptides Human-GRCh38.p12_chr2.fa $1 $2 $3
-# many_size_hilbert Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa $1 $2 $3
-# many_size_hilbert Human-GRCh38.p12_chr2.gbk $1 $2 $3
 # parallel_peptides Caenorhabditis_elegans.WBcel235.dna_sm.toplevel.fa $1 $2 $3
 # parallel_peptides Chimp_Clint_chrY.gb $1 $2 $3
 # parallel_peptides Octopus_Bimaculoides_v2_0_chrUn.fa $1 $2 $3

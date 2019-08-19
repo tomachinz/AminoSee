@@ -142,6 +142,8 @@ This site was built using [AminoSee Official Site](https://www.funk.co.nz/aminos
 
 ## To Do List
 
+- [ ] Test how it works with RNA
+- [ ] Implement bi-directional DNA. It currently is reading all sequences without concern for transcription direction. My bad.
 - [x] Implement streaming architecture
 - [x] Node CLI to convert DNA into PNG
 - [ ] Zip file open

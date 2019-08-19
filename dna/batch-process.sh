@@ -6,7 +6,7 @@ aminosee_do () {
   sleep 1
   nice -n $NICE aminosee $1 $2 $3 $4 $5 $6 $7 $8 &
   sleep 1
-  nice -n $NICE  aminosee --index $1 $2 $3 $4 $5 $6 $7 $8 -c500 * 
+  nice -n $NICE aminosee --quiet --index -m5 $1 $2 $3 $4 $5 $6 $7 $8  *
   NICE=($NICE+1)
   echo $NICE
 }
@@ -17,5 +17,5 @@ aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 * &
 aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 *
 
 
-find -f *.fa *.mfa *.gbk *.txt -exec  aminosee {} $1 $2 $3 $4 $5 $6 $7 $8 &  \;
-aminosee_do * --reg &
+find -f *.fa *.mfa *.gbk *.txt -exec  aminosee {} $1 $2 $3 $4 $5 $6 $7 $8   \;
+aminosee_do * --reg
