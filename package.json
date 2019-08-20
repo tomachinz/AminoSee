@@ -1,6 +1,6 @@
 {
   "name": "aminosee",
-  "version": "1.24.2",
+  "version": "1.24.3",
   "owner": "Thomas Bieder Atkinson",
   "author": "Tom Atkinson <tom@funk.co.nz>",
   "website": "http://aminosee.funk.nz",
@@ -20,7 +20,7 @@
     "copyright": "Copyright © 2018-2019 Tom Atkinson",
     "icon": "src/public/favicon.png",
     "directories": [
-      "src/public/**"
+      "src/*/**"
     ],
     "mac": {
       "category": [

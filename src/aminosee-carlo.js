@@ -166,10 +166,10 @@ async function runCarlo() {
     // app.on('window', window => window.load('http://10.0.0.24:43210/public/'));
     // app.on('window', window => window.load('public/index.html'));
 
-    // let o =  path.join(os.homedir(), '/AminoSee_Output');
+    let o =  path.join(os.homedir(), '/AminoSee_Output');
     // let o = path.join(__dirname, 'public');
     // let o = path.join(__dirname, 'public');
-    let o = path.resolve(__dirname);
+    // let o = path.resolve(__dirname);
     console.log(`serving: ${o}`)
     await app.serveFolder(o);
     await app.exposeFunction('systeminfo', systeminfo);

@@ -46,7 +46,7 @@ const es = require('event-stream');
 const minimist = require('minimist')
 const fetch = require("node-fetch");
 const keypress = require('keypress');
-const open = require('open'); //path-to-executable/xdg-open
+const open = require('open');
 // const parse = require('parse-apache-directory-index');
 const fs = require('fs-extra'); // drop in replacement = const fs = require('fs')
 const histogram = require('ascii-histogram');
@@ -124,7 +124,7 @@ function populateArgs(procArgv) { // returns args
     boolean: [ 'artistic', 'clear', 'chrome', 'devmode', 'debug', 'demo', 'dnabg', 'explorer', 'file', 'force', 'fullscreen', 'firefox', 'gui', 'html', 'image', 'keyboard', 'list', 'progress', 'quiet', 'reg', 'recycle', 'redraw', 'slow', 'serve', 'safari', 'test', 'updates', 'verbose', 'view' ],
     string: [ 'url', 'output', 'triplet', 'peptide', 'ratio' ],
     alias: { a: 'artistic', b: 'dnabg', c: 'codons', d: 'devmode', f: 'force', h: 'help', k: 'keyboard', m: 'magnitude', o: 'output', p: 'peptide', i: 'image', t: 'triplet', u: 'updates', q: 'quiet', r: 'reg', w: 'width', v: 'verbose', x: 'explorer', finder: 'explorer', view: 'html' },
-    default: { brute: false, debug: false, gui: false, html: true, image: true, clear: false, explorer: false, quiet: false, keyboard: true, progress: true, redraw: true, updates: true, serve: false, fullscreen: true },
+    default: { brute: false, debug: false, gui: false, html: true, image: true, clear: false, explorer: false, quiet: false, keyboard: false, progress: true, redraw: true, updates: true, serve: false, fullscreen: true },
     stopEarly: false
   } // NUMERIC INPUTS: codons, magnitude, width, maxpix
   let args = minimist(procArgv.slice(2), options)
@@ -643,6 +643,9 @@ function pushCli(cs) {
           this.serve = true;
           output(`Using URL prefix: ${url}`)
           this.keyboard = true;
+          this.openHtml = true;
+          args.view = true;
+
           // server.foregroundserver();
           // countdown(`shutdown in `, 360000)
         } else {
@@ -826,28 +829,18 @@ function pushCli(cs) {
               output("COLIN!!!");
             });
             server.foregroundserver();
-
           } else {
-            // output('Press [ENTER] or [G] to run GUI (graphic user interface) now')
-            // cliInstance.setupKeyboardUI();
-            // cliInstance.updatesTimer = countdown('      [Q] or [Esc] to quit or wait ', 150, () => {
-            //   log('boo')
-            //   try {
-            //     // carlo.catch();
-            //   } catch(e) {
-            //     log(e)
-            //   }
-            // });
+            output('Press any key to run GUI (graphic user interface) now')
+            cliInstance.setupKeyboardUI();
+            cliInstance.updatesTimer = countdown('      [Q] or [Esc] to quit or wait ', 3000, () => {
+              log('boo')
+              destroyKeyboardUI();
+              // this.quit(130, `no command`);
+            });
           }
-
-                    // startGUI();
-
-
+          // startGUI();
           // pushCli(`--test`)
-          setImmediate( () => {
-            log(`       [${ this.justNameOfDNA  }]`)
-          })
-          return true;
+          // return true;
         }
         if ( this.gui == true && this.quiet == false ) {
           startGUI();
@@ -1182,11 +1175,12 @@ function pushCli(cs) {
 
           if ( key ) {
 
-            if ( key.name == 'q' || key.name == 'escape') {
+            if ( key.name == 'q' || key.name == 'escape' ) {
               killServersOnQuit = false;
               clearTimeout( this.updatesTimer )
+              clearTimeout( this.progTimer )
               that.gracefulQuit(0, `Q esc`);
-            } else {
+            } else if ( !key.ctrl || key.name !== 'c') {
               output(`Starting GUI from key command: ${key.name} ${status}`)
 
 
@@ -1198,12 +1192,12 @@ function pushCli(cs) {
               }
 
 
-                            if ( cliInstance.updatesTimer) {
-                              clearTimeout( cliInstance.updatesTimer );
-                            }
-                            if ( cliInstance.progTimer) {
-                              clearTimeout( cliInstance.progTimer );
-                            }
+              if ( cliInstance.updatesTimer) {
+                clearTimeout( cliInstance.updatesTimer );
+              }
+              if ( cliInstance.progTimer) {
+                clearTimeout( cliInstance.progTimer );
+              }
 
 
               if ( status == "module exit" ) {
@@ -1215,9 +1209,11 @@ function pushCli(cs) {
               status  = "TERMINATED WITH CONTROL-C";
               that.gracefulQuit(0, `Control-c`);
               destroyKeyboardUI();
-              if ( renderLock == true) {
-                isShuttingDown = true;
+              isShuttingDown = true;
+
+              if ( renderLock == true && this.timeRemain < 10000) {
                 that.msPerUpdate = 800;
+                output(`Closing in 5 seconds`)
                 setTimeout(()=> {
                   that.gracefulQuit(130, `Control-c`);
                 }, 5000)
@@ -1417,16 +1413,17 @@ function pushCli(cs) {
         this.args._ = [];
         isShuttingDown = true;
         output( `R: ${status} ` )
-        destroyKeyboardUI();
         bugtxt("webserverEnabled: " + webserverEnabled + " killServersOnQuit: "+ killServersOnQuit)
         try {
           this.nextFile = "shutdown";
         } catch(e) {
 
         }
+        output("130")
+
         if (code == 130) {
           this.calcUpdate();
-          this.drawHistogram();
+          // this.drawHistogram();
           removeLocks( this.fileTouch, this.devmode, process.exit() );
         }
         this.quit(code, 'graceful');
@@ -2813,13 +2810,11 @@ function pushCli(cs) {
           }
         }
         mode('quit ' + reason);
-        // this.calcUpdate();
         if (code === undefined) { code = 0 } // dont terminate with 0
         log(`Received quit(${code}) ${reason}`);
-
         if ( renderLock == true ) {
-          log("still rendering") // maybe this happens during graceful shutdown
-          // return false;
+          output("still rendering") // maybe this happens during graceful shutdown
+          return false;
         }
 
         if ( this.isDiskFinLinear && this.isDiskFinHilbert && this.isDiskFinHTML) {
@@ -3940,7 +3935,6 @@ function pushCli(cs) {
             open( url + this.justNameOfDNA + `/main.html`, {wait: false}).then(() => {
               log("browser closed");
             }).catch(function () {  this.error("open( this.fileHTML)")});
-
           }
         } else {
           log(`Not opening HTML`)
@@ -4332,7 +4326,6 @@ function pushCli(cs) {
         this.peakGreen  =  this.green ;
         this.peakBlue  =  this.blue ;
         this.peakAlpha =  this.alpha ;
-
         this.pixelStacking = 0;
         this.pixelClock++;
       }
@@ -4425,6 +4418,7 @@ function pushCli(cs) {
 
 
       drawHistogram() {
+        return;
         if ( isShuttingDown ) { return; }
         if ( renderLock == false ) {
           output("draining threads");
@@ -4432,10 +4426,10 @@ function pushCli(cs) {
           return false;
         }
         if ( this.updatesTimer) { clearTimeout( this.updatesTimer )};
-        if ( this.updateProgress == true) {  this.fastUpdate();
+        if ( this.updateProgress == true) {
+          this.fastUpdate();
           this.progUpdate( this.percentComplete );
         }
-
 
         if ( remain >= 0 ) { // dont update if not rendering / during shutdown
           if ( this.msPerUpdate  <  this.maxMsPerUpdate ) {
@@ -5396,7 +5390,7 @@ function pushCli(cs) {
         function redoline(txt) {
           term.eraseLine();
           // output(maxWidth( term.width - 2, txt));
-          output(txt);
+          output(` [ ${txt} ] `);
           term.up( 1 ) ;
         }
         function deresSeconds(ms){

@@ -6,6 +6,7 @@ const createSymlink   = data.createSymlink;
 const deleteFile      = data.deleteFile;
 const recordFile      = data.recordFile;
 const alog = aminosee.log;
+const open = require('open');
 const Preferences = require('preferences');
 const http = require('http');
 const chalk = require('chalk');
@@ -321,6 +322,11 @@ function start(a) { // return the port number
     spawnBackground(options); // works great but relies on http-server being installed globally
   }
   // startServeHandler(o, port)
+
+  open( url + '/public', {wait: false}).then(() => {
+    log("browser closed");
+  }).catch(function () { ; });
+
   return port
 }
 
@@ -332,7 +338,7 @@ function error(err) {
   }
 }
 
-function open(relative) {
+function openPage(relative) {
   output("Opening page: " + relative);
 }
 // module.exports.getServerURL = function (path) {
@@ -402,7 +408,6 @@ module.exports.foregroundserver = () => { foregroundserver() }
 module.exports.getServerURL = () => { getServerURL( outputPath )}
 module.exports.startServeHandler = () => { startServeHandler() }
 module.exports.spawnBackground = () => { spawnBackground() }
-module.exports.open = open
 module.exports.stop = stop
 module.exports.start = start
 module.exports.close = close
