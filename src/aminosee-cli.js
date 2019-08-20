@@ -295,6 +295,7 @@ function pushCli(cs) {
       this.peakRed  = 0.1010101010;
       this.peakGreen  = 0.1010101010;
       this.peakBlue  = 0.1010101010;
+      this.peakAlpha  = 0.1010101010;
       this.rawDNA ="@loading DNA Stream..."; // this.debug
       this.outFoldername = `/AminoSee_Output`;
       this.justNameOfDNA = 'ascii-DNA.txt';
@@ -331,6 +332,12 @@ function pushCli(cs) {
       this.previousImage = this.justNameOfDNA
       // output(logo());
       this.setNextFile();
+      if ( args.quiet || args.q ) { // needs to be at top to cut back clutter during batch rendering
+        this.quiet = true;
+      } else {
+        this.quiet = false;
+      }
+
 
       if ( args.fullscreen ) {
         log("fullscreen terminal output enabled");
@@ -412,7 +419,7 @@ function pushCli(cs) {
         this.port = defaultPort;
       }
       if ( this.keyboard == true) {
-        output(`interactive keyboard mode enabled`)
+        notQuiet(`interactive keyboard mode enabled`)
         this.setupKeyboardUI()
       } else {
         log(`interactive keyboard mode disabled`)
@@ -1000,7 +1007,7 @@ function pushCli(cs) {
             this.pepTable[h].linear_preview = this.aminoFilenameIndex(h)[1];
             this.pepTable[h].mixRGBA = this.tripletToRGBA(codon); // this will this.report this.alpha info
 
-            output( this.pepTable[h].src );
+            output(` this.pepTable[h].src ${ this.pepTable[h].src}` );
           }
         } else {
           log(`not brute`)
@@ -1085,6 +1092,7 @@ function pushCli(cs) {
         this.peakRed  =  this.red ;
         this.peakGreen  =  this.green ;
         this.peakBlue  =  this.blue ;
+        this.peakAlpha  =  this.alpha ;
         this.percentComplete = 0;
         // this.pixelClock = 0;
         this.currentTriplet = "none";
@@ -1164,8 +1172,8 @@ function pushCli(cs) {
         try {
           process.stdin.setRawMode(true);
         } catch(err) {
-          output(`Could not use interactive keyboard due to: ${err} press enter after each key mite help`)
-          output(`Probably you are running from a shell script. --keyboard mode requires interactive shell.`)
+          log(`Could not use interactive keyboard due to: ${err}`)
+          notQuiet(`Probably you are running from a shell script. --keyboard mode requires interactive shell.`)
         }
         process.stdin.resume(); // means start consuming
         // listen for the "keypress" event
@@ -1340,6 +1348,7 @@ function pushCli(cs) {
           this.clear = false;
           this.openHtml = false;
           this.openImage = false;
+          this.image = false;
           this.openFileExplorer = false;
           this.progress = true; // EXPERIMENTAL FEATURES
           this.keyboard = true; // EXPERIMENTAL FEATURES
@@ -1348,7 +1357,7 @@ function pushCli(cs) {
           if (debug == true) {
             this.raceDelay += 1000; // this helps considerably!
           }
-          output("AminoSee has been slowed to " + this.raceDelay)
+          output("AminoSee has been slowed to " + blueWhite( this.raceDelay ))
         } else {
           this.raceDelay -= 1000; // if you turn devmode on and off a lot it will slow down
           this.verbose = false;
@@ -1958,7 +1967,8 @@ function pushCli(cs) {
       renderObjToString() {
         const unknown = 'unknown until render complete';
         return `
-        Canonical Name: ${ this.justNameOfDNA}
+        Canonical Name: ${ this.justNameOfDNA }
+        Canonical PNG: ${ this.justNameOfPNG }
         Source: ${ this.justNameOfCurrentFile}
         Full path: ${this.dnafile }
         Started: ${ formatAMPM(this.startDate) } Finished: ${ formatAMPM(new Date())} Used: ${humanizeDuration( this.runningDuration )} ${ this.isStorageBusy ? ' ' : '(ongoing)'}
@@ -2931,7 +2941,8 @@ function pushCli(cs) {
             this.mixRGBA[0] += parseFloat( this.codonRGBA[0].valueOf() * pixelGamma ); // * red
             this.mixRGBA[1] += parseFloat( this.codonRGBA[1].valueOf() * pixelGamma ); // * green
             this.mixRGBA[2] += parseFloat( this.codonRGBA[2].valueOf() * pixelGamma ); // * blue
-            this.mixRGBA[3] += 255; // * full opacity
+            this.mixRGBA[3] += parseFloat( this.codonRGBA[3].valueOf() * pixelGamma ); // * blue
+            // this.mixRGBA[3] += 255; // * full opacity
 
             if ( brute == true ) {
               for ( let i = 0; i < this.pepTable.length; i++ ) {
@@ -4320,6 +4331,8 @@ function pushCli(cs) {
         this.peakRed  =  this.red ;
         this.peakGreen  =  this.green ;
         this.peakBlue  =  this.blue ;
+        this.peakAlpha =  this.alpha ;
+
         this.pixelStacking = 0;
         this.pixelClock++;
       }
@@ -4498,11 +4511,13 @@ function pushCli(cs) {
         output(`Last Acid: ${chalk.inverse.rgb(ceiling( this.red ), ceiling( this.green ), ceiling( this.blue )).bgWhite.bold( fixedWidth(16, "  " + this.aminoacid + "   ") ) }` +
         chalk.rgb(this.peakRed, 0, 0).inverse.bgBlue(  maxWidth(8, `R:  ${this.peakRed}` )) +
         chalk.rgb(0, this.peakGreen, 0).inverse.bgRed( maxWidth(11, `G:  ${this.peakGreen}` )) +
-        chalk.rgb(0, 0, this.peakBlue).inverse.bgYellow(maxWidth(9, `B:  ${this.peakBlue}` )) );
-        output( this.blurb() )
+        chalk.rgb(0, 0, this.peakBlue).inverse.bgYellow(maxWidth(9, `B:  ${this.peakBlue}` )) +
+        chalk.rgb(this.peakAlpha, this.peakAlpha, this.peakAlpha).inverse.bgBlue(maxWidth(9, `A:  ${this.peakAlpha}` )) );
         term.right( this.termMarginLeft );
 
         if (term.height > this.termStatsHeight + this.termDisplayHeight) {
+          output( this.blurb() )
+
           term.eraseDisplayBelow();
           output();
           if (this.keyboard) {
@@ -4846,7 +4861,7 @@ function pushCli(cs) {
         }
         term.eraseLine();
         if ( debug ) {
-          bugtxt( txt );
+          bugtxt( `[${fixedWidth(12, status) }]   ${txt }`);
         } else {
           console.log(" " +  txt );
         }
@@ -5546,7 +5561,7 @@ function pushCli(cs) {
               // term.restoreCursor();
               if ( cb !== undefined ) { cb() }
             })
-          }, 1000)
+          }, this.raceDelay * remain )
 
 
         }
@@ -5861,7 +5876,7 @@ function pushCli(cs) {
           if (dim > 0) { dim--; } // was off by 1
 
           rtxt+= ` <<<--- chosen dimension: ${dim} `;
-          log(rtxt);
+          log(`rtxt ${rtxt}`);
           return dim;
         }
         function runcb( cb ) {

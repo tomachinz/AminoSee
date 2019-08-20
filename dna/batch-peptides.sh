@@ -1,10 +1,10 @@
 #!/bin/sh
 aminosee_do () {
-  echo $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 START RENDER
+  # echo $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 START RENDER
   nice -n 1  aminosee -q --no-image $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 &
   sleep 1
   nice -n 10 aminosee --quiet --index -m5 --ratio=sqr --no-image $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
-  echo $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 FINISHED RENDER
+  # echo $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 FINISHED RENDER
 }
 
 parallel_peptides () {
