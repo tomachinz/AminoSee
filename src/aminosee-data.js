@@ -67,17 +67,16 @@ function createSymlink(src, dest) { // source is the original, dest is the symli
   try { // the idea is to copy the GUI into the output folder to.... well enable it to render cos its a web app!
     let existing = doesFileExist(dest);
     if (existing == true) {
-      // bugtxt(`symlink already appears to be in place at: ${dest}`);
-      return false;
-    } else {
-      // fs.symlinkSync(src, dest);
+      log(`symlink already appears to be in place at: ${dest}`);
+      deleteFile( dest )
+    }
       fs.symlink(src, dest, function (err, result) {
         if (err)    { bugtxt(`Symlink is likely already in place: ${err}`)}
         if (result) { bugtxt(`Great Symlink Success: ${result}`)}
       });
-    }
+
   } catch(e) {
-    // output("Symlink ${} could not created. Probably not an error: " + e);
+    output("Symlink ${} could not created. Probably not an error: " + e);
   }
 }
 function out(txt) {

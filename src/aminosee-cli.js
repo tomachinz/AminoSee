@@ -226,10 +226,10 @@ function pushCli(cs) {
       [ projectprefs, userprefs] = setupPrefs();
       this.red = this.green = this.blue = this.alpha = 0;
       term.on('resize', () => {
-         this.resized();
+        this.resized();
       })
       process.stdout.on('resize', () => {
-         this.resized();
+        this.resized();
       })
     }
 
@@ -315,6 +315,7 @@ function pushCli(cs) {
         batchSize = remain;
         this.dnafile = path.resolve( this.currentFile );
       } catch(err) {
+        this.currentFile = 'error'
         remain = 0;
         batchSize = 0;
       }
@@ -822,17 +823,19 @@ function pushCli(cs) {
           notQuiet(`user interface ->    ${ chalk.italic( 'aminosee --gui ')}`);
           notQuiet();
 
-          if (this.serve == true) {
+          if (this.serve == true && !isShuttingDown) {
             output('starting mini server')
             cliInstance.setupKeyboardUI();
             cliInstance.updatesTimer = countdown('      [Q] or [Esc] to quit or wait ', 360000, () => {
               output("COLIN!!!");
             });
             server.foregroundserver();
-          } else {
+          } else if ( !isShuttingDown) {
+            let time = 30000;
+            if ( this.quiet ) { time = 1000 }
             output('Press any key to run GUI (graphic user interface) now')
             cliInstance.setupKeyboardUI();
-            cliInstance.updatesTimer = countdown('      [Q] or [Esc] to quit or wait ', 3000, () => {
+            cliInstance.updatesTimer = countdown('      [Q] or [Esc] to quit or wait ', time, () => {
               log('boo')
               destroyKeyboardUI();
               // this.quit(130, `no command`);
@@ -1423,8 +1426,7 @@ function pushCli(cs) {
 
         if (code == 130) {
           this.calcUpdate();
-          // this.drawHistogram();
-          removeLocks( this.fileTouch, this.devmode, process.exit() );
+          removeLocks( this.fileTouch, this.devmode );
         }
         this.quit(code, 'graceful');
       }
@@ -2704,7 +2706,7 @@ function pushCli(cs) {
             }
           }, this.raceDelay)
         } else {
-            this.prepareState( `pop shift: ${this.dnafile}` ); // <<<<-------------- THATS WHERE THE ACTION GOES
+          this.prepareState( `pop shift: ${this.dnafile}` ); // <<<<-------------- THATS WHERE THE ACTION GOES
         }
       }
       postRenderPoll(reason) { // renderLock on late, off early
@@ -2742,7 +2744,7 @@ function pushCli(cs) {
             }
             setTimeout( () => {
               let msg = `Great success with render of (${this.justNameOfDNA})`;
-              output(msg)
+              notQuiet(msg)
               this.resetAndPop(msg);
 
             }, this.raceDelay )
@@ -2765,22 +2767,22 @@ function pushCli(cs) {
           return -1; // -1 is signal for failure or unknown size (stream).
         }
       }
-      // function getFilesizeInBigIntBytes(f) {
-      //    this.baseChars = 69;
-      //   bigIntFileSize = 69696969696969n; // this.test of big int.
-      //   try {
-      //      this.baseChars = fs.fstatSync(f, { bigint: false }).size;
-      //     bigIntFileSize = fs.fstatSync(f, { bigint: true } ).size;
-      //     log(`File exists with size ${ this.baseChars} at: ${path}`);
-      //     return  this.baseChars;
-      //   } catch(e) {
-      //      this.baseChars = -1;
-      //     output(`Cant stat filesize of ${path} File  : ${e}`);
-      //     return  this.baseChars;
-      //   }
-      //   log(`f ${path}  this.baseChars ${ this.baseChars} file: ${file} big int filesize: ${bigIntFileSize}`);
-      //   return  this.baseChars; // debug flag. basically i should never see -69 appearing in  this.error logs
-      // }
+      getFilesizeInBigIntBytes(f) {
+        this.baseChars = 69;
+        bigIntFileSize = 69696969696969n; // this.test of big int.
+        try {
+          this.baseChars = fs.fstatSync(f, { bigint: false }).size;
+          bigIntFileSize = fs.fstatSync(f, { bigint: true } ).size;
+          log(`File exists with size ${ this.baseChars} at: ${path}`);
+          return  this.baseChars;
+        } catch(e) {
+          this.baseChars = -1;
+          output(`Cant stat filesize of ${path} File  : ${e}`);
+          return  this.baseChars;
+        }
+        log(`f ${path}  this.baseChars ${ this.baseChars} file: ${file} big int filesize: ${bigIntFileSize}`);
+        return  this.baseChars; // debug flag. basically i should never see -69 appearing in  this.error logs
+      }
       getFileExtension(f) {
         if (!f) { return "none" }
         let lastFour = f.slice(-4);
@@ -2802,7 +2804,7 @@ function pushCli(cs) {
 
       quit(code, reason) {
         if ( reason === undefined) {
-          log(`must set reason`)
+          this.error(`must set reason`)
           if ( this !== undefined) {
             reason =  status
           } else {
@@ -3169,7 +3171,7 @@ function pushCli(cs) {
         }
         this.peptide = this.currentPeptide; // bad use of globals i agree, well i aint getting paid for this, i do it for the love, so yeah
         // if ( renderLock == true ) {
-          returnedHil  = this.generateFilenameHilbert(); // this.isHighlightSet needs to be false for reference
+        returnedHil  = this.generateFilenameHilbert(); // this.isHighlightSet needs to be false for reference
         // } else {
         //   returnedHil = "rendering..."
         // }
@@ -4868,7 +4870,7 @@ function pushCli(cs) {
         if (debug ) {
           process.stdout.write(chalk.blue(` [ `) + removeNonAscii( txt ) + chalk.blue(` ] `))
         } else {
-        // redoline(chalk.bold(`   [ `)  + chalk.rgb(64,80,100).inverse( fixedWidth( 50, removeNonAscii(txt)))  + chalk.bold(` ]`  ));
+          // redoline(chalk.bold(`   [ `)  + chalk.rgb(64,80,100).inverse( fixedWidth( 50, removeNonAscii(txt)))  + chalk.bold(` ]`  ));
         }
       }
       function deHammer( txt, ms ) {
@@ -4888,7 +4890,7 @@ function pushCli(cs) {
           if (this.quiet == false) {
             process.stdout.write(chalk.rgb(128,0,0).italic('.'))
           }
-            deHammer(`${ removeNonAscii( txt ) }`, 1000) // put it on the terminal windowbar or in tmux
+          deHammer(`${ removeNonAscii( txt ) }`, 1000) // put it on the terminal windowbar or in tmux
         }
       }
       function wTitle(txt) {
@@ -5356,7 +5358,7 @@ function pushCli(cs) {
           // redoline(msg);
           redoline(msg)
           if ( timeMs > 0 ) {
-           progTimer = setTimeout(() => {
+            progTimer = setTimeout(() => {
               if ( cb !== undefined ) {
                 countdown(text, timeMs - 500, cb);
               } else {
@@ -5901,13 +5903,13 @@ function pushCli(cs) {
           }
           runcb( cb )
         }
-function notQuiet( txt ) {
-  if (cliInstance.quiet == true) {
-    process.stdout.write('.')
-  } else {
-    output( txt );
-  }
-}
+        function notQuiet( txt ) {
+          if (cliInstance.quiet == true) {
+            process.stdout.write('.')
+          } else {
+            output( txt );
+          }
+        }
         module.exports.removeLocks = removeLocks;
         module.exports.removeNonAscii = removeNonAscii;
         module.exports.getOutputFolder = getOutputFolder;

@@ -86,8 +86,8 @@ function buildServer() {
   log(`Building server to ${outputPath}  ${defaulturl}`)
   data.saySomethingEpic();
   let sFiles = [
-    { "source": appPath + 'src/public',            "dest": outputPath + '/public' },
-    { "source": appPath + 'src/public/favicon.ico',"dest": outputPath + '/favicon.ico' }
+    { "source": appPath + '/public',            "dest": outputPath + '/public' },
+    { "source": appPath + '/public/favicon.ico',"dest": outputPath + '/favicon.ico' }
   ];
   for (let i=0; i<sFiles.length; i++) {
     let element = sFiles[i]
@@ -323,7 +323,7 @@ function start(a) { // return the port number
   }
   // startServeHandler(o, port)
 
-  open( url + '/public', {wait: false}).then(() => {
+  open( url + '/public/?devmode', {wait: false}).then(() => {
     log("browser closed");
   }).catch(function () { ; });
 
