@@ -31,6 +31,7 @@ const saySomethingEpic = data.saySomethingEpic;
 const readParseJson = data.readParseJson;
 // OPEN SOURCE PACKAGES FROM NPM
 const path = require('path');
+const open = require('open');
 const Preferences = require("preferences");
 const beautify = require("json-beautify");
 const spawn = require('cross-spawn');
@@ -46,7 +47,6 @@ const es = require('event-stream');
 const minimist = require('minimist')
 const fetch = require("node-fetch");
 const keypress = require('keypress');
-const open = require('open');
 // const parse = require('parse-apache-directory-index');
 const fs = require('fs-extra'); // drop in replacement = const fs = require('fs')
 const histogram = require('ascii-histogram');
@@ -759,9 +759,7 @@ function pushCli(cs) {
             server.foregroundserver()
           } else {
             server.spawnBackground()
-
           }
-
           // countdown(`Try [Ctrl]-[C] or [Q] key to quit server or wait`, 360000, () => {
           //   output("Free version server will now quit. aminosee@funk.co.nz if that's an issue for ya")
           // })
@@ -826,17 +824,17 @@ function pushCli(cs) {
           if (this.serve == true && !isShuttingDown) {
             output('starting mini server')
             cliInstance.setupKeyboardUI();
-            cliInstance.updatesTimer = countdown('      [Q] or [Esc] to quit or wait ', 360000, () => {
+            cliInstance.updatesTimer = countdown('  webserver ', 360000, () => {
               output("COLIN!!!");
             });
             server.foregroundserver();
-          } else if ( !isShuttingDown) {
+          } else if ( !isShuttingDown ) {
             let time = 30000;
-            if ( this.quiet ) { time = 1000 }
-            output('Press any key to run GUI (graphic user interface) now')
+            if ( this.quiet == true ) { time = 1000 }
+            printRadMessage(['Welcome... to run the GUI', 'PRESS ANY KEY', 'to open the interface', '[Q] to Quit', 'usage:', 'aminosee --help'])
             cliInstance.setupKeyboardUI();
-            cliInstance.updatesTimer = countdown('      [Q] or [Esc] to quit or wait ', time, () => {
-              log('boo')
+            cliInstance.updatesTimer = countdown('(for the windows users to hold the window open)...', time, () => {
+              isShuttingDown = true;
               destroyKeyboardUI();
               // this.quit(130, `no command`);
             });
@@ -1392,7 +1390,7 @@ function pushCli(cs) {
         }
         mode( `Graceful shutdown in progress... status ${ status } threads ${threads.length} code ${code} reason ${reason}`);
         blueWhite( `R: ${status} ` )
-        printRadMessage(  status )
+        // printRadMessage(  status )
         // that.args._= [];
         cliInstance.args._= [];
         if ( remain > 1) { remain = 1 }
@@ -2767,22 +2765,22 @@ function pushCli(cs) {
           return -1; // -1 is signal for failure or unknown size (stream).
         }
       }
-      getFilesizeInBigIntBytes(f) {
-        this.baseChars = 69;
-        bigIntFileSize = 69696969696969n; // this.test of big int.
-        try {
-          this.baseChars = fs.fstatSync(f, { bigint: false }).size;
-          bigIntFileSize = fs.fstatSync(f, { bigint: true } ).size;
-          log(`File exists with size ${ this.baseChars} at: ${path}`);
-          return  this.baseChars;
-        } catch(e) {
-          this.baseChars = -1;
-          output(`Cant stat filesize of ${path} File  : ${e}`);
-          return  this.baseChars;
-        }
-        log(`f ${path}  this.baseChars ${ this.baseChars} file: ${file} big int filesize: ${bigIntFileSize}`);
-        return  this.baseChars; // debug flag. basically i should never see -69 appearing in  this.error logs
-      }
+      // getFilesizeInBigIntBytes(f) {
+      //   this.baseChars = 69;
+      //   bigIntFileSize = 69696969696969n; // this.test of big int.
+      //   try {
+      //     this.baseChars = fs.fstatSync(f, { bigint: false }).size;
+      //     bigIntFileSize = fs.fstatSync(f, { bigint: true } ).size;
+      //     log(`File exists with size ${ this.baseChars} at: ${path}`);
+      //     return  this.baseChars;
+      //   } catch(e) {
+      //     this.baseChars = -1;
+      //     output(`Cant stat filesize of ${path} File  : ${e}`);
+      //     return  this.baseChars;
+      //   }
+      //   log(`f ${path}  this.baseChars ${ this.baseChars} file: ${file} big int filesize: ${bigIntFileSize}`);
+      //   return  this.baseChars; // debug flag. basically i should never see -69 appearing in  this.error logs
+      // }
       getFileExtension(f) {
         if (!f) { return "none" }
         let lastFour = f.slice(-4);
@@ -4485,8 +4483,9 @@ function pushCli(cs) {
         if ( this.fullscreen == true) {
           term.moveTo(1 + this.termMarginLeft,1);
         } else {
+          // term.up( this.termStatsHeight); // REPOSITION THE CURSOR.
           output("term up")
-          term.up( this.termStatsHeight); // REPOSITION THE CURSOR.
+
         }
         clearCheck();
         if ( this.dnabg == true && this.fullscreen == true) {
@@ -5348,15 +5347,20 @@ function pushCli(cs) {
           return !problem;
         }
         function terminalRGB(_text, _r, _g, _b) {
-          return chalk.rgb(_r,_g,_b)(_text);
+          term.eraseLine();
+          return chalk.rgb(_r,_g,_b).bgBlack(_text);
         }
         function showCountdown() {
           countdown(`Closing in ${humanizeDuration(max32bitInteger)}`, 5000, this.gracefulQuit());
         }
         function countdown(text, timeMs, cb) {
-          let msg = text + humanizeDuration ( deresSeconds(timeMs) ) ;
-          // redoline(msg);
-          redoline(msg)
+          if (text == "") { return }
+          let msg = "@ " + text + humanizeDuration ( deresSeconds(timeMs) );
+          if ( this.quiet ) {
+            log(msg)
+          } else {
+            redoline(msg)
+          }
           if ( timeMs > 0 ) {
             progTimer = setTimeout(() => {
               if ( cb !== undefined ) {
@@ -5367,7 +5371,7 @@ function pushCli(cs) {
             },  500 )
           } else {
             // redoline(' ');
-            redoline('........')
+            // redoline('........')
             if ( cb !== undefined ) { cb() }
           }
         }
@@ -5766,7 +5770,7 @@ function pushCli(cs) {
         //   });
         // }
 
-        function  printRadMessage(arr) {
+        function printRadMessage(arr) {
           // output( returnRadMessage(arr) );
           if (arr === undefined) {
             arr = ["    ________", "    ________", "    ________", "    ________", "    ________", "", "Output path:", cliInstance.outputPath ];
@@ -5778,7 +5782,8 @@ function pushCli(cs) {
           let radMargin = cliInstance.termMarginLeft;
           term.eraseLine();
 
-          output( terminalRGB(arr[0], 255, 32,   32) ); term.eraseLine();
+          output( chalk.rgb(255, 32, 32).bgBlack(arr[0]) );
+          term.eraseLine();
           term.right(radMargin);
           if ( term.width > wideScreen ) {
             output( terminalRGB(`╔═╗┌┬┐┬┌┐┌┌─┐╔═╗┌─┐┌─┐  ╔╦╗╔╗╔╔═╗  ╦  ╦┬┌─┐┬ ┬┌─┐┬─┐  ${arr[1]}`, 255, 60,  250) ); term.right(radMargin); term.eraseLine();
@@ -5888,14 +5893,12 @@ function pushCli(cs) {
 
           return str.replace(/[^\x20-\x7E]/g, '');
         }
-        function  removeLocks(lockfile, devmode, cb) { // just remove the lock files.
-          // this.percentComplete = 1;
+        function removeLocks(lockfile, devmode, cb) { // just remove the lock files.
           mode( 'remove locks');
           bugtxt( 'remove locks with ' + remain + ' files in queue. fileTouch: ' + lockfile )
           renderLock = false;
-          process.title = `aminosee.funk.nz`
+          process.title = `aminosee.funk.nz (idle)`
           remain--;
-
           if ( devmode == true ) {
             output(`Because you are using --devmode, the lock file is not deleted. This is useful during development of the app because when I interupt the render with Control-c, AminoSee will skip that file next time, unless I use --force. Lock files are safe to delete at any time.`)
           } else {

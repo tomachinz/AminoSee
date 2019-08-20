@@ -1,3 +1,5 @@
+const open = require('open');
+const httpserver = require('http-server'); // cant have - in js
 const aminosee = require('./aminosee-cli');
 const data = require('./aminosee-data');
 const doesFileExist   = data.doesFileExist;
@@ -6,13 +8,11 @@ const createSymlink   = data.createSymlink;
 const deleteFile      = data.deleteFile;
 const recordFile      = data.recordFile;
 const alog = aminosee.log;
-const open = require('open');
 const Preferences = require('preferences');
 const http = require('http');
 const chalk = require('chalk');
 const path = require('path');
 const os = require('os');
-const httpserver = require('http-server'); // cant have - in js
 const spawn = require('cross-spawn');
 const fs = require('fs-extra'); // drop in replacement = const fs = require('fs')
 let debug = false;

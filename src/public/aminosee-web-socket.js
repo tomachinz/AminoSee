@@ -17,7 +17,7 @@
      // Attach the socket to the terminal
      socket.onopen = (ev) => { xterm.attach(socket); };
      // Not going to worry about close/error for the websocket
-// 
+//
 //
 //
 //
@@ -150,7 +150,7 @@ Developed by Craig Buckler (@craigbuckler) of OptimalWorks.net
     // const render = await pushCli( fullpath );
     console.log('test')
     shimyShim('hello')
-    pushCli('dna/megabase.fa')
+    // pushCli('dna/megabase.fa')
 
     alert( fullpath)
     output( fullpath )

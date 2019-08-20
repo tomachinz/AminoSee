@@ -1,6 +1,6 @@
 {
   "name": "aminosee",
-  "version": "1.24.4",
+  "version": "1.24.5",
   "owner": "Thomas Bieder Atkinson",
   "author": "Tom Atkinson <tom@funk.co.nz>",
   "website": "http://aminosee.funk.nz",
@@ -89,7 +89,7 @@
     "cucumber": "^5.1.0",
     "dat.gui": "^0.7.6",
     "ecstatic": "^4.1.2",
-    "eslint": "^6.1.0",
+    "eslint": "^6.2.0",
     "eslint-config-rallycoding": "^3.2.0",
     "event-stream": "^4.0.1",
     "get-cursor-position": "^1.0.5",
