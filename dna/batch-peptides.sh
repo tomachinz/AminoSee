@@ -148,10 +148,10 @@ echo  $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
 # parallel_peptides 50KB_TestPattern.txt  megabase.fa
 # series_peptides $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
 parallel_peptides $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 &
-sleep 2
+sleep 10
 # parallel_peptides $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 &
 # sleep 2
-parallel_peptides $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
+parallel_peptides --quiet --slow $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
 sleep 2
 echo DONE
 

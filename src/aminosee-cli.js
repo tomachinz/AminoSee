@@ -63,9 +63,9 @@ const netFoldername = "output" // terse for networks
 const funknzlabel = "aminosee.funk.nz"
 const closeBrowser = "If the process apears frozen, it's waiting for your this.browser or image viewer to quit. Escape with [ CONTROL-C ] or use --no-image --no-html"
 const defaultC = 1 // back when it could not handle 3+GB files.
-const previewCodonsPerPixel = 500 // larger number gives smaller images
 const artisticHighlightLength = 36 // px only use in artistic this.mode. must be 6 or 12 currently
 const defaultMagnitude = 8 // max for auto setting
+const defaultPreviewDimension = 5 // was 500 MB per page before.
 const theoreticalMaxMagnitude = 10 // max for auto setting
 const overSampleFactor = 4 // your linear image divided by this will be the hilbert image size.
 const maxCanonical = 32 // max length of canonical name
@@ -108,11 +108,9 @@ module.exports = () => {
 	threads.push( cliInstance )
 	mode("module exit")
 	log( `S: ${status} ` )
-	cliInstance.updatesTimer = countdown("closing in ", 360000, () => {
-		isShuttingDown = true
-		// destroyKeyboardUI()
-		// this.quit(130, "no command")
-	})
+	// cliInstance.updatesTimer = countdown("closing in ", 360000, () => {
+	// 	isShuttingDown = true
+	// })
 }
 function startGUI() {
 	cliInstance.gui = true
@@ -311,7 +309,6 @@ class AminoSeeNoEvil {
 		this.peakAlpha  = 0.1010101010
 		this.rawDNA ="@loading DNA Stream..." // this.debug
 		this.outFoldername = "/AminoSee_Output"
-		this.justNameOfDNA = "ascii-DNA.txt"
 		this.browser = "firefox"
 		this.loopCounter = 0
 		this.termPixels = 69//Math.round((term.width) * (term.height-8));
@@ -327,10 +324,12 @@ class AminoSeeNoEvil {
 			remain = args._.length
 			batchSize = remain
 			this.dnafile = path.resolve( this.currentFile )
+			this.justNameOfDNA = path.normalize( this.currentFile )
 		} catch(err) {
 			this.currentFile = "error"
 			remain = 0
 			batchSize = 0
+			this.justNameOfDNA = "ascii-DNA.txt"
 		}
 		this.started = this.startDate.getTime() // required for touch locks.
 		this.dimension = defaultMagnitude // var that the hilbert projection is be downsampled to
@@ -338,7 +337,7 @@ class AminoSeeNoEvil {
 		this.termMarginTop = (term.height - this.termDisplayHeight - this.termStatsHeight) / 4
 		this.maxpix = targetPixels
 
-		// this.justNameOfDNA = path.normalize( this.currentFile )
+		this.justNameOfDNA = path.normalize( this.currentFile )
 		// this.currentFile = funknzlabel;
 		this.nextFile = funknzlabel
 		termSize()
@@ -847,9 +846,14 @@ class AminoSeeNoEvil {
 				printRadMessage(["Welcome... to run the GUI", "PRESS ANY KEY", "to open the interface", "[Q] to Quit", "usage:", "aminosee --help"])
 				cliInstance.setupKeyboardUI()
 				cliInstance.updatesTimer = countdown("closing in ", time, () => {
-					isShuttingDown = true
-					// destroyKeyboardUI()
-					// this.quit(130, `no command`);
+					if ( this.gui == false ) { // if the GUI is up, dont exit
+						isShuttingDown = true
+						destroyKeyboardUI()
+						this.quit(130, "no command")
+					} else {
+						notQuiet("I'll be back")
+					}
+
 				})
 			}
 			// startGUI();
@@ -1000,35 +1004,51 @@ class AminoSeeNoEvil {
 	getRenderObject() { // return part of the histogramJson obj
 		bugtxt(`codonsPerPixelHILBERT inside this.getRenderObject is ${ this.codonsPerPixelHILBERT }`)
 		let linearimage, refimage
-		// this.pepTable[h].src = this.aminoFilenameIndex(h)[0];
-		// this.pepTable[h].src = this.filePNG;
+		refimage = this.fileHILBERT
+		linearimage = this.filePNG
 
-		if ( brute == true ) {
-			for (let h=0; h < this.pepTable.length; h++) {
-				const pep =  this.pepTable[h]
-				this.currentPeptide = pep.Codon
-				this.pepTable[h].src = this.aminoFilenameIndex(h)[0]
+		// this.pepTable[h].src = this.aminoFilenameIndex(h)[0]
+		// this.pepTable[h].src = this.filePNG
+
+		for (let h = 0; h < this.pepTable.length; h++) {
+			const pep =  this.pepTable[h]
+			console.log("pep:")
+			console.log( pep )
+
+			this.currentPeptide = pep.Codon
+			if ( this.currentPeptide == "Reference" ) { // index 0
+				this.pepTable[h].hilbert_master = refimage
+				this.pepTable[h].linear_master = linearimage
+
+				// this.pepTable[h].hilbert_preview = this.aminoFilenameIndex(h)[0]
+				// this.pepTable[h].linear_preview = this.aminoFilenameIndex(h)[1]
+				this.pepTable[h].mixRGBA = this.tripletToRGBA(pep.Codon) // this will this.report this.alpha info
+
+			} else {
 				this.pepTable[h].hilbert_master = this.aminoFilenameIndex(h)[0]
 				this.pepTable[h].linear_master = this.aminoFilenameIndex(h)[1]
 				this.pepTable[h].hilbert_preview = this.aminoFilenameIndex(h)[0]
 				this.pepTable[h].linear_preview = this.aminoFilenameIndex(h)[1]
-				this.pepTable[h].mixRGBA = this.tripletToRGBA(codon) // this will this.report this.alpha info
+				this.pepTable[h].mixRGBA = this.tripletToRGBA(pep.Codon) // this will this.report this.alpha info
 
-				output(` this.pepTable[h].src ${ this.pepTable[h].src}` )
 			}
-		} else {
-			log("not brute")
+			// this.pepTable[h].src = this.aminoFilenameIndex(h)[0]
+
+			output(` this.pepTable[h].src ${ this.pepTable[h].src}` )
 		}
+
 
 		this.currentPeptide = "none" // get URL for reference image
 		// refimage = this.aminoFilenameIndex(-1)[0];
 		// linearimage = this.aminoFilenameIndex(-1)[1];
 
-		refimage = this.fileHILBERT
-		linearimage = this.filePNG
+
 
 		this.pepTable.sort( this.compareHistocount )
 		this.pepTable.sort( this.compareHue )
+		if ( this.dimension > defaultPreviewDimension ) {
+
+		}
 		bugtxt( this.pepTable ) // least common amino acids in front
 		let zumari = {
 			original_source: this.justNameOfCurrentFile,
@@ -1060,6 +1080,7 @@ class AminoSeeNoEvil {
 			opacity: this.opacity,
 			magnitude:  this.magnitude,
 			dimension:  this.dimension,
+			previewdimension: 5,
 			darkenFactor: this.darkenFactor,
 			highlightFactor: this.highlightFactor,
 			correction: "Normalise",
@@ -2101,8 +2122,8 @@ class AminoSeeNoEvil {
 		// REQUIRES RENDERING TO MEMORY PRIOR
 		let { shrinkFactor, codonsPerPixelHILBERT } = calculateShrinkage( this.pixelClock, this.dimension, this.codonsPerPixel )
 		this.shrinkFactor = shrinkFactor
-		this.codonsPerPixelHILBERT = onesigbitTolocale( codonsPerPixelHILBERT )
-		this.fileHILBERT = `${ this.outputPath }/${ this.justNameOfDNA }/images/${ this.generateFilenameHilbert() }`
+		this.codonsPerPixelHILBERT =  codonsPerPixelHILBERT
+		this.fileHILBERT = `${ this.outputPath }/${ this.justNameOfDNA }/images/${ this.generateFilenameHilbert(this.pixelClock, this.magnitude )  }`
 	}
 
 	generateFilenameHistogram() {
@@ -2124,20 +2145,21 @@ class AminoSeeNoEvil {
 	}
 
 
-	generateFilenameHilbert() { // needs  this.dimension
+	generateFilenameHilbert(npixels, boolean) { // needs  this.dimension estimatedPixels
+		let mag
 		if ( this.test) {
 			// the this.dnafile should be set already fingers crossed.
 			this.justNameOfHILBERT =     `${ this.justNameOfDNA}.${ this.extension }_HILBERT_m${ this.dimension }_c${ onesigbitTolocale( this.codonsPerPixelHILBERT )}${ this.highlightFilename() }${ this.getRegmarks()}.png`
 		} else {
-			let n = this.pixelClock
-			if (n == 0) {
-				n = this.estimatedPixels
-			}
-			// output( ` n ${ n }  ${ this.justNameOfDNA}`)
+			// if (npixels == 0 || npixels === undefined) {
+			// 	// this.error("n == 0 || n === undefined")
+			// 	mag = 1
+			// } else {
+			// 	mag = optimumDimension (npixels, boolean)
+			// }
 
-			this.dimension = optimumDimension (n, this.magnitude)
-			log(`Generating filenames: [${ this.codonsPerPixelHILBERT }] optimumDimension pixelClock dimension  ${ this.dimension } ${this.pixelClock} ${this.dimension}` )
-			this.justNameOfHILBERT =     `${ this.justNameOfDNA}.${ this.extension }_HILBERT_m${ this.dimension }_c${ this.codonsPerPixelHILBERT }${ this.highlightFilename() }${ this.getRegmarks()}.png`
+			bugtxt(`Generating filenames: n ${ npixels }  ${ this.justNameOfDNA} [${ this.codonsPerPixelHILBERT }] optimumDimension:  mag:  ${ mag } ${this.pixelClock} ${this.dimension}` )
+			this.justNameOfHILBERT =     `${ this.justNameOfDNA}.${ this.extension }_HILBERT_m${ this.dimension }_c${ onesigbitTolocale (this.codonsPerPixelHILBERT) }${ this.highlightFilename() }${ this.getRegmarks()}.png`
 			this.fileHILBERT = path.resolve( this.justNameOfHILBERT)
 		}
 		return this.justNameOfHILBERT
@@ -2176,8 +2198,6 @@ class AminoSeeNoEvil {
 
 		if ( brute == true ) {
 			for (let i = 0; i < this.pepTable.length; i++) {
-				// this.pepTable[i].linear_master   = this.qualifyPath(`images/${ this.generateFilenamePNG()     }`);
-				// this.pepTable[i].hilbert_master  = this.qualifyPath(`images/${ this.generateFilenameHilbert() }`);
 				// previewCodonsPerPixel
 				// this.pepTable[i].linear_preview  =
 				// this.pepTable[i].hilbert_preview =
@@ -2189,7 +2209,7 @@ class AminoSeeNoEvil {
 		this.fileTouch =   this.qualifyPath( this.generateFilenameTouch()  )
 		this.fileHTML =    this.qualifyPath( this.generateFilenameHTML()   )
 		this.filePNG =     this.qualifyPath( `images/${this.justNameOfPNG}`)
-		this.fileHILBERT = this.qualifyPath(`images/${ this.generateFilenameHilbert() }`)
+		this.fileHILBERT = this.qualifyPath(`images/${ this.generateFilenameHilbert(this.pixelClock, this.magnitude ) }`)
 		this.fullURL          = `${url}/${this.justNameOfDNA}/${this.justNameOfHTML}`
 		// this.fancyFilenames();
 		this.setNextFile()
@@ -2425,13 +2445,14 @@ class AminoSeeNoEvil {
 		mode("main render async.series")
 		// async.waterfall( [
 		async.series( [
+
 			function ( cb ) {
-				that.saveHilbert( cb )
-			},function ( cb ) {
 				mode("async start " + that.currentFile)
 				that.savePNG( cb )
 			},
-
+			function ( cb ) {
+				that.saveHilbert( cb )
+			},
 			function ( cb ) {
 				that.saveHTML( cb )
 			}
@@ -3144,7 +3165,7 @@ class AminoSeeNoEvil {
 		let returnedHil
 		let backupPeptide = this.peptide
 		let backupHighlight = this.isHighlightSet
-		if (id === undefined || id == -1) { // for the reference image
+		if (id === undefined || id < 1) { // for the reference image
 			this.currentPepHighlight = false
 			this.currentPeptide = "none"
 			this.isHighlightSet = false //currentPepHighlight;
@@ -3155,7 +3176,7 @@ class AminoSeeNoEvil {
 		}
 		this.peptide = this.currentPeptide // bad use of globals i agree, well i aint getting paid for this, i do it for the love, so yeah
 		// if ( renderLock == true ) {
-		returnedHil  = this.generateFilenameHilbert() // this.isHighlightSet needs to be false for reference
+		returnedHil  = this.generateFilenameHilbert( this.pixelClock, this.magnitude ) // this.isHighlightSet needs to be false for reference
 		// } else {
 		//   returnedHil = "rendering..."
 		// }
@@ -4404,7 +4425,6 @@ class AminoSeeNoEvil {
 
 
 	drawHistogram() {
-		return
 		if ( isShuttingDown ) { return }
 		if ( renderLock == false ) {
 			output("draining threads")
@@ -4757,7 +4777,7 @@ class AminoSeeNoEvil {
 			// let hilbert_master =    item.hilbert_master;
 			// let linear_preview =    item.linear_master;
 			// let hilbert_preview =    item.hilbert_master;
-			let src = histogramJson.pepTable[i].src
+			let src = histogramJson.pepTable[i].hilbert_master
 			// this.pepTable[h].hilbert_master = this.aminoFilenameIndex(h)[0];
 			// this.pepTable[h].linear_master = this.aminoFilenameIndex(h)[1];
 			// this.pepTable[h].hilbert_preview = this.aminoFilenameIndex(h)[0];
@@ -4770,43 +4790,43 @@ class AminoSeeNoEvil {
 				html += `<!-- ${thePep.Codon} -->`
 			} else {
 				html += `
-              <li>{${i}} <a href="images/${src}" title="${name} ${thePep}">${thePep} <br/>
-              <img src="images/${src}" id="stack_${i}" width="20%" height="20%" style="z-index: ${i}; position: absolute; z-index: ${i}; top: 30%; left: 30%; transform: translate(${(i*zoom)-100}px,${(i*zoom)-128}px)" alt="${name} ${thePep}" title="${name} ${thePep}" onmouseover="mover(${i})" onmouseout="mout(${i})"></a></li>
-              `
+		          <li>{${i}} <a href="images/${src}" title="${name} ${thePep}">${thePep} <br/>
+		          <img src="images/${src}" id="stack_${i}" width="20%" height="20%" style="z-index: ${i}; position: absolute; z-index: ${i}; top: 30%; left: 30%; transform: translate(${(i*zoom)-100}px,${(i*zoom)-128}px)" alt="${name} ${thePep}" title="${name} ${thePep}" onmouseover="mover(${i})" onmouseout="mout(${i})"></a></li>
+		          `
 			}
 		}
 
 		// histogramJson.pepTable.forEach(function(item) {
 		//   // log(item.toString());
-		//   let thePep = item.Codon;
-		//   let theHue = item.Hue;
-		//   let c =      hsvToRgb( theHue/360, 0.5, 1.0 );
-		//   let z =      item.z;
-		//   let i =      item.index + 1;
-		//   let name =   item.name;
-		//   let linear_master =    item.linear_master;
-		//   let hilbert_master =    item.hilbert_master;
-		//   let linear_preview =    item.linear_master;
-		//   let hilbert_preview =    item.hilbert_master;
-		//   let src = hilbert_master;
+		//   let thePep = item.Codon
+		//   let theHue = item.Hue
+		//   let c =      hsvToRgb( theHue/360, 0.5, 1.0 )
+		//   let z =      item.z
+		//   let i =      item.index + 1
+		//   let name =   item.name
+		//   let linear_master =    item.linear_master
+		//   let hilbert_master =    item.hilbert_master
+		//   let linear_preview =    item.linear_master
+		//   let hilbert_preview =    item.hilbert_master
+		//   let src = hilbert_master
 		//   // this.pepTable[h].hilbert_master = this.aminoFilenameIndex(h)[0];
 		//   // this.pepTable[h].linear_master = this.aminoFilenameIndex(h)[1];
 		//   // this.pepTable[h].hilbert_preview = this.aminoFilenameIndex(h)[0];
 		//   // this.pepTable[h].linear_preview = this.aminoFilenameIndex(h)[1];
 		//
-		//   let vector = i - (quant/2);
-		//   let zoom = 3;
+		//   let vector = i - (quant/2)
+		//   let zoom = 3
 		//   // bugtxt( src );
-		//   html +=  i +". ";
+		//   html +=  i +". "
 		//   if (thePep == "Start Codons" || thePep == "Stop Codons" || thePep == "Non-coding NNN") {
-		//     html += `<!-- ${thePep.Codon} -->`;
+		//     html += `<!-- ${thePep.Codon} -->`
 		//   } else {
 		//     html += `
 		//     <li>${i} <a href="images/${src}" title="${name} ${thePep}">${thePep} <br/>
 		//     <img src="images/${src}" id="stack_${i}" width="20%" height="20%" style="z-index: ${i}; position: fixed; z-index: ${i}; top: 50%; left: 50%; transform: translate(${(i*zoom)-100}px,${(i*zoom)-100}px)" alt="${name} ${thePep}" title="${name} ${thePep}" onmouseover="mover(${i})" onmouseout="mout(${i})"></a></li>
-		//     `;
+		//     `
 		//   }
-		// });
+		// })
 		html += "</ul> <!-- END stackOimages MA man -->"
 		return html
 	}
@@ -5076,7 +5096,7 @@ function setupPrefs() {
 		}
 	}, {
 		encrypt: false,
-		file: path.resolve( o + "/aminosee_project.conf"),
+		file: path.resolve( o , "aminosee_project.conf"),
 		format: "yaml"
 	})
 
@@ -5089,7 +5109,7 @@ function setupPrefs() {
 		}
 	}, {
 		encrypt: false,
-		file: path.resolve( os.homedir(), ".config/preferences/nz.funk.aminosee.conf"),
+		file: path.resolve( os.homedir(), ".config", "preferences", "nz.funk.aminosee.conf"),
 		format: "yaml"
 	})
 	// Preferences can be accessed directly
@@ -5666,6 +5686,9 @@ function getArgs() {
 }
 function expand( red, green, blue, alpha) {
 
+	let lowest = Math.min(red, green, blue)
+
+	return [red, green, blue, alpha ]
 }
 function balanceColour( red, green, blue, alpha) {
 	// find the brightest channel, eg red, green or blue
@@ -5681,8 +5704,7 @@ function balanceColour( red, green, blue, alpha) {
 	if ( alpha > max ) {
 		alpha = max
 	}
-	// let pixRGBA = [ Math.round(red * scaleGamma), Math.round(green * scaleGamma), Math.round(blue * scaleGamma), Math.round(alpha * scaleGamma)]
-	return [ Math.round(red * scaleGamma), Math.round(green * scaleGamma), Math.round(blue * scaleGamma), Math.round(alpha * scaleGamma)]
+	return  [ Math.round(red * scaleGamma), Math.round(green * scaleGamma), Math.round(blue * scaleGamma), Math.round(alpha * scaleGamma)]
 }
 function genericPNG(rgbArray, width, height, filename, cb) {
 	var img_data = Uint8ClampedArray.from( rgbArray )
