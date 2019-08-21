@@ -85,7 +85,7 @@ const fileLockingDelay = 2000
 // BigInt.prototype.toJSON = function() { return this.toString(); }; // shim for big int
 // BigInt.prototype.toBSON = function() { return this.toString(); }; // Add a `toBSON()` to enable MongoDB to store BigInts as strings
 const targetPixels = 8000000 // for big genomes use setting flag -c 1 to achieve highest resolution and bypass this taret max render size
-let cfile, streamLineNr, renderLock, jobArgs, killServersOnQuit, webserverEnabled, cliInstance, tx, ty, termPixels, cliruns, gbprocessed, projectprefs, userprefs, genomesRendered, progato, commandString, batchSize, quiet, url, port, status, remain, lastHammered, theGUI
+let cfile, streamLineNr, renderLock, jobArgs, killServersOnQuit, webserverEnabled, cliInstance, tx, ty, termPixels, cliruns, gbprocessed, projectprefs, userprefs, genomesRendered, progato, commandString, batchSize, quiet, url, port, status, remain, lastHammered, theGUI, darkenFactor, highlightFactor
 let opens = 0 // session local counter to avoid having way too many windows opened.
 let dnaTriplets = data.dnaTriplets
 termPixels = 69
@@ -95,7 +95,7 @@ let isShuttingDown = false
 let threads = [] // an array of AminoSeNoEvil instances.
 let clear = false
 let debug = false // should be false for PRODUCTION
-let brute = false // used while accelerating the render 20x
+let brute = true // used while accelerating the render 20x
 webserverEnabled = false
 genomesRendered = ["megabase"]
 renderLock = false
@@ -173,7 +173,7 @@ function bruteForce(cs) {
 function pushCli(cs) {
 	commandString = `aminosee ${cs}`// let commandArray = [`node`, `aminosee`, commandString];
 	output(chalk.inverse(`Starting AminoSee now with pushClI:
-    ${chalk.italic( commandString )}`))
+		${chalk.italic( commandString )}`))
 
 	if ( renderLock ) {
 		output("Job is already running, adding it to the queue")
@@ -276,8 +276,8 @@ class AminoSeeNoEvil {
 		this.timeRemain = 1
 		this.debugGears = 1
 		this.done = 0
-		this.darkenFactor = 0.25 // if user has chosen to highlight an amino acid others are darkened
-		this.highlightFactor = 4.0 // highten brightening.
+		darkenFactor = 0.25 // if user has chosen to highlight an amino acid others are darkened
+		highlightFactor = 4.0 // highten brightening.
 		this.devmode = false // kills the auto opening of reports etc
 		this.quiet = false
 		this.verbose = false // not recommended. will slow down due to console.
@@ -569,8 +569,8 @@ class AminoSeeNoEvil {
 			this.peptide = "none"
 		}
 		if ( this.peptide == "none" && this.triplet == "none") {
-			this.darkenFactor = 1.0      // DISABLE HIGHLIGHTS
-			this.highlightFactor = 1.0 // set to zero to i notice any bugs
+			// darkenFactor = 1.0      // DISABLE HIGHLIGHTS
+			// highlightFactor = 1.0 // set to zero to i notice any bugs
 			this.isHighlightSet = false
 		} else {
 			output(`Peptide  ${ chalk.inverse(this.peptide) } triplet ${ chalk.inverse( this.triplet )}`)
@@ -840,7 +840,7 @@ class AminoSeeNoEvil {
 					output("COLIN!!!")
 				})
 				server.foregroundserver()
-			} else if ( !isShuttingDown ) {
+			} else if ( !isShuttingDown && !this.quiet) {
 				let time = 30000
 				if ( this.quiet == true ) { time = 1000 }
 				printRadMessage(["Welcome... to run the GUI", "PRESS ANY KEY", "to open the interface", "[Q] to Quit", "usage:", "aminosee --help"])
@@ -849,11 +849,10 @@ class AminoSeeNoEvil {
 					if ( this.gui == false ) { // if the GUI is up, dont exit
 						isShuttingDown = true
 						destroyKeyboardUI()
-						this.quit(130, "no command")
+						this.quit(0, "no command")
 					} else {
 						notQuiet("I'll be back")
 					}
-
 				})
 			}
 			// startGUI();
@@ -1002,49 +1001,36 @@ class AminoSeeNoEvil {
 	}
 
 	getRenderObject() { // return part of the histogramJson obj
-		bugtxt(`codonsPerPixelHILBERT inside this.getRenderObject is ${ this.codonsPerPixelHILBERT }`)
-		let linearimage, refimage
-		refimage = this.fileHILBERT
+		let linearimage, hilbertimage
+		hilbertimage = this.fileHILBERT
 		linearimage = this.filePNG
-
-		// this.pepTable[h].src = this.aminoFilenameIndex(h)[0]
-		// this.pepTable[h].src = this.filePNG
 
 		for (let h = 0; h < this.pepTable.length; h++) {
 			const pep =  this.pepTable[h]
-			console.log("pep:")
-			console.log( pep )
-
 			this.currentPeptide = pep.Codon
 			if ( this.currentPeptide == "Reference" ) { // index 0
-				this.pepTable[h].hilbert_master = refimage
+				this.pepTable[h].hilbert_master = hilbertimage
 				this.pepTable[h].linear_master = linearimage
-
-				// this.pepTable[h].hilbert_preview = this.aminoFilenameIndex(h)[0]
-				// this.pepTable[h].linear_preview = this.aminoFilenameIndex(h)[1]
+				this.pepTable[h].hilbert_preview = this.aminoFilenameIndex(h)[0]
+				this.pepTable[h].linear_preview = this.aminoFilenameIndex(h)[1]
 				this.pepTable[h].mixRGBA = this.tripletToRGBA(pep.Codon) // this will this.report this.alpha info
-
 			} else {
 				this.pepTable[h].hilbert_master = this.aminoFilenameIndex(h)[0]
 				this.pepTable[h].linear_master = this.aminoFilenameIndex(h)[1]
 				this.pepTable[h].hilbert_preview = this.aminoFilenameIndex(h)[0]
 				this.pepTable[h].linear_preview = this.aminoFilenameIndex(h)[1]
 				this.pepTable[h].mixRGBA = this.tripletToRGBA(pep.Codon) // this will this.report this.alpha info
-
 			}
-			// this.pepTable[h].src = this.aminoFilenameIndex(h)[0]
-
-			output(` this.pepTable[h].src ${ this.pepTable[h].src}` )
+			log(`ext: ${ this.extension } this.pepTable[h].src ${ this.pepTable[h].src} codons per pixel: ${this.codonsPerPixelHILBERT}` )
 		}
 
-
 		this.currentPeptide = "none" // get URL for reference image
-		// refimage = this.aminoFilenameIndex(-1)[0];
+		// hilbertimage = this.aminoFilenameIndex(-1)[0];
 		// linearimage = this.aminoFilenameIndex(-1)[1];
 
 
 
-		this.pepTable.sort( this.compareHistocount )
+		// this.pepTable.sort( this.compareHistocount )
 		this.pepTable.sort( this.compareHue )
 		if ( this.dimension > defaultPreviewDimension ) {
 
@@ -1055,7 +1041,7 @@ class AminoSeeNoEvil {
 			full_path: this.file,
 			maxpix:  this.maxpix,
 			name: this.justNameOfDNA,
-			refimage:  refimage,
+			hilbertimage:  hilbertimage,
 			linearimage: linearimage,
 			runid: this.timestamp,
 			url: url,
@@ -1081,8 +1067,8 @@ class AminoSeeNoEvil {
 			magnitude:  this.magnitude,
 			dimension:  this.dimension,
 			previewdimension: 5,
-			darkenFactor: this.darkenFactor,
-			highlightFactor: this.highlightFactor,
+			darkenFactor: darkenFactor,
+			highlightFactor: highlightFactor,
 			correction: "Normalise",
 			finish: new Date(),
 			blurb: this.blurb(),
@@ -1163,12 +1149,12 @@ class AminoSeeNoEvil {
 
 			// IMAGE DATA ARRAYS
 			this.pepTable[h].mixRGBA  = [0,0,0,0]
-			if ( this.brute == true ) {
+			if ( brute == true ) {
 				this.pepTable[h].hm_array = [0,0,0,0]
 				this.pepTable[h].lm_array = [0,0,0,0]
 				// FILENAMES
-				this.pepTable[h].hilbert_master = this.aminoFilenameIndex(h)[0]
-				this.pepTable[h].linear_master = this.aminoFilenameIndex(h)[1]
+				// this.pepTable[h].hilbert_master = this.aminoFilenameIndex(h)[0]
+				// this.pepTable[h].linear_master = this.aminoFilenameIndex(h)[1]
 				this.pepTable[h].hilbert_preview = this.aminoFilenameIndex(h)[0]
 				this.pepTable[h].linear_preview = this.aminoFilenameIndex(h)[1]
 			}
@@ -1852,26 +1838,28 @@ class AminoSeeNoEvil {
 		}, this.raceDelay)
 	}
 	initialiseArrays() {
-		// if ( brute == false) { return false }
+		if ( brute == false) { return false }
 
-		for (let i = 0; i < this.pepTable.length; i++) {
+		for (let i = 1; i < this.pepTable.length; i++) {
 			out(`initialise ${i}`)
-			this.pepTable[i].lm_array = [0,0,0,0]
-			this.pepTable[i].hm_array = [0,0,0,0]
-			this.pepTable[i].mixRGBA  = [0,0,0,0]
+			// this.pepTable[i].lm_array = [0,0,0,0]
+			// this.pepTable[i].hm_array = [0,0,0,0]
+			// this.pepTable[i].mixRGBA  = [0,0,0,0]
 			this.pepTable[i].linear_master = this.aminoFilenameIndex(i)[1]
-			this.pepTable[i].hilbert_master = this.aminoFilenameIndex(i)[0]
+			// this.pepTable[i].hilbert_master = this.aminoFilenameIndex(i)[0]
 		}
 
 	}
 	diskStorm(cb) {
 		output("WE BE STORMIN")
-		if ( this.brute == false) { return false }
-		log("LIKE NORMAN")
+		if ( brute == false) { cb(); return false }
+		killAllTimers()
+		output("LIKE NORMAN")
 
-		for (let i = 0; i < this.pepTable.length; i++) {
+		for (let i = 1; i < this.pepTable.length; i++) {
 			let pep = this.pepTable[ i ]
-
+			let currentLinearArray =  this.pepTable[ i ].lm_array
+			let currentHilbertArray =  this.pepTable[ i ].hm_array
 			// saveLinearPNG();
 
 			mode("disk storm")
@@ -1882,18 +1870,16 @@ class AminoSeeNoEvil {
 			width  = pwh[1]
 			height = pwh[2]
 
-			output(`saving amino acid layer ${ pep.Codon } ${width} ${height} ${pep.linear_master} ${pep.hilbert_master}`)
-
-
+			let fullpath = path.resolve( this.outputPath, this.justNameOfDNA, "images", pep.linear_master)
+			log(`Saving amino acid layer ext ${this.extension} cppH ${this.codonsPerPixelHILBERT} ${ pep.Codon } ${pixels} ${width} ${height} size: ${currentLinearArray.length} ${fullpath}`)
+			genericPNG( currentLinearArray, width, height, fullpath)
+			fullpath = path.resolve( this.outputPath, this.justNameOfDNA, "images", pep.hilbert_master)
+			log(`saving to ${fullpath}`)
 			if ( i == this.pepTable.length -1 ) { // trigger the callback on the last one
-				genericPNG( pep.lm_array, width, height, pep.linear_master, cb)
+				genericPNG( currentHilbertArray, width, height, fullpath , cb)
 			} else {
-				genericPNG( pep.lm_array, width, height, pep.linear_master)
+				genericPNG( currentHilbertArray, width, height, fullpath)
 			}
-
-			// this.pepTable[i].lm_array = [0,0,0,0]
-			// this.pepTable[i].hm_array = [0,0,0,0]
-			// this.pepTable[i].mixRGBA  = [0,0,0,0]
 		}
 
 	}
@@ -1959,46 +1945,46 @@ class AminoSeeNoEvil {
 		this.saveDocsSync()
 	}
 	showFlags() {
-		return `${(  this.force ? "F" : "-"    )}${( this.updates ? "U" : "-" )}C_${ this.userCPP }${( this.keyboard ? "K" : "-" )}${(  this.dnabg ? "B" : "-"  )}${( this.verbose ? "V" : "-"  )}${(  this.artistic ? "A" : "-"    )}${(  this.args.ratio || this.args.r ? `${ this.ratio }` : "---"    )}${( this.dimension ? "M" + this.dimension : "-")}${( this.reg?"REG":"")} C${ onesigbitTolocale( this.codonsPerPixel )}${( this.brute ? "BRUTE" : "-" )}${( this.index ? "I" : "-" )}`
+		return `${(  this.force ? "F" : "-"    )}${( this.updates ? "U" : "-" )}C_${ this.userCPP }${( this.keyboard ? "K" : "-" )}${(  this.dnabg ? "B" : "-"  )}${( this.verbose ? "V" : "-"  )}${(  this.artistic ? "A" : "-"    )}${(  this.args.ratio || this.args.r ? `${ this.ratio }` : "---"    )}${( this.dimension ? "M" + this.dimension : "-")}${( this.reg?"REG":"")} C${ onesigbitTolocale( this.codonsPerPixel )}${( brute ? "BRUTE" : "-" )}${( this.index ? "I" : "-" )}`
 	}
 	testSummary() {
 		return `TEST
-        this.justNameOfDNA: <b>${ this.justNameOfDNA}</b>
-        Registration Marks: ${( this.reg ? true : false )}
-        ${ ( this.peptide || this.triplet ) ?  "Highlights: " + ( this.peptide || this.triplet) : " "}
-        Your custom flags: TEST${(  this.force ? "F" : ""    )}${(  this.userCPP == "auto"  ? `C${ this.userCPP }` : ""    )}${(  this.devmode ? "D" : ""    )}${(  this.args.ratio || this.args.r ? `${ this.ratio }` : ""    )}${(  this.args.magnitude || this.args.m ? `M${ this.dimension }` : ""    )}
-        ${(  this.artistic ? " Artistic this.mode" : " Science this.mode"    )}
-        Max magnitude: ${ this.dimension } ${ this.dimension } / 10 Max pix: ${ this.maxpix.toLocaleString()}
-        Hilbert Magnitude: ${ this.dimension } / ${defaultMagnitude}
-        Hilbert Curve Pixels: ${hilbPixels[ this.dimension ]}`
+				this.justNameOfDNA: <b>${ this.justNameOfDNA}</b>
+				Registration Marks: ${( this.reg ? true : false )}
+				${ ( this.peptide || this.triplet ) ?  "Highlights: " + ( this.peptide || this.triplet) : " "}
+				Your custom flags: TEST${(  this.force ? "F" : ""    )}${(  this.userCPP == "auto"  ? `C${ this.userCPP }` : ""    )}${(  this.devmode ? "D" : ""    )}${(  this.args.ratio || this.args.r ? `${ this.ratio }` : ""    )}${(  this.args.magnitude || this.args.m ? `M${ this.dimension }` : ""    )}
+				${(  this.artistic ? " Artistic this.mode" : " Science this.mode"    )}
+				Max magnitude: ${ this.dimension } ${ this.dimension } / 10 Max pix: ${ this.maxpix.toLocaleString()}
+				Hilbert Magnitude: ${ this.dimension } / ${defaultMagnitude}
+				Hilbert Curve Pixels: ${hilbPixels[ this.dimension ]}`
 	}
 	renderObjToString() {
 		const unknown = "unknown until render complete"
 		return `
-        Canonical Name: ${ this.justNameOfDNA }
-        Canonical PNG: ${ this.justNameOfPNG }
-        Source: ${ this.justNameOfCurrentFile}
-        Full path: ${this.dnafile }
-        Started: ${ formatAMPM(this.startDate) } Finished: ${ formatAMPM(new Date())} Used: ${humanizeDuration( this.runningDuration )} ${ this.isStorageBusy ? " " : "(ongoing)"}
-        Machine load averages: ${ this.loadAverages()}
-        DNA Input bytes: ${ bytes( this.baseChars ) } ${ bytes( this.bytesPerMs * 1000 ) }/sec
-        Image Output bytes: ${ this.isStorageBusy == true ? bytes( this.rgbArray.length ) : "(busy)" }
-        Pixels (linear): ${ this.pixelClock.toLocaleString()} Image aspect Ratio: ${ this.ratio }
-        Pixels (hilbert): ${hilbPixels[ this.dimension ].toLocaleString()} ${(  this.dimension ? "(auto)" : "(manual -m)")}
-        Custom flags: ${ this.showFlags()} "${( this.artistic ? "Artistic mode" : "Science mode" )}" render style
-        Estimated Codons: ${Math.round( this.estimatedPixels).toLocaleString()} (filesize % 3)
-        Actual Codons matched: ${ this.genomeSize.toLocaleString()} ${ this.isStorageBusy ? " " : "(so far)" }
-        Estimate accuracy: ${ this.isStorageBusy ? Math.round((( this.estimatedPixels /  this.genomeSize))*100) + "% of actual ": "(still rendering...) " }
-        Non-coding characters: ${ this.errorClock.toLocaleString()}
-        Coding characters: ${ this.charClock.toLocaleString()}
-        Codons per pixel: ${ twosigbitsTolocale( this.codonsPerPixel )} (linear) ${ this.isStorageBusy ? twosigbitsTolocale( this.codonsPerPixelHILBERT ) : unknown } (hilbert projection)
-        Linear to Hilbert reduction: ${ this.isStorageBusy ?  twosigbitsTolocale( this.shrinkFactor) : unknown } Oversampling: ${ twosigbitsTolocale(overSampleFactor)}
-        Max pix setting: ${ this.maxpix.toLocaleString()}
-        ${ this.dimension }th Hilbert curve infintite recursion dimension
-        Darken Factor ${ twosigbitsTolocale(this.darkenFactor)} / Highlight Factor ${ twosigbitsTolocale( this.highlightFactor)}
-        Gigabytes processed on this profile: ${ gbprocessed.toLocaleString()} Run ID: ${ this.timestamp } ${ cliruns}th run on ${ hostname }
-        Total renders: ${ userprefs.aminosee.completed } Project opens: ${ projectprefs.aminosee.opens } (only increments when using --image --help --html or --explorer)
-        AminoSee version: ${version}`
+				Canonical Name: ${ this.justNameOfDNA }
+				Canonical PNG: ${ this.justNameOfPNG }
+				Source: ${ this.justNameOfCurrentFile}
+				Full path: ${this.dnafile }
+				Started: ${ formatAMPM(this.startDate) } Finished: ${ formatAMPM(new Date())} Used: ${humanizeDuration( this.runningDuration )} ${ this.isStorageBusy ? " " : "(ongoing)"}
+				Machine load averages: ${ this.loadAverages()}
+				DNA Input bytes: ${ bytes( this.baseChars ) } ${ bytes( this.bytesPerMs * 1000 ) }/sec
+				Image Output bytes: ${ this.isStorageBusy == true ? bytes( this.rgbArray.length ) : "(busy)" }
+				Pixels (linear): ${ this.pixelClock.toLocaleString()} Image aspect Ratio: ${ this.ratio }
+				Pixels (hilbert): ${hilbPixels[ this.dimension ].toLocaleString()} ${(  this.dimension ? "(auto)" : "(manual -m)")}
+				Custom flags: ${ this.showFlags()} "${( this.artistic ? "Artistic mode" : "Science mode" )}" render style
+				Estimated Codons: ${Math.round( this.estimatedPixels).toLocaleString()} (filesize % 3)
+				Actual Codons matched: ${ this.genomeSize.toLocaleString()} ${ this.isStorageBusy ? " " : "(so far)" }
+				Estimate accuracy: ${ this.isStorageBusy ? Math.round((( this.estimatedPixels /  this.genomeSize))*100) + "% of actual ": "(still rendering...) " }
+				Non-coding characters: ${ this.errorClock.toLocaleString()}
+				Coding characters: ${ this.charClock.toLocaleString()}
+				Codons per pixel: ${ twosigbitsTolocale( this.codonsPerPixel )} (linear) ${ this.isStorageBusy ? twosigbitsTolocale( this.codonsPerPixelHILBERT ) : unknown } (hilbert projection)
+				Linear to Hilbert reduction: ${ this.isStorageBusy ?  twosigbitsTolocale( this.shrinkFactor) : unknown } Oversampling: ${ twosigbitsTolocale(overSampleFactor)}
+				Max pix setting: ${ this.maxpix.toLocaleString()}
+				${ this.dimension }th Hilbert curve infintite recursion dimension
+				Darken Factor ${ twosigbitsTolocale(darkenFactor)} / Highlight Factor ${ twosigbitsTolocale( highlightFactor)}
+				Gigabytes processed on this profile: ${ gbprocessed.toLocaleString()} Run ID: ${ this.timestamp } ${ cliruns}th run on ${ hostname }
+				Total renders: ${ userprefs.aminosee.completed } Project opens: ${ projectprefs.aminosee.opens } (only increments when using --image --help --html or --explorer)
+				AminoSee version: ${version}`
 	}
 
 
@@ -2161,7 +2147,6 @@ class AminoSeeNoEvil {
 			// } else {
 			// 	mag = optimumDimension (npixels, boolean)
 			// }
-
 			bugtxt(`Generating filenames: n ${ npixels }  ${ this.justNameOfDNA} [${ this.codonsPerPixelHILBERT }] optimumDimension:  mag:  ${ mag } ${this.pixelClock} ${this.dimension}` )
 			this.justNameOfHILBERT =     `${ this.justNameOfDNA}.${ this.extension }_HILBERT_m${ this.dimension }_c${ onesigbitTolocale (this.codonsPerPixelHILBERT) }${ this.highlightFilename() }${ this.getRegmarks()}.png`
 			this.fileHILBERT = path.resolve( this.justNameOfHILBERT)
@@ -2201,7 +2186,7 @@ class AminoSeeNoEvil {
 
 
 		if ( brute == true ) {
-			for (let i = 0; i < this.pepTable.length; i++) {
+			for (let i = 1; i < this.pepTable.length; i++) {
 				// previewCodonsPerPixel
 				// this.pepTable[i].linear_preview  =
 				// this.pepTable[i].hilbert_preview =
@@ -2419,7 +2404,6 @@ class AminoSeeNoEvil {
 			data.saySomethingEpic()
 			return false
 		}
-		this.setupHilbertFilenames()
 		this.setIsDiskBusy( true )
 		output(chalk.inverse(`Finished linear render of ${ this.justNameOfDNA}. Array length: ${ pixels.toLocaleString() } = ${ this.pixelClock.toLocaleString() } saving images`))
 		term.eraseDisplayBelow()
@@ -2442,6 +2426,8 @@ class AminoSeeNoEvil {
 
 
 		var that = this // closure
+		this.setupHilbertFilenames()
+		this.prepareHilbertArray()
 
 		mode("main render async.series")
 		// async.waterfall( [
@@ -2576,11 +2562,11 @@ class AminoSeeNoEvil {
 	}
 	blurb() {
 		let msg = `
-        Started DNA render ${ this.justNameOfPNG } at ${ formatAMPM( this.startDate)}, and after ${humanizeDuration( this.runningDuration)} completed ${ nicePercent(this.percentComplete)} of the ${bytes(  this.baseChars)} file at ${bytes( this.bytesPerMs*1000)} per second.
-        Estimated ${humanizeDuration( this.timeRemain)} to go with ${  this.genomeSize.toLocaleString()} r/DNA triplets decoded, and ${ this.pixelClock.toLocaleString()} pixels painted.
-        File ${remain} / ${batchSize} on ${ os.platform() } on ${ hostname }.
-        ${ this.memToString()} currently ${this.busy()}
-        CPU load:    [ ${ this.loadAverages()} ]`
+				Started DNA render ${ this.justNameOfPNG } at ${ formatAMPM( this.startDate)}, and after ${humanizeDuration( this.runningDuration)} completed ${ nicePercent(this.percentComplete)} of the ${bytes(  this.baseChars)} file at ${bytes( this.bytesPerMs*1000)} per second.
+				Estimated ${humanizeDuration( this.timeRemain)} to go with ${  this.genomeSize.toLocaleString()} r/DNA triplets decoded, and ${ this.pixelClock.toLocaleString()} pixels painted.
+				File ${remain} / ${batchSize} on ${ os.platform() } on ${ hostname }.
+				${ this.memToString()} currently ${this.busy()}
+				CPU load:    [ ${ this.loadAverages()} ]`
 		// output(msg)
 		return msg
 	}
@@ -2588,18 +2574,18 @@ class AminoSeeNoEvil {
 		// clearCheck();
 		this.calcUpdate()
 		const outski = `
-        AminoSee DNA Viewer by Tom Atkinson.
+				AminoSee DNA Viewer by Tom Atkinson.
 
-        ${ asciiart }
+				${ asciiart }
 
-        This is a temporary lock file, placed during rendering to enable parallel cluster rendering over LAN networks, if this is here after processing has completed, usually it means an AminoSee had quit before finishing with --devmode enabled, or... had crashed. If the file is here when idle, it prevents the render and will cause AminoSee to skip the DNA. It's SAFE TO ERASE THESE FILES (even during the render, you might see it come back alive or not). Run the script /dna/find-rm-touch-files.sh to batch delete them all in one go. Normally these are deleted when render is completed, or with Control-C during graceful shutdown on SIGINT and SIGTERM. If they didn't they are super useful to the author for debugging, you can send to aminosee@funk.co.nz
+				This is a temporary lock file, placed during rendering to enable parallel cluster rendering over LAN networks, if this is here after processing has completed, usually it means an AminoSee had quit before finishing with --devmode enabled, or... had crashed. If the file is here when idle, it prevents the render and will cause AminoSee to skip the DNA. It's SAFE TO ERASE THESE FILES (even during the render, you might see it come back alive or not). Run the script /dna/find-rm-touch-files.sh to batch delete them all in one go. Normally these are deleted when render is completed, or with Control-C during graceful shutdown on SIGINT and SIGTERM. If they didn't they are super useful to the author for debugging, you can send to aminosee@funk.co.nz
 
-        Input: ${ this.dnafile }
-        Your output path : ${ this.outputPath }
+				Input: ${ this.dnafile }
+				Your output path : ${ this.outputPath }
 
-        ${ this.blurb() }
-        ${ version } ${ this.timestamp } ${ hostname }
-        ${this.renderObjToString()}` //////////////// <<< END OF TEMPLATE
+				${ this.blurb() }
+				${ version } ${ this.timestamp } ${ hostname }
+				${this.renderObjToString()}` //////////////// <<< END OF TEMPLATE
 		//////////////////////////////////////////
 		this.fileWrite(
 			this.fileTouch,
@@ -2792,6 +2778,7 @@ class AminoSeeNoEvil {
 	getFileExtension(f) {
 		if (!f) { return "none" }
 		let lastFour = f.slice(-4)
+		bugtxt(`getFileExtension ${f}`)
 		return lastFour.replace(/.*\./, "").toLowerCase()
 
 		// let lastFive = f.slice(-5);
@@ -2896,11 +2883,11 @@ class AminoSeeNoEvil {
 		}
 		let pixelGamma = 1 //this.getGamma( pep );
 		let lineLength = l.length // replaces  this.baseChars
-		let codon = ""
+		let triplet = ""
 		this.currentTriplet = "none"
 		this.isHighlightCodon = false
 		for (let column=0; column<lineLength; column++) {
-			// build a three digit codon
+			// build a three digit triplet
 			let c = cleanChar(l.charAt(column)) // has to be ATCG or a . for cleaned chars and line breaks
 			this.charClock++
 			// ERROR DETECTING
@@ -2908,7 +2895,7 @@ class AminoSeeNoEvil {
 			// ITS AT THE STAGE WHERE IT CAN EAT ANY FILE WITH DNA
 			// BUT IF ANY META DATA CONTAINS THE WORD "CAT", "TAG" etc these are taken as coding (its a bug)
 			while ( c == "." && c != "N") { // biff it and get another
-				codon =  "" // we wipe it because... codons should not cross line break boundaries.
+				triplet =  "" // we wipe it because... triplets should not cross line break boundaries.
 				column++
 				c = cleanChar(l.charAt(column)) // line breaks
 				this.charClock++
@@ -2922,23 +2909,21 @@ class AminoSeeNoEvil {
 					break
 				}
 			}
-			codon += c // add the base to codon the working triplet memory
-			if (codon == "..." || codon == "NNN") {
-				this.currentTriplet = codon
-				if (codon == "NNN" ) {
+			triplet += c // add the base to triplet the working triplet memory
+			if (triplet == "..." || triplet == "NNN") {
+				this.currentTriplet = triplet
+				if (triplet == "NNN" ) {
 					this.pepTable.find("Non-coding NNN").Histocount++
-					let r = this.pepTable.find( (pep) => { pep.Codon == str })
+					// let r = this.pepTable.find( (pep) => { pep.Codon == triplet })
 				}
-				codon=""
+				triplet=""
 				this.errorClock++
-			} else if (codon.length ==  3) {
-				this.currentTriplet = codon
+			} else if (triplet.length ==  3) {
+				this.currentTriplet = triplet
 				this.pixelStacking++
 				this.genomeSize++
-				// this.aminoacid
-				this.codonRGBA =  this.tripletToRGBA(codon) // this will this.report this.alpha info
-				pixelGamma = this.getGamma( codon )
-				bugtxt(`gamma: ${pixelGamma} this.aminoacid: ${this.aminoacid} this.peptide: ${this.peptide}`)
+				this.codonRGBA =  		this.tripletToRGBA(triplet) // this will this.report this.alpha info
+				pixelGamma = this.getGamma( triplet )
 
 				// this line will be removed at some stage:
 				this.mixRGBA[0] += parseFloat( this.codonRGBA[0].valueOf() * pixelGamma ) // * red
@@ -2948,15 +2933,21 @@ class AminoSeeNoEvil {
 				// this.mixRGBA[3] += 255; // * full opacity
 
 				if ( brute == true ) {
-					for ( let i = 0; i < this.pepTable.length; i++ ) {
+					for ( let i = 1; i < this.pepTable.length; i++ ) {
 						let pep = this.pepTable[ i ].Codon
-						pixelGamma = this.getGamma( pep )
+						this.peptide = pep
+						pixelGamma = this.getGamma( triplet )
+						log( `pixelGamma: ${ pixelGamma } peptide ${triplet } ${fixedWidth(32,   this.peptide)} ${this.aminoacid} `)
+						//
+						// this.highlightRGBA = this.tripletToRGBA(triplet) // this will this.report this.alpha info
+						// this.darkenRGBA = 		this.tripletToRGBA(triplet) // this will this.report this.alpha info
+						//
+
 						// mix is only zerod by renderPixel()
 						this.pepTable[ i ].mixRGBA[0] += parseFloat( this.codonRGBA[0].valueOf() * pixelGamma ) // * red
 						this.pepTable[ i ].mixRGBA[1] += parseFloat( this.codonRGBA[1].valueOf() * pixelGamma ) // * green
 						this.pepTable[ i ].mixRGBA[2] += parseFloat( this.codonRGBA[2].valueOf() * pixelGamma ) // * blue
-						this.pepTable[ i ].mixRGBA[3] += 255 * pixelGamma // * full opacity
-						// output( this.pepTable[ i ].src);
+						this.pepTable[ i ].mixRGBA[3] += parseFloat( this.codonRGBA[3].valueOf() * pixelGamma ) // * blue
 					}
 				}
 
@@ -2965,73 +2956,79 @@ class AminoSeeNoEvil {
 				if ( this.pixelStacking >= this.codonsPerPixel ) {
 					this.renderPixel() // dont push to memory instead keep stacking adding to same values
 				} // end pixel stacking
-				codon = "" // wipe for next time
+				triplet = "" // wipe for next time
 			} // end codon.length ==  3
 		} // END OF line LOOP! thats one line but  this.mixRGBA can survive lines
 	} // end processLine
 
-	getGamma( codon ) {
-		let pixelGamma = 1 // normal render
-		if (codon == this.triplet) { // this block is trying to decide if a) regular render b) highlight pixel c) darken pixel
-			pixelGamma = this.highlightFactor
+	getGamma( triplet ) {
+		let pixelGamma = 0.99 // normal render
+		if (triplet == this.triplet) { // this block is trying to decide if a) regular render b) highlight pixel c) darken pixel
+			pixelGamma = highlightFactor
 		} else if (this.aminoacid == this.peptide) {
-			pixelGamma = this.highlightFactor
+			pixelGamma = highlightFactor
 		} else if ( this.isHighlightSet == true ) {
-			pixelGamma = this.darkenFactor
+			pixelGamma = darkenFactor
+		} else {
+			pixelGamma = 1.1
 		}
 		return pixelGamma
 	}
 	renderPixel() {
 		let pixelGamma
-		if ( this.artistic != true) { // REGULAR MODE
-			let bc = balanceColour( this.mixRGBA[0], this.mixRGBA[1], this.mixRGBA[2], this.mixRGBA[3] )
-			this.red =   bc[0]
-			this.green = bc[1]
-			this.blue  = bc[2]
-			this.alpha = bc[3]
-			this.paintPixel() // FULL BRIGHTNESS JUST ONE PIXEL
-
-
-
-			this.rgbArray.push(Math.round( this.red ))
-			this.rgbArray.push(Math.round( this.green ))
-			this.rgbArray.push(Math.round( this.blue ))
-			this.rgbArray.push(Math.round( this.alpha))
-
-
-			if ( brute == true ) {
-				for ( let i = 0; i < this.pepTable.length; i++ ) {
-					let pep = this.pepTable[ i ]
-					pixelGamma = this.getGamma( pep.Codon )
-					bc = balanceColour( pep.mixRGBA[0], pep.mixRGBA[1], pep.mixRGBA[2], pep.mixRGBA[3] )
-
-					this.red =   bc[0] // oops that was overkill ah well
-					this.green = bc[1]
-					this.blue  = bc[2]
-					this.alpha = bc[3]
-
-					this.pepTable[ i ].lm_array.push(Math.round( this.red ))
-					this.pepTable[ i ].lm_array.push(Math.round( this.green ))
-					this.pepTable[ i ].lm_array.push(Math.round( this.blue ))
-					this.pepTable[ i ].lm_array.push(Math.round( this.alpha))
-					this.pepTable[ i ].mixRGBA = [0,0,0,0]
-
-				}
-			}
-			// reset inks, using this.codonsPerPixel cycles for each pixel:
-			this.mixRGBA[0] =   0
-			this.mixRGBA[1] =   0
-			this.mixRGBA[2] =   0
-			this.mixRGBA[3] =   0
-			this.red   = 0
-			this.green = 0
-			this.blue  = 0
-			this.alpha = 0
-
-			// end science this.mode
-		} else {
+		if ( this.artistc == true ) { // artistic mode WILL BE MANY PIXELS from that one pixel
 			this.renderArtistic()
-		} // artistic mode WILL BE MANY PIXELS from that one pixel
+			return
+		}
+
+		// REGULAR MODE
+		let bc = balanceColour( this.mixRGBA[0], this.mixRGBA[1], this.mixRGBA[2], this.mixRGBA[3] )
+
+		let backupPeptide = this.peptide
+		let backupTriplet = this.triplet
+
+		this.red =   bc[0]
+		this.green = bc[1]
+		this.blue  = bc[2]
+		this.alpha = bc[3]
+		this.paintPixel() // FULL BRIGHTNESS JUST ONE PIXEL
+		this.rgbArray.push(Math.round( this.red ))
+		this.rgbArray.push(Math.round( this.green ))
+		this.rgbArray.push(Math.round( this.blue ))
+		this.rgbArray.push(Math.round( this.alpha))
+
+		if ( brute == true ) {
+			for ( let i = 1; i < this.pepTable.length; i++ ) {
+				let bc = balanceColour( this.pepTable[i].mixRGBA[0], this.pepTable[i].mixRGBA[1], this.pepTable[i].mixRGBA[2], this.pepTable[i].mixRGBA[3] )
+				let pep = this.pepTable[ i ]
+				this.peptide = pep.Codon
+				pixelGamma = this.getGamma( pep.Codon )
+				bc = balanceColour( pep.mixRGBA[0], pep.mixRGBA[1], pep.mixRGBA[2], pep.mixRGBA[3] )
+				this.red =   bc[0] // oops that was overkill ah well
+				this.green = bc[1]
+				this.blue  = bc[2]
+				this.alpha = bc[3]
+				this.pepTable[ i ].lm_array.push(Math.round( this.red ))
+				this.pepTable[ i ].lm_array.push(Math.round( this.green ))
+				this.pepTable[ i ].lm_array.push(Math.round( this.blue ))
+				this.pepTable[ i ].lm_array.push(Math.round( this.alpha))
+				this.pepTable[ i ].mixRGBA = [0,0,0,0]
+			}
+		}
+
+		this.peptide = backupPeptide
+		this.triplet = backupTriplet
+
+		// reset inks, using this.codonsPerPixel cycles for each pixel:
+		this.mixRGBA[0] =   0
+		this.mixRGBA[1] =   0
+		this.mixRGBA[2] =   0
+		this.mixRGBA[3] =   0
+		this.red   = 0
+		this.green = 0
+		this.blue  = 0
+		this.alpha = 0
+		// end science this.mode
 	}
 	renderArtistic() {
 
@@ -3166,6 +3163,7 @@ class AminoSeeNoEvil {
 		let returnedHil
 		let backupPeptide = this.peptide
 		let backupHighlight = this.isHighlightSet
+		// output(`codons per pixel hilibert: ${this.codonsPerPixelHILBERT}`)
 		if (id === undefined || id < 1) { // for the reference image
 			this.currentPepHighlight = false
 			this.currentPeptide = "none"
@@ -3205,147 +3203,147 @@ class AminoSeeNoEvil {
 			// ;
 		}
 		var html = `<!DOCTYPE html>
-        <html lang="en">
-        <head>
-        <meta charset="utf-8"/>
-        <head>
-        <title>${ this.justNameOfDNA} :: AminoSee HTML Report :: DNA Viewer by Tom Atkinson :: ${ this.currentFile }</title>
-        <meta name="description" content="${ siteDescription }">
-        <link rel="stylesheet" type="text/css" href="https://dev.funk.co.nz/aminosee/public/AminoSee.css">
-        <link href='https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz:700,400,200,100' rel='stylesheet' type='text/css'>
-        <link href="https://www.funk.co.nz/css/menu.css" rel="stylesheet">
-        <link href="https://www.funk.co.nz/css/funk2014.css" rel="stylesheet">
-        <!-- ////////////////////////////////////////
-        ${radMessage}
-        -->
-        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
-        <script>
-        (adsbygoogle = window.adsbygoogle || []).push({
-          google_ad_client: "ca-pub-0729228399056705",
-          enable_page_level_ads: true
-        });
-        </script>
-        <script src="https://www.funk.co.nz/aminosee/public/three.min.js"></script>
-        <script src="https://www.funk.co.nz/aminosee/public/jquery.min.js"></script>
-        <script src="https://www.funk.co.nz/aminosee/public/hilbert3D.js"></script>
-        <script src="https://www.funk.co.nz/aminosee/public/hilbert2D.js"></script>
-        <script src="https://www.funk.co.nz/aminosee/public/WebGL.js"></script>
-        <script src="https://www.funk.co.nz/aminosee/public/hammer.min.js"></script>
-        <!--
-        <script src="../public/three.min.js"></script>
-        <script src="../public/jquery.min.js"></script>
-        <script src="../public/hilbert3D.js"></script>
-        <script src="../public/hilbert2D.js"></script>
-        <script src="../public/WebGL.js"></script>
-        <script src="../public/hammer.min.js"></script>
-        -->
-        <script async src="../public/aminosee-gui-web.js"></script>
+				<html lang="en">
+				<head>
+				<meta charset="utf-8"/>
+				<head>
+				<title>${ this.justNameOfDNA} :: AminoSee HTML Report :: DNA Viewer by Tom Atkinson :: ${ this.currentFile }</title>
+				<meta name="description" content="${ siteDescription }">
+				<link rel="stylesheet" type="text/css" href="https://dev.funk.co.nz/aminosee/public/AminoSee.css">
+				<link href='https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz:700,400,200,100' rel='stylesheet' type='text/css'>
+				<link href="https://www.funk.co.nz/css/menu.css" rel="stylesheet">
+				<link href="https://www.funk.co.nz/css/funk2014.css" rel="stylesheet">
+				<!-- ////////////////////////////////////////
+				${radMessage}
+				-->
+				<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+				<script>
+				(adsbygoogle = window.adsbygoogle || []).push({
+					google_ad_client: "ca-pub-0729228399056705",
+					enable_page_level_ads: true
+				});
+				</script>
+				<script src="https://www.funk.co.nz/aminosee/public/three.min.js"></script>
+				<script src="https://www.funk.co.nz/aminosee/public/jquery.min.js"></script>
+				<script src="https://www.funk.co.nz/aminosee/public/hilbert3D.js"></script>
+				<script src="https://www.funk.co.nz/aminosee/public/hilbert2D.js"></script>
+				<script src="https://www.funk.co.nz/aminosee/public/WebGL.js"></script>
+				<script src="https://www.funk.co.nz/aminosee/public/hammer.min.js"></script>
+				<!--
+				<script src="../public/three.min.js"></script>
+				<script src="../public/jquery.min.js"></script>
+				<script src="../public/hilbert3D.js"></script>
+				<script src="../public/hilbert2D.js"></script>
+				<script src="../public/WebGL.js"></script>
+				<script src="../public/hammer.min.js"></script>
+				-->
+				<script async src="../public/aminosee-gui-web.js"></script>
 
-        <style>
-        border: 1px black;
-        backround: black;
-        padding: 4px;
-        </style>
-        </head>
-        <body>
-        <!-- Google Tag Manager -->
-        <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-P8JX"
-        height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-        <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-        new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-        j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-        'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f); })(window,document,'script','dataLayer','GTM-P8JX');</script>
-        <!-- End Google Tag Manager -->
+				<style>
+				border: 1px black;
+				backround: black;
+				padding: 4px;
+				</style>
+				</head>
+				<body>
+				<!-- Google Tag Manager -->
+				<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-P8JX"
+				height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+				<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+				new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+				j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+				'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f); })(window,document,'script','dataLayer','GTM-P8JX');</script>
+				<!-- End Google Tag Manager -->
 
-        <nav style="position: fixed; top: 8px; left: 8px; z-index:9999; background-color: #123456;">  </nav>
+				<nav style="position: fixed; top: 8px; left: 8px; z-index:9999; background-color: #123456;">  </nav>
 
-        <a href="../../" class="button">AminoSee Home</a> | <a href="../" class="button">Parent</a>
+				<a href="../../" class="button">AminoSee Home</a> | <a href="../" class="button">Parent</a>
 
-        <h1>${ this.justNameOfDNA}</h1>
-        <h2>M${this.dimension}C${this.codonsPerPixel}H${this.codonsPerPixelHILBERT}</h2>
-        </h3>AminoSee DNA Render Summary for ${ this.currentFile } ${ this.artistc ? "Artistic" : "Science" } render mode</h3>
+				<h1>${ this.justNameOfDNA}</h1>
+				<h2>M${this.dimension}C${this.codonsPerPixel}H${this.codonsPerPixelHILBERT}</h2>
+				</h3>AminoSee DNA Render Summary for ${ this.currentFile } ${ this.artistc ? "Artistic" : "Science" } render mode</h3>
 
-        ${( this.test ? " this.test " : this.imageStack( histogramJson ))}
+				${( this.test ? " this.test " : this.imageStack( histogramJson ))}
 
-        <a href="images/${ this.justNameOfPNG }" class="button" title"Click To Scroll Down To See LINEAR"><br />
-        <img id="oi" width="128" height="128" style="border: 4px black; background: black;" src="images/${ this.justNameOfPNG }">
-        1D Linear Map Image
-        </a>
-        <a href="images/${ this.justNameOfHILBERT }" class="button" title"Click To Scroll Down To See 2D Hilbert Map"><br />
-        <img width="128" height="128" style="border: 4px black background: black;" src="images/${ this.justNameOfHILBERT }">
-        2D Hilbert Map Image
-        </a>
-
-
-
-        <div id="monkeys">
-
-
-        <div id="render_summary" style="text-align: right; float: right;">
-        <h2>Render Summary</h2>
-        <div class="fineprint">
-        <pre>
-        ${ this.renderObjToString( histogramJson )}
-        </pre>
-        </div>
-        </div>
-
-
-        <div><a href="http://aminosee.funk.nz/">
-        <input type="button" value="VISIT WEBSITE" onclick="window.location = '#scrollHILBERT'"><br>
-
-        <img src="https://www.funk.co.nz/aminosee/public/seenoevilmonkeys.jpg">
-
-        <!-- <h1>AminoSeeNoEvil</h1> -->
-        <h1>Amino<span style="color: #888888;">See</span><span style="color: #dddddd;">NoEvil</span></h1>
-        <div class="hidable">
-        <h2 id="h2">DNA/RNA Chromosome Viewer</h2>
-        <p id="description" class="fineprint hidable">A new way to view DNA that attributes a colour hue to each Amino acid codon this.triplet</p>
+				<a href="images/${ this.justNameOfPNG }" class="button" title"Click To Scroll Down To See LINEAR"><br />
+				<img id="oi" width="128" height="128" style="border: 4px black; background: black;" src="images/${ this.justNameOfPNG }">
+				1D Linear Map Image
+				</a>
+				<a href="images/${ this.justNameOfHILBERT }" class="button" title"Click To Scroll Down To See 2D Hilbert Map"><br />
+				<img width="128" height="128" style="border: 4px black background: black;" src="images/${ this.justNameOfHILBERT }">
+				2D Hilbert Map Image
+				</a>
 
 
 
-        </div>
-        </a>
-        </div>
-        </div>
+				<div id="monkeys">
 
-        <div>`
+
+				<div id="render_summary" style="text-align: right; float: right;">
+				<h2>Render Summary</h2>
+				<div class="fineprint">
+				<pre>
+				${ this.renderObjToString( histogramJson )}
+				</pre>
+				</div>
+				</div>
+
+
+				<div><a href="http://aminosee.funk.nz/">
+				<input type="button" value="VISIT WEBSITE" onclick="window.location = '#scrollHILBERT'"><br>
+
+				<img src="https://www.funk.co.nz/aminosee/public/seenoevilmonkeys.jpg">
+
+				<!-- <h1>AminoSeeNoEvil</h1> -->
+				<h1>Amino<span style="color: #888888;">See</span><span style="color: #dddddd;">NoEvil</span></h1>
+				<div class="hidable">
+				<h2 id="h2">DNA/RNA Chromosome Viewer</h2>
+				<p id="description" class="fineprint hidable">A new way to view DNA that attributes a colour hue to each Amino acid codon</p>
+
+
+
+				</div>
+				</a>
+				</div>
+				</div>
+
+				<div>`
 
 
 
 		html += `</div>
 
-        <br /><br />
-        http://localhost:4321/aminosee/output/50KB_TestPattern/50KB_TestPattern.txt_linear__Reference_c1_sci.png
-        <table>
-        <thead>
-        <tr>
-        <th>Amino Acid</th>
-        <th>Hue&#xB0;</th>
-        <th>RGB</th>
-        <th>Count</th>
-        <th>Description</th>
-        <th>Hilbert PNG</th>
-        <th>Linear PNG</th>
-        </tr>
-        </thead>
-        <tbody>
+				<br /><br />
+				http://localhost:4321/aminosee/output/50KB_TestPattern/50KB_TestPattern.txt_linear__Reference_c1_sci.png
+				<table>
+				<thead>
+				<tr>
+				<th>Amino Acid</th>
+				<th>Hue&#xB0;</th>
+				<th>RGB</th>
+				<th>Count</th>
+				<th>Description</th>
+				<th>Hilbert PNG</th>
+				<th>Linear PNG</th>
+				</tr>
+				</thead>
+				<tbody>
 
-        <tr>
-        <td style="background-color: white;"> All amino acids combined =   </td>
-        <td>
-        <p class="fineprint" style="background-color: white; background-color: rgba(255,255,255,0.5); color: black;">n/a</p>
-        </td>
-        <td style="color: white; font-weight: bold; "> <p class="fineprint" style="background-color: black; background-color: rgba(0,0,0,0.5); color: white;">n/a</p> </td>
-        <td>${ this.genomeSize }</td>
-        <td>n/a</td>
-        <td style="background-color: white;">
-        <a href="images/${ this.justNameOfHILBERT}" class="button" title="Reference Hilbert Image"><img width="48" height="16" class="blackback" src="images/${ this.justNameOfHILBERT}" alt="AminoSee Reference Hilbert Image ${ this.justNameOfDNA}"></a>
-        </td>
-        <td style="background-color: white;">
-        <a href="images/${ this.justNameOfPNG}" class="button" title="Reference Linear Image"><img width="48" height="16" class="blackback" src="images/${ this.justNameOfPNG}" alt="Reference Linear Image ${ this.justNameOfDNA}"></a>
-        </td>
-        </tr>`
+				<tr>
+				<td style="background-color: white;"> All amino acids combined =   </td>
+				<td>
+				<p class="fineprint" style="background-color: white; background-color: rgba(255,255,255,0.5); color: black;">n/a</p>
+				</td>
+				<td style="color: white; font-weight: bold; "> <p class="fineprint" style="background-color: black; background-color: rgba(0,0,0,0.5); color: white;">n/a</p> </td>
+				<td>${ this.genomeSize }</td>
+				<td>n/a</td>
+				<td style="background-color: white;">
+				<a href="images/${ this.justNameOfHILBERT}" class="button" title="Reference Hilbert Image"><img width="48" height="16" class="blackback" src="images/${ this.justNameOfHILBERT}" alt="AminoSee Reference Hilbert Image ${ this.justNameOfDNA}"></a>
+				</td>
+				<td style="background-color: white;">
+				<a href="images/${ this.justNameOfPNG}" class="button" title="Reference Linear Image"><img width="48" height="16" class="blackback" src="images/${ this.justNameOfPNG}" alt="Reference Linear Image ${ this.justNameOfDNA}"></a>
+				</td>
+				</tr>`
 		// this.pepTable   = [Codon, Description, Hue, Alpha, Histocount]
 		for (let i = 0; i < this.pepTable.length; i++) {
 			let thePep = this.pepTable[i].Codon
@@ -3359,68 +3357,68 @@ class AminoSeeNoEvil {
 				html += `<!-- ${thePep} -->`
 			} else {
 				html += `
-            <!--  onmouseover="mover(this)" onmouseout="mout(this)" -->
-            <tr class="pepTable" id="row_${i}" style="background-color: hsl( ${theHue} , 50%, 100%);">
-            <td style="background-color: white;"> ${ this.pepTable[i].Codon} </td>
-            <td style="background-color: rgb(${richC});"><p class="fineprint" style="background-color: black; background-color: rgba(0,0,0,0.5); color: white;">${theHue}&#xB0;</p></td>
-            <td style="background-color: rgb(${c}); color: black; font-weight: bold; "> <p class="fineprint" style="background-color: white; background-color: rgba(255,255,255,0.5); color: black;">${c}</p></td>
-            <td>${ this.pepTable[i].Histocount.toLocaleString()}</td>
-            <td>${ this.pepTable[i].Description}</td>
-            <td style="background-color: white;"><a href="images/${ imghil }" class="button" title="Amino filter: ${ thePep }"><img width="48" height="16" class="blackback" src="images/${ imghil }" alt="${ this.justNameOfDNA } ${ thePep }"></a></td>
-            <td style="background-color: white;">
-            <a href="images/${ imglin }" class="button" title="Amino filter: ${ thePep }"><img width="48" height="16" class="blackback" src="images/${ imglin }" alt="${ this.justNameOfDNA } ${ thePep }"></a>
-            </td>
-            </tr>
-            `
+						<!--  onmouseover="mover(this)" onmouseout="mout(this)" -->
+						<tr class="pepTable" id="row_${i}" style="background-color: hsl( ${theHue} , 50%, 100%);">
+						<td style="background-color: white;"> ${ this.pepTable[i].Codon} </td>
+						<td style="background-color: rgb(${richC});"><p class="fineprint" style="background-color: black; background-color: rgba(0,0,0,0.5); color: white;">${theHue}&#xB0;</p></td>
+						<td style="background-color: rgb(${c}); color: black; font-weight: bold; "> <p class="fineprint" style="background-color: white; background-color: rgba(255,255,255,0.5); color: black;">${c}</p></td>
+						<td>${ this.pepTable[i].Histocount.toLocaleString()}</td>
+						<td>${ this.pepTable[i].Description}</td>
+						<td style="background-color: white;"><a href="images/${ imghil }" class="button" title="Amino filter: ${ thePep }"><img width="48" height="16" class="blackback" src="images/${ imghil }" alt="${ this.justNameOfDNA } ${ thePep }"></a></td>
+						<td style="background-color: white;">
+						<a href="images/${ imglin }" class="button" title="Amino filter: ${ thePep }"><img width="48" height="16" class="blackback" src="images/${ imglin }" alt="${ this.justNameOfDNA } ${ thePep }"></a>
+						</td>
+						</tr>
+						`
 			}
 		}
 		html += `
-        </tbody>
-        <tfoot>
-        <tr>
-        <td>19 Amino Acids, 4 Start/Stop codes, 1 NNN</td>
-        <td>.</td>
-        <td>.</td>
-        <td>.</td>
-        <td>.</td>
-        </tr>
-        </tfoot>
-        </table>
-        <a name="scrollHILBERT" ></a>
-        <a href="images/${ this.justNameOfHILBERT}" ><img src="images/${ this.justNameOfHILBERT}" width-"99%" height="auto"></a>
+				</tbody>
+				<tfoot>
+				<tr>
+				<td>19 Amino Acids, 4 Start/Stop codes, 1 NNN</td>
+				<td>.</td>
+				<td>.</td>
+				<td>.</td>
+				<td>.</td>
+				</tr>
+				</tfoot>
+				</table>
+				<a name="scrollHILBERT" ></a>
+				<a href="images/${ this.justNameOfHILBERT}" ><img src="images/${ this.justNameOfHILBERT}" width-"99%" height="auto"></a>
 
 
 
-        <h2>About Start and Stop Codons</h2>
-        <p>The codon AUG is called the START codon as it the first codon in the transcribed mRNA that undergoes translation. AUG is the most common START codon and it codes for the amino acid methionine (Met) in eukaryotes and formyl methionine (fMet) in prokaryotes. During protein synthesis, the tRNA recognizes the START codon AUG with the help of some initiation factors and starts translation of mRNA.
+				<h2>About Start and Stop Codons</h2>
+				<p>The codon AUG is called the START codon as it the first codon in the transcribed mRNA that undergoes translation. AUG is the most common START codon and it codes for the amino acid methionine (Met) in eukaryotes and formyl methionine (fMet) in prokaryotes. During protein synthesis, the tRNA recognizes the START codon AUG with the help of some initiation factors and starts translation of mRNA.
 
-        Some alternative START codons are found in both eukaryotes and prokaryotes. Alternate codons usually code for amino acids other than methionine, but when they act as START codons they code for Met due to the use of a separate initiator tRNA.
+				Some alternative START codons are found in both eukaryotes and prokaryotes. Alternate codons usually code for amino acids other than methionine, but when they act as START codons they code for Met due to the use of a separate initiator tRNA.
 
-        Non-AUG START codons are rarely found in eukaryotic genomes. Apart from the usual Met codon, mammalian cells can also START translation with the amino acid leucine with the help of a leucyl-tRNA decoding the CUG codon. Mitochondrial genomes use AUA and AUU in humans and GUG and UUG in prokaryotes as alternate START codons.
+				Non-AUG START codons are rarely found in eukaryotic genomes. Apart from the usual Met codon, mammalian cells can also START translation with the amino acid leucine with the help of a leucyl-tRNA decoding the CUG codon. Mitochondrial genomes use AUA and AUU in humans and GUG and UUG in prokaryotes as alternate START codons.
 
-        In prokaryotes, E. coli is found to use AUG 83%, GUG 14%, and UUG 3% as START codons. The lacA and lacI coding this.regions in the E coli lac operon don’t have AUG START codon and instead use UUG and GUG as initiation codons respectively.</p>
-        <h2>Linear Projection</h2>
-        The following image is in raster order, top left to bottom right:
-        <a name="scrollLINEAR" ></a>
-        <a href="images/${ this.justNameOfPNG}" ><img src="images/${ this.justNameOfPNG}"></a>
-        <br/>
+				In prokaryotes, E. coli is found to use AUG 83%, GUG 14%, and UUG 3% as START codons. The lacA and lacI coding this.regions in the E coli lac operon don’t have AUG START codon and instead use UUG and GUG as initiation codons respectively.</p>
+				<h2>Linear Projection</h2>
+				The following image is in raster order, top left to bottom right:
+				<a name="scrollLINEAR" ></a>
+				<a href="images/${ this.justNameOfPNG}" ><img src="images/${ this.justNameOfPNG}"></a>
+				<br/>
 
-        <div id="googleads">
+				<div id="googleads">
 
-        <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
-        <!-- AminoSee Reports -->
-        <ins class="adsbygoogle"
-        style="display:block"
-        data-ad-client="ca-pub-0729228399056705"
-        data-ad-slot="2513777969"
-        data-ad-format="auto"
-        data-full-width-responsive="true"></ins>
-        <script>
-        (adsbygoogle = window.adsbygoogle || []).push({});
-        </script>
+				<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+				<!-- AminoSee Reports -->
+				<ins class="adsbygoogle"
+				style="display:block"
+				data-ad-client="ca-pub-0729228399056705"
+				data-ad-slot="2513777969"
+				data-ad-format="auto"
+				data-full-width-responsive="true"></ins>
+				<script>
+				(adsbygoogle = window.adsbygoogle || []).push({});
+				</script>
 
-        </div>
-        `
+				</div>
+				`
 		return html
 	}
 
@@ -3537,13 +3535,7 @@ class AminoSeeNoEvil {
 		}
 		return txt
 	}
-
-
-
-
-
-	// resample the large 760px wide linear image into a smaller square hilbert curve
-	saveHilbert(cb) {
+	prepareHilbertArray() {
 		mode("maybe save hilbert")
 		log(`H: ${status}`)
 		if ( renderLock == false ) { this.error("locks should be on during hilbert curve") }
@@ -3559,25 +3551,14 @@ class AminoSeeNoEvil {
 			return false
 		}
 
-		this.setupHilbertFilenames()
-
-		// if ( doesFileExist( this.fileHILBERT) == true ) {
-		//   output("Existing hilbert image found - skipping projection: " + this.fileHILBERT);
-		//   this.openOutputs();
-		//   this.isDiskFinHilbert = true;
-		//   this.previousImage = this.fileHILBERT;
-		//   var closure = () => { return this.fileHILBERT }
-		//   runcb(cb);
-		//   return false;
-		// }
 		term.eraseDisplayBelow()
 		mode("save hilbert")
 		notQuiet(chalk.bgBlue.yellow( " Getting in touch with my man from 1891...   ॐ    David Hilbert    ॐ    ") + this.fileHILBERT)// In the " + this.dimension + "th dimension and reduced by " + threesigbitsTolocale( shrinkFactor) );
 		bugtxt( this.justNameOfDNA)
 		let hilpix = hilbPixels[ this.dimension ]
 		this.resampleByFactor( this.shrinkFactor )
-		let hWidth = Math.sqrt(hilpix)
-		let hHeight  = hWidth
+		this.hWidth = Math.sqrt(hilpix)
+		this.hHeight  = this.hWidth
 		this.hilbertImage = [ hilpix ] // wipe the memory
 		this.percentComplete = 0
 		this.debugFreq = Math.round(hilpix / 100)
@@ -3592,15 +3573,23 @@ class AminoSeeNoEvil {
 			let hilbX, hilbY;
 			[hilbX, hilbY] = hilDecode(i, this.dimension, MyManHilbert)
 			let cursorLinear  = 4 * i
-			let hilbertLinear = 4 * ((hilbX % hWidth) + (hilbY * hWidth))
+			let hilbertLinear = 4 * ((hilbX % this.hWidth) + (hilbY * this.hWidth))
 			this.percentComplete = i / hilpix
 			// if ((Math.round(  this.percentComplete * 1000) % 100) === 0) {
 			// }
 
-			this.hilbertImage[hilbertLinear+0] = this.rgbArray[cursorLinear+0]
-			this.hilbertImage[hilbertLinear+1] = this.rgbArray[cursorLinear+1]
-			this.hilbertImage[hilbertLinear+2] = this.rgbArray[cursorLinear+2]
-			this.hilbertImage[hilbertLinear+3] = this.rgbArray[cursorLinear+3]
+			this.hilbertImage[hilbertLinear + 0] = this.rgbArray[cursorLinear + 0]
+			this.hilbertImage[hilbertLinear + 1] = this.rgbArray[cursorLinear + 1]
+			this.hilbertImage[hilbertLinear + 2] = this.rgbArray[cursorLinear + 2]
+			this.hilbertImage[hilbertLinear + 3] = this.rgbArray[cursorLinear + 3]
+			if (brute == true) {
+				for (let i = 1; i < this.pepTable.length; i++) {
+					this.pepTable[i].hm_array[hilbertLinear + 0] = this.rgbArray[cursorLinear + 0]
+					this.pepTable[i].hm_array[hilbertLinear + 1] = this.rgbArray[cursorLinear + 1]
+					this.pepTable[i].hm_array[hilbertLinear + 2] = this.rgbArray[cursorLinear + 2]
+					this.pepTable[i].hm_array[hilbertLinear + 3] = this.rgbArray[cursorLinear + 3]
+				}
+			}
 			if ( this.reg) {
 				this.paintRegMarks(hilbertLinear, this.hilbertImage,  this.percentComplete)
 			}
@@ -3610,9 +3599,25 @@ class AminoSeeNoEvil {
 				break
 			}
 		}
-
+		this.setupHilbertFilenames()
 		log("Done projected 100% of " + hilpix.toLocaleString())
-		// hilbertFinished();
+
+
+		for (let i = 0; i < this.pepTable.length; i++) {
+			this.pepTable[i].hilbert_master = this.aminoFilenameIndex(i)[0]
+			this.pepTable[i].linear_master = this.aminoFilenameIndex(i)[1]
+			this.pepTable[i].hilbert_preview = this.aminoFilenameIndex(i)[0]
+			this.pepTable[i].linear_preview = this.aminoFilenameIndex(i)[1]
+		}
+
+
+	}
+
+
+
+
+	// resample the large 760px wide linear image into a smaller square hilbert curve
+	saveHilbert(cb) {
 
 		// clearTimeout( updatesTimer)
 		this.diskStorm( () => {
@@ -3621,8 +3626,8 @@ class AminoSeeNoEvil {
 
 		var hilbert_img_data = Uint8ClampedArray.from( this.hilbertImage)
 		var hilbert_img_png = new PNG({
-			width: hWidth,
-			height: hHeight,
+			width: this.hWidth,
+			height: this.hHeight,
 			colorType: 6,
 			bgColor: {
 				red: 0,
@@ -4110,7 +4115,7 @@ class AminoSeeNoEvil {
 			}
 		})
 		/* Note that clothesPromise resolves to the result of `changeClothes`
-        due to Promise "chaining" magic. */
+				due to Promise "chaining" magic. */
 
 		// Combine promises and await them both
 		await Promise.all(teethPromise, clothesPromise)
@@ -4330,7 +4335,7 @@ class AminoSeeNoEvil {
 
 
 	paintPixel() {
-		let byteIndex = this.pixelClock * 4 // 4 bytes per pixel. RGBA.
+		// let byteIndex = this.pixelClock * 4 // 4 bytes per pixel. RGBA.
 		this.rgbArray.push(Math.round( this.red ))
 		this.rgbArray.push(Math.round( this.green ))
 		this.rgbArray.push(Math.round( this.blue ))
@@ -4341,6 +4346,26 @@ class AminoSeeNoEvil {
 		this.peakAlpha =  this.alpha
 		this.pixelStacking = 0
 		this.pixelClock++
+
+		if ( brute == true ) {
+			for ( let i = 1; i < this.pepTable.length; i++ ) {
+
+				// if ( )
+				this.pepTable[ i ].lm_array.push(Math.round( this.red ))
+				this.pepTable[ i ].lm_array.push(Math.round( this.green ))
+				this.pepTable[ i ].lm_array.push(Math.round( this.blue ))
+				this.pepTable[ i ].lm_array.push(Math.round( this.alpha))
+
+				//
+				//
+				// this.pepTable[ i ].lm_array.push(Math.round( this.red ))
+				// this.pepTable[ i ].lm_array.push(Math.round( this.green ))
+				// this.pepTable[ i ].lm_array.push(Math.round( this.blue ))
+				// this.pepTable[ i ].lm_array.push(Math.round( this.alpha))
+
+			}
+		}
+
 	}
 
 
@@ -4464,7 +4489,7 @@ class AminoSeeNoEvil {
 		} else { output("DNA render done or shutting done") }
 
 		if ( this.updates == false ) {
-			redoline(`${chalk.rgb(128, 255, 128).inverse( nicePercent(this.percentComplete) )} complete `  + chalk.bgBlue(`${ fixedWidth(10, humanizeDuration( this.msElapsed )) } elapsed ${humanizeDuration( this.timeRemain)} remain`))
+			redoline(`${chalk.rgb(128, 255, 128).inverse( nicePercent(this.percentComplete) )} elapsed: `  + chalk.bgBlue(`${ fixedWidth(10, humanizeDuration( this.msElapsed )) }         ${humanizeDuration( this.timeRemain)} remain`))
 			return false
 		}
 
@@ -4515,11 +4540,11 @@ class AminoSeeNoEvil {
 		output(`Report URL: ${chalk.underline( this.fullURL + chalk.bgBlue("images/" + this.justNameOfPNG) )}`)
 		output(`Input path: ${chalk.underline(  path.dirname( this.dnafile ) + "/" + chalk.bgBlue(  this.currentFile) )}`)
 		output(`Output path: ${chalk.underline( this.outputPath + "/" + chalk.bgBlue(  this.justNameOfDNA) )}`)
-		output(`Last Acid: ${chalk.inverse.rgb(ceiling( this.red ), ceiling( this.green ), ceiling( this.blue )).bgWhite.bold( fixedWidth(16, "  " + this.aminoacid + "   ") ) }` +
-        chalk.rgb(this.peakRed, 0, 0).inverse.bgBlue(  maxWidth(8, `R:  ${this.peakRed}` )) +
-        chalk.rgb(0, this.peakGreen, 0).inverse.bgRed( maxWidth(11, `G:  ${this.peakGreen}` )) +
-        chalk.rgb(0, 0, this.peakBlue).inverse.bgYellow(maxWidth(9, `B:  ${this.peakBlue}` )) +
-        chalk.rgb(this.peakAlpha, this.peakAlpha, this.peakAlpha).inverse.bgBlue(maxWidth(9, `A:  ${this.peakAlpha}` )) )
+		output(`Last Acid: ${chalk.inverse.rgb(ceiling( this.red ), ceiling( this.green ), ceiling( this.blue )).bgWhite.bold( fixedWidth(16, "  " + this.aminoacid + "   ") ) } Last pixel: ` +
+				chalk.rgb(this.peakRed, 0, 0).inverse.bgBlue(  maxWidth(8, `R:  ${this.peakRed}` )) +
+				chalk.rgb(0, this.peakGreen, 0).inverse.bgRed( maxWidth(11, `G:  ${this.peakGreen}` )) +
+				chalk.rgb(0, 0, this.peakBlue).inverse.bgYellow(maxWidth(9, `B:  ${this.peakBlue}` )) +
+				chalk.rgb(this.peakAlpha, this.peakAlpha, this.peakAlpha).inverse.bgBlue(maxWidth(9, `A:  ${this.peakAlpha}` )) )
 		term.right( this.termMarginLeft )
 
 		if (term.height > this.termStatsHeight + this.termDisplayHeight) {
@@ -4535,7 +4560,7 @@ class AminoSeeNoEvil {
 			output()
 			// output( `pepTable ${ beautify(  JSON.stringify ( this.pepTable)  ) }` );
 			// output( `pepTable ${ beautify( this.pepTable ) }` );
-			if ( this.brute == true ) {
+			if ( brute == true ) {
 				output( `${  this.rgbArray.length  } this.pepTable[5].lm_array.length: ${this.pepTable[5].lm_array.length} ` )
 			}
 			term.up(this.termStatsHeight + this.termDisplayHeight)
@@ -4723,10 +4748,10 @@ class AminoSeeNoEvil {
 	// https://www.npmjs.com/package/parse-apache-directory-index
 	// stream.pipe(tr).pipe(process.stdout);
 	/** https://stackoverflow.com/questions/13786160/copy-folder-recursively-in-node-js/26038979
-        * Look ma, it's cp -R.
-        * @param {string} src The path to the thing to copy.
-        * @param {string} dest The path to the new copy.
-        */
+			* Look ma, it's cp -R.
+			* @param {string} src The path to the thing to copy.
+			* @param {string} dest The path to the new copy.
+			*/
 	// copyRecursiveSync(src, dest) {
 	//   log(`Will try to recursive copy from ${src} to ${dest}`)
 	//   var exists = doesFileExist(src);
@@ -4763,14 +4788,14 @@ class AminoSeeNoEvil {
 		let pepTable = histogramJson.pepTable
 		// output(beautify(summary))
 		// let name = histogramJson.summary.name;
-		// let refimage = summary.refimage;
+		// let hilbertimage = summary.hilbertimage;
 		// let linearimage = summary.linearimage;
 		// let i = -1;
 		let quant = pepTable.length // Ω first command ॐ
-		//   <li>Ω <a href="images/${refimage}">Reference (combined image) <br/>
-		//  <img src="images/${refimage}" id="stack_reference" width="20%" height="20%" style="z-index: ${i}; position: fixed; top: 50%; left: 50%; transform: translate(${(i*4)-40},${(i*4)-40})" alt="${name} Reference image" title="${name} Reference image" onmouseover="mover(this)" onmouseout="mout(this)"></a></li>
+		//   <li>Ω <a href="images/${hilbertimage}">Reference (combined image) <br/>
+		//  <img src="images/${hilbertimage}" id="stack_reference" width="20%" height="20%" style="z-index: ${i}; position: fixed; top: 50%; left: 50%; transform: translate(${(i*4)-40},${(i*4)-40})" alt="${name} Reference image" title="${name} Reference image" onmouseover="mover(this)" onmouseout="mout(this)"></a></li>
 		html += `<ul id="stackOimages">
-          `
+				`
 
 		for (let i = 0; i < histogramJson.pepTable.length; i++) {
 			let item = histogramJson.pepTable[i]
@@ -4784,8 +4809,8 @@ class AminoSeeNoEvil {
 			// let linear_preview =    item.linear_master;
 			// let hilbert_preview =    item.hilbert_master;
 			let src = histogramJson.pepTable[i].hilbert_master
-			// this.pepTable[h].hilbert_master = this.aminoFilenameIndex(h)[0];
-			// this.pepTable[h].linear_master = this.aminoFilenameIndex(h)[1];
+			this.pepTable[i].hilbert_master = this.aminoFilenameIndex(i)[0]
+			this.pepTable[i].linear_master = this.aminoFilenameIndex(i)[1]
 			// this.pepTable[h].hilbert_preview = this.aminoFilenameIndex(h)[0];
 			// this.pepTable[h].linear_preview = this.aminoFilenameIndex(h)[1];
 
@@ -4796,9 +4821,9 @@ class AminoSeeNoEvil {
 				html += `<!-- ${thePep.Codon} -->`
 			} else {
 				html += `
-		          <li>{${i}} <a href="images/${src}" title="${name} ${thePep}">${thePep} <br/>
-		          <img src="images/${src}" id="stack_${i}" width="20%" height="20%" style="z-index: ${i}; position: absolute; z-index: ${i}; top: 30%; left: 30%; transform: translate(${(i*zoom)-100}px,${(i*zoom)-128}px)" alt="${name} ${thePep}" title="${name} ${thePep}" onmouseover="mover(${i})" onmouseout="mout(${i})"></a></li>
-		          `
+						<li>{${i}} <a href="images/${src}" title="${name} ${thePep}">${thePep} <br/>
+						<img src="images/${src}" id="stack_${i}" width="20%" height="20%" style="z-index: ${i}; position: absolute; z-index: ${i}; top: 30%; left: 30%; transform: translate(${(i*zoom)-100}px,${(i*zoom)-128}px)" alt="${name} ${thePep}" title="${name} ${thePep}" onmouseover="mover(${i})" onmouseout="mout(${i})"></a></li>
+						`
 			}
 		}
 
@@ -5148,16 +5173,16 @@ function cleanChar(c) {
 }
 
 /**
-        * Converts an RGB color value to HSL. Conversion formula
-        * adapted from http://en.wikipedia.org/wiki/HSL_color_space.
-        * Assumes r, g, and b are contained in the set [0, 255] and
-        * returns h, s, and l in the set [0, 1].
-        *
-        * @param   Number  r       The Red color value
-        * @param   Number  g       The  this.green  color value
-        * @param   Number  b       The  this.blue  color value
-        * @return  Array           The HSL representation
-        */
+			* Converts an RGB color value to HSL. Conversion formula
+			* adapted from http://en.wikipedia.org/wiki/HSL_color_space.
+			* Assumes r, g, and b are contained in the set [0, 255] and
+			* returns h, s, and l in the set [0, 1].
+			*
+			* @param   Number  r       The Red color value
+			* @param   Number  g       The  this.green  color value
+			* @param   Number  b       The  this.blue  color value
+			* @return  Array           The HSL representation
+			*/
 function rgbToHsl(r, g, b) {
 	r /= 255, g /= 255, b /= 255
 
@@ -5183,16 +5208,16 @@ function rgbToHsl(r, g, b) {
 }
 
 /**
-        * Converts an HSL color value to RGB. Conversion formula
-        * adapted from http://en.wikipedia.org/wiki/HSL_color_space.
-        * Assumes h, s, and l are contained in the set [0, 1] and
-        * returns r, g, and b in the set [0, 255].
-        *
-        * @param   Number  h       The hue
-        * @param   Number  s       The saturation
-        * @param   Number  l       The lightness
-        * @return  Array           The RGB representation
-        */
+			* Converts an HSL color value to RGB. Conversion formula
+			* adapted from http://en.wikipedia.org/wiki/HSL_color_space.
+			* Assumes h, s, and l are contained in the set [0, 1] and
+			* returns r, g, and b in the set [0, 255].
+			*
+			* @param   Number  h       The hue
+			* @param   Number  s       The saturation
+			* @param   Number  l       The lightness
+			* @return  Array           The RGB representation
+			*/
 function hslToRgb(hue, s, l) {
 	var r, g, b
 
@@ -5220,16 +5245,16 @@ function hue2rgb(p, q, t) {
 	return p
 }
 /**
-        * Converts an RGB color value to HSV. Conversion formula
-        * adapted from http://en.wikipedia.org/wiki/HSV_color_space.
-        * Assumes r, g, and b are contained in the set [0, 255] and
-        * returns h, s, and v in the set [0, 1].
-        *
-        * @param   Number  r       The Red color value
-        * @param   Number  g       The  this.green  color value
-        * @param   Number  b       The  this.blue  color value
-        * @return  Array           The HSV representation
-        */
+			* Converts an RGB color value to HSV. Conversion formula
+			* adapted from http://en.wikipedia.org/wiki/HSV_color_space.
+			* Assumes r, g, and b are contained in the set [0, 255] and
+			* returns h, s, and v in the set [0, 1].
+			*
+			* @param   Number  r       The Red color value
+			* @param   Number  g       The  this.green  color value
+			* @param   Number  b       The  this.blue  color value
+			* @return  Array           The HSV representation
+			*/
 function rgbToHsv(r, g, b) {
 	r /= 255, g /= 255, b /= 255
 
@@ -5255,16 +5280,16 @@ function rgbToHsv(r, g, b) {
 }
 
 /**
-        * Converts an HSV color value to RGB. Conversion formula
-        * adapted from http://en.wikipedia.org/wiki/HSV_color_space.
-        * Assumes h, s, and v are contained in the set [0, 1] and
-        * returns r, g, and b in the set [0, 255].
-        *
-        * @param   Number  h       The hue
-        * @param   Number  s       The saturation
-        * @param   Number  v       The value
-        * @return  Array           The RGB representation
-        */
+			* Converts an HSV color value to RGB. Conversion formula
+			* adapted from http://en.wikipedia.org/wiki/HSV_color_space.
+			* Assumes h, s, and v are contained in the set [0, 1] and
+			* returns r, g, and b in the set [0, 255].
+			*
+			* @param   Number  h       The hue
+			* @param   Number  s       The saturation
+			* @param   Number  v       The value
+			* @return  Array           The RGB representation
+			*/
 function hsvToRgb(h, s, v) {
 	var r, g, b
 
@@ -5690,17 +5715,44 @@ function dedupeArray(a) {
 function getArgs() {
 	return this.args
 }
+const blackPoint = 64
 function expand( red, green, blue, alpha) {
+	let max = Math.min( red, green, blue ) // find brightest channel
 
-	let lowest = Math.min(red, green, blue)
-
+	let min = Math.min( red, green, blue ) // find brightest channel
+	if ( min > blackPoint ) {
+		let scaleBlack = blackPoint / min
+		if ( red == min ) {
+			red = blackPoint
+			if ( green == max) {
+				blue *= scaleBlack / 2
+			} else {
+				green *= scaleBlack / 2
+			}
+		} else if ( green == min) {
+			green = blackPoint
+			if ( red == max) {
+				blue *= scaleBlack / 2
+			} else {
+				red *= scaleBlack / 2
+			}
+		} else if ( blue == min ) {
+			blue = blackPoint
+			if ( green == max) {
+				red *= scaleBlack / 2
+			} else {
+				green *= scaleBlack / 2
+			}
+		}
+	}
 	return [red, green, blue, alpha ]
 }
 function balanceColour( red, green, blue, alpha) {
 	// find the brightest channel, eg red, green or blue
 	// examples
 	// RGBA: [ 7236.384615384615, 446 711.5 6078.884615384615 8077.961538461538 ]
-	let max = Math.max( red, Math.max( green, blue )) // find brightest channel
+	let max = Math.max( red, green, blue ) // find brightest channel
+
 	let scaleGamma = 255 / max // calculate scale factor from 255 / max
 	if ( alpha < max / 2 ) {
 		alpha /= 1.8
