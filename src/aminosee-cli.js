@@ -2010,7 +2010,7 @@ class AminoSeeNoEvil {
 			this.estimatedPixels =  this.baseChars / 3 // divide by 4 times 3
 			if ( this.estimatedPixels > 256 ) {
 				if ( this.magnitude == "auto") {
-					output(`est pixels : ${this.estimatedPixels}` )
+					log(`est pixels : ${this.estimatedPixels}` )
 					this.dimension = optimumDimension ( this.estimatedPixels, this.magnitude )
 				}
 			} else {
