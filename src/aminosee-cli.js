@@ -1852,24 +1852,25 @@ class AminoSeeNoEvil {
 		}, this.raceDelay)
 	}
 	initialiseArrays() {
-		if ( brute == false) { return false }
+		// if ( brute == false) { return false }
 
 		for (let i = 0; i < this.pepTable.length; i++) {
 			out(`initialise ${i}`)
 			this.pepTable[i].lm_array = [0,0,0,0]
 			this.pepTable[i].hm_array = [0,0,0,0]
 			this.pepTable[i].mixRGBA  = [0,0,0,0]
+			this.pepTable[i].linear_master = this.aminoFilenameIndex(i)[1]
+			this.pepTable[i].hilbert_master = this.aminoFilenameIndex(i)[0]
 		}
 
 	}
 	diskStorm(cb) {
-		log("WE BE STORMIN")
-		if ( brute == false) { return false }
+		output("WE BE STORMIN")
+		if ( this.brute == false) { return false }
 		log("LIKE NORMAN")
 
 		for (let i = 0; i < this.pepTable.length; i++) {
 			let pep = this.pepTable[ i ]
-			output(`saving amino acid layer ${ pep.Codon } `)
 
 			// saveLinearPNG();
 
@@ -1881,7 +1882,10 @@ class AminoSeeNoEvil {
 			width  = pwh[1]
 			height = pwh[2]
 
-			if ( i == this.pepTable.length -1 ) {
+			output(`saving amino acid layer ${ pep.Codon } ${width} ${height} ${pep.linear_master} ${pep.hilbert_master}`)
+
+
+			if ( i == this.pepTable.length -1 ) { // trigger the callback on the last one
 				genericPNG( pep.lm_array, width, height, pep.linear_master, cb)
 			} else {
 				genericPNG( pep.lm_array, width, height, pep.linear_master)
@@ -1955,7 +1959,7 @@ class AminoSeeNoEvil {
 		this.saveDocsSync()
 	}
 	showFlags() {
-		return `${(  this.force ? "F" : "-"    )}${( this.updates ? "U" : "-" )}C_${ this.userCPP }${( this.keyboard ? "K" : "-" )}${(  this.dnabg ? "B" : "-"  )}${( this.verbose ? "V" : "-"  )}${(  this.artistic ? "A" : "-"    )}${(  this.args.ratio || this.args.r ? `${ this.ratio }` : "---"    )}${( this.dimension ? "M" + this.dimension : "-")}${( this.reg?"REG":"")} C${ onesigbitTolocale( this.codonsPerPixel )}`
+		return `${(  this.force ? "F" : "-"    )}${( this.updates ? "U" : "-" )}C_${ this.userCPP }${( this.keyboard ? "K" : "-" )}${(  this.dnabg ? "B" : "-"  )}${( this.verbose ? "V" : "-"  )}${(  this.artistic ? "A" : "-"    )}${(  this.args.ratio || this.args.r ? `${ this.ratio }` : "---"    )}${( this.dimension ? "M" + this.dimension : "-")}${( this.reg?"REG":"")} C${ onesigbitTolocale( this.codonsPerPixel )}${( this.brute ? "BRUTE" : "-" )}${( this.index ? "I" : "-" )}`
 	}
 	testSummary() {
 		return `TEST
@@ -2435,10 +2439,7 @@ class AminoSeeNoEvil {
 			projectprefs.aminosee.genomes = genomesRendered
 			log( `genomesRendered ${genomesRendered}` )
 		}
-		// clearTimeout( updatesTimer)
-		this.diskStorm( () => {
-			log("disk storm has returned")
-		})
+
 
 		var that = this // closure
 
@@ -2981,7 +2982,7 @@ class AminoSeeNoEvil {
 		return pixelGamma
 	}
 	renderPixel() {
-
+		let pixelGamma
 		if ( this.artistic != true) { // REGULAR MODE
 			let bc = balanceColour( this.mixRGBA[0], this.mixRGBA[1], this.mixRGBA[2], this.mixRGBA[3] )
 			this.red =   bc[0]
@@ -3612,6 +3613,11 @@ class AminoSeeNoEvil {
 
 		log("Done projected 100% of " + hilpix.toLocaleString())
 		// hilbertFinished();
+
+		// clearTimeout( updatesTimer)
+		this.diskStorm( () => {
+			log("disk storm has returned")
+		})
 
 		var hilbert_img_data = Uint8ClampedArray.from( this.hilbertImage)
 		var hilbert_img_png = new PNG({
@@ -4518,7 +4524,7 @@ class AminoSeeNoEvil {
 
 		if (term.height > this.termStatsHeight + this.termDisplayHeight) {
 			output( this.blurb() )
-
+			output( status )
 			term.eraseDisplayBelow()
 			output()
 			if (this.keyboard) {
@@ -5789,7 +5795,7 @@ function printRadMessage(arr) {
 	}
 	let radMargin = cliInstance.termMarginLeft
 	term.eraseLine()
-
+	term.right(radMargin)
 	output( chalk.rgb(255, 32, 32).bgBlack(arr[0]) )
 	term.eraseLine()
 	term.right(radMargin)
