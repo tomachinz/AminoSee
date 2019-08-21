@@ -2860,19 +2860,19 @@ class AminoSeeNoEvil {
 		this.destroyProgress()
 		process.exitCode = code
 		deleteFile( this.fileTouch ) // removeLocks( this.fileTouch, this.devmode );
-		destroyKeyboardUI()
-
+		// destroyKeyboardUI()
+		if ( this.keyboard && this.gui == false) {
+			destroyKeyboardUI()
+		} else {
+			output("Not disabling keyboard mode.")
+		}
 		if (code == 0) {
 			log("CLI mode clean exit.")
 			return true
 		} else {
 			log(chalk.bgWhite.red (`Active process.exit going on. last file: ${ this.dnafile } currently: ${this.busy()} percent complete ${  this.percentComplete}`))
 		}
-		if ( this.keyboard ) {
-			destroyKeyboardUI()
-		} else {
-			log("Not disabling keyboard mode.")
-		}
+
 		if (code > 0) {
 			setImmediate(() => {
 				setTimeout( () => {
