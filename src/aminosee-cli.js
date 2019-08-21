@@ -1742,7 +1742,7 @@ class AminoSeeNoEvil {
 	}
 	initStream() {
 		mode("Initialising Stream: " + this.justNameOfPNG)
-		output( `R: ${status} ` )
+		// output( `R: ${status} ` )
 		output(`OUTPUT FOLDER: ${ blueWhite( blueWhite( path.normalize( this.outputPath )))}`)
 
 		this.timestamp = Math.round(+new Date()/1000)
@@ -1851,10 +1851,10 @@ class AminoSeeNoEvil {
 
 	}
 	diskStorm(cb) {
-		output("WE BE STORMIN")
+		log("WE BE STORMIN")
 		if ( brute == false) { cb(); return false }
 		killAllTimers()
-		output("LIKE NORMAN")
+		log("LIKE NORMAN")
 
 		for (let i = 1; i < this.pepTable.length; i++) {
 			let pep = this.pepTable[ i ]
@@ -2010,7 +2010,7 @@ class AminoSeeNoEvil {
 			this.estimatedPixels =  this.baseChars / 3 // divide by 4 times 3
 			if ( this.estimatedPixels > 256 ) {
 				if ( this.magnitude == "auto") {
-					output( this.estimatedPixels )
+					output(`est pixels : ${this.estimatedPixels}` )
 					this.dimension = optimumDimension ( this.estimatedPixels, this.magnitude )
 				}
 			} else {
