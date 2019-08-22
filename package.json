@@ -87,6 +87,7 @@
     "carlo": "^0.9.46",
     "cross-spawn": "^6.0.5",
     "cucumber": "^5.1.0",
+    "cypress": "^3.4.1",
     "dat.gui": "^0.7.6",
     "ecstatic": "^4.1.2",
     "eslint": "^6.2.0",
