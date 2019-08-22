@@ -91,9 +91,14 @@ function setupPrefs() {
 
 }
 function log(txt) {
-	if ( args.verbose == true) {
-		output( txt )
+	if ( args ) {
+		if ( args.verbose) {
+			if ( args.verbose == true) {
+				output( txt )
+			}
+		}
 	}
+
 }
 // function getArgs() {
 //   return this.args;
@@ -383,11 +388,8 @@ function symlinkGUI(cb) { // does:  ln -s /Users.....AminoSee/public, /Users....
 	fullSrc = path.normalize( path.resolve(appPath + "/public") )
 	fullDest = path.normalize( path.resolve(this.outputPath + "/public") )
 	createSymlink(fullSrc, fullDest)
-	fullSrc = path.normalize( path.resolve(appPath + "/aminosee-gui-web.js") )
-	fullDest = path.normalize( path.resolve(this.outputPath + "/aminosee-gui-web.js") )
-	createSymlink(fullSrc  , fullDest)
-	fullSrc = path.normalize( path.resolve(appPath + "/public/index.html") )
-	fullDest = path.normalize( path.resolve(this.outputPath + "/main.html") ) // Protects users privacy in current working directory
+	fullSrc = path.normalize( path.resolve(appPath + "/aminosee.html") )
+	fullDest = path.normalize( path.resolve(this.outputPath + "/aminosee.html") ) // Protects users privacy in current working directory
 	createSymlink(fullSrc, fullDest)
 	fullSrc = path.normalize( path.resolve(appPath + "/node_modules") )
 	fullDest = path.normalize( path.resolve(this.outputPath + "/node_modules") ) // MOVES INTO ROOT

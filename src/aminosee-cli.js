@@ -438,7 +438,7 @@ class AminoSeeNoEvil {
 			log("interactive keyboard mode disabled")
 		}
 		this.openHtml = true
-		this.browser = "chrome"
+		// this.browser = "chrome"
 		if ( args.chrome) {
 			this.openImage = true
 			this.openHtml = true
@@ -760,20 +760,6 @@ class AminoSeeNoEvil {
 		quiet = this.quiet
 		bugtxt(`the args -->> ${this.args}`)
 
-		if ( webserverEnabled ) {
-			args.output = this.outputPath
-			// url = server.start( args )
-			this.currentURL = server.start( args )
-			output(`Server running at: ${ chalk.underline( url ) } to stop use: aminosee --stop `)
-			if ( !this.serve ) {
-				server.foregroundserver()
-			} else {
-				server.spawnBackground()
-			}
-			// countdown(`Try [Ctrl]-[C] or [Q] key to quit server or wait`, 360000, () => {
-			//   output("Free version server will now quit. aminosee@funk.co.nz if that's an issue for ya")
-			// })
-		}
 
 
 		if ( this.mkdir() ) {
@@ -1729,6 +1715,20 @@ class AminoSeeNoEvil {
 			// this.error('test is in look for work?');
 			log("test is in look for work?")
 			return false
+		}
+
+
+		if ( webserverEnabled ) {
+			let args = { output: this.outputPath, verbose: this.verbose }
+			// url = server.start( args )
+			this.currentURL = server.start( args )
+			output(`Server running at: ${ chalk.underline( url ) } to stop use: aminosee --stop `)
+			if ( !this.serve ) {
+				server.foregroundserver()
+			} else {
+				server.spawnBackground()
+			}
+			webserverEnabled = false
 		}
 
 		if ( file == funknzlabel ) {
@@ -4573,11 +4573,15 @@ class AminoSeeNoEvil {
 		output(`Report URL: ${chalk.underline( chalk.bgBlue( this.currentURL ))}`)
 		output(`Input path: ${chalk.underline(  path.dirname( this.dnafile ) + "/" + chalk.bgBlue(  this.currentFile) )}`)
 		output(`Output path: ${chalk.underline( this.outputPath + "/" + chalk.bgBlue(  this.justNameOfDNA) )}`)
-		output(`Last Acid: ${chalk.inverse.rgb(ceiling( this.red ), ceiling( this.green ), ceiling( this.blue )).bgWhite.bold( fixedWidth(16, "  " + this.aminoacid + "   ") ) } Last pixel: ` +
-				chalk.rgb(this.peakRed, 0, 0).inverse.bgBlue(  maxWidth(8, `R:  ${this.peakRed}` )) +
-				chalk.rgb(0, this.peakGreen, 0).inverse.bgRed( maxWidth(11, `G:  ${this.peakGreen}` )) +
-				chalk.rgb(0, 0, this.peakBlue).inverse.bgYellow(maxWidth(9, `B:  ${this.peakBlue}` )) +
-				chalk.rgb(this.peakAlpha, this.peakAlpha, this.peakAlpha).inverse.bgBlue(maxWidth(9, `A:  ${this.peakAlpha}` )) )
+		output(`Last Acid: ${ chalk.inverse.rgb(
+			ceiling( this.red ),
+			ceiling( this.green ),
+			ceiling( this.blue )).bgWhite.bold( fixedWidth(16, "  " + this.aminoacid + "   ") )
+		} Last pixel: ` + chalk.bold(
+			chalk.rgb(this.peakRed, 0, 0).inverse.bgBlue(  maxWidth(7, `R:  ${this.peakRed}` )) +
+				chalk.rgb(0, this.peakGreen, 0).inverse.bgRed( maxWidth(10, `G:  ${this.peakGreen}` )) +
+				chalk.rgb(0, 0, this.peakBlue).inverse.bgYellow(maxWidth(8, `B:  ${this.peakBlue}` )) +
+				chalk.rgb(this.peakAlpha, this.peakAlpha, this.peakAlpha).inverse.bgBlue(maxWidth(8, `A:  ${this.peakAlpha}` ))) )
 		term.right( this.termMarginLeft )
 
 		if (term.height > this.termStatsHeight + this.termDisplayHeight) {
