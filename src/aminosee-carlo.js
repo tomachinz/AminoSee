@@ -65,7 +65,7 @@ async function runCarlo() {
 //     // app.serveFolder( path.join(__dirname, 'public'));
 //
 //     // Navigate to the main page of your app.
-//     // await app.load('public/home.html');
+//     // await app.load('/aminosee.html');
 //     await app.load('http://localhost:4321/').then( () => { console.log(`rugby was the winner`) }).catch( await app.load('http://localhost:43210/') );
 //   })();
 // }

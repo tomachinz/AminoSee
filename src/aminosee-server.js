@@ -114,7 +114,7 @@ function buildServer() {
 	data.saySomethingEpic()
 	let sFiles = [
 		{ "source": appPath + "/public",            "dest": outputPath + "/public" },
-		{ "source": appPath + "/home.html",            "dest": outputPath + "/home.html" },
+		{ "source": appPath + "/aminosee.html",            "dest": outputPath + "/aminosee.html" },
 		{ "source": appPath + "/public/favicon.ico","dest": outputPath + "/favicon.ico" }
 	]
 	for (let i=0; i<sFiles.length; i++) {
@@ -323,7 +323,7 @@ function start(a) { // return the port number
 	}
 	// startServeHandler(o, port)
 
-	open( url + "/home.html?devmode", {wait: false}).then(() => {
+	open( url + "/aminosee.html?devmode", {wait: false}).then(() => {
 		log("browser closed")
 	}).catch(function () {  })
 

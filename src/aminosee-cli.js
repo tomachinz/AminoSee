@@ -762,7 +762,8 @@ class AminoSeeNoEvil {
 
 		if ( webserverEnabled ) {
 			args.output = this.outputPath
-			url = server.start( args )
+			// url = server.start( args )
+			this.currentURL = server.start( args )
 			output(`Server running at: ${ chalk.underline( url ) } to stop use: aminosee --stop `)
 			if ( !this.serve ) {
 				server.foregroundserver()
@@ -2201,7 +2202,11 @@ class AminoSeeNoEvil {
 		this.fileHTML =    this.qualifyPath( this.generateFilenameHTML()   )
 		this.filePNG =     this.qualifyPath( `images/${this.justNameOfPNG}`)
 		this.fileHILBERT = this.qualifyPath(`images/${ this.generateFilenameHilbert(this.pixelClock, this.magnitude ) }`)
-		this.fullURL          = `${url}/${this.justNameOfDNA}/${this.justNameOfHTML}`
+		if ( this.index ) {
+			this.currentURL = `${url}/${this.justNameOfDNA}/`
+		} else {
+			this.currentURL = `${url}/${this.justNameOfDNA}/${this.justNameOfHTML}`
+		}
 		// this.fancyFilenames();
 		this.setNextFile()
 	}
@@ -2361,7 +2366,7 @@ class AminoSeeNoEvil {
 		output(chalk.rgb(150,150,150).inverse(      fixedWidth( this.colDebug*2,  `Hilbert PNG: ${ this.justNameOfHILBERT }`)))
 		output(chalk.rgb(100,100,180).inverse.underline(fixedWidth( this.colDebug*2, `HTML: ${ path.normalize( this.fileHTML )}`)))
 		output(chalk.black.bgBlue.inverse(        fixedWidth( this.colDebug*2,  `Lockfile: ${ path.normalize( this.fileTouch )}`)))
-		output(chalk.rgb(0,0,128).bgWhite.inverse(fixedWidth( this.colDebug*2,  `URL: ${ chalk.underline( this.fullURL )}`)))
+		output(chalk.rgb(0,0,128).bgWhite.inverse(fixedWidth( this.colDebug*2,  `URL: ${ chalk.underline( this.currentURL )}`)))
 	}
 	setIsDiskBusy(boolean) {
 		if (boolean) { // busy!
@@ -3265,8 +3270,8 @@ class AminoSeeNoEvil {
 				<a href="../../" class="button">AminoSee Home</a> | <a href="../" class="button">Parent</a>
 
 				<h1>${ this.justNameOfDNA}</h1>
-				<h2>M${this.dimension}C${this.codonsPerPixel}H${this.codonsPerPixelHILBERT}</h2>
-				</h3>AminoSee DNA Render Summary for ${ this.currentFile } ${ this.artistc ? "Artistic" : "Science" } render mode</h3>
+				<h2>AminoSee DNA Render Summary for ${ this.currentFile } ${ this.artistc ? "Artistic" : "Science" } render mode</h2>
+				<h3>M${this.dimension}C${this.codonsPerPixel}H${onesigbitTolocale( this.codonsPerPixelHILBERT )}</h3>
 
 				${( this.test ? " this.test " : this.imageStack( histogramJson ))}
 
@@ -4548,7 +4553,7 @@ class AminoSeeNoEvil {
 		output(`${chalk.rgb(128, 255, 128).inverse( nicePercent(this.percentComplete) )} complete ${ fixedWidth(12, humanizeDuration( this.msElapsed )) } elapsed ${humanizeDuration( this.timeRemain)} remain`)
 		output(`${ twosigbitsTolocale( gbprocessed )} GB All time total on ${chalk.yellow( hostname )} ${ cliruns.toLocaleString()} jobs run total`)
 		this.progUpdate( this.percentComplete )
-		output(`Report URL: ${chalk.underline( this.fullURL + chalk.bgBlue("images/" + this.justNameOfPNG) )}`)
+		output(`Report URL: ${chalk.underline( chalk.bgBlue( this.currentURL ))}`)
 		output(`Input path: ${chalk.underline(  path.dirname( this.dnafile ) + "/" + chalk.bgBlue(  this.currentFile) )}`)
 		output(`Output path: ${chalk.underline( this.outputPath + "/" + chalk.bgBlue(  this.justNameOfDNA) )}`)
 		output(`Last Acid: ${chalk.inverse.rgb(ceiling( this.red ), ceiling( this.green ), ceiling( this.blue )).bgWhite.bold( fixedWidth(16, "  " + this.aminoacid + "   ") ) } Last pixel: ` +
