@@ -1,0 +1,142 @@
+<!--
+  Copyright 2018 Google Inc., PhantomJS Authors All rights reserved.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+ -->
+
+<html>
+<link rel="shortcut icon" href="favicon.ico" sizes="256x256" />
+<script src="aminosee-gui-web.js"></script>
+<script src="aminosee-web-socket.js"></script>
+
+<link rel="stylesheet" href="../node_modules/xterm/dist/xterm.css" />
+<link rel="stylesheet" href="../node_modules/xterm/dist/addons/fullscreen/fullscreen.css" />
+<script src="../lib/cdnjs.cloudflare.com/ajax/libs/es6-promise/4.1.1/es6-promise.auto.min.js"></script>
+<script src="../lib/cdnjs.cloudflare.com/ajax/libs/fetch/1.0.0/fetch.min.js"></script>
+<script src="../node_modules/xterm/dist/xterm.js"></script>
+<script src="../node_modules/xterm/dist/addons/fit/fit.js"></script>
+<script src="../node_modules/xterm/dist/addons/attach/attach.js"></script>
+<script src="../node_modules/xterm/dist/addons/winptyCompat/winptyCompat.js"></script>
+<!-- with thanks: https://github.com/experimental-dustbin/web-shell -->
+<style>
+
+  body {
+    color: #ddd;
+    display: flex;
+    justify-content: center;
+    background-color: #2b2e3b;
+    opacity: 0;
+    transition: opacity 2s;
+    font-family: Roboto;
+    overflow: hidden;
+  }
+
+  .content {
+    display: flex;
+    flex-direction: column;
+    flex: auto;
+    justify-content: center;
+  }
+
+  .heading {
+    font-size: 36px;
+    text-align: center;
+    margin: 25px 0;
+  }
+
+  #grids {
+    margin-top: 30px;
+    color: #ddd;
+    display: grid;
+    grid-template-columns: 33% 33% 33%;
+    grid-gap: 40px;
+    margin: 25px;
+    overflow: hidden;
+  }
+
+  .grid-placeholder {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    padding: 10px;
+  }
+
+  .grid {
+    flex: auto;
+    display: grid;
+    grid-template-columns: 1fr 4fr;
+    grid-gap: 4px;
+  }
+
+  .blur {
+    /**filter: blur(7px);*/
+  }
+
+  .value {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .header {
+    font-weight: bold;
+    grid-column: span 2;
+    border-bottom: 1px solid #999;
+  }
+
+  /* roboto-regular - latin */
+  @font-face {
+    font-family: 'Roboto';
+    font-style: normal;
+    font-weight: 400;
+    src: url('fonts/roboto-v18-latin-regular.woff2') format('woff2');
+  }
+</style>
+
+<title>AminoSee DNA Viewer App www/</title>
+
+
+<body onload="onload()">
+  <div class="content">
+    <div class="heading">AminoSeeNoEvil</div>
+
+    <div id="fileBox" class="hidable">
+      Select local FASTA or GKB file containing ASCII DNA sequences!
+      <form id="upload" action="#" method="POST" enctype="multipart/form-data" onchange="FileSelectHandler()">
+        <fieldset>
+          <legend>Select DNA File to Render</legend>
+          <input type="hidden" id="MAX_FILE_SIZE" />
+          <div>
+            <label for="fileselect">click to choose DNA file</label>
+            <input type="file" id="fileselect" name="fileselect[]" multiple="multiple" />
+            <div id="filedrag">or drag and drop files here</div>
+          </div>
+          <div id="submitbutton">
+            <button type="submit">Process</button>
+          </div>
+        </fieldset>
+      </form>
+      <div id="messages">
+        <p>Status Messages</p>
+      </div>
+
+
+    </div>
+
+    <div id="grids"></div>
+    <p class="fineprint">
+      Thanks to The Chromium Authors for this system info panel and all other <a href="credits.txt">contributors</a></a>
+  </div>
+</body>
+
+</html>
