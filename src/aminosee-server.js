@@ -130,11 +130,12 @@ function selfSpawn() {
 
 function spawnBackground(p) { // Spawn background server
 	let didStart = false
+	// return
 	if (p !== undefined) { port = p }
 	let options = [ outputPath + "/", "-p", port, "-o" ]
 	let optionsAminoSee = [ "--serve", outputPath + "/", "-p", port ]
 	output(options.toString())
-	output(chalk.yellow(`Starting web server - doc root: ${options.toString()} ${chalk.underline(getServerURL())}`))
+	output(chalk.yellow(`Starting BACKGROUND web server - doc root: ${options.toString()} ${chalk.underline(getServerURL())}`))
 	let evilSpawn
 	try {
 		evilSpawn = spawn("http-server", options, { stdio: "pipe" })
@@ -172,7 +173,7 @@ function foregroundserver(options) {
 	if ( options === undefined ) {
 		options = [ outputPath, "-p", port, "-o" ]
 	}
-	output(`server path: ${outputPath} ${port} ${url}`)
+	output(`FOREGROUND server path: ${outputPath} ${port} ${url}`)
 	theserver = httpserver.createServer(options)
 	process.title = "aminosee.funk.nz_server"
 	return theserver

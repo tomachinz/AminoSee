@@ -394,7 +394,7 @@ class AminoSeeNoEvil {
 		}
 		url = projectprefs.aminosee.url
 		if (url === undefined) {
-			url = "http://localhost:4321"
+			url = `http://${hostname}:4321`
 		}
 		if ( args.url ) {
 			url = args.url
