@@ -115,6 +115,7 @@ function buildServer() {
 	data.saySomethingEpic()
 	let sFiles = [
 		{ "source": appPath + "/public",            "dest": outputPath + "/public" },
+		{ "source": appPath + "/home.html",            "dest": outputPath + "/home.html" },
 		{ "source": appPath + "/public/favicon.ico","dest": outputPath + "/favicon.ico" }
 	]
 	for (let i=0; i<sFiles.length; i++) {

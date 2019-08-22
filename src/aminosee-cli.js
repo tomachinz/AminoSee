@@ -134,7 +134,7 @@ function populateArgs(procArgv) { // returns args
 	const options = {
 		boolean: [ "artistic", "clear", "chrome", "devmode", "debug", "demo", "dnabg", "explorer", "file", "force", "fullscreen", "firefox", "gui", "html", "image", "keyboard", "list", "progress", "quiet", "reg", "recycle", "redraw", "slow", "serve", "safari", "test", "updates", "verbose", "view" ],
 		string: [ "url", "output", "triplet", "peptide", "ratio" ],
-		alias: { a: "artistic", b: "dnabg", c: "codons", d: "devmode", f: "force", h: "help", k: "keyboard", m: "magnitude", o: "output", p: "peptide", i: "image", t: "triplet", u: "updates", q: "quiet", r: "reg", w: "width", v: "verbose", x: "explorer", finder: "explorer", view: "html" },
+		alias: { a: "artistic", b: "dnabg", c: "codons", d: "devmode", f: "force", finder: "explorer", h: "help", k: "keyboard", m: "magnitude", o: "output", p: "peptide", i: "image", t: "triplet", u: "updates", q: "quiet", r: "reg", w: "width", v: "verbose", x: "explorer", view: "html" },
 		default: { brute: false, debug: false, gui: false, html: true, image: true, clear: false, explorer: false, quiet: false, keyboard: false, progress: true, redraw: true, updates: true, serve: false, fullscreen: true },
 		stopEarly: false
 	} // NUMERIC INPUTS: codons, magnitude, width, maxpix
@@ -439,23 +439,21 @@ class AminoSeeNoEvil {
 		}
 		this.openHtml = true
 		this.browser = "chrome"
-		log(`default this.browser set to open automatically in ${ this.browser }`)
+		log(`default browser set to open automatically in ${ this.browser }`)
 		if ( args.chrome) {
 			this.openImage = true
 			this.openHtml = true
 			this.browser = "chrome"
-			output(`default this.browser set to open automatically in ${ this.browser }`)
 		} else if ( args.firefox) {
 			this.openImage = true
 			this.openHtml = true
 			this.browser = "firefox"
-			output(`default this.browser set to open automatically in ${ this.browser }`)
 		} else if ( args.safari) {
 			this.openImage = true
 			this.openHtml = true
 			this.browser = "safari"
-			output(`default this.browser set to open automatically in ${ this.browser }`)
 		}
+		notQuiet(`Browser set to ${ this.browser } options: --chrome --firefox --safari`)
 		if ( args.image || args.i ) {
 			this.openImage = true
 			log("will automatically open image")
@@ -481,7 +479,7 @@ class AminoSeeNoEvil {
 		if ( args.maxpix ) {
 			let usersPix = Math.round( args.maxpix )
 			if ( usersPix < 1000000 ) {
-				output("maxpix too low. using 1,000,000")
+				output("maxpix too low. using --maxpix=1000000")
 				this.maxpix = 1000000
 			} else {
 				this.maxpix = usersPix
@@ -512,7 +510,7 @@ class AminoSeeNoEvil {
 		}
 		log(`Max pixels: ${ this.maxpix } Hilbert curve dimension: ${ this.dimension } ${ this.magnitude }`)
 		if ( args.ratio || args.r ) {
-			this.ratio = args.ratio
+			this.ratio = args.ratio.toLowerCase()
 			if ( this.test ) { // this is for: aminosee --test -r
 				this.ratio = this.ratio.toLowerCase()
 			}
@@ -523,17 +521,17 @@ class AminoSeeNoEvil {
 			} else if ( this.ratio == "hilbert" || this.ratio == "hilb" || this.ratio == "hil" ) {
 				this.ratio = "hil"
 			} else {
-				bugtxt("No custom this.ratio chosen. (default)")
+				log("No custom this.ratio chosen. (default)")
 				this.ratio = "fix"
 			}
 			this.pngImageFlags += this.ratio
 			this.userRatio = "custom"
 		} else {
-			bugtxt("No custom ratio chosen. (default)")
+			log("No custom ratio chosen. (default)")
 			this.ratio = "fix"
 			this.userRatio = "auto"
 		}
-		log(`Using ${ this.ratio } aspect ratio`)
+		output(`Using ${ this.ratio } aspect ratio`)
 
 		if ( args.triplet || args.t) {
 			this.usersTriplet = args.triplet
@@ -609,7 +607,7 @@ class AminoSeeNoEvil {
 			log("verbose mode disabled")
 			this.verbose = false }
 		if ( args.html ) {
-			output("will open html after render")
+			output("will open html in firefox after render")
 			this.openHtml = true
 		} else {
 			log("not opening html")
@@ -1842,11 +1840,11 @@ class AminoSeeNoEvil {
 
 		for (let i = 1; i < this.pepTable.length; i++) {
 			out(`initialise ${i}`)
-			// this.pepTable[i].lm_array = [0,0,0,0]
-			// this.pepTable[i].hm_array = [0,0,0,0]
-			// this.pepTable[i].mixRGBA  = [0,0,0,0]
+			this.pepTable[i].lm_array = [0,0,0,0]
+			this.pepTable[i].hm_array = [0,0,0,0]
+			this.pepTable[i].mixRGBA  = [0,0,0,0]
 			this.pepTable[i].linear_master = this.aminoFilenameIndex(i)[1]
-			// this.pepTable[i].hilbert_master = this.aminoFilenameIndex(i)[0]
+			this.pepTable[i].hilbert_master = this.aminoFilenameIndex(i)[0]
 		}
 
 	}
@@ -2381,7 +2379,7 @@ class AminoSeeNoEvil {
 
 	saveDocsSync() {
 		let pixels // = 0;
-		mode(`Saving... ${ path.normalize( this.justNameOfPNG ) } to ${this.outputPath} `)
+		mode(`Saving... ${ path.normalize( this.justNameOfPNG ) } to ${this.outputPath}  ratio: ${this.ratio}`)
 		process.title = `aminosee.funk.nz (${ this.justNameOfDNA} Saving... ${ this.highlightOrNothin() } c${ this.codonsPerPixel })`
 		log( `S: ${status} ` )
 		if ( renderLock == false) {
@@ -2875,7 +2873,7 @@ class AminoSeeNoEvil {
 	processLine(l) { // need to implement the format here: https://rdrr.io/rforge/seqTools/man/countGenomeKmers.html
 		if ( renderLock == false ) { this.error("thread entered process line")}
 		if ( streamLineNr % 256 == 0) {
-			status = `process sequence line number ${streamLineNr}`
+			status = `sequence line: ${streamLineNr}`
 		}
 		streamLineNr++
 		if (this.rawDNA.length < this.termPixels) {
@@ -2923,6 +2921,7 @@ class AminoSeeNoEvil {
 				this.pixelStacking++
 				this.genomeSize++
 				this.codonRGBA =  		this.tripletToRGBA(triplet) // this will this.report this.alpha info
+				this.aminoacid = tripletToAminoAcid( triplet )
 				pixelGamma = this.getGamma( triplet )
 
 				// this line will be removed at some stage:
@@ -2931,13 +2930,11 @@ class AminoSeeNoEvil {
 				this.mixRGBA[2] += parseFloat( this.codonRGBA[2].valueOf() * pixelGamma ) // * blue
 				this.mixRGBA[3] += parseFloat( this.codonRGBA[3].valueOf() * pixelGamma ) // * blue
 				// this.mixRGBA[3] += 255; // * full opacity
-
+				let backupPeptide = this.peptide
 				if ( brute == true ) {
 					for ( let i = 1; i < this.pepTable.length; i++ ) {
-						let pep = this.pepTable[ i ].Codon
-						this.peptide = pep
+						this.peptide = this.pepTable[ i ].Codon
 						pixelGamma = this.getGamma( triplet )
-						log( `pixelGamma: ${ pixelGamma } peptide ${triplet } ${fixedWidth(32,   this.peptide)} ${this.aminoacid} `)
 						//
 						// this.highlightRGBA = this.tripletToRGBA(triplet) // this will this.report this.alpha info
 						// this.darkenRGBA = 		this.tripletToRGBA(triplet) // this will this.report this.alpha info
@@ -2950,6 +2947,7 @@ class AminoSeeNoEvil {
 						this.pepTable[ i ].mixRGBA[3] += parseFloat( this.codonRGBA[3].valueOf() * pixelGamma ) // * blue
 					}
 				}
+				this.peptide = backupPeptide
 
 
 				//  blends colour on one pixel
@@ -2969,8 +2967,10 @@ class AminoSeeNoEvil {
 			pixelGamma = highlightFactor
 		} else if ( this.isHighlightSet == true ) {
 			pixelGamma = darkenFactor
+			// output( `pixelGamma: ${ pixelGamma } peptide ${triplet } ${fixedWidth(32,   this.peptide)} ${this.aminoacid} `)
 		} else {
 			pixelGamma = 1.1
+
 		}
 		return pixelGamma
 	}
@@ -2980,44 +2980,45 @@ class AminoSeeNoEvil {
 			this.renderArtistic()
 			return
 		}
-
 		// REGULAR MODE
-		let bc = balanceColour( this.mixRGBA[0], this.mixRGBA[1], this.mixRGBA[2], this.mixRGBA[3] )
-
-		let backupPeptide = this.peptide
-		let backupTriplet = this.triplet
+		let bc = balanceColour(
+			this.mixRGBA[0],
+			this.mixRGBA[1],
+			this.mixRGBA[2],
+			this.mixRGBA[3]
+		)
 
 		this.red =   bc[0]
 		this.green = bc[1]
 		this.blue  = bc[2]
 		this.alpha = bc[3]
 		this.paintPixel() // FULL BRIGHTNESS JUST ONE PIXEL
-		this.rgbArray.push(Math.round( this.red ))
-		this.rgbArray.push(Math.round( this.green ))
-		this.rgbArray.push(Math.round( this.blue ))
-		this.rgbArray.push(Math.round( this.alpha))
+
+		// this.rgbArray.push(Math.round( this.red ))
+		// this.rgbArray.push(Math.round( this.green ))
+		// this.rgbArray.push(Math.round( this.blue ))
+		// this.rgbArray.push(Math.round( this.alpha))
 
 		if ( brute == true ) {
 			for ( let i = 1; i < this.pepTable.length; i++ ) {
-				let bc = balanceColour( this.pepTable[i].mixRGBA[0], this.pepTable[i].mixRGBA[1], this.pepTable[i].mixRGBA[2], this.pepTable[i].mixRGBA[3] )
-				let pep = this.pepTable[ i ]
-				this.peptide = pep.Codon
-				pixelGamma = this.getGamma( pep.Codon )
-				bc = balanceColour( pep.mixRGBA[0], pep.mixRGBA[1], pep.mixRGBA[2], pep.mixRGBA[3] )
-				this.red =   bc[0] // oops that was overkill ah well
-				this.green = bc[1]
-				this.blue  = bc[2]
-				this.alpha = bc[3]
-				this.pepTable[ i ].lm_array.push(Math.round( this.red ))
-				this.pepTable[ i ].lm_array.push(Math.round( this.green ))
-				this.pepTable[ i ].lm_array.push(Math.round( this.blue ))
-				this.pepTable[ i ].lm_array.push(Math.round( this.alpha))
+				log(`mixRGBA ${this.pepTable[i].mixRGBA}`)
+				let bc = balanceColour(
+					this.pepTable[i].mixRGBA[0],
+					this.pepTable[i].mixRGBA[1],
+					this.pepTable[i].mixRGBA[2],
+					this.pepTable[i].mixRGBA[3]
+				)
+
+				this.pepTable[ i ].lm_array.push(Math.round( bc[0] ))// this.red ))
+				this.pepTable[ i ].lm_array.push(Math.round( bc[1] ))// this.green ))
+				this.pepTable[ i ].lm_array.push(Math.round( bc[2] ))// this.blue ))
+				this.pepTable[ i ].lm_array.push(Math.round( bc[3] ))// this.alpha))
 				this.pepTable[ i ].mixRGBA = [0,0,0,0]
 			}
 		}
 
-		this.peptide = backupPeptide
-		this.triplet = backupTriplet
+		// this.peptide = backupPeptide
+		// this.triplet = backupTriplet
 
 		// reset inks, using this.codonsPerPixel cycles for each pixel:
 		this.mixRGBA[0] =   0
@@ -3551,6 +3552,13 @@ class AminoSeeNoEvil {
 			return false
 		}
 
+		// if (brute == true) {
+		// 	log("Converting 256-bit images to 24-bit image with alpha...")
+		// 	for (let i = 1; i < this.pepTable.length; i++) {
+		// 		this.pepTable[i].lm_array =   Uint8ClampedArray.from( this.pepTable[i].lm_array )
+		// 	}
+		// }
+
 		term.eraseDisplayBelow()
 		mode("save hilbert")
 		notQuiet(chalk.bgBlue.yellow( " Getting in touch with my man from 1891...   ॐ    David Hilbert    ॐ    ") + this.fileHILBERT)// In the " + this.dimension + "th dimension and reduced by " + threesigbitsTolocale( shrinkFactor) );
@@ -3624,7 +3632,7 @@ class AminoSeeNoEvil {
 			log("disk storm has returned")
 		})
 
-		var hilbert_img_data = Uint8ClampedArray.from( this.hilbertImage)
+		var hilbert_img_data = Uint8ClampedArray.from( this.hilbertImage )
 		var hilbert_img_png = new PNG({
 			width: this.hWidth,
 			height: this.hHeight,
@@ -3822,7 +3830,7 @@ class AminoSeeNoEvil {
 			return false
 		}
 
-		if ( this.ratio == "sqr" || this.ratio == "hil") {
+		if ( this.ratio == "sqr" ) {
 			wid = Math.round(Math.sqrt(pix))
 			hite = wid
 			while ( pix > wid * hite) {
@@ -3946,11 +3954,11 @@ class AminoSeeNoEvil {
 			projectprefs.aminosee.opens++ // increment open counter.
 			// open( server.getServerURL( this.justNameOfDNA), { wait: false } );
 			if (openLocalHtml == true) {
-				open( this.fileHTML, {wait: false}).then(() => {
+				open( this.fileHTML, {app: this.browser, wait: false}).then(() => {
 					log("browser closed")
 				}).catch(function () {  this.error(`open( ${this.fileHTML} )`)})
 			} else {
-				open( url + this.justNameOfDNA + "/main.html", {wait: false}).then(() => {
+				open( url + this.justNameOfDNA + "/", {app: this.browser, wait: false}).then(() => {
 					log("browser closed")
 				}).catch(function () {  this.error("open( this.fileHTML)")})
 			}
@@ -4132,7 +4140,7 @@ class AminoSeeNoEvil {
 
 		renderLock = true
 
-		let testPath = path.resolve(this.outputPath + "/calibration")
+		let testPath = path.resolve(this.outputPath , "calibration")
 		let regmarks = this.getRegmarks()
 		let highlight = ""
 
@@ -4347,24 +4355,24 @@ class AminoSeeNoEvil {
 		this.pixelStacking = 0
 		this.pixelClock++
 
-		if ( brute == true ) {
-			for ( let i = 1; i < this.pepTable.length; i++ ) {
+		// if ( brute == true ) {
+		// 	for ( let i = 1; i < this.pepTable.length; i++ ) {
+		//
+		// 		// if ( )
+		// 		this.pepTable[ i ].lm_array.push(Math.round( this.red ))
+		// 		this.pepTable[ i ].lm_array.push(Math.round( this.green ))
+		// 		this.pepTable[ i ].lm_array.push(Math.round( this.blue ))
+		// 		this.pepTable[ i ].lm_array.push(Math.round( this.alpha))
 
-				// if ( )
-				this.pepTable[ i ].lm_array.push(Math.round( this.red ))
-				this.pepTable[ i ].lm_array.push(Math.round( this.green ))
-				this.pepTable[ i ].lm_array.push(Math.round( this.blue ))
-				this.pepTable[ i ].lm_array.push(Math.round( this.alpha))
+		//
+		//
+		// this.pepTable[ i ].lm_array.push(Math.round( this.red ))
+		// this.pepTable[ i ].lm_array.push(Math.round( this.green ))
+		// this.pepTable[ i ].lm_array.push(Math.round( this.blue ))
+		// this.pepTable[ i ].lm_array.push(Math.round( this.alpha))
 
-				//
-				//
-				// this.pepTable[ i ].lm_array.push(Math.round( this.red ))
-				// this.pepTable[ i ].lm_array.push(Math.round( this.green ))
-				// this.pepTable[ i ].lm_array.push(Math.round( this.blue ))
-				// this.pepTable[ i ].lm_array.push(Math.round( this.alpha))
-
-			}
-		}
+		// 	}
+		// }
 
 	}
 
@@ -4394,7 +4402,6 @@ class AminoSeeNoEvil {
 
 
 	fastUpdate() {
-		remain = remain
 		this.present = new Date().getTime()
 		this.runningDuration = ( this.present - this.started) + 1 // avoid division by zero
 		this.msElapsed  = deresSeconds( this.runningDuration) // ??!! ah i see
@@ -4489,7 +4496,7 @@ class AminoSeeNoEvil {
 		} else { output("DNA render done or shutting done") }
 
 		if ( this.updates == false ) {
-			redoline(`${chalk.rgb(128, 255, 128).inverse( nicePercent(this.percentComplete) )} elapsed: `  + chalk.bgBlue(`${ fixedWidth(10, humanizeDuration( this.msElapsed )) }         ${humanizeDuration( this.timeRemain)} remain`))
+			redoline(`${chalk.rgb(128, 255, 128).inverse( nicePercent(this.percentComplete) )} elapsed: `  + chalk.bgBlue(`${ fixedWidth(10, humanizeDuration( this.msElapsed )) }         ${humanizeDuration( this.timeRemain)} remain ${ chalk.bold( this.justNameOfPNG )}`))
 			return false
 		}
 
@@ -4648,10 +4655,7 @@ class AminoSeeNoEvil {
 		return "none"
 	}
 
-	tripletToCodon(str) {
-		this.currentTriplet = str
-		return dnaTriplets.find( this.isTriplet).DNA
-	}
+
 	tripletToHue(str) {
 		console.warn(str)
 		let hue = dnaTriplets.find( this.isTriplet).Hue
@@ -5999,6 +6003,17 @@ function killAllTimers() {
 		clearTimeout( cliInstance.lockTimer )
 	}
 }
+function tripletToAminoAcid(triplet) {
+	this.aminoacid = "error"
+	for (i=0; i < dnaTriplets.length; i++) {
+		if ( dnaTriplets[i].DNA == triplet ) {
+			this.aminoacid = dnaTriplets[i].Codon
+			break
+		}
+	}
+	return this.aminoacid
+}
+
 module.exports.removeLocks = removeLocks
 module.exports.removeNonAscii = removeNonAscii
 module.exports.getOutputFolder = getOutputFolder
