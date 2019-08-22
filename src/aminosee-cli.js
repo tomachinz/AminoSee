@@ -135,7 +135,7 @@ function populateArgs(procArgv) { // returns args
 		boolean: [ "artistic", "clear", "chrome", "devmode", "debug", "demo", "dnabg", "explorer", "file", "force", "fullscreen", "firefox", "gui", "html", "image", "keyboard", "list", "progress", "quiet", "reg", "recycle", "redraw", "slow", "serve", "safari", "test", "updates", "verbose", "view" ],
 		string: [ "url", "output", "triplet", "peptide", "ratio" ],
 		alias: { a: "artistic", b: "dnabg", c: "codons", d: "devmode", f: "force", finder: "explorer", h: "help", k: "keyboard", m: "magnitude", o: "output", p: "peptide", i: "image", t: "triplet", u: "updates", q: "quiet", r: "reg", w: "width", v: "verbose", x: "explorer", view: "html" },
-		default: { brute: false, debug: false, gui: false, html: true, image: true, clear: false, explorer: false, quiet: false, keyboard: false, progress: true, redraw: true, updates: true, serve: true, fullscreen: true },
+		default: { brute: false, debug: false, gui: false, html: true, image: true, clear: false, explorer: false, quiet: false, keyboard: false, progress: true, redraw: true, updates: true, serve: false, fullscreen: true },
 		stopEarly: false
 	} // NUMERIC INPUTS: codons, magnitude, width, maxpix
 	let args = minimist(procArgv.slice(2), options)
@@ -820,9 +820,9 @@ class AminoSeeNoEvil {
 			if (this.serve == true && !isShuttingDown) {
 				output("starting mini server")
 				cliInstance.setupKeyboardUI()
-				cliInstance.updatesTimer = countdown("  webserver ", 360000, () => {
-					output("COLIN!!!")
-				})
+				// cliInstance.updatesTimer = countdown("  webserver ", 360000, () => {
+				// 	output("COLIN!!!")
+				// })
 				server.foregroundserver()
 			} else if ( !isShuttingDown && !this.quiet) {
 				let time = 30000
@@ -1057,7 +1057,7 @@ class AminoSeeNoEvil {
 			previewdimension: 5,
 			darkenFactor: darkenFactor,
 			highlightFactor: highlightFactor,
-			correction: "Normalise",
+			correction: "Expand",
 			finish: new Date(),
 			blurb: this.blurb(),
 			runningDuration: this.runningDuration,
@@ -1660,12 +1660,12 @@ class AminoSeeNoEvil {
 	resetAndPop(reason){
 		if (reason === undefined) { this.error("must set a reason when using reset") }
 		// if (renderLock == true) { output("ERROR: thread entered resetAndPop()"); return false}
-		mode(`RESET JOB. Reason ${reason} Storage: (${ this.storage()} ${ this.busy()}) current: ${ this.currentFile } next: ${ this.nextFile}`)
-		log( status + reason )
+		mode(`RESET JOB ${batchProgress()} Reason ${reason} Storage: (${ this.storage()} ${ this.busy()}) current: ${ this.currentFile } next: ${ this.nextFile}`)
+		notQuiet( status + reason )
 		this.setIsDiskBusy( false )
 		// this.isDiskFinHTML = this.isDiskFinLinear = this.isDiskFinHilbert = true;
 		// this.isStorageBusy = false;
-		renderLock = false
+		// renderLock = false
 		this.percentComplete = 0
 		remain = this.args._.length
 		try {
@@ -1748,7 +1748,7 @@ class AminoSeeNoEvil {
 		output(`OUTPUT FOLDER: ${ blueWhite( blueWhite( path.normalize( this.outputPath )))}`)
 
 		this.timestamp = Math.round(+new Date()/1000)
-		if ( isShuttingDown == true ) { output("Shutting down after this render") }
+		if ( isShuttingDown == true ) { output(`Shutting down after this render ${ blueWhite(this.justNameOfPNG)}`) }
 		if ( renderLock == false) {
 			this.error("RENDER LOCK FAILED. This is an  error I'd like reported. Please run with --devmode option enabled and send the logs to aminosee@funk.co.nz")
 			this.resetAndPop("render lock failed inside initStream")
@@ -2402,11 +2402,13 @@ class AminoSeeNoEvil {
 		}
 		catch (err) {
 			let msg = `EXCEPTION DURING this.rgbArray.length / 4 = ${err}`
-			this.error(msg)
+			rollbackFolder( path.resolve( this.outputPath, this.justNameOfDNA) )
+			// this.error(msg)
 			this.resetAndPop(msg)
 			return false
 		}
 		if ( pixels < 64) {
+			rollbackFolder( path.resolve( this.outputPath, this.justNameOfDNA) )
 			this.resetAndPop(`Either there is too little DNA in this file for render at ${ this.codonsPerPixel } codons per pixel, or less than 64 pixels rendered: ${pixels} pixels rendered from ${ this.currentFile }`)
 			data.saySomethingEpic()
 			return false
@@ -2569,11 +2571,11 @@ class AminoSeeNoEvil {
 	}
 	blurb() {
 		let msg = `
-				Started DNA render ${ this.justNameOfPNG } at ${ formatAMPM( this.startDate)}, and after ${humanizeDuration( this.runningDuration)} completed ${ nicePercent(this.percentComplete)} of the ${bytes(  this.baseChars)} file at ${bytes( this.bytesPerMs*1000)} per second.
-				Estimated ${humanizeDuration( this.timeRemain)} to go with ${  this.genomeSize.toLocaleString()} r/DNA triplets decoded, and ${ this.pixelClock.toLocaleString()} pixels painted.
-				File ${remain} / ${batchSize} on ${ os.platform() } on ${ hostname }.
-				${ this.memToString()} currently ${this.busy()}
-				CPU load:    [ ${ this.loadAverages()} ]`
+	Started DNA render ${ this.justNameOfPNG } at ${ formatAMPM( this.startDate)}, and after ${humanizeDuration( this.runningDuration)} completed ${ nicePercent(this.percentComplete)} of the ${bytes(  this.baseChars)} file at ${bytes( this.bytesPerMs*1000)} per second.
+	Estimated ${humanizeDuration( this.timeRemain)} to go with ${  this.genomeSize.toLocaleString()} r/DNA triplets decoded, and ${ this.pixelClock.toLocaleString()} pixels painted.
+	File ${remain} / ${batchSize} on ${ os.platform() } on ${ hostname }.
+	${ this.memToString()} currently ${this.busy()}
+	CPU load:    [ ${ this.loadAverages()} ]`
 		// output(msg)
 		return msg
 	}
@@ -3233,20 +3235,22 @@ class AminoSeeNoEvil {
 					enable_page_level_ads: true
 				});
 				</script>
+
+				<!-- REMOTE LOADED STYLES
 				<script src="https://www.funk.co.nz/aminosee/public/three.min.js"></script>
 				<script src="https://www.funk.co.nz/aminosee/public/jquery.min.js"></script>
 				<script src="https://www.funk.co.nz/aminosee/public/hilbert3D.js"></script>
 				<script src="https://www.funk.co.nz/aminosee/public/hilbert2D.js"></script>
 				<script src="https://www.funk.co.nz/aminosee/public/WebGL.js"></script>
 				<script src="https://www.funk.co.nz/aminosee/public/hammer.min.js"></script>
-				<!--
-				<script src="../public/three.min.js"></script>
-				<script src="../public/jquery.min.js"></script>
-				<script src="../public/hilbert3D.js"></script>
-				<script src="../public/hilbert2D.js"></script>
-				<script src="../public/WebGL.js"></script>
-				<script src="../public/hammer.min.js"></script>
 				-->
+
+				<script async src="../public/three.min.js"></script>
+				<script async src="../public/jquery.min.js"></script>
+				<script async src="../public/hilbert3D.js"></script>
+				<script async src="../public/hilbert2D.js"></script>
+				<script async src="../public/WebGL.js"></script>
+				<script async src="../public/hammer.min.js"></script>
 				<script async src="../public/aminosee-gui-web.js"></script>
 
 				<style>
@@ -4963,12 +4967,15 @@ function log(txt  ) {
 		deHammer(`${ removeNonAscii( txt ) }`, 1000) // put it on the terminal windowbar or in tmux
 	}
 }
+function batchProgress() {
+	return `${remain}/${batchSize}:${streamLineNr}`
+}
 function wTitle(txt) {
 	if (this === undefined) {
 		txt = hostname
 		return true
 	}
-	txt = `${remain}/${batchSize}:${streamLineNr} | ${ removeNonAscii( txt )} ${ maxWidth(10,  cfile)} AminoSeeNoEvil @${hostname}`
+	txt = `${batchProgress()} | ${ removeNonAscii( txt )} ${ maxWidth(10,  cfile)} AminoSeeNoEvil @${hostname}`
 	if (this === undefined) {
 		txt += `[ ${txt} ] no this`
 	} else {
@@ -6051,7 +6058,11 @@ function tripletToAminoAcid(triplet) {
 	}
 	return this.aminoacid
 }
-
+function rollbackFolder(fullpath) {
+	output("here goes nothing")
+	deleteFile( path.resolve(fullpath, "images") )
+	deleteFile( fullpath )
+}
 module.exports.removeLocks = removeLocks
 module.exports.removeNonAscii = removeNonAscii
 module.exports.getOutputFolder = getOutputFolder

@@ -7,30 +7,35 @@
 	<meta name="description" content="A new way to view DNA that attributes a colour hue to each Amino acid codon triplet">
 	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 	<meta http-equiv="Content-Security-Policy" content="default-src http://127.0.0.1:8888 http://127.0.0.1:4321 http://127.0.0.1:43210 https://dev.funk.co.nz http://dev.funk.co.nz https://www.funk.co.nz  http://www.funk.co.nz * data: blob: 'unsafe-inline' 'unsafe-eval' ws: wss:;">
-	<script src="three.min.js"></script>
-	<script src="jquery.min.js"></script>
-	<script src="hilbert3D.js"></script>
-	<script src="hilbert2D.js"></script>
-	<script src="WebGL.js"></script>
-	<script src="sprites.js"></script>
-	<script src="hammer.min.js"></script>
-	<script src="aminosee-gui-web.js"></script>
-	<script src="aminosee-web-socket.js"></script>
-	<!-- <script src="carlo.js"></script> -->
-	<script src="dat.gui.min.js"></script>
-	<link rel="shortcut icon" href="256_icon.png" sizes="256x256" />
-	<!-- <script src="node_modules/jquery/dist/jquery.min.js"></script> -->
-	<!-- <script src="node_modules/three/build/three.min.js"></script> -->
-	<!-- <script src="bundle.js"></script> -->
-	<!-- <script src="sprites.js" type="module"></script> -->
-
-	<!-- <script src="node_modules/xterm/dist/xterm.js"></script> -->
-	<script src="xterm.js"></script>
-	<!-- <script src="renderer.js"></script> -->
-	<link rel="stylesheet" type="text/css" href="AminoSee.css">
+	<link rel="shortcut icon" href="public/256_icon.png" sizes="256x256" />
+	<link rel="stylesheet" type="text/css" href="public/AminoSee.css">
 	<link href='https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz:700,400,200,100' rel='stylesheet' type='text/css'>
 	<link href="https://www.funk.co.nz/css/menu.css" rel="stylesheet">
 	<link href="https://www.funk.co.nz/css/funk2019.css" rel="stylesheet">
+
+	<script async type="text/javascript" src="//localhost:35729/livereload.js?snipver=1"></script>
+	<script src="public/three.min.js"></script>
+	<script src="public/jquery.min.js"></script>
+	<script src="public/hilbert3D.js"></script>
+	<script src="public/hilbert2D.js"></script>
+	<script src="public/WebGL.js"></script>
+	<script src="public/sprites.js"></script>
+	<script src="public/hammer.min.js"></script>
+	<script src="public/aminosee-gui-web.js"></script>
+	<script src="public/aminosee-web-socket.js"></script>
+	<script src="public/xterm.js"></script>
+	<script src="public/dat.gui.min.js"></script>
+
+
+	<!-- <script src="public/carlo.js"></script> -->
+	<!-- <script src="node_modules/jquery/dist/jquery.min.js"></script> -->
+	<!-- <script src="node_modules/three/build/three.min.js"></script> -->
+	<!-- <script src="public/bundle.js"></script> -->
+	<!-- <script src="public/sprites.js" type="module"></script> -->
+	<!-- <script src="node_modules/xterm/dist/xterm.js"></script> -->
+	<!-- <script src="public/renderer.js"></script> -->
+
+
 	<!-- Funk.nz menubar include -->
 	<!-- Google Tag Manager -->
 	<noscript><iframe src="//www.googletagmanager.com/ns.html?id=GTM-P8JX" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
@@ -78,7 +83,6 @@
 	<!-- End Google Tag Manager -->
 
 
-	<script async type="text/javascript" src="//localhost:35729/livereload.js?snipver=1"></script>
 
 
 
@@ -86,7 +90,7 @@
 
 	<nav id="nav">
 		<ul>
-			<li id="menuhomelink"><a href="http://www.funk.co.nz/" style="width: 100px;" title="Return to FUNK Homepage"><img src="funk-logo-140px.png" width="140" height="70" alt="Home" style="position: absolute; top: -2px; left: 26px; z-index: -1;" /></a></li>
+			<li id="menuhomelink"><a href="https://www.funk.co.nz/" style="width: 100px;" title="Return to FUNK Homepage"><img src="https://www.funk.co.nz/images/nav/funk-logo-140px.png" width="140" height="70" alt="Home" style="position: absolute; top: -2px; left: 26px; z-index: -1;" /></a></li>
 			<ul>
 				<li>
 					<div id="gsc-control-cse">
