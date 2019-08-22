@@ -3965,7 +3965,19 @@ class AminoSeeNoEvil {
 			if (openLocalHtml == true) {
 				open( this.fileHTML, {app: this.browser, wait: false}).then(() => {
 					log("browser closed")
-				}).catch(function () {  this.error(`open( ${this.fileHTML} )`)})
+				}).catch(function (err) {
+					if ( err == "ENOENT") {
+						output(`Got file not found trying to launch browser: ${ chalk.inverse( this.browser ) }`)
+						if ( this.browser == "chrome" || this.browser == "safari") {
+							this.browser == "firefox"
+						} else if ( this.browser == "firefox" ) {
+							this.browser == "chrome"
+						}
+						output(`Switching to use ${this.browser}`)
+					}
+					this.error(`open( ${this.fileHTML} )`)
+
+				})
 			} else {
 				open( url + this.justNameOfDNA + "/", {app: this.browser, wait: false}).then(() => {
 					log("browser closed")
