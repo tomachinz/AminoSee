@@ -1,6 +1,6 @@
 {
   "name": "aminosee",
-  "version": "1.24.8",
+  "version": "1.24.9",
   "owner": "Thomas Bieder Atkinson",
   "author": "Tom Atkinson <tom@funk.co.nz>",
   "website": "http://aminosee.funk.nz",
@@ -30,6 +30,7 @@
     }
   },
   "scripts": {
+    "cypress": "node_modules/.bin/cypress open",
     "demo": "node bin/aminosee demo",
     "credits": "./build-credits.sh",
     "clean": "rimraf ./dist ./build",

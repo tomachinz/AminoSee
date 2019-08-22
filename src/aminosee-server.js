@@ -19,9 +19,8 @@ aminosee.funk.nz DNA Viewer by Tom Atkinson.
 This is a temporary lock file, so I dont start too many servers. Its safe to erase these files, and I've made a script in /dna/ to batch delete them all in one go. Normally these are deleted when render is complete, or with Control-C and graceful shutdown.`
 // const version = aminosee.version;
 // const webserverEnabled = true;
-const defaulturl = "http://localhost:4321/?devmode"
+const defaulturl = "http://localhost:4321"
 let outputPath, filenameServerLock, url, projectprefs, userprefs, port, cliruns, gbprocessed, args, theserver, genomes
-url = defaulturl
 port = 4321
 backupPort = 43210;
 // process.title = `aminosee.funk.nz_server`;
@@ -111,7 +110,7 @@ function buildServer() {
 	this.openHtml = true
 	// that.setupKeyboardUI();
 	// output("HELLO**********************")
-	log(`Building server to ${outputPath}  ${defaulturl}`)
+	log(`Building server to ${outputPath}  ${url}`)
 	data.saySomethingEpic()
 	let sFiles = [
 		{ "source": appPath + "/public",            "dest": outputPath + "/public" },
@@ -121,7 +120,7 @@ function buildServer() {
 	for (let i=0; i<sFiles.length; i++) {
 		let element = sFiles[i]
 		// log('building ' + element.source );//.toString());
-		createSymlink(path.normalize(path.resolve(element.source)), path.normalize(path.resolve(element.dest)))
+		createSymlink(path.resolve(element.source), path.resolve(element.dest))
 	}
 
 }
@@ -324,7 +323,7 @@ function start(a) { // return the port number
 	}
 	// startServeHandler(o, port)
 
-	open( url + "/public/?devmode", {wait: false}).then(() => {
+	open( url + "/home.html?devmode", {wait: false}).then(() => {
 		log("browser closed")
 	}).catch(function () {  })
 

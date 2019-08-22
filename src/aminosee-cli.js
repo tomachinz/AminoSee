@@ -123,7 +123,7 @@ function startGUI() {
 	const someArgs = {
 		verbose: false,
 		output: path.resolve( os.homedir(), "AminoSee_Output"),
-		serve: false
+		serve: true
 	}
 	// server.start(someArgs)
 	// destroyKeyboardUI()
@@ -135,7 +135,7 @@ function populateArgs(procArgv) { // returns args
 		boolean: [ "artistic", "clear", "chrome", "devmode", "debug", "demo", "dnabg", "explorer", "file", "force", "fullscreen", "firefox", "gui", "html", "image", "keyboard", "list", "progress", "quiet", "reg", "recycle", "redraw", "slow", "serve", "safari", "test", "updates", "verbose", "view" ],
 		string: [ "url", "output", "triplet", "peptide", "ratio" ],
 		alias: { a: "artistic", b: "dnabg", c: "codons", d: "devmode", f: "force", finder: "explorer", h: "help", k: "keyboard", m: "magnitude", o: "output", p: "peptide", i: "image", t: "triplet", u: "updates", q: "quiet", r: "reg", w: "width", v: "verbose", x: "explorer", view: "html" },
-		default: { brute: false, debug: false, gui: false, html: true, image: true, clear: false, explorer: false, quiet: false, keyboard: false, progress: true, redraw: true, updates: true, serve: false, fullscreen: true },
+		default: { brute: false, debug: false, gui: false, html: true, image: true, clear: false, explorer: false, quiet: false, keyboard: false, progress: true, redraw: true, updates: true, serve: true, fullscreen: true },
 		stopEarly: false
 	} // NUMERIC INPUTS: codons, magnitude, width, maxpix
 	let args = minimist(procArgv.slice(2), options)
@@ -439,7 +439,6 @@ class AminoSeeNoEvil {
 		}
 		this.openHtml = true
 		this.browser = "chrome"
-		log(`default browser set to open automatically in ${ this.browser }`)
 		if ( args.chrome) {
 			this.openImage = true
 			this.openHtml = true
@@ -453,7 +452,7 @@ class AminoSeeNoEvil {
 			this.openHtml = true
 			this.browser = "safari"
 		}
-		notQuiet(`Browser set to ${ this.browser } options: --chrome --firefox --safari`)
+		log(`Browser set to ${ this.browser } options: --chrome --firefox --safari`)
 		if ( args.image || args.i ) {
 			this.openImage = true
 			log("will automatically open image")
@@ -531,7 +530,7 @@ class AminoSeeNoEvil {
 			this.ratio = "fix"
 			this.userRatio = "auto"
 		}
-		output(`Using ${ this.ratio } aspect ratio`)
+		log(`Using aspect ratio: ${  chalk.inverse(this.ratio) } `)
 
 		if ( args.triplet || args.t) {
 			this.usersTriplet = args.triplet
@@ -841,15 +840,19 @@ class AminoSeeNoEvil {
 			} else if ( !isShuttingDown && !this.quiet) {
 				let time = 30000
 				if ( this.quiet == true ) { time = 1000 }
-				printRadMessage(["Welcome... to run the GUI", "PRESS ANY KEY", "to open the interface", "[Q] to Quit", "usage:", "aminosee --help"])
+				printRadMessage(["Welcome... this is a CLI app run from the terminal, see above", "[Q] or [Esc] key to exit now", " ", "PRESS ANY KEY", "to open the interface", chalk.italic( "aminosee --help")])
 				cliInstance.setupKeyboardUI()
 				cliInstance.updatesTimer = countdown("closing in ", time, () => {
 					if ( this.gui == false ) { // if the GUI is up, dont exit
 						isShuttingDown = true
 						destroyKeyboardUI()
-						this.quit(0, "no command")
+						this.quit(0, "no command. gui is true.")
 					} else {
-						notQuiet("I'll be back")
+						if ( this.gui == false && this.serve == false) {
+							this.quit(130, "no command and no gui or server")
+						} else {
+							log("waiting for GUI or server to close")
+						}
 					}
 				})
 			}
@@ -2111,7 +2114,8 @@ class AminoSeeNoEvil {
 		let { shrinkFactor, codonsPerPixelHILBERT } = calculateShrinkage( this.pixelClock, this.dimension, this.codonsPerPixel )
 		this.shrinkFactor = shrinkFactor
 		this.codonsPerPixelHILBERT =  codonsPerPixelHILBERT
-		this.fileHILBERT = `${ this.outputPath }/${ this.justNameOfDNA }/images/${ this.generateFilenameHilbert(this.pixelClock, this.magnitude )  }`
+		// this.fileHILBERT = `${ this.outputPath }/${ this.justNameOfDNA }/images/${ this.generateFilenameHilbert(this.pixelClock, this.magnitude )  }`
+		this.fileHILBERT = path.resolve( this.outputPath, this.justNameOfDNA, "images", this.generateFilenameHilbert(this.pixelClock, this.magnitude ) )
 	}
 
 	generateFilenameHistogram() {
@@ -2318,7 +2322,7 @@ class AminoSeeNoEvil {
 		output("     aminosee serve                (fire up the mini web server")
 		output("     aminosee demo   <<-----           (run demo - beta version")
 		output("     aminosee help   <<-----           (shows this docs message")
-		output("     aminosee *         (render all files with default settings")
+		output("     aminosee dna/*  (render all files in dna/ default settings")
 		term.down( this.termStatsHeight)
 		if ( this.quiet == false) {
 			printRadMessage( [ `software version ${version}` ] )
@@ -5843,12 +5847,20 @@ function genericPNG(rgbArray, width, height, filename, cb) {
 function printRadMessage(arr) {
 	// output( returnRadMessage(arr) );
 	if (arr === undefined) {
-		arr = ["    ________", "    ________", "    ________", "    ________", "    ________", "", "Output path:", cliInstance.outputPath ]
+		arr = ["    ", "    ", "    ", "    ", "    ", "", "Output path:", cliInstance.outputPath ]
 		// arr = [ "    ________", "    ________", "    ________", "    ________", "    ________", "", "Output path:"," " ];
 	}
 	while ( arr.length < 9 ) {
-		arr.push("    ________")
+		arr.push("    ")
 	}
+	for  (let i = 0; i < arr.length; i++) {
+		let item = arr[i]  + " "
+		while (item.length < 36) {
+			item = item + " "
+		}
+		arr[i] = item
+	}
+
 	let radMargin = cliInstance.termMarginLeft
 	term.eraseLine()
 	term.right(radMargin)

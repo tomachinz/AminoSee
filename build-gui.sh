@@ -17,6 +17,8 @@ npm upgrade
  ./build-lib.sh
  ./gource.sh
 
+pkg . --targets win-x86 --output ./dist/AminoSee_win/aminosee-win32.exe
+
 sleep 30
 
 # echo Requires: npm, electron, electron-packager

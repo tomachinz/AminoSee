@@ -151,11 +151,11 @@ async function run() {
 				channel: ["canary", "stable"],
 				icon: path.join(__dirname, "public/512_icon.png"),
 				args: [ "--allow-insecure-localhost", "--webpack-dev-server"],
-				// serveOrigin: `http://localhost:${port}`
+				serveOrigin: `http://localhost:${port}`
 			})
 	} catch(e) {
 		// New window is opened in the running instance.
-		console.log("Reusing the running instance")
+		console.log(`http://localhost:${port}`)
 		return
 	}
 	app.on("exit", () => {
