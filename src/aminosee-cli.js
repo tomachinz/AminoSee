@@ -3939,6 +3939,18 @@ class AminoSeeNoEvil {
 		// if ( cb !== undefined ) { cb() }
 		return retProm
 	}
+	openError(err) {
+		if ( err == "ENOENT") {
+			output(`Got file not found trying to launch browser: ${ chalk.inverse( this.browser ) }`)
+			if ( this.browser == "chrome" || this.browser == "safari") {
+				this.browser == "firefox"
+			} else if ( this.browser == "firefox" ) {
+				this.browser == "chrome"
+			}
+			output(`Switching to use ${this.browser}`)
+		}
+		this.error(`open( ${this.fileHTML} )`)
+	}
 	openOutputs() {
 		mode("open files "+ this.currentFile)
 		blueWhite(  status )
@@ -3958,7 +3970,8 @@ class AminoSeeNoEvil {
 
 
 		if ( this.openHtml == true) {
-			output(`Opening ${ this.justNameOfHTML} DNA render summary HTML report.`)
+			mode(`Opening ${ this.justNameOfHTML} DNA render summary HTML report.`)
+			notQuiet( status )
 			this.opensHtml++
 			projectprefs.aminosee.opens++ // increment open counter.
 			// open( server.getServerURL( this.justNameOfDNA), { wait: false } );
@@ -3966,22 +3979,14 @@ class AminoSeeNoEvil {
 				open( this.fileHTML, {app: this.browser, wait: false}).then(() => {
 					log("browser closed")
 				}).catch(function (err) {
-					if ( err == "ENOENT") {
-						output(`Got file not found trying to launch browser: ${ chalk.inverse( this.browser ) }`)
-						if ( this.browser == "chrome" || this.browser == "safari") {
-							this.browser == "firefox"
-						} else if ( this.browser == "firefox" ) {
-							this.browser == "chrome"
-						}
-						output(`Switching to use ${this.browser}`)
-					}
-					this.error(`open( ${this.fileHTML} )`)
-
+					this.openError(err)
 				})
 			} else {
 				open( url + this.justNameOfDNA + "/", {app: this.browser, wait: false}).then(() => {
 					log("browser closed")
-				}).catch(function () {  this.error("open( this.fileHTML)")})
+				}).catch(function () {
+					this.openError(err)
+				})
 			}
 		} else {
 			log("Not opening HTML")

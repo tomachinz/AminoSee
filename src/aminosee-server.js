@@ -173,7 +173,7 @@ function foregroundserver(options) {
 	if ( options === undefined ) {
 		options = [ outputPath, "-p", port, "-o" ]
 	}
-	output(`FOREGROUND server path: ${outputPath} ${port} ${url}`)
+	log(`FOREGROUND server path: ${outputPath} ${port} ${url}`)
 	theserver = httpserver.createServer(options)
 	process.title = "aminosee.funk.nz_server"
 	return theserver
@@ -306,8 +306,8 @@ function start(a) { // return the port number
 	stop()
 	setupPrefs()
 	buildServer()
-	// let options = [ outputPath, `-p`, port, '-o' ]
-	let options = [ outputPath + "/", "-p", port, "-o" ]
+	let options = [ outputPath, "-p", port, "-o" ]
+	// let options = [ outputPath + "/", "-p", port, "-o" ]
 	if ( serverLock() == true ) {
 		port = readLockPort(filenameServerLock)
 		log(`Server already started, using lock file port of (${port}). If you think this is not true, remove the lock file: ${ path.normalize( filenameServerLock )}`)
@@ -316,13 +316,12 @@ function start(a) { // return the port number
 		log(`filenameServerLock: ${filenameServerLock}`)
 	}
 	if ( args.serve == true ) {
-		output("Foreground")
+		log("Foreground")
 		foregroundserver(options) // blocking version
 	} else {
 		output("Backround")
 		spawnBackground(options) // works great but relies on http-server being installed globally
 	}
-	// startServeHandler(o, port)
 
 	open( url + "/aminosee.html?devmode", {wait: false}).then(() => {
 		log("browser closed")
@@ -342,10 +341,7 @@ function error(err) {
 function openPage(relative) {
 	output("Opening page: " + relative)
 }
-// module.exports.getServerURL = function (path) {
 function getServerURL(fullpath) {
-	// return '? its a bug';
-
 	let internalIp = require("internal-ip")
 	let indexfile = ""
 	if ( debug ) {
@@ -373,7 +369,7 @@ function serverLock() {
 		log("Server already running ")
 		return true
 	} else {
-		output("Server starting up...")
+		log("Server starting up...")
 		// output('Server NOT already running ');
 		recordFile(filenameServerLock, port, () => {
 		})
