@@ -121,7 +121,7 @@
     "sliced": "^1.0.1",
     "spdy": "^4.0.1",
     "stream-file": "^0.2.4",
-    "systeminformation": "^4.14.4",
+    "systeminformation": "^4.14.7",
     "through": "^2.3.8",
     "uniq": "^1.0.1",
     "vows": "^0.8.2",
