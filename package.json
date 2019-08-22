@@ -90,7 +90,7 @@
     "cypress": "^3.4.1",
     "dat.gui": "^0.7.6",
     "ecstatic": "^4.1.2",
-    "eslint": "^6.2.0",
+    "eslint": "^6.2.1",
     "eslint-config-rallycoding": "^3.2.0",
     "event-stream": "^4.0.1",
     "get-cursor-position": "^1.0.5",
