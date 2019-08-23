@@ -118,18 +118,24 @@ function startGUI() {
 	cliInstance.serve = true
 	// cliInstance.setupKeyboardUI();
 	output("Starting carlo GUI - press Control-C to quit")
-	const carlo = require("./aminosee-carlo").run()
+	const carlo = require("./aminosee-carlo").run( generateTheArgs() )
 	output(".")
-	const someArgs = {
-		verbose: false,
-		output: path.resolve( os.homedir(), "AminoSee_Output"),
-		serve: true
-	}
 	// server.start(someArgs)
 	// destroyKeyboardUI()
 	return carlo
 }
+function generateTheArgs() {
 
+	const theArgs = {
+		// verbose: false,
+		// verbose: this.verbose,
+		verbose: cliInstance.verbose,
+		// output: path.resolve( os.homedir(), "AminoSee_Output"),
+		output: cliInstance.outputPath,
+		serve: true
+	}
+	return theArgs
+}
 function populateArgs(procArgv) { // returns args
 	const options = {
 		boolean: [ "artistic", "clear", "chrome", "devmode", "debug", "demo", "dnabg", "explorer", "file", "force", "fullscreen", "firefox", "gui", "html", "image", "keyboard", "list", "progress", "quiet", "reg", "recycle", "redraw", "slow", "serve", "safari", "test", "updates", "verbose", "view" ],
@@ -719,6 +725,9 @@ class AminoSeeNoEvil {
 		}
 		if ( args.demo ) {
 			this.demo = true
+			this.args._.push( "demo")
+			remain = args._.length
+
 			output("Demo mode activated")
 		} else {
 			this.demo = false
@@ -823,7 +832,10 @@ class AminoSeeNoEvil {
 				// cliInstance.updatesTimer = countdown("  webserver ", 360000, () => {
 				// 	output("COLIN!!!")
 				// })
-				server.foregroundserver()
+				setTimeout( () => {
+					server.start( generateTheArgs() )
+				}, this.raceDelay)
+				// server.foregroundserver()
 			} else if ( !isShuttingDown && !this.quiet) {
 				let time = 30000
 				if ( this.quiet == true ) { time = 1000 }
@@ -1523,6 +1535,11 @@ class AminoSeeNoEvil {
 			this.popShiftOrBust("For some odd reason... yeah Im gonna get back to you on that unset variable")
 			return false
 		}
+		if ( this.demo == true ) {
+			output("demo mode")
+			runDemo()
+			return false
+		}
 		if ( doesFolderExist(this.dnafile ) ) { // FOLDER CHECK
 			let asterix = `${path.normalize( this.currentFile)}/*`
 			let msg = `If you meant to render everything in (${this.currentFile}), try using an asterix on CLI:  ${chalk.italic.bold(  "aminosee " +  asterix)}`
@@ -1661,7 +1678,10 @@ class AminoSeeNoEvil {
 		if (reason === undefined) { this.error("must set a reason when using reset") }
 		// if (renderLock == true) { output("ERROR: thread entered resetAndPop()"); return false}
 		mode(`RESET JOB ${batchProgress()} Reason ${reason} Storage: (${ this.storage()} ${ this.busy()}) current: ${ this.currentFile } next: ${ this.nextFile}`)
-		notQuiet( status + reason )
+		if ( this.quiet == false ) {
+			redoline( status + reason )
+		}
+		// notQuiet()
 		this.setIsDiskBusy( false )
 		// this.isDiskFinHTML = this.isDiskFinLinear = this.isDiskFinHilbert = true;
 		// this.isStorageBusy = false;
@@ -1719,9 +1739,8 @@ class AminoSeeNoEvil {
 
 
 		if ( webserverEnabled ) {
-			let args = { output: this.outputPath, verbose: this.verbose }
 			// url = server.start( args )
-			this.currentURL = server.start( args )
+			this.currentURL = server.start( generateTheArgs() )
 			output(`Server running at: ${ chalk.underline( url ) } to stop use: aminosee --stop `)
 			if ( !this.serve ) {
 				server.foregroundserver()
@@ -2720,8 +2739,17 @@ class AminoSeeNoEvil {
 		}
 		if (this.test == true) {
 			this.isDiskFinHTML = true
-			output(" [ Starting another cycle in ]")//`${ humanizeDuration( this.raceDelay*10 )}`);
-			this.runCycle()
+			this.renderLock = false
+			output(` [ Starting another cycle in ${ humanizeDuration( this.raceDelay*10 )}`)
+			setTimeout( () => {
+				if ( renderLock == false ) {
+					output("now")
+					this.runCycle()
+				} else {
+					output("busy")
+				}
+			})
+
 		}
 		// try to avoid messing with globals of a already running render!
 		// sort through and load a file into "nextFile"
@@ -2875,6 +2903,7 @@ class AminoSeeNoEvil {
 				setTimeout( () => {
 					process.stdout.write(`${code} ${reason}`)
 					this.args._ = []
+					output("exiting")
 					term.processExit(code)
 					process.exit()
 				}, this.raceDelay)
@@ -5109,10 +5138,10 @@ function spaceTo_(str) {
 function runDemo() {
 	var that = cliInstance
 	async.series( [
-		function( cb ) {
-			newJob("test")
-			cb()
-		},
+		// function( cb ) {
+		// 	newJob("test")
+		// 	cb()
+		// },
 		function( cb ) {
 			that.openImage = true
 			that.peptide = "Opal" // Blue TESTS
@@ -5604,7 +5633,7 @@ function listDNA() {
 // }
 process.on("SIGTERM", () => {
 	let sig = "SIGTERM"
-	output(`Received ${sig} signal (ignoring)`)
+	log(`Received ${sig} signal (ignoring)`)
 	// cliInstance.gracefulQuit();
 	// cliInstance.destroyProgress();
 	// process.exitCode = 130;

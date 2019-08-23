@@ -140,7 +140,8 @@ function spawnBackground(p) { // Spawn background server
 	let options = [ outputPath + "/", "-p", port, "-o" ]
 	let optionsAminoSee = [ "--serve", outputPath + "/", "-p", port ]
 	output(options.toString())
-	output(chalk.yellow(`Starting BACKGROUND web server - doc root: ${options.toString()} ${chalk.underline(getServerURL())}`))
+	output(chalk.yellow(`Starting BACKGROUND web server at ${chalk.underline(getServerURL())}`))
+	console.log(options)
 	let evilSpawn
 	try {
 		evilSpawn = spawn("http-server", options, { stdio: "pipe" })
@@ -157,7 +158,7 @@ function spawnBackground(p) { // Spawn background server
 		log( `error with ${chalk.inverse(url)}`)
 		didStart = false
 		if ( data.indexOf("EADDRINUSE") != -1 ) {
-			log(`Port ${port} is in use`)
+			output(`Port ${port} is in use`)
 		} else if ( data.indexOf("ENOENT") != -1 ) {
 			output("ENOENT error")
 			// output( data );
@@ -167,7 +168,7 @@ function spawnBackground(p) { // Spawn background server
 		}
 	})
 	evilSpawn.on("close", (code) => {
-		log( chalk.inverse("Server process quit with" ) + ` [${code}] Use --kill to get forceful about starting that server`)
+		output( chalk.inverse("Server process quit with" ) + ` [${code}] Use --kill to get forceful about starting that server`)
 	})
 	log(chalk.bgBlue.yellow("IDEA: Maybe send some bitcoin to the under-employed creator tom@funk.co.nz to convince him to work on it?"))
 	log("Control-C to quit. This requires http-server, install that with:")
@@ -303,7 +304,10 @@ function readLockPort(file) {
 function start(a) { // return the port number
 
 	setArgs(a)
-	log(`Attempting to start server with args: ${ a.toString() }`)
+	log("Attempting to start server with args:")
+	if ( args.verbose ) {
+		console.log( a )
+	}
 	process.title = "aminosee.funk.nz_server"
 	outputPath = args.output
 	filenameServerLock = path.resolve(`${outputPath}/aminosee_server_lock.txt`)
@@ -320,12 +324,12 @@ function start(a) { // return the port number
 		log("No locks found, Starting server ")
 		log(`filenameServerLock: ${filenameServerLock}`)
 	}
-	if ( args.serve == true ) {
-		log("Foreground")
+	if ( args.serve !== true ) {
+		output("Foreground")
 		foregroundserver(options) // blocking version
 	} else {
 		output("Backround")
-		spawnBackground(options) // works great but relies on http-server being installed globally
+		spawnBackground() // works great but relies on http-server being installed globally
 	}
 
 	open( url + "/aminosee.html?devmode", {wait: false}).then(() => {
@@ -346,18 +350,19 @@ function error(err) {
 function openPage(relative) {
 	output("Opening page: " + relative)
 }
-function getServerURL(fullpath) {
+function getServerURL(fragment) {
+
 	let internalIp = require("internal-ip")
 	let indexfile = ""
-	if ( debug ) {
-		indexfile = "main.html"
+	if ( args.devmode ) {
+		indexfile = "aminosee.html"
 	}
-	if (fullpath == undefined) {
-		fullpath = "/"
+	if (fragment == undefined) {
+		fragment = "/"
 	} else {
-		fullpath = `/${fullpath}/${indexfile}`
+		fragment = `/${fragment}/${indexfile}`
 	}
-	let serverURL = `http://${internalIp.v4.sync()}:${port}${fullpath}`
+	let serverURL = `http://${internalIp.v4.sync()}:${port}${fragment}`
 	output(`serverURL returns ${serverURL} and also ${url}`)
 	if ( serverURL !== url ) {
 		output("Maybe this is a bug, and I am exploring various web servers and runinng multiples in this version, so I got confused. You mite want to set the server URL base with:")

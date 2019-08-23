@@ -46,31 +46,6 @@ async function runCarlo() {
 
 }
 
-// function startCarlo() {
-//   (async () => {
-//     // Launch the browser.
-//     const app = await carlo.launch();
-//
-//     // Terminate Node.js process on app window closing.
-//     app.on('exit', () => process.exit());
-//
-//     // Tell carlo where your web files are located.
-//     // app.serveFolder(__dirname);
-//
-//     // Expose 'env' function in the web environment.
-//     await app.exposeFunction('env', _ => process.env);
-//     await app.exposeFunction('aminosee', _ => ['hello world', 'megabase']);
-//     // app.serveFolder( path.resolve( os.homedir + "/AminoSee_output" ) );
-//     // app.serveFolder( path.resolve( os.homedir + "/AminoSee_output" ) );
-//     // app.serveFolder( path.join(__dirname, 'public'));
-//
-//     // Navigate to the main page of your app.
-//     // await app.load('/aminosee.html');
-//     await app.load('http://localhost:4321/').then( () => { console.log(`rugby was the winner`) }).catch( await app.load('http://localhost:43210/') );
-//   })();
-// }
-// startCarlo();
-//
 // function setupPrefs() {
 //   let output = getOutputFolder();
 //   projectprefs = new Preferences('nz.funk.aminosee.project', {
@@ -135,13 +110,13 @@ async function runCarlo() {
 // args: [ '--allow-insecure-localhost', '--webpack-dev-server', '--auto-open-devtools-for-tabs'],
 // (process.env.DEV === "true" ? ["--auto-open-devtools-for-tabs", "--allow-insecure-localhost", "--webpack-dev-server", "--https"] : [ "--allow-insecure-localhost", "--webpack-dev-server"]),
 
-
 async function run() {
 	let app
+
 	try {
 		app = await carlo.launch(
 			{ //
-				// localDataDir: path.join( os.homedir(), "/AminoSee_Output"),
+				localDataDir: path.join( os.homedir(), "/AminoSee_Output"),
 				// userDataDir: path.join( __dirname, ".carlosysteminfo" ),
 				// userDataDir: path.join( os.homedir(), "/AminoSee_Output"),
 				bgcolor: "#012345",
