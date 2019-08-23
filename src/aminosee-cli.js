@@ -76,6 +76,7 @@ const max32bitInteger = 2147483647
 const minUpdateTime = 800
 const openLocalHtml = true // affects auto-open HTML.
 const wideScreen = 140 // shrinks terminal display
+const windows7 = 80
 const fileLockingDelay = 2000
 // let bodyParser = require('body-parser');
 // const gv = require('genversion');
@@ -1007,35 +1008,25 @@ class AminoSeeNoEvil {
 	}
 
 	getRenderObject() { // return part of the histogramJson obj
-		let linearimage, hilbertimage
-		hilbertimage = this.fileHILBERT
-		linearimage = this.filePNG
-
 		for (let h = 0; h < this.pepTable.length; h++) {
 			const pep =  this.pepTable[h]
 			this.currentPeptide = pep.Codon
 			if ( this.currentPeptide == "Reference" ) { // index 0
-				this.pepTable[h].hilbert_master = hilbertimage
-				this.pepTable[h].linear_master = linearimage
-				this.pepTable[h].hilbert_preview = this.aminoFilenameIndex(h)[0]
-				this.pepTable[h].linear_preview = this.aminoFilenameIndex(h)[1]
-				this.pepTable[h].mixRGBA = this.tripletToRGBA(pep.Codon) // this will this.report this.alpha info
-			} else {
-				this.pepTable[h].hilbert_master = this.aminoFilenameIndex(h)[0]
-				this.pepTable[h].linear_master = this.aminoFilenameIndex(h)[1]
-				this.pepTable[h].hilbert_preview = this.aminoFilenameIndex(h)[0]
-				this.pepTable[h].linear_preview = this.aminoFilenameIndex(h)[1]
-				this.pepTable[h].mixRGBA = this.tripletToRGBA(pep.Codon) // this will this.report this.alpha info
+				// this.pepTable[h].hilbert_master = hilbertimage
+				// this.pepTable[h].linear_master = linearimage
+				// this.pepTable[h].hilbert_preview = this.aminoFilenameIndex(h)[0]
+				// this.pepTable[h].linear_preview = this.aminoFilenameIndex(h)[1]
+				// this.pepTable[h].mixRGBA = this.tripletToRGBA(pep.Codon) // this will this.report this.alpha info
 			}
+			this.pepTable[h].hilbert_master = this.aminoFilenameIndex(h)[0]
+			this.pepTable[h].linear_master = this.aminoFilenameIndex(h)[1]
+			this.pepTable[h].hilbert_preview = this.aminoFilenameIndex(h)[0]
+			this.pepTable[h].linear_preview = this.aminoFilenameIndex(h)[1]
+			this.pepTable[h].mixRGBA = this.tripletToRGBA(pep.Codon) // this will this.report this.alpha info
 			log(`ext: ${ this.extension } this.pepTable[h].src ${ this.pepTable[h].src} codons per pixel: ${this.codonsPerPixelHILBERT}` )
 		}
 
 		this.currentPeptide = "none" // get URL for reference image
-		// hilbertimage = this.aminoFilenameIndex(-1)[0];
-		// linearimage = this.aminoFilenameIndex(-1)[1];
-
-
-
 		// this.pepTable.sort( this.compareHistocount )
 		this.pepTable.sort( this.compareHue )
 		if ( this.dimension > defaultPreviewDimension ) {
@@ -1044,19 +1035,23 @@ class AminoSeeNoEvil {
 		bugtxt( this.pepTable ) // least common amino acids in front
 		let zumari = {
 			original_source: this.justNameOfCurrentFile,
-			full_path: this.file,
+			full_path: this.dnafile,
 			maxpix:  this.maxpix,
 			name: this.justNameOfDNA,
-			hilbertimage:  hilbertimage,
-			linearimage: linearimage,
+			hilbertimage:  this.fileHILBERT,
+			linearimage:  this.filePNG,
 			runid: this.timestamp,
 			url: url,
 			cliruns: cliruns,
 			gbprocessed: gbprocessed,
-			genomes: genomesRendered,
 			hostname: hostname,
 			version: version,
-			flags: (  this.force ? "F" : ""    )+(  this.userCPP == "auto"  ? `C${ this.userCPP }` : ""    )+(  this.devmode ? "D" : ""    )+(  this.args.ratio || this.args.r ? `${ this.ratio }` : "   "    )+(  this.args.magnitude || this.args.m ? `M${ this.dimension }` : "   "    ),
+			flags:
+				( this.force ? "F" : ""    ) +
+				( this.userCPP == "auto"  ? `C${ this.userCPP }` : ""    )+
+				(  this.devmode ? "D" : ""    )+
+				(  this.args.ratio || this.args.r ? `${ this.ratio }` : "   "    )+
+				(  this.args.magnitude || this.args.m ? `M${ this.dimension }` : "   " ),
 			aspect: this.ratio,
 			bytes:  this.baseChars,
 			estimatedPixels: this.estimatedPixels,
@@ -1085,10 +1080,14 @@ class AminoSeeNoEvil {
 		}
 		let histogramJson = {
 			pepTable: this.pepTable,
-			summary: zumari
+			summary: zumari,
+			args: this.args
 		}
-		// output(histogramJson  )
-		// output( beautify( histogramJson, null, 2, 100) );
+		if ( this.verbose == true && this.quiet == false) {
+			console.log( histogramJson  )
+		}
+
+		// output( beautify( histogramJson, null, 2, 100) )
 		return histogramJson
 	}
 
@@ -1159,8 +1158,8 @@ class AminoSeeNoEvil {
 				this.pepTable[h].hm_array = [0,0,0,0]
 				this.pepTable[h].lm_array = [0,0,0,0]
 				// FILENAMES
-				// this.pepTable[h].hilbert_master = this.aminoFilenameIndex(h)[0]
-				// this.pepTable[h].linear_master = this.aminoFilenameIndex(h)[1]
+				this.pepTable[h].hilbert_master = this.aminoFilenameIndex(h)[0]
+				this.pepTable[h].linear_master = this.aminoFilenameIndex(h)[1]
 				this.pepTable[h].hilbert_preview = this.aminoFilenameIndex(h)[0]
 				this.pepTable[h].linear_preview = this.aminoFilenameIndex(h)[1]
 			}
@@ -2457,8 +2456,8 @@ class AminoSeeNoEvil {
 			gbprocessed  = userprefs.aminosee.gbprocessed
 			gbprocessed +=  this.baseChars / 1024 / 1024 / 1024 // increment disk counter.
 			userprefs.aminosee.gbprocessed = gbprocessed // i have a superstition this way is less likely to conflict with other threads
-			// genomesRendered = projectprefs.aminosee.genomes
-			genomesRendered.push(this.justNameOfDNA, projectprefs.aminosee.genomes)
+			genomesRendered.join( projectprefs.aminosee.genomes )
+			genomesRendered.push( this.justNameOfDNA )
 			genomesRendered = dedupeArray( genomesRendered ) // de dupe in case of re-renders
 			projectprefs.aminosee.genomes = genomesRendered
 			log( `genomesRendered ${genomesRendered}` )
@@ -2481,12 +2480,15 @@ class AminoSeeNoEvil {
 				that.saveHilbert( cb )
 			},
 			function ( cb ) {
-				that.saveHTML( cb )
+				setTimeout( () => {
+					that.saveHTML( cb )
+				}, 100)
+				// cb()
 			}
 		])
 			.exec( function( error, results ) {
 				output( "Saving complete............... next: " + this.nextFile )
-				// this.fancyFilenames();
+				that.fancyFilenames()
 				// that.postRenderPoll(`End of async.series`)
 				if ( error ) { log( "Doh! " + error )  }
 			})
@@ -2524,7 +2526,15 @@ class AminoSeeNoEvil {
 		this.pepTable.sort( this.compareHistocount )
 
 		let histogramJson =  this.getRenderObject()
+
+
+
+		// output( beautify( histogramJson , null, 2, 100) )
+
 		let histogramFile = this.generateFilenameHistogram()
+
+
+
 		// if ( doesFileExist( histogramFile ) ) {
 		//   let loadedJson = readParseJson( histogramFile );
 		//   console.log( beautify( JSON.stringify( loadedJson ), null, 2, 100) )
@@ -2537,30 +2547,32 @@ class AminoSeeNoEvil {
 		} else {
 			hypertext = this.htmlTemplate( histogramJson )
 		}
-
+		// this.htmlFinished()
+		// return
 		// let histotext = beautify( JSON.stringify( histogramJson ), null, 2, 100);
-		let histotext =  JSON.stringify( histogramJson )
-		// output( beautify( JSON.stringify( histogramJson ), null, 2, 100) )
-
+		// let histotext =  JSON.stringify( histogramJson )
+		let histotext =  histogramJson.toString()
+		// output(histotext)
 		if (this.userCPP == "auto" && this.magnitude == "auto" && this.artistic == false && this.index == false) {
 			if ( debug ) {
-				filename = `${ this.outputPath }/${ this.justNameOfDNA}/main.html`
+				filename = path.resolve( this.outputPath, this.justNameOfDNA, "main.html")
 			} else {
-				filename = `${ this.outputPath }/${ this.justNameOfDNA}/index.html`
+				filename = path.resolve( this.outputPath, this.justNameOfDNA, "index.html")
 			}
 			this.fileWrite(filename, hypertext, cb) // the main.html is only written is user did not set --codons or --magnitude or --peptide or --triplet or --artistic
 		} else if (this.artistic && this.userCPP == "auto") {
-			this.fileWrite(`${ this.outputPath }/${ this.justNameOfDNA}/artistic.html`, hypertext, cb)
+			this.fileWrite( path.resolve( this.outputPath, this.justNameOfDNA, "artistic.html"), hypertext, cb)
 		}
+
 		if ( this.index ) {
-			filename = `${ this.outputPath }/${ this.justNameOfDNA}/index.html`
+			filename = path.resolve( this.outputPath, this.justNameOfDNA, "index.html")
 			this.fileWrite( filename, hypertext )
 		}
 		this.fileWrite( this.fileHTML, hypertext )
 		this.fileWrite( histogramFile, histotext )
 
 		this.htmlFinished()
-		// if ( cb !== undefined ) { cb() }
+		if ( cb !== undefined ) { cb() }
 	}
 	fileWrite(file, contents, cb) {
 		this.mkRenderFolders()
@@ -4027,7 +4039,7 @@ class AminoSeeNoEvil {
 					this.openError(err)
 				})
 			} else {
-				open( url + this.justNameOfDNA + "/", {app: this.browser, wait: false}).then(() => {
+				open( url + "/" + this.justNameOfDNA + "/", {app: this.browser, wait: false}).then(() => {
 					log("browser closed")
 				}).catch(function () {
 					this.openError(err)
@@ -4237,10 +4249,10 @@ class AminoSeeNoEvil {
 		this.justNameOfDNA = `AminoSee_Calibration${ highlight }${ regmarks }`
 		this.justNameOfPNG = `${ this.justNameOfDNA}_LINEAR_${  magnitude }.png`
 		this.justNameOfHILBERT = `${ this.justNameOfDNA}_HILBERT_${  magnitude }.png`
-		this.fileHTML    = testPath + "/" + this.justNameOfDNA + ".html"
-		this.filePNG     = testPath + "/" + this.justNameOfPNG
-		this.fileHILBERT = testPath + "/" + this.justNameOfHILBERT
-		this.fileTouch   = testPath + "/" + this.justNameOfDNA + "_LOCK.touch"
+		this.fileHTML    = path.resolve(testPath, this.justNameOfDNA + ".html")
+		this.filePNG     = path.resolve(testPath, this.justNameOfPNG)
+		this.fileHILBERT = path.resolve(testPath, this.justNameOfHILBERT)
+		this.fileTouch   = path.resolve(testPath, this.justNameOfDNA + "_LOCK.txt")
 		this.dnafile = this.justNameOfDNA
 		this.currentFile = this.justNameOfDNA
 		cfile = this.currentFile
@@ -4582,14 +4594,14 @@ class AminoSeeNoEvil {
 		}
 		let array = [
 			` Load: ${ this.loadAverages()}  Files: ${remain}/${batchSize}`,
-			`| File: ${chalk.bgWhite.inverse( fixedWidth(40, this.justNameOfDNA))}.${ this.extension } ${chalk.inverse( this.highlightOrNothin())} ${humanizeDuration( this.timeRemain )}`,
+			`| File: ${chalk.bgWhite.inverse( fixedWidth(40, this.justNameOfDNA))}.${ this.extension } ${chalk.inverse( this.highlightOrNothin())}`,
 			`| i@${ fixedWidth(10, this.charClock.toLocaleString())} Breaks:${ fixedWidth(6, this.breakClock.toLocaleString())} Filesize:${ fixedWidth(7, bytes(  this.baseChars ))}`,
 			`| Next update:${ fixedWidth(6,  this.msPerUpdate .toLocaleString())}ms`,
 			`| CPU: ${ fixedWidth(10, bytes( this.bytesPerMs*1000))} /sec ${ fixedWidth(5, this.codonsPerSec.toLocaleString())}K acids /sec`,
 			`| Next file >>> ${maxWidth(24, this.nextFile)}`,
 			`| Codons:${ fixedWidth(14, " " +  this.genomeSize.toLocaleString())} Pixels:${ fixedWidth(10, " " + this.pixelClock.toLocaleString())}  Host: ${hostname}`,
-			`  DNA Sample: ${ fixedWidth(60, this.rawDNA) } ${ this.showFlags()}`,
-			`  RunID: ${chalk.rgb(128, 0, 0).bgWhite( this.timestamp )} acids per pixel: ${ twosigbitsTolocale( this.codonsPerPixel )}`
+			`  DNA Sample: ${ fixedWidth(tx/4, this.rawDNA) } ${ this.showFlags()}`,
+			`  RunID: ${chalk.rgb(128, 0, 0).bgWhite( this.timestamp )} acids per pixel: ${ twosigbitsTolocale( this.codonsPerPixel )}   Term x,y: (${tx},${ty})`
 		]
 
 
@@ -4615,9 +4627,9 @@ class AminoSeeNoEvil {
 		output(`${chalk.rgb(128, 255, 128).inverse( nicePercent(this.percentComplete) )} elapsed: ${ fixedWidth(12, humanizeDuration( this.msElapsed )) }  /  ${humanizeDuration( this.timeRemain)} remain`)
 		output(`${ twosigbitsTolocale( gbprocessed )} GB All time total on ${chalk.yellow( hostname )} ${ cliruns.toLocaleString()} jobs run total`)
 		this.progUpdate( this.percentComplete )
-		output(`Report URL: ${chalk.underline( chalk.bgBlue( this.currentURL ))}`)
-		output(`Input path: ${chalk.underline(  path.dirname( this.dnafile ) + "/" + chalk.bgBlue(  this.currentFile) )}`)
-		output(`Output path: ${chalk.underline(  path.resolve( this.outputPath, this.justNameOfDNA) ) }`)
+		output(`Report URL:  ${chalk.underline(  chalk.bgBlue( maxWidth(tx - 16, this.currentURL )))}`)
+		output(`Input path:  ${chalk.underline(  maxWidth(tx - 16, path.dirname( this.dnafile )) + "/" + chalk.bgBlue(  this.currentFile) )}`)
+		output(`Output path: ${chalk.underline(  maxWidth(tx - 16, path.resolve( this.outputPath, this.justNameOfDNA))) }`)
 		output(`Last Acid: ${ chalk.inverse.rgb(
 			ceiling( this.red ),
 			ceiling( this.green ),
@@ -4629,7 +4641,7 @@ class AminoSeeNoEvil {
 				chalk.rgb(this.peakAlpha, this.peakAlpha, this.peakAlpha).inverse.bgBlue(maxWidth(8, `A:  ${this.peakAlpha}` ))) )
 		term.right( this.termMarginLeft )
 
-		if (term.height > this.termStatsHeight + this.termDisplayHeight) {
+		if (term.height > this.termStatsHeight + this.termDisplayHeight && tx > 82) {
 			output( this.blurb() )
 			output( status )
 			term.eraseDisplayBelow()
@@ -4648,7 +4660,7 @@ class AminoSeeNoEvil {
 			term.up(this.termStatsHeight + this.termDisplayHeight)
 		} else {
 			output()
-			output(chalk.bold.italic(`Increase the height of your terminal for realtime histogram. Genome size: ${ this.genomeSize}`))
+			output(chalk.bold.italic(`Increase the size of your terminal for realtime histogram. Genome size: ${ this.genomeSize.toLocaleString()}`))
 			output()
 			term.up(this.termDisplayHeight)
 		}
@@ -5943,7 +5955,7 @@ function printRadMessage(arr) {
 	output( chalk.rgb(255, 32, 32).bgBlack(arr[0]) )
 	term.eraseLine()
 	term.right(radMargin)
-	if ( term.width > wideScreen ) {
+	if ( tx > wideScreen ) {
 		output( terminalRGB(`╔═╗┌┬┐┬┌┐┌┌─┐╔═╗┌─┐┌─┐  ╔╦╗╔╗╔╔═╗  ╦  ╦┬┌─┐┬ ┬┌─┐┬─┐  ${arr[1]}`, 255, 60,  250) ); term.right(radMargin); term.eraseLine()
 		output( terminalRGB(`╠═╣││││││││ │╚═╗├┤ ├┤    ║║║║║╠═╣  ╚╗╔╝│├┤ │││├┤ ├┬┘  ${arr[2]}`, 170, 150, 255) ); term.right(radMargin); term.eraseLine()
 		output( terminalRGB(`╩ ╩┴ ┴┴┘└┘└─┘╚═╝└─┘└─┘  ═╩╝╝╚╝╩ ╩   ╚╝ ┴└─┘└┴┘└─┘┴└─  ${arr[3]}`, 128, 240, 240) ); term.right(radMargin); term.eraseLine()
@@ -5952,7 +5964,7 @@ function printRadMessage(arr) {
 		output( terminalRGB(`   ${ prettyDate(new Date())}   v${version} ${arr[6]}`          , 220, 120,  70) ); term.right(radMargin); term.eraseLine()
 		output( terminalRGB(arr[7], 220, 80,   80) ); term.right(radMargin); term.eraseLine()
 		output( terminalRGB(arr[8], 255, 32,   32) ); term.eraseLine()
-	} else {
+	} else if ( tx >= windows7 && tx <= wideScreen ) {
 		output( terminalRGB(`╔═╗┌┬┐┬┌┐┌┌─┐╔═╗┌─┐┌─┐ ${arr[1]}`, 255, 60,  250) ); term.right(radMargin); term.eraseLine()
 		output( terminalRGB(`╠═╣││││││││ │╚═╗├┤ ├┤  ${arr[2]}`, 170, 150, 255) ); term.right(radMargin); term.eraseLine()
 		output( terminalRGB(`╩ ╩┴ ┴┴┘└┘└─┘╚═╝└─┘└─┘ ${arr[3]}`, 128, 240, 240) ); term.right(radMargin); term.eraseLine()
@@ -5961,6 +5973,19 @@ function printRadMessage(arr) {
 		output( terminalRGB(`${ prettyDate(new Date())} v${version} ${arr[6]} `, 220, 120,  70) ); term.right(radMargin); term.eraseLine()
 		output( terminalRGB(arr[7], 220, 80,   80) ); term.right(radMargin); term.eraseLine()
 		output( terminalRGB(arr[8], 255, 32,   32) ); term.eraseLine()
+	} else if ( tx < windows7  ){
+		output( terminalRGB(`╔═╗ ${arr[1]}`, 255, 60,  250) ); term.right(radMargin); term.eraseLine()
+		output( terminalRGB(`╠═╣ ${arr[2]}`, 170, 150, 255) ); term.right(radMargin); term.eraseLine()
+		output( terminalRGB(`╩ ╩ ${arr[3]}`, 128, 240, 240) ); term.right(radMargin); term.eraseLine()
+		output( terminalRGB(`    ${arr[4]}`, 225, 225, 130) ); term.right(radMargin); term.eraseLine()
+		output( terminalRGB(`  ah-mee-no-see ${arr[5]}`, 255, 180,  90) ); term.right(radMargin); term.eraseLine()
+		output( terminalRGB(`${ prettyDate(new Date())} v${version} ${arr[6]} `, 220, 120,  70) ); term.right(radMargin); term.eraseLine()
+		output( terminalRGB(arr[7], 220, 80,   80) ); term.right(radMargin); term.eraseLine()
+		output( terminalRGB(arr[8], 255, 32,   32) ); term.eraseLine()
+
+
+
+
 	}
 
 }
