@@ -326,7 +326,7 @@ function start(a) { // return the port number
 		log("No locks found, Starting server ")
 		log(`filenameServerLock: ${filenameServerLock}`)
 	}
-	if ( args.serve !== true ) {
+	if ( args.serve == true ) {
 		output("Foreground")
 		foregroundserver() // blocking version
 	} else {
