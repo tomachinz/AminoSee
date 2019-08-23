@@ -56,7 +56,7 @@
     "macos": "echo MACOS ; pkg . --targets macos   --output ./dist/AminoSee_macos/aminosee ; ./dist/AminoSee_macos/aminosee",
     "win32": "echo WIN32 ; pkg . --targets win-x86 --output ./dist/AminoSee_win/aminosee-win32.exe",
     "win64": "echo WIN64 ; pkg . --targets win-x64 --output ./dist/AminoSee_win/aminosee.exe",
-    "linux": "echo LINUX ; pkg . --targets linux   --output ./dist/AminoSee_linux/aminosee ;  ./dist/AminoSee_macos/aminosee",
+    "linux": "echo LINUX ; pkg . --targets linux   --output ./dist/AminoSee_linux/aminosee ;  ./dist/AminoSee_linux/aminosee",
     "_macos": "echo MACOS ; pkg . --targets macos   --output ./dist/AminoSee_macos/aminosee-macos   ; zip -8 -r ./dist/AminoSee_macos.zip ./dist/AminoSee_macos",
     "_win32": "echo WIN32 ; pkg . --targets win-x86 --output ./dist/AminoSee_win/aminosee-win32.exe ;",
     "_win64": "echo WIN64 ; pkg . --targets win-x64 --output ./dist/AminoSee_win/aminosee-win64.exe ; zip -8 -r ./dist/AminoSee_win.zip ./dist/AminoSee_win",
