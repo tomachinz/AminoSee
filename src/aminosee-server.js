@@ -191,7 +191,17 @@ function foregroundserver(options) {
 			"Access-Control-Allow-Credentials": "true"
 		}
 	})
-			 server.listen(4321)
+
+	try {
+		server.listen(port)
+	} catch(err) {
+		if ( err.indexOf("EADDRINUSE") !== -1 ) {
+			output(`port ${port} in use, trying backup port: ${backupPort}`)
+			server.listen(backupPort)
+		} else {
+			output(`unknown error starting server: ${err}`)
+		}
+	}
 
 	return server
 
@@ -293,7 +303,11 @@ function stop() {
 	try {
 		spawn("killall", ["aminosee.funk.nz_server", "", "0"], { stdio: "pipe" })
 	} catch(err) {
-		output("Unable to shutdown server with 'killall aminosee.funk.nz_server' perhaps this is running on windows")
+		if ( err.indexOf("ENOENT") !== -1 ) {
+			output("Unable to shutdown server with 'killall aminosee.funk.nz_server' perhaps this is running on windows? Try task manager")
+		} else {
+			output(`Unknown error: ${err}`)
+		}
 	}
 }
 
