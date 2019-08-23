@@ -4600,7 +4600,7 @@ class AminoSeeNoEvil {
 		this.rawDNA = funknzlabel
 
 		printRadMessage(array)
-		output(`${chalk.rgb(128, 255, 128).inverse( nicePercent(this.percentComplete) )} complete ${ fixedWidth(12, humanizeDuration( this.msElapsed )) } elapsed ${humanizeDuration( this.timeRemain)} remain`)
+		output(`${chalk.rgb(128, 255, 128).inverse( nicePercent(this.percentComplete) )} elapsed: ${ fixedWidth(12, humanizeDuration( this.msElapsed )) }  /  ${humanizeDuration( this.timeRemain)} remain`)
 		output(`${ twosigbitsTolocale( gbprocessed )} GB All time total on ${chalk.yellow( hostname )} ${ cliruns.toLocaleString()} jobs run total`)
 		this.progUpdate( this.percentComplete )
 		output(`Report URL: ${chalk.underline( chalk.bgBlue( this.currentURL ))}`)

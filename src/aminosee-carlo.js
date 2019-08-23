@@ -7,7 +7,7 @@ const os = require("os")
 const path = require("path")
 // const socket = require('./public/aminosee-web-socket')
 const Preferences = require("preferences")
-const si = require("systeminformation")
+// const si = require("systeminformation")
 const data = require("./aminosee-data")
 const aminosee = require("./aminosee-cli")
 const setupPrefs = aminosee.setupPrefs
@@ -170,6 +170,7 @@ async function shimyShim(txt) {
 }
 
 async function systeminfo() {
+	return "hello"
 	const info = {}
 	await Promise.all([
 		si.battery().then(r => info.battery = r),
