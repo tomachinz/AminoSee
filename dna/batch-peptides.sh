@@ -1,10 +1,10 @@
 #!/bin/sh
 aminosee_do () {
   echo $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 START RENDER
+  aminosee * -qd --index --maxpix=4200000 --ratio=sqr  $1 $2 $3 $4 $5
   nice aminosee --quiet --index --maxpix=4200000 --ratio=sqr --no-image --no-html  $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
   nice aminosee -qd --index --maxpix=4200000 --ratio=sqr * $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
   echo $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 START RENDER
-  nice aminosee * -qd --index --maxpix=4200000 --ratio=sqr  $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
 
 }
 
