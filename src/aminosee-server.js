@@ -1,5 +1,7 @@
 const open = require("open")
 const httpserver = require("http-server") // cant have - in js
+// httpServer = require('../lib/http-server');
+
 const aminosee = require("./aminosee-cli")
 const data = require("./aminosee-data")
 const doesFileExist   = data.doesFileExist
@@ -178,6 +180,24 @@ function spawnBackground(p) { // Spawn background server
 	return didStart
 }
 function foregroundserver(options) {
+
+
+	var root = path.join(__dirname)
+	var server = httpserver.createServer({
+		root: root,
+		robots: true,
+		headers: {
+			"Access-Control-Allow-Origin": "*",
+			"Access-Control-Allow-Credentials": "true"
+		}
+	})
+			 server.listen(4321)
+
+	return server
+
+
+
+
 	if ( options === undefined ) {
 		options = [ outputPath, "-p", port, "-o" ]
 	}
