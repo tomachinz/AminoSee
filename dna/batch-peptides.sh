@@ -54,58 +54,31 @@ asterix_peptides () {
   # echo "-------------------------------------------"
   # echo STARTING MULTI-THREAD DECODE FOR $1 $2 $3 $4 $5 $6 $7
   # echo "-------------------------------------------"
-  # echo "                                         =///"
-  nice -n 1 aminosee  *   -q --no-image $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 &
-  sleep 1
-  nice -n 2 aminosee  --no-html --quiet *  --peptide=Glutamic_acid $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
-  nice -n 2 aminosee  --no-html --quiet *  --peptide=Aspartic_acid $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
-  nice -n 2 aminosee  --no-html --quiet *  --peptide=Ochre $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
-  nice -n 2 aminosee  --no-html --quiet *  --peptide=Amber $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
-  nice -n 2 aminosee  --no-html --quiet *  --peptide=Opal $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
-  nice -n 2 aminosee  --no-html --quiet *  --peptide=Methionine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
-  nice -n 2 aminosee  --no-html --quiet *  --peptide=Cysteine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
-  nice -n 2 aminosee  --no-html --quiet *  --peptide=Glycine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
-  nice -n 2 aminosee  --no-html --quiet *  --peptide=Alanine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
-  nice -n 2 aminosee  --no-html --quiet *  --peptide=Valine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
-  nice -n 2 aminosee  --no-html --quiet *  --peptide=Leucine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
-  nice -n 2 aminosee  --no-html --quiet *  --peptide=Isoleucine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
-  nice -n 2 aminosee  --no-html --quiet *  --peptide=Phenylalanine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
-  nice -n 2 aminosee  --no-html --quiet *  --peptide=Proline $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
-  nice -n 2 aminosee  --no-html --quiet *  --peptide=Tryptophan $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
-  nice -n 2 aminosee  --no-html --quiet *  --peptide=Serine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
-  nice -n 2 aminosee  --no-html --quiet *  --peptide=Threonine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
-  nice -n 2 aminosee  --no-html --quiet *  --peptide=Glutamine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
-  nice -n 2 aminosee  --no-html --quiet *  --peptide=Asparagine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
-  nice -n 2 aminosee  --no-html --quiet *  --peptide=Tyrosine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
-  nice -n 2 aminosee  --no-html --quiet *  --peptide=Arginine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
-  nice -n 2 aminosee  --no-html --quiet *  --peptide=Lysine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
-  nice -n 2 aminosee                *  --peptide=Histidine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
 
-  nice -n 1 aminosee  *   -q --ratio=sqr --no-image $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 &
-  sleep 1
-  nice -n 3 aminosee  --no-html --quiet --ratio=sqr  *  --peptide=Glutamic_acid $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
-  nice -n 3 aminosee  --no-html --quiet --ratio=sqr  *  --peptide=Aspartic_acid $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
-  nice -n 3 aminosee  --no-html --quiet --ratio=sqr  *  --peptide=Ochre $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
-  nice -n 3 aminosee  --no-html --quiet --ratio=sqr  *  --peptide=Amber $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
-  nice -n 3 aminosee  --no-html --quiet --ratio=sqr  *  --peptide=Opal $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
-  nice -n 3 aminosee  --no-html --quiet --ratio=sqr  *  --peptide=Methionine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
-  nice -n 3 aminosee  --no-html --quiet --ratio=sqr  *  --peptide=Cysteine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
-  nice -n 3 aminosee  --no-html --quiet --ratio=sqr  *  --peptide=Glycine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
-  nice -n 3 aminosee  --no-html --quiet --ratio=sqr  *  --peptide=Alanine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
-  nice -n 3 aminosee  --no-html --quiet --ratio=sqr  *  --peptide=Valine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
-  nice -n 3 aminosee  --no-html --quiet --ratio=sqr  *  --peptide=Leucine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
-  nice -n 3 aminosee  --no-html --quiet --ratio=sqr  *  --peptide=Isoleucine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
-  nice -n 3 aminosee  --no-html --quiet --ratio=sqr  *  --peptide=Phenylalanine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
-  nice -n 3 aminosee  --no-html --quiet --ratio=sqr  *  --peptide=Proline $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
-  nice -n 3 aminosee  --no-html --quiet --ratio=sqr  *  --peptide=Tryptophan $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
-  nice -n 3 aminosee  --no-html --quiet --ratio=sqr  *  --peptide=Serine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
-  nice -n 3 aminosee  --no-html --quiet --ratio=sqr  *  --peptide=Threonine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
-  nice -n 3 aminosee  --no-html --quiet --ratio=sqr  *  --peptide=Glutamine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
-  nice -n 3 aminosee  --no-html --quiet --ratio=sqr  *  --peptide=Asparagine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
-  nice -n 3 aminosee  --no-html --quiet --ratio=sqr  *  --peptide=Tyrosine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
-  nice -n 3 aminosee  --no-html --quiet --ratio=sqr  *  --peptide=Arginine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
-  nice -n 3 aminosee  --no-html --quiet --ratio=sqr  *  --peptide=Lysine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
-  nice -n 3 aminosee              --ratio=sqr    *  --peptide=Histidine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
+  nice -n 1 aminosee  --maxpix=4200000 --index  *   -q --no-image $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 &
+  nice -n 2 aminosee  --maxpix=4200000 --index  --no-html --quiet *  --peptide=Glutamic_acid $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
+  nice -n 2 aminosee  --maxpix=4200000 --index  --no-html --quiet *  --peptide=Aspartic_acid $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
+  nice -n 2 aminosee  --maxpix=4200000 --index  --no-html --quiet *  --peptide=Ochre $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
+  nice -n 2 aminosee  --maxpix=4200000 --index  --no-html --quiet *  --peptide=Amber $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
+  nice -n 2 aminosee  --maxpix=4200000 --index  --no-html --quiet *  --peptide=Opal $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
+  nice -n 2 aminosee  --maxpix=4200000 --index  --no-html --quiet *  --peptide=Methionine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
+  nice -n 2 aminosee  --maxpix=4200000 --index  --no-html --quiet *  --peptide=Cysteine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
+  nice -n 2 aminosee  --maxpix=4200000 --index  --no-html --quiet *  --peptide=Glycine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
+  nice -n 2 aminosee  --maxpix=4200000 --index  --no-html --quiet *  --peptide=Alanine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
+  nice -n 2 aminosee  --maxpix=4200000 --index  --no-html --quiet *  --peptide=Valine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
+  nice -n 2 aminosee  --maxpix=4200000 --index  --no-html --quiet *  --peptide=Leucine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
+  nice -n 2 aminosee  --maxpix=4200000 --index  --no-html --quiet *  --peptide=Isoleucine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
+  nice -n 2 aminosee  --maxpix=4200000 --index  --no-html --quiet *  --peptide=Phenylalanine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
+  nice -n 2 aminosee  --maxpix=4200000 --index  --no-html --quiet *  --peptide=Proline $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
+  nice -n 2 aminosee  --maxpix=4200000 --index  --no-html --quiet *  --peptide=Tryptophan $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
+  nice -n 2 aminosee  --maxpix=4200000 --index  --no-html --quiet *  --peptide=Serine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
+  nice -n 2 aminosee  --maxpix=4200000 --index  --no-html --quiet *  --peptide=Threonine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
+  nice -n 2 aminosee  --maxpix=4200000 --index  --no-html --quiet *  --peptide=Glutamine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
+  nice -n 2 aminosee  --maxpix=4200000 --index  --no-html --quiet *  --peptide=Asparagine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
+  nice -n 2 aminosee  --maxpix=4200000 --index  --no-html --quiet *  --peptide=Tyrosine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
+  nice -n 2 aminosee  --maxpix=4200000 --index  --no-html --quiet *  --peptide=Arginine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
+  nice -n 2 aminosee  --maxpix=4200000 --index  --no-html --quiet *  --peptide=Lysine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
+  nice -n 2 aminosee  --maxpix=4200000 --index                *  --peptide=Histidine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
 
 
   # sleep 1
@@ -175,11 +148,11 @@ find_way_peptides () {
 echo  $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
 # parallel_peptides 50KB_TestPattern.txt  megabase.fa
 # series_peptides $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
-parallel_peptides $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 &
+asterix_peptides $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 &
 sleep 10
-parallel_peptides $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 &
-sleep 10
-parallel_peptides $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
+asterix_peptides $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 &
+# sleep 10
+# parallel_peptides $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
 echo DONE
 
 # echo WILL NOW RENDER ALL IN FOLDER
