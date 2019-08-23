@@ -384,8 +384,8 @@ class AminoSeeNoEvil {
 					this.error(`${this.usersOutpath} is not a directory`)
 				}
 			} else {
-				this.usersOutpath = path.resolve(path.normalize( args.outpath))
-				this.error(`Could not find output path: ${this.usersOutpath}, creating it this.now`)
+				this.usersOutpath = path.resolve( args.outpath )
+				this.error(`Could not find output path: ${ path.normalize( this.usersOutpath )}, creating it this.now`)
 				this.outputPath = this.usersOutpath
 			}
 		} else {
@@ -1776,6 +1776,7 @@ class AminoSeeNoEvil {
 		mode("Initialising Stream: " + this.justNameOfPNG)
 		// output( `R: ${status} ` )
 		output(`OUTPUT FOLDER: ${ blueWhite( blueWhite( path.normalize( this.outputPath )))}`)
+		this.setNextFile()
 
 		this.timestamp = Math.round(+new Date()/1000)
 		if ( isShuttingDown == true ) { output(`Shutting down after this render ${ blueWhite(this.justNameOfPNG)}`) }
@@ -2150,7 +2151,7 @@ class AminoSeeNoEvil {
 	}
 
 	generateFilenameHistogram() {
-		this.fileHistogram = path.normalize( path.resolve(`${ this.outputPath }/${ this.justNameOfDNA}/aminosee_histogram.json`) )
+		this.fileHistogram = path.resolve( this.outputPath, this.justNameOfDNA, "aminosee_histogram.json")
 		return this.fileHistogram
 	}
 
@@ -2241,7 +2242,7 @@ class AminoSeeNoEvil {
 		this.setNextFile()
 	}
 	qualifyPath(f) {
-		return path.resolve( `${ this.outputPath }/${ this.justNameOfDNA }/${ f }` )
+		return path.resolve( this.outputPath, this.justNameOfDNA, f  )
 	}
 
 
@@ -2456,8 +2457,8 @@ class AminoSeeNoEvil {
 			gbprocessed  = userprefs.aminosee.gbprocessed
 			gbprocessed +=  this.baseChars / 1024 / 1024 / 1024 // increment disk counter.
 			userprefs.aminosee.gbprocessed = gbprocessed // i have a superstition this way is less likely to conflict with other threads
-			genomesRendered = projectprefs.aminosee.genomes
-			genomesRendered.push(this.justNameOfDNA)
+			// genomesRendered = projectprefs.aminosee.genomes
+			genomesRendered.push(this.justNameOfDNA, projectprefs.aminosee.genomes)
 			genomesRendered = dedupeArray( genomesRendered ) // de dupe in case of re-renders
 			projectprefs.aminosee.genomes = genomesRendered
 			log( `genomesRendered ${genomesRendered}` )
@@ -4082,7 +4083,7 @@ class AminoSeeNoEvil {
 	mkdir(relative, cb) { // returns true if a fresh dir was created
 		let ret = true
 		if ( relative === undefined) { relative = ""} // just make the output folder itself if not present
-		let dir2make = path.resolve( `${ this.outputPath }/${relative}` )
+		let dir2make = path.resolve( this.outputPath, relative )
 		log("creating folder: "+ dir2make)
 		if ( doesFolderExist(this.outputPath) == false ) {
 			try {
@@ -4616,7 +4617,7 @@ class AminoSeeNoEvil {
 		this.progUpdate( this.percentComplete )
 		output(`Report URL: ${chalk.underline( chalk.bgBlue( this.currentURL ))}`)
 		output(`Input path: ${chalk.underline(  path.dirname( this.dnafile ) + "/" + chalk.bgBlue(  this.currentFile) )}`)
-		output(`Output path: ${chalk.underline( this.outputPath + "/" + chalk.bgBlue(  this.justNameOfDNA) )}`)
+		output(`Output path: ${chalk.underline(  path.resolve( this.outputPath, this.justNameOfDNA) ) }`)
 		output(`Last Acid: ${ chalk.inverse.rgb(
 			ceiling( this.red ),
 			ceiling( this.green ),
@@ -5782,7 +5783,7 @@ function getOutputFolder( filename ) {
 	}
 
 	if (clusterRender == true) {
-		outpath = path.normalize(path.resolve(process.cwd(),  outFoldername))  // default location after checking overrides
+		outpath = path.resolve(process.cwd(),  outFoldername)  // default location after checking overrides
 		log(`CLUSTER FOLDER ENABLED: ${ blueWhite( blueWhite( path.normalize( outpath )))}`)
 		log("Enabled by the prseence of a /output/ or /AminoSee_Output/ folder in *current* dir. If not present, local users homedir ~/AminoSee_Output")
 	} else {

@@ -296,19 +296,26 @@ module.exports = (options) => {
 
 function stop() {
 	setArgs()
-	log("Stopping server")
+	output(`Stopping server. OS: ${os.platform()}`)
 	log(`removing lock file... ${filenameServerLock}`)
 	deleteFile(filenameServerLock)
 	log("...lock file removed.")
-	try {
-		spawn("killall", ["aminosee.funk.nz_server", "", "0"], { stdio: "pipe" })
-	} catch(err) {
-		if ( err.indexOf("ENOENT") !== -1 ) {
-			output("Unable to shutdown server with 'killall aminosee.funk.nz_server' perhaps this is running on windows? Try task manager")
-		} else {
-			output(`Unknown error: ${err}`)
+	if ( os.platform() == "win32" || os.platform() == "win64") {
+		output("not sure how to kill a process on windows. maybe try:")
+		output( chalk.italic( "taskkill /IM 'aminosee.funk.nz_server' /F"))
+
+	} else {
+		try {
+			spawn("killall", ["aminosee.funk.nz_server", "", "0"], { stdio: "pipe" })
+		} catch(err) {
+			if ( err.indexOf("ENOENT") !== -1 ) {
+				output("Unable to shutdown server with 'killall aminosee.funk.nz_server' perhaps this is running on windows? Try task manager")
+			} else {
+				output(`Unknown error: ${err}`)
+			}
 		}
 	}
+
 }
 
 
