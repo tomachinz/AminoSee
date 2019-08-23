@@ -285,19 +285,16 @@ module.exports = (options) => {
 
 
 function stop() {
-
 	setArgs()
 	log("Stopping server")
 	log(`removing lock file... ${filenameServerLock}`)
 	deleteFile(filenameServerLock)
 	log("...lock file removed.")
-	// if (serverLock()) {
-	// const killServe =    spawn('nice', ['killall', 'node', '', '0'], { stdio: 'pipe' });
-	// const killServe =    spawn('nice', ['killall', 'node', '', '0']);
-	// spawn('nice', ['killall', 'aminosee.funk.nz', '', '0'], { stdio: 'pipe' });
-	spawn("nice", ["killall", "aminosee.funk.nz_server", "", "0"], { stdio: "pipe" })
-	// const killAminosee = spawn('nice', ['killall', 'aminosee.funk.nz_server', '', '0'] );
-	// }
+	try {
+		spawn("killall", ["aminosee.funk.nz_server", "", "0"], { stdio: "pipe" })
+	} catch(err) {
+		output("Unable to shutdown server with 'killall aminosee.funk.nz_server' perhaps this is running on windows")
+	}
 }
 
 

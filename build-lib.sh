@@ -32,6 +32,9 @@ mkdir -p dist/AminoSee_linux
 mkdir -p build
 mkdir -p build/toms_source/
 
+wget  --output-document src/public/es6-promise.auto.min.js        https://cdnjs.cloudflare.com/ajax/libs/es6-promise/4.1.1/es6-promise.auto.min.js &
+wget  --output-document src/public/fetch.min.js                   https://cdnjs.cloudflare.com/ajax/libs/fetch/1.0.0/fetch.min.js &
+
 # cp -v public/aminosee-web-gui.js                                 dist/root/public/aminosee-web-gui.js
 # cp -v aminosee-serve.js                                          dist/root/aminosee-serve.js
 # cp -v aminosee-cli.js                                            dist/root/
@@ -39,9 +42,6 @@ mkdir -p build/toms_source/
 # cp -v main.js                                                    dist/root/
 # cp -v renderer.js                                                dist/root/
 # cp -v aminosee-stdinpipe.js                                      dist/root/
-
-wget  --output-document src/public/es6-promise.auto.min.js        https://cdnjs.cloudflare.com/ajax/libs/es6-promise/4.1.1/es6-promise.auto.min.js
-wget  --output-document src/public/fetch.min.js                   https://cdnjs.cloudflare.com/ajax/libs/fetch/1.0.0/fetch.min.js
 
 cp -v node_modules/sliced/index.js                               dist/root/node_modules/sliced/index.js
 cp -v node_modules/deep-defaults/lib/index.js                    dist/root/node_modules/deep-defaults/lib
