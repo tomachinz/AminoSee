@@ -2125,14 +2125,14 @@ class AminoSeeNoEvil {
 		// in which case isHighlightSet should be false for reference
 		let ret = ""
 		if ( this.isHighlightSet == false) {
-			ret += "__Reference"
+			ret += "_Reference"
 		} else {
 
 
 			if ( this.triplet.toLowerCase() !== "none") {
-				ret += `_${spaceTo_( this.triplet ).toUpperCase()}` // looks better uppercase
+				ret += `__${spaceTo_( this.triplet ).toUpperCase()}` // looks better uppercase
 			} else if ( this.peptide !== "none") {
-				ret += `_${spaceTo_( tidyPeptideName( this.peptide ) )}`
+				ret += `__${spaceTo_( tidyPeptideName( this.peptide ) )}`
 			} else {
 				ret += "__Error"
 			}
