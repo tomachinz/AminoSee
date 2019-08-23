@@ -11,15 +11,11 @@ mkdir -p build/TOBEDELETED
 mv -v ./build/* build/TOBEDELETED
 
 # yarn upgrade
-npm upgrade
+# npm upgrade
 
  ./build-credits.sh
  ./build-lib.sh
- ./gource.sh
-
-pkg . --targets win-x86 --output ./dist/AminoSee_win/aminosee-win32.exe
-
-sleep 30
+# ./gource.sh
 
 # echo Requires: npm, electron, electron-packager
 # echo Requires: npm, electron, electron-packager
@@ -115,4 +111,11 @@ pwd
 # cd ../
 #
 # open ./build.sh
-pkg . --targets win-x86 --output ./dist/AminoSee_win/aminosee-win32.exe
+
+
+pkg . --targets win-x86 --output ./dist/AminoSee_win/aminosee-win32.exe &
+npm run _macos &
+npm run _linux &
+sleep 20 
+npm run _win64
+npm run runmac
