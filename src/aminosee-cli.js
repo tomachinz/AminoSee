@@ -85,6 +85,7 @@ const fileLockingDelay = 2000
 // BigInt.prototype.toJSON = function() { return this.toString(); }; // shim for big int
 // BigInt.prototype.toBSON = function() { return this.toString(); }; // Add a `toBSON()` to enable MongoDB to store BigInts as strings
 const targetPixels = 8000000 // for big genomes use setting flag -c 1 to achieve highest resolution and bypass this taret max render size
+let autoStartGui = true
 let cfile, streamLineNr, renderLock, jobArgs, killServersOnQuit, webserverEnabled, cliInstance, tx, ty, termPixels, cliruns, gbprocessed, projectprefs, userprefs, genomesRendered, progato, commandString, batchSize, quiet, url, port, status, remain, lastHammered, theGUI, darkenFactor, highlightFactor
 let opens = 0 // session local counter to avoid having way too many windows opened.
 let dnaTriplets = data.dnaTriplets
@@ -132,7 +133,11 @@ function generateTheArgs() {
 		verbose: cliInstance.verbose,
 		// output: path.resolve( os.homedir(), "AminoSee_Output"),
 		output: cliInstance.outputPath,
-		serve: true
+		serve: true,
+		gzip: true,
+		logip: true,
+		https: true
+
 	}
 	return theArgs
 }
@@ -834,9 +839,10 @@ class AminoSeeNoEvil {
 				// })
 				setTimeout( () => {
 					server.start( generateTheArgs() )
+					autoStartGui = false
 				}, this.raceDelay)
 				// server.foregroundserver()
-			} else if ( !isShuttingDown && !this.quiet) {
+			} else if ( !isShuttingDown && !this.quiet && autoStartGui ) {
 				let time = 30000
 				if ( this.quiet == true ) { time = 1000 }
 				printRadMessage(["Welcome... this is a CLI app run from the terminal, see above", "[Q] or [Esc] key to exit now", " ", "PRESS ANY KEY", "to open the interface", chalk.italic( "aminosee --help")])
@@ -1326,7 +1332,10 @@ class AminoSeeNoEvil {
 
 			// pushCli('--serve');
 			// output( server.start( this.outputPath ) ) ;
-			output( server.foregroundserver() )
+			// output( server.foregroundserver() )
+			server.start( generateTheArgs() )
+			autoStartGui = false
+
 		} else {
 			killServers()
 		}
@@ -1741,6 +1750,8 @@ class AminoSeeNoEvil {
 		if ( webserverEnabled ) {
 			// url = server.start( args )
 			this.currentURL = server.start( generateTheArgs() )
+			autoStartGui = false
+
 			output(`Server running at: ${ chalk.underline( url ) } to stop use: aminosee --stop `)
 			if ( !this.serve ) {
 				server.foregroundserver()
@@ -5173,7 +5184,9 @@ function runDemo() {
 		},
 		function( cb ) {
 			if ( webserverEnabled ) {
-				output("server started: " +   server.start( this.args ))
+				output("server started: " +   server.start( generateTheArgs() ))
+				autoStartGui = false
+
 			}
 			that.mkRenderFolders()
 			symlinkGUI(cb)

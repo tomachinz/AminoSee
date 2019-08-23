@@ -14,6 +14,7 @@ const os = require("os")
 const spawn = require("cross-spawn")
 const fs = require("fs-extra") // drop in replacement = const fs = require('fs')
 let debug = false
+let autoStartGui = true
 const lockFileMessage = `
 aminosee.funk.nz DNA Viewer by Tom Atkinson.
 This is a temporary lock file, so I dont start too many servers. Its safe to erase these files, and I've made a script in /dna/ to batch delete them all in one go. Normally these are deleted when render is complete, or with Control-C and graceful shutdown.`
@@ -31,7 +32,8 @@ function setArgs( TheArgs ) {
 		args = {
 			verbose: false,
 			output: path.resolve( os.homedir(), "AminoSee_Output"),
-			serve: true
+			serve: true,
+			gzip: true
 		}
 		log("using default args")
 
@@ -137,8 +139,8 @@ function spawnBackground(p) { // Spawn background server
 	let didStart = false
 	// return
 	if (p !== undefined) { port = p }
-	let options = [ outputPath + "/", "-p", port, "-o" ]
-	let optionsAminoSee = [ "--serve", outputPath + "/", "-p", port ]
+	let options = [ outputPath, `-p${port}`, "-o", ( args.justNameOfDNA ? args.justNameOfDNA  : "/" ), ( args.gzip ? "--gzip" : "") ]
+	// let optionsAminoSee = [ outputPath + "/", "-p", port ]
 	output(options.toString())
 	output(chalk.yellow(`Starting BACKGROUND web server at ${chalk.underline(getServerURL())}`))
 	console.log(options)
@@ -326,15 +328,15 @@ function start(a) { // return the port number
 	}
 	if ( args.serve !== true ) {
 		output("Foreground")
-		foregroundserver(options) // blocking version
+		foregroundserver() // blocking version
 	} else {
 		output("Backround")
 		spawnBackground() // works great but relies on http-server being installed globally
 	}
 
-	open( url + "/aminosee.html?devmode", {wait: false}).then(() => {
-		log("browser closed")
-	}).catch(function () {  })
+	// open( url + "/aminosee.html?devmode", {wait: false}).then(() => {
+	// 	log("browser closed")
+	// }).catch(function () {  })
 
 	return port
 }
