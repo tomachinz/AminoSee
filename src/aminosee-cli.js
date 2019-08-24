@@ -10,11 +10,12 @@ ah-mee no-see         "I see it now...  I AminoSee it!"
 const siteDescription = "A unique visualisation of DNA or RNA residing in text files, AminoSee is a way to render huge genomics files into a PNG image using an infinite space filling curve from 18th century! Computation is done locally, and the files do not leave your machine. A back-end terminal daemon cli command that can be scripted is combined with a front-end GUI using the Carlo, AminoSee features asynchronous streaming processing enabling arbitrary size files to be processed. It has been tested with files in excess of 4 GB and does not need the whole file in memory at any time. Due to issues with the 'aminosee *' command, a batch script is provided for bulk rendering in the dna/ folder. Alertively use the GUI to Drag and drop files to render a unique colour view of RNA or DNA stoRed in text files, output to PNG graphics file, then launches an WebGL this.browser that projects the image onto a 3D Hilbert curve for immersive viewing, using THREEjs. Command line options alow one to filter by this.peptide."
 
 const interactiveKeysGuide = `
-Interactive control:    D            (devmode)  Q   (graceful quit next save)
-V       ( verbose mode)  B ( live DNA to screen)  Control-C      (fast quit)
-S    (start webserver)  W (toggle screen clear) U       (stats update on/off)
-Esc     (graceful quit) O (toggle show files after in GUI)
+Interactive control:    D (demo full RGB test)    T (short test)   Q (graceful quit next save)
+V (toggle verbose mode) B (live DNA to screen)    Esc (graceful quit)    Control-C (fast quit)
+W (webserver)           C (clear scrn)            U (updates stats)       X (search ~ for DNA)
+O (open images after render)                      or [space]       G  (experimental carlo GUI)
 `
+const helixEmoji =" 🧬  "
 const lineBreak = `
 `
 // const settings = require('./aminosee-settings');
@@ -123,7 +124,7 @@ function startGUI() {
 	output(".")
 	server.start( generateTheArgs() )
 	// destroyKeyboardUI()
-	return carlo
+	// return carlo
 }
 function generateTheArgs() {
 
@@ -683,15 +684,16 @@ class AminoSeeNoEvil {
 		}
 		if ( args.help || args.h) {
 			this.help = true
-			this.gui = true
-			this.helpCmd(args)
+			autoStartGui = false
+			setTimeout( () => {
+				this.helpCmd()
+			}, this.raceDelay)
 		} else {
 			this.help = false
 		}
 		if ( args.serve || args.s ) {
 			webserverEnabled = true
 			this.serve = true
-			output(`Using URL prefix: ${url}`)
 			this.keyboard = true
 			this.openHtml = true
 			args.view = true
@@ -847,7 +849,9 @@ class AminoSeeNoEvil {
 
 			if (this.serve == true && !isShuttingDown) {
 				// server.stop()
-				output("starting mini server")
+				output(`Starting mini server at:  ${ chalk.underline( url )}`)
+				output("Using URL prefix:")
+
 				cliInstance.setupKeyboardUI()
 				// cliInstance.updatesTimer = countdown("  webserver ", 360000, () => {
 				// 	output("COLIN!!!")
@@ -861,6 +865,7 @@ class AminoSeeNoEvil {
 				let time = 30000
 				if ( this.quiet == true ) { time = 1000 }
 				printRadMessage(["Welcome... this is a CLI app run from the terminal, see above", "[Q] or [Esc] key to exit now", " ", "PRESS ANY KEY", "to open the interface", chalk.italic( "aminosee --help")])
+				output( interactiveKeysGuide )
 				cliInstance.setupKeyboardUI()
 				cliInstance.updatesTimer = countdown("closing in ", time, () => {
 					if ( this.gui == false ) { // if the GUI is up, dont exit
@@ -1218,16 +1223,19 @@ class AminoSeeNoEvil {
 					// killAllTimers()
 					that.gracefulQuit(0, "Q esc")
 				} else if ( !key.ctrl || key.name !== "c") {
-					output(`Starting GUI from key command: ${key.name} ${status}`)
-					killAllTimers()
-
-
-
-
-					if ( status == "module exit" ) {
-						startGUI()
+					if ( autoStartGui && key.name == "g") {
+						output(`Starting GUI from key command: ${key.name} ${status}`)
+						killAllTimers()
+						if ( status == "module exit" ) {
+							startGUI()
+						}
 					}
 				}
+				// Interactive control:    D (demo full RGB test)    T (short test)   Q (graceful quit next save)
+				// V (toggle verbose mode) B (live DNA to screen)    Esc (graceful quit)    Control-C (fast quit)
+				// W (webserver)           C (clear scrn)            U (updates stats)       X (search ~ for DNA)
+				// O (open images after render)                      or [space]       G  (experimental carlo GUI)
+
 				if ( key.ctrl && key.name == "c") {
 					// process.stdin.pause(); // stop sending control-c here, send that.now to parent, which is gonna kill us on the second go with control-c
 					status  = "TERMINATED WITH CONTROL-C"
@@ -1245,13 +1253,23 @@ class AminoSeeNoEvil {
 						that.gracefulQuit(130, "Control-c")
 					}
 				}
+				if ( key.name == "s") {
+					mode("demo")
+					this.demo = true
+					runDemo()
+				}
 				if ( key.name == "t") {
 					mode("pushing this.test onto render queue")
 					cliInstance.args._.push("test")
 					cliInstance.howMany = cliInstance.args.length
+					cliInstance.generateTestPatterns()
 				}
 				if ( key.name == "c") {
 					clearCheck()
+				}
+				if ( key.name == "d") {
+					runDemo()
+					// that.toggleDebug()
 				}
 				if ( key.name == "b") {
 					clearCheck()
@@ -1267,10 +1285,7 @@ class AminoSeeNoEvil {
 				if ( key.name == "f") {
 					that.toggleForce()
 				}
-				if ( key.name == "d") {
-					clearCheck()
-					that.toggleDebug()
-				}
+
 				if ( key.name == "v") {
 					clearCheck()
 					that.toggleVerbose()
@@ -2340,67 +2355,70 @@ class AminoSeeNoEvil {
 		log("sudo npm install --global http-server")
 	}
 
-	helpCmd(args) {
+	helpCmd() {
 		mode("Showing help command --help")
-		output(chalk.bgBlue.bold.italic("Welcome to the AminoSee DNA Viewer!"))
-		output(siteDescription)
-		output(chalk.bgBlue ("USAGE:"))
-		output("    aminosee [files/*] --flags            (to process all files")
-		output( terminalRGB("TIP: if you need some DNA in a hurry try this random clipping of 1MB human DNA:", 255,255,200))
-		output("wget https://www.funk.co.nz/aminosee/dna/megabase.fa")
-		output("This CLI is to convert sequence found in ASCII/RTF-8 text files - tested with .mfa .fa .gbk up to  into .png graphics. works with .mfa .fa .gbk DNA text files. It's been tested with files up to 3 GB, and uses asynchronous streaming architecture! Pass the name of the DNA file via command line, and it will put the images in a folder called 'output' in the same folder.")
-		output(chalk.bgBlue ("HELP:"))
-		output("Author:         tom@funk.co.nz or +64212576422")
-		output("calls only between 2pm and 8pm NZT (GMT+11hrs)")
-		output("Author:         tom@funk.co.nz or +64212576422")
-		output("calls only between 2pm and 8pm NZT (GMT+11hrs)")
-		output(chalk.bgBlue ("SUPPORT:"))
-		output("Donations can be sent to my bitcoin address with thanks:")
-		output("15S43axXZ8hqqaV8XpFxayZQa8bNhL5VVa")
-		output("https://www.funk.co.nz/blog/online-marketing/pay-tom-atkinson")
-		output(chalk.bgBlue ("VARIABLES:"))
-		output("  --peptide=\"Amino Acid\"  use quotes for two word compounds")
-		output("  --triplet=[ATCGU]..   -t=GGG            any 3 nucleotides")
-		output("  --codons [1-999] -c2       reduce detail to half size res")
-		output("  --codons [1-999] -c100         packs 100 codons per pixel")
-		output("  -- magnitude [0-8] -m9 crashes my mac 4096x4096 -m8 maximum 2048x2048 resolution")
-		output(chalk.bgBlue ("FLAGS:"))
-		output("  --ratio=[square|golden|fixed] fixed is default: 960px width variable height aspect")
-		output("  --ratio=fix --ratio=golden --ratio=sqr aspect ratio proportions")
-		output("  --verbose -v                               verbose mode")
-		output("  --help -h                             show this message")
-		output("  --force -f              ignore locks overwrite existing")
-		output("  --devmode -d   will skip locked files even with --force")
-		output("  --artistitc -a   creates a visual rhythm in the picture")
-		output("  --dnabg -b   spew DNA bases to background during render")
-		output("  --clear --no-clear       dont clear the terminal during")
-		output("  --reg     put registration marks @ 25% 50% 75% and 100%")
-		output("  --test                 create calibration test patterns")
-		output("  --keyboard -k enable interactive mode, use control-c to end")
-		output("  maybe dont use interactive keyboard mode in batch scripts")
-		output("  --firefox --chrome --safari changes default browser to open images")
-		output("  --clear")
-		output("  --html --no-html             open HTML report when done")
-		output("  --updates --no-updates           turn off stats display")
-		output("  --image                            open image when done")
-		output("  --explorer  --file open file explorer / Finder to view files")
-		output("  --no-gui               disables all GUI except terminal")
-		output("  --quiet  -q               full quiet mode / server mode")
-		output(chalk.bgBlue ("EXAMPLES:"))
-		output("     aminosee Human-Chromosome-DNA.txt --force overwrite w/ fresh render")
-		output("     aminosee chr1.fa -m 8                  render at 2048x2048")
-		output("     aminosee chr1.fa  chrX.fa  chrY.fa          render 3 files")
-		output("     aminosee * --peptide=\"Glutamic acid\" (use quotes if there is a space")
-		output("     aminosee * --triplet=GGT (highlight only this specific version of amino acid")
-		output("     aminosee test                 (generate calibration images")
-		output("     aminosee serve                (fire up the mini web server")
-		output("     aminosee demo   <<-----           (run demo - beta version")
-		output("     aminosee help   <<-----           (shows this docs message")
-		output("     aminosee dna/*  (render all files in dna/ default settings")
-		term.down( this.termStatsHeight)
-		if ( this.quiet == false) {
-			printRadMessage( [ `software version ${version}` ] )
-		}
+		termDrawImage( path.resolve(__filename, "src", "public", "512_icon.png"), "--help section", () => {
+			output( blueWhite( chalk.bold.italic("Welcome to the AminoSee DNA Viewer!")))
+			output(siteDescription)
+			output(chalk.bgBlue ("USAGE:"))
+			output("    aminosee [files/*] --flags            (to process all files")
+			output( terminalRGB("TIP: if you need some DNA in a hurry try this random clipping of 1MB human DNA:", 255,255,200))
+			output("wget https://www.funk.co.nz/aminosee/dna/megabase.fa")
+			output("This CLI is to convert sequence found in ASCII/RTF-8 text files - tested with .mfa .fa .gbk up to  into .png graphics. works with .mfa .fa .gbk DNA text files. It's been tested with files up to 3 GB, and uses asynchronous streaming architecture! Pass the name of the DNA file via command line, and it will put the images in a folder called 'output' in the same folder.")
+			output(chalk.bgBlue ("HELP:"))
+			output("Author:         tom@funk.co.nz or +64212576422")
+			output("calls only between 2pm and 8pm NZT (GMT+11hrs)")
+			output("Author:         tom@funk.co.nz or +64212576422")
+			output("calls only between 2pm and 8pm NZT (GMT+11hrs)")
+			output(chalk.bgBlue ("SUPPORT:"))
+			output("Donations can be sent to my bitcoin address with thanks:")
+			output("15S43axXZ8hqqaV8XpFxayZQa8bNhL5VVa")
+			output("https://www.funk.co.nz/blog/online-marketing/pay-tom-atkinson")
+			output(chalk.bgBlue ("VARIABLES:"))
+			output("  --peptide=\"Amino Acid\"  use quotes for two word compounds")
+			output("  --triplet=[ATCGU]..   -t=GGG            any 3 nucleotides")
+			output("  --codons [1-999] -c2       reduce detail to half size res")
+			output("  --codons [1-999] -c100         packs 100 codons per pixel")
+			output("  -- magnitude [0-8] -m9 crashes my mac 4096x4096 -m8 maximum 2048x2048 resolution")
+			output(chalk.bgBlue ("FLAGS:"))
+			output("  --ratio=[square|golden|fixed] fixed is default: 960px width variable height aspect")
+			output("  --ratio=fix --ratio=golden --ratio=sqr aspect ratio proportions")
+			output("  --verbose -v                               verbose mode")
+			output("  --help -h                             show this message")
+			output("  --force -f              ignore locks overwrite existing")
+			output("  --devmode -d   will skip locked files even with --force")
+			output("  --artistitc -a   creates a visual rhythm in the picture")
+			output("  --dnabg -b   spew DNA bases to background during render")
+			output("  --clear --no-clear       dont clear the terminal during")
+			output("  --reg     put registration marks @ 25% 50% 75% and 100%")
+			output("  --test                 create calibration test patterns")
+			output("  --keyboard -k enable interactive mode, use control-c to end")
+			output("  maybe dont use interactive keyboard mode in batch scripts")
+			output("  --firefox --chrome --safari changes default browser to open images")
+			output("  --clear")
+			output("  --html --no-html             open HTML report when done")
+			output("  --updates --no-updates           turn off stats display")
+			output("  --image                            open image when done")
+			output("  --explorer  --file open file explorer / Finder to view files")
+			output("  --no-gui               disables all GUI except terminal")
+			output("  --quiet  -q               full quiet mode / server mode")
+			output(chalk.bgBlue ("EXAMPLES:"))
+			output("     aminosee Human-Chromosome-DNA.txt --force overwrite w/ fresh render")
+			output("     aminosee chr1.fa -m 8                  render at 2048x2048")
+			output("     aminosee chr1.fa  chrX.fa  chrY.fa          render 3 files")
+			output("     aminosee * --peptide=\"Glutamic acid\" (use quotes if there is a space")
+			output("     aminosee * --triplet=GGT (highlight only this specific version of amino acid")
+			output("     aminosee test                 (generate calibration images")
+			output("     aminosee serve                (fire up the mini web server")
+			output("     aminosee demo   <<-----           (run demo - beta version")
+			output("     aminosee help   <<-----           (shows this docs message")
+			output("     aminosee dna/*  (render all files in dna/ default settings")
+			term.down( this.termStatsHeight)
+			if ( this.quiet == false) {
+				printRadMessage( [ `software version ${version}` ] )
+			}
+		})
+
 
 		if ( this.keybaord ) {
 			this.setupKeyboardUI() // allows fast quit with [Q]
@@ -2801,7 +2819,10 @@ class AminoSeeNoEvil {
 		log(`post render reason: ${ blueWhite( reason )}`)
 
 		if ( reason === undefined) { ("reason must be defined for postRenderPoll") }
-		notQuiet(chalk.inverse(`Finishing saving (${reason}), ${this.busy()} waiting on ${ this.storage() } ${ remain } files to go.`))
+		if ( this.verbose ) {
+			notQuiet(chalk.inverse(`Finishing saving (${reason}), ${this.busy()} waiting on ${ this.storage() } ${ remain } files to go.`))
+		}
+
 		if ( renderLock == false ) { // re-entrancy filter
 			notQuiet(chalk.bgRed("Not rendering (may halt), thread entered postRenderPoll: " + reason))
 		}
@@ -3804,7 +3825,7 @@ class AminoSeeNoEvil {
 
 		this.hilbertImage = [ hilpix*4 ] // setup arrays
 		this.rgbArray = [ hilpix*4 ]
-		notQuiet( `Generating hilbert curve of the ${ this.dimension + 1 }th dimension with ${remain} remaining.`)
+		log( `Generating hilbert curve of the ${ this.dimension + 1 }th dimension with ${remain} remaining.`)
 		bugtxt( chalk.bgWhite(`Math.sqrt(hilpix): [${Math.sqrt(hilpix)}])`))
 		bugtxt( this.fileHILBERT )
 
@@ -4136,7 +4157,6 @@ class AminoSeeNoEvil {
 	mkdir(relative, cb) { // returns true if a fresh dir was created
 		let dir2make
 		let ret = true
-		output(this.outputPath + " creating folder: "+ relative)
 
 		if ( relative === undefined || relative == "/") {
 			// dir2make = path.resolve( this.outputPath ) // just make the output folder itself if not present
@@ -4144,6 +4164,7 @@ class AminoSeeNoEvil {
 		} else {
 		  dir2make = path.join( this.outputPath, relative )
 		}
+		log(this.outputPath + " creating folder: "+ dir2make)
 
 		if ( doesFolderExist(this.outputPath) == false ) {
 			try {
@@ -5090,7 +5111,7 @@ function wTitle(txt) {
 	// 		txt += `[ ${txt} ] ${cliInstance.justNameOfDNA}`
 	// 	}
 	// }
-	term.windowTitle(txt)
+	term.windowTitle(helixEmoji +  txt)
 }
 function bugout(txt) {
 	if (txt === undefined) { txt = "txt not set" }
@@ -5313,7 +5334,7 @@ function setupPrefs() {
 	return [ userprefs, projectprefs ]
 }
 function logo() {
-	return `${chalk.rgb(255, 255, 255).inverse(" 🧬  Amino")}${chalk.rgb(196,196,196).inverse("See")}${chalk.rgb(128,128,128).inverse("No")}${chalk.grey.inverse("Evil ")}  🧬    v${chalk.rgb(255,255,0).bgBlue(version)}`
+	return `${helixEmoji + chalk.rgb(255, 255, 255).inverse(" Amino")}${chalk.rgb(196,196,196).inverse("See")}${chalk.rgb(128,128,128).inverse("No")}${chalk.grey.inverse("Evil ") }  v${blueWhite(chalk.rgb(255,255,0)(version))} AminoSee DNA Viewer`
 	// process.stdout.write(`v${chalk.rgb(255,255,0).bgBlue(version)}`);
 }
 function removeLineBreaks(txt) {
@@ -5546,7 +5567,9 @@ function fileSystemChecks(file) { // make sure file is writable or folder exists
 }
 function terminalRGB(_text, _r, _g, _b) {
 	term.eraseLine()
-	return chalk.rgb(_r,_g,_b).bgBlack(_text)
+	return chalk.rgb(_r,_g,_b).bold(_text)
+	// return chalk.rgb(_r,_g,_b).inverse(_text)
+	// return chalk.rgb(_r,_g,_b).bgBlack(_text)
 }
 function showCountdown() {
 	countdown(`Closing in ${humanizeDuration(max32bitInteger)}`, 5000, this.gracefulQuit())
@@ -5594,7 +5617,8 @@ function gimmeDat() {
 function redoline(txt) {
 	term.eraseLine()
 	// output(maxWidth( term.width - 2, txt));
-	output(` [ ${ maxWidth( tx / 2,  txt)} ] `)
+	// output(` [ ${ maxWidth( tx / 2, removeNonAscii( txt ))} ] `)
+	output(` [ ${ maxWidth( tx / 2,  txt )} ] `)
 	term.up( 1 )
 }
 function deresSeconds(ms){
@@ -5888,7 +5912,7 @@ function getOutputFolder( filename ) {
 		log( blueWhite( path.normalize( outpath )))
 		log("Enabled by the prseence of a /output/ or /AminoSee_Output/ folder in *current* dir. If not present, local users homedir ~/AminoSee_Output")
 	} else {
-		output(`HOME FOLDER ENABLED: ${ blueWhite( path.normalize( outpath ))} for ${ path.normalize( filename )}`)
+		log(`HOME FOLDER ENABLED: ${ blueWhite( path.normalize( outpath ))} for ${ path.normalize( filename )}`)
 	}
 	return outpath
 }
@@ -6042,8 +6066,8 @@ function printRadMessage(arr) {
 
 	let radMargin = cliInstance.termMarginLeft
 	term.eraseLine()
-	term.right(radMargin)
-	output( " 🧬  " + chalk.rgb(255, 32, 32).bgBlack(arr[0]) )
+	// term.right(radMargin)
+	output( helixEmoji + chalk.rgb(255, 32, 32).bgBlack(arr[0]) )
 	term.eraseLine()
 	term.right(radMargin)
 	if ( tx > wideScreen ) {
