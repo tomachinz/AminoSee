@@ -61,6 +61,7 @@ const chalk = require("chalk")
 const obviousFoldername = "AminoSee_Output" // descriptive for users
 const netFoldername = "output" // terse for networks
 const funknzlabel = "aminosee.funk.nz"
+const dummyFilename = "50KB_TestPattern.txt"
 const closeBrowser = "If the process apears frozen, it's waiting for your this.browser or image viewer to quit. Escape with [ CONTROL-C ] or use --no-image --no-html"
 const defaultC = 1 // back when it could not handle 3+GB files.
 const artisticHighlightLength = 36 // px only use in artistic this.mode. must be 6 or 12 currently
@@ -100,15 +101,12 @@ let clear = false
 let debug = false // should be false for PRODUCTION
 let brute = true // used while accelerating the render 20x
 webserverEnabled = false
-genomesRendered = ["megabase"]
+genomesRendered = [dummyFilename]
 renderLock = false
 module.exports = () => {
 	mode("exports")
 	setupApp()
-	cliInstance = new AminoSeeNoEvil()
-	cliInstance.setupJob( populateArgs( process.argv ), "module exports"  )
-	threads.push( cliInstance )
-	server.start()
+
 	mode("module exit")
 	log( `S: ${status} ` )
 	// cliInstance.updatesTimer = countdown("closing in ", 360000, () => {
@@ -218,6 +216,7 @@ function pushCli(cs) {
 
 }
 function setupApp() {
+
 	[ userprefs, projectprefs ] = setupPrefs()
 	lastHammered = new Date()
 	if ( this.updateProgress == true ) {
@@ -230,6 +229,12 @@ function setupApp() {
 			items: remain
 		} )
 	}
+	cliInstance = new AminoSeeNoEvil()
+	cliInstance.setupJob( populateArgs( process.argv ), "module exports"  )
+	cliInstance.outputPath = getOutputFolder()
+
+	threads.push( cliInstance )
+	server.start()
 
 }
 function newJob( job ) { // used node and CLI tool.
@@ -244,8 +249,12 @@ function newJob( job ) { // used node and CLI tool.
 }
 
 class AminoSeeNoEvil {
-	constructor() { // CLI commands, this.files, *
-		this.outputPath = getOutputFolder()
+	constructor(o) { // CLI commands, this.files, *
+		if ( o === undefined ) {
+			// this.outputPath = getOutputFolder()
+		} else {
+			this.outputPath = o
+		}
 		output( logo() );
 		[ projectprefs, userprefs] = setupPrefs()
 		this.red = this.green = this.blue = this.alpha = 0
@@ -317,13 +326,15 @@ class AminoSeeNoEvil {
 		this.isStorageBusy = false // true just after render while saving to disk. helps percent show 100% etc.
 		this.willRecycleSavedImage = false // allows all the this.regular processing to mock the DNA render stage
 		this.codonsPerSec = 0
-		this.peakRed  = 0.1010101010
+		this.peakRed  = 0.001
 		this.peakGreen  = 0.1010101010
 		this.peakBlue  = 0.1010101010
 		this.peakAlpha  = 0.1010101010
-		this.rawDNA ="@loading DNA Stream..." // this.debug
-		this.outFoldername = "/AminoSee_Output"
+		this.rawDNA ="...ACTCGGCTGATACG...GTGTGG" // this.debug
+		this.outFoldername = "AminoSee_Output"
 		this.browser = "firefox"
+		this.currentFile = path.resolve(__dirname, "dna" , dummyFilename)
+		this.justNameOfDNA = dummyFilename
 		loopCounter = 0
 		this.termPixels = 69//Math.round((term.width) * (term.height-8));
 		this.runningDuration = 1 // ms
@@ -334,26 +345,25 @@ class AminoSeeNoEvil {
 		this.args = args // populateArgs(procArgv); // this.args;
 		try {
 			this.currentFile = args._.toString()
-			cfile = this.currentFile
-			remain = args._.length
-			batchSize = remain
-			this.dnafile = path.resolve( this.currentFile )
-			this.justNameOfDNA = path.normalize( this.currentFile )
 		} catch(err) {
-			this.currentFile = "error"
 			remain = 0
 			batchSize = 0
-			this.justNameOfDNA = "ascii-DNA.txt"
 		}
+		cfile = this.currentFile
+		remain = args._.length
+		batchSize = remain
+
+		this.dnafile = path.resolve( cfile )
+		this.justNameOfDNA = path.normalize( cfile )
+
 		this.started = this.startDate.getTime() // required for touch locks.
 		this.dimension = defaultMagnitude // var that the hilbert projection is be downsampled to
 		this.msPerUpdate  = minUpdateTime // min milliseconds per update its increased for long renders
 		this.termMarginTop = (term.height - this.termDisplayHeight - this.termStatsHeight) / 4
 		this.maxpix = targetPixels
 
-		this.justNameOfDNA = path.normalize( this.currentFile )
-		// this.currentFile = funknzlabel;
-		this.nextFile = funknzlabel
+		this.justNameOfDNA = path.normalize( cfile )
+		this.nextFile = cfile
 		termSize()
 		// this.resized(tx, ty);
 		this.previousImage = this.justNameOfDNA
@@ -548,9 +558,11 @@ class AminoSeeNoEvil {
 				this.ratio = "sqr"
 			} else if ( this.ratio == "hilbert" || this.ratio == "hilb" || this.ratio == "hil" ) {
 				this.ratio = "hil"
+			} else if ( this.ratio == "gol" || this.ratio == "gold" || this.ratio == "golden" ) {
+				this.ratio = "gol"
 			} else {
 				log("No custom this.ratio chosen. (default)")
-				this.ratio = "fix"
+				this.ratio = "sqr"
 			}
 			this.pngImageFlags += this.ratio
 			this.userRatio = "custom"
@@ -788,19 +800,7 @@ class AminoSeeNoEvil {
 		quiet = this.quiet
 		bugtxt(`the args -->> ${this.args}`)
 
-
-
-		if ( this.mkdir() ) {
-			log("Success")
-		} else {
-			output("That's weird. Couldn't create a writable output folder at: " + this.outputPath + ". You can set custom output path with --output=~/newpath")
-			// this.outputPath = homedirPath;
-			// this.quit(0, `cant create output folder`);
-			// return false;
-		}
-
-
-		notQuiet(`OUTPUT FOLDER:   ${ blueWhite( path.normalize( this.outputPath )) }`)
+		// notQuiet(`OUTPUT FOLDER:   ${ blueWhite( path.normalize( this.outputPath )) }`)
 
 
 		remain = args._.length
@@ -1106,19 +1106,14 @@ class AminoSeeNoEvil {
 	}
 
 
-
-	// cliruns = "!";
-	//  gbprocessed  = "!";
-
-
-
-
-
 	setupRender(file) { // blank all the variables
 		if ( renderLock == true ) {
-			this.error(`Renderlock failed in setupRender ${ this.currentFile } , ${ this.nextFile} ${this.args}`)
+			this.error("Renderlock failed. Made of cellotape and paperclips it is")
 			return false
 		}
+		// if ( file === undefined && !this.test ) {
+		// 	this.currentFile =
+		// }
 		this.startDate = new Date() // required for touch locks.
 		this.started = this.startDate.getTime() // required for touch locks.
 		this.baseChars =  this.genomeSize = this.charClock = this.codonsPerSec =  this.red  =  this.green  =  this.blue  = 0
@@ -1127,7 +1122,7 @@ class AminoSeeNoEvil {
 		this.peakBlue  =  this.blue
 		this.peakAlpha  =  this.alpha
 		this.percentComplete = 0
-		// this.pixelClock = 0;
+		this.pixelClock = 0
 		this.currentTriplet = "none"
 		this.breakClock = 0
 		this.msElapsed = this.runningDuration = this.charClock = this.percentComplete = this.genomeSize = this.pixelClock = 0
@@ -1154,15 +1149,15 @@ class AminoSeeNoEvil {
 		for (let h=0; h < dnaTriplets.length; h++) {
 			dnaTriplets[h].Histocount = 0
 		}
-
+		this.outputPath = getOutputFolder()
 		this.setNextFile()
 		this.autoconfCodonsPerPixel()
-
-		if (this.test) {
-			this.dnafile = "Running Test"
-		} else {
-
-		}
+		//
+		// if (this.test) {
+		// 	this.dnafile = test
+		// } else {
+		//
+		// }
 
 		for (let h=0; h< this.pepTable.length; h++) {
 			this.pepTable[h].Histocount = 0
@@ -1569,7 +1564,7 @@ class AminoSeeNoEvil {
 			return false
 		}
 		if ( doesFolderExist(this.dnafile ) ) { // FOLDER CHECK
-			let asterix = `${path.normalize( this.currentFile)}/*`
+			let asterix = `${path.dirname( this.currentFile )}/*`
 			let msg = `If you meant to render everything in (${this.currentFile}), try using an asterix on CLI:  ${chalk.italic.bold(  "aminosee " +  asterix)}`
 			notQuiet(msg)
 			log(`${this.dnafile}`)
@@ -1659,7 +1654,7 @@ class AminoSeeNoEvil {
 			}, this.raceDelay)
 			return false
 		}
-		mode("Lock OK proceeding to render soon... " + this.busy())
+		mode(`Lock OK proceeding to render ${ this.justNameOfPNG } soon... ${ this.busy() }`)
 		log( `S: ${status} ` )
 		setTimeout( () => {
 			mode("Lock OK proceeding to render now" + this.busy())
@@ -1763,6 +1758,20 @@ class AminoSeeNoEvil {
 		this.dnafile = path.resolve(file)
 		remain = this.args._.length
 		this.outputPath = getOutputFolder( this.dnafile )
+		this.imgPath = path.resolve( this.outputPath, this.justNameOfDNA, "images")
+
+
+		// see if we have writable folder:
+		if ( this.mkdir() ) {
+			log("Success")
+		} else {
+			output("That's weird. Couldn't create a writable output folder at: " + this.outputPath + ". You can set custom output path with --output=~/newpath")
+			// this.outputPath = homedirPath;
+			// this.quit(0, `cant create output folder`);
+			// return false;
+		}
+
+
 		if ( this.test == true ) { // uses a loop not polling.
 			// this.error('test is in look for work?');
 			log("test is in look for work?")
@@ -1875,7 +1884,7 @@ class AminoSeeNoEvil {
 				.on("close", function() {
 					mode("stream close")
 					that.streamStopped()
-					output(`globalVariablesDoSuck: ${	this.peptide}`)
+					bugtxt(`globalVariablesDoSuck: ${	this.peptide}`)
 
 					// this.streamStopped();
 				}))
@@ -4125,10 +4134,17 @@ class AminoSeeNoEvil {
 		return ( this.reg == true ? "_reg" : "" )
 	}
 	mkdir(relative, cb) { // returns true if a fresh dir was created
+		let dir2make
 		let ret = true
-		if ( relative === undefined) { relative = ""} // just make the output folder itself if not present
-		let dir2make = path.resolve( this.outputPath, relative )
-		log("creating folder: "+ dir2make)
+		output(this.outputPath + " creating folder: "+ relative)
+
+		if ( relative === undefined || relative == "/") {
+			// dir2make = path.resolve( this.outputPath ) // just make the output folder itself if not present
+			dir2make = this.outputPath // just make the output folder itself if not present
+		} else {
+		  dir2make = path.join( this.outputPath, relative )
+		}
+
 		if ( doesFolderExist(this.outputPath) == false ) {
 			try {
 				fs.mkdirSync(this.outputPath, function (err, result) {
@@ -4180,6 +4196,7 @@ class AminoSeeNoEvil {
 		}
 
 		output("output test patterns to /calibration/ folder. dnafile: " + this.dnafile )
+		this.mkdir("/")
 		this.mkdir("calibration")
 		if ( remain < 0 ) {
 			reason = `calibration ${remain} `
@@ -4305,7 +4322,7 @@ class AminoSeeNoEvil {
 		this.genomeSize =  this.baseChars
 		this.estimatedPixels =  this.baseChars
 		this.charClock =  this.baseChars
-		// this.pixelClock =  this.baseChars;
+		this.pixelClock =  this.baseChars
 		return true
 	}
 
@@ -4630,7 +4647,7 @@ class AminoSeeNoEvil {
 			`| Next file >>> ${maxWidth(24, this.nextFile)}`,
 			`| Codons:${ fixedWidth(14, " " +  this.genomeSize.toLocaleString())} Pixels:${ fixedWidth(10, " " + this.pixelClock.toLocaleString())}  Host: ${hostname}`,
 			`  DNA Sample: ${ fixedWidth(tx/4, this.rawDNA) } ${ this.showFlags()}`,
-			`  RunID: ${chalk.rgb(128, 0, 0).bgWhite( this.timestamp )} acids per pixel: ${ twosigbitsTolocale( this.codonsPerPixel )}   Term x,y: (${tx},${ty})`
+			`  RunID: ${chalk.rgb(128, 0, 0).bold( this.timestamp )} acids per pixel: ${ twosigbitsTolocale( this.codonsPerPixel )}   Term x,y: (${tx},${ty})`
 		]
 
 
@@ -5009,13 +5026,13 @@ function bugtxt(txt) { // full debug output
 }
 function output(txt) {
 
-	// if (txt === undefined) { txt = " "} else {
-	// 	if ( cliInstance ) {
-	// 		if ( cliInstance.justNameOfPNG === undefined ) {
-	// 			wTitle( `${ cliInstance.justNameOfPNG } ${txt}` )
-	// 		}
-	// 	}
-	// }
+	if (txt === undefined) { txt = " "} else {
+		if ( cliInstance ) {
+			if ( cliInstance.justNameOfPNG === undefined ) {
+				wTitle( `${ cliInstance.justNameOfPNG } ${txt}` )
+			}
+		}
+	}
 
 	term.eraseLine()
 	if ( debug ) {
@@ -5267,7 +5284,7 @@ function setupPrefs() {
 		}
 	}, {
 		encrypt: false,
-		file: path.resolve( o , "aminosee_project.conf"),
+		file: path.resolve( os.homedir(), obviousFoldername, "aminosee_project.conf"),
 		format: "yaml"
 	})
 
@@ -5749,7 +5766,7 @@ function termDrawImage(fullpath, reason, cb) {
 }
 function nicePercent(percent) {
 	if (percent === undefined) { percent = cliInstance.percentComplete; log("% was undef") }
-	return minWidth(5, (Math.round(  percent*1000) / 10) + "%")
+	return minWidth(4, (Math.round(  percent*1000) / 10)) + "%"
 }
 function tidyPeptideName(str) { // give it "OPAL" it gives "Opal". GIVE it aspartic_ACID or "gluTAMic acid". also it gives "none"
 	if (str === undefined) {
@@ -5813,11 +5830,20 @@ function stopWork(reason) {
 }
 function getOutputFolder( filename ) {
 	if ( filename === undefined ) {
-		filename = path.resolve( __dirname) // check executable dir
+		filename = __filename //path.resolve( __dirname) // check executable dir
 		log("Found alongside executable: " + filename)
 	}
+	// output( blueWhite("ATTEMPTING TO CAUSE EXCEPTIPON"))
+	// if ( process ) {
+	// 	if ( process.cwd() ){
+	//
+	// 	}
+	// }
+	// output(  )
+	// return
 
-	let outpath, clusterRender, outFoldername
+
+	let outpath, clusterRender
 	clusterRender = false
 
 	log(`If the following paths contain directory named ${obviousFoldername} or ${netFoldername} then they will be used for output:`)
@@ -5826,49 +5852,39 @@ function getOutputFolder( filename ) {
 
 	if (doesFolderExist(outpath)) { // support drag and drop in the GUI
 		clusterRender = true
-		outFoldername = obviousFoldername
 	} else {
 
 		outpath = path.resolve( path.dirname( filename ), netFoldername) // based on supplied files path
 	}
 	if (!clusterRender && doesFolderExist( outpath )) {
 		clusterRender = true
-		outFoldername = netFoldername
 	} else {
 
-		outpath = path.resolve( process.cwd(), obviousFoldername) // support current working directory at CLI terminal
-	}
-	if (!clusterRender && doesFolderExist( outpath )) {
-		clusterRender = true
-		outFoldername = obviousFoldername
-	} else {
-
-		outpath = path.resolve( process.cwd(), netFoldername) // support current working directory at CLI terminal
-	}
-	if (!clusterRender && doesFolderExist( outpath )) {
-		clusterRender = true
-		outFoldername = netFoldername
-	} else {
+		// 	outpath = path.resolve( process.cwd(), obviousFoldername) // support current working directory at CLI terminal
+		// }
+		// if (!clusterRender && doesFolderExist( outpath )) {
+		// 	clusterRender = true
+		// } else {
+		//
+		// 	outpath = path.resolve( process.cwd(), netFoldername) // support current working directory at CLI terminal
+		// }
+		// if (!clusterRender && doesFolderExist( outpath )) {
+		// 	clusterRender = true
+		// } else {
 
 		outpath = path.resolve( os.homedir(), netFoldername ) // ~/output
 	}
-	if (!clusterRender && doesFolderExist( outpath )) {
-		outFoldername = netFoldername
-	} else {
+	if (!clusterRender && !doesFolderExist( outpath )) {
 		outpath = path.resolve( os.homedir(), obviousFoldername ) // ~/AminoSee_Output
-		outFoldername = obviousFoldername
 	}
 
 	if (clusterRender == true) {
-		// outpath = path.resolve(process.cwd(),  outFoldername)  // default location after checking overrides
 		output( shiznit( "   🚄 CLUSTER FOLDER ENABLED   ") )
 		log( blueWhite( path.normalize( outpath )))
 		log("Enabled by the prseence of a /output/ or /AminoSee_Output/ folder in *current* dir. If not present, local users homedir ~/AminoSee_Output")
 	} else {
-		// outpath = path.resolve(os.homedir(), outFoldername) // default location after checking overrides
-		log(`HOME FOLDER ENABLED: ${ blueWhite( blueWhite( path.normalize( outpath )))} for ${filename}`)
+		output(`HOME FOLDER ENABLED: ${ blueWhite( path.normalize( outpath ))} for ${ path.normalize( filename )}`)
 	}
-	bugtxt(`output path: ${outpath} status: ${status}`)
 	return outpath
 }
 function shiznit(txt) {
@@ -6022,7 +6038,7 @@ function printRadMessage(arr) {
 	let radMargin = cliInstance.termMarginLeft
 	term.eraseLine()
 	term.right(radMargin)
-	output( chalk.rgb(255, 32, 32).bgBlack(arr[0]) )
+	output( " 🧬  " + chalk.rgb(255, 32, 32).bgBlack(arr[0]) )
 	term.eraseLine()
 	term.right(radMargin)
 	if ( tx > wideScreen ) {
