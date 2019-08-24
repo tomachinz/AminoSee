@@ -16,7 +16,8 @@ const os = require("os")
 const spawn = require("cross-spawn")
 const fs = require("fs-extra") // drop in replacement = const fs = require('fs')
 let debug = false
-let autoStartGui = true
+let autoStartGui = false
+let starts = -1
 const lockFileMessage = `
 aminosee.funk.nz DNA Viewer by Tom Atkinson.
 This is a temporary lock file, so I dont start too many servers. Its safe to erase these files, and I've made a script in /dna/ to batch delete them all in one go. Normally these are deleted when render is complete, or with Control-C and graceful shutdown.`
@@ -133,13 +134,50 @@ function buildServer() {
 	}
 
 }
-function selfSpawn() {
-
+function selfSpawn(p) {
+	let didStart = false
+	if (p !== undefined) { port = p }
+	// let options = 				[ outputPath, `-p${port}`, "-o", ( args.justNameOfDNA ? args.justNameOfDNA  : "/" ), ( args.gzip ? "--gzip" : "") ]
+	// let optionsAminoSee = [ outputPath, `-p${port}`, "-o", ( args.justNameOfDNA ? args.justNameOfDNA  : "/" ), ( args.gzip ? "--gzip" : "") ]
+	// output(options.toString())
+	output(chalk.yellow(`Starting BACKGROUND web server at ${chalk.underline(getServerURL())}`))
+	// console.log(options)
+	let evilSpawn
+	try {
+		// evilSpawn = spawn("http-server", options, { stdio: "pipe" })
+		evilSpawn = spawn("aminosee", "--serve", { stdio: "pipe" })
+		didStart = true
+	} catch(err) {
+		log(err)
+		didStart = false
+	}
+	evilSpawn.stdout.on("data", (data) => {
+		output(data)
+	})
+	evilSpawn.stderr.on("data", (data) => {
+		log( `error with ${chalk.inverse(url)}`)
+		didStart = false
+		if ( data.indexOf("EADDRINUSE") != -1 ) {
+			output(`Port ${port} is in use`)
+		} else if ( data.indexOf("ENOENT") != -1 ) {
+			output("ENOENT error")
+			log( data )
+		} else {
+			output("Unknown error:")
+			log( data )
+		}
+	})
+	evilSpawn.on("close", (code) => {
+		output( chalk.inverse("Server process quit with" ) + ` [${code}] Use --kill to get forceful about starting that server`)
+	})
+	log(chalk.bgBlue.yellow("IDEA: Maybe send some bitcoin to the under-employed creator tom@funk.co.nz to convince him to work on it?"))
+	log("Control-C to quit. This requires http-server, install that with:")
+	log( chalk.italic( "sudo npm install --global http-server"))
+	return didStart
 }
 
 function spawnBackground(p) { // Spawn background server
 	let didStart = false
-	// return
 	if (p !== undefined) { port = p }
 	let options = [ outputPath, `-p${port}`, "-o", ( args.justNameOfDNA ? args.justNameOfDNA  : "/" ), ( args.gzip ? "--gzip" : "") ]
 	// let optionsAminoSee = [ outputPath + "/", "-p", port ]
@@ -165,7 +203,7 @@ function spawnBackground(p) { // Spawn background server
 			output(`Port ${port} is in use`)
 		} else if ( data.indexOf("ENOENT") != -1 ) {
 			output("ENOENT error")
-			// output( data );
+			log( data )
 		} else {
 			output("Unknown error:")
 			log( data )
@@ -176,11 +214,11 @@ function spawnBackground(p) { // Spawn background server
 	})
 	log(chalk.bgBlue.yellow("IDEA: Maybe send some bitcoin to the under-employed creator tom@funk.co.nz to convince him to work on it?"))
 	log("Control-C to quit. This requires http-server, install that with:")
-	log("sudo npm install --global http-server")
+	log( chal.italic( "sudo npm install --global http-server"))
 	return didStart
 }
 function foregroundserver(options) {
-
+	process.title = "aminosee.funk.nz_server"
 
 	var root = path.join(__dirname)
 	var server = httpserver.createServer({
@@ -197,7 +235,7 @@ function foregroundserver(options) {
 	} catch(err) {
 		if ( err.indexOf("EADDRINUSE") !== -1 ) {
 			output(`port ${port} in use, trying backup port: ${backupPort}`)
-			server.listen(backupPort)
+			// server.listen(backupPort)
 		} else {
 			output(`unknown error starting server: ${err}`)
 		}
@@ -206,14 +244,11 @@ function foregroundserver(options) {
 	return server
 
 
-
-
 	if ( options === undefined ) {
 		options = [ outputPath, "-p", port, "-o" ]
 	}
 	log(`FOREGROUND server path: ${outputPath} ${port} ${url}`)
 	theserver = httpserver.createServer(options)
-	process.title = "aminosee.funk.nz_server"
 	return theserver
 }
 function startServeHandler(o, port) {
@@ -342,7 +377,12 @@ function readLockPort(file) {
 
 
 function start(a) { // return the port number
-
+	starts++
+	if ( starts > 1 ) {
+		output("you seem to be trying to start the server too much. odd.")
+		return false
+	}
+	return false
 	setArgs(a)
 	log("Attempting to start server with args:")
 	if ( args.verbose ) {
@@ -351,26 +391,35 @@ function start(a) { // return the port number
 	process.title = "aminosee.funk.nz_server"
 	outputPath = args.output
 	filenameServerLock = path.resolve(`${outputPath}/aminosee_server_lock.txt`)
-	if ( args.stop == true ) { log("Two issues...: you call the start function but args object is configured for stop = true, and you need to call setArgs(args) prior to start()") }
-	stop()
+	// if ( args.stop == true ) { log("Two issues...: you call the start function but args object is configured for stop = true, and you need to call setArgs(args) prior to start()") }
 	setupPrefs()
 	buildServer()
 	let options = [ outputPath, "-p", port, "-o" ]
 	// let options = [ outputPath + "/", "-p", port, "-o" ]
 	if ( serverLock() == true ) {
+
 		port = readLockPort(filenameServerLock)
 		log(`Server already started, using lock file port of (${port}). If you think this is not true, remove the lock file: ${ path.normalize( filenameServerLock )}`)
+		output("Restarting server")
+		stop() // sounds odd, but helps avoid port in use issue :)
+		setTimeout( () => {
+			start()
+		}, args.delay)
 	} else {
 		log("No locks found, Starting server ")
+
+		if ( args.serve !== true ) {
+			selfSpawn()
+			// spawnBackground() // works great but relies on http-server being installed globally
+		} else {
+			foregroundserver() // blocking version
+			output("Backround")
+		}
+
 		log(`filenameServerLock: ${filenameServerLock}`)
+
 	}
-	if ( args.serve == true ) {
-		output("Foreground")
-		foregroundserver() // blocking version
-	} else {
-		output("Backround")
-		spawnBackground() // works great but relies on http-server being installed globally
-	}
+
 
 	// open( url + "/aminosee.html?devmode", {wait: false}).then(() => {
 	// 	log("browser closed")

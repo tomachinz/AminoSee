@@ -51,7 +51,7 @@
     "update": "./update.sh",
     "pkg": "nice npm run win32 ; nice npm run _macos ; nice npm run _linux ; nice npm run _win64",
     "zip": "zip -8 -r ./dist/AminoSee_macos.zip ./dist/AminoSee_macos  ; nice zip -8 -r ./dist/AminoSee_win.zip ./dist/AminoSee_win ; nice zip -8 -r ./dist/AminoSee_linux.zip ./dist/AminoSee_linux",
-    "runmac": "./dist/AminoSee_macos/aminosee  --gui",
+    "runmac": "time ./dist/AminoSee_macos/aminosee --demo -m9",
     "runlinux": "open ./dist/AminoSee_linux/aminosee",
     "macos": "echo MACOS ; pkg . --targets macos   --output ./dist/AminoSee_macos/aminosee ; ./dist/AminoSee_macos/aminosee",
     "win32": "echo WIN32 ; pkg . --targets win-x86 --output ./dist/AminoSee_win/aminosee-win32.exe",

@@ -14,6 +14,7 @@ const setupPrefs = aminosee.setupPrefs
 const pushCli = aminosee.pushCli
 const removeLocks = aminosee.removeLocks
 const port = 6543
+setupPrefs()
 
 async function runCarlo() {
 	const [backend] = await carlo.loadParams()
@@ -112,7 +113,7 @@ async function runCarlo() {
 
 async function run() {
 	let app
-
+	output(`Output path: ${ o }`)
 	try {
 		app = await carlo.launch(
 			{ //

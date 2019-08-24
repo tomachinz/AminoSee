@@ -33,6 +33,7 @@ echo STARTING SERVER TO RUN IN BACKGROUND
 aminosee --serve &
 test_do "NETWORKED CLUSTER RENDER TEST $NETWORK" -fv --peptide=Phenylalanine $FAST $NETWORK $MEDIUM
 test_do "FORCED RENDER (HAS BUG SEEMS TO BLOCK TEST)" -fv $MEDIUM $FAST $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
+test_do "CALIBRATION IMAGES" --demo --no-image
 test_do "Curious back walk bug" -d --debug $FAST Influenza-A-virus-H9N2-NC_004905.gbk Streptococcus_virus_2972.gbk $1
 test_do "QUIET MODE WITH PARAMS" -q $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
 test_do "VERBOSE MODE" -v  -p=Lysine  $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
