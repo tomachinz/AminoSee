@@ -639,7 +639,7 @@ class AminoSeeNoEvil {
 
 		if ( args.verbose || args.v) {
 			output("verbose enabled. AminoSee version: " + version)
-			bugtxt(`os.platform(): ${os.platform()} ${process.cwd()}`)
+			// bugtxt(`os.platform(): ${os.platform()} ${process.cwd()}`)
 			this.verbose = true
 			this.termDisplayHeight++
 		} else {
@@ -5835,8 +5835,13 @@ function getOutputFolder( filename ) {
 	}
 	// output( blueWhite("ATTEMPTING TO CAUSE EXCEPTIPON"))
 	// if ( process ) {
-	// 	if ( process.cwd() ){
+	// 	try {
+	// 		if ( process.cwd() ){
+	// 			output( blueWhite("ok"))
 	//
+	// 		}
+	// 	} catch( err ) {
+	// 		output( blueWhite("not so much ok"))
 	// 	}
 	// }
 	// output(  )
