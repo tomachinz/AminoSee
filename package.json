@@ -120,7 +120,7 @@
     "sliced": "^1.0.1",
     "spdy": "^4.0.1",
     "stream-file": "^0.2.4",
-    "systeminformation": "^4.14.7",
+    "systeminformation": "^4.14.8",
     "through": "^2.3.8",
     "uniq": "^1.0.1",
     "webpack-node-externals": "^1.7.2",
