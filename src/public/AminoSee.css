@@ -33,7 +33,7 @@ html, body, form, input, textarea, a, p, h1, h2, h3, h4, h5, h6, div {
   transform: translate(calc(var(--mouse-x, 0) * 100%) px, calc(var(--mouse-y, 0) * 100%) px)
 }
 
-#stack 1 {
+#stack_1 {
   top: calc(var(--mouse-y, 0) * 100%);
   left: calc(var(--mouse-x, 0) * 100%);
   transform: translate(calc(var(--mouse-x, 0) * 100%) px, calc(var(--mouse-y, 0) * 100%) px)

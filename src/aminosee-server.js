@@ -400,6 +400,7 @@ function start(a) { // return the port number
 	// if ( args.stop == true ) { log("Two issues...: you call the start function but args object is configured for stop = true, and you need to call setArgs(args) prior to start()") }
 	setupPrefs()
 	buildServer()
+	output(`web root: ${webroot}`)
 	let options = [ webroot, "-p", port, "-o" ]
 	// let options = [ webroot , "", "-p", port, "-o" ]
 	if ( serverLock() == true ) {
@@ -408,14 +409,14 @@ function start(a) { // return the port number
 		log(`Server already started, using lock file port of (${port}). If you think this is not true, remove the lock file: ${ path.normalize( filenameServerLock )}`)
 		output("Restarting server")
 		start()
-		open( url + "/#devmode", {wait: false}).then(() => {
+		open( url , {wait: false}).then(() => {
 			log("browser closed")
 		}).catch(function () {
 			deleteFile(filenameServerLock)
 		 })
 	} else {
 		log("No locks found, Starting server ")
-		if ( args.serve !== true ) {
+		if ( args.serve == true ) {
 			// selfSpawn()
 			spawnBackground() // works great but relies on http-server being installed globally
 		} else {
@@ -443,12 +444,12 @@ function getServerURL(fragment) {
 	let internalIp = require("internal-ip")
 	let indexfile = ""
 	// if ( args.devmode ) {
-	indexfile = "aminosee.html"
+	// indexfile = "aminosee.html"
 	// }
 	if (fragment == undefined) {
 		fragment = "/"
 	} else {
-		fragment = `/${fragment}/${indexfile}`
+		fragment = `/output/${fragment}/${indexfile}`
 	}
 	let serverURL = `http://${internalIp.v4.sync()}:${port}${fragment}`
 	output(`serverURL returns ${serverURL} and also ${url}`)
@@ -493,7 +494,7 @@ function symlinkGUI(cb) { // does:  ln -s /Users.....AminoSee/public, /Users....
 }
 
 module.exports.foregroundserver = () => { foregroundserver() }
-module.exports.getServerURL = () => { getServerURL( outputPath )}
+module.exports.getServerURL = () => { getServerURL()}
 module.exports.startServeHandler = () => { startServeHandler() }
 module.exports.spawnBackground = () => { spawnBackground() }
 module.exports.stop = stop

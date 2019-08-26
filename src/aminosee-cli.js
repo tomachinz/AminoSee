@@ -2318,9 +2318,9 @@ class AminoSeeNoEvil {
 		this.filePNG =     path.resolve( this.outputPath, this.justNameOfDNA, "images", this.justNameOfPNG )
 		this.fileHILBERT = path.resolve( this.outputPath, this.justNameOfDNA, "images", this.generateFilenameHilbert(this.pixelClock, this.magnitude ))
 		if ( this.index ) {
-			this.currentURL = `${url}/${this.justNameOfDNA}/`
+			this.currentURL = `${url}/output/${this.justNameOfDNA}/`
 		} else {
-			this.currentURL = `${url}/${this.justNameOfDNA}/${this.justNameOfHTML}`
+			this.currentURL = `${url}/output/${this.justNameOfDNA}/${this.justNameOfHTML}`
 		}
 		// this.fancyFilenames();
 		this.setNextFile()
