@@ -117,9 +117,9 @@ async function run() {
 	try {
 		app = await carlo.launch(
 			{ //
-				localDataDir: path.join( os.homedir(), "/AminoSee_Output"),
+				localDataDir: path.join( os.homedir(), "/AminoSee_webroot"),
 				// userDataDir: path.join( __dirname, ".carlosysteminfo" ),
-				// userDataDir: path.join( os.homedir(), "/AminoSee_Output"),
+				// userDataDir: path.join( os.homedir(), "/AminoSee_webroot"),
 				bgcolor: "#012345",
 				title: "AminoSee DNA Viewer",
 				width: 1400,
@@ -144,7 +144,7 @@ async function run() {
 	// app.on('window', window => window.load('http://10.0.0.24:43210/public/'));
 	// app.on("window", window => window.load("public/systeminfo.html"))
 
-	// let o =  path.join(os.homedir(), "/AminoSee_Output")
+	// let o =  path.join(os.homedir(), "/AminoSee_webroot")
 	// let o = path.join(__dirname, 'public');
 	// let o = path.join(__dirname, 'public');
 	let o = path.resolve("/snapshot/aminosee/src")

@@ -9,8 +9,11 @@ const doesFolderExist = data.doesFolderExist
 const createSymlink   = data.createSymlink
 const deleteFile      = data.deleteFile
 const recordFile      = data.recordFile
+const fixedWidth			= aminosee.fixedWidth
+const termSize				= aminosee.termSize
 const Preferences = require("preferences")
 const chalk = require("chalk")
+const term = require("terminal-kit").terminal
 const path = require("path")
 const os = require("os")
 const spawn = require("cross-spawn")
@@ -25,16 +28,18 @@ This is a temporary lock file, so I dont start too many servers. Its safe to era
 // const webserverEnabled = true;
 const defaulturl = "http://localhost:4321"
 let outputPath, filenameServerLock, url, projectprefs, userprefs, port, cliruns, gbprocessed, args, theserver, genomes
+let webroot = path.resolve( os.homedir(), "AminoSee_webroot")
 port = 4321
-backupPort = 43210;
-// process.title = `aminosee.funk.nz_server`;
+backupPort = 43210
+process.title = "aminosee.funk.nz_server";
 [ userprefs, projectprefs ] = setupPrefs()
 
 function setArgs( TheArgs ) {
 	if ( TheArgs === undefined ) {
 		args = {
 			verbose: false,
-			output: path.resolve( os.homedir(), "AminoSee_Output"),
+			webroot: webroot,
+			output: path.join( webroot, "output"),
 			serve: true,
 			gzip: true
 		}
@@ -45,9 +50,8 @@ function setArgs( TheArgs ) {
 		log("using dynamic args")
 	}
 	outputPath = args.output
-	filenameServerLock = path.resolve(`${outputPath}/aminosee_server_lock.txt`)
+	filenameServerLock = path.resolve( webroot, "aminosee_server_lock.txt")
 	debug = args.debug
-	// console.log( args )
 	if ( args.debug ) {
 		debug = true
 		log("debug mode ENABLED")
@@ -62,6 +66,7 @@ function setArgs( TheArgs ) {
 	}
 }
 function setupPrefs() {
+	let projconf = path.join( webroot, "aminosee_project.conf" )
 	projectprefs = new Preferences("nz.funk.aminosee.project", {
 		aminosee: {
 			opens: 0,
@@ -70,7 +75,7 @@ function setupPrefs() {
 		}
 	}, {
 		encrypt: false,
-		file: path.join( outputPath + "/aminosee_project.conf"),
+		file: projconf,
 		format: "yaml"
 	})
 
@@ -83,7 +88,7 @@ function setupPrefs() {
 		}
 	}, {
 		encrypt: false,
-		file: path.resolve( os.homedir(), ".config/preferences/nz.funk.aminosee.conf"),
+		file: path.resolve( os.homedir(), ".config", "preferences", "nz.funk.aminosee.conf"),
 		format: "yaml"
 	})
 	// Preferences can be accessed directly
@@ -109,7 +114,7 @@ function log(txt) {
 //   return this.args;
 // }
 function output(txt) {
-	console.log(chalk.inverse(" ") + " [" + txt + "]")
+	console.log(chalk.bgBlue(" [ " + txt.substring(0, term.width -10  + " ]")))
 }
 
 function buildServer() {
@@ -120,12 +125,12 @@ function buildServer() {
 	this.openHtml = true
 	// that.setupKeyboardUI();
 	// output("HELLO**********************")
-	log(`Building server to ${outputPath}  ${url}`)
+	output(`Building server to ${webroot}  ${url}`)
 	data.saySomethingEpic()
 	let sFiles = [
-		{ "source": appPath + "/public",            "dest": outputPath + "/public" },
-		{ "source": appPath + "/aminosee.html",            "dest": outputPath + "/aminosee.html" },
-		{ "source": appPath + "/public/favicon.ico","dest": outputPath + "/favicon.ico" }
+		{ "source": path.join( appPath , "public"),             "dest": path.join( webroot , "public" )},
+		{ "source": path.join( appPath , "aminosee.html"),      "dest": path.join( webroot , "aminosee.html")},
+		{ "source": path.join( appPath , "public", "favicon.ico"), "dest": path.join( webroot , "favicon.ico")}
 	]
 	for (let i=0; i<sFiles.length; i++) {
 		let element = sFiles[i]
@@ -137,8 +142,8 @@ function buildServer() {
 function selfSpawn(p) {
 	let didStart = false
 	if (p !== undefined) { port = p }
-	// let options = 				[ outputPath, `-p${port}`, "-o", ( args.justNameOfDNA ? args.justNameOfDNA  : "/" ), ( args.gzip ? "--gzip" : "") ]
-	// let optionsAminoSee = [ outputPath, `-p${port}`, "-o", ( args.justNameOfDNA ? args.justNameOfDNA  : "/" ), ( args.gzip ? "--gzip" : "") ]
+	// let options = 				[ webroot, `-p${port}`, "-o", ( args.justNameOfDNA ? args.justNameOfDNA  : "/" ), ( args.gzip ? "--gzip" : "") ]
+	// let optionsAminoSee = [ webroot, `-p${port}`, "-o", ( args.justNameOfDNA ? args.justNameOfDNA  : "/" ), ( args.gzip ? "--gzip" : "") ]
 	// output(options.toString())
 	output(chalk.yellow(`Starting BACKGROUND web server at ${chalk.underline(getServerURL())}`))
 	// console.log(options)
@@ -179,8 +184,9 @@ function selfSpawn(p) {
 function spawnBackground(p) { // Spawn background server
 	let didStart = false
 	if (p !== undefined) { port = p }
-	let options = [ outputPath, `-p${port}`, "-o", ( args.justNameOfDNA ? args.justNameOfDNA  : "/" ), ( args.gzip ? "--gzip" : "") ]
-	// let optionsAminoSee = [ outputPath + "/", "-p", port ]
+	// let options = [ webroot, `-p${port}`, "-o", ( args.justNameOfDNA ? args.justNameOfDNA  : "/" ), ( args.gzip ? "--gzip" : "") ]
+	let options = [ webroot, `-p${port}`, "-o", ( args && args.justNameOfDNA ? args.justNameOfDNA  : "/" ), ( args && args.gzip ? "--gzip" : "") ]
+	// let optionsAminoSee = [ webroot , "", "-p", port ]
 	output(options.toString())
 	output(chalk.yellow(`Starting BACKGROUND web server at ${chalk.underline(getServerURL())}`))
 	console.log(options)
@@ -214,15 +220,16 @@ function spawnBackground(p) { // Spawn background server
 	})
 	log(chalk.bgBlue.yellow("IDEA: Maybe send some bitcoin to the under-employed creator tom@funk.co.nz to convince him to work on it?"))
 	log("Control-C to quit. This requires http-server, install that with:")
-	log( chal.italic( "sudo npm install --global http-server"))
+	log( chalk.italic( "sudo npm install --global http-server"))
 	return didStart
 }
 function foregroundserver(options) {
 	process.title = "aminosee.funk.nz_server"
 
 	var root = path.join(__dirname)
+	output( `webroot ${webroot}` )
 	var server = httpserver.createServer({
-		root: root,
+		root: webroot,
 		robots: true,
 		headers: {
 			"Access-Control-Allow-Origin": "*",
@@ -245,9 +252,9 @@ function foregroundserver(options) {
 
 
 	if ( options === undefined ) {
-		options = [ outputPath, "-p", port, "-o" ]
+		options = [ webroot, "-p", port, "-o" ]
 	}
-	log(`FOREGROUND server path: ${outputPath} ${port} ${url}`)
+	log(`FOREGROUND server path: ${webroot} ${port} ${url}`)
 	theserver = httpserver.createServer(options)
 	return theserver
 }
@@ -255,7 +262,7 @@ function startServeHandler(o, port) {
 
 	const handler = require("serve-handler")
 	const http = require("http")
-	let www =  path.resolve(os.homedir() + "/AminoSee_Output")
+	// let www =  path.resolve(os.homedir() , "AminoSee_webroot")
 	const serveHandler = http.createServer((request, response) => {
 		response.write("struth!")
 		// More details here: github.com/zeit/serve-handler#options
@@ -263,7 +270,7 @@ function startServeHandler(o, port) {
 		return handler(request, response)//, options);
 	})
 	let options = {
-		public: o,
+		public: webroot,
 		port: port,
 		trailingSlash: true,
 		renderSingle: true,
@@ -378,11 +385,10 @@ function readLockPort(file) {
 
 function start(a) { // return the port number
 	starts++
-	if ( starts > 1 ) {
+	if ( starts > 3 ) {
 		output("you seem to be trying to start the server too much. odd.")
 		return false
 	}
-	return false
 	setArgs(a)
 	log("Attempting to start server with args:")
 	if ( args.verbose ) {
@@ -390,41 +396,34 @@ function start(a) { // return the port number
 	}
 	process.title = "aminosee.funk.nz_server"
 	outputPath = args.output
-	filenameServerLock = path.resolve(`${outputPath}/aminosee_server_lock.txt`)
+	filenameServerLock = path.resolve( webroot, "aminosee_server_lock.txt")
 	// if ( args.stop == true ) { log("Two issues...: you call the start function but args object is configured for stop = true, and you need to call setArgs(args) prior to start()") }
 	setupPrefs()
 	buildServer()
-	let options = [ outputPath, "-p", port, "-o" ]
-	// let options = [ outputPath + "/", "-p", port, "-o" ]
+	let options = [ webroot, "-p", port, "-o" ]
+	// let options = [ webroot , "", "-p", port, "-o" ]
 	if ( serverLock() == true ) {
-
+		stop() // sounds odd, but helps avoid port in use issue :)
 		port = readLockPort(filenameServerLock)
 		log(`Server already started, using lock file port of (${port}). If you think this is not true, remove the lock file: ${ path.normalize( filenameServerLock )}`)
 		output("Restarting server")
-		stop() // sounds odd, but helps avoid port in use issue :)
-		setTimeout( () => {
-			start()
-		}, args.delay)
+		start()
+		open( url + "/#devmode", {wait: false}).then(() => {
+			log("browser closed")
+		}).catch(function () {
+			deleteFile(filenameServerLock)
+		 })
 	} else {
 		log("No locks found, Starting server ")
-
 		if ( args.serve !== true ) {
-			selfSpawn()
-			// spawnBackground() // works great but relies on http-server being installed globally
+			// selfSpawn()
+			spawnBackground() // works great but relies on http-server being installed globally
 		} else {
 			foregroundserver() // blocking version
 			output("Backround")
 		}
-
 		log(`filenameServerLock: ${filenameServerLock}`)
-
 	}
-
-
-	// open( url + "/aminosee.html?devmode", {wait: false}).then(() => {
-	// 	log("browser closed")
-	// }).catch(function () {  })
-
 	return port
 }
 
@@ -443,9 +442,9 @@ function getServerURL(fragment) {
 
 	let internalIp = require("internal-ip")
 	let indexfile = ""
-	if ( args.devmode ) {
-		indexfile = "aminosee.html"
-	}
+	// if ( args.devmode ) {
+	indexfile = "aminosee.html"
+	// }
 	if (fragment == undefined) {
 		fragment = "/"
 	} else {
@@ -479,14 +478,14 @@ function serverLock() {
 function symlinkGUI(cb) { // does:  ln -s /Users.....AminoSee/public, /Users.....currentWorkingDir/output/public
 	this.mkdir("public")
 	let fullSrc, fullDest
-	fullSrc = path.normalize( path.resolve(appPath + "/public") )
-	fullDest = path.normalize( path.resolve(this.outputPath + "/public") )
+	fullSrc = path.normalize( path.resolve(appPath , "public") )
+	fullDest = path.normalize( path.resolve(this.webroot , "public") )
 	createSymlink(fullSrc, fullDest)
-	fullSrc = path.normalize( path.resolve(appPath + "/aminosee.html") )
-	fullDest = path.normalize( path.resolve(this.outputPath + "/aminosee.html") ) // Protects users privacy in current working directory
+	fullSrc = path.normalize( path.resolve(appPath , "aminosee.html") )
+	fullDest = path.normalize( path.resolve(this.webroot , "aminosee.html") ) // Protects users privacy in current working directory
 	createSymlink(fullSrc, fullDest)
-	fullSrc = path.normalize( path.resolve(appPath + "/node_modules") )
-	fullDest = path.normalize( path.resolve(this.outputPath + "/node_modules") ) // MOVES INTO ROOT
+	fullSrc = path.normalize( path.resolve(appPath , "node_modules") )
+	fullDest = path.normalize( path.resolve(this.webroot , "node_modules") ) // MOVES INTO ROOT
 	createSymlink(fullSrc, fullDest)
 	if (cb !== undefined) {
 		cb()

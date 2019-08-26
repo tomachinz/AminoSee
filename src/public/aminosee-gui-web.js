@@ -30,6 +30,16 @@ let stackOimages = document.getElementById("stackOimages")
 let urlprefix = "output/"
 let docloc = document.location.href
 
+const root = document.documentElement
+
+document.addEventListener("mousemove", evt => {
+	let x = evt.clientX / innerWidth
+	let y = evt.clientY / innerHeight
+
+	root.style.setProperty("--mouse-x", x)
+	root.style.setProperty("--mouse-y", y)
+})
+
 if ( docloc.indexOf("funk.co.nz") == -1 ) {
 	// alert(`Not production, enabling devmode`)
 	devmode = true
