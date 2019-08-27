@@ -409,7 +409,7 @@ function start(a) { // return the port number
 		port = readLockPort(filenameServerLock)
 		log(`Server already started, using lock file port of (${port}). If you think this is not true, remove the lock file: ${ path.normalize( filenameServerLock )}`)
 		output("Restarting server")
-		start()
+		// start()
 		open( url , {wait: false}).then(() => {
 			log("browser closed")
 		}).catch(function () {
