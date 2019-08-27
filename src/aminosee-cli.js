@@ -148,7 +148,7 @@ function generateTheArgs() {
 		gzip: true,
 		logip: true,
 		webroot: cliInstance.webroot,
-		openPage: ( cliInstance.currentFile === undefined ? `/` : `/output/${cliInstance.justNameOfDNA}/`),
+		openPage: ( cliInstance.currentFile === undefined ? "/" : `/output/${cliInstance.justNameOfDNA}/`),
 		https: true
 	}
 	return theArgs
@@ -4132,7 +4132,7 @@ class AminoSeeNoEvil {
 		if ( this.currentFile == funknzlabel ) { return false }
 		if ( this.devmode == true )  { log( this.renderObjToString() ) }
 		if ( this.test == true && this.quiet == true) {
-			return false;
+			return false
 			// this.openOutputs()
 		}
 		log( closeBrowser ) // tell user process maybe blocked
@@ -4160,7 +4160,9 @@ class AminoSeeNoEvil {
 					this.openError(err)
 				})
 			} else {
-				open( url + "/" + this.justNameOfDNA + "/", {app: this.browser, wait: false}).then(() => {
+				// url + "/" + this.justNameOfDNA + "/"
+
+				open(				this.currentURL , {app: this.browser, wait: false}).then(() => {
 					log("browser closed")
 				}).catch(function () {
 					this.openError(err)
@@ -4671,7 +4673,7 @@ class AminoSeeNoEvil {
 
 
 	drawHistogram() {
-		if ( isShuttingDown == true ) { output("closing...press U to update or Q to quit"); return; }
+		if ( isShuttingDown == true ) { output("closing...press U to update or Q to quit"); return }
 		if ( renderLock == false ) {
 			log("draw")
 			this.rawDNA = "!"
@@ -5009,7 +5011,7 @@ class AminoSeeNoEvil {
 		let quant = pepTable.length // Ω first command ॐ
 		//   <li>Ω <a href="images/${hilbertimage}">Reference (combined image) <br/>
 		//  <img src="images/${hilbertimage}" id="stack_reference" width="20%" height="20%" style="z-index: ${i}; position: fixed; top: 50%; left: 50%; transform: translate(${(i*4)-40},${(i*4)-40})" alt="${name} Reference image" title="${name} Reference image" onmouseover="mover(this)" onmouseout="mout(this)"></a></li>
-		html += `<ul id="stackOimages">
+		html += `<ul id="stackOimages" class="stack">
 				`
 
 		for (let i = 0; i < histogramJson.pepTable.length; i++) {

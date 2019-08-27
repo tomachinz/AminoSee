@@ -25,6 +25,9 @@ html, body, form, input, textarea, a, p, h1, h2, h3, h4, h5, h6, div {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+}
+
+.stack {
   background-color: #222222;
 }
 
