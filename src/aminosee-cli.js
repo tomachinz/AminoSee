@@ -67,7 +67,6 @@ const PNG = require("pngjs").PNG
 const os = require("os")
 const humanizeDuration = require("humanize-duration")
 const appFilename = require.main.filename //     /bin/aminosee.js is 11 chars
-const appPath = path.normalize(appFilename.substring(0, appFilename.length-15))// cut 4 off to remove /dna
 const hostname = os.hostname()
 const chalk = require("chalk")
 const obviousFoldername = "AminoSee_webroot" // descriptive for users
@@ -146,7 +145,7 @@ function generateTheArgs() {
 		cliInstance = {
 			verbose: false,
 			webroot: webroot,
-			outputPath: path.join( webroot, "output" ),
+			outputPath: path.join( webroot, netFoldername ),
 			openPage: "/"
 		}
 	}
@@ -251,7 +250,7 @@ function setupApp() {
 	cliInstance = new AminoSeeNoEvil()
 	cliInstance.setupJob( populateArgs( process.argv ), "module exports"  )
 	locateWebroot()
-	cliInstance.outputPath = path.join( webroot, "output")
+	cliInstance.outputPath = path.join( webroot, netFoldername)
 	threads.push( cliInstance )
 	// server.start()
 }
@@ -903,7 +902,7 @@ class AminoSeeNoEvil {
 
 		if ( webserverEnabled ) {
 			server.stop()
-			this.outputPath = path.join( webroot, "output")
+			this.outputPath = path.join( webroot, netFoldername)
 			output(`Starting mini server at: ${ webroot } `)
 			output(`Using URL: ${ chalk.underline( url )}`)
 			this.setupKeyboardUI()
@@ -2882,11 +2881,11 @@ class AminoSeeNoEvil {
 
 		if ( reason === undefined) { ("reason must be defined for postRenderPoll") }
 		if ( this.verbose ) {
-			notQuiet(chalk.inverse(`Finishing saving (${reason}), ${this.busy()} waiting on ${ this.storage() } ${ remain } files to go.`))
+			log(chalk.inverse(`Finishing saving (${reason}), ${this.busy()} waiting on ${ this.storage() } ${ remain } files to go.`))
 		}
 
 		if ( renderLock == false ) { // re-entrancy filter
-			notQuiet(chalk.bgRed("another thread has continued"))
+			log(chalk.bgRed("another thread has continued"))
 			return false
 		}
 
@@ -4787,7 +4786,7 @@ class AminoSeeNoEvil {
 			term.up(  termHistoHeight )
 		} else {
 			output(chalk.bold.italic(" Increase the size of your terminal for realtime histogram."))
-			output(` Genome size: ${ this.genomeSize.toLocaleString()}`)
+			output(`   Genome size: ${ this.genomeSize.toLocaleString()}`)
 			term.up(  2 )
 
 		}
