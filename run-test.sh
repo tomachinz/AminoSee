@@ -4,7 +4,6 @@ FAST='dna/50KB_TestPattern.txt'
 MEDIUM='dna/3MB_TestPattern.txt'
 SLOW='dna/27MB_TestPattern.txt'
 NETWORK='/Volumes/aminosee/dna/3MB_TestPattern.txt'
-# 12='--no-image'
 npm run genversion
 echo trying to get to root of project...:
 cd ../dna
@@ -23,18 +22,17 @@ test_do () {
   echo END
   echo $1 $2 $3 $4 $5 $6 $7 $8 $9 $10  --no-image
 }
-
 echo STOPPPING SERVER
 aminosee --stop
 echo QUIET MODE
 aminosee -q
-echo aminosee $1 $2 $3 $4 $5 $6 $7 $8 $9 $10  --no-image
-aminosee $1 $2 $3 $4 $5 $6 $7 $8 $9 $10  --no-image
 echo STARTING SERVER TO RUN IN BACKGROUND
 aminosee --serve &
+echo aminosee $1 $2 $3 $4 $5 $6 $7 $8 $9 $10  --no-image
+aminosee $1 $2 $3 $4 $5 $6 $7 $8 $9 $10  --no-image
 test_do "NETWORKED CLUSTER RENDER TEST $NETWORK" -fv --peptide=Phenylalanine $FAST $NETWORK $MEDIUM
 test_do "FORCED RENDER (HAS BUG SEEMS TO BLOCK TEST)" -fv $MEDIUM $FAST $1 $2 $3 $4 $5 $6 $7 $8 $9 $10  --no-image
-test_do "CALIBRATION IMAGES" --demo --no-image
+test_do "CALIBRATION IMAGES" --demo --no-image $1 $2 $3 $4
 test_do 'Curious back walk bug' -d --debug $FAST Influenza-A-virus-H9N2-NC_004905.gbk Streptococcus_virus_2972.gbk $1
 test_do "QUIET MODE WITH PARAMS" -q $1 $2 $3 $4 $5 $6 $7 $8 $9 $10  --no-image
 test_do "VERBOSE MODE" -v  -p=Lysine  $1 $2 $3 $4 $5 $6 $7 $8 $9 $10  --no-image
@@ -46,12 +44,12 @@ test_do "PROGRESS BARS" $MEDIUM $FAST $1 $2 --force --peptide=opal -q --progress
 # tes_do "GARBAGE FILENAMES FUZZING like   txt.txt.txt etc" $SLOW actualFileToThelieftistoseeifbatchrendersthroughthis junk asdfadsf $FAST qwert txt.txt.txt $1 $2 $3 $4 $5 $6 $7 $8 $9 $10  --no-image
 
 echo THE NEXT ONES RENDER NON-STANDARD
-test_do "Triplet ACT Square ratio"  $FAST $MEDIUM --triplet=ACT --ratio=sqr
-test_do "Triplet TTT and ochre was not designed to do both" $FAST    --triplet=TTT --peptide=ochre --ratio=sqr
-test_do "Triplet CAT ratio sqr" $FAST $MEDIUM   --triplet=CAT --ratio=sqr
-test_do "m5 Golden" $FAST $MEDIUM  -m5 --ratio=gol
-test_do "c100 Golden" $FAST $MEDIUM  -c100 --ratio=golden
-test_do "c100 Golden regmarks " $FAST $MEDIUM  -c2 --regmarks --ratio=gol
+test_do "Triplet ACT Square ratio"  $FAST $MEDIUM --triplet=ACT --ratio=sqr $1 $2 $3 $4
+test_do "Triplet TTT and ochre was not designed to do both" $FAST    --triplet=TTT --peptide=ochre --ratio=sqr $1 $2 $3 $4
+test_do "Triplet CAT ratio sqr" $FAST $MEDIUM   --triplet=CAT --ratio=sqr $1 $2 $3 $4
+test_do "m5 Golden" $FAST $MEDIUM  -m5 --ratio=gol $1 $2 $3 $4
+test_do "c100 Golden" $FAST $MEDIUM  -c100 --ratio=golden $1 $2 $3 $4
+test_do "c100 Golden regmarks " $FAST $MEDIUM  -c2 --regmarks --ratio=gol $1 $2 $3 $4
 echo KEYBOARD MODE TEST
 test_do "Ochre KEYBOARD HANGS TEST"         $FAST      $1 $2 $3 $4 $5 $6 $7 $8 $9 $10  --no-image  --peptide=Methionine --keyboard
 # test_do "Amber"         $FAST      $1 $2 $3 $4 $5 $6 $7 $8 $9 $10  --no-image    --force --no-updates -m7 --ratio=sqr --peptide=Amber

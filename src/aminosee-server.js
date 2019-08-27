@@ -1,7 +1,5 @@
 const open = require("open")
 const httpserver = require("http-server") // cant have - in js
-// httpServer = require('../lib/http-server');
-
 const aminosee = require("./aminosee-cli")
 const data = require("./aminosee-data")
 const doesFileExist   = data.doesFileExist
@@ -10,7 +8,6 @@ const createSymlink   = data.createSymlink
 const deleteFile      = data.deleteFile
 const recordFile      = data.recordFile
 const fixedWidth			= aminosee.fixedWidth
-const termSize				= aminosee.termSize
 const Preferences = require("preferences")
 const chalk = require("chalk")
 const term = require("terminal-kit").terminal
@@ -18,21 +15,23 @@ const path = require("path")
 const os = require("os")
 const spawn = require("cross-spawn")
 const fs = require("fs-extra") // drop in replacement = const fs = require('fs')
+const defaulturl = "http://localhost:4321"
+const appFilename = require.main.filename //     /bin/aminosee.js is 11 chars
 let debug = false
 let autoStartGui = false
 let starts = -1
-const lockFileMessage = `
-aminosee.funk.nz DNA Viewer by Tom Atkinson.
-This is a temporary lock file, so I dont start too many servers. Its safe to erase these files, and I've made a script in /dna/ to batch delete them all in one go. Normally these are deleted when render is complete, or with Control-C and graceful shutdown.`
-// const version = aminosee.version;
-// const webserverEnabled = true;
-const defaulturl = "http://localhost:4321"
 let outputPath, filenameServerLock, url, projectprefs, userprefs, port, cliruns, gbprocessed, args, theserver, genomes
 let webroot = path.resolve( os.homedir(), "AminoSee_webroot")
-port = 4321
-backupPort = 43210
-process.title = "aminosee.funk.nz_server";
-[ userprefs, projectprefs ] = setupPrefs()
+
+module.exports = (options) => {
+	process.title = "aminosee.funk.nz_server"
+	port = defaultPort
+		[ userprefs, projectprefs ] = setupPrefs()
+	log(appFilename)
+
+}
+
+
 
 function setArgs( TheArgs ) {
 	if ( TheArgs === undefined ) {
@@ -111,22 +110,15 @@ function log(txt) {
 	}
 
 }
-// function getArgs() {
-//   return this.args;
-// }
+
 function output(txt) {
 	if ( txt === undefined) {	console.log; return }
 	console.log(chalk.bgBlue(" [ " + txt.substring(0, term.width -10  )+ " ]"))
 }
 
 function buildServer() {
-	const appFilename = require.main.filename //     /bin/aminosee.js is 11 chars
-	// const appPath = path.normalize(appFilename.substring(0, appFilename.length-15));// cut 4 off to remove /dna
 	const appPath = __dirname
-
 	this.openHtml = true
-	// that.setupKeyboardUI();
-	// output("HELLO**********************")
 	output(`Building server to ${webroot}  ${url}`)
 	data.saySomethingEpic()
 	let sFiles = [
@@ -141,17 +133,14 @@ function buildServer() {
 	}
 
 }
+
 function selfSpawn(p) {
 	let didStart = false
 	if (p !== undefined) { port = p }
-	// let options = 				[ webroot, `-p${port}`, "-o", ( args.justNameOfDNA ? args.justNameOfDNA  : "/" ), ( args.gzip ? "--gzip" : "") ]
-	// let optionsAminoSee = [ webroot, `-p${port}`, "-o", ( args.justNameOfDNA ? args.justNameOfDNA  : "/" ), ( args.gzip ? "--gzip" : "") ]
-	// output(options.toString())
 	output(chalk.yellow(`Starting BACKGROUND web server at ${chalk.underline(getServerURL())}`))
-	// console.log(options)
+	console.log(options)
 	let evilSpawn
 	try {
-		// evilSpawn = spawn("http-server", options, { stdio: "pipe" })
 		evilSpawn = spawn("aminosee", "--serve", { stdio: "pipe" })
 		didStart = true
 	} catch(err) {
@@ -186,16 +175,14 @@ function selfSpawn(p) {
 function spawnBackground(p) { // Spawn background server
 	let didStart = false
 	if (p !== undefined) { port = p }
-	// let options = [ webroot, `-p${port}`, "-o", ( args.justNameOfDNA ? args.justNameOfDNA  : "/" ), ( args.gzip ? "--gzip" : "") ]
 	let options = [ webroot, `-p${port}`, "-o", ( args && args.justNameOfDNA ? args.justNameOfDNA  : "/" ), ( args && args.gzip ? "--gzip" : "") ]
-	// let optionsAminoSee = [ webroot , "", "-p", port ]
 	output(options.toString())
 	output(chalk.yellow(`Starting BACKGROUND web server at ${chalk.underline(getServerURL())}`))
 	console.log(options)
 	let evilSpawn
 	try {
 		evilSpawn = spawn("http-server", options, { stdio: "pipe" })
-		// evilSpawn = spawn('aminosee', optionsAminoSee, { stdio: 'pipe' });
+		evilSpawn.process.title = "aminosee_http"
 		didStart = true
 	} catch(err) {
 		log(err)
@@ -249,8 +236,9 @@ function foregroundserver(options) {
 			output(`unknown error starting server: ${err}`)
 		}
 	}
+	return args.openPage
 
-	return server
+	// return server
 
 
 	if ( options === undefined ) {
@@ -298,44 +286,6 @@ function startServeHandler(o, port) {
 }
 
 
-// function aminoseeServer(){
-module.exports = (options) => {
-
-
-	// http.createServer((request, response) => {
-	//   const { headers, method, url } = request;
-	//   let body = [];
-	//   request.on('error', (err) => {
-	//     console.error(`err from createServer ${createServer}`);
-	//   }).on('data', (chunk) => {
-	//     output('data from web');
-	//     body.push(chunk);
-	//   }).on('end', () => {
-	//     body = Buffer.concat(body).toString();
-	//     // BEGINNING OF NEW STUFF
-	//     body = Buffer.concat(body).toString();
-	//     response.end(body);
-	//     response.on('error', (err) => {
-	//       console.error(err);
-	//     });
-	//     body += ' AminoSee was here ';
-	//     response.statusCode = 200;
-	//     // response.setHeader('Content-Type', 'application/json');
-	//     response.setHeader('Content-Type', 'application/html');
-	//     // Note: the 2 lines above could be replaced with this next one:
-	//     // response.writeHead(200, {'Content-Type': 'application/json'})
-	//
-	//     const responseBody = { headers, method, url, body };
-	//
-	//     // response.write(JSON.stringify(responseBody));
-	//     response.write(body);
-	//     response.end();
-	//     // Note: the 2 lines above could be replaced with this next one:
-	//     // response.end(JSON.stringify(responseBody))
-	//     // END OF NEW STUFF
-	//   });
-	// }).listen(options.port);
-}
 
 
 function stop() {
@@ -406,31 +356,31 @@ function start(a) { // return the port number
 	let options = [ webroot, "-p", port, "-o" ]
 	// let options = [ webroot , "", "-p", port, "-o" ]
 	if ( serverLock() == true ) {
-		stop() // sounds odd, but helps avoid port in use issue :)
 		port = readLockPort(filenameServerLock)
 		log(`Server already started, using lock file port of (${port}). If you think this is not true, remove the lock file: ${ path.normalize( filenameServerLock )}`)
-		output("Restarting server")
-		// start()
+		// output("Restarting server")
 		open( `${url}/output/${args.currentGenome}`, {wait: false}).then(() => {
 			log("browser closed")
 		}).catch(function () {
 			deleteFile(filenameServerLock)
 		 })
+		 foregroundserver(backupPort) // blocking version
+
 	} else {
-		log("No locks found, Starting server ")
+		log("No locks found, re/starting server ")
+		stop() // sounds odd, but helps avoid port in use issue :)
 
 
 		if ( args.serve == true ) {
-			selfSpawn()
+			// selfSpawn()
 		} else {
 			output("Backround")
-			spawnBackground() // works great but relies on http-server being installed globally
+			// spawnBackground() // works great but relies on http-server being installed globally
 		}
 		log(`filenameServerLock: ${filenameServerLock}`)
-		foregroundserver() // blocking version
 	}
 	return args.openPage
-	return port
+	// return port
 }
 
 
@@ -468,13 +418,12 @@ function getServerURL(fragment) {
 
 // module.exports.serverLock = function(cb) {
 function serverLock() {
-	// output(`Checking server lock at: ${filenameServerLock}`)
+	log(`Checking server lock at: ${filenameServerLock}`)
 	if ( doesFileExist(filenameServerLock) ) {
 		log("Server already running ")
 		return true
 	} else {
 		log("Server starting up...")
-		// output('Server NOT already running ');
 		recordFile(filenameServerLock, port, () => {
 		})
 		return false

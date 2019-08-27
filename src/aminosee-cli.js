@@ -90,8 +90,6 @@ const defaultPort = 4321
 const max32bitInteger = 2147483647
 const minUpdateTime = 200
 const openLocalHtml = false // affects auto-open HTML.
-
-
 const fileLockingDelay = 2000
 const targetPixels = 4200000 // for big genomes use setting flag -c 1 to achieve highest resolution and bypass this taret max render size
 // let bodyParser = require('body-parser');
@@ -122,6 +120,7 @@ renderLock = false
 module.exports = () => {
 	mode("exports")
 	setupApp()
+	server( generateTheArgs() )
 	mode("module exit")
 	log( `S: ${status} ` )
 	// cliInstance.updatesTimer = countdown("closing in ", 360000, () => {
@@ -141,14 +140,25 @@ function startGUI() {
 	// return carlo
 }
 function generateTheArgs() {
+
+	if ( cliInstance === undefined ) {
+		webroot = locateWebroot()
+		cliInstance = {
+			verbose: false,
+			webroot: webroot,
+			outputPath: path.join( webroot, "output" ),
+			openPage: "/"
+		}
+	}
 	const theArgs = {
+		port: defaultPort,
 		verbose: cliInstance.verbose,
 		output: cliInstance.outputPath,
 		serve: true,
 		gzip: true,
 		logip: true,
 		webroot: cliInstance.webroot,
-		openPage: ( cliInstance.currentFile === undefined ? "/" : `/output/${cliInstance.justNameOfDNA}/`),
+		openPage: cliInstance.openPage,
 		https: true
 	}
 	return theArgs
@@ -158,15 +168,12 @@ function populateArgs(procArgv) { // returns args
 		boolean: [ "artistic", "clear", "chrome", "devmode", "debug", "demo", "dnabg", "explorer", "file", "force", "fullscreen", "firefox", "gui", "html", "image", "keyboard", "list", "progress", "quiet", "reg", "recycle", "redraw", "slow", "serve", "safari", "test", "updates", "verbose", "view" ],
 		string: [ "url", "output", "triplet", "peptide", "ratio" ],
 		alias: { a: "artistic", b: "dnabg", c: "codons", d: "devmode", f: "force", finder: "explorer", h: "help", k: "keyboard", m: "magnitude", o: "output", p: "peptide", i: "image", t: "triplet", u: "updates", q: "quiet", r: "reg", w: "width", v: "verbose", x: "explorer", view: "html" },
-		default: { brute: false, debug: false, gui: false, html: true, image: false, clear: false, explorer: false, quiet: false, keyboard: false, progress: true, redraw: true, updates: true, stop: false, serve: false, fullscreen: false },
+		default: { brute: false, debug: false, gui: false, html: true, image: false, clear: false, explorer: false, quiet: false, keyboard: false, progress: false, redraw: true, updates: true, stop: false, serve: false, fullscreen: false },
 		stopEarly: false
 	} // NUMERIC INPUTS: codons, magnitude, width, maxpix
 	let args = minimist(procArgv.slice(2), options)
 	bugtxt( args )
-	// log( process.argv.slice(2) )
-	// return minimist( process.argv.slice(2), options);
 	return args
-	// return this.args;
 }
 function bruteForce(cs) {
 
@@ -895,24 +902,24 @@ class AminoSeeNoEvil {
 
 
 		if ( webserverEnabled ) {
-
 			server.stop()
 			this.outputPath = path.join( webroot, "output")
 			output(`Starting mini server at: ${ webroot } `)
 			output(`Using URL: ${ chalk.underline( url )}`)
 			this.setupKeyboardUI()
 			autoStartGui = false
+			// output(`Server running at: ${ chalk.underline( url ) } to stop use: aminosee --stop `)
+			// server.setArgs( generateTheArgs() )
+			// this.currentURL = server.foregroundserver()
 			this.currentURL = server.start( generateTheArgs() )
-			autoStartGui = false
-			output(`Server running at: ${ chalk.underline( url ) } to stop use: aminosee --stop `)
 			webserverEnabled = false
 		}
 
-		if ( this.gui == true && this.quiet == false ) {
-			theGUI = startGUI()
-		} else {
-			log( "Try using  --gui for the graphical user interface!")
-		}
+		// if ( this.gui == true && this.quiet == false ) {
+		// 	theGUI = startGUI()
+		// } else {
+		// 	log( "Try using  --gui for the graphical user interface!")
+		// }
 
 	}
 	setupProgress() {
@@ -931,26 +938,26 @@ class AminoSeeNoEvil {
 
 
 
-			// progato = term.progressBar( {
-			// 	width: 80 ,
-			// 	title: 'Daily tasks:' ,
-			// 	eta: true ,
-			// 	percent: true ,
-			// 	items: remain
-			// } ) ;
-			// this.drawProgress();
+			progato = term.progressBar( {
+				width: 80 ,
+				title: "Daily tasks:" ,
+				eta: true ,
+				percent: true ,
+				items: remain
+			} )
+			this.drawProgress()
 
 
-			// if ( remain > 0 ) {
-			//           progato = term.progressBar({
-			//             width: term.width - 20,
-			//             title: `Booting up at ${ formatAMPM( new Date())} on ${hostname}`,
-			//             eta: true,
-			//             percent: true,
-			//             inline: true
-			//           });
-			//           this.drawProgress();
-			// }
+			if ( remain > 0 ) {
+			          progato = term.progressBar({
+			            width: term.width - 20,
+			            title: `Booting up at ${ formatAMPM( new Date())} on ${hostname}`,
+			            eta: true,
+			            percent: true,
+			            inline: true
+			          })
+			          this.drawProgress()
+			}
 
 		}
 	}
@@ -1598,9 +1605,8 @@ class AminoSeeNoEvil {
 		if ( this.dnafile === undefined || this.currentFile === undefined) {
 			reason = "this.dnafile === undefined"
 			mode(reason)
-			// this.popShiftOrBust(reason);
+			this.popShiftOrBust(reason)
 			log( `P: ${status} ` )
-
 			this.quit(0, reason)
 			return false
 		}
@@ -1614,7 +1620,7 @@ class AminoSeeNoEvil {
 		}
 		if ( this.demo == true ) {
 			output("demo mode")
-			runDemo()
+			// runDemo()
 			return false
 		}
 		if ( doesFolderExist(this.dnafile ) ) { // FOLDER CHECK
@@ -1895,6 +1901,7 @@ class AminoSeeNoEvil {
 		this.pixelClock = 0 // which pixel are we painting?
 		this.msElapsed  = 0
 		this.rgbArray = []
+		tups = 0
 		this.initialiseArrays()
 
 		// this.hilbertImage = [];
@@ -3041,7 +3048,6 @@ class AminoSeeNoEvil {
 				setTimeout( () => {
 					process.stdout.write(`${code} ${reason}`)
 					this.args._ = []
-					output("exiting")
 					term.processExit(code)
 					process.exit()
 				}, this.raceDelay)
@@ -3721,17 +3727,13 @@ class AminoSeeNoEvil {
 		mode("maybe save hilbert")
 		log(`H: ${status}`)
 		if ( renderLock == false ) { this.error("locks should be on during hilbert curve") }
-		if ( this.isHilbertPossible  == true ) {
-			log("projecting linear array to 2D hilbert curve")
-			this.isDiskFinHilbert = false // concurrency protection
-		} else {
-			if ( this.artistic ) {
-				output("Cant output hilbert image when using artistic mode")
-			}
+
+		if ( this.isHilbertPossible  == false ) {
 			hilbertFinished()
 			runcb(cb)
 			return false
 		}
+
 		if (brute == true) {
 			log("Converting 256-bit images to 24-bit image with alpha...")
 			for (let i = 1; i < this.pepTable.length; i++) {
@@ -4281,12 +4283,12 @@ class AminoSeeNoEvil {
 		output("output test patterns to /calibration/ folder. dnafile: " + this.dnafile )
 		this.mkdir()
 		this.mkdir( "calibration")
-		if ( remain < 0 ) {
-			reason = `calibration ${remain} `
-			runcb(cb)
-			this.quit(0, reason)
-			return false
-		}
+		// if ( remain < 0 ) {
+		// 	reason = `calibration ${remain} `
+		// 	runcb(cb)
+		// 	this.quit(0, reason)
+		// 	return false
+		// }
 		if ( this.dimension > 10 ) { log("I think this will crash node, only one way to find out!") }
 		output(`TEST PATTERNS GENERATION    m${ this.dimension} c${ this.codonsPerPixel }`)
 		log("Use -m to try different dimensions. -m 9 requires 1.8 GB RAM")
