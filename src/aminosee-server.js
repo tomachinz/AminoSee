@@ -114,7 +114,7 @@ function log(txt) {
 //   return this.args;
 // }
 function output(txt) {
-	console.log(chalk.bgBlue(" [ " + txt.substring(0, term.width -10  + " ]")))
+	console.log(chalk.bgBlue(" [ " + txt.substring(0, term.width -10  )+ " ]"))
 }
 
 function buildServer() {
