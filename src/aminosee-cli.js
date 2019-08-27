@@ -1573,9 +1573,9 @@ class AminoSeeNoEvil {
 			this.nextFile = "loading"
 			return false
 		} else {
-			if ( this.checkFileExtension( path.resolve( this.nextFile )) == false ) {
-				this.nextFile += chalk.inverse(" (will skip) ")
-			}
+			// if ( this.checkFileExtension( path.resolve( this.nextFile )) == false ) {
+			// 	this.nextFile += chalk.inverse(" (will skip) ")
+			// }
 			return true
 		}
 	}

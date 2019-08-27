@@ -418,14 +418,16 @@ function start(a) { // return the port number
 		 })
 	} else {
 		log("No locks found, Starting server ")
+
+
 		if ( args.serve == true ) {
-			// selfSpawn()
-			spawnBackground() // works great but relies on http-server being installed globally
+			selfSpawn()
 		} else {
-			foregroundserver() // blocking version
 			output("Backround")
+			spawnBackground() // works great but relies on http-server being installed globally
 		}
 		log(`filenameServerLock: ${filenameServerLock}`)
+		foregroundserver() // blocking version
 	}
 	return args.openPage
 	return port
