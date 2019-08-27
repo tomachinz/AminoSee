@@ -1,6 +1,6 @@
 const wideScreen = 140 // shrinks terminal display
 const windows7 = 100
-let termDisplayHeight = 18 // the stats about the file etc
+let termDisplayHeight = 16 // the stats about the file etc
 let termHistoHeight = 30 // this histrogram
 
 radMessage = `
@@ -160,7 +160,7 @@ function populateArgs(procArgv) { // returns args
 		boolean: [ "artistic", "clear", "chrome", "devmode", "debug", "demo", "dnabg", "explorer", "file", "force", "fullscreen", "firefox", "gui", "html", "image", "keyboard", "list", "progress", "quiet", "reg", "recycle", "redraw", "slow", "serve", "safari", "test", "updates", "verbose", "view" ],
 		string: [ "url", "output", "triplet", "peptide", "ratio" ],
 		alias: { a: "artistic", b: "dnabg", c: "codons", d: "devmode", f: "force", finder: "explorer", h: "help", k: "keyboard", m: "magnitude", o: "output", p: "peptide", i: "image", t: "triplet", u: "updates", q: "quiet", r: "reg", w: "width", v: "verbose", x: "explorer", view: "html" },
-		default: { brute: false, debug: false, gui: false, html: true, image: true, clear: true, explorer: false, quiet: false, keyboard: false, progress: true, redraw: true, updates: true, stop: false, serve: false, fullscreen: true },
+		default: { brute: false, debug: false, gui: false, html: true, image: true, clear: true, explorer: false, quiet: false, keyboard: false, progress: true, redraw: true, updates: true, stop: false, serve: false, fullscreen: false },
 		stopEarly: false
 	} // NUMERIC INPUTS: codons, magnitude, width, maxpix
 	let args = minimist(procArgv.slice(2), options)
@@ -407,19 +407,27 @@ class AminoSeeNoEvil {
 
 
 		if ( args.output || args.o ) {
-			output(args.o)
-			this.usersOutpath = path.resolve( args.outpath )
+			this.usersOutpath = path.resolve( args.output )
+			output(`Setting output folder to ${ path.normalize( this.usersOutpath )}`)
 			// this.usersOutpath = this.usersOutpath.replace("~", os.homedir);
-			if (doesFileExist(this.usersOutpath)) {
+			if (doesFolderExist(this.usersOutpath)) {
 				if (fs.statSync(this.usersOutpath).isDirectory == true) {
 					output(`Using custom output path ${this.usersOutpath}`)
 					this.outputPath = this.usersOutpath
 				} else {
-					this.error(`${this.usersOutpath} is not a directory`)
+					this.error(`${this.usersOutpath} is not a directory?`)
 				}
 			} else {
-				this.usersOutpath = path.resolve( args.outpath )
-				this.error(`Could not find output path: ${ path.normalize( this.usersOutpath )}, creating it this.now`)
+				this.error(`Could not find output path: ${this.usersOutpath}, creating it now`)
+				try {
+					fs.mkdirSync(this.usersOutpath, function (err, result) {
+						if (result) { log(`Success: ${result}`) }
+						if (err) { log(`Could not create output folder: ${this.usersOutpath} ${err}`) }
+					})
+				} catch(e) {
+					bugtxt(`Error creating folder: ${e} at location: ${this.usersOutpath}`)
+					// this.error(`Quiting due to lack of permissions in this directory [${ this.outputPath }] `);
+				}
 				this.outputPath = this.usersOutpath
 			}
 		}
@@ -652,7 +660,7 @@ class AminoSeeNoEvil {
 			output("verbose enabled. AminoSee version: " + version)
 			// bugtxt(`os.platform(): ${os.platform()} ${process.cwd()}`)
 			this.verbose = true
-			 termDisplayHeight++
+			// termDisplayHeight -= 2
 		} else {
 			log("verbose mode disabled")
 			this.verbose = false }
@@ -826,9 +834,8 @@ class AminoSeeNoEvil {
 			runDemo()
 		} else if ( remain > 0 ) {
 			mode(remain + " Ω first command Ω ")
-			output(chalk.green(`${chalk.underline("Job items Ω ")} ${remain}`))
+			output(chalk.green(`${chalk.underline("Job items Ω ")} ${remain} ${this.outputPath}` ))
 			this.dnafile = args._.toString()
-
 			setImmediate( () => {
 				// this.pollForStream()
 				// this.popShiftOrBust();
@@ -1015,7 +1022,13 @@ class AminoSeeNoEvil {
 		// termDrawImage(this.filePNG, `resized`);
 		this.setDebugCols()
 		tx = term.width; ty = term.height
-		output(`Terminal resized: ${tx} x ${ty} and has at least ${termPixels} chars`)
+		output(`Terminal resized: ${tx} x ${ty} and has at least ${termPixels} chars. Fullscreen mode enabled, use --no-fullscreen to prevent`)
+		if ( this.args.fulscreen == false) {
+			this.fullscreen = false
+		} else {
+			this.fullscreen = true
+
+		}
 		this.colDebug = this.setDebugCols() // Math.round(term.width / 3);
 		this.msPerUpdate  = minUpdateTime
 		// cliInstance.msPerUpdate  = minUpdateTime;
@@ -1448,7 +1461,9 @@ class AminoSeeNoEvil {
 			code = 0
 		}
 		mode( `Graceful shutdown in progress... status ${ status } threads ${threads.length} code ${code} reason ${reason}`)
-		log( blueWhite( `R: ${status} ` ) )
+		if ( renderLock ) {
+			output( blueWhite( `R: ${status} ` ) )
+		}
 		bugtxt("webserverEnabled: " + webserverEnabled + " killServersOnQuit: "+ killServersOnQuit)
 		// printRadMessage(  status )
 		isShuttingDown = true
@@ -1550,25 +1565,26 @@ class AminoSeeNoEvil {
 	}
 
 	setNextFile() {
-		this.nextFile = "Loading"
 		try {
 			this.nextFile = this.args._[1] // not the last but the second to last
 		} catch(e) {
-			this.nextFile = "Finished"
+			this.nextFile = "finished"
 		}
 		if ( this.nextFile === undefined) {
-			this.nextFile = "Finished"
+			this.nextFile = "loading"
 			return false
-		} else { return true }
+		} else {
+			if ( this.checkFileExtension( path.resolve( this.nextFile )) == false ) {
+				this.nextFile += chalk.inverse(" (will skip) ")
+			}
+			return true
+		}
 	}
 	pollForStream( reason ) {
 		mode( batchProgress()+ " pre-polling " + reason)
-		log( `P: ${status} ` )
 		if ( renderLock == true ) {
-			mode(`thread re-entry inside pollForStream: ${ this.justNameOfDNA} ${ this.busy() } ${ this.storage() } reason: ${reason}`)
+			mode(`removing thread ${ this.justNameOfDNA} ${ this.busy() } ${ this.storage() } reason: ${reason}`)
 			this.error( `P: ${status} ` )
-			log( `P: ${status} ` )
-
 			return false
 		} else {
 			redoline(`Polling for work... ${this.busy()}`)
@@ -1666,8 +1682,8 @@ class AminoSeeNoEvil {
 		if (doesFileExist(this.filePNG)) {
 			log(`isStorageBusy ${this.isStorageBusy} Storage: [${this.isStorageBusy}]`)
 			this.openOutputs()
-			termDrawImage(this.filePNG, "File already rendered")
-			let msg = `${batchProgress()}  Already rendered ${ maxWidth(60, this.justNameOfPNG) }.`
+			termDrawImage(this.filePNG, "Done: ")
+			let msg = `${batchProgress()} Done: ${  maxWidth(tx / 3, this.justNameOfPNG)}.`
 			notQuiet(msg)
 
  			if ( this.force == false ) {
@@ -1854,7 +1870,7 @@ class AminoSeeNoEvil {
 	}
 	initStream() {
 		mode("Initialising Stream: " + this.justNameOfPNG)
-		// output( `R: ${status} ` )
+		output( chalk.rgb(32, 64, 128).bold( status ))
 		output(`OUTPUT FOLDER: ${ blueWhite( blueWhite( path.normalize( this.outputPath )))}`)
 		this.setNextFile()
 		this.timestamp = Math.round(+new Date()/1000)
@@ -2851,7 +2867,8 @@ class AminoSeeNoEvil {
 			}, this.raceDelay)
 		} else {
 			log("STARTING RENDERING")
-			this.prepareState( `pop shift: ${this.dnafile}` ) // <<<<-------------- THATS WHERE THE ACTION GOES
+			// this.prepareState( `pop shift: ${this.dnafile}` ) // <<<<-------------- THATS WHERE THE ACTION GOES
+			this.pollForStream()
 		}
 	}
 	postRenderPoll(reason) { // renderLock on late, off early
@@ -3035,7 +3052,7 @@ class AminoSeeNoEvil {
 	processLine(l) { // need to implement the format here: https://rdrr.io/rforge/seqTools/man/countGenomeKmers.html
 		if ( renderLock == false ) { this.error("thread entered process line")}
 		if ( streamLineNr % 256 == 0) {
-			status = `sequence line: ${streamLineNr}`
+			status = `Streaming transcription sequence line: ${streamLineNr}`
 		}
 		streamLineNr++
 		if (this.rawDNA.length < this.termPixels) {
@@ -4494,10 +4511,10 @@ class AminoSeeNoEvil {
 		process.stdout.write(`[${txt}] `)
 	}
 	error(err) {
-		mode(`Error: [${err}] ${this.justNameOfDNA} ${this.busy()}`)
+		mode(`💩 Error: [${err}] ${this.justNameOfDNA} ${this.busy()}`)
 		if ( this.quiet == false ) {
 			output()
-			output( chalk.bgRed(  status  + ` /  error start {{{ ----------- ${ chalk.inverse( err.toString() ) }  ----------- }}} `))
+			output( "💩 " + chalk.bgRed(  status  + ` /  error start {{{ ----------- ${ chalk.inverse( err.toString() ) }  ----------- }}} `))
 			output()
 		}
 		if ( debug == true ) {
@@ -4505,13 +4522,10 @@ class AminoSeeNoEvil {
 			throw new Error(err)
 			// process.exit();
 		} else {
-			output(`Caught error: ${err}`)
-			output(`Caught error: ${err}`)
-			output(`Caught error: ${err}`)
-			output(`Caught error: ${err}`)
-			output(`Caught error: ${err}`)
-			output(`Caught error: ${err}`)
-			output(`Caught error: ${err}`)
+			this.raceDelay += 1000
+			output()
+			output(`💩 Caught error: ${err}`)
+			output()
 		}
 	}
 
@@ -4619,7 +4633,7 @@ class AminoSeeNoEvil {
 		this.bytesRemain = (  this.baseChars - this.charClock)
 		this.bytesPerMs = Math.round( ( this.charClock) / this.runningDuration )
 		this.codonsPerSec = (  this.genomeSize+1) / ( this.runningDuration*1000)
-		let msg = `${ nicePercent(this.percentComplete)} | ${humanizeDuration( this.timeRemain)} remain ` + new Date()
+		let msg = `${ nicePercent(this.percentComplete)} | ${humanizeDuration( this.timeRemain)} | ` + new Date()
 		if ( isShuttingDown ) {
 			msg = " SHUTTING DOWN " + msg
 		}
@@ -4690,7 +4704,7 @@ class AminoSeeNoEvil {
 			return false
 		}
 		tups++
-		if ( tups == 1 ) { return }
+		if ( tups <= 2 ) { return }
 		let text = " "
 		let aacdata = []
 		text += this.calcUpdate()
@@ -4747,11 +4761,11 @@ class AminoSeeNoEvil {
 				chalk.rgb(0, 0, this.peakBlue).inverse.bgYellow(maxWidth(8, `B:  ${this.peakBlue}` )) +
 				chalk.rgb(this.peakAlpha, this.peakAlpha, this.peakAlpha).inverse.bgBlue(maxWidth(8, `A:  ${this.peakAlpha}` ))) )
 		term.right( this.termMarginLeft )
+		term.eraseDisplayBelow()
 
 		if (term.height - 32  >   termHistoHeight  +  termDisplayHeight && tx - 8 > wideScreen) {
 			if ( this.fullscreen == true ) { output( this.blurb() ) }
-			output( status )
-			term.eraseDisplayBelow()
+			output()
 			output()
 			if (this.keyboard) {
 				output(interactiveKeysGuide)
@@ -4759,8 +4773,6 @@ class AminoSeeNoEvil {
 			output()
 			output( histogram(aacdata, { bar: "/", width: this.colDebug*2, sort: true, map: aacdata.Histocount} ))
 			output()
-			// output( `pepTable ${ beautify(  JSON.stringify ( this.pepTable)  ) }` );
-			// output( `pepTable ${ beautify( this.pepTable ) }` );
 			if ( brute == true ) {
 				output( `${  this.rgbArray.length  } this.pepTable[5].lm_array.length: ${this.pepTable[5].lm_array.length} ` )
 			}
@@ -4768,6 +4780,8 @@ class AminoSeeNoEvil {
 		} else {
 			output(chalk.bold.italic(" Increase the size of your terminal for realtime histogram."))
 			output(` Genome size: ${ this.genomeSize.toLocaleString()}`)
+			term.up(  2 )
+
 		}
 
 	}
@@ -5086,13 +5100,6 @@ function bugtxt(txt) { // full debug output
 }
 function output(txt) {
 
-	if (txt === undefined) { txt = " "} else {
-		if ( cliInstance ) {
-			if ( cliInstance.justNameOfPNG === undefined ) {
-				wTitle( `${ cliInstance.justNameOfPNG } ${txt}` )
-			}
-		}
-	}
 
 	term.eraseLine()
 	if ( debug ) {
@@ -5101,7 +5108,17 @@ function output(txt) {
 		console.log( txt )
 	}
 	term.eraseLine()
-	// wTitle(`${  txt }`) // put it on the terminal windowbar or in tmux
+
+	if (txt === undefined) { txt = " "} else {
+		if ( cliInstance ) {
+			if ( cliInstance.justNameOfPNG === undefined ) {
+				// wTitle( `${ cliInstance.justNameOfPNG } ${txt}` )
+				wTitle(`${  txt }`) // put it on the terminal windowbar or in tmux
+
+			}
+		}
+	}
+
 }
 function out(txt) {
 	// let that = gimmeDat();
@@ -5112,13 +5129,15 @@ function out(txt) {
 		// redoline(chalk.bold(`   [ `)  + chalk.rgb(64,80,100).inverse( fixedWidth( 50, removeNonAscii(txt)))  + chalk.bold(` ]`  ));
 	}
 }
-function deHammer( txt, ms ) {
+function debounce( ms ) {
+	if ( ms === undefined ) { ms = 1000 } // one second
 	let d = new Date()
 	if ( d + ms > lastHammered ) {
-		windowTitle( txt )
-		return txt
+		windowTitle( "  " )
+		lastHammered = d + ms
+		return true
 	}
-	return ""
+	return false
 }
 function log(txt  ) {
 
@@ -5129,7 +5148,7 @@ function log(txt  ) {
 		if (this.quiet == false) {
 			process.stdout.write(chalk.rgb(128,0,0).italic("."))
 		}
-		deHammer(`${ removeNonAscii( txt ) }`, 1000) // put it on the terminal windowbar or in tmux
+		debounce(`${ removeNonAscii( txt ) }`, 1000) // put it on the terminal windowbar or in tmux
 	}
 }
 function batchProgress() {
@@ -5140,7 +5159,7 @@ function wTitle(txt) {
 		txt = hostname
 		return true
 	} // ${ maxWidth(10,  cfile)} AminoSeeNoEvil
-	txt = `${batchProgress()} | ${ removeNonAscii(  maxWidth( 48, txt ))}  @${hostname}` + ( isShuttingDown ? " SHUTTING DOWN " : "" ) + new Date()
+	txt = `${batchProgress()} | ${ removeNonAscii(  maxWidth( 48, txt ))}  @${hostname}` + ( isShuttingDown ? " SHUTTING DOWN " : "" )// + new Date()
 	// if (this === undefined) {
 	// 	txt += `[ ${txt} ] no this`
 	// } else {
@@ -5812,7 +5831,7 @@ process.on("SIGINT", function() {
 	})
 })
 function termDrawImage(fullpath, reason, cb) {
-	if ( this.quiet || !this.image ) { return false }
+	if ( this.quiet || !this.openImage ) { return false }
 	if (fullpath === undefined) { fullpath = previousImage }
 	if (fullpath === undefined) { return false }
 	if (reason === undefined) { reason = "BUG. Reminder: always set a reason" }
