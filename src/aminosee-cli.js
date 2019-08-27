@@ -158,7 +158,7 @@ function populateArgs(procArgv) { // returns args
 		boolean: [ "artistic", "clear", "chrome", "devmode", "debug", "demo", "dnabg", "explorer", "file", "force", "fullscreen", "firefox", "gui", "html", "image", "keyboard", "list", "progress", "quiet", "reg", "recycle", "redraw", "slow", "serve", "safari", "test", "updates", "verbose", "view" ],
 		string: [ "url", "output", "triplet", "peptide", "ratio" ],
 		alias: { a: "artistic", b: "dnabg", c: "codons", d: "devmode", f: "force", finder: "explorer", h: "help", k: "keyboard", m: "magnitude", o: "output", p: "peptide", i: "image", t: "triplet", u: "updates", q: "quiet", r: "reg", w: "width", v: "verbose", x: "explorer", view: "html" },
-		default: { brute: false, debug: false, gui: false, html: true, image: true, clear: true, explorer: false, quiet: false, keyboard: false, progress: true, redraw: true, updates: true, stop: false, serve: false, fullscreen: false },
+		default: { brute: false, debug: false, gui: false, html: true, image: false, clear: false, explorer: false, quiet: false, keyboard: false, progress: true, redraw: true, updates: true, stop: false, serve: false, fullscreen: false },
 		stopEarly: false
 	} // NUMERIC INPUTS: codons, magnitude, width, maxpix
 	let args = minimist(procArgv.slice(2), options)
@@ -3005,7 +3005,7 @@ class AminoSeeNoEvil {
 
 		if (killServersOnQuit == true) {
 			if (webserverEnabled == true) { // control-c kills server
-				// server.stop()
+				server.stop()
 			}
 		} else if (webserverEnabled == true) {
 			log("If you get a lot of servers running, use Control-C instead of [Q] to issues a 'killall node' command to kill all of them")
