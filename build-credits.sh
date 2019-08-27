@@ -38,7 +38,7 @@ echo "File drag and drop code by http://twitter.com/craigbuckler" >> $CREDITS
 echo "http://optimalworks.net/ http://sitepoint.com/"  >> $CREDITS
 echo "File drag and drop code by http://twitter.com/craigbuckler Craig Buckler" >> $CREDITS
 echo "http://optimalworks.net/ OptimalWorks.net http://sitepoint.com/"  >> $CREDITS
-echo "2D Hilbert code: Dylan Grafmyre, Thomas Diewald ( http://www.openprocessing.org/visuals/?visualID=15599 ) " >> $CREDITS
+echo "2D Hilbert code: Dylan Grafmyre, Thomas Diewald http://www.openprocessing.org/visuals/?visualID=15599 " >> $CREDITS
 echo "Based on OpenShift guest https://github.com/mrdoob/three.js/blob/8413a860aa95ed29c79cbb7f857c97d7880d260f/examples/canvas_lines_colors.html" >> $CREDITS
 
 echo >> $CREDITS

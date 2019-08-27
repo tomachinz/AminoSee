@@ -116,6 +116,6 @@ pwd
 pkg . --targets win-x86 --output ./dist/AminoSee_win/aminosee-win32.exe &
 npm run _macos &
 npm run _linux &
-sleep 20 
+sleep 20
 npm run _win64
 npm run runmac

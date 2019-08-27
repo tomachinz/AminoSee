@@ -1,7 +1,7 @@
 
-CLONECOMMAND="/usr/bin/rsync --archive --verbose --stats  --dry-run tom@cheese:/home/tom/Sites/AminoSee/dna/AminoSee_webroot  /Users/tom/AminoSee_Output/ "
-DRYCOMMAND="/usr/bin/rsync --archive --verbose --stats              tom@cheese:/home/tom/Sites/AminoSee/dna/AminoSee_webroot  /Users/tom/AminoSee_Output/ "
-WETCOMMAND="/usr/bin/rsync --archive --verbose --stats              tom@cheese:/home/tom/Sites/AminoSee/dna/AminoSee_webroot  /Users/tom/AminoSee_Output/ "
+CLONECOMMAND="/usr/bin/rsync --archive --verbose --stats  --dry-run tom@cheese:/home/tom/Sites/AminoSee/dna/AminoSee_webroot/output/  /Users/tom/AminoSee_webroot/output/"
+DRYCOMMAND="/usr/bin/rsync --archive --verbose --stats              tom@cheese:/home/tom/Sites/AminoSee/dna/AminoSee_webroot/output/  /Users/tom/AminoSee_webroot/output/ "
+WETCOMMAND="/usr/bin/rsync --archive --verbose --stats              tom@cheese:/home/tom/Sites/AminoSee/dna/AminoSee_webroot/output/  /Users/tom/AminoSee_webroot/output/ "
 
 eval $CLONECOMMAND
 echo
