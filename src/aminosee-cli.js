@@ -89,7 +89,7 @@ const widthMax = 960 // i wanted these to be tall and slim kinda like the most c
 const defaultPort = 4321
 const max32bitInteger = 2147483647
 const minUpdateTime = 200
-const openLocalHtml = true // affects auto-open HTML.
+const openLocalHtml = false // affects auto-open HTML.
 
 
 const fileLockingDelay = 2000
@@ -141,17 +141,15 @@ function startGUI() {
 	// return carlo
 }
 function generateTheArgs() {
-
 	const theArgs = {
-		// verbose: false,
-		// verbose: this.verbose,
 		verbose: cliInstance.verbose,
 		output: cliInstance.outputPath,
 		serve: true,
 		gzip: true,
 		logip: true,
+		webroot: cliInstance.webroot,
+		openPage: ( cliInstance.currentFile === undefined ? `/` : `/output/${cliInstance.justNameOfDNA}/`),
 		https: true
-
 	}
 	return theArgs
 }
@@ -671,7 +669,7 @@ class AminoSeeNoEvil {
 			log("not opening html")
 			this.openHtml = false
 		}
-		if ( args.html || args.chrome || args.firefox  || args.safari  || args.report  || args.open) {
+		if ( args.html == true || args.chrome || args.firefox  || args.safari  || args.report  || args.open) {
 			output("opening html")
 			this.openHtml = true
 		} else {
@@ -713,8 +711,8 @@ class AminoSeeNoEvil {
 			webserverEnabled = true
 			this.serve = true
 			this.keyboard = true
-			this.openHtml = true
-			args.view = true
+			// this.openHtml = true
+			// args.view = true
 
 			// server.foregroundserver();
 			// countdown(`shutdown in `, 360000)
@@ -1461,6 +1459,7 @@ class AminoSeeNoEvil {
 			code = 0
 		}
 		mode( `Graceful shutdown in progress... status ${ status } threads ${threads.length} code ${code} reason ${reason}`)
+
 		if ( renderLock ) {
 			output( blueWhite( `R: ${status} ` ) )
 		}
@@ -3849,6 +3848,7 @@ class AminoSeeNoEvil {
 		log( `H: ${status} ` )
 		this.isDiskFinHilbert = true
 		this.openOutputs()
+
 		termDrawImage(this.fileHILBERT, "hilbert curve")
 		this.postRenderPoll("hilbertFinished " )
 	}
@@ -4131,8 +4131,12 @@ class AminoSeeNoEvil {
 		if ( isShuttingDown ) { output("Shutting down..."); return false }
 		if ( this.currentFile == funknzlabel ) { return false }
 		if ( this.devmode == true )  { log( this.renderObjToString() ) }
+		if ( this.test == true && this.quiet == true) {
+			return false;
+			// this.openOutputs()
+		}
 		log( closeBrowser ) // tell user process maybe blocked
-		bugtxt(" this.openHtml, this.openImage, this.openFileExplorer ", this.openHtml, this.openImage, this.openFileExplorer )
+		log(" this.openHtml, this.openImage, this.openFileExplorer ", this.openHtml, this.openImage, this.openFileExplorer )
 		if ( this.openFileExplorer == true) {
 			notQuiet(`Opening render output folder in File Manager ${ this.outputPath }`)
 			// bgOpen()
@@ -4667,7 +4671,7 @@ class AminoSeeNoEvil {
 
 
 	drawHistogram() {
-		if ( isShuttingDown ) { return }
+		if ( isShuttingDown == true ) { output("closing...press U to update or Q to quit"); return; }
 		if ( renderLock == false ) {
 			log("draw")
 			this.rawDNA = "!"

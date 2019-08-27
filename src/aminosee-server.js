@@ -41,6 +41,7 @@ function setArgs( TheArgs ) {
 			webroot: webroot,
 			output: path.join( webroot, "output"),
 			serve: true,
+			openPage: "/index.html",
 			gzip: true
 		}
 		log("using default args")
@@ -130,7 +131,7 @@ function buildServer() {
 	data.saySomethingEpic()
 	let sFiles = [
 		{ "source": path.join( appPath , "public"),             "dest": path.join( webroot , "public" )},
-		{ "source": path.join( appPath , "aminosee.html"),      "dest": path.join( webroot , "aminosee.html")},
+		{ "source": path.join( appPath , "aminosee.html"),      "dest": path.join( webroot , "index.html")},
 		{ "source": path.join( appPath , "public", "favicon.ico"), "dest": path.join( webroot , "favicon.ico")}
 	]
 	for (let i=0; i<sFiles.length; i++) {
@@ -410,7 +411,7 @@ function start(a) { // return the port number
 		log(`Server already started, using lock file port of (${port}). If you think this is not true, remove the lock file: ${ path.normalize( filenameServerLock )}`)
 		output("Restarting server")
 		// start()
-		open( url , {wait: false}).then(() => {
+		open( `${url}/output/${args.currentGenome}`, {wait: false}).then(() => {
 			log("browser closed")
 		}).catch(function () {
 			deleteFile(filenameServerLock)
@@ -426,6 +427,7 @@ function start(a) { // return the port number
 		}
 		log(`filenameServerLock: ${filenameServerLock}`)
 	}
+	return args.openPage
 	return port
 }
 
