@@ -17,6 +17,8 @@ const spawn = require("cross-spawn")
 const fs = require("fs-extra") // drop in replacement = const fs = require('fs')
 const defaulturl = "http://localhost:4321"
 const appFilename = require.main.filename //     /bin/aminosee.js is 11 chars
+const defaultPort = 4321
+const backupPort = 43210
 let debug = false
 let autoStartGui = false
 let starts = -1
