@@ -114,6 +114,7 @@ function log(txt) {
 //   return this.args;
 // }
 function output(txt) {
+	if ( txt === undefined) {	console.log; return }
 	console.log(chalk.bgBlue(" [ " + txt.substring(0, term.width -10  )+ " ]"))
 }
 
