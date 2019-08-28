@@ -20,7 +20,9 @@
     "copyright": "Copyright © 2018-2019 Tom Atkinson",
     "icon": "src/public/favicon.png",
     "directories": [
-      "src/*/**"
+      "src/public/*",
+      "src/public/fonts/*",
+      "src/*"
     ],
     "mac": {
       "category": [
@@ -53,7 +55,7 @@
     "pkg": "nice npm run win32 ; nice npm run _macos ; nice npm run _linux ; nice npm run _win64",
     "zip": "zip -8 -r ./dist/AminoSee_macos.zip ./dist/AminoSee_macos  ; nice zip -8 -r ./dist/AminoSee_win.zip ./dist/AminoSee_win ; nice zip -8 -r ./dist/AminoSee_linux.zip ./dist/AminoSee_linux",
     "runmac": "time ./dist/AminoSee_macos/aminosee --demo -m9",
-    "runlinux": "open ./dist/AminoSee_linux/aminosee",
+    "runlinux": "open ./dist/AminoSee_linux/aminosee --test -m9",
     "macos": "echo MACOS ; pkg . --targets macos   --output ./dist/AminoSee_macos/aminosee ; ./dist/AminoSee_macos/aminosee",
     "win32": "echo WIN32 ; pkg . --targets win-x86 --output ./dist/AminoSee_win/aminosee-win32.exe",
     "win64": "echo WIN64 ; pkg . --targets win-x64 --output ./dist/AminoSee_win/aminosee.exe",
@@ -61,7 +63,7 @@
     "_macos": "echo MACOS ; pkg . --targets macos   --output ./dist/AminoSee_macos/aminosee   ; zip -8 -r ./dist/AminoSee_macos.zip ./dist/AminoSee_macos",
     "_win32": "echo WIN32 ; pkg . --targets win-x86 --output ./dist/AminoSee_win/aminosee-win32.exe ;",
     "_win64": "echo WIN64 ; pkg . --targets win-x64 --output ./dist/AminoSee_win/aminosee.exe ; zip -8 -r ./dist/AminoSee_win.zip ./dist/AminoSee_win",
-    "_linux": "echo LINUX ; pkg . --targets linux   --output ./dist/AminoSee_linux/aminosee-linux   ; zip -8 -r ./dist/AminoSee_linux.zip ./dist/AminoSee_linux"
+    "_linux": "echo LINUX ; pkg . --targets linux   --output ./dist/AminoSee_linux/aminosee   ; zip -8 -r ./dist/AminoSee_linux.zip ./dist/AminoSee_linux"
   },
   "dependencies": {
     "autocannon": "^4.0.0",
@@ -111,7 +113,7 @@
     "npm-merge-driver": "^2.3.5",
     "open": "^6.4.0",
     "parse-apache-directory-index": "^1.2.1",
-    "pkg": "4.3.4",
+    "pkg": "^4.4.0",
     "png.js": "^0.2.1",
     "pngjs": "^3.4.0",
     "remove": "^0.1.5",
@@ -152,13 +154,15 @@
       "src/*.js"
     ],
     "assets": [
-      "bin/**",
+      "bin/*/**",
       "bin/pos.node",
       "node_modules/opn/**",
       "node_modules/terminal-kit/**",
       "node_modules/get-cursor-position/**",
       "node_modules/opn/xdg-open",
-      "src/public/**/*",
+      "src/public/*",
+      "src/public/fonts/*",
+      "src/*",
       "package.json"
     ]
   }

@@ -51,7 +51,7 @@ cp -v node_modules/get-cursor-position/build/Release/pos.node    dist/root
 cp -v node_modules/open/xdg-open                                 dist/root
 cp -r node_modules/terminal-kit/*                                dist/root/node_modules/terminal-kit
 cp -r node_modules/lazyness/*                                    dist/root/node_modules/lazyness
-cp -r public/*                                                   dist/root/public
+# cp -r public/*                                                   dist/root/public
 
 # for the awesome shell window:
 cp    node_modules/xterm/dist/xterm.js                           src/public/
