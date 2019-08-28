@@ -142,6 +142,7 @@
   ],
   "pkg": {
     "targets": [
+      "node10",
       "linux",
       "macos",
       "win"
