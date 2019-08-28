@@ -22,28 +22,32 @@ const backupPort = 43210
 let debug = false
 let autoStartGui = false
 let starts = -1
-let outputPath, filenameServerLock, url, projectprefs, userprefs, port, cliruns, gbprocessed, args, theserver, genomes
-let webroot = path.resolve( os.homedir(), "AminoSee_webroot")
+let outputPath, filenameServerLock, url, projectprefs, userprefs, port, cliruns, gbprocessed, args, theserver, genomes, webroot
+setArgs()
 
 module.exports = (options) => {
-	process.title = "aminosee.funk.nz_server"
 	port = defaultPort
-		[ userprefs, projectprefs ] = setupPrefs()
+	// process.title = "aminosee.funk.nz_server"
+	setArgs(options);
+	[ userprefs, projectprefs ] = setupPrefs()
 	log(appFilename)
-
+	start()
+	return args.openPage
 }
 
-
-
 function setArgs( TheArgs ) {
+	webroot = path.resolve( os.homedir(), "AminoSee_webroot")
 	if ( TheArgs === undefined ) {
 		args = {
 			verbose: false,
 			webroot: webroot,
 			output: path.join( webroot, "output"),
 			serve: true,
-			openPage: "/index.html",
-			gzip: true
+			openHtml: false,
+			currentURL: "/index.html#shouldnotopen",
+			gzip: true,
+			background: false,
+			debug: false
 		}
 		log("using default args")
 
@@ -51,6 +55,7 @@ function setArgs( TheArgs ) {
 		args = TheArgs
 		log("using dynamic args")
 	}
+	// output( TheArgs )
 	outputPath = args.output
 	filenameServerLock = path.resolve( webroot, "aminosee_server_lock.txt")
 	debug = args.debug
@@ -112,7 +117,9 @@ function log(txt) {
 	}
 
 }
-
+function notQuiet(txt) {
+	log(txt)
+}
 function output(txt) {
 	if ( txt === undefined) {	console.log; return }
 	console.log(txt)
@@ -137,21 +144,22 @@ function buildServer() {
 
 }
 
-function selfSpawn(p) {
+function selfSpawn() {
 	let didStart = false
-	if (p !== undefined) { port = p }
 	output(chalk.yellow(`Starting BACKGROUND web server at ${chalk.underline(getServerURL())}`))
-	// console.log(options)
+	process.title = "aminosee_evilspawn"
+	log( args )
 	let evilSpawn
 	try {
-		evilSpawn = spawn("aminosee", "--serve", { stdio: "pipe" })
+		evilSpawn = spawn("aminosee", "--foreground", { stdio: "pipe" })
 		didStart = true
 	} catch(err) {
-		log(err)
+		log(`Bargle! ${ maxWidth( 32, err )}`)
 		didStart = false
 	}
 	evilSpawn.stdout.on("data", (data) => {
-		console.log(data)
+		process.stdout.write(data)
+		// console.log(data)
 	})
 	evilSpawn.stderr.on("data", (data) => {
 		log( `error with ${chalk.inverse(url)}`)
@@ -215,11 +223,12 @@ function spawnBackground(p) { // Spawn background server
 	log( chalk.italic( "sudo npm install --global http-server"))
 	return didStart
 }
-function foregroundserver(options) {
-	process.title = "aminosee.funk.nz_server"
+function foregroundserver() {
+	process.title = "aminosee.funk.nz_foreground"
+	let didStart = false
 
-	var root = path.join(__dirname)
-	output( `webroot ${webroot}` )
+	// var root = path.join(__dirname)
+	log( `webroot ${webroot}` )
 	var server = httpserver.createServer({
 		root: webroot,
 		robots: true,
@@ -231,12 +240,25 @@ function foregroundserver(options) {
 
 	try {
 		server.listen(port)
+		didStart = true
 	} catch(err) {
 		if ( err.indexOf("EADDRINUSE") !== -1 ) {
 			output(`port ${port} in use, trying backup port: ${backupPort}`)
-			// server.listen(backupPort)
 		} else {
 			output(`unknown error starting server: ${err}`)
+		}
+	}
+	if ( !didStart ) {
+		try {
+			server.listen(backupPort)
+			didStart = true
+			port = backupPort
+		} catch(err) {
+			if ( err.indexOf("EADDRINUSE") !== -1 ) {
+				output(`backup Port ${backupPort} in use also`)
+			} else {
+				output(`unknown error starting server: ${err}`)
+			}
 		}
 	}
 	return args.openPage
@@ -293,14 +315,12 @@ function startServeHandler(o, port) {
 
 function stop() {
 	setArgs()
-	output(`Stopping server. OS: ${os.platform()}`)
-	log(`removing lock file... ${filenameServerLock}`)
+	output(`Stopping server. OS: ${os.platform()} removing lock file... ${filenameServerLock}`)
 	deleteFile(filenameServerLock)
 	log("...lock file removed.")
 	if ( os.platform() == "win32" || os.platform() == "win64") {
 		output("not sure how to kill a process on windows. maybe try:")
 		output( chalk.italic( "taskkill /IM 'aminosee.funk.nz_server' /F"))
-
 	} else {
 		try {
 			spawn("killall", ["aminosee.funk.nz_server", "", "0"], { stdio: "pipe" })
@@ -312,7 +332,6 @@ function stop() {
 			}
 		}
 	}
-
 }
 
 
@@ -337,47 +356,45 @@ function readLockPort(file) {
 	return Math.round( (fs.readFileSync(file))) // my way of casting it to a number
 }
 
-
-function start(a) { // return the port number
+function start() { // return the port number
 	starts++
-	if ( starts > 3 ) {
+	if ( starts > 4 ) {
 		output("you seem to be trying to start the server too much. odd.")
 		return false
 	}
-	setArgs(a)
 	log("Attempting to start server with args:")
+	log( args)
 	if ( args.verbose ) {
-		console.log( a )
+		console.log( args )
 	}
-	process.title = "aminosee.funk.nz_server"
-	outputPath = args.output
-	filenameServerLock = path.resolve( webroot, "aminosee_server_lock.txt")
-	// if ( args.stop == true ) { log("Two issues...: you call the start function but args object is configured for stop = true, and you need to call setArgs(args) prior to start()") }
+	filenameServerLock = path.resolve( args.webroot, "aminosee_server_lock.txt")
+	if ( args.stop == true ) { stop(); return true }
 	setupPrefs()
 	buildServer()
-	output(`web root: ${webroot}`)
+	notQuiet(`web root: ${webroot}`)
 	let options = [ webroot, "-p", port, "-o" ]
 	// let options = [ webroot , "", "-p", port, "-o" ]
 	if ( serverLock() == true ) {
 		port = readLockPort(filenameServerLock)
-		log(`Server already started, using lock file port of (${port}). If you think this is not true, remove the lock file: ${ path.normalize( filenameServerLock )}`)
-		// output("Restarting server")
-		open( `${url}/output/${args.currentGenome}`, {wait: false}).then(() => {
-			log("browser closed")
-		}).catch(function () {
-			deleteFile(filenameServerLock)
-		 })
-		 foregroundserver(backupPort) // blocking version
+		output(`Server already started, using lock file port of (${port}) from: ${ path.normalize( filenameServerLock )}`)
+		output("Restarting server")
+		deleteFile(filenameServerLock)
+		stop()
+		port = backupPort
+		foregroundserver()
+		// open( `${url}/output/${args.currentGenome}`, {wait: false}).then(() => {
+		// 	log("browser closed")
+		// }).catch(function () {
+		//  })
 
 	} else {
-		log("No locks found, re/starting server ")
-		stop() // sounds odd, but helps avoid port in use issue :)
-		selfSpawn( options )
-
-
-		if ( args.serve == true ) {
+		log("No locks found, starting server ")
+		// stop() // sounds odd, but helps avoid port in use issue :)
+		if ( args.background == true ) {
+			selfSpawn( options )
 		} else {
-			output("Backround")
+			log("Foreground")
+			foregroundserver( options )
 			// spawnBackground() // works great but relies on http-server being installed globally
 		}
 		log(`filenameServerLock: ${filenameServerLock}`)

@@ -1,6 +1,6 @@
 {
   "name": "aminosee",
-  "version": "1.25.9",
+  "version": "1.26.0",
   "owner": "Thomas Bieder Atkinson",
   "author": "Tom Atkinson <tom@funk.co.nz>",
   "website": "http://aminosee.funk.nz",
@@ -35,6 +35,7 @@
     "credits": "./build-credits.sh",
     "clean": "rimraf ./dist ./build",
     "crash": "node --inspect 27MB_TestPattern.txt --peptide=Ochre 3MB_TestPattern.txt 50KB_TestPattern.txt batch-peptides.sh batch-process.sh Gorilla_gorGor4_chr2B.fa",
+    "eslint": "eslint src/aminosee-cli.js > test/eslint-errors.txt ; tail -n 64 test/eslint-errors.txt",
     "gource": "./gource.sh",
     "test": "echo 'requires cli programs: time, lighthouse, vows etc' ; time ./run-test.sh --quiet ;",
     "start": "node bin/aminosee",
