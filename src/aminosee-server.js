@@ -115,7 +115,8 @@ function log(txt) {
 
 function output(txt) {
 	if ( txt === undefined) {	console.log; return }
-	console.log(chalk.bgBlue(" [ " + txt.substring(0, term.width -10  )+ " ]"))
+	console.log(txt)
+	// console.log(chalk.bgBlue(" [ " + txt.substring(0, term.width -10  )+ " ]"))
 }
 
 function buildServer() {
@@ -124,13 +125,13 @@ function buildServer() {
 	output(`Building server to ${webroot}  ${url}`)
 	data.saySomethingEpic()
 	let sFiles = [
-		{ "source": path.join( appPath , "public"),             "dest": path.join( webroot , "public" )},
-		{ "source": path.join( appPath , "aminosee.html"),      "dest": path.join( webroot , "index.html")},
-		{ "source": path.join( appPath , "public", "favicon.ico"), "dest": path.join( webroot , "favicon.ico")}
+		{ "source": path.join( appPath, "public" ),                "dest": path.join( webroot , "public"  )},
+		{ "source": path.join( appPath, "public", "aminosee.html"),"dest": path.join( webroot , "index.html")},
+		{ "source": path.join( appPath, "public", "favicon.ico"),  "dest": path.join( webroot , "favicon.ico")}
 	]
 	for (let i=0; i<sFiles.length; i++) {
 		let element = sFiles[i]
-		// log('building ' + element.source );//.toString());
+		log(`${element.source} --->> ${element.dest}` )//.toString());
 		createSymlink(path.resolve(element.source), path.resolve(element.dest))
 	}
 
@@ -140,7 +141,7 @@ function selfSpawn(p) {
 	let didStart = false
 	if (p !== undefined) { port = p }
 	output(chalk.yellow(`Starting BACKGROUND web server at ${chalk.underline(getServerURL())}`))
-	console.log(options)
+	// console.log(options)
 	let evilSpawn
 	try {
 		evilSpawn = spawn("aminosee", "--serve", { stdio: "pipe" })
@@ -150,7 +151,7 @@ function selfSpawn(p) {
 		didStart = false
 	}
 	evilSpawn.stdout.on("data", (data) => {
-		output(data)
+		console.log(data)
 	})
 	evilSpawn.stderr.on("data", (data) => {
 		log( `error with ${chalk.inverse(url)}`)
@@ -371,10 +372,10 @@ function start(a) { // return the port number
 	} else {
 		log("No locks found, re/starting server ")
 		stop() // sounds odd, but helps avoid port in use issue :)
+		selfSpawn( options )
 
 
 		if ( args.serve == true ) {
-			// selfSpawn()
 		} else {
 			output("Backround")
 			// spawnBackground() // works great but relies on http-server being installed globally

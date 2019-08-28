@@ -167,7 +167,7 @@ function populateArgs(procArgv) { // returns args
 		boolean: [ "artistic", "clear", "chrome", "devmode", "debug", "demo", "dnabg", "explorer", "file", "force", "fullscreen", "firefox", "gui", "html", "image", "keyboard", "list", "progress", "quiet", "reg", "recycle", "redraw", "slow", "serve", "safari", "test", "updates", "verbose", "view" ],
 		string: [ "url", "output", "triplet", "peptide", "ratio" ],
 		alias: { a: "artistic", b: "dnabg", c: "codons", d: "devmode", f: "force", finder: "explorer", h: "help", k: "keyboard", m: "magnitude", o: "output", p: "peptide", i: "image", t: "triplet", u: "updates", q: "quiet", r: "reg", w: "width", v: "verbose", x: "explorer", view: "html" },
-		default: { brute: false, debug: false, gui: false, html: true, image: false, clear: false, explorer: false, quiet: false, keyboard: false, progress: false, redraw: true, updates: true, stop: false, serve: false, fullscreen: false },
+		default: { brute: false, debug: false, gui: false, html: true, image: false, index: true, clear: false, explorer: false, quiet: false, keyboard: false, progress: false, redraw: true, updates: true, stop: false, serve: false, fullscreen: false },
 		stopEarly: false
 	} // NUMERIC INPUTS: codons, magnitude, width, maxpix
 	let args = minimist(procArgv.slice(2), options)
@@ -348,6 +348,7 @@ class AminoSeeNoEvil {
 		this.outFoldername = obviousFoldername
 		this.browser = "firefox"
 		this.currentFile = path.resolve(__dirname, "dna" , dummyFilename)
+		this.outputPath = path.join( webroot, netFoldername)
 		this.justNameOfDNA = dummyFilename
 		loopCounter = 0
 		this.termPixels = 69//Math.round((term.width) * (term.height-8));
@@ -902,7 +903,6 @@ class AminoSeeNoEvil {
 
 		if ( webserverEnabled ) {
 			server.stop()
-			this.outputPath = path.join( webroot, netFoldername)
 			output(`Starting mini server at: ${ webroot } `)
 			output(`Using URL: ${ chalk.underline( url )}`)
 			this.setupKeyboardUI()
