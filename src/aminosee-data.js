@@ -125,12 +125,19 @@ function doesFolderExist(f) {
 }
 function doesFileExist(f) {
 	let result = false
-	if (f == undefined) { return false } // adds stability to this rickety program!
-	f = path.resolve(f)
+
+	if (f === undefined) { return false } // adds stability to this rickety program!
+	try {
+		f = path.resolve(f)
+		result = true //file exists
+	} catch(err) {
+		log(`File not found: ${f}`)
+		return false
+	}
 	try {
 		result = fs.existsSync(f)
 		if (result == true ) {
-			return true //file exists
+			result = true //file exists
 		} else {
 			result = false
 		}

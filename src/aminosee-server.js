@@ -31,8 +31,12 @@ module.exports = (options) => {
 	setArgs(options);
 	[ userprefs, projectprefs ] = setupPrefs()
 	log(appFilename)
-	start()
-	return args.openPage
+	try {
+		start()
+		return args.openPage
+	} catch(err) {
+		return "port in use" // err
+	}
 }
 
 function setArgs( TheArgs ) {
