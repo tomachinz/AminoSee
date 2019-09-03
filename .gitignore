@@ -19,6 +19,9 @@ dna/*.gb
 dna/*.png
 dna/*.html
 dna/*.touch
+dna/27MB_TestPattern.txt
+dna/3MB_TestPattern.txt
+dna/AminoSee_webroot
 audio
 demo
 AminoSee_Output

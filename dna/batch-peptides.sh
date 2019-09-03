@@ -1,8 +1,8 @@
 #!/bin/sh
 aminosee_do () {
-  nice aminosee   $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 &
+  nice -n 1 aminosee   $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 &
   sleep 5
-  nice aminosee --quiet --no-image --no-html --index * $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
+  nice -n 15 aminosee --slow --quiet --no-image --no-html --index * $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
 }
 
 series_peptides () {
@@ -31,7 +31,7 @@ series_peptides () {
   aminosee_do  --quiet  --peptide=Tyrosine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
   aminosee_do  --quiet  --peptide=Arginine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
   aminosee_do  --quiet  --peptide=Lysine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
-  aminosee_do           --peptide=Histidine  $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
+  aminosee_do  --image  --peptide=Histidine  $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
 
   echo $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 END RENDER
 
