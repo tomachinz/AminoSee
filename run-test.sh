@@ -8,6 +8,10 @@ npm run genversion
 echo trying to get to root of project...:
 cd ../dna
 cd ../
+ls
+sleep 1
+rm src/dist
+
 pwd
 test_do () {
   echo __________________________________________

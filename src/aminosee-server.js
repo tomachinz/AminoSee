@@ -359,7 +359,7 @@ function startServeHandler(o, port) {
 
 function stop() {
 	setArgs()
-	output(`Stopping server. OS: ${os.platform()} removing lock file... ${filenameServerLock}`)
+	log(`Stopping server. OS: ${os.platform()} removing lock file... ${filenameServerLock}`)
 	deleteFile(filenameServerLock)
 	log("...lock file removed.")
 	if ( os.platform() == "win32" || os.platform() == "win64") {

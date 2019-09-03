@@ -10,6 +10,9 @@ rm -rf ./build/TOBEDELETED
 mkdir -p build/TOBEDELETED
 mv -v ./build/* build/TOBEDELETED
 
+echo removing src/dist link as this blows up the size of exe
+rm src/dist
+
 # yarn upgrade
 # npm upgrade
 
@@ -119,3 +122,4 @@ npm run _linux &
 sleep 20
 npm run _win64
 npm run runmac
+ln -s dist src/dist
