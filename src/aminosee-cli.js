@@ -105,7 +105,7 @@ let opens = 0 // session local counter to avoid having way too many windows open
 let dnaTriplets = data.dnaTriplets
 let progressTime = 500 // ms
 termPixels = 69 // chars
-remain = -69 // files in the batch
+remain = 0 // files in the batch
 tx = ty = cliruns = gbprocessed = 0
 let isShuttingDown = false
 let threads = [] // an array of AminoSeNoEvil instances.
@@ -171,7 +171,7 @@ function populateArgs(procArgv) { // returns args
 		boolean: [ "artistic", "clear", "chrome", "devmode", "debug", "demo", "dnabg", "explorer", "file", "force", "fullscreen", "firefox", "gui", "html", "image", "keyboard", "list", "progress", "quiet", "reg", "recycle", "redraw", "slow", "serve", "safari", "test", "updates", "verbose", "view" ],
 		string: [ "url", "output", "triplet", "peptide", "ratio" ],
 		alias: { a: "artistic", b: "dnabg", c: "codons", d: "devmode", f: "force", finder: "explorer", h: "help", k: "keyboard", m: "magnitude", o: "output", p: "peptide", i: "image", t: "triplet", u: "updates", q: "quiet", r: "reg", w: "width", v: "verbose", x: "explorer", view: "html" },
-		default: { brute: false, debug: false, gui: false, html: true, image: true, index: true, clear: false, explorer: false, quiet: false, keyboard: false, progress: false, redraw: true, updates: true, stop: false, serve: false, fullscreen: false },
+		default: { brute: false, debug: false, gui: false, html: true, image: true, index: true, clear: false, explorer: false, quiet: false, keyboard: true, progress: false, redraw: true, updates: true, stop: false, serve: false, fullscreen: false },
 		stopEarly: false
 	} // NUMERIC INPUTS: codons, magnitude, width, maxpix
 	let args = minimist(procArgv.slice(2), options)
@@ -240,16 +240,16 @@ function pushCli(cs) {
 function setupApp() {
 	[ userprefs, projectprefs ] = setupPrefs()
 	lastHammered = new Date()
-	if ( this.updateProgress == true ) {
-		progato = term.progressBar( {
-			width: 80 ,
-			title: "Daily tasks:" ,
-			eta: true ,
-			percent: true ,
-			inline: true,
-			items: remain
-		} )
-	}
+	// if ( this.updateProgress == true ) {
+	// 	progato = term.progressBar( {
+	// 		width: 80 ,
+	// 		title: "Daily tasks:" ,
+	// 		eta: true ,
+	// 		percent: true ,
+	// 		inline: true,
+	// 		items: remain
+	// 	} )
+	// }
 	cliInstance = new AminoSeeNoEvil()
 	termSize()
 	webroot = locateWebroot()
@@ -361,12 +361,21 @@ class AminoSeeNoEvil {
 		this.pepTable = data.pepTable
 		this.args = args // populateArgs(procArgv); // this.args;
 		// this.currentFile = args._[0].toString()
+		if ( args.demo ) {
+			this.demo = true
+			remain++
+			batchSize++
+
+		}
 		if ( args.test || args.demo ) {
 			this.test = true
+			remain++
+			batchSize++
 			if ( !args.image ) {
 				this.openImage = false
 			}
-			error("stopping due to test")
+			// error("stopping due to test")
+			// return false
 		}
 		try {
 			this.currentFile = args._[0].toString()
@@ -480,7 +489,7 @@ class AminoSeeNoEvil {
 			this.recycEnabled = true
 		} else { this.recycEnabled = false }
 		if ( args.keyboard || args.k ) {
-			output("KEYBOARD MODE HAS SOME BUGS ATM SORRY")
+			log("KEYBOARD MODE HAS SOME BUGS ATM SORRY")
 			this.keyboard = true
 			 termDisplayHeight += 4 // display bigger
 			if ( this.verbose == true) {
@@ -661,12 +670,13 @@ class AminoSeeNoEvil {
 
 		if ( args.verbose || args.v) {
 			output("verbose enabled. AminoSee version: " + version)
-			// bugtxt(`os.platform(): ${os.platform()} ${process.cwd()}`)
+			bugtxt(`os.platform(): ${os.platform()} ${process.cwd()}`)
 			this.verbose = true
 			// termDisplayHeight -= 2
 		} else {
 			log("verbose mode disabled")
-			this.verbose = false }
+			this.verbose = false
+		}
 		if ( args.html ) {
 			output("will open html in firefox after render")
 			this.openHtml = true
@@ -864,21 +874,30 @@ class AminoSeeNoEvil {
 
 
 		remain = args._.length
-
 		if ( this.test == true ) {
 			output("Ω Running test Ω")
+			remain = this.dimension
+			// this.dimension = args.magnitude
 			this.generateTestPatterns(bugout)
 		} else if ( this.demo == true ) {
 			mode("demo mode")
+			remain = this.dimension
 			runDemo()
-		} else if ( remain > 0 ) {
+		}
+
+
+		if ( remain > 0 ) {
 			mode(remain + " Ω first command Ω ")
-			output(chalk.green(`${chalk.underline("Job items Ω ")} ${remain} ${this.outputPath}` ))
+			output(chalk.green(`${chalk.underline("Job items Ω ")} ${batchProgress()} ` ))
+			log(this.outputPath)
 			this.dnafile = args._.toString()
 			// this.skipQueueNextFile()
 
 			// this.resetAndPop("first command")
-			this.pollForStream()
+			if ( !this.test ) {
+				this.pollForStream()
+			}
+
 
 			// setImmediate( () => {
 			// 	log("prepare state returned")               // this.pollForStream();
@@ -889,11 +908,12 @@ class AminoSeeNoEvil {
 			// })
 
 
-		} else if ( args.gui == false ) {
+		} else if ( remain < 1  ) {
 			mode("no command")
 			if ( cliruns < 3) {
 				output("FIRST RUN!!! Opening the demo... use the command aminosee demo to see this first run demo in future")
 				this.firstRun()
+				isShuttingDown = false
 			} else {
 				log("not first run")
 			}
@@ -906,15 +926,15 @@ class AminoSeeNoEvil {
 			notQuiet(`example    --->>>    ${ chalk.italic( "aminosee --help ")}`)
 			notQuiet(`user interface ->    ${ chalk.italic( "aminosee --gui ")}`)
 			notQuiet()
+			if ( this.quiet == true || this.foreground ) {
+				cliInstance.quit(1, "no command quiet")
+			}
+			if ( !isShuttingDown && !this.quiet && !this.serve ) {
+				let time = 35000
 
-			if (this.serve == true && !isShuttingDown) {
-
-			} else if ( !isShuttingDown && !this.quiet && autoStartGui && !this.serve ) {
-				let time = 5000
-				if ( this.quiet == true || this.foreground ) { time = 1000 }
-				printRadMessage(["Welcome... this is a CLI app run from the terminal, see above", "[Q] or [Esc] key to exit now", " ", "PRESS ANY KEY", "to open the interface", chalk.italic( "aminosee --help")])
+				output("quick " + time)
+				printRadMessage(["Welcome... this is a CLI app run from the terminal, see above", "[Q] or [Esc] key to exit now", " ", "PRESS ANY KEY", "to open the interface", chalk.italic( "aminosee --help"), " " + (batchProgress()) ])
 				output( interactiveKeysGuide )
-
 				cliInstance.setupKeyboardUI()
 				listGenomes()
 				cliInstance.updatesTimer = countdown("closing in ", time, () => {
@@ -923,15 +943,16 @@ class AminoSeeNoEvil {
 					if ( this.gui == false ) { // if the GUI is up, dont exit
 						isShuttingDown = true
 						this.quit(130, "no command. gui is true.")
+					}
+					if ( this.gui == false || this.serve == false) {
+						this.quit(1, "no command and no gui or server")
 					} else {
-						if ( this.gui == false || this.serve == false) {
-							this.quit(1, "no command and no gui or server")
-						} else {
-							output("waiting for GUI or server to close")
-						}
+						output("waiting for GUI or server to close")
 					}
 				})
 			}
+			isShuttingDown = true
+
 			// startGUI();
 			// pushCli(`--test`)
 			// return true;
@@ -1323,7 +1344,7 @@ class AminoSeeNoEvil {
 						output("Closing in 5 seconds")
 						setTimeout(()=> {
 							that.gracefulQuit(130, "Control-c")
-						}, 5000)
+						}, 500)
 					} else {
 						that.gracefulQuit(130, "Control-c")
 					}
@@ -1605,10 +1626,15 @@ class AminoSeeNoEvil {
 		mode( batchProgress()+ " pre-polling " + reason)
 		if ( renderLock == true ) {
 			mode(`removing thread ${ this.justNameOfDNA} ${ this.busy() } ${ this.storage() } reason: ${reason}`)
-			error( `P: ${status} ` )
+			error( `P: ${ maxWidth(24,  status)} ` )
 			return false
 		} else {
 			redoline(`Polling for work... ${this.busy()} ${batchProgress()} ${nicePercent()} ${streamLineNr}`)
+		}
+		if ( this.test == true || this.demo ) { // uses a loop not polling.
+			// error("test is in look for work?")
+			log("test is in look for work?")
+			return false
 		}
 		mode(`Checking file ${batchProgress()}`)
 		if ( this.isStorageBusy ) {
@@ -1701,11 +1727,7 @@ class AminoSeeNoEvil {
 		}
 
 
-		if ( this.test == true ) { // uses a loop not polling.
-			// error("test is in look for work?")
-			log("test is in look for work?")
-			return false
-		}
+
 
 		if ( file == funknzlabel ) {
 			error("funknzlabel")
@@ -1890,9 +1912,16 @@ class AminoSeeNoEvil {
 			this.quit(0, "Finito hombre")
 			return false
 		}
-		if (remain < 1 && !renderLock) {
-			this.destroyProgress()
-			this.quit(0, " resetting " + reason)
+		if (remain < 1 ) {
+			if ( renderLock) {
+				output("not resetting")
+			} else{
+				this.destroyProgress()
+				destroyKeyboardUI()
+				isShuttingDown = true
+				this.quit(0, " resetting " + reason)
+			}
+
 			return false
 		}
 		this.currentFile = this.args._.shift()
@@ -2904,26 +2933,34 @@ class AminoSeeNoEvil {
 
 			if ( this.test == true ) {
 				renderLock = false
-				output(` [ Starting another cycle in ${ humanizeDuration( this.raceDelay )}`)
-				var that = this
-				setTimeout( () => {
-					if ( renderLock == false ) {
-						output("now")
-						that.runCycle()
-						// cliInstance.runCycle()
-					} else {
-						output("busy")
-					}
-				}, this.raceDelay)
+				if ( remain > 1) {
+					output(` [ Starting another cycle in ${ humanizeDuration( this.raceDelay )}`)
+					var that = this
+					setTimeout( () => {
+						if ( renderLock == false ) {
+							output("now")
+							renderLock = true
+							// that.runCycle()
+							cliInstance.runCycle()
+						} else {
+							output("busy")
+						}
+					}, this.raceDelay)
+				} else {
+					remain--
+					renderLock = false
+					this.quit(1, "Finished test")
+				}
+
 
 			} else {
 				log("DONE")
 				clearTimeout( this.updatesTimer)
 				clearTimeout( this.progTimer)
 				removeLocks( this.fileTouch, this.devmode)
-				// if ( remain < 1) {
-				// 	isShuttingDown = true
-				// }
+				if ( remain < 1) {
+					isShuttingDown = true
+				}
 				setTimeout( () => {
 					let msg = `Great success with render of (${this.justNameOfDNA})`
 					notQuiet(msg)
@@ -3906,6 +3943,7 @@ class AminoSeeNoEvil {
 		this.percentComplete = 0
 		let d = Math.round(hilpix/100)
 		for (let i = 0; i < hilpix; i++) {
+			streamLineNr++
 			let hilbX, hilbY;
 			[hilbX, hilbY] = hilDecode(i, this.dimension, h)
 			let cursorLinear  = 4 * i
@@ -3916,7 +3954,7 @@ class AminoSeeNoEvil {
 			this.hilbertImage[hilbertLinear+1] = ( i % Math.round(  this.percentComplete * 32) ) / (  this.percentComplete *32) *  255 // SNAKES! crazy bio snakes.
 			this.hilbertImage[hilbertLinear+2] = (  this.percentComplete *2550)%255 // creates 10 segments to show each 10% mark in  this.blue
 			this.hilbertImage[hilbertLinear+3] = 255 // slight edge in this.alpha
-			if ( this.reg) {
+			if ( this.reg ) {
 				this.paintRegMarks(hilbertLinear, this.hilbertImage,  this.percentComplete)
 			} else {
 				if ( this.focusPeptide == "Opal") {
@@ -3995,8 +4033,7 @@ class AminoSeeNoEvil {
 					// this.isDiskFinLinear = true;
 					this.linearFinished()
 					termDrawImage( this.filePNG, "linear curve", cb )
-					if (cb !== undefined) { cb() }
-
+					runcb(cb)
 				})
 		}).then().catch()
 
@@ -4284,6 +4321,7 @@ class AminoSeeNoEvil {
 	}
 
 	generateTestPatterns(cb) {
+		renderLock = true
 		this.setupRender()
 		loopCounter = 1
 		this.openHtml = false
@@ -4295,6 +4333,7 @@ class AminoSeeNoEvil {
 			this.dimension = defaultMagnitude - 1
 		} else {
 			notQuiet(`using custom dimension: ${ this.dimension }`)
+			this.dimension = this.args.magnitude
 		}
 		batchSize = this.dimension
 		remain = this.dimension
@@ -4328,17 +4367,19 @@ class AminoSeeNoEvil {
 	}
 	runCycle(cb) {
 
-		if (renderLock == true) {
-			// error(`Thread re-entered runCycle ${loopCounter}`)
+		if (renderLock == false) {
+			error(`Thread re-entered runCycle ${loopCounter}`)
 			runcb( cb )
 			return false
 		}
-		if ( isShuttingDown ) {	runcb( cb ); this.quit(0, "test complete"); return false }
-		loopCounter++
 		remain--
-		if ( loopCounter >  batchSize ) {
+		loopCounter++
+		this.testInit ( loopCounter ) // will enable locks
+
+		if ( loopCounter > batchSize || isShuttingDown || remain < 1 ) {
 			this.testStop()
 			runcb( cb )
+			this.quit(1, "test complete")
 			return false
 		}
 
@@ -4348,7 +4389,6 @@ class AminoSeeNoEvil {
 		}
 
 
-		this.testInit ( loopCounter ) // will enable locks
 		this.setIsDiskBusy( true )
 		// both kinds is currently making it's own calls to postRenderPoll
 		this.bothKindsTestPattern((cb) => { // renderLock must be true
@@ -4400,12 +4440,12 @@ class AminoSeeNoEvil {
 
 		this.isHilbertPossible = true
 		this.report = false
-		this.errorClock = 0
+		this.errorClock = streamLineNr =  0
 		this.percentComplete = 0.0001
 		this.runningDuration = 1
 		this.focusTriplet = "none"
 		this.ratio = "sqr"
-		this.dimension = magnitude
+		this.dimension = remain = magnitude
 
 		// NON INDEPENDANT VARS. THESE ARE STAND-INS FOR A WAY TO FILTER THE IMAGE BY RED / GREEN / BLUE
 		// IN THIS CASE HAS NOTHING TO DO WITH PEPTIDES :)
@@ -4437,6 +4477,8 @@ class AminoSeeNoEvil {
 		this.estimatedPixels =  this.baseChars
 		this.charClock =  this.baseChars
 		this.pixelClock =  this.baseChars
+		remain = batchSize -  magnitude
+		output(`magnitude ${magnitude} remain ${remain} batchSize ${batchSize}`)
 		return true
 	}
 
@@ -4712,7 +4754,7 @@ class AminoSeeNoEvil {
 					log("drawing again if rendering in " +  this.msPerUpdate )
 				}
 			},  this.msPerUpdate )
-		} else { output("DNA render done or shutting done") }
+		} else { log("update finished") }
 
 		if ( this.updates == false ) {
 			redoline(`${blueWhite( nicePercent(this.percentComplete) )} elapsed: `  + blueWhite(`${ fixedWidth(10, humanizeDuration( this.msElapsed )) }         ${humanizeDuration( this.timeRemain)} remain ${ chalk.bold( this.justNameOfPNG )}`))
@@ -5281,19 +5323,20 @@ function spaceTo_(str) {
 
 function runDemo() {
 	var that = cliInstance
-	async.series( [
-		function( cb ) {
-			newJob("test")
-			cb()
-		},
+	// async.series( [
+	async.waterfall( [
+		// function( cb ) {
+		// 	newJob("test")
+		// 	cb()
+		// },
 		function( cb ) {
 			that.openImage = true
 			that.peptide = "Opal" // Blue TESTS
 			// that.peptide = "Blue" // Blue TESTS
 			that.ratio = "sqr"
-			that.generateTestPatterns()
+			that.generateTestPatterns(cb)
+			output("hello ghello")
 			that.openOutputs()
-			cb()
 		},
 		function( cb ) {
 			that.openOutputs()
@@ -6311,21 +6354,23 @@ function listGenomes() {
 }
 function error(err) {
 	mode(`💩 Error: [${ maxWidth(16,  err)}] ${cliInstance.justNameOfDNA} ${cliInstance.busy()}`)
-	if ( cliInstance.quiet == false ) {
-		output()
-		output( "💩 " + chalk.bgRed(  status  + ` /  error start {{{ ----------- ${ chalk.inverse( err.toString() ) }  ----------- }}} `))
-		output()
-	}
+
 	cliInstance.calcUpdate()
 	if ( debug == true ) {
+		if ( cliInstance.quiet == false ) {
+			output()
+			output( "💩 " + chalk.bgRed(  status  + ` /  error start {{{ ----------- ${ chalk.inverse( err.toString() ) }  ----------- }}} `))
+			output()
+		}
+
 		output(`DEBUG MODE IS ENABLED. STOPPING: ${err}`)
 		// process.exit()
 		throw new Error(err)
 	} else {
 		cliInstance.raceDelay += 250
 		output()
-		output(`💩 Caught error: ${err} INCREASING DELAY BY 250 ms`)
-		output()
+		notQuiet(`💩 Caught error: ${err} INCREASING DELAY BY 250 ms`)
+		output("💩")
 	}
 }
 module.exports.removeLocks = removeLocks
