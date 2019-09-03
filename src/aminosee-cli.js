@@ -5250,8 +5250,9 @@ function destroyKeyboardUI() {
 		process.stdin.setRawMode(false) // back to cooked this.mode
 	} catch(err) {
 		log(`Could not disable raw mode this.keyboard: ${err}`)
+		process.stdin.resume() // DONT EVEN THINK ABOUT IT.
+
 	}
-	// process.stdin.resume(); // DONT EVEN THINK ABOUT IT.
 }
 function ceiling(number) {
 	number = Math.ceil(number) // round into integer
