@@ -2,7 +2,6 @@ const wideScreen = 140 // shrinks terminal display
 const windows7 = 100
 let termDisplayHeight = 17 // the stats about the file etc
 let termHistoHeight = 30 // this histrogram
-
 const radMessage = `
 MADE IN NEW ZEALAND
 ╔═╗┌┬┐┬┌┐┌┌─┐╔═╗┌─┐┌─┐  ╔╦╗╔╗╔╔═╗  ╦  ╦┬┌─┐┬ ┬┌─┐┬─┐
@@ -987,16 +986,16 @@ class AminoSeeNoEvil {
 			this.drawProgress()
 
 
-			if ( remain > 0 ) {
-			          progato = term.progressBar({
-			            width: term.width - 20,
-			            title: `Booting up at ${ formatAMPM( new Date())} on ${hostname}`,
-			            eta: true,
-			            percent: true,
-			            inline: true
-			          })
-			          this.drawProgress()
-			}
+			// if ( remain > 0 ) {
+			//           progato = term.progressBar({
+			//             width: term.width - 20,
+			//             title: `Booting up at ${ formatAMPM( new Date())} on ${hostname}`,
+			//             eta: true,
+			//             percent: true,
+			//             inline: true
+			//           })
+			//           this.drawProgress()
+			// }
 
 		}
 	}
@@ -1621,17 +1620,24 @@ class AminoSeeNoEvil {
 			remain = this.args._.length
 		} catch(err) {
 			remain = 0
+			// return false
+		}
+		if (remain < 1) {
+			mode("Happiness.")
+			data.saySomethingEpic()
+			log(chalk.bgRed.yellow( `R: ${status} ` ))
+			printRadMessage(  status )
+			if ( killServersOnQuit ) {
+				// output("Control-c to stop server")
+				this.quit(1,  status )
+			} else {
+				output("Control-c to stop server")
+				this.quit(0,  status )
+			}
 			return false
 		}
 		this.genomeCanonicalisaton(file)
-		if (remain < 1) {
-			mode("Happiness.")
-			saySomethingEpic()
-			log(chalk.bgRed.yellow( `R: ${status} ` ))
-			printRadMessage(  status )
-			this.quit(0,  status )
-			return false
-		}
+
 		remain = this.args._.length
 		this.setNextFile()
 		if ( remain < 1 ) {
@@ -3416,13 +3422,13 @@ class AminoSeeNoEvil {
 				<script src="https://www.funk.co.nz/aminosee/public/hammer.min.js"></script>
 				-->
 
-				<script async src="../public/three.min.js"></script>
-				<script async src="../public/jquery.min.js"></script>
-				<script async src="../public/hilbert3D.js"></script>
-				<script async src="../public/hilbert2D.js"></script>
-				<script async src="../public/WebGL.js"></script>
-				<script async src="../public/hammer.min.js"></script>
-				<script async src="../public/aminosee-gui-web.js"></script>
+				<script async src="../../public/three.min.js"></script>
+				<script async src="../../public/jquery.min.js"></script>
+				<script async src="../../public/hilbert3D.js"></script>
+				<script async src="../../public/hilbert2D.js"></script>
+				<script async src="../../public/WebGL.js"></script>
+				<script async src="../../public/hammer.min.js"></script>
+				<script async src="../../public/aminosee-gui-web.js"></script>
 
 				<style>
 				border: 1px black;
@@ -4962,38 +4968,6 @@ class AminoSeeNoEvil {
 	//PARSE SOURCE CODE
 	// https://www.npmjs.com/package/parse-apache-directory-index
 	// stream.pipe(tr).pipe(process.stdout);
-	/** https://stackoverflow.com/questions/13786160/copy-folder-recursively-in-node-js/26038979
-			* Look ma, it's cp -R.
-			* @param {string} src The path to the thing to copy.
-			* @param {string} dest The path to the new copy.
-			*/
-	// copyRecursiveSync(src, dest) {
-	//   log(`Will try to recursive copy from ${src} to ${dest}`)
-	//   var exists = doesFileExist(src);
-	//   var stats = exists && fs.statSync(src);
-	//   var isDirectory = exists && stats.isDirectory();
-	//   var existsDest = doesFileExist(dest);
-	//   if (existsDest) {
-	//     log(`Remove the ${dest} folder or file, then I can rebuild the web-server`);
-	//     return false;
-	//   }
-	//   if (exists && isDirectory) {
-	//     var exists = doesFileExist(dest);
-	//     if (exists) {
-	//       log("Remove the /public/ folder and also /index.html, then I can rebuild the web-server");
-	//       return false;
-	//     } else {
-	//       fs.mkdirSync(dest);
-	//     }
-	//     fs.readdirSync(src).forEach(function(childItemName) {
-	//       log(childItemName);
-	//       copyRecursiveSync(path.join(src, childItemName),
-	//       path.join(dest, childItemName));
-	//     });
-	//   } else {
-	//     fs.linkSync(src, dest);
-	//   }
-	// };
 
 
 	imageStack(histogramJson) {
@@ -5649,7 +5623,7 @@ function terminalRGB(_text, _r, _g, _b) {
 	// return chalk.rgb(_r,_g,_b).bgBlack(_text)
 }
 function showCountdown() {
-	countdown(`Closing in ${humanizeDuration(max32bitInteger)}`, 5000, this.gracefulQuit())
+	countdown(`Closing in ${humanizeDuration(max32bitInteger)}`, 5000, this.gracefulQuit(0, "countdown"))
 }
 function countdown(text, timeMs, cb) {
 	if (text == "") { return }
@@ -5826,7 +5800,7 @@ function listDNA() {
 process.on("SIGTERM", () => {
 	let sig = "SIGTERM"
 	output(`Received ${sig} signal (ignoring) ${batchProgress()}`)
-	cliInstance.gracefulQuit()
+	cliInstance.gracefulQuit(0, sig)
 	// cliInstance.destroyProgress();
 	// process.exitCode = 130;
 	// cliInstance.quit(130, "SIGTERM");
@@ -5836,7 +5810,7 @@ process.on("SIGINT", function() {
 	let sig = "SIGINT"
 	output(`Received ${sig} signal`)
 	cliInstance.destroyProgress()
-	cliInstance.gracefulQuit()
+	cliInstance.gracefulQuit(0, sig)
 	process.exitCode = 130
 	cliInstance.quit(130, "SIGINT")
 	setTimeout( () => {

@@ -19,6 +19,8 @@ const defaulturl = "http://localhost:4321"
 const appFilename = require.main.filename //     /bin/aminosee.js is 11 chars
 const defaultPort = 4321
 const backupPort = 43210
+const useSymlinks = false
+
 let debug = false
 let autoStartGui = false
 let starts = -1
@@ -129,6 +131,43 @@ function output(txt) {
 	console.log(txt)
 	// console.log(chalk.bgBlue(" [ " + txt.substring(0, term.width -10  )+ " ]"))
 }
+/** https://stackoverflow.com/questions/13786160/copy-folder-recursively-in-node-js/26038979
+		* Look ma, it's cp -R.
+		* @param {string} src The path to the thing to copy.
+		* @param {string} dest The path to the new copy.
+		*/
+function copyRecursiveSync(src, dest) {
+	log(`Will try to recursive copy from ${src} to ${dest}`)
+	var exists = doesFileExist(src)
+	var stats = exists && fs.statSync(src)
+	var isDirectory = exists && stats.isDirectory()
+	var existsDest = doesFileExist(dest)
+	if (existsDest) {
+		log(`Remove the ${dest} folder or file, then I can rebuild the web-server`)
+		log(chalk.italic( `rm -rfv ${dest}` ))
+		return false
+	} else {
+		output("creating")
+	}
+	if (exists && isDirectory) {
+		exists = doesFileExist(dest)
+		if (exists) {
+			log("Remove the /public/ folder and also /index.html, then I can rebuild the web-server")
+			// return false
+		} else {
+			fs.mkdirSync(dest)
+		}
+		fs.readdirSync(src).forEach(function(childItemName) {
+			log(childItemName)
+			copyRecursiveSync(path.join(src, childItemName),
+				path.join(dest, childItemName))
+		})
+	} else {
+		log("making symlink ")
+		fs.linkSync(src, dest)
+	}
+	log("done")
+}
 
 function buildServer() {
 	const appPath = __dirname
@@ -137,13 +176,14 @@ function buildServer() {
 	data.saySomethingEpic()
 	let sFiles = [
 		{ "source": path.join( appPath, "public" ),                "dest": path.join( webroot , "public"  )},
-		{ "source": path.join( appPath, "public", "aminosee.html"),"dest": path.join( webroot , "index.html")},
-		{ "source": path.join( appPath, "public", "favicon.ico"),  "dest": path.join( webroot , "favicon.ico")}
+		{ "source": path.join( appPath, "aminosee.html"),"dest": path.join( webroot , "index.html")},
+		{ "source": path.join( appPath, "favicon.ico"),  "dest": path.join( webroot , "favicon.ico")}
 	]
 	for (let i=0; i<sFiles.length; i++) {
 		let element = sFiles[i]
 		log(`${element.source} --->> ${element.dest}` )//.toString());
-		createSymlink(path.resolve(element.source), path.resolve(element.dest))
+		// createSymlink(path.resolve(element.source), path.resolve(element.dest))
+		copyRecursiveSync(path.resolve(element.source), path.resolve(element.dest))
 	}
 
 }
@@ -328,6 +368,15 @@ function stop() {
 	} else {
 		try {
 			spawn("killall", ["aminosee.funk.nz_server", "", "0"], { stdio: "pipe" })
+		} catch(err) {
+			if ( err.indexOf("ENOENT") !== -1 ) {
+				output("Unable to shutdown server with 'killall aminosee.funk.nz_server' perhaps this is running on windows? Try task manager")
+			} else {
+				output(`Unknown error: ${err}`)
+			}
+		}
+		try {
+			spawn("killall", ["aminosee.funk.nz_foreground", "", "0"], { stdio: "pipe" })
 		} catch(err) {
 			if ( err.indexOf("ENOENT") !== -1 ) {
 				output("Unable to shutdown server with 'killall aminosee.funk.nz_server' perhaps this is running on windows? Try task manager")
