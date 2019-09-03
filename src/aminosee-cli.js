@@ -706,7 +706,7 @@ class AminoSeeNoEvil {
 			output("force overwrite enabled.")
 			this.force = true
 		}
-		if ( args.file || args.explorer || args.x || args.finder) {
+		if ( args.explorer || args.finder) {
 			output("will open folder in File Manager / Finder / File Explorer when done.")
 			this.openFileExplorer = true
 		} else {
@@ -857,14 +857,14 @@ class AminoSeeNoEvil {
 			}
 			output("AminoSee has been slowed to " + blueWhite( this.raceDelay ))
 		} else {
-			this.raceDelay -= 1000 // if you turn devmode on and off a lot it will slow down
-			this.verbose = false
-			this.updates = true
-			this.clear = true
+			// this.raceDelay -= 1000 // if you turn devmode on and off a lot it will slow down
+			// this.verbose = false
+			// this.updates = true
+			// this.clear = true
 			// this.openHtml = true
 			// this.openImage = true
-			this.openFileExplorer = true
-			termDisplayHeight--
+			// this.openFileExplorer = true
+			// termDisplayHeight--
 		}
 		///////////////////////////////////////////
 		quiet = this.quiet
