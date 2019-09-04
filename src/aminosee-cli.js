@@ -640,10 +640,12 @@ class AminoSeeNoEvil {
 		if ( this.peptide == "none" && this.triplet == "none") {
 			this.isHighlightSet = false
 			this.index = true // disable html report
+			this.report = true
 		} else {
 			output(`Peptide  ${ chalk.inverse(this.focusPeptide) } triplet ${ chalk.inverse( this.triplet )}`)
 			this.isHighlightSet = true
 			this.index = false // disable html report
+			this.report = false
 		}
 		if ( args.artistic || args.art || args.a) {
 			output(`Artistic mode enabled. Colours are blended at a lower resolution and then spread out in columns for effect. It is faded across ${ artisticHighlightLength } pixels horizontally.`)
