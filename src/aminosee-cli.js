@@ -5658,6 +5658,8 @@ function showCountdown() {
 	countdown(`Closing in ${humanizeDuration(max32bitInteger)}`, 5000, this.gracefulQuit(0, "countdown"))
 }
 function countdown(text, timeMs, cb) {
+	runcb(cb)
+	return false
 	if (text == "") { return }
 	let msg =  chalk.rgb(100,140,180)( "@ " + text + humanizeDuration ( deresSeconds(timeMs)))
 	if ( this.quiet ) {
