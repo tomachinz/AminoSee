@@ -98,7 +98,7 @@ const targetPixels = 4660000 // for big genomes use setting flag -c 1 to achieve
 // BigInt.prototype.toJSON = function() { return this.toString(); }; // shim for big int
 // BigInt.prototype.toBSON = function() { return this.toString(); }; // Add a `toBSON()` to enable MongoDB to store BigInts as strings
 let autoStartGui = true
-let cfile, streamLineNr, renderLock, jobArgs, killServersOnQuit, webserverEnabled, cliInstance, tx, ty, termPixels, cliruns, gbprocessed, projectprefs, userprefs, genomesRendered, progato, commandString, batchSize, quiet, url, port, status, remain, lastHammered, darkenFactor, highlightFactor, loopCounter, webroot, tups,  opensFile , opensHtml , opensImage
+let cfile, streamLineNr, renderLock, jobArgs, killServersOnQuit, webserverEnabled, cliInstance, tx, ty, termPixels, cliruns, gbprocessed, projectprefs, userprefs, genomesRendered, progato, commandString, batchSize, quiet, url, port, status, remain, lastHammered, darkenFactor, highlightFactor, loopCounter, webroot, tups,  opensFile , opensHtml , opensImage, previousImage
 // let theGUI
 tups = opensFile = opensHtml = opensImage = 0 // terminal flossing
 let opens = 0 // session local counter to avoid having way too many windows opened.
@@ -1260,6 +1260,7 @@ class AminoSeeNoEvil {
 			this.setupLinearNames() // will not include Hilbert file name. Need to wait until after render and calcHilbertFilenames
 		}
 		this.rgbArray = []
+		this.antiAliasArray = []
 		for (let h=0; h< this.pepTable.length; h++) {
 			this.pepTable[h].Histocount = 0
 			this.pepTable[h].z = h
@@ -1477,8 +1478,8 @@ class AminoSeeNoEvil {
 
 	}
 	toggleForce() {
-		this.force = !force
-		log(`force overwrite ${force}`)
+		this.force = !this.force
+		log(`force overwrite ${this.force}`)
 	}
 
 	toggleClearScreen() {
@@ -1983,7 +1984,7 @@ class AminoSeeNoEvil {
 					output(`streaming start ${err}`)
 				})
 				.on("error", function(err){
-					mode(`stream error ${err} file: ${this.dnafile}`)
+					mode(`stream error ${err} file: ${this.dnafile} closure ${closure}`)
 					error( `R: ${status} ` )
 					// output(`while starting stream: [${ closure }] renderLock: [${ renderLock}] storage: [${this.storage()}]`);
 				})
@@ -2629,9 +2630,6 @@ class AminoSeeNoEvil {
 		if (this.test) { // the calibration generates its own image
 			this.shrinkFactor = 1
 		} else { // regular DNA processing
-			cliruns = userprefs.aminosee.cliruns
-			// output(`			cliruns = userprefs.aminosee.cliruns: ${cliruns} ${userprefs}`)
-			// cliruns++
 			userprefs.aminosee.cliruns++ // = cliruns // increment run counter. for a future high score table stat and things maybe.
 			cliruns = userprefs.aminosee.cliruns
 			gbprocessed  = userprefs.aminosee.gbprocessed
@@ -2647,9 +2645,11 @@ class AminoSeeNoEvil {
 		let { shrinkFactor, codonsPerPixelHILBERT } = calculateShrinkage( this.pixelClock, this.dimension, this.codonsPerPixel )
 		this.shrinkFactor = shrinkFactor
 		this.codonsPerPixelHILBERT =  codonsPerPixelHILBERT
-
-		this.prepareHilbertArray()
+		this.savePNG( () => {
+			log("master linear done")
+		})
 		this.calcHilbertFilenames()
+		this.prepareHilbertArray()
 		this.fancyFilenames()
 		this.mkRenderFolders()
 		mode("main render async.series")
@@ -2658,11 +2658,15 @@ class AminoSeeNoEvil {
 
 		// async.waterfall( [
 		async.series( [
-			//
 			function ( cb ) {
 				mode("async start " + cliInstance.currentFile)
-				cliInstance.savePNG( cb )
-
+				cliInstance.savePNG(cb)
+				log(status)
+				// runcb(cb)
+			},
+			function ( cb ) {
+				mode("zxcv " + cliInstance.currentFile)
+				cliInstance.savePNG(cb)
 				log(status)
 				// runcb(cb)
 			},
@@ -3102,7 +3106,7 @@ class AminoSeeNoEvil {
 			// build a three digit triplet one char at a time
 			let c = cleanChar(l.charAt(column)) // has to be ATCG or a . for cleaned chars and line breaks
 			this.charClock++
-			while ( c == "." && c == "N") { // biff it and get another
+			while ( c == "." && c !== "N") { // biff it and get another
 				// ERROR DETECTING
 				// IMPLMENTED AFTER ENABLEDING "N" TO AFFECT THE IMAGE
 				// ITS AT THE STAGE WHERE IT CAN EAT ANY FILE WITH DNA
@@ -3112,18 +3116,18 @@ class AminoSeeNoEvil {
 				c = cleanChar(l.charAt(column)) // line breaks
 				this.charClock++
 				this.errorClock++
-				this.red  = 0
-				this.green = 0
-				this.blue  = 0
-				this.alpha = 0
+				// this.red  = 0
+				// this.green = 0
+				// this.blue  = 0
+				// this.alpha = 0
 				if (column > lineLength) {
 					this.breakClock++
 					break
 				}
 			}
 			triplet += c // add the base to triplet the working triplet memory
+			this.currentTriplet = triplet
 			if (triplet == "..." || triplet == "NNN") {
-				// this.focusTriplet = triplet
 				this.pepTable.find("Non-coding NNN").Histocount++
 				if (triplet == "NNN" ) {
 					// this.alpha = 255
@@ -3138,7 +3142,6 @@ class AminoSeeNoEvil {
 				triplet=""
 				this.errorClock++
 			} else if (triplet.length ==  3) {
-				this.currentTriplet = triplet
 				this.aminoacid = tripletToAminoAcid( triplet )
 				this.pixelStacking++
 				this.genomeSize++
@@ -3783,7 +3786,7 @@ class AminoSeeNoEvil {
 		bugtxt( this.justNameOfDNA)
 		let hilpix = hilbPixels[ this.dimension ]
 
-		this.resampleByFactor( this.shrinkFactor )
+		this.antiAliasArray = this.resampleByFactor( this.shrinkFactor )
 
 		this.hWidth = Math.sqrt(hilpix)
 		this.hHeight  = this.hWidth
@@ -3840,8 +3843,6 @@ class AminoSeeNoEvil {
 			}
 		}
 		log("Done projected 100% of " + hilpix.toLocaleString())
-
-
 	}
 
 
@@ -4492,7 +4493,6 @@ class AminoSeeNoEvil {
 
 	// this will destroy the main array by first upsampling then down sampling
 	resampleByFactor( shrinkX ) {
-		this.shrinkFactor = shrinkX
 		let sampleClock = 0
 		let brightness = 1/ shrinkX
 		let downsampleSize = hilbPixels[ this.dimension ] // 2X over sampling high grade y'all!
@@ -4524,7 +4524,8 @@ class AminoSeeNoEvil {
 			}
 			sampleClock++
 		}
-		this.rgbArray = antiAliasArray
+		// this.rgbArray = antiAliasArray
+		return antiAliasArray
 	}
 
 
@@ -4973,7 +4974,7 @@ class AminoSeeNoEvil {
 
 				if ( this.isHighlightSet ) {
 					if (this.aminoacid == this.focusPeptide ) {
-						this.alpha = 220
+						this.alpha = 255
 					} else {
 						this.alpha = 16 // non highlight alpha makes them almost fully translucent
 					}
@@ -6192,14 +6193,14 @@ function calculateShrinkage( linearpix, dim, cpp ) { // danger: can change this.
 	// it will choose a hilbert dimension
 	// and return the shrinkage factor, codons per pixel hilbert
 	let dimension, hilpix, codonsPerPixelHILBERT, shrinkFactor
-	let computerWants = optimumDimension (linearpix, "auto")
+	let bestFit = optimumDimension (linearpix, "auto")
 
-	if ( computerWants > defaultMagnitude ) {
-		output(`This genome could be output at a higher resolution of ${hilbPixels[computerWants].toLocaleString()} than the default of ${computerWants}, you could try -m 8 or -m 9 if your machine is muscular, but it might core dump. -m10 would be 67,108,864 pixels but node runs out of stack before I get there on my 16 GB macOS. -Tom.`)
+	if ( bestFit > defaultMagnitude ) {
+		output(`This genome could be output at a higher resolution of ${hilbPixels[bestFit].toLocaleString()} than the default of ${bestFit}, you could try -m 8 or -m 9 if your machine is muscular, but it might core dump. -m10 would be 67,108,864 pixels but node runs out of stack before I get there on my 16 GB macOS. -Tom.`)
 		dimension = defaultMagnitude
-	} else if (computerWants < 2) {
+	} else if (bestFit < 2) {
 		  dimension = 2 // its an array index
-			let msg = "That image is too small to make an image out of?"
+			let msg = `That image is too small to make an image out of: ${linearpix}`
 			output(blueWhite(msg))
 			cliInstance.slowSkipNext(msg)
 			return false
@@ -6208,7 +6209,7 @@ function calculateShrinkage( linearpix, dim, cpp ) { // danger: can change this.
 	if ( this.magnitude == "custom" ) {
 		dimension = this.dimension // users choice over ride all this nonsense
 	} else {
-		  dimension = computerWants // give him what he wants
+		dimension = bestFit // give him what he wants
 	}
 
 
@@ -6216,7 +6217,7 @@ function calculateShrinkage( linearpix, dim, cpp ) { // danger: can change this.
 	shrinkFactor = linearpix / hilpix // THE GUTS OF IT
 	codonsPerPixelHILBERT = cpp * shrinkFactor
 	this.codonsPerPixelHILBERT = codonsPerPixelHILBERT
-	log(`shrinkFactor [${shrinkFactor}] codons per pixel [${cpp}]`)
+	output(`bestFit ${bestFit} shrinkFactor [${shrinkFactor}] codons per pixel [${codonsPerPixelHILBERT}]`)
 	return {
 		shrinkFactor: shrinkFactor,
 		codonsPerPixelHILBERT: codonsPerPixelHILBERT
