@@ -891,9 +891,9 @@ class AminoSeeNoEvil {
 			output(chalk.green(`${chalk.underline("Job items Ω ")} ${batchProgress()} ` ))
 			log(this.outputPath)
 			this.dnafile = args._.toString()
-			// this.skipQueueNextFile()
+			// this.slowSkipNext()
 
-			// this.resetAndPop("first command")
+			// this.fastReset("first command")
 			if ( !this.test ) {
 				this.pollForStream()
 			}
@@ -1636,7 +1636,7 @@ class AminoSeeNoEvil {
 			log("test is in look for work?")
 			return false
 		}
-		mode(`Checking file ${batchProgress()}`)
+		mode(`Validating file ${batchProgress()}`)
 		if ( this.isStorageBusy ) {
 			error(`thread re-entry in prepare state ${this.justNameOfPNG}`)
 			return false
@@ -1662,38 +1662,51 @@ class AminoSeeNoEvil {
 			}
 			return false
 		}
-		this.genomeCanonicalisaton(file)
 
-		remain = this.args._.length
-		this.setNextFile()
-		if ( remain < 1 ) {
-			log(  " Finito: " + reason )
-			setTimeout( () => {
-				if ( !renderLock ) {
-					this.quit(1, "Finito Hombre" )
-				}
-			}, this.raceDelay )
-			return true
-		}
+		mode(`Checking file ${batchProgress()}`)
+
+
+
+		// if ( remain < 1 ) {
+		// 	log(  " Finito: " + reason )
+		// 	setTimeout( () => {
+		// 		if ( !renderLock ) {
+		// 			this.quit(1, "Finito Hombre" )
+		// 		}
+		// 	}, this.raceDelay )
+		// 	return true
+		// }
 		if ( file.indexOf("...") !== -1) {
 			mode( "Cant use files with three dots in the file ... (for some reason?)")
-			this.resetAndPop( status )
+			this.fastReset( status )
 			return false
 		}
 		if ( file === undefined) {
 			mode("undefined after resolve: " + file)
-			this.resetAndPop( status )
+			this.fastReset( status )
+			return false
+		}
+		this.genomeCanonicalisaton(file)
+
+		if ( fileSystemChecks(this.dnafile )  == false ) {
+			mode(`failed filesystem check: ${this.dnafile}`)
+			this.fastReset( `R: ${status} ` )
 			return false
 		}
 
-
+		this.genomeCanonicalisaton(file)
+		remain = this.args._.length
+		this.setNextFile()
 		this.currentFile = file
+
 		let msg =  `Checking job ${ batchProgress() }: ${ blueWhite(  this.highlightOrNothin() )} ${fixedWidth(tx /2, file)} verbose`
+
 		if ( this.verbose ) {
 			output(msg)
 		} else {
 			redoline(msg)
 		}
+
 		try {
 			this.dnafile = path.resolve( file )
 		} catch(err) {
@@ -1701,17 +1714,13 @@ class AminoSeeNoEvil {
 			if ( this.verbose ) {
 				redoline(status)
 			}
-			this.resetAndPop( status )
+			this.fastReset( status )
 			return false
 		}
 
 
 
-		if ( fileSystemChecks(this.dnafile )  == false ) {
-			mode(`failed filesystem check: ${this.dnafile}`)
-			this.resetAndPop( `R: ${status} ` )
-			return false
-		}
+
 
 		this.currentFile = file
 		this.dnafile = path.resolve(file)
@@ -1731,7 +1740,7 @@ class AminoSeeNoEvil {
 
 		if ( file == funknzlabel ) {
 			error("funknzlabel")
-			this.resetAndPop("funknzlabel " + file)
+			this.fastReset("funknzlabel " + file)
 			return false
 		}
 
@@ -1744,14 +1753,14 @@ class AminoSeeNoEvil {
 		if ( this.dnafile === undefined || this.currentFile === undefined) {
 			reason = "dnafile === undefined"
 			mode(reason)
-			this.resetAndPop(reason)
+			this.fastReset(reason)
 			return false
 		}
 
 		if ( isShuttingDown == false && remain <= 0 ) { this.quit(0, "ran out of files to process") }
 		if ( this.test ) { log("RETURNING FALSE"); return false }
 		if ( this.currentFile == funknzlabel) { // maybe this is to get past my lack of understanding of processing of this.args.
-			this.skipQueueNextFile("For some odd reason... yeah Im gonna get back to you on that unset variable")
+			this.slowSkipNext("For some odd reason... yeah Im gonna get back to you on that unset variable")
 			return false
 		}
 		if ( this.demo == true ) {
@@ -1764,7 +1773,7 @@ class AminoSeeNoEvil {
 			notQuiet( msg )
 			log( `Must be one of ${ extensions }`)
 			if ( remain > 0 && !renderLock) {
-				this.resetAndPop(msg)
+				this.fastReset(msg)
 			} else {
 				error("Bargle!")
 			}
@@ -1779,17 +1788,17 @@ class AminoSeeNoEvil {
 			log(`Pushing folder for processing... ${asterix} (disabled)`)
 			// pushCli(asterix);
 			// })
-			// this.skipQueueNextFile(msg)
-			this.resetAndPop(msg)
+			// this.slowSkipNext(msg)
+			this.fastReset(msg)
 			return false
 		}
 
 		if (doesFileExist(this.dnafile ) == false) {
-			this.resetAndPop(`${this.dnafile }  No File Found`)
+			this.fastReset(`${this.dnafile }  No File Found`)
 			return false
 		}
 		if (charAtCheck(this.dnafile ) == false) {
-			this.resetAndPop("charAtCheck returned false: "+ this.dnafile )
+			this.fastReset("charAtCheck returned false: "+ this.dnafile )
 			return false
 		}
 
@@ -1805,20 +1814,20 @@ class AminoSeeNoEvil {
 
 		if (this.extension == "zip") {
 			// streamingZip(this.dnafile )
-			this.skipQueueNextFile(`${this.dnafile }  ZIP file`)
+			this.slowSkipNext(`${this.dnafile }  ZIP file`)
 			return false
 		}
 		if ( this.checkFileExtension( this.currentFile ) == false)  {
 			msg = `File Format not supported: (${ this.getFileExtension( this.currentFile)}) Please try: ${ extensions }`
 			mode(msg)
 			log( msg )
-			this.skipQueueNextFile(msg)
+			this.slowSkipNext(msg)
 			return false
 		}
 		if (doesFolderExist(this.dnafile ) ) {
 			msg = `${this.currentFile} is a folder not a file, will try to re-issue job as ${this.currentFile}/* to process all in dir`
 			// pushCli( `${basename( this.currentFile )}/*` );
-			this.skipQueueNextFile(msg)
+			this.slowSkipNext(msg)
 			return true
 		}
 
@@ -1829,7 +1838,7 @@ class AminoSeeNoEvil {
 			log(msg)
 			if ( this.force == false ) {
 				this.openOutputs()
-				this.skipQueueNextFile(msg)
+				this.slowSkipNext(msg)
 				return false
 			}
 			log("But lets render it again...")
@@ -1843,7 +1852,7 @@ class AminoSeeNoEvil {
 			mode(msg + this.justNameOfPNG)
 			setTimeout( () => {
 				if ( renderLock == false ) {
-					this.skipQueueNextFile(msg)
+					this.slowSkipNext(msg)
 				} else {
 					log("thread was inside check locks")
 				}
@@ -1898,7 +1907,7 @@ class AminoSeeNoEvil {
 	//   stream.pipe(getX).pipe(process.stdout);        /* 5 */
 	//   return stream;
 	// }
-	resetAndPop(reason){
+	fastReset(reason){
 		mode(`RESET JOB ${batchProgress()} Reason ${reason} Storage: (${ this.storage()} ${ this.busy()}) current: ${ this.currentFile } next: ${ this.nextFile}`)
 		status = maxWidth( tx / 2, status)
 		if ( renderLock ) { error("draining threads from reset"); return false }
@@ -1916,10 +1925,11 @@ class AminoSeeNoEvil {
 			if ( renderLock) {
 				output("not resetting")
 			} else{
-				this.destroyProgress()
-				destroyKeyboardUI()
-				isShuttingDown = true
-				this.quit(0, " resetting " + reason)
+				this.gracefulQuit(0, "fast reset")
+				// this.destroyProgress()
+				// destroyKeyboardUI()
+				// isShuttingDown = true
+				// this.quit(0, " resetting " + reason)
 			}
 
 			return false
@@ -1942,7 +1952,7 @@ class AminoSeeNoEvil {
 		if ( isShuttingDown == true ) { output(`Shutting down after this render ${ blueWhite(this.justNameOfPNG)}`) }
 		if ( renderLock == false) {
 			error("RENDER LOCK FAILED. This is an  error I'd like reported. Please run with --devmode option enabled and send the logs to aminosee@funk.co.nz")
-			this.resetAndPop("render lock failed inside initStream")
+			this.fastReset("render lock failed inside initStream")
 			return false
 		}
 		// term.down( termDisplayHeight /4)
@@ -2221,7 +2231,7 @@ class AminoSeeNoEvil {
 				}
 			} else {
 				let msg = "Not enough pixels to form image"
-				this.resetAndPop(msg)
+				this.fastReset(msg)
 				return false
 			}
 		}
@@ -2627,7 +2637,7 @@ class AminoSeeNoEvil {
 			renderLock = false
 			setTimeout( () => {
 				if ( !renderLock ) {
-					this.resetAndPop(msg)
+					this.fastReset(msg)
 				} else{
 					error(msg)
 				}
@@ -2642,7 +2652,7 @@ class AminoSeeNoEvil {
 				if ( !renderLock ) {
 					mode(`${batchProgress()} Either there is too little DNA in this file for render at ${ this.codonsPerPixel } codons per pixel, or less than 64 pixels rendered: ${pixels} pixels rendered from ${ this.currentFile }` )
 					deleteFile( this.fileTouch )
-					this.resetAndPop( `R: ${status} ` )
+					this.fastReset( `R: ${status} ` )
 				} else {
 					output("DRAINING surplus thread...")
 				}
@@ -2681,32 +2691,32 @@ class AminoSeeNoEvil {
 		this.mkRenderFolders()
 		mode("main render async.series")
 
-		var that = this // closure
+		// var that = this // closure
 
 		// async.waterfall( [
 		async.series( [
 			//
 			function ( cb ) {
 				mode("async start " + cliInstance.currentFile)
-				that.savePNG( cb )
+				cliInstance.savePNG( cb )
 
 				log(status)
 				// runcb(cb)
 			},
 			function ( cb ) {
-				that.saveHilbert( cb )
+				cliInstance.saveHilbert( cb )
 			},
 			function ( cb ) {
-				that.saveHTML( cb )
+				cliInstance.saveHTML( cb )
 				// cb()
 			}
 		])
-			.exec( function( error, results ) {
+			.exec( function( error ) {
 				cliInstance.setNextFile()
-				output( "Saving complete............... next: " + that.nextFile )
+				output( "Saving complete............... next: " + cliInstance.nextFile )
 				setTimeout( () => {
-					that.postRenderPoll("End of async.series")
-				}, that.raceDelay)
+					cliInstance.postRenderPoll("End of async.series")
+				}, cliInstance.raceDelay)
 
 				if ( error ) { log( "Doh! " + error )  }
 			})
@@ -2881,31 +2891,33 @@ class AminoSeeNoEvil {
 	fileBug(err) {
 		bugtxt(err + " the file was: " + this.currentFile)
 	}
-	static deleteFile(file) {
-		try {
-			fs.unlinkSync(file, (err) => {
-				bugtxt("Removing file OK...")
-				if (err) { fileBug(err)  }
-			})
-		} catch (err) {
-			fileBug(err)
-		}
-	}
+	// static deleteFile(file) {
+	// 	try {
+	// 		fs.unlinkSync(file, (err) => {
+	// 			bugtxt("Removing file OK...")
+	// 			if (err) { fileBug(err)  }
+	// 		})
+	// 	} catch (err) {
+	// 		fileBug(err)
+	// 	}
+	// }
 
 
 
-	skipQueueNextFile( reason ) { // CAN ONLY RUN WHEN IDLE
+	slowSkipNext( reason ) { // CAN ONLY RUN WHEN IDLE
 		output( `${batchProgress()} skipping: ${chalk.italic(reason)}`)
-		renderLock = false
+
+		if (renderLock) { error(`${batchProgress()} thread inside slow skip next`) ; return false }
+
 		setTimeout( () => {
 			if ( !renderLock ) {
 				mode("SKIPPING "+ this.currentFile )
-				this.resetAndPop( `R: ${status} ` )
+				this.fastReset( `R: ${status} ` )
 			} else {
-				error("thread inside skip") ; return false
+				error("thread activated inside slow skip") ; return false
 				// output("DRAINING surplus thread...")
 			}
-		}, this.raceDelay + 1)
+		}, this.raceDelay)
 
 	}
 	postRenderPoll(reason) { // renderLock on late, off early
@@ -2964,7 +2976,7 @@ class AminoSeeNoEvil {
 				setTimeout( () => {
 					let msg = `Great success with render of (${this.justNameOfDNA})`
 					notQuiet(msg)
-					this.resetAndPop(msg)
+					this.fastReset(msg)
 				}, this.raceDelay )
 			}
 		} else {
@@ -2980,7 +2992,7 @@ class AminoSeeNoEvil {
 			let msg = "File not found: " + file
 			mode(msg)
 			output( chalk.inverse(msg) )
-			this.resetAndPop(msg)
+			this.fastReset(msg)
 			return -1 // -1 is signal for failure or unknown size (stream).
 		}
 	}
@@ -4064,7 +4076,7 @@ class AminoSeeNoEvil {
 			pix = ( this.rgbArray.length / 4)
 		}
 		catch (err) {
-			this.resetAndPop(`NOT ENOUGH PIXELS ${err}`)
+			this.fastReset(`NOT ENOUGH PIXELS ${err}`)
 			return false
 		}
 
@@ -4109,7 +4121,7 @@ class AminoSeeNoEvil {
 		} else {
 			let msg = `MEGA FAIL: TOO MANY ARRAY PIXELS NOT ENOUGH IMAGE SIZE: array pixels: ${pix} <  width x hite = ${wid * hite}`
 			error(msg)
-			this.resetAndPop(msg)
+			this.fastReset(msg)
 			return false
 		}
 		let a =  [ pix, wid, hite ]
@@ -5610,7 +5622,7 @@ function basename(f) {
 
 function fileSystemChecks(file) { // make sure file is writable or folder exists etc
 	let problem = false
-	let name = basename(file)
+	let name = basename( path.resolve(file))
 	let msg = `Stats for file ${name}` + lineBreak
 	if (file === undefined) { return false }
 	if (!doesFileExist(file)) {
