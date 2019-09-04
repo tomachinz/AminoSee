@@ -1733,14 +1733,11 @@ class AminoSeeNoEvil {
 			log("Success")
 		} else {
 			error("That's weird. Couldn't create a writable output folder at: " + this.outputPath + ". You can set custom output path with --output=~/newpath")
+			this.slowSkipNext("no write permission")
 		}
-
-
-
-
 		if ( file == funknzlabel ) {
 			error("funknzlabel")
-			this.fastReset("funknzlabel " + file)
+			this.slowSkipNext("funknzlabel " + file)
 			return false
 		}
 
@@ -1753,16 +1750,16 @@ class AminoSeeNoEvil {
 		if ( this.dnafile === undefined || this.currentFile === undefined) {
 			reason = "dnafile === undefined"
 			mode(reason)
-			this.fastReset(reason)
+			this.slowSkipNext(reason)
 			return false
 		}
 
 		if ( isShuttingDown == false && remain <= 0 ) { this.quit(0, "ran out of files to process") }
 		if ( this.test ) { log("RETURNING FALSE"); return false }
-		if ( this.currentFile == funknzlabel) { // maybe this is to get past my lack of understanding of processing of this.args.
-			this.slowSkipNext("For some odd reason... yeah Im gonna get back to you on that unset variable")
-			return false
-		}
+		// if ( this.currentFile == funknzlabel) { // maybe this is to get past my lack of understanding of processing of this.args.
+		// 	this.slowSkipNext("For some odd reason... yeah Im gonna get back to you on that unset variable")
+		// 	return false
+		// }
 		if ( this.demo == true ) {
 			output("demo mode (disabled?)")
 			// runDemo()
@@ -1794,7 +1791,7 @@ class AminoSeeNoEvil {
 		}
 
 		if (doesFileExist(this.dnafile ) == false) {
-			this.fastReset(`${this.dnafile }  No File Found`)
+			this.fastReset(`${this.dnafile } No File Found`)
 			return false
 		}
 		if (charAtCheck(this.dnafile ) == false) {
@@ -1814,14 +1811,16 @@ class AminoSeeNoEvil {
 
 		if (this.extension == "zip") {
 			// streamingZip(this.dnafile )
-			this.slowSkipNext(`${this.dnafile }  ZIP file`)
+			renderLock = false
+			this.fastReset(`${this.dnafile }  ZIP file`)
 			return false
 		}
 		if ( this.checkFileExtension( this.currentFile ) == false)  {
 			msg = `File Format not supported: (${ this.getFileExtension( this.currentFile)}) Please try: ${ extensions }`
 			mode(msg)
 			log( msg )
-			this.slowSkipNext(msg)
+			renderLock = false
+			this.fastReset(msg)
 			return false
 		}
 		if (doesFolderExist(this.dnafile ) ) {
@@ -1838,7 +1837,8 @@ class AminoSeeNoEvil {
 			log(msg)
 			if ( this.force == false ) {
 				this.openOutputs()
-				this.slowSkipNext(msg)
+				renderLock = false
+				this.fastReset(msg)
 				return false
 			}
 			log("But lets render it again...")
@@ -1846,17 +1846,10 @@ class AminoSeeNoEvil {
 		if ( this.checkLocks( this.fileTouch )) {
 			let msg = "Render already in progress by another thread "
 			output(msg +  blueWhite( path.normalize( this.justNameOfPNG ))) // <---  another node maybe working on, NO RENDER
+			mode(msg + this.justNameOfPNG)
 			log("Use --force or delete this file with:")
 			log( chalk.italic(`rm ${path.normalize( this.fileTouch )}`) )
-			renderLock = false
-			mode(msg + this.justNameOfPNG)
-			setTimeout( () => {
-				if ( renderLock == false ) {
-					this.slowSkipNext(msg)
-				} else {
-					log("thread was inside check locks")
-				}
-			}, this.raceDelay)
+			this.slowSkipNext(msg)
 			return false
 		}
 
@@ -1870,6 +1863,7 @@ class AminoSeeNoEvil {
 				this.touchLockAndStartStream() // <<<<------------- THIS IS WHERE MAGIC STARTS!!!!
 			} else {
 				error("thread was acting dodgy around my lock file!")
+				this.slowSkipNext( "end of poll")
 			}
 		}, this.raceDelay)
 
@@ -1952,7 +1946,7 @@ class AminoSeeNoEvil {
 		if ( isShuttingDown == true ) { output(`Shutting down after this render ${ blueWhite(this.justNameOfPNG)}`) }
 		if ( renderLock == false) {
 			error("RENDER LOCK FAILED. This is an  error I'd like reported. Please run with --devmode option enabled and send the logs to aminosee@funk.co.nz")
-			this.fastReset("render lock failed inside initStream")
+			this.slowSkipNext("render lock failed inside initStream")
 			return false
 		}
 		// term.down( termDisplayHeight /4)
@@ -2009,7 +2003,7 @@ class AminoSeeNoEvil {
 					output(`streaming start ${err}`)
 				})
 				.on("error", function(err){
-					mode(`stream error ${err}`)
+					mode(`stream error ${err} file: ${this.dnafile}`)
 					output( `R: ${status} ` )
 					// output(`while starting stream: [${ closure }] renderLock: [${ renderLock}] storage: [${this.storage()}]`);
 				})
@@ -2033,11 +2027,7 @@ class AminoSeeNoEvil {
 		}
 
 		// output("FINISHED INIT " + that.howMany);
-		// clearCheck();
-		term.eraseDisplayBelow()
-		setTimeout( () => {
-			if ( renderLock == true ) { this.drawHistogram() }
-		}, this.raceDelay)
+
 	}
 	initialiseArrays() {
 		if ( brute == false) { return false }
@@ -2101,21 +2091,16 @@ class AminoSeeNoEvil {
 		// output(`Started ${ ( this.force ? 'forced ' : '' ) }render of ${this.justNameOfPNG} next is ${this.nextFile}`);
 		this.progUpdate({ title: "DNA File Render step 1/3", items: remain, syncMode: true })
 		setTimeout(() => {
-
-
+			clearCheck()
+			term.eraseDisplayBelow()
 			if ( renderLock == true ) {
 				this.manageLocks(fileLockingDelay)
-				// if ( this.quiet == false) {
 				this.drawHistogram()
-				// } else {
-				// 	output( blueWhite( `rendering pixel number ${ this.pixelClock.toLocaleString() } of an estimated ${ this.estimatedPixels.toLocaleString() }` ))
-				// }
 			} else {
 				log(`render of ${ this.justNameOfPNG } completed`)
 				killAllTimers()
 			}
 		}, fileLockingDelay)
-
 	}
 	manageLocks(time) {
 		if ( this.lockTimer !== undefined) { clearTimeout(this.lockTimer) }
@@ -2126,7 +2111,7 @@ class AminoSeeNoEvil {
 			if ( renderLock == true ) {
 				that.fastUpdate()
 				if (  that.percentComplete < 0.9 &&  that.timeRemain > 20000 ) { // helps to eliminate concurrency issues
-					that.mkRenderFolders()
+					that.mkRenderFolders("manage locks")
 					that.tLock()
 					if (time < 60001) { time + 5000 }
 					that.manageLocks(time)
@@ -2231,7 +2216,7 @@ class AminoSeeNoEvil {
 				}
 			} else {
 				let msg = "Not enough pixels to form image"
-				this.fastReset(msg)
+				this.slowSkipNext(msg)
 				return false
 			}
 		}
@@ -2577,13 +2562,13 @@ class AminoSeeNoEvil {
 		}
 	}
 
-	mkRenderFolders() {
+	mkRenderFolders(reason) {
 		log(`Making render folders for ${ this.filePNG}`)
 		this.mkdir() // create the webroot dir if it not exist
 		this.mkdir( "output" )
 		this.mkdir( path.join( "output", this.justNameOfDNA ) ) // genome render dir
 		this.mkdir( path.join( "output", this.justNameOfDNA, "images" ) ) // genome render dir
-		log(`Done making render folders for ${ this.justNameOfDNA}`)
+		log(`Done making render folders for ${ this.justNameOfDNA} ${reason}`)
 	}
 	fancyFilenames() {
 		term.up(9)
@@ -2635,13 +2620,7 @@ class AminoSeeNoEvil {
 			rollbackFolder( path.resolve( this.outputPath, this.justNameOfDNA) )
 			error(msg)
 			renderLock = false
-			setTimeout( () => {
-				if ( !renderLock ) {
-					this.fastReset(msg)
-				} else{
-					error(msg)
-				}
-			}, this.raceDelay )
+			this.slowSkipNext(msg)
 			return false
 		}
 		if ( pixels < 64) {
@@ -2652,7 +2631,7 @@ class AminoSeeNoEvil {
 				if ( !renderLock ) {
 					mode(`${batchProgress()} Either there is too little DNA in this file for render at ${ this.codonsPerPixel } codons per pixel, or less than 64 pixels rendered: ${pixels} pixels rendered from ${ this.currentFile }` )
 					deleteFile( this.fileTouch )
-					this.fastReset( `R: ${status} ` )
+					this.slowSkipNext( `R: ${status} ` )
 				} else {
 					output("DRAINING surplus thread...")
 				}
@@ -2906,9 +2885,8 @@ class AminoSeeNoEvil {
 
 	slowSkipNext( reason ) { // CAN ONLY RUN WHEN IDLE
 		output( `${batchProgress()} skipping: ${chalk.italic(reason)}`)
-
-		if (renderLock) { error(`${batchProgress()} thread inside slow skip next`) ; return false }
-
+		// if (renderLock) { error(`${batchProgress()} thread inside slow skip next`) ; return false }
+		renderLock = false
 		setTimeout( () => {
 			if ( !renderLock ) {
 				mode("SKIPPING "+ this.currentFile )
@@ -2976,7 +2954,8 @@ class AminoSeeNoEvil {
 				setTimeout( () => {
 					let msg = `Great success with render of (${this.justNameOfDNA})`
 					notQuiet(msg)
-					this.fastReset(msg)
+					saySomethingEpic()
+					this.slowSkipNext(msg)
 				}, this.raceDelay )
 			}
 		} else {
@@ -2992,7 +2971,7 @@ class AminoSeeNoEvil {
 			let msg = "File not found: " + file
 			mode(msg)
 			output( chalk.inverse(msg) )
-			this.fastReset(msg)
+			this.slowSkipNext(msg)
 			return -1 // -1 is signal for failure or unknown size (stream).
 		}
 	}
@@ -4763,7 +4742,8 @@ class AminoSeeNoEvil {
 					output("Shutting down")
 				} else {
 					this.drawHistogram() // MAKE THE HISTOGRAM AGAIN LATER
-					log("drawing again if rendering in " +  this.msPerUpdate )
+					out(".")
+					// log("drawing again if rendering in " +  this.msPerUpdate )
 				}
 			},  this.msPerUpdate )
 		} else { log("update finished") }
@@ -6215,22 +6195,22 @@ function calculateShrinkage( linearpix, dim, cpp ) { // danger: can change this.
 	// give it a large number of pixels
 	// it will choose a hilbert dimension
 	// and return the shrinkage factor, codons per pixel hilbert
-	let magnitude, hilpix, codonsPerPixelHILBERT, shrinkFactor
+	let dimension, hilpix, codonsPerPixelHILBERT, shrinkFactor
 	let computerWants = optimumDimension (linearpix, "auto")
 
-	// if ( computerWants > defaultMagnitude ) {
-	//   output(`This genome could be output at a higher resolution of ${hilbPixels[computerWants].toLocaleString()} than the default of ${computerWants}, you could try -m 8 or -m 9 if your machine is muscular, but it might core dump. -m10 would be 67,108,864 pixels but node runs out of stack before I get there on my 16 GB macOS. -Tom.`)
-	//   dimension = defaultMagnitude;
-	// } else if (computerWants < 3) {
-	//   dimension = 3; // its an array index
-	//   error(`That image is way too small to make an image out of?`);
-	// }
+	if ( computerWants > defaultMagnitude ) {
+		output(`This genome could be output at a higher resolution of ${hilbPixels[computerWants].toLocaleString()} than the default of ${computerWants}, you could try -m 8 or -m 9 if your machine is muscular, but it might core dump. -m10 would be 67,108,864 pixels but node runs out of stack before I get there on my 16 GB macOS. -Tom.`)
+		dimension = defaultMagnitude
+	} else if (computerWants < 3) {
+		  dimension = 3 // its an array index
+		  error("That image is way too small to make an image out of?")
+	}
 
-	// if ( this.magnitude == "custom" ) {
-	//   dimension = this.dimension; // users choice over ride all this nonsense
-	// } else {
-	//   dimension = computerWants; // give him what he wants
-	// }
+	if ( this.magnitude == "custom" ) {
+		dimension = this.dimension // users choice over ride all this nonsense
+	} else {
+		  dimension = computerWants // give him what he wants
+	}
 
 
 	hilpix = hilbPixels[ dim ]
@@ -6329,9 +6309,9 @@ function killAllTimers() {
 }
 function tripletToAminoAcid(triplet) {
 	this.aminoacid = "error"
-	for (i=0; i < dnaTriplets.length; i++) {
-		if ( dnaTriplets[i].DNA == triplet ) {
-			this.aminoacid = dnaTriplets[i].Codon
+	for (let p = 0; p < dnaTriplets.length; p++) {
+		if ( dnaTriplets[p].DNA == triplet ) {
+			this.aminoacid = dnaTriplets[p].Codon
 			break
 		}
 	}
