@@ -1279,8 +1279,8 @@ class AminoSeeNoEvil {
 		if ( this.updateProgress == true) {
 			if ( typeof progato !== "undefined" && obj ) {
 				this.fastUpdate()
-				redoline(`Progress ${obj}`)
-				// progato.update(obj);
+				// redoline(`Progress ${obj}`)
+				progato.update(obj)
 			}
 		} else {
 			bugtxt(`progress dummy function: ${obj}`)
@@ -1328,7 +1328,7 @@ class AminoSeeNoEvil {
 				// O (open images after render)                      or [space]       G  (experimental carlo GUI)
 
 				if ( key.ctrl && key.name == "c") {
-					// process.stdin.pause(); // stop sending control-c here, send that.now to parent, which is gonna kill us on the second go with control-c
+					process.stdin.pause() // stop sending control-c here, send now to parent, which is gonna kill us on the second go with control-c
 					status  = "TERMINATED WITH CONTROL-C"
 					that.gracefulQuit(0, "Control-c")
 					destroyKeyboardUI()
@@ -1491,7 +1491,7 @@ class AminoSeeNoEvil {
 		if ( typeof code === "undefined" ) {
 			code = 0
 		}
-		mode( `Graceful shutdown in progress... status ${ status } threads ${threads.length} code ${code} reason ${reason}`)
+		mode( `Graceful shutdown in progress... code ${code} reason ${reason}`)
 		server.stop()
 		if ( renderLock ) {
 			output( blueWhite( `R: ${status} ` ) )
@@ -1511,13 +1511,8 @@ class AminoSeeNoEvil {
 		} else {
 			deleteFile( this.fileTouch ) // removeLocks( this.fileTouch, this.devmode );
 		}
-		killAllTimers()
-		// if ( webserverEnabled ) {
-		// 	killServersOnQuit = true
-		// 	// server.stop()
-		// }
+		// killAllTimers()
 		destroyKeyboardUI()
-
 		this.quit(code, "graceful")
 	}
 
@@ -1536,11 +1531,10 @@ class AminoSeeNoEvil {
 			} else {
 				if (runTerminalCommand("wget https://www.funk.co.nz/aminosee/dna/megabase.fa")) {
 					resolve()
-runcb(cb)
 				} else {
 					reject()
-					cb()
 				}
+				runcb(cb)
 			}
 		})
 
@@ -1909,7 +1903,7 @@ runcb(cb)
 		this.timestamp = Math.round(+new Date()/1000)
 		if ( isShuttingDown == true ) { output(`Shutting down after this render ${ blueWhite(this.justNameOfPNG)}`) }
 		if ( renderLock == false) {
-			error("RENDER LOCK FAILED. This is an  error I'd like reported. Please run with --devmode option enabled and send the logs to aminosee@funk.co.nz")
+			error("RENDER LOCK FAILED. This is an  error I'd like reported. Please run with --verbose --devmode option enabled and send the logs to aminosee@funk.co.nz")
 			this.slowSkipNext("render lock failed inside initStream")
 			return false
 		}
@@ -1934,9 +1928,7 @@ runcb(cb)
 		//   term.up( termDisplayHeight +   termHistoHeight *2);
 		//   term.eraseDisplayBelow();
 		// }
-		// if ( this.updatesTimer) {
-		//   clearTimeout( this.updatesTimer);
-		// }
+
 		killAllTimers()
 
 		if ( this.willRecycleSavedImage && this.recycEnabled) {
@@ -2794,7 +2786,7 @@ runcb(cb)
 			if ( renderLock ) {
 				this.initStream()
 			} else {
-				error("Sleeping")
+				error("was put to sleep by another thread?")
 			}
 		}, this.raceDelay)
 	}
@@ -3109,7 +3101,7 @@ runcb(cb)
 			triplet += c // add the base to triplet the working triplet memory
 			this.currentTriplet = triplet
 			if (triplet == "..." || triplet == "NNN") {
-				this.pepTable.find("Non-coding NNN").Histocount++
+				// this.pepTable.find("Non-coding NNN").Histocount++
 				if (triplet == "NNN" ) {
 					// this.alpha = 255
 					// this.renderPixel() // dont push to memory instead keep stacking adding to same values
@@ -3126,7 +3118,7 @@ runcb(cb)
 				this.aminoacid = tripletToAminoAcid( triplet )
 				this.pixelStacking++
 				this.genomeSize++
-				this.codonRGBA =  this.tripletToRGBA(triplet) // this will this.report this.alpha info
+				this.codonRGBA =  this.tripletToRGBA( triplet ) // this will this.report this.alpha info
 				pixelGamma = this.getGamma( triplet, this.triplet, this.peptide )
 
 				// this line will be removed at some stage:
@@ -3674,7 +3666,7 @@ runcb(cb)
 			.then(response => response.json())
 			.then(histogramJson => {
 				log(`histogramJson [ ${histogramJson} ]`)
-				if ( cb !== undefined) { cb() }
+				runcb(cb)
 			}).catch()
 	}
 	recycleOldImage(pngfile) {
@@ -4023,7 +4015,6 @@ runcb(cb)
 		//   this.isDiskFinHTML = true;
 		//   this.linearFinished();
 		//   this.hilbertFinished();
-		//   if (cb !== undefined) { cb() }
 		// }, 4000)
 		//
 
@@ -4699,7 +4690,7 @@ runcb(cb)
 	drawHistogram() {
 		if ( isShuttingDown == true ) { output("closing...press U to update or Q to quit"); return }
 		if ( renderLock == false ) {
-			log( blueWhite( "surprise!"))
+			output( blueWhite( "surprise!"))
 			this.rawDNA = "!"
 			return false
 		}
@@ -4724,7 +4715,7 @@ runcb(cb)
 					output("Shutting down")
 				} else {
 					this.drawHistogram() // MAKE THE HISTOGRAM AGAIN LATER
-					out("draw")
+					// out("draw")
 					// log("drawing again if rendering in " +  this.msPerUpdate )
 				}
 			},  this.msPerUpdate )
@@ -5066,15 +5057,17 @@ runcb(cb)
 } // <<< --- END OF CLASS
 
 function bugtxt(txt) { // full debug output
-	if (this !== undefined) {
-		if (this.quiet == false && debug == true && this.devmode == true && this.verbose == true)  {
-			bugout(txt)
-		} else {
-			if (this.verbose == true ) {
-				// redoline(txt);
-			}
-		}
-	} else if (cliInstance !== undefined) {
+	// if (this !== undefined) {
+	// 	if (this.quiet == false && debug == true && this.devmode == true && this.verbose == true)  {
+	// 		bugout(txt)
+	// 	} else {
+	// 		if (this.verbose == true ) {
+	// 			redoline(txt)
+	// 		}
+	// 	}
+	// } else
+
+	// if (cliInstance !== undefined) {
 		if (cliInstance.quiet == false && cliInstance.debug == true && cliInstance.devmode == true && cliInstance.verbose == true)  {
 			bugout(txt)
 		} else {
@@ -5082,11 +5075,11 @@ function bugtxt(txt) { // full debug output
 				// redoline(txt);
 			}
 		}
-	} else if (debug == true){
-		log(`bugout: ${txt}`)
-	} else {
+	// } else if (debug == true){
+		// log(`bugout: ${txt}`)
+	// } else {
 		// redoline(txt)
-	}
+	// }
 
 }
 function output(txt) {
@@ -5113,9 +5106,9 @@ function out(txt) {
 	// if ( that.quiet == false || debug ) {
 	// term.column(1)
 	// if (debug ) {
-		// process.stdout.write(chalk.blue(" [ ") + removeNonAscii( txt ) + chalk.blue(" ] "))
+		process.stdout.write(chalk.blue(" [ ") + removeNonAscii( txt ) + chalk.blue(" ] "))
 	// } else {
-		process.stdout.write(".")
+		// process.stdout.write(".")
 		// redoline(chalk.bold(`   [ `)  + chalk.rgb(64,80,100).inverse( fixedWidth( 50, removeNonAscii(txt)))  + chalk.bold(` ]`  ));
 	// }
 }
@@ -5146,9 +5139,8 @@ function batchProgress() {
 	return `${remain}/${batchSize}:${streamLineNr}`
 }
 function wTitle(txt) {
-	if (this === undefined) {
+	if (typeof this == "undefined") {
 		txt = hostname
-		return true
 	} // ${ maxWidth(10,  cfile)} AminoSeeNoEvil
 	txt = `${batchProgress()} | ${ removeNonAscii(  maxWidth( 48, txt ))} @${hostname} ` + ( isShuttingDown ? " SHUTTING DOWN " : " " )// + new Date()
 	// if (this === undefined) {
@@ -5160,7 +5152,7 @@ function wTitle(txt) {
 	// 		txt += `[ ${txt} ] ${cliInstance.justNameOfDNA}`
 	// 	}
 	// }
-	if ( cliInstance && cliInstance.justNameOfPNG ) {
+	if ( typeof cliInstance !== "undefined" ) {
 		txt += cliInstance.justNameOfPNG
 	}
 	term.windowTitle(helixEmoji +  txt )
@@ -5299,10 +5291,6 @@ function runDemo() {
 	var that = cliInstance
 	// async.series( [
 	async.waterfall( [
-		// function( cb ) {
-		// 	newJob("test")
-		// 	cb()
-		// },
 		function( cb ) {
 			that.openImage = true
 			that.peptide = "Opal" // Blue TESTS
@@ -5333,7 +5321,7 @@ function runDemo() {
 		},
 		function ( cb ) {
 			that.openOutputs()
-			runcb(cb)
+			cb()
 		},
 		function( cb ) {
 			if ( webserverEnabled ) {
@@ -5818,7 +5806,7 @@ function listDNA() {
 process.on("SIGTERM", () => {
 	let sig = "SIGTERM"
 	output(`Received ${sig} signal (ignoring) ${batchProgress()}`)
-	cliInstance.gracefulQuit(0, sig)
+	cliInstance.gracefulQuit(130, sig)
 	// cliInstance.destroyProgress();
 	// process.exitCode = 130;
 	// cliInstance.quit(130, "SIGTERM");
@@ -5833,7 +5821,7 @@ process.on("SIGINT", function() {
 	cliInstance.quit(130, "SIGINT")
 	setTimeout( () => {
 		process.exit() // this.now the "exit" event will fire
-	}, cliInstance.raceDelay*2 )
+	}, cliInstance.raceDelay )
 })
 function termDrawImage(fullpath, reason, cb) {
 	// return true
@@ -6238,7 +6226,12 @@ function optimumDimension (pix, magauto) { // give it pix it returns a HILBERT d
 	return dim
 }
 function runcb( cb ) {
-	if( typeof cb !== "undefined") { bugtxt(blueWhite( "run callback")); cb() }
+	if( typeof cb !== "undefined") {
+		bugtxt(blueWhite( "run callback"))
+		if( typeof cb === "function") {
+			cb()
+		}
+	}
 }
 function removeNonAscii(str) {
 
@@ -6250,7 +6243,7 @@ function removeNonAscii(str) {
 	return str.replace(/[^\x20-\x7E]/g, "")
 }
 function procTitle( txt ) {
-	process.title = `aminosee.funk.nz (${ maxWidth( 32, txt + " " + cliInstance.justNameOfPNG) })`
+	process.title = `aminosee.funk.nz (${ maxWidth( 32, txt + " " + cliInstance.justNameOfPNG) + " " + cliInstance.highlightOrNothin()})`
 }
 function removeLocks(lockfile, devmode, cb) { // just remove the lock files.
 	mode( "remove locks")
@@ -6258,6 +6251,14 @@ function removeLocks(lockfile, devmode, cb) { // just remove the lock files.
 	renderLock = false
 	procTitle( "remove locks")
 	remain--
+	if ( typeof devmode === "undefined" ) {
+		devmode = false
+	}
+	if ( typeof cb === "undefined" ) {
+		cb = function(lockfile) {
+			log(`no callback sent when removing locks for: ${blueWhite(lockfile)}`)
+		}
+	}
 	if ( devmode == true ) {
 		output("Because you are using --devmode, the lock file is not deleted. This is useful during development of the app because when I interupt the render with Control-c, AminoSee will skip that file next time, unless I use --force. Lock files are safe to delete at any time.")
 	} else {
