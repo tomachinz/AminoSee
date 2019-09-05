@@ -14,9 +14,11 @@ module.exports = {
         "ecmaVersion": 2018
     },
     "rules": {
-      "no-mixed-spaces-and-tabs": [2, "smart-tabs"],
-
-        "indent": [
+      "no-mixed-spaces-and-tabs": [
+        2,
+        "smart-tabs"
+      ],
+      "indent": [
             "off",
             "tab"
         ],
@@ -33,4 +35,4 @@ module.exports = {
             "never"
         ]
     }
-};
+}
