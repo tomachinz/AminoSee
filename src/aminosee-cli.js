@@ -170,7 +170,7 @@ function populateArgs(procArgv) { // returns args
 		boolean: [ "artistic", "clear", "chrome", "devmode", "debug", "demo", "dnabg", "explorer", "file", "force", "fullscreen", "firefox", "gui", "html", "image", "keyboard", "list", "progress", "quiet", "reg", "recycle", "redraw", "slow", "serve", "safari", "test", "updates", "verbose", "view" ],
 		string: [ "url", "output", "triplet", "peptide", "ratio" ],
 		alias: { a: "artistic", b: "dnabg", c: "codons", d: "devmode", f: "force", finder: "explorer", h: "help", k: "keyboard", m: "magnitude", o: "output", p: "peptide", i: "image", t: "triplet", u: "updates", q: "quiet", r: "reg", w: "width", v: "verbose", x: "explorer", view: "html" },
-		default: { brute: false, debug: true, gui: false, html: true, image: true, index: true, clear: false, explorer: false, quiet: false, keyboard: true, progress: false, redraw: true, updates: true, stop: false, serve: false, fullscreen: false },
+		default: { brute: false, debug: false, gui: false, html: true, image: true, index: true, clear: false, explorer: false, quiet: false, keyboard: true, progress: false, redraw: true, updates: true, stop: false, serve: false, fullscreen: false },
 		stopEarly: false
 	} // NUMERIC INPUTS: codons, magnitude, width, maxpix
 	let args = minimist(procArgv.slice(2), options)
@@ -178,7 +178,6 @@ function populateArgs(procArgv) { // returns args
 	return args
 }
 function bruteForce(cs) {
-
 
 	return false
 
@@ -230,7 +229,7 @@ function pushCli(cs) {
 		}
 		let thread = newJob(jobArgs)
 		threads.push( thread )
-
+		output(`NUMBER OF THREADS: ${threads.length}`)
 	}
 
 
@@ -239,6 +238,7 @@ function pushCli(cs) {
 function setupApp() {
 	[ userprefs, projectprefs ] = setupPrefs()
 	lastHammered = new Date()
+
 	// if ( this.updateProgress == true ) {
 	// 	progato = term.progressBar( {
 	// 		width: 80 ,
@@ -254,7 +254,6 @@ function setupApp() {
 	webroot = locateWebroot()
 	cliInstance.setupJob( populateArgs( process.argv ), "module exports"  )
 	cliInstance.outputPath = path.join( webroot, netFoldername) // ~/AminoSee_webroot/output
-
 	threads.push( cliInstance )
 }
 function newJob( job ) { // used node and CLI tool.
@@ -286,7 +285,7 @@ class AminoSeeNoEvil {
 
 
 	setupJob( args, reason ) {
-		mode("setup job " + reason)
+		mode("setup job " + reason + this.busy())
 		log( `setup job:  ${status}   ${reason} ${ maxWidth(32,   args.toString() ) }` )
 		// [ userprefs, projectprefs ] = setupPrefs()
 
@@ -301,7 +300,7 @@ class AminoSeeNoEvil {
 		darkenFactor = 0.25 // if user has chosen to highlight an amino acid others are darkened
 		highlightFactor = 4.0 // highten brightening.
 		loopCounter = 0
-		this.raceDelay = 369 // so i learnt a lot on this project. one day this line shall disappear replaced by promises.
+		this.raceDelay = 69 // so i learnt a lot on this project. one day this line shall disappear replaced by promises.
 		this.charClock = 0
 		this.pixelClock = 0
 		this.peptide = this.triplet = this.focusTriplet = this.focusPeptide = "none"
@@ -403,8 +402,6 @@ class AminoSeeNoEvil {
 		// this.resized(tx, ty);
 		this.previousImage = this.justNameOfDNA
 		// output(logo());
-
-
 
 		if ( args.quiet || args.q ) { // needs to be at top to cut back clutter during batch rendering
 			this.quiet = true
@@ -867,7 +864,12 @@ class AminoSeeNoEvil {
 			// this.openFileExplorer = true
 			// termDisplayHeight--
 		}
-		///////////////////////////////////////////
+
+		/////////////////////////////////////////////////////////////////
+		/////////////////////////////////////////////////////////////////
+
+		this.setupProgress()
+
 		quiet = this.quiet
 		bugtxt(`the args -->> ${this.args}`)
 
@@ -982,42 +984,16 @@ class AminoSeeNoEvil {
 
 	}
 	setupProgress() {
-		if ( this.updateProgress == true) {
-			//
-			// let thingsToDo = [
-			// 	'update my lib' ,
-			// 	'data analyzing' ,
-			// 	'serious business' ,
-			// 	'decrunching data' ,
-			// 	'do my laundry' ,
-			// 	'optimizing'
-			// ];
-
-			// let countDown = remain ;
-
-
-
-			progato = term.progressBar( {
-				width: 80 ,
-				title: "Daily tasks:" ,
-				eta: true ,
-				percent: true ,
-				items: remain
-			} )
-			this.drawProgress()
-
-
-			// if ( remain > 0 ) {
-			//           progato = term.progressBar({
-			//             width: term.width - 20,
-			//             title: `Booting up at ${ formatAMPM( new Date())} on ${hostname}`,
-			//             eta: true,
-			//             percent: true,
-			//             inline: true
-			//           })
-			//           this.drawProgress()
-			// }
-
+		if ( this.updateProgress == true  ) {
+			if ( remain > 0 ) {
+        progato = term.progressBar({
+          width: term.width - 20,
+          title: `Booting ${this.justNameOfPNG} at ${ formatAMPM( new Date())} on ${hostname}`,
+          eta: true,
+          percent: true,
+          inline: true
+        })
+			}
 		}
 	}
 	startProgress() {
@@ -1278,12 +1254,13 @@ class AminoSeeNoEvil {
 	progUpdate(obj) {  // allows to disable all the prog bars in one place
 		if ( this.updateProgress == true) {
 			if ( typeof progato !== "undefined" && obj ) {
-				this.fastUpdate()
+				// this.fastUpdate()
 				// redoline(`Progress ${obj}`)
 				progato.update(obj)
 			}
 		} else {
-			bugtxt(`progress dummy function: ${obj}`)
+			// redoline(`progress dummy function: ${obj}`)
+			// bugtxt(`progress dummy function: ${obj}`)
 		}
 	}
 
@@ -1482,8 +1459,8 @@ class AminoSeeNoEvil {
 	}
 	toggleUpdates() {
 		this.updates = !this.updates
-		log(`stats this.updates toggled to: ${updates}`)
-		if (update) {
+		log(`stats this.updates toggled to: ${this.updates}`)
+		if ( this.updates) {
 			this.drawHistogram()
 		}
 	}
@@ -1776,7 +1753,7 @@ class AminoSeeNoEvil {
 
 		///////////////// BEGIN MODIFYING GLOBALS //////////////////////////////
 		if ( renderLock ) { error("draining threads from reset"); return false }
-		mode("setup render")
+		mode("setup render " + this.busy() + " " + this.currentFile)
 		this.setupRender( this.currentFile )
 		msg = `>>> PREFLIGHT <<< ${ remain } ${ path.normalize( this.currentFile )} reason: ${reason}`
 		log(msg)
@@ -1813,7 +1790,7 @@ class AminoSeeNoEvil {
 			log("But lets render it again...")
 		}
 		if ( this.checkLocks( this.fileTouch )) {
-			let msg = batchProgress() + " Render already in progress by another thread "
+			let msg = batchProgress() + " Render already in progress by another thread: "
 			output(msg +  blueWhite( path.basename( this.justNameOfPNG ))) // <---  another node maybe working on, NO RENDER
 			mode(msg + this.justNameOfPNG)
 			log("Use --force or delete this file with:")
@@ -1900,7 +1877,9 @@ class AminoSeeNoEvil {
 		output( chalk.rgb(64, 128, 255).bold( status ))
 		output(`OUTPUT FOLDER: ${ blueWhite( blueWhite( path.normalize( this.outputPath )))}`)
 		this.setNextFile()
-		this.timestamp = Math.round(+new Date()/1000)
+		// this.timestamp = Math.round(+new Date()/1000)
+		this.runid = new Date().getTime()
+
 		if ( isShuttingDown == true ) { output(`Shutting down after this render ${ blueWhite(this.justNameOfPNG)}`) }
 		if ( renderLock == false) {
 			error("RENDER LOCK FAILED. This is an  error I'd like reported. Please run with --verbose --devmode option enabled and send the logs to aminosee@funk.co.nz")
@@ -1911,7 +1890,6 @@ class AminoSeeNoEvil {
 		// this.termSize();
 		this.setIsDiskBusy( false )
 		// this.mkRenderFolders() // create /images etc
-		this.setupProgress()
 		this.rawDNA = "@"
 		this.percentComplete = 0
 		this.genomeSize = 0 // number of codons.
@@ -1930,6 +1908,7 @@ class AminoSeeNoEvil {
 		// }
 
 		killAllTimers()
+		this.progUpdate({ title: `Transcribe est. ${this.baseChars.toLocaleString()} nucleotides ${this.justNameOfDNA}`, items: remain, syncMode: true })
 
 		if ( this.willRecycleSavedImage && this.recycEnabled) {
 			output(`Skipped DNA render stage of ${ this.justNameOfDNA}`)
@@ -2044,7 +2023,6 @@ class AminoSeeNoEvil {
 		// this.tLock();
 		// var that = this;
 		// output(`Started ${ ( this.force ? 'forced ' : '' ) }render of ${this.justNameOfPNG} next is ${this.nextFile}`);
-		this.progUpdate({ title: "DNA File Render step 1/3", items: remain, syncMode: true })
 		setTimeout(() => {
 			clearCheck()
 			term.eraseDisplayBelow()
@@ -2263,7 +2241,7 @@ class AminoSeeNoEvil {
 	}
 	calcHilbertFilenames() {
 		// REQUIRES RENDERING TO MEMORY PRIOR
-
+		this.focusPeptide = this.peptide
 		this.justNameOfHILBERT =  this.generateFilenameHilbert(this.pixelClock, this.magnitude )
 		this.fileHILBERT = path.resolve( this.outputPath, this.justNameOfDNA, "images", this.justNameOfHILBERT)
 	}
@@ -2300,7 +2278,7 @@ class AminoSeeNoEvil {
 
 	generateFilenameHilbert( focus ) { // needs  this.dimension estimatedPixels
 		if ( focus === undefined ) {
-			focus = this.peptide
+			focus = this.focusPeptide
 		}
 		if ( this.test) {
 			// the this.dnafile should be set already fingers crossed.
@@ -2603,7 +2581,7 @@ class AminoSeeNoEvil {
 		}
 		this.setIsDiskBusy( true )
 		log(chalk.inverse(`Finished linear render of ${ this.justNameOfDNA}. Array length: ${ pixels.toLocaleString() } = ${ this.pixelClock.toLocaleString() } saving images`))
-		term.eraseDisplayBelow()
+		// term.eraseDisplayBelow()
 
 		if (this.test) { // the calibration generates its own image
 			this.shrinkFactor = 1
@@ -2626,8 +2604,8 @@ class AminoSeeNoEvil {
 		this.savePNG( () => {
 			log("master linear done")
 		})
-		this.calcHilbertFilenames()
 		this.prepareHilbertArray()
+		this.calcHilbertFilenames()
 		this.fancyFilenames()
 		this.mkRenderFolders()
 		mode("main render async.series")
@@ -2797,6 +2775,7 @@ class AminoSeeNoEvil {
 	File ${remain} / ${batchSize} on ${ os.platform() } on ${ hostname }.
 	${ this.memToString()} currently ${this.busy()}
 	CPU load:    [ ${ this.loadAverages()} ] ${ version } ${ this.timestamp } ${ hostname }
+	Batch ID: ${this.timestamp} Render ID: ${this.runid}
 `
 		// output(msg)
 		return msg
@@ -3064,8 +3043,9 @@ class AminoSeeNoEvil {
 		if ( renderLock == false ) { error("thread entered process line!")}
 		renderLock = true
 		streamLineNr++
-		status = `Streaming line: ${streamLineNr}`
-		// if ( debounce(200 )) { redoline(status) }
+		status = `Streaming line: ${streamLineNr} ${ maxWidth(64, status) }`
+		if ( debounce(500 )) { this.progUpdate( this.percentComplete ) }
+
 
 		if (this.rawDNA.length < this.termPixels) {
 			this.rawDNA = cleanString(l) + this.rawDNA
@@ -3747,7 +3727,7 @@ class AminoSeeNoEvil {
 		if (brute == true) {
 			log("Converting 256-bit images to 24-bit image with alpha...")
 			for (let p = 1; p < this.pepTable.length; p++) {
-				this.pepTable[p].lm_array =   Uint8ClampedArray.from( this.pepTable[p].lm_array )
+				this.pepTable[p].lm_array = Uint8ClampedArray.from( this.pepTable[p].lm_array )
 			}
 		}
 
@@ -3825,7 +3805,7 @@ class AminoSeeNoEvil {
 
 	// resample the large 760px wide linear image into a smaller square hilbert curve
 	saveHilbert(cb) {
-
+		if ( !this.isHilbertPossible ) { this.hilbertFinished() ; return false }
 		// clearTimeout( updatesTimer)
 		this.diskStorm( () => {
 			log("disk storm has returned")
@@ -3866,7 +3846,7 @@ class AminoSeeNoEvil {
 		log( `H: ${status} ` )
 		this.openOutputs()
 		termDrawImage(this.fileHILBERT, "hilbert curve")
-		if ( this.brute ) {
+		if ( brute ) {
 			if ( this.isDiskFinHilbert ) { this.postRenderPoll("brute finished" ) }
 		} else {
 			this.isDiskFinHilbert = true
@@ -4126,7 +4106,7 @@ class AminoSeeNoEvil {
 		img_png.data = Buffer.from(img_data)
 		let wstream = fs.createWriteStream( this.filePNG )
 		var that = this
-		let retProm =  new Promise((resolve) => {
+		let retProm =  new Promise(() => {
 			img_png.pack()
 				.pipe(wstream)
 				.on("finish", (err) => {
@@ -4285,7 +4265,7 @@ class AminoSeeNoEvil {
 	}
 
 	generateTestPatterns(cb) {
-		renderLock = true
+		// renderLock = true
 		this.setupRender()
 		loopCounter = 1
 		this.openHtml = false
@@ -4480,7 +4460,7 @@ class AminoSeeNoEvil {
 		this.progUpdate({ title: "Resample by X" + shrinkX, items: remain, syncMode: true })
 		for (let z = 0; z<downsampleSize; z++) { // 2x AA this.pixelClock is the number of pixels in linear
 			if ( z % this.debugFreq == 0) {
-				this.percentComplete = nicePercent( z/downsampleSize )
+				this.percentComplete = z / downsampleSize
 				this.progUpdate(   this.percentComplete  )
 				redoline(  this.percentComplete )
 			}
@@ -4651,7 +4631,7 @@ class AminoSeeNoEvil {
 		this.bytesRemain = (  this.baseChars - this.charClock)
 		this.bytesPerMs = Math.round( ( this.charClock) / this.runningDuration )
 		this.codonsPerSec = (  this.genomeSize+1) / ( this.runningDuration*1000)
-		let msg = `${ nicePercent(this.percentComplete)} | ${humanizeDuration( this.timeRemain)} | ` + new Date()
+		let msg = `${ nicePercent(this.percentComplete)} | ${humanizeDuration( this.timeRemain)} | `
 		if ( isShuttingDown ) {
 			msg = " SHUTTING DOWN " + msg
 		}
@@ -4688,6 +4668,7 @@ class AminoSeeNoEvil {
 
 
 	drawHistogram() {
+		return
 		if ( isShuttingDown == true ) { output("closing...press U to update or Q to quit"); return }
 		if ( renderLock == false ) {
 			output( blueWhite( "surprise!"))
@@ -4695,10 +4676,7 @@ class AminoSeeNoEvil {
 			return false
 		}
 		if ( this.updatesTimer) { clearTimeout( this.updatesTimer )}
-		if ( this.updateProgress == true) {
-			this.fastUpdate()
-			this.progUpdate( this.percentComplete )
-		}
+
 
 		if ( remain >= 0 ) { // dont update if not rendering / during shutdown
 			if ( this.msPerUpdate  <  this.maxMsPerUpdate ) {
@@ -4720,6 +4698,9 @@ class AminoSeeNoEvil {
 				}
 			},  this.msPerUpdate )
 		} else { log("update finished") }
+
+		this.fastUpdate()
+		this.progUpdate( this.percentComplete )
 
 		if ( this.updates == false ) {
 			redoline(`${blueWhite( nicePercent(this.percentComplete) )} elapsed: `  + blueWhite(`${ fixedWidth(10, humanizeDuration( this.msElapsed )) }         ${humanizeDuration( this.timeRemain)} remain ${ chalk.bold( this.justNameOfPNG )}`))
@@ -4744,7 +4725,7 @@ class AminoSeeNoEvil {
 			`| Next file >>> ${maxWidth(24, this.nextFile)}`,
 			`| Codons:${ fixedWidth(14, " " +  this.genomeSize.toLocaleString())}`,
 			`  DNA Sample: ${ fixedWidth(tx/4, this.rawDNA) } ${ this.showFlags()}`,
-			`  RunID: ${chalk.rgb(128, 0, 0).bold( this.timestamp )} acids per pixel: ${ twosigbitsTolocale( this.codonsPerPixel )}   Term x,y: (${tx},${ty}) ${chalk.inverse( this.highlightOrNothin())} ${this.peptide}`
+			`  RunID: ${chalk.rgb(128, 0, 0).bold( this.timestamp )} acids per pixel: ${ twosigbitsTolocale( this.codonsPerPixel )}   Term x,y: (${tx},${ty}) ${chalk.inverse( this.highlightOrNothin())} ${this.peptide} ${status}`
 		]
 		clearCheck()
 		if ( this.fullscreen == true ) {
@@ -4767,7 +4748,7 @@ class AminoSeeNoEvil {
 		printRadMessage(array)
 		output(`${chalk.rgb(128, 255, 128)( nicePercent(this.percentComplete) )} elapsed: ${ fixedWidth(12, humanizeDuration( this.msElapsed )) }  /  ${humanizeDuration( this.timeRemain)} remain`)
 		output(`${ twosigbitsTolocale( gbprocessed )} GB All time total on ${chalk.yellow( hostname )} ${ cliruns.toLocaleString()} jobs run total`)
-		this.progUpdate( this.percentComplete )
+		// this.progUpdate( this.percentComplete )
 		output(`Report URL:  ${chalk.underline(  blueWhite( maxWidth(tx - 16, this.currentURL )))}`)
 		output(`Input file:  ${chalk.underline(  blueWhite( path.normalize( this.dnafile )))}`)
 		output(`Output path: ${chalk.underline(  blueWhite( path.join( this.outputPath, this.justNameOfDNA)))}`)
@@ -4798,7 +4779,10 @@ class AminoSeeNoEvil {
 		} else {
 			output(chalk.bold.italic(" Increase the size of your terminal for realtime histogram."))
 			output(`   Genome size: ${ this.genomeSize.toLocaleString()}`)
-			term.up(  2 )
+			if ( this.quiet == false && this.clear == true ) {
+				term.up(  2 )
+			}
+
 
 		}
 
@@ -5083,19 +5067,16 @@ function bugtxt(txt) { // full debug output
 
 }
 function output(txt) {
-	if (txt === undefined) { txt = " "} else {
+	if (typeof txt == "undefined") { txt = " "} else {
 		if ( cliInstance ) {
-			if ( cliInstance.justNameOfPNG === undefined ) {
-				// wTitle( `${ cliInstance.justNameOfPNG } ${txt}` )
+			if ( typeof cliInstance.justNameOfPNG == "undefined" ) {
 				wTitle(`${  txt }`) // put it on the terminal windowbar or in tmux
-
 			}
 		}
 	}
-
 	term.eraseLine()
 	if ( debug ) {
-		bugtxt( `[${fixedWidth(12, status) }]   ${txt }`)
+		bugout( txt )
 	} else {
 		console.log( txt )
 	}
@@ -5105,12 +5086,12 @@ function out(txt) {
 	// let that = gimmeDat();
 	// if ( that.quiet == false || debug ) {
 	// term.column(1)
-	// if (debug ) {
+	if (debug ) {
 		process.stdout.write(chalk.blue(" [ ") + removeNonAscii( txt ) + chalk.blue(" ] "))
-	// } else {
-		// process.stdout.write(".")
+	} else {
+		process.stdout.write(".")
 		// redoline(chalk.bold(`   [ `)  + chalk.rgb(64,80,100).inverse( fixedWidth( 50, removeNonAscii(txt)))  + chalk.bold(` ]`  ));
-	// }
+	}
 }
 function debounce( ms ) {
 	if ( ms === undefined ) { ms = 150 } // half second
@@ -5122,74 +5103,60 @@ function debounce( ms ) {
 	return false
 }
 function log(txt  ) {
-
 	if ( debug || this.verbose) {
-		output( `devmode log: [${txt}] `)
+		output( `dl: ${txt} `)
 
 	} else {
 		// if (this.quiet == false) {
 		// 	process.stdout.write(chalk.rgb(128,0,0).italic("."))
 		// }
-		if ( debounce() ) {
-			wTitle(`${ removeNonAscii( txt ) }`)
-		}
+			wTitle(`${ txt  }`)
+
 	}
 }
 function batchProgress() {
-	return `${remain}/${batchSize}:${streamLineNr}`
+	return `[${threads.length}] ${remain}/${batchSize}:${streamLineNr}`
 }
 function wTitle(txt) {
+	if ( !debounce() ) {
+		return false
+	}
 	if (typeof this == "undefined") {
 		txt = hostname
-	} // ${ maxWidth(10,  cfile)} AminoSeeNoEvil
+	}
+
 	txt = `${batchProgress()} | ${ removeNonAscii(  maxWidth( 48, txt ))} @${hostname} ` + ( isShuttingDown ? " SHUTTING DOWN " : " " )// + new Date()
-	// if (this === undefined) {
-	// 	txt += `[ ${txt} ] no this`
-	// } else {
-	// 	if ( this.justNameOfDNA ) {
-	// 		txt += `[ ${txt} ] ${this.justNameOfDNA}`
-	// 	} else if (cliInstance) {
-	// 		txt += `[ ${txt} ] ${cliInstance.justNameOfDNA}`
-	// 	}
-	// }
-	if ( typeof cliInstance !== "undefined" ) {
-		txt += cliInstance.justNameOfPNG
+
+	if (typeof cliInstance !== "undefined") {
+			cliInstance.progUpdate( this.percentComplete )
+			txt += `${cliInstance.justNameOfPNG} ${new Date().getTime()}`
+
 	}
 	term.windowTitle(helixEmoji +  txt )
 }
 function bugout(txt) {
-	if (txt === undefined) { txt = "txt not set" }
-	// let mem = process.memoryUsage();
+	if (typeof txt == "undefined") { return  }
 	let splitScreen = ""
-	if (cliInstance !== undefined ) {
-		let debugColumns = this.colDebug
-		if (this.test == true) {
-			splitScreen += chalk.rgb(64,64,64).inverse( fixedWidth( debugColumns - 10,  `[Test: ${remain} ${ nicePercent(this.percentComplete) } Highlt${( this.isHighlightSet ? this.focusPeptide + " " : " ")} >>>    `))
+	if (typeof cliInstance !== "undefined" ) {
+		let colWidth = Math.round(tx / 3) - 1
+		if (cliInstance.test == true) {
+			splitScreen += chalk.rgb(64,64,64).inverse( fixedWidth( colWidth - 10,  `[Test: ${remain} ${ nicePercent(cliInstance.percentComplete) } Highlt${( cliInstance.isHighlightSet ? cliInstance.focusPeptide + " " : " ")} >>>    `))
 		} else {
-			splitScreen += chalk.rgb(64,64,64).inverse( fixedWidth( debugColumns - 10,  `[Jbs: ${remain}  status  : ${  status } Crrnt: ${maxWidth(12, this.currentFile)} Nxt: ${maxWidth(12, this.nextFile)} ${ nicePercent(this.percentComplete) } ${ cliInstance.storage()} Highlt${( this.isHighlightSet ? this.focusPeptide + " " : " ")} >>>    `))
+			splitScreen += chalk.rgb(64,64,64).inverse( fixedWidth( colWidth - 10,  `[ ${batchProgress()} ${new Date().getTime()} ${ status } ${ nicePercent(cliInstance.percentComplete) } ] >>>   `))
 		}
-		splitScreen += fixedWidth( debugColumns,` ${txt} `)
-		term.eraseLine()
-		process.stdout.write(splitScreen)
-		// splitScreen = chalk.gray.inverse( fixedWidth( debugColumns - 10, `Cpp: ${ this.codonsPerPixel }  G: ${ this.genomeSize.toLocaleString()} Est: ${ onesigbitTolocale( this.estimatedPixels/1000000)} megapixels ${bytes(  this.baseChars )} RunID: ${ this.timestamp } H dim: ${hilbPixels[ this.dimension ]}]  ${ formatAMPM( this.now )} and ${ this.formatMs( this.now )}ms`));
-	} else if (cliInstance !== undefined){
-		let debugColumns = Math.round(term.Width / 3)
-		splitScreen += chalk.rgb(64,64,64).inverse( fixedWidth( debugColumns - 10,  `[Args: ${cliInstance.args._.length} ${ cliInstance.nicePercent()} ${ cliInstance.storage()} >>>    `))
-		splitScreen += fixedWidth( debugColumns,` ${txt} `)
-		term.eraseLine()
-		process.stdout.write(splitScreen)
-		// splitScreen = chalk.gray.inverse( fixedWidth( debugColumns - 10, ` ${ formatAMPM( Date() )} and ${ this.formatMs( Date().getTime() )}ms`));
+		splitScreen += fixedWidth( colWidth,` ${ removeNonAscii( txt)} `)
 	} else {
-		redoline( `bug: ${maxWidth( tx, txt )}` )
+		splitScreen += txt
 	}
-
-	// output(splitScreen);
+	term.eraseLine()
+	console.log(splitScreen)
 }
 function deleteFile(file) {
 	let ret = false
 	try {
 		fs.unlinkSync(file, (err) => {
 			log(`Removing file OK... ${fixedWidth(64, file)}`)
+			ret = true
 			if (err) {
 				log(`Removing file error... ${fixedWidth(64, file)}`)
 				log(err)
@@ -5199,7 +5166,23 @@ function deleteFile(file) {
 		log(`Removing file caught exception... ${fixedWidth(64, file)}`)
 		log(err)
 	}
-
+	return ret
+}
+function deleteDirectory( folder ) {
+	let ret = false
+	try {
+		fs.rmdirSync(folder, (err) => {
+			log(`Removing folder OK... ${fixedWidth(64, folder)}`)
+			ret = true
+			if (err) {
+				log(`Removing folder error... ${fixedWidth(64, folder)}`)
+				log(err)
+			}
+		})
+	} catch (err) {
+		log(`Removing folder caught exception... ${fixedWidth(64, folder)}`)
+		log(err)
+	}
 	return ret
 }
 function termSize() {
@@ -5234,23 +5217,14 @@ function onesigbitTolocale(num) {
 function twosigbitsTolocale(num){
 	return (Math.round(num*100)/100).toLocaleString()
 }
-function threesigbitsTolocale(num){
-	return (Math.round(num*1000)/1000).toLocaleString()
-}
-function variable(v, space) {
-	while (v.length < space) {
-		v = " " + v
-	}
-	if (v.length > space) {
-		v = v.substring(1,-1)
-	}
-	return
-}
-function fixedRightSide(wide, str) {
-	return maxWidth(wide, minWidth(wide, str))
-}
+// function threesigbitsTolocale(num){
+// 	return (Math.round(num*1000)/1000).toLocaleString()
+// }
+// function fixedRightSide(wide, str) {
+// 	return maxWidth(wide, minWidthRight(wide, str))
+// }
 function fixedWidth(wide, str) { // return strings all the same length
-	return minWidthRight(wide, maxWidth(wide, str))
+	return minWidth(wide, maxWidth(wide, str))
 }
 function maxWidth(wide, str) { // shorten it if you need to
 	if ( str === undefined) { return "0" }
@@ -5260,20 +5234,17 @@ function maxWidth(wide, str) { // shorten it if you need to
 	return str
 }
 function minWidth(wide, str) { // make it wider
-	str = "  " + str
-	if ( str === undefined) { str = " " }
-	while(str.length < wide) { str += "0" }
+	if ( str === undefined) { str = " ~@~ " + wide}
+	while(str.length < wide) { 	str = str  +  " " }
 	return str
 }
 function minWidthRight(wide, str) { // make it wider
 	if ( str === undefined) { return " " }
-	while(str.length < wide) { str += " " }
+	while(str.length < wide) { str += " ~ " }
 	return str
 }
 function blueWhite(txt) {
-	// if ( txt.length > txt )
-	return chalk.rgb(0,0,100).bgWhite.inverse.bold( maxWidth( tx * 0.8,  txt))
-	return chalk.bgBlue.white.bold(txt)
+	return chalk.rgb(0,0,100).bgWhite.inverse.bold( maxWidth( tx * 0.7,  txt))
 }
 function spaceTo_(str) {
 	// log(str);
@@ -5676,7 +5647,7 @@ function redoline(txt) {
 	term.eraseLine()
 	// output(maxWidth( term.width - 2, txt));
 	// output(` [ ${ maxWidth( tx / 2, removeNonAscii( txt ))} ] `)
-	output(` [ ${ maxWidth( tx / 2,  txt )} ] `)
+	console.log(` [ ${ maxWidth( tx / 2,  txt )} ] `)
 	term.up( 1 )
 }
 function deresSeconds(ms){
@@ -5816,9 +5787,9 @@ process.on("SIGINT", function() {
 	let sig = "SIGINT"
 	output(`Received ${sig} signal`)
 	cliInstance.destroyProgress()
-	cliInstance.gracefulQuit(0, sig)
+	cliInstance.gracefulQuit(130, sig)
 	process.exitCode = 130
-	cliInstance.quit(130, "SIGINT")
+	// cliInstance.quit(130, "SIGINT")
 	setTimeout( () => {
 		process.exit() // this.now the "exit" event will fire
 	}, cliInstance.raceDelay )
@@ -6304,15 +6275,20 @@ function tripletToAminoAcid(triplet) {
 	return this.aminoacid
 }
 function rollbackFolder(fullpath) {
-	output("here goes nothing")
+	if ( path.basename(fullpath) !== cliInstance.justNameOfDNA ) {
+		error(`internal state not consistent: ${path.basename(fullpath)} !== ${cliInstance.justNameOfDNA}`)
+		return
+	} else {
+		output("here goes nothing, about to remove folder: "+ path.basename(fullpath))
+	}
 	deleteFile( cliInstance.filePNG )
 	deleteFile( cliInstance.fileHILBERT )
 	deleteFile( cliInstance.fileTouch )
 	deleteFile( cliInstance.fileHistogram )
 	deleteFile( cliInstance.fileHTML )
-	deleteFile( path.resolve(fullpath, "images" ) )
 	deleteFile( path.resolve(fullpath, "index.html" ) )
-	deleteFile( fullpath )
+	deleteDirectory( path.resolve(fullpath, "images" ) )
+	deleteDirectory( fullpath )
 }
 function dot(i, x, t) {
 	// this.debugFreq = throttledFreq();
@@ -6321,7 +6297,7 @@ function dot(i, x, t) {
 			t = `[ ${i} ]`
 		}
 		redoline(t)
-		cliInstance.progUpdate(  cliInstance.percentComplete)
+		// cliInstance.progUpdate(  cliInstance.percentComplete)
 	}
 }
 function listGenomes() {
