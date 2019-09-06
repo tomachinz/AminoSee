@@ -120,9 +120,6 @@ module.exports = () => {
 	setupApp()
 	mode("module exit")
 	log( `S: ${status} ` )
-	// cliInstance.updatesTimer = countdown("closing in ", 360000, () => {
-	// 	isShuttingDown = true
-	// })
 }
 function startGUI() {
 	cliInstance.gui = true
@@ -177,30 +174,30 @@ function populateArgs(procArgv) { // returns args
 	bugtxt( args )
 	return args
 }
-function bruteForce(cs) {
+// function bruteForce(cs) {
 
-	return false
+	// return false
 
-	let pepTable = data.pepTable
-	output("Fast Batch Enabled. Length: " + pepTable.length)
-	for (let i=1; i < data.pepTable.length-1; i++) {
-		let pep =  data.pepTable[i].Codon
-		setTimeout( () => {
-			output( " > " + pep)
-			let job = { _: [ cs ],
-				peptide: pep,
-				q: false,
-				gui: false,
-				keyboard: false,
-				k: false,
-				progress: false,
-				redraw: true,
-				updates: false,
-			}
-			// newJob( job );
-		}, 800 * i)
-	}
-}
+// 	let pepTable = data.pepTable
+// 	output("Fast Batch Enabled. Length: " + pepTable.length)
+// 	for (let i=1; i < data.pepTable.length-1; i++) {
+// 		let pep =  data.pepTable[i].Codon
+// 		setTimeout( () => {
+// 			output( " > " + pep)
+// 			let job = { _: [ cs ],
+// 				peptide: pep,
+// 				q: false,
+// 				gui: false,
+// 				keyboard: false,
+// 				k: false,
+// 				progress: false,
+// 				redraw: true,
+// 				updates: false,
+// 			}
+// 			// newJob( job );
+// 		}, 800 * i)
+// 	}
+// }
 function pushCli(cs) {
 	commandString = `aminosee ${cs}`// let commandArray = [`node`, `aminosee`, commandString];
 	output(chalk.inverse(`Starting AminoSee now with pushClI:
@@ -250,11 +247,12 @@ function setupApp() {
 	// 	} )
 	// }
 	cliInstance = new AminoSeeNoEvil()
+	threads.push( cliInstance )
 	termSize()
 	webroot = locateWebroot()
 	cliInstance.setupJob( populateArgs( process.argv ), "module exports"  )
 	cliInstance.outputPath = path.join( webroot, netFoldername) // ~/AminoSee_webroot/output
-	threads.push( cliInstance )
+
 }
 function newJob( job ) { // used node and CLI tool.
 	// output( job )
@@ -303,7 +301,7 @@ class AminoSeeNoEvil {
 		this.raceDelay = 69 // so i learnt a lot on this project. one day this line shall disappear replaced by promises.
 		this.charClock = 0
 		this.pixelClock = 0
-		this.peptide = this.triplet = this.focusTriplet = this.focusPeptide = "none"
+		this.peptide = this.triplet = this.focusTriplet = this.focusPeptide = "Reference" // used to be "none" is now "Reference"
 		this.usersPeptide = "not set"
 		this.usersTriplet = "not set"
 		this.rawDNA = "this aint sushi"
@@ -604,24 +602,23 @@ class AminoSeeNoEvil {
 			output(this.usersTriplet )
 			this.triplet = this.tidyTripletName(this.usersTriplet )
 			this.focusTriplet = this.triplet
-			if (this.triplet !== "none") { //uses global this.focusTriplet
-				output(`Found this.triplet ${ this.triplet } with colour ${ this.tripletToHue( this.triplet )}°`)
+			if (this.triplet !== "Reference") {
+				output(`Found triplet ${ this.triplet } with colour ${ this.tripletToHue( this.triplet )}°`)
 				this.isHighlightSet = true
 				output(`Custom triplet ${chalk.bgWhite.blue ( this.triplet )} set. Others will be mostly transparent.`)
-
 			} else {
 				output(`Error could not lookup this.triplet: ${ this.triplet }`)
-				this.triplet = "none"
+				this.triplet = "Reference"
 			}
 		} else {
-			log("No custom this.triplet chosen. (default)")
-			this.triplet = "none"
+			log("No custom triplet chosen. (default)")
+			this.triplet = "Reference"
 		}
 		if ( args.peptide || args.p) {
 			this.usersPeptide = args.peptide
 			this.peptide = tidyPeptideName( this.usersPeptide )
 
-			if ( this.peptide !== "none"  ) { // this colour is a flag for  this.error
+			if ( this.peptide !== "Reference"  ) { // this colour is a flag for  this.error
 				this.isHighlightSet = true
 				this.index = false // disable html report
 				output(blueWhite(`Custom peptide: ${ this.usersPeptide } using ${ this.peptide }`))
@@ -630,10 +627,10 @@ class AminoSeeNoEvil {
 			}
 		} else {
 			log("No custom peptide chosen. Will render standard reference type image")
-			this.peptide = "none"
+			this.peptide = "Reference"
 		}
 		this.focusPeptide = this.peptide
-		if ( this.peptide == "none" && this.triplet == "none") {
+		if ( this.peptide == "Reference" && this.triplet == "Reference") {
 			this.isHighlightSet = false
 			this.index = true // disable html report
 			this.report = true
@@ -641,7 +638,7 @@ class AminoSeeNoEvil {
 			output(`Peptide  ${ chalk.inverse(this.focusPeptide) } triplet ${ chalk.inverse( this.triplet )}`)
 			this.isHighlightSet = true
 			this.index = false // disable html report
-			this.report = false
+			// this.report = false
 		}
 		if ( args.artistic || args.art || args.a) {
 			output(`Artistic mode enabled. Colours are blended at a lower resolution and then spread out in columns for effect. It is faded across ${ artisticHighlightLength } pixels horizontally.`)
@@ -779,7 +776,7 @@ class AminoSeeNoEvil {
 		if ( args.gui ) {
 			log("Running AminoSee graphical user interface... use --no-gui to prevent GUI")
 			this.gui = true
-		}
+		} else { this.gui = false }
 
 
 		if ( this.isHighlightSet ) {
@@ -928,36 +925,38 @@ class AminoSeeNoEvil {
 			notQuiet(`example    --->>>    ${ chalk.italic( "aminosee --help ")}`)
 			notQuiet(`user interface ->    ${ chalk.italic( "aminosee --gui ")}`)
 			notQuiet()
-			if ( this.quiet == true || this.foreground ) {
-				cliInstance.quit(1, "no command quiet")
-			}
-			if ( !isShuttingDown && !this.quiet && !this.serve ) {
-				let time = 35000
+			let time = 35000
 
+			if ( this.quiet ) {
+				// cliInstance.quit(1, "no command quiet")
+				time = 1000
+			}
+			if ( !isShuttingDown && !this.serve ) {
 				output("quick " + time)
 				printRadMessage(["Welcome... this is a CLI app run from the terminal, see above", "[Q] or [Esc] key to exit now", " ", "PRESS ANY KEY", "to open the interface", chalk.italic( "aminosee --help"), " " + (batchProgress()) ])
 				output( interactiveKeysGuide )
 				cliInstance.setupKeyboardUI()
 				listGenomes()
-				cliInstance.updatesTimer = countdown("closing in ", time, () => {
-					mode("time out from no command")
-					destroyKeyboardUI()
-					if ( this.gui == false ) { // if the GUI is up, dont exit
-						isShuttingDown = true
-						this.quit(130, "no command. gui is true.")
-					}
-					if ( this.gui == false || this.serve == false) {
-						this.quit(1, "no command and no gui or server")
-					} else {
-						output("waiting for GUI or server to close")
-					}
-				})
+				if ( this.gui ) {
+					log("GUI")
+					startGUI()
+					pushCli("--test")
+					// return true
+				} else {
+					cliInstance.updatesTimer = countdown("closing in ", time, () => {
+						mode("time out from no command")
+						destroyKeyboardUI()
+						if ( this.gui == false ) { // if the GUI is up, dont exit
+							isShuttingDown = true
+							this.quit(1, "no command and no gui or server")
+						} else {
+							output("waiting for GUI or server to close")
+							this.quit(0, "no command. gui is true.")
+						}
+					})
+				}
 			}
 			isShuttingDown = true
-
-			// startGUI();
-			// pushCli(`--test`)
-			// return true;
 		}
 
 
@@ -1100,22 +1099,22 @@ class AminoSeeNoEvil {
 	}
 
 	getRenderObject() { // return part of the histogramJson obj
-		for (let h = 0; h < this.pepTable.length; h++) {
-			const pep =  this.pepTable[h]
+		for ( let p = 0; p < this.pepTable.length; p++ ) { // standard peptide loop
+			const pep =  this.pepTable[ p ]
 			this.focusPeptide = pep.Codon
 			if ( this.focusPeptide == "Reference" ) { // index 0
-				// this.pepTable[h].hilbert_master = hilbertimage
-				// this.pepTable[h].linear_master = linearimage
-				// this.pepTable[h].hilbert_preview = this.aminoFilenameIndex(h)[0]
-				// this.pepTable[h].linear_preview = this.aminoFilenameIndex(h)[1]
-				// this.pepTable[h].mixRGBA = this.tripletToRGBA(pep.Codon) // this will this.report this.alpha info
+				// this.pepTable[ p ].hilbert_master = hilbertimage
+				// this.pepTable[ p ].linear_master = linearimage
+				// this.pepTable[ p ].hilbert_preview = this.aminoFilenameIndex( p )[0]
+				// this.pepTable[ p ].linear_preview = this.aminoFilenameIndex( p )[1]
+				// this.pepTable[ p ].mixRGBA = this.tripletToRGBA(pep.Codon) // this will this.report this.alpha info
 			}
-			this.pepTable[h].hilbert_master = this.aminoFilenameIndex(h)[0]
-			this.pepTable[h].linear_master = this.aminoFilenameIndex(h)[1]
-			this.pepTable[h].hilbert_preview = this.aminoFilenameIndex(h)[0]
-			this.pepTable[h].linear_preview = this.aminoFilenameIndex(h)[1]
-			this.pepTable[h].mixRGBA = this.tripletToRGBA(pep.Codon) // this will this.report this.alpha info
-			log(`ext: ${ this.extension } this.pepTable[h].src ${ this.pepTable[h].src} codons per pixel: ${this.codonsPerPixelHILBERT}` )
+			this.pepTable[ p ].hilbert_master = this.aminoFilenameIndex( p )[0]
+			this.pepTable[ p ].linear_master = this.aminoFilenameIndex( p )[1]
+			this.pepTable[ p ].hilbert_preview = this.aminoFilenameIndex( p )[0]
+			this.pepTable[ p ].linear_preview = this.aminoFilenameIndex( p )[1]
+			this.pepTable[ p ].mixRGBA = this.tripletToRGBA(pep.Codon) // this will this.report this.alpha info
+			log(`ext: ${ this.extension } this.pepTable[ p ].src ${ this.pepTable[ p ].src} codons per pixel: ${this.codonsPerPixelHILBERT}` )
 		}
 
 		this.focusPeptide = this.peptide // get URL for reference image
@@ -1195,7 +1194,7 @@ class AminoSeeNoEvil {
 		this.peakAlpha  =  this.alpha
 		this.percentComplete = 0
 		this.pixelClock = 0
-		this.focusTriplet = "none"
+		this.focusTriplet = "Reference"
 		this.breakClock = 0
 		this.msElapsed = this.runningDuration = this.charClock = this.percentComplete = this.genomeSize = this.pixelClock = 0
 		this.codonRGBA = this.mixRGBA = [0,0,0,0] // this.codonRGBA is colour of last codon,  this.mixRGBA is sum so far
@@ -1231,21 +1230,21 @@ class AminoSeeNoEvil {
 		}
 		this.rgbArray = []
 		this.antiAliasArray = []
-		for (let h=0; h< this.pepTable.length; h++) {
-			this.pepTable[h].Histocount = 0
-			this.pepTable[h].z = h
-			this.pepTable[h].src = this.aminoFilenameIndex(h)[0]
+		for ( let p = 0; p < this.pepTable.length; p++ ) { // standard peptide loop
+			this.pepTable[ p ].Histocount = 0
+			this.pepTable[ p ].z = p
+			this.pepTable[ p ].src = this.aminoFilenameIndex( p )[0]
 
 			// IMAGE DATA ARRAYS
-			this.pepTable[h].mixRGBA  = [0,0,0,0]
+			this.pepTable[ p ].mixRGBA  = [0,0,0,0]
 			if ( brute == true ) {
-				this.pepTable[h].hm_array = [0,0,0,0]
-				this.pepTable[h].lm_array = [0,0,0,0]
+				this.pepTable[ p ].hm_array = [0,0,0,0]
+				this.pepTable[ p ].lm_array = [0,0,0,0]
 				// FILENAMES
-				this.pepTable[h].hilbert_master = this.aminoFilenameIndex(h)[0]
-				this.pepTable[h].linear_master = this.aminoFilenameIndex(h)[1]
-				this.pepTable[h].hilbert_preview = this.aminoFilenameIndex(h)[0]
-				this.pepTable[h].linear_preview = this.aminoFilenameIndex(h)[1]
+				this.pepTable[ p ].hilbert_master = this.aminoFilenameIndex( p )[0]
+				this.pepTable[ p ].linear_master = this.aminoFilenameIndex( p )[1]
+				this.pepTable[ p ].hilbert_preview = this.aminoFilenameIndex( p )[0]
+				this.pepTable[ p ].linear_preview = this.aminoFilenameIndex( p )[1]
 			}
 		}
 		// termSize()
@@ -1784,7 +1783,7 @@ class AminoSeeNoEvil {
 			log(msg)
 			if ( this.force == false ) {
 				this.openOutputs()
-				this.fastReset(msg)
+				this.slowSkipNext(msg)
 				return false
 			}
 			log("But lets render it again...")
@@ -1801,7 +1800,13 @@ class AminoSeeNoEvil {
 		mode(`Lock OK proceeding to render ${ this.justNameOfPNG } in ${ humanizeDuration( fileLockingDelay ) }... ${ this.busy() }`)
 		log( `S: ${status} ` )
 		this.justNameOfPNG = this.generateFilenamePNG()
-		this.touchLockAndStartStream() // <<<<------------- THIS IS WHERE MAGIC STARTS!!!!
+		setTimeout( () => {
+			if ( renderLock == false) {
+				this.touchLockAndStartStream() // <<<<------------- THIS IS WHERE MAGIC STARTS!!!!
+			} else {
+				log("Stopped")
+			}
+		}, this.raceDelay)
 	}
 
 	firstRun() {
@@ -1920,7 +1925,6 @@ class AminoSeeNoEvil {
 		}
 		// startStreamingPng();
 		procTitle( `${bytes( this.baseChars )} c${ this.codonsPerPixel } m${this.dimension}`)
-		this.streamStarted()
 
 		try {
 			// var that = this
@@ -1959,6 +1963,7 @@ class AminoSeeNoEvil {
 				output("Unknown error was caught during streaming init " + e)
 			}
 		}
+		this.streamStarted()
 
 		// output("FINISHED INIT " + cliInstance.howMany);
 
@@ -1966,7 +1971,7 @@ class AminoSeeNoEvil {
 	initialiseArrays() {
 		if ( brute == false) { return false }
 
-		for (let p = 1; p < this.pepTable.length; p++) {
+		for ( let p = 0; p < this.pepTable.length; p++ ) { // standard peptide loop
 
 			this.pepTable[p].lm_array = [0,0,0,0]
 			this.pepTable[p].hm_array = [0,0,0,0]
@@ -1983,13 +1988,13 @@ class AminoSeeNoEvil {
 		killAllTimers()
 		log("LIKE NORMAN")
 
-		for (let p = 1; p < this.pepTable.length; p++) {
+		for ( let p = 1; p < this.pepTable.length; p++ ) { // standard peptide loop
 			let pep = this.pepTable[ p ]
-			let currentLinearArray =  this.pepTable[ p ].lm_array
+			let currentLinearArray  =  this.pepTable[ p ].lm_array
 			let currentHilbertArray =  this.pepTable[ p ].hm_array
 			// saveLinearPNG();
 
-			mode("disk storm "+p)
+			mode("disk storm " + p)
 			let pixels, width, height = 0
 			let pwh = this.pixWidHeight()
 
@@ -2004,14 +2009,17 @@ class AminoSeeNoEvil {
 			fullpath = path.resolve( this.outputPath, this.justNameOfDNA, "images", pep.hilbert_master)
 			log(`saving to ${fullpath}`)
 			if ( p == this.pepTable.length -1 ) { // trigger the callback on the last one
-				genericPNG( currentHilbertArray, width, height, fullpath , cb)
+				genericPNG( currentHilbertArray, width, height, fullpath , () => {
+					this.hilbertFinished()
+				})
 			} else {
 				genericPNG( currentHilbertArray, width, height, fullpath)
 			}
 			this.pepTable[ p ].lm_array = [] // try save memory
 			this.pepTable[ p ].hm_array = [] // try save memory
+
 		}
-		this.isDiskFinHilbert = true
+		cb()
 	}
 	streamStarted() {
 		if ( renderLock == false ) {
@@ -2220,29 +2228,25 @@ class AminoSeeNoEvil {
 	removeFileExtension(f) {
 		return f.substring(0, f.length - ( this.getFileExtension(f).length+1))
 	}
-	highlightFilename(talkwithpep) {
-		// current peptide and current triplet are the ones being check in this pixel
-		// they are compared to this.focusPeptide and this.triplet which maybe set to 'none'
-		// in which case isHighlightSet should be false for reference
-		if ( talkwithpep === undefined ) { talkwithpep = "none" }
+	highlightFilename(talkwithpep) { // return small fragment of the filename
+		if ( typeof talkwithpep == "undefined" ) { talkwithpep = "Reference" }
 		let ret = ""
-
-
-
-		if ( this.triplet.toLowerCase() !== "none") {
-			ret += `__${spaceTo_( this.triplet ).toUpperCase()}` // looks better uppercase
-		} else if ( talkwithpep  !== "none") {
-			ret += `__${spaceTo_( tidyPeptideName( talkwithpep ) )}`
+		if ( this.isHighlightSet ) {
+			if ( this.triplet !== "Reference") {
+				ret += `__${spaceTo_( this.triplet ).toUpperCase()}` // looks better uppercase
+			} else if ( talkwithpep  !== "Reference") {
+				ret += `__${spaceTo_( tidyPeptideName( talkwithpep ) )}`
+			}
 		} else {
 			ret += "_Reference"
 		}
-		bugtxt(`return: ${ blueWhite( ret )} this.focusTriplet: ${this.focusTriplet} talkwithpep ${ talkwithpep}`)
+		log(`return: ${ blueWhite( ret )} this.focusTriplet: ${this.focusTriplet} talkwithpep ${ talkwithpep}`)
 		return ret
 	}
 	calcHilbertFilenames() {
 		// REQUIRES RENDERING TO MEMORY PRIOR
 		this.focusPeptide = this.peptide
-		this.justNameOfHILBERT =  this.generateFilenameHilbert(this.pixelClock, this.magnitude )
+		this.justNameOfHILBERT =  this.generateFilenameHilbert( this.focusPeptide )
 		this.fileHILBERT = path.resolve( this.outputPath, this.justNameOfDNA, "images", this.justNameOfHILBERT)
 	}
 	generateURL() {
@@ -2288,7 +2292,7 @@ class AminoSeeNoEvil {
 			this.justNameOfHILBERT =     `${ this.justNameOfDNA}.${ this.extension }_HILBERT_m${ this.dimension }_c${ onesigbitTolocale (this.codonsPerPixelHILBERT) }${ this.highlightFilename( focus ) }${ this.getRegmarks()}.png`
 			this.fileHILBERT = path.resolve( this.imgPath, this.justNameOfHILBERT )
 		}
-		log(`generateFilenameHilbert: ${this.justNameOfHILBERT}`)
+		log(`generateFilenameHilbert: ${this.justNameOfHILBERT} focus: ${blueWhite(focus)}`)
 		return this.justNameOfHILBERT
 	}
 	generateFilenameHTML() {
@@ -2327,7 +2331,7 @@ class AminoSeeNoEvil {
 
 		//
 		// if ( brute == true ) {
-		// 	for (let p = 1; p < this.pepTable.length; p++)  {
+		// for ( let p = 0; p < this.pepTable.length; p++ ) { // standard peptide loop
 		// 		// previewCodonsPerPixel
 		// 		// this.pepTable[p].linear_preview  =
 		// 		// this.pepTable[p].hilbert_preview =
@@ -2604,8 +2608,8 @@ class AminoSeeNoEvil {
 		this.savePNG( () => {
 			log("master linear done")
 		})
-		this.prepareHilbertArray()
 		this.calcHilbertFilenames()
+		this.prepareHilbertArray()
 		this.fancyFilenames()
 		this.mkRenderFolders()
 		mode("main render async.series")
@@ -2942,13 +2946,10 @@ class AminoSeeNoEvil {
 	//   return  this.baseChars; // debug flag. basically i should never see -69 appearing in  this.error logs
 	// }
 	getFileExtension(f) {
-		if (!f) { return "none" }
+		if ( typeof f == "undefined") { return "none supplied" }
 		let lastFour = f.slice(-4)
 		bugtxt(`getFileExtension ${f}`)
 		return lastFour.replace(/.*\./, "").toLowerCase()
-
-		// let lastFive = f.slice(-5);
-		// return lastFive.replace(/.*\./, '').toLowerCase();
 	}
 	checkFileExtension(f) {
 		let value = extensions.indexOf( this.getFileExtension(f) )
@@ -3109,7 +3110,7 @@ class AminoSeeNoEvil {
 				// this.mixRGBA[3] += 255 * pixelGamma
 
 				if ( brute == true ) {
-					for ( let p = 0; p < this.pepTable.length; p++ ) {
+					for ( let p = 0; p < this.pepTable.length; p++ ) { // standard peptide loop
 						this.focusPeptide = this.pepTable[ p ].Codon
 						pixelGamma = this.getGamma( triplet,  this.triplet,	this.focusPeptide  )
 						//
@@ -3173,7 +3174,7 @@ class AminoSeeNoEvil {
 		// this.rgbArray.push(Math.round( this.alpha))
 
 		if ( brute == true ) {
-			for (let p = 1; p < this.pepTable.length; p++) {
+			for ( let p = 0; p < this.pepTable.length; p++ ) { // standard peptide loop
 				// log(`mixRGBA ${this.pepTable[p].mixRGBA}`)
 				bc = balanceColour(
 					this.pepTable[p].mixRGBA[0],
@@ -3338,7 +3339,7 @@ class AminoSeeNoEvil {
 		let backupHighlight = this.isHighlightSet
 		// output(`codons per pixel hilibert: ${this.codonsPerPixelHILBERT}`)
 		if (id === undefined || id < 1) { // for the reference image
-			this.focusPeptide = "none"
+			this.focusPeptide = "Reference"
 			this.isHighlightSet = false
 		} else {
 			this.focusPeptide = this.pepTable[id].Codon
@@ -3474,7 +3475,7 @@ class AminoSeeNoEvil {
 				</td>
 				</tr>`
 		// this.pepTable   = [Codon, Description, Hue, Alpha, Histocount]
-		for (let p = 1; p < this.pepTable.length; p++) {
+		for ( let p = 0; p < this.pepTable.length; p++ ) { // standard peptide loop
 			let thePep = this.pepTable[p].Codon
 			let theHue = this.pepTable[p].Hue
 			let c =      hsvToRgb( theHue / 360, 0.5, 1.0 )
@@ -3726,7 +3727,7 @@ class AminoSeeNoEvil {
 
 		if (brute == true) {
 			log("Converting 256-bit images to 24-bit image with alpha...")
-			for (let p = 1; p < this.pepTable.length; p++) {
+			for ( let p = 0; p < this.pepTable.length; p++ ) { // standard peptide loop
 				this.pepTable[p].lm_array = Uint8ClampedArray.from( this.pepTable[p].lm_array )
 			}
 		}
@@ -3768,7 +3769,7 @@ class AminoSeeNoEvil {
 			this.hilbertImage[hilbertLinear + 3] = this.rgbArray[cursorLinear + 3]
 
 			if (brute == true) {
-				for (let p = 1; p < this.pepTable.length; p++) {
+				for ( let p = 0; p < this.pepTable.length; p++ ) { // standard peptide loop
 					this.pepTable[p].hm_array[hilbertLinear + 0] = this.pepTable[p].lm_array[cursorLinear + 0]
 					this.pepTable[p].hm_array[hilbertLinear + 1] = this.pepTable[p].lm_array[cursorLinear + 1]
 					this.pepTable[p].hm_array[hilbertLinear + 2] = this.pepTable[p].lm_array[cursorLinear + 2]
@@ -3788,7 +3789,7 @@ class AminoSeeNoEvil {
 		this.calcHilbertFilenames()
 
 		if ( brute ) {
-			for (let p = 1; p < this.pepTable.length; p++) {
+			for ( let p = 0; p < this.pepTable.length; p++ ) { // standard peptide loop
 				this.pepTable[p].hilbert_master = this.aminoFilenameIndex(p)[0]
 				this.pepTable[p].linear_master = this.aminoFilenameIndex(p)[1]
 				this.pepTable[p].hilbert_preview = this.aminoFilenameIndex(p)[0]
@@ -4387,7 +4388,7 @@ class AminoSeeNoEvil {
 		this.errorClock = streamLineNr =  0
 		this.percentComplete = 0.0001
 		this.runningDuration = 1
-		this.focusTriplet = "none"
+		this.focusTriplet = "Reference"
 		this.ratio = "sqr"
 		this.dimension = remain = magnitude
 
@@ -4566,7 +4567,7 @@ class AminoSeeNoEvil {
 		this.pixelClock++
 
 		if ( brute == true ) {
-			for (let p = 1; p < this.pepTable.length; p++) {
+			for ( let p = 0; p < this.pepTable.length; p++ ) { // standard peptide loop
 				this.pepTable[ p ].lm_array.push(Math.round( this.pepTable[ p ].mixRGBA[ 0 ]))
 				this.pepTable[ p ].lm_array.push(Math.round( this.pepTable[ p ].mixRGBA[ 1 ]))
 				// this.pepTable[ p ].lm_array.push( 255 * (i/20)  )
@@ -4668,7 +4669,7 @@ class AminoSeeNoEvil {
 
 
 	drawHistogram() {
-		return
+		// return
 		if ( isShuttingDown == true ) { output("closing...press U to update or Q to quit"); return }
 		if ( renderLock == false ) {
 			output( blueWhite( "surprise!"))
@@ -4712,9 +4713,9 @@ class AminoSeeNoEvil {
 		let text = this.calcUpdate()
 		this.colDebug = this.setDebugCols() // Math.round(term.width / 3);
 		// termSize()
+		for ( let p = 0; p < this.pepTable.length; p++ ) { // standard peptide loop
 
-		for (let h=0;h< this.pepTable.length;h++) {       // OPTIMISE i should not be creating a new array each frame!
-			aacdata[ this.pepTable[h].Codon] = this.pepTable[h].Histocount
+			aacdata[ this.pepTable[ p ].Codon] = this.pepTable[ p ].Histocount
 		}
 		let array = [
 			` Load: ${ this.loadAverages()}  Files: ${remain}/${batchSize}`,
@@ -4810,10 +4811,10 @@ class AminoSeeNoEvil {
 		// return ( this.isHighlightSet ?  this.peptideOrNothing() + this.tripletOrNothing()  : "" )
 	}
 	peptideOrNothing() {
-		return ( this.focusPeptide == "none" ? "" : this.focusPeptide )
+		return ( this.focusPeptide == "Reference" ? "" : this.focusPeptide )
 	}
 	tripletOrNothing() {
-		return ( this.triplet == "none" ? "" : this.triplet )
+		return ( this.triplet == "Reference" ? "" : this.triplet )
 	}
 	isTriplet( obj ) { // GTC = true ABC = false
 		const elTripo = obj.DNA
@@ -4863,7 +4864,7 @@ class AminoSeeNoEvil {
 				return dnaTriplets[i].DNA
 			}
 		}
-		return "none"
+		return "Reference"
 	}
 
 
@@ -4905,20 +4906,14 @@ class AminoSeeNoEvil {
 				this.aminoacid = dnaTriplets[z].Codon
 				dnaTriplets[z].Histocount++
 				// this.dot( this.genomeSize, this.debugFreq, `z = ${z} theMatch ${theMatch} <==> ${currentTriplet} ${this.aminoacid}`); // show each 10,000th (or so) base pair.
-				for (let h=0; h< this.pepTable.length; h++) { // update this.pepTable
-					if (this.aminoacid == this.pepTable[h].Codon) {
-						this.pepTable[h].Histocount++
-						// this.pepTable[h].Histocount++;
-						// let cindex =   this.pepTable[h].Description;
-						const acidesc = this.pepTable[h].Description
-						// bugtxt(`codon index for ${ fixedWidth(20, this.aminoacid)} is ${getCodonIndex(this.aminoacid)} or acidesc = ${acidesc}`)
-						// let startStops = -1; // for the start/stop codon histogram
+				for ( let p = 0; p < this.pepTable.length; p++ ) { // standard peptide loop
+					if (this.aminoacid == this.pepTable[ p ].Codon) {
+						this.pepTable[ p ].Histocount++
+						const acidesc = this.pepTable[ p ].Description
 						if (acidesc == "Stop Codons") {
-							this.pepTable[24].Histocount++
-							// this.pepTable[getCodonIndex(acidesc)]
-						} else if (acidesc == "Start Codons") {
-							this.pepTable[23].Histocount++
-							// startStops = this.pepTable.indexOf("Start Codons");
+							this.pepTable[21].Histocount++
+						} else if (acidesc == "Start Codon") {
+							this.pepTable[20].Histocount++
 						}
 						break
 					}
@@ -4964,17 +4959,10 @@ class AminoSeeNoEvil {
 		// let summary = histogramJson.summary
 		let pepTable = histogramJson.pepTable
 		// output(beautify(summary))
-		// let name = histogramJson.summary.name;
-		// let hilbertimage = summary.hilbertimage;
-		// let linearimage = summary.linearimage;
-		// let i = -1;
-		let quant = pepTable.length // Ω first command ॐ
-		//   <li>Ω <a href="images/${hilbertimage}">Reference (combined image) <br/>
-		//  <img src="images/${hilbertimage}" id="stack_reference" width="20%" height="20%" style="z-index: ${i}; position: fixed; top: 50%; left: 50%; transform: translate(${(i*4)-40},${(i*4)-40})" alt="${name} Reference image" title="${name} Reference image" onmouseover="mover(this)" onmouseout="mout(this)"></a></li>
+
 		html += `<ul id="stackOimages" class="stack">
 				`
-
-		for (let p = 1; p < this.pepTable.length; p++) {
+		for ( let p = 0; p < this.pepTable.length; p++ ) { // standard peptide loop
 			let item = histogramJson.pepTable[p]
 			let thePep = item.Codon
 			let theHue = item.Hue
@@ -4988,8 +4976,8 @@ class AminoSeeNoEvil {
 			let src = histogramJson.pepTable[p].hilbert_master
 			this.pepTable[p].hilbert_master = this.aminoFilenameIndex(p)[0]
 			this.pepTable[p].linear_master = this.aminoFilenameIndex(p)[1]
-			// this.pepTable[h].hilbert_preview = this.aminoFilenameIndex(h)[0];
-			// this.pepTable[h].linear_preview = this.aminoFilenameIndex(h)[1];
+			// this.pepTable[ p ].hilbert_preview = this.aminoFilenameIndex( p )[0];
+			// this.pepTable[ p ].linear_preview = this.aminoFilenameIndex( p )[1];
 
 			// let zoom = 3
 			// bugtxt( src );
@@ -5017,10 +5005,10 @@ class AminoSeeNoEvil {
 		//   let linear_preview =    item.linear_master
 		//   let hilbert_preview =    item.hilbert_master
 		//   let src = hilbert_master
-		//   // this.pepTable[h].hilbert_master = this.aminoFilenameIndex(h)[0];
-		//   // this.pepTable[h].linear_master = this.aminoFilenameIndex(h)[1];
-		//   // this.pepTable[h].hilbert_preview = this.aminoFilenameIndex(h)[0];
-		//   // this.pepTable[h].linear_preview = this.aminoFilenameIndex(h)[1];
+		//   // this.pepTable[ p ].hilbert_master = this.aminoFilenameIndex( p )[0];
+		//   // this.pepTable[ p ].linear_master = this.aminoFilenameIndex( p )[1];
+		//   // this.pepTable[ p ].hilbert_preview = this.aminoFilenameIndex( p )[0];
+		//   // this.pepTable[ p ].linear_preview = this.aminoFilenameIndex( p )[1];
 		//
 		//   let vector = i - (quant/2)
 		//   let zoom = 3
@@ -5144,7 +5132,7 @@ function bugout(txt) {
 		} else {
 			splitScreen += chalk.rgb(64,64,64).inverse( fixedWidth( colWidth - 10,  `[ ${batchProgress()} ${new Date().getTime()} ${ status } ${ nicePercent(cliInstance.percentComplete) } ] >>>   `))
 		}
-		splitScreen += fixedWidth( colWidth,` ${ removeNonAscii( txt)} `)
+		splitScreen += fixedWidth( colWidth*2,` ${ removeNonAscii( txt)} `)
 	} else {
 		splitScreen += txt
 	}
@@ -5598,12 +5586,9 @@ function terminalRGB(_text, _r, _g, _b) {
 	// return chalk.rgb(_r,_g,_b).inverse(_text)
 	// return chalk.rgb(_r,_g,_b).bgBlack(_text)
 }
-function showCountdown() {
-	countdown(`Closing in ${humanizeDuration(max32bitInteger)}`, 5000, this.gracefulQuit(0, "countdown"))
-}
 function countdown(text, timeMs, cb) {
-	runcb(cb)
-	return false
+	// runcb(cb)
+	// return false
 	if (text == "") { return }
 	let msg =  chalk.rgb(100,140,180)( "@ " + text + humanizeDuration ( deresSeconds(timeMs)))
 	if ( this.quiet ) {
@@ -5612,16 +5597,14 @@ function countdown(text, timeMs, cb) {
 		redoline(msg)
 	}
 	if ( timeMs > 0 ) {
-		progTimer = setTimeout(() => {
-			if ( cb !== undefined ) {
+		cliInstance.progTimer = setTimeout(() => {
+			if ( typeof cb !== "undefined" ) {
 				countdown(text, timeMs - 500, cb)
 			} else {
 				countdown(text, timeMs - 500)
 			}
 		},  500 )
 	} else {
-		redoline(" ")
-		// redoline('........')
 		runcb(cb)
 	}
 }
@@ -5822,16 +5805,16 @@ function nicePercent(percent) {
 	if (percent === undefined) { percent = cliInstance.percentComplete; log("% was undef") }
 	return minWidth(4, (Math.round(  percent*1000) / 10)) + "%"
 }
-function tidyPeptideName(str) { // give it "OPAL" it gives "Opal". GIVE it aspartic_ACID or "gluTAMic acid". also it gives "none"
+function tidyPeptideName(str) { // give it "OPAL" it gives "Opal". GIVE it aspartic_ACID or "gluTAMic acid". also it gives "Reference"
 	if (str === undefined) {
-		log(`no str was set: ${str} will return "none"`)
-		return "none"
+		log(`no str was set: ${str} will return "Reference"`)
+		return "Reference"
 	}
 	try {
 		str = spaceTo_( str.toUpperCase() )
 	} catch(e) {
-		log(`no str was set: ${str} will return "none"`)
-		return "none"
+		log(`no str was set: ${str} will return "Reference"`)
+		return "Reference"
 	}
 	for ( let i = 0; i < data.pepTable.length; i++) {
 		let compareTo = spaceTo_( data.pepTable[i].Codon.toUpperCase() )
@@ -5839,7 +5822,7 @@ function tidyPeptideName(str) { // give it "OPAL" it gives "Opal". GIVE it aspar
 			return data.pepTable[i].Codon
 		}
 	}
-	return "none"
+	return "Reference"
 }
 // function gracefulQuit(code) {
 //   cliInstance.gracefulQuit(code);
@@ -6266,7 +6249,7 @@ function killAllTimers() {
 }
 function tripletToAminoAcid(triplet) {
 	this.aminoacid = "error"
-	for (let p = 0; p < dnaTriplets.length; p++) {
+	for ( let p = 0; p < dnaTriplets.length; p++ ) { // TRIPLET LOOP
 		if ( dnaTriplets[p].DNA == triplet ) {
 			this.aminoacid = dnaTriplets[p].Codon
 			break
@@ -6339,7 +6322,6 @@ module.exports.output = output
 module.exports.AminoSeeNoEvil = AminoSeeNoEvil
 module.exports.newJob = newJob
 module.exports.pushCli = pushCli
-module.exports.bruteForce = bruteForce
 module.exports.terminalRGB = terminalRGB
 module.exports.stopWork = stopWork
 module.exports.setupPrefs = setupPrefs
