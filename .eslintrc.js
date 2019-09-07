@@ -14,8 +14,12 @@ module.exports = {
         "ecmaVersion": 2018
     },
     "rules": {
-        "indent": [
-            "error",
+      "no-mixed-spaces-and-tabs": [
+        2,
+        "smart-tabs"
+      ],
+      "indent": [
+            "off",
             "tab"
         ],
         "linebreak-style": [
@@ -31,4 +35,4 @@ module.exports = {
             "never"
         ]
     }
-};
+}

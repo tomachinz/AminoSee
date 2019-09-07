@@ -198,7 +198,7 @@ function selfSpawn() {
 		evilSpawn = spawn("aminosee", "--foreground", { stdio: "pipe" })
 		didStart = true
 	} catch(err) {
-		log(`Bargle! ${ maxWidth( 32, err )}`)
+		log(`Bargle! ${  err }`)
 		didStart = false
 	}
 	evilSpawn.stdout.on("data", (data) => {

@@ -1,104 +1,61 @@
 
 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee_src/src/aminosee-cli.js
-    43:7   error  'readParseJson' is assigned a value but never used  no-unused-vars
-    48:7   error  'beautify' is assigned a value but never used       no-unused-vars
-    50:7   error  'stream' is assigned a value but never used         no-unused-vars
-    69:7   error  'appFilename' is assigned a value but never used    no-unused-vars
-   187:2   error  Unreachable code                                    no-unreachable
-   193:8   error  'job' is assigned a value but never used            no-unused-vars
-   482:2   error  Mixed spaces and tabs                               no-mixed-spaces-and-tabs
-   484:2   error  Mixed spaces and tabs                               no-mixed-spaces-and-tabs
-   906:47  error  Empty block statement                               no-empty
-   986:2   error  Mixed spaces and tabs                               no-mixed-spaces-and-tabs
-   987:2   error  Mixed spaces and tabs                               no-mixed-spaces-and-tabs
-   988:2   error  Mixed spaces and tabs                               no-mixed-spaces-and-tabs
-   989:2   error  Mixed spaces and tabs                               no-mixed-spaces-and-tabs
-   990:2   error  Mixed spaces and tabs                               no-mixed-spaces-and-tabs
-   991:2   error  Mixed spaces and tabs                               no-mixed-spaces-and-tabs
-   992:2   error  Mixed spaces and tabs                               no-mixed-spaces-and-tabs
-   993:2   error  Mixed spaces and tabs                               no-mixed-spaces-and-tabs
-  1123:51  error  Empty block statement                               no-empty
-  1186:14  error  'file' is defined but never used                    no-unused-vars
-  1455:17  error  'force' is not defined                              no-undef
-  1456:26  error  'force' is not defined                              no-undef
-  1465:41  error  'updates' is not defined                            no-undef
-  1466:7   error  'update' is not defined                             no-undef
-  1517:9   error  'runTerminalCommand' is not defined                 no-undef
-  1558:7   error  'temp' is assigned a value but never used           no-unused-vars
-  1560:36  error  'aPeptideCodon' is not defined                      no-undef
-  1795:2   error  Mixed spaces and tabs                               no-mixed-spaces-and-tabs
-  1909:2   error  Mixed spaces and tabs                               no-mixed-spaces-and-tabs
-  2015:23  error  'i' is not defined                                  no-undef
-  2029:9   error  'i' is not defined                                  no-undef
-  2168:4   error  Unreachable code                                    no-unreachable
-  2285:29  error  'focus' is defined but never used                   no-unused-vars
-  2339:2   error  Mixed spaces and tabs                               no-mixed-spaces-and-tabs
-  2340:2   error  Mixed spaces and tabs                               no-mixed-spaces-and-tabs
-  2350:9   error  'cppBackup' is assigned a value but never used      no-unused-vars
-  2351:9   error  'hcpBackup' is assigned a value but never used      no-unused-vars
-  2518:2   error  Mixed spaces and tabs                               no-mixed-spaces-and-tabs
-  2640:28  error  'results' is defined but never used                 no-unused-vars
-  2824:16  error  'fileBug' is not defined                            no-undef
-  2827:4   error  'fileBug' is not defined                            no-undef
-  3639:3   error  'recycleHistogram' is not defined                   no-undef
-  3639:35  error  'generateFilenameHistogram' is not defined          no-undef
-  3645:20  error  'decodePNG' is not defined                          no-undef
-  3652:5   error  'saveDocuments' is not defined                      no-undef
-  3813:15  error  'resolve' is defined but never used                 no-unused-vars
-  3816:20  error  'err' is defined but never used                     no-unused-vars
-  3924:15  error  'resolve' is defined but never used                 no-unused-vars
-  3927:20  error  'err' is defined but never used                     no-unused-vars
-  3927:25  error  'resolve' is defined but never used                 no-unused-vars
-  3951:15  error  'resolve' is defined but never used                 no-unused-vars
-  3954:20  error  'err' is defined but never used                     no-unused-vars
-  3954:25  error  'resolve' is defined but never used                 no-unused-vars
-  4090:31  error  'resolve' is defined but never used                 no-unused-vars
-  4183:2   error  Mixed spaces and tabs                               no-mixed-spaces-and-tabs
-  4184:2   error  Mixed spaces and tabs                               no-mixed-spaces-and-tabs
-  4185:2   error  Mixed spaces and tabs                               no-mixed-spaces-and-tabs
-  4188:2   error  Mixed spaces and tabs                               no-mixed-spaces-and-tabs
-  4189:2   error  Mixed spaces and tabs                               no-mixed-spaces-and-tabs
-  4190:2   error  Mixed spaces and tabs                               no-mixed-spaces-and-tabs
-  4193:2   error  Mixed spaces and tabs                               no-mixed-spaces-and-tabs
-  4194:2   error  Mixed spaces and tabs                               no-mixed-spaces-and-tabs
-  4195:2   error  Mixed spaces and tabs                               no-mixed-spaces-and-tabs
-  4216:2   error  Mixed spaces and tabs                               no-mixed-spaces-and-tabs
-  4327:22  error  'brushTeeth' is not defined                         no-undef
-  4328:21  error  'getRoomTemperature' is not defined                 no-undef
-  4334:12  error  'changeClothes' is not defined                      no-undef
-  4336:12  error  'changeClothes' is not defined                      no-undef
-  4487:25  error  Empty block statement                               no-empty
-  4621:22  error  'index' is defined but never used                   no-unused-vars
-  4685:7   error  'text' is assigned a value but never used           no-unused-vars
-  4851:3   error  Unreachable code                                    no-unreachable
-  4875:7   error  'theMatch' is assigned a value but never used       no-unused-vars
-  4918:7   error  'crash' is assigned a value but never used          no-unused-vars
-  4981:7   error  'quant' is assigned a value but never used          no-unused-vars
-  4991:8   error  'c' is assigned a value but never used              no-unused-vars
-  4992:8   error  'z' is assigned a value but never used              no-unused-vars
-  5109:3   error  'windowTitle' is not defined                        no-undef
-  5226:10  error  'threesigbitsTolocale' is defined but never used    no-unused-vars
-  5229:10  error  'variable' is defined but never used                no-unused-vars
-  5238:10  error  'fixedRightSide' is defined but never used          no-unused-vars
-  5265:2   error  Unreachable code                                    no-unreachable
-  5408:10  error  'rgbToHsl' is defined but never used                no-unused-vars
-  5443:10  error  'hslToRgb' is defined but never used                no-unused-vars
-  5480:10  error  'rgbToHsv' is defined but never used                no-unused-vars
-  5617:10  error  'showCountdown' is defined but never used           no-unused-vars
-  5629:3   error  'progTimer' is not defined                          no-undef
-  5727:10  error  'bgOpen' is defined but never used                  no-unused-vars
-  5729:36  error  'options' is assigned a value but never used        no-unused-vars
-  5814:2   error  Unreachable code                                    no-unreachable
-  5815:43  error  'previousImage' is not defined                      no-undef
-  5958:10  error  'expand' is defined but never used                  no-unused-vars
-  6021:6   error  'retProm' is assigned a value but never used        no-unused-vars
-  6154:6   error  'magnitude' is defined but never used               no-unused-vars
-  6155:6   error  'computerWants' is assigned a value but never used  no-unused-vars
-  6265:7   error  'i' is not defined                                  no-undef
-  6265:12  error  'i' is not defined                                  no-undef
-  6265:36  error  'i' is not defined                                  no-undef
-  6266:20  error  'i' is not defined                                  no-undef
-  6267:33  error  'i' is not defined                                  no-undef
+    42:7   error  'readParseJson' is assigned a value but never used            no-unused-vars
+    47:7   error  'beautify' is assigned a value but never used                 no-unused-vars
+    49:7   error  'stream' is assigned a value but never used                   no-unused-vars
+    68:7   error  'appFilename' is assigned a value but never used              no-unused-vars
+    81:7   error  'defaultPreviewDimension' is assigned a value but never used  no-unused-vars
+   185:2   error  Unreachable code                                              no-unreachable
+   191:8   error  'job' is assigned a value but never used                      no-unused-vars
+  1188:14  error  'file' is defined but never used                              no-unused-vars
+  1510:9   error  'runTerminalCommand' is not defined                           no-undef
+  1549:7   error  'temp' is assigned a value but never used                     no-unused-vars
+  1551:36  error  'aPeptideCodon' is not defined                                no-undef
+  2140:4   error  Unreachable code                                              no-unreachable
+  2258:29  error  'focus' is defined but never used                             no-unused-vars
+  2324:9   error  'cppBackup' is assigned a value but never used                no-unused-vars
+  2325:9   error  'hcpBackup' is assigned a value but never used                no-unused-vars
+  2556:8   error  'msg' is assigned a value but never used                      no-unused-vars
+  2874:10  error  'that' is assigned a value but never used                     no-unused-vars
+  3653:3   error  'recycleHistogram' is not defined                             no-undef
+  3653:35  error  'generateFilenameHistogram' is not defined                    no-undef
+  3659:20  error  'decodePNG' is not defined                                    no-undef
+  3666:5   error  'saveDocuments' is not defined                                no-undef
+  3828:15  error  'resolve' is defined but never used                           no-unused-vars
+  3831:20  error  'err' is defined but never used                               no-unused-vars
+  3943:15  error  'resolve' is defined but never used                           no-unused-vars
+  3946:20  error  'err' is defined but never used                               no-unused-vars
+  3946:25  error  'resolve' is defined but never used                           no-unused-vars
+  3970:15  error  'resolve' is defined but never used                           no-unused-vars
+  3973:20  error  'err' is defined but never used                               no-unused-vars
+  3973:25  error  'resolve' is defined but never used                           no-unused-vars
+  4347:22  error  'brushTeeth' is not defined                                   no-undef
+  4348:21  error  'getRoomTemperature' is not defined                           no-undef
+  4354:12  error  'changeClothes' is not defined                                no-undef
+  4356:12  error  'changeClothes' is not defined                                no-undef
+  4509:25  error  Empty block statement                                         no-empty
+  4643:22  error  'index' is defined but never used                             no-unused-vars
+  4670:3   error  Unreachable code                                              no-unreachable
+  4698:10  error  Unreachable code                                              no-unreachable
+  4710:7   error  'text' is assigned a value but never used                     no-unused-vars
+  4876:3   error  Unreachable code                                              no-unreachable
+  4900:7   error  'theMatch' is assigned a value but never used                 no-unused-vars
+  4969:7   error  'quant' is assigned a value but never used                    no-unused-vars
+  4979:8   error  'c' is assigned a value but never used                        no-unused-vars
+  4980:8   error  'z' is assigned a value but never used                        no-unused-vars
+  5222:10  error  'minWidthRight' is defined but never used                     no-unused-vars
+  5373:10  error  'rgbToHsl' is defined but never used                          no-unused-vars
+  5408:10  error  'hslToRgb' is defined but never used                          no-unused-vars
+  5445:10  error  'rgbToHsv' is defined but never used                          no-unused-vars
+  5582:10  error  'showCountdown' is defined but never used                     no-unused-vars
+  5588:2   error  Unreachable code                                              no-unreachable
+  5596:3   error  'progTimer' is not defined                                    no-undef
+  5603:9   error  Unreachable code                                              no-unreachable
+  5693:10  error  'bgOpen' is defined but never used                            no-unused-vars
+  5695:36  error  'options' is assigned a value but never used                  no-unused-vars
+  5924:10  error  'expand' is defined but never used                            no-unused-vars
+  5987:6   error  'retProm' is assigned a value but never used                  no-unused-vars
+  6121:6   error  'dimension' is assigned a value but never used                no-unused-vars
 
-✖ 99 problems (99 errors, 0 warnings)
+✖ 56 problems (56 errors, 0 warnings)
 
