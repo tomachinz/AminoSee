@@ -90,7 +90,7 @@
     "browserify": "^16.5.0",
     "bytes": "^3.1.0",
     "carlo": "^0.9.46",
-    "cross-spawn": "^6.0.5",
+    "cross-spawn": "^7.0.0",
     "cucumber": "^5.1.0",
     "cypress": "^3.4.1",
     "dat.gui": "^0.7.6",
