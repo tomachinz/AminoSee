@@ -2608,8 +2608,8 @@ class AminoSeeNoEvil {
 		this.savePNG( () => {
 			log("master linear done")
 		})
-		this.calcHilbertFilenames()
 		this.prepareHilbertArray()
+		this.calcHilbertFilenames()
 		this.fancyFilenames()
 		this.mkRenderFolders()
 		mode("main render async.series")
@@ -2723,9 +2723,9 @@ class AminoSeeNoEvil {
 		}
 		this.fileWrite( this.fileHTML, hypertext )
 		this.fileWrite( histogramFile, histotext )
-
 		this.htmlFinished()
 		runcb(cb)
+		output(`peptide: ${this.peptide} focus ${this.focusPeptide}`)
 	}
 	fileWrite(file, contents, cb) {
 		this.mkRenderFolders()
@@ -3786,7 +3786,7 @@ class AminoSeeNoEvil {
 				break
 			}
 		}
-		this.calcHilbertFilenames()
+		// 
 
 		if ( brute ) {
 			for ( let p = 0; p < this.pepTable.length; p++ ) { // standard peptide loop
@@ -3811,6 +3811,7 @@ class AminoSeeNoEvil {
 		this.diskStorm( () => {
 			log("disk storm has returned")
 		})
+		this.calcHilbertFilenames()
 
 		// var hilbert_img_data = Uint8ClampedArray.from( this.hilbertImage )
 		var hilbert_img_data = this.hilbertImage
