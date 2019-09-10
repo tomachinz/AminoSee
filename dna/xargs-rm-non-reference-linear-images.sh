@@ -10,7 +10,8 @@ if [ $(uname)=Linux ]; then
   XARGPARAM=" -I "
   FINDPARAM=" "
 fi
-COMMAND="find  -f ./output/  | grep -E '_linear_[ABCDEFGHIJKLMNOPQRSTUVWXYZ].*_fix_sci.png' "
+# COMMAND="find  -f ./output/  | grep -E '_linear_[ABCDEFGHIJKLMNOPQRSTUVWXYZ].*_fix_sci.png' "
+COMMAND=" find  -f ./AminoSee_webroot/output | grep __ | grep linear  "
 PREVIEW="$COMMAND | xargs $XARGPARAM $ ls -laH $ "
 DELETE="$COMMAND  | xargs $XARGPARAM $ rm -v $ "
 CONFIG="list-of-files-to-be-deleted.txt"

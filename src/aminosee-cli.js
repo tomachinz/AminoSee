@@ -3454,11 +3454,11 @@ class AminoSeeNoEvil {
 				<h3>M${this.dimension}C${this.codonsPerPixel}H${onesigbitTolocale( this.codonsPerPixelHILBERT )}</h3>
 
 
-				<a href="images/${ this.pepTable[0].linear_master }" class="button" title"Click To Scroll Down To See LINEAR"><br />
+				<a href="#scrollLINEAR" class="button" title"Click To Scroll Down To See LINEAR"><br />
 				<img id="oi" width="128" height="128" style="border: 4px black; background: black;" src="images/${ this.pepTable[0].linear_master }">
 				1D Linear Map Image
 				</a>
-				<a href="images/${this.pepTable[0].hilbert_master }" class="button" title"Click To Scroll Down To See 2D Hilbert Map"><br />
+				<a href="#scrollHILBERT" class="button" title"Click To Scroll Down To See 2D Hilbert Map"><br />
 				<img width="128" height="128" style="border: 4px black background: black;" src="images/${ this.pepTable[0].hilbert_master }">
 				2D Hilbert Map Image
 				</a>
@@ -3560,13 +3560,12 @@ class AminoSeeNoEvil {
 		html += `</div>
 
 				<br /><br />
-				http://localhost:4321/aminosee/output/50KB_TestPattern/50KB_TestPattern.txt_linear__Reference_c1_sci.png
-
-
+				<a name="scrollHILBERT" ></a>
+	
 				${( this.test ? " this.test " : this.imageStack( histogramJson ))}
 
 
-				<a name="scrollHILBERT" ></a>
+				<a name="scrollLINEAR" ></a>
 				<a href="images/${ this.pepTable[0].linear_master }" ><img src="images/${ this.pepTable[0].linear_master  }" width-"99%" height="auto"></a>
 
 
@@ -3581,8 +3580,8 @@ class AminoSeeNoEvil {
 				In prokaryotes, E. coli is found to use AUG 83%, GUG 14%, and UUG 3% as START codons. The lacA and lacI coding this.regions in the E coli lac operon don’t have AUG START codon and instead use UUG and GUG as initiation codons respectively.</p>
 				<h2>Linear Projection</h2>
 				The following image is in raster order, top left to bottom right:
-				<a name="scrollLINEAR" ></a>
-				<a href="images/${ this.pepTable[0].linear_master }" ><img src="images/${ this.pepTable[0].linear_master  }" width="99%" height="auto"></a>
+				<a name="scrollLINEAR" ></a>				
+				<a href="images/${ this.pepTable[0].linear_master }" ><img src="images/${ this.pepTable[0].linear_master  }" width="99%" height="auto" style="border: 4px black; background: black;" ></a>
 				<br/>
 
 				<div id="googleads">
