@@ -1636,7 +1636,7 @@ class AminoSeeNoEvil {
 			if ( killServersOnQuit ) {
 				// output("Control-c to stop server")
 				setTimeout( () => {
-				this.quit(1,  status )
+				this.quit(0,  status )
 			}), 10
 			} else {
 				output("Control-c to stop server")
@@ -3454,12 +3454,12 @@ class AminoSeeNoEvil {
 				<h3>M${this.dimension}C${this.codonsPerPixel}H${onesigbitTolocale( this.codonsPerPixelHILBERT )}</h3>
 
 
-				<a href="images/${ this.justNameOfPNG }" class="button" title"Click To Scroll Down To See LINEAR"><br />
-				<img id="oi" width="128" height="128" style="border: 4px black; background: black;" src="images/${ this.justNameOfPNG }">
+				<a href="images/${ this.pepTable[0].linear_master }" class="button" title"Click To Scroll Down To See LINEAR"><br />
+				<img id="oi" width="128" height="128" style="border: 4px black; background: black;" src="images/${ this.pepTable[0].linear_master }">
 				1D Linear Map Image
 				</a>
-				<a href="images/${ this.justNameOfHILBERT }" class="button" title"Click To Scroll Down To See 2D Hilbert Map"><br />
-				<img width="128" height="128" style="border: 4px black background: black;" src="images/${ this.justNameOfHILBERT }">
+				<a href="images/${this.pepTable[0].hilbert_master }" class="button" title"Click To Scroll Down To See 2D Hilbert Map"><br />
+				<img width="128" height="128" style="border: 4px black background: black;" src="images/${ this.pepTable[0].hilbert_master }">
 				2D Hilbert Map Image
 				</a>
 
@@ -3477,30 +3477,17 @@ class AminoSeeNoEvil {
 				</tr>
 				</thead>
 				<tbody>
-
-				<tr>
-				<td style="background-color: white;"> All amino acids combined =   </td>
-				<td>
-				<p class="fineprint" style="background-color: white; background-color: rgba(255,255,255,0.5); color: black;">n/a</p>
-				</td>
-				<td style="color: white; font-weight: bold; "> <p class="fineprint" style="background-color: black; background-color: rgba(0,0,0,0.5); color: white;">n/a</p> </td>
-				<td></td>
-				<td>n/a</td>
-				<td style="background-color: white;">
-				<a href="images/${ this.justNameOfHILBERT}" class="button" title="Reference Hilbert Image"><img width="48" height="16" class="blackback" src="images/${ this.justNameOfHILBERT}" alt="AminoSee Reference Hilbert Image ${ this.justNameOfDNA}"></a>
-				</td>
-				<td style="background-color: white;">
-				<a href="images/${ this.justNameOfPNG}" class="button" title="Reference Linear Image"><img width="48" height="16" class="blackback" src="images/${ this.justNameOfPNG}" alt="Reference Linear Image ${ this.justNameOfDNA}"></a>
-				</td>
-				</tr>`
+				`
 		// this.pepTable   = [Codon, Description, Hue, Alpha, Histocount]
 		for ( let p = 0; p < this.pepTable.length; p++ ) { // standard peptide loop
 			let thePep = this.pepTable[p].Codon
 			let theHue = this.pepTable[p].Hue
 			let c =      hsvToRgb( theHue / 360, 0.5, 1.0 )
 			let richC = hsvToRgb( theHue / 360, 0.95, 0.75 )
-			let imghil = this.aminoFilenameIndex(p)[0] // first elemewnt in array is the hilbert image
-			let imglin = this.aminoFilenameIndex(p)[1] // second element is linear
+			// let imghil = this.aminoFilenameIndex(p)[0] // first elemewnt in array is the hilbert image
+			let imghil = this.pepTable[p].hilbert_master 
+			// let imglin = this.aminoFilenameIndex(p)[1] // second element is linear
+			let imglin = this.pepTable[p].linear_master // second element is linear
 			if ( thePep == "Reference" ) {  this.pepTable[p].Histocount = this.genomeSize  }
 			if ( thePep == "Start Codons" || thePep == "Stop Codons" || thePep == "Non-coding NNN") {
 				html += `<!-- ${thePep} -->`
@@ -4085,7 +4072,7 @@ class AminoSeeNoEvil {
 
 
 	savePNG(cb) {
-		output("savePNG: " +this.filePNG)
+		log("savePNG: " +this.filePNG)
 		let width, height = 0
 		let pwh = this.pixWidHeight()
 
@@ -6016,7 +6003,8 @@ function balanceColour( red, green, blue, alpha) {
 	if ( alpha > max ) {
 		alpha = max
 	}
-	return  [ Math.round(red * scaleGamma), Math.round(green * scaleGamma), Math.round(blue * scaleGamma), Math.round(alpha * scaleGamma)]
+	return  [ Math.round(red * scaleGamma), Math.round(green * scaleGamma), Math.round(blue * scaleGamma), Math.round( ( this.isHighlightSet ? alpha * scaleGamma : 255 )  )]
+	// return  [ Math.round(red * scaleGamma), Math.round(green * scaleGamma), Math.round(blue * scaleGamma), Math.round(alpha * scaleGamma)]
 }
 function genericPNG(rgbArray, width, height, filename, cb) {
 	var img_data = Uint8ClampedArray.from( rgbArray )
