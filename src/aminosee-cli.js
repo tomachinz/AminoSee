@@ -3473,7 +3473,7 @@ class AminoSeeNoEvil {
 				<th>Count</th>
 				<th>Description</th>
 				<th>Hilbert PNG</th>
-				<th>Linear PNG</th>
+			<!--	<th>Linear PNG</th> -->
 				</tr>
 				</thead>
 				<tbody>
@@ -3501,9 +3501,9 @@ class AminoSeeNoEvil {
 						<td>${ this.pepTable[p].Histocount.toLocaleString()}</td>
 						<td>${ this.pepTable[p].Description}</td>
 						<td style="background-color: white;"><a href="images/${ imghil }" class="button" title="Amino filter: ${ thePep }"><img width="48" height="16" class="blackback" src="images/${ imghil }" alt="${ this.justNameOfDNA } ${ thePep }"></a></td>
-						<td style="background-color: white;">
+						<!-- <td style="background-color: white;">
 						<a href="images/${ imglin }" class="button" title="Amino filter: ${ thePep }"><img width="48" height="16" class="blackback" src="images/${ imglin }" alt="${ this.justNameOfDNA } ${ thePep }"></a>
-						</td>
+						</td> -->
 						</tr>
 						`
 			}
@@ -3567,7 +3567,7 @@ class AminoSeeNoEvil {
 
 
 				<a name="scrollHILBERT" ></a>
-				<a href="images/${ this.justNameOfHILBERT}" ><img src="images/${ this.justNameOfHILBERT}" width-"99%" height="auto"></a>
+				<a href="images/${ this.pepTable[0].linear_master }" ><img src="images/${ this.pepTable[0].linear_master  }" width-"99%" height="auto"></a>
 
 
 
@@ -3582,7 +3582,7 @@ class AminoSeeNoEvil {
 				<h2>Linear Projection</h2>
 				The following image is in raster order, top left to bottom right:
 				<a name="scrollLINEAR" ></a>
-				<a href="images/${ this.justNameOfPNG}" ><img src="images/${ this.justNameOfPNG}"></a>
+				<a href="images/${ this.pepTable[0].linear_master }" ><img src="images/${ this.pepTable[0].linear_master  }" width="99%" height="auto"></a>
 				<br/>
 
 				<div id="googleads">
