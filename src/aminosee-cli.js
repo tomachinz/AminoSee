@@ -1308,7 +1308,6 @@ class AminoSeeNoEvil {
 					status  = "TERMINATED WITH CONTROL-C"
 					that.gracefulQuit(0, "Control-c")
 					destroyKeyboardUI()
-					isShuttingDown = true
 
 					if ( renderLock == true && this.timeRemain < 10000) {
 						that.msPerUpdate = 800
@@ -1470,7 +1469,7 @@ class AminoSeeNoEvil {
 		mode( `Graceful shutdown in progress... code ${code} reason ${reason}`)
 		server.stop()
 		if ( renderLock ) {
-			output( blueWhite( `R: ${status} ` ) )
+			output( blueWhite( `R: ${status} still rendering: ${this.justNameOfPNG}` ) )
 		}
 		bugtxt("webserverEnabled: " + webserverEnabled + " killServersOnQuit: "+ killServersOnQuit)
 		// printRadMessage(  status )
@@ -1479,7 +1478,7 @@ class AminoSeeNoEvil {
 		cliInstance.args._= []
 		remain = 1
 		batchSize = 0
-		debug = true
+		// debug = true
 		this.devmode = true
 		this.updates = false
 		if (this.devmode == true) {
