@@ -638,7 +638,7 @@ class AminoSeeNoEvil {
 			output(`Peptide  ${ chalk.inverse(this.focusPeptide) } triplet ${ chalk.inverse( this.triplet )}`)
 			this.isHighlightSet = true
 			this.index = false // disable html report
-			// this.report = false
+			this.report = false
 		}
 		if ( args.artistic || args.art || args.a) {
 			output(`Artistic mode enabled. Colours are blended at a lower resolution and then spread out in columns for effect. It is faded across ${ artisticHighlightLength } pixels horizontally.`)
@@ -908,8 +908,16 @@ class AminoSeeNoEvil {
 
 
 		} else if ( remain < 1  ) {
+      let time = 35000
 			mode("no command")
-			if ( cliruns < 3) {
+      //
+
+      if ( this.quiet ) {
+				time = 1000
+        log("exiting")
+        process.exit()
+			}
+      if ( cliruns < 3) {
 				output("FIRST RUN!!! Opening the demo... use the command aminosee demo to see this first run demo in future")
 				this.firstRun()
 				isShuttingDown = false
@@ -925,12 +933,10 @@ class AminoSeeNoEvil {
 			notQuiet(`example    --->>>    ${ chalk.italic( "aminosee --help ")}`)
 			notQuiet(`user interface ->    ${ chalk.italic( "aminosee --gui ")}`)
 			notQuiet()
-			let time = 35000
 
-			if ( this.quiet ) {
-				// cliInstance.quit(1, "no command quiet")
-				time = 1000
-			}
+
+      log(`will hold CLI for ${humanizeDuration(time)}`)
+
 			if ( !isShuttingDown && !this.serve ) {
 				output("quick " + time)
 				printRadMessage(["Welcome... this is a CLI app run from the terminal, see above", "[Q] or [Esc] key to exit now", " ", "PRESS ANY KEY", "to open the interface", chalk.italic( "aminosee --help"), " " + (batchProgress()) ])
@@ -2668,29 +2674,23 @@ class AminoSeeNoEvil {
 			mode("Didnt save HTML report because the linear file was recycled.")
 			this.isDiskFinHTML = true
 		}
-		if (this.isDiskFinHTML == true ) { // set just above
+		if (this.isDiskFinHTML !== true ) { // set just above
 			this.htmlFinished()
 			runcb(cb)
 			return false
 		}
 		mode("saving HTML")
 		this.pepTable.sort( this.compareHistocount )
-
 		let histogramJson =  this.getRenderObject()
-
+    let histogramFile = this.generateFilenameHistogram()
 		bugtxt(`globalVariablesDoSuck: ${	this.focusPeptide}`)
-
-
 		// output( beautify( histogramJson , null, 2, 100) )
-
-		let histogramFile = this.generateFilenameHistogram()
-
 
 
 		// if ( doesFileExist( histogramFile ) ) {
-		//   let loadedJson = readParseJson( histogramFile );
+		//   let loadedJson = readParseJson( histogramFile )
 		//   console.log( beautify( JSON.stringify( loadedJson ), null, 2, 100) )
-		// this.pepTable = loadedJson.pepTable
+		//   this.pepTable = loadedJson.pepTable
 		// }
 		// process.exit();
 		let hypertext, filename
@@ -2704,7 +2704,7 @@ class AminoSeeNoEvil {
 		// let histotext = beautify( JSON.stringify( histogramJson ), null, 2, 100);
 		// let histotext =  JSON.stringify( histogramJson )
 		let histotext =  histogramJson.toString()
-		// output(histotext)
+		output(histotext)
 		if (this.userCPP == "auto" && this.magnitude == "auto" && this.artistic == false && this.index == false) {
 			if ( debug ) {
 				filename = path.resolve( this.outputPath, this.justNameOfDNA, "main.html")
@@ -2903,7 +2903,7 @@ class AminoSeeNoEvil {
 					isShuttingDown = true
 				}
 				setTimeout( () => {
-					let msg = `Great success with render of (${this.justNameOfDNA})`
+					let msg = `${batchProgress()} Great success with render of (${this.justNameOfDNA})`
 					notQuiet(msg)
 					saySomethingEpic()
 					renderLock = false
@@ -3161,12 +3161,14 @@ class AminoSeeNoEvil {
 			this.mixRGBA[2],
 			this.mixRGBA[3]
 		)
-
 		this.red =   bc[0]
 		this.green = bc[1]
 		this.blue  = bc[2]
 		this.alpha = bc[3]
 
+    if ( debug ) {
+      console.log( this.printRGB() )
+    }
 		// this.rgbArray.push(Math.round( this.red ))
 		// this.rgbArray.push(Math.round( this.green ))
 		// this.rgbArray.push(Math.round( this.blue ))
@@ -3399,6 +3401,8 @@ class AminoSeeNoEvil {
 				<script src="https://www.funk.co.nz/aminosee/public/hilbert2D.js"></script>
 				<script src="https://www.funk.co.nz/aminosee/public/WebGL.js"></script>
 				<script src="https://www.funk.co.nz/aminosee/public/hammer.min.js"></script>
+        <script async src="../../public/aminosee-gui-web.js"></script>
+
 				-->
 
 				<script async src="../../public/three.min.js"></script>
@@ -3407,7 +3411,6 @@ class AminoSeeNoEvil {
 				<script async src="../../public/hilbert2D.js"></script>
 				<script async src="../../public/WebGL.js"></script>
 				<script async src="../../public/hammer.min.js"></script>
-				<script async src="../../public/aminosee-gui-web.js"></script>
 
 				<style>
 				border: 1px black;
@@ -4753,15 +4756,7 @@ class AminoSeeNoEvil {
 		output(`Report URL:  ${chalk.underline(  blueWhite( maxWidth(tx - 16, this.currentURL )))}`)
 		output(`Input file:  ${chalk.underline(  blueWhite( path.normalize( this.dnafile )))}`)
 		output(`Output path: ${chalk.underline(  blueWhite( path.join( this.outputPath, this.justNameOfDNA)))}`)
-		output(`Last Acid: ${ chalk.inverse.rgb(
-			ceiling( this.red ),
-			ceiling( this.green ),
-			ceiling( this.blue )).bgWhite.bold( fixedWidth(16, "  " + this.aminoacid + "   ") )
-		} Last pixel: ` + chalk.bold(
-			chalk.rgb(this.peakRed, 0, 0).inverse.bgBlue(  maxWidth(7, `R:  ${this.peakRed}` )) +
-				chalk.rgb(0, this.peakGreen, 0).inverse.bgRed( maxWidth(10, `G:  ${this.peakGreen}` )) +
-				chalk.rgb(0, 0, this.peakBlue).inverse.bgYellow(maxWidth(8, `B:  ${this.peakBlue}` )) +
-				chalk.rgb(this.peakAlpha, this.peakAlpha, this.peakAlpha).inverse.bgBlue(maxWidth(8, `A:  ${this.peakAlpha}` ))) )
+		output( this.printRGB() )
 		term.right( this.termMarginLeft )
 		term.eraseDisplayBelow()
 
@@ -4788,6 +4783,17 @@ class AminoSeeNoEvil {
 		}
 
 	}
+  printRGB() {
+    return `Last Acid: ${ chalk.inverse.rgb(
+			ceiling( this.red ),
+			ceiling( this.green ),
+			ceiling( this.blue )).bgWhite.bold( fixedWidth(16, "  " + this.aminoacid + "   ") )
+		} Last pixel: ` + chalk.bold(
+			chalk.rgb(this.peakRed, 0, 0).inverse.bgBlue(  fixedWidth(7, `R:  ${this.peakRed}` )) +
+				chalk.rgb(0, this.peakGreen, 0).inverse.bgRed( fixedWidth(10, `G:  ${this.peakGreen}` )) +
+				chalk.rgb(0, 0, this.peakBlue).inverse.bgYellow(fixedWidth(8, `B:  ${this.peakBlue}` )) +
+				chalk.rgb(this.peakAlpha, this.peakAlpha, this.peakAlpha).inverse.bgBlue(maxWidth(8, `A:  ${this.peakAlpha}` )))
+  }
 	memToString() {
 		let memReturn = "Memory load: [ "
 		// const arr = [1, 2, 3, 4, 5, 6, 9, 7, 8, 9, 10];
@@ -5759,8 +5765,14 @@ function listDNA() {
 // }
 process.on("SIGTERM", () => {
 	let sig = "SIGTERM"
-	output(`Received ${sig} signal (ignoring) ${batchProgress()}`)
-	cliInstance.gracefulQuit(130, sig)
+	output(`${batchProgress()} Received ${sig} signal`)
+  if ( remain > 0 || streamLineNr > 0 ) {
+    destroyKeyboardUI()
+  } else {
+    output(`ignoring but unlocking keyboard ${batchProgress()}`)
+  }
+
+	// cliInstance.gracefulQuit(130, sig)
 	// cliInstance.destroyProgress();
 	// process.exitCode = 130;
 	// cliInstance.quit(130, "SIGTERM");
