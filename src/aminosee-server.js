@@ -33,6 +33,8 @@ module.exports = (options) => {
 	setArgs(options);
 	[ userprefs, projectprefs ] = setupPrefs()
 	log(appFilename)
+	stop() // ironically, guess what we gotta do first?
+
 	try {
 		start()
 		return args.openPage
@@ -270,7 +272,6 @@ function spawnBackground(p) { // Spawn background server
 function foregroundserver() {
 	process.title = "aminosee.funk.nz_foreground"
 	let didStart = false
-
 	// var root = path.join(__dirname)
 	log( `webroot ${webroot}` )
 	try {
@@ -292,7 +293,7 @@ function foregroundserver() {
 
 
 	try {
-		server.listen(port)
+			server.listen(port)
 		didStart = true
 	} catch(err) {
 		if ( err.indexOf("EADDRINUSE") !== -1 ) {
@@ -303,9 +304,18 @@ function foregroundserver() {
 	}
 	if ( !didStart ) {
 		try {
-			server.listen(backupPort)
-			didStart = true
-			port = backupPort
+			try {
+				server.listen(backupPort)
+				didStart = true
+				port = backupPort
+			} catch(err) {
+				if ( err.indexOf("EADDRINUSE") !== -1 ) {
+					output(`backup Port ${backupPort} in use also`)
+				} else {
+					output(`unknown error starting server: ${err}`)
+				}
+			}
+
 		} catch(err) {
 			if ( err.indexOf("EADDRINUSE") !== -1 ) {
 				output(`backup Port ${backupPort} in use also`)

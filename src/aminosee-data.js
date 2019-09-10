@@ -695,54 +695,54 @@ let pepTable   = [
 		"Histocount": 0, "src": null, "z": null, "index": 19,
 	},
 	{
-		"Codon": "Start Codon",
-		"Description": "Count of Methionine",
-		"Hue": 120,
-		"Alpha": 0.0,
-		"Histocount": 0, "src": null, "z": null, "index": 20,
-	},
-	{
-		"Codon": "Stop Codons",
-		"Description": "One of Opal, Ochre, or Amber",
-		"Hue": 120,
-		"Alpha": 0.0,
-		"Histocount": 0, "src": null, "z": null, "index": 21,
-	},
-	{
-		"Codon": "Non-coding NNN",
-		"Description": "Expressed as NNN Codon",
-		"Hue": 120,
-		"Alpha": 0,
-		"Histocount": 0, "src": null, "z": null, "index": 22,
-	},
-	{
 		"Codon": "Methionine",
 		"Description": "START Codon",
 		"Hue": 110,
 		"Alpha": 1,
-		"Histocount": 0, "src": null, "z": null, "index": 23,
+		"Histocount": 0, "src": null, "z": null, "index": 20,
 	},
 	{
 		"Codon": "Ochre",
 		"Description": "STOP Codon",
 		"Hue": 0,
 		"Alpha": 1,
-		"Histocount": 0, "src": null, "z": null, "index": 24,
+		"Histocount": 0, "src": null, "z": null, "index": 21,
 	},
 	{
 		"Codon": "Amber",
 		"Description": "STOP Codon",
 		"Hue": 47,
 		"Alpha": 1,
-		"Histocount": 0, "src": null, "z": null, "index": 25,
+		"Histocount": 0, "src": null, "z": null, "index": 22,
 	},
 	{
 		"Codon": "Opal",
 		"Description": "STOP Codon",
 		"Hue": 240,
 		"Alpha": 1,
-		"Histocount": 0, "src": null, "z": null, "index": 26,
-	},
+		"Histocount": 0, "src": null, "z": null, "index": 23,
+	}
+	// {
+	// 	"Codon": "Start Codon",
+	// 	"Description": "Count of Methionine",
+	// 	"Hue": 120,
+	// 	"Alpha": 0.0,
+	// 	"Histocount": 0, "src": null, "z": null, "index": 24,
+	// },
+	// {
+	// 	"Codon": "Stop Codons",
+	// 	"Description": "One of Opal, Ochre, or Amber",
+	// 	"Hue": 120,
+	// 	"Alpha": 0.0,
+	// 	"Histocount": 0, "src": null, "z": null, "index": 25,
+	// },
+	// {
+	// 	"Codon": "Non-coding NNN",
+	// 	"Description": "Expressed as NNN Codon",
+	// 	"Hue": 120,
+	// 	"Alpha": 0,
+	// 	"Histocount": 0, "src": null, "z": null, "index": 26,
+	// }
 ]
 
 

@@ -167,7 +167,7 @@ function populateArgs(procArgv) { // returns args
 		boolean: [ "artistic", "clear", "chrome", "devmode", "debug", "demo", "dnabg", "explorer", "file", "force", "fullscreen", "firefox", "gui", "html", "image", "keyboard", "list", "progress", "quiet", "reg", "recycle", "redraw", "slow", "serve", "safari", "test", "updates", "verbose", "view" ],
 		string: [ "url", "output", "triplet", "peptide", "ratio" ],
 		alias: { a: "artistic", b: "dnabg", c: "codons", d: "devmode", f: "force", finder: "explorer", h: "help", k: "keyboard", m: "magnitude", o: "output", p: "peptide", i: "image", t: "triplet", u: "updates", q: "quiet", r: "reg", w: "width", v: "verbose", x: "explorer", view: "html" },
-		default: { brute: false, debug: false, gui: false, html: true, image: true, index: true, clear: false, explorer: false, quiet: false, keyboard: true, progress: false, redraw: true, updates: true, stop: false, serve: true, fullscreen: false },
+		default: { brute: false, debug: false, gui: false, html: true, image: true, index: true, clear: false, explorer: false, quiet: false, keyboard: true, progress: true, redraw: true, updates: true, stop: false, serve: false, fullscreen: false },
 		stopEarly: false
 	} // NUMERIC INPUTS: codons, magnitude, width, maxpix
 	let args = minimist(procArgv.slice(2), options)
@@ -359,17 +359,17 @@ class AminoSeeNoEvil {
 		// this.currentFile = args._[0].toString()
 		if ( args.demo ) {
 			this.demo = true
+      this.test = true
 			remain++
 			batchSize++
-
 		}
-		if ( args.test || args.demo ) {
+		if ( args.test  ) {
 			this.test = true
 			remain++
 			batchSize++
-			if ( !args.image ) {
-				this.openImage = false
-			}
+			// if ( !args.image ) {
+			// 	this.openImage = false
+			// }
 			// error("stopping due to test")
 			// return false
 		}
@@ -878,7 +878,9 @@ class AminoSeeNoEvil {
 			output("Ω Running test Ω")
 			remain = this.dimension
 			// this.dimension = args.magnitude
-			this.generateTestPatterns(bugout)
+			this.generateTestPatterns(() => {
+        this.quit(0, "test patterns")
+      })
 		} else if ( this.demo == true ) {
 			mode("demo mode")
 			remain = this.dimension
@@ -895,7 +897,11 @@ class AminoSeeNoEvil {
 			// this.fastReset("first command")
 			if ( !this.test ) {
 				this.pollForStream()
-			}
+			} else if ( this.demo ) {
+        runDemo()
+      } else {
+        this.generateTestPatterns()
+      }
 
 
 			// setImmediate( () => {
@@ -916,6 +922,7 @@ class AminoSeeNoEvil {
 				time = 1000
         log("exiting")
         process.exit()
+        retrn
 			}
       if ( cliruns < 3) {
 				output("FIRST RUN!!! Opening the demo... use the command aminosee demo to see this first run demo in future")
@@ -1115,6 +1122,7 @@ class AminoSeeNoEvil {
 				// this.pepTable[ p ].linear_preview = this.aminoFilenameIndex( p )[1]
 				// this.pepTable[ p ].mixRGBA = this.tripletToRGBA(pep.Codon) // this will this.report this.alpha info
 			}
+			if ( pep.Codon == "Reference" ) { this.pepTable[ p ].Histocount = this.genomeSize }
 			this.pepTable[ p ].hilbert_master = this.aminoFilenameIndex( p )[0]
 			this.pepTable[ p ].linear_master = this.aminoFilenameIndex( p )[1]
 			this.pepTable[ p ].hilbert_preview = this.aminoFilenameIndex( p )[0]
@@ -1494,6 +1502,7 @@ class AminoSeeNoEvil {
 		}
 		// killAllTimers()
 		destroyKeyboardUI()
+		this.destroyProgress()
 		this.quit(code, "graceful")
 	}
 
@@ -1621,10 +1630,14 @@ class AminoSeeNoEvil {
 			mode("Happiness.")
 			data.saySomethingEpic()
 			log(chalk.bgRed.yellow( `R: ${status} ` ))
-			printRadMessage(  status )
+			if ( !this.quiet ) {
+				printRadMessage(  status )
+			}
 			if ( killServersOnQuit ) {
 				// output("Control-c to stop server")
+				setTimeout( () => {
 				this.quit(1,  status )
+			}), 10
 			} else {
 				output("Control-c to stop server")
 				this.quit(0,  status )
@@ -2622,7 +2635,7 @@ class AminoSeeNoEvil {
 		this.savePNG( this.saveHilbert( this.saveHTML( this.postRenderPoll() )))
 
 
-		output( "Saving complete............... next: " + cliInstance.nextFile )
+		log( "Saving complete............... next: " + cliInstance.nextFile )
 
 
 
@@ -2669,12 +2682,13 @@ class AminoSeeNoEvil {
 		mode("maybe save HTML")
 		if ( this.isHilbertPossible == false ) { mode("not saving html - due to hilbert not possible"); this.isDiskFinHTML = true }
 		if ( this.report == false ) { mode("not saving html - due to report disabled. peptide: " + this.focusPeptide); this.isDiskFinHTML = true }
-		if ( this.test ) { log("not saving html - due to test");  this.isDiskFinHTML = true  }
+		if ( this.test ) { mode("not saving html - due to test");  this.isDiskFinHTML = true  }
 		if ( this.willRecycleSavedImage == true && this.recycEnabled == true) {
 			mode("Didnt save HTML report because the linear file was recycled.")
 			this.isDiskFinHTML = true
 		}
-		if (this.isDiskFinHTML !== true ) { // set just above
+		if (this.isDiskFinHTML == true ) { // set just above
+			output(`status ${status} not saving`)
 			this.htmlFinished()
 			runcb(cb)
 			return false
@@ -2704,7 +2718,7 @@ class AminoSeeNoEvil {
 		// let histotext = beautify( JSON.stringify( histogramJson ), null, 2, 100);
 		// let histotext =  JSON.stringify( histogramJson )
 		let histotext =  histogramJson.toString()
-		output(histotext)
+		log(histotext)
 		if (this.userCPP == "auto" && this.magnitude == "auto" && this.artistic == false && this.index == false) {
 			if ( debug ) {
 				filename = path.resolve( this.outputPath, this.justNameOfDNA, "main.html")
@@ -2724,7 +2738,7 @@ class AminoSeeNoEvil {
 		this.fileWrite( histogramFile, histotext )
 		this.htmlFinished()
 		runcb(cb)
-		output(`peptide: ${this.peptide} focus ${this.focusPeptide}`)
+		log(`peptide: ${this.peptide} focus ${this.focusPeptide}`)
 	}
 	fileWrite(file, contents, cb) {
 		this.mkRenderFolders()
@@ -2859,7 +2873,10 @@ class AminoSeeNoEvil {
 
 		if ( renderLock == false ) { // re-entrancy filter
 			log(chalk.bgRed("another thread has continued"))
-			return false
+      if ( !this.test ) {
+        return false
+
+      }
 		}
 
 		// try to avoid messing with globals of a already running render!
@@ -2890,7 +2907,7 @@ class AminoSeeNoEvil {
 				} else {
 					remain--
 					renderLock = false
-					this.quit(1, "Finished test")
+					// this.quit(1, "Finished test")
 				}
 
 
@@ -3467,7 +3484,7 @@ class AminoSeeNoEvil {
 				<p class="fineprint" style="background-color: white; background-color: rgba(255,255,255,0.5); color: black;">n/a</p>
 				</td>
 				<td style="color: white; font-weight: bold; "> <p class="fineprint" style="background-color: black; background-color: rgba(0,0,0,0.5); color: white;">n/a</p> </td>
-				<td>${ this.genomeSize }</td>
+				<td></td>
 				<td>n/a</td>
 				<td style="background-color: white;">
 				<a href="images/${ this.justNameOfHILBERT}" class="button" title="Reference Hilbert Image"><img width="48" height="16" class="blackback" src="images/${ this.justNameOfHILBERT}" alt="AminoSee Reference Hilbert Image ${ this.justNameOfDNA}"></a>
@@ -3484,14 +3501,14 @@ class AminoSeeNoEvil {
 			let richC = hsvToRgb( theHue / 360, 0.95, 0.75 )
 			let imghil = this.aminoFilenameIndex(p)[0] // first elemewnt in array is the hilbert image
 			let imglin = this.aminoFilenameIndex(p)[1] // second element is linear
-
-			if (thePep == "Start Codons" || thePep == "Stop Codons" || thePep == "Non-coding NNN") {
+			if ( thePep == "Reference" ) {  this.pepTable[p].Histocount = this.genomeSize  }
+			if ( thePep == "Start Codons" || thePep == "Stop Codons" || thePep == "Non-coding NNN") {
 				html += `<!-- ${thePep} -->`
 			} else {
 				html += `
 						<!--  onmouseover="mover(this)" onmouseout="mout(this)" -->
 						<tr class="pepTable" id="row_${p}" style="background-color: hsl( ${theHue} , 50%, 100%);">
-						<td style="background-color: white;"> ${ this.pepTable[p].Codon} </td>
+						<td style="background-color: white;">${p}. ${ this.pepTable[p].Codon} </td>
 						<td style="background-color: rgb(${richC});"><p class="fineprint" style="background-color: black; background-color: rgba(0,0,0,0.5); color: white;">${theHue}&#xB0;</p></td>
 						<td style="background-color: rgb(${c}); color: black; font-weight: bold; "> <p class="fineprint" style="background-color: white; background-color: rgba(255,255,255,0.5); color: black;">${c}</p></td>
 						<td>${ this.pepTable[p].Histocount.toLocaleString()}</td>
@@ -3850,6 +3867,7 @@ class AminoSeeNoEvil {
 		log( `H: ${status} ` )
 		this.openOutputs()
 		termDrawImage(this.fileHILBERT, "hilbert curve")
+
 		if ( brute ) {
 			if ( this.isDiskFinHilbert ) { this.postRenderPoll("brute finished" ) }
 		} else {
@@ -4203,17 +4221,17 @@ class AminoSeeNoEvil {
 			log(`values of this.openHtml ${ this.openHtml }   this.openImage ${ this.openImage}`)
 		}
 		if (  opensFile  > 2) { // notice the s
-		  log("i figured that was enough windows, will not open more windows")
+		  log("no more windows")
 		  this.openFileExplorer = false
 		  return false
 		}
 		if (  opensImage > 2) {
-		  log("i figured that was enough windows, will not open more windows")
+		  log("no more windows")
 		  this.openImage = false
 		  return false
 		}
 		if (  opensHtml > 2) {
-		  log("i figured that was enough windows, will not open more windows")
+		  log("no more windows")
 		  this.openHtml = false
 		  return false
 		}
@@ -4327,7 +4345,7 @@ class AminoSeeNoEvil {
 		if ( loopCounter > batchSize || isShuttingDown || remain < 1 ) {
 			this.testStop()
 			runcb( cb )
-			this.quit(1, "test complete")
+			// this.quit(1, "test complete")
 			return false
 		}
 
@@ -4342,12 +4360,15 @@ class AminoSeeNoEvil {
 		this.bothKindsTestPattern((cb) => { // renderLock must be true
 			log(`test patterns returned ${this.storage()}`)
 			// this.openOutputs()
-			runcb( cb )
 			this.setIsDiskBusy( false )
 			this.postRenderPoll("test patterns returned")
+		    renderLock = false
+		    			this.testStop()
+
+		    runcb( cb )
 		}) // <<--------- sets up both linear and hilbert arrays but only saves the Hilbert.
-		this.updates = false
-		this.drawHistogram()
+		// this.updates = false
+		// this.drawHistogram()
 	}
 	async testPromise() {
 		let teethPromise = brushTeeth()
@@ -4376,7 +4397,9 @@ class AminoSeeNoEvil {
 		// this.pixelClock = -1; // gets around zero length check
 		// this.quit(0, 'test stop');
 		this.isShuttingDown = true
-		// killAllTimers()
+		killAllTimers()
+		this.destroyProgress()
+		destroyKeyboardUI()
 	}
 	testInit ( magnitude ) {
 		magnitude--
@@ -4674,9 +4697,13 @@ class AminoSeeNoEvil {
 	drawHistogram() {
 		// return
 		if ( isShuttingDown == true ) { output("closing...press U to update or Q to quit"); return }
+    if ( this.test || this.demo ) { log("test or demo"); return }
 		if ( renderLock == false ) {
 			output( blueWhite( "surprise!"))
 			this.rawDNA = "!"
+      // setTimeout( () => {
+      //   this.runCycle()
+      // }, this.raceDelay*2)
 			return false
 		}
 		if ( this.updatesTimer) { clearTimeout( this.updatesTimer )}
@@ -5097,16 +5124,15 @@ function debounce( ms ) {
 	return false
 }
 function log(txt  ) {
-	if ( debug || this.verbose) {
-		output( `dl: ${txt} `)
-
-	} else {
-		// if (this.quiet == false) {
-		// 	process.stdout.write(chalk.rgb(128,0,0).italic("."))
-		// }
-			wTitle(`${ txt  }`)
-
-	}
+	if ( debug || typeof cliInstance !== "undefined") {
+    if (cliInstance) {
+      if (cliInstance.verbose && cliInstance.quiet == false) {
+        output( `${helixEmoji}: ${txt} `)
+      } else {
+    	wTitle(`${ txt  }`)
+      }
+    }
+  }
 }
 function batchProgress() {
 	return `[${threads.length}] ${remain}/${batchSize}:${streamLineNr}`
@@ -5254,18 +5280,26 @@ function spaceTo_(str) {
 
 function runDemo() {
 	var that = cliInstance
-	// async.series( [
+	// async.parallel( [
 	async.waterfall( [
 		function( cb ) {
+      output("blue")
 			that.openImage = true
 			that.peptide = "Opal" // Blue TESTS
 			// that.peptide = "Blue" // Blue TESTS
 			that.ratio = "sqr"
-			that.generateTestPatterns(cb)
-			output("hello ghello")
-			that.openOutputs()
+			that.generateTestPatterns(() => {
+          output("hello ghello")
+          that.openOutputs()
+          cb()
+      })
+      // setTimeout( () => {
+
+      // }, this.raceDelay )
+
 		},
 		function( cb ) {
+      output("RED")
 			that.openOutputs()
 			that.openImage = false
 			that.peptide = "Ochre" // Red TESTS
@@ -5273,6 +5307,7 @@ function runDemo() {
 			that.generateTestPatterns(cb)
 		},
 		function( cb ) {
+      output("PURPLE")
 			that.openOutputs()
 			that.peptide = "Arginine" //  PURPLE TESTS
 			that.ratio = "sqr"
@@ -6192,6 +6227,7 @@ function optimumDimension (pix, magauto) { // give it pix it returns a HILBERT d
 	return dim
 }
 function runcb( cb ) {
+  log("runcb")
 	if( typeof cb !== "undefined") {
 		bugtxt(blueWhite( "run callback"))
 		if( typeof cb === "function") {
@@ -6214,6 +6250,7 @@ function procTitle( txt ) {
 function removeLocks(lockfile, devmode, cb) { // just remove the lock files.
 	mode( "remove locks")
 	bugtxt( "remove locks with " + remain + " files in queue. fileTouch: " + lockfile )
+  if (this.test || this.demo) {  return }
 	renderLock = false
 	procTitle( "remove locks")
 	remain--

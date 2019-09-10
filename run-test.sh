@@ -78,9 +78,9 @@ test_do "html PROLINE" $1 $FAST --html
 nice aminosee --image -q --ratio=fix --peptide=Arginine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10  --no-image
 nice aminosee --help   --no-image $1 $2 $3 $4 $5 $6 $7 $8 $9 $10  --no-image
 nice aminosee --demo --no-html --explorer $1 $2 $3 $4 $5 $6 $7 $8 $9 $10  --no-image
-echo calibration TESTS ARE KNOWN TO BE BUGGY AT PRESENT:
+# echo calibration TESTS ARE KNOWN TO BE BUGGY AT PRESENT:
 test_do "Calibration" --test $1 --no-image
-test_do "doing aminosee serve and opening a file" --serve $MEDIUM  $1 $2 $3 $4 $5 $6 $7 $8 $9 $10  --no-image    &
+test_do "doing aminosee serve and opening a file" --serve $MEDIUM  $1 $2 $3 $4 $5 $6 $7 $8 $9 $10  --no-image
 # open http://localhost:4321 &
 sleep 1
 echo KILLING ALL AMINOSEE SERVERS IN 5 seconds
@@ -89,7 +89,6 @@ sleep 1
 echo "                                         =///"
 echo "-------------------------------------------"
 echo NEARLY COMPLETED TESTING FOR $1 $2 $3 $4 $5 $6 $7 $8 $9 $10  --no-image   $6
-echo LETS TYR THE ELECTRON APP GUI
 echo "-------------------------------------------"
 echo "                                         =///"
 # npm run gui &
