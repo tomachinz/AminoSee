@@ -5803,7 +5803,7 @@ process.on("SIGTERM", () => {
 process.on("SIGINT", function() {
 	let sig = "SIGINT"
 	output(`Received ${sig} signal`)
-	cliInstance.destroyProgress()
+	// cliInstance.destroyProgress()
 	cliInstance.gracefulQuit(130, sig)
 	process.exitCode = 130
 	// cliInstance.quit(130, "SIGINT")
