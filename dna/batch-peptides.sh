@@ -82,6 +82,7 @@ find_way_peptides () {
   echo "-------------------------------------------"
   echo "                                         =///"
 }
+asterix_peptides $1 $2 $3 $4 $5 $6 $7 $8 $9
 
 series_peptides $1 $2 $3 $4 $5 $6 $7 $8 $9 &
 sleep 3
@@ -93,7 +94,6 @@ series_peptides $1 $2 $3 $4 $5 $6 $7 $8 $9 &
 sleep 3
 series_peptides $1 $2 $3 $4 $5 $6 $7 $8 $9 &
 sleep 3
-asterix_peptides $1 $2 $3 $4 $5 $6 $7 $8 $9
 sleep 3
 find_way_peptides
 
