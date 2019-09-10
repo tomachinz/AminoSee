@@ -3418,7 +3418,7 @@ class AminoSeeNoEvil {
 				<script src="https://www.funk.co.nz/aminosee/public/hilbert2D.js"></script>
 				<script src="https://www.funk.co.nz/aminosee/public/WebGL.js"></script>
 				<script src="https://www.funk.co.nz/aminosee/public/hammer.min.js"></script>
-        <script async src="../../public/aminosee-gui-web.js"></script>
+       
 
 				-->
 
@@ -3428,7 +3428,7 @@ class AminoSeeNoEvil {
 				<script async src="../../public/hilbert2D.js"></script>
 				<script async src="../../public/WebGL.js"></script>
 				<script async src="../../public/hammer.min.js"></script>
-
+ 				<script async src="../../public/aminosee-gui-web.js"></script>
 				<style>
 				border: 1px black;
 				backround: black;

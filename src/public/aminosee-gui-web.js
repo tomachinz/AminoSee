@@ -38,6 +38,9 @@ document.addEventListener("mousemove", evt => {
 
 	root.style.setProperty("--mouse-x", x)
 	root.style.setProperty("--mouse-y", y)
+	// console.log(x,y)
+	let stack = document.getElementById("stackOimages")
+	// stack.style.translate = translateXY(x,y)
 })
 
 if ( docloc.indexOf("funk.co.nz") == -1 ) {
@@ -86,10 +89,12 @@ function fileChanged(f) { // http://127.0.0.1:8888/aminosee/output/Brown_Kiwi_NW
 	let newURL = `${path}#?selectedGenome=${f}`
 	// let image = `${f}/images/${justNameOfPNG}`
 	history.pushState(stateObj, justNameOfFile, newURL)
-	document.getElementById("oi").innerHTML = `<img id="current_image" src="${image}" width="64px" height="64px">`
+	document.getElementById("oi").innerHTML = `<img id="current_image" src="${f}" width="64px" height="64px">`
+	// document.getElementById("oi").src = f
+
 	setupFNames()
 	loadImage()
-	loadHistogramJson(histoURL)
+	let genomeJson = loadHistogramJson(histoURL)
 }
 function loadHistogramJson(histoURL) {
 	let histogramJson
@@ -147,9 +152,10 @@ function attachHandlers() {
 	}
 }
 function pageLoaded() {
-	fileChanged("Brown_Kiwi_NW_013982187v1")
+	// fileChanged("Brown_Kiwi_NW_013982187v1")
+	// fileChanged("output/Brown_Kiwi_NW_013982187v1/images/Brown_Kiwi_NW_013982187v1.fa_linear_c111_Reference_fix_sci.png") // http://localhost:8888/aminosee/output/Brown_Kiwi_NW_013982187v1/images/Brown_Kiwi_NW_013982187v1.fa_linear_c111_Reference_fix_sci.png
 	// loadHistogramJson(urlprefix + 'Brown_Kiwi_NW_013982187v1/aminosee_histogram.json');
-	attachHandlers()
+	// attachHandlers()
 	initVariables()
 	sceneCameraSetup()
 	setScene()
@@ -280,8 +286,9 @@ function getParameterFromURL( param ) { // extract filename to load from url
 
 
 	} else {
-		// param = `output/Brown_Kiwi_NW_013982187v1/images/Brown_Kiwi_NW_013982187v1.fa_HILBERT__Reference_m7_c397.2.png`;
-		param = `not possible. no param set in URL: ${href}`
+		// param = `output/Brown_Kiwi_NW_01398187v1/images/Brown_Kiwi_NW_013982187v1.fa_HILBERT__Reference_m7_c397.2.png`;
+		console.log("no param set in URL")
+		param = "output/Brown_Kiwi_NW_013982187v1/images/Brown_Kiwi_NW_013982187v1.fa_linear_c111_Reference_fix_sci.png"
 	}
 	console.log(`loading ${param}`)
 	return param
@@ -807,7 +814,7 @@ function loadImage() {
 	// var img = document.getElementById('offscreen_image');
 	var img = document.createElement("img")
 	img.src = filename
-
+	// alert(filename)
 	var ocanvas = document.createElement("canvas")
 	ocanvas.width = img.width
 	ocanvas.height = img.height
