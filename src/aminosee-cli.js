@@ -731,7 +731,7 @@ class AminoSeeNoEvil {
 			webserverEnabled = true
 			this.serve = true
 			this.keyboard = true
-			killServersOnQuit = false
+			// killServersOnQuit = false
 		} else {
 			log("Webserver run in foreground, will exit with app, use --serve to spawn background process ")
 			this.serve = false
@@ -1479,7 +1479,7 @@ class AminoSeeNoEvil {
 		remain = 1
 		batchSize = 0
 		// debug = true
-		this.devmode = true
+		// this.devmode = true
 		this.updates = false
 		if (this.devmode == true) {
 			output("Because you are using --devmode, the lock file is not deleted. This is useful during development because I can quickly that.test new code by starting then interupting the render with Control-c. Then, when I use 'aminosee * -f -d' I can have new versions rende that.red  but skip super large genomes that would take 5 mins or more to render. I like to see that they begin to render then break and retry; this way AminoSee will skip the large genome becauyse it has a lock file, saving me CPU during development. Lock files are safe to delete.")
