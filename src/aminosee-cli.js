@@ -3379,7 +3379,7 @@ class AminoSeeNoEvil {
 				<head>
 				<title>${ this.justNameOfDNA} :: AminoSee HTML Report :: DNA Viewer by Tom Atkinson :: ${ this.currentFile }</title>
 				<meta name="description" content="${ siteDescription }">
-				<link rel="stylesheet" type="text/css" href="https://dev.funk.co.nz/aminosee/public/AminoSee.css">
+				<link rel="stylesheet" type="text/css" href="../../public/AminoSee.css">
 				<link href='https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz:700,400,200,100' rel='stylesheet' type='text/css'>
 				<link href="https://www.funk.co.nz/css/menu.css" rel="stylesheet">
 				<link href="https://www.funk.co.nz/css/funk2014.css" rel="stylesheet">

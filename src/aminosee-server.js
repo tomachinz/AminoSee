@@ -273,14 +273,23 @@ function foregroundserver() {
 
 	// var root = path.join(__dirname)
 	log( `webroot ${webroot}` )
-	var server = httpserver.createServer({
-		root: webroot,
-		robots: true,
-		headers: {
-			"Access-Control-Allow-Origin": "*",
-			"Access-Control-Allow-Credentials": "true"
+	try {
+		var server = httpserver.createServer({
+			root: webroot,
+			robots: true,
+			headers: {
+				"Access-Control-Allow-Origin": "*",
+				"Access-Control-Allow-Credentials": "true"
+			}
+		})
+	} catch(err) {
+		if ( err.indexOf("EADDRINUSE") !== -1 ) {
+			output(`port ${port} in use, trying backup port: ${backupPort}`)
+		} else {
+			output(`unknown error starting server: ${err}`)
 		}
-	})
+	}
+
 
 	try {
 		server.listen(port)
