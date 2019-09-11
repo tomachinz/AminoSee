@@ -45,7 +45,7 @@ document.addEventListener("mousemove", evt => {
 	root.style.setProperty("--mouse-x", x)
 	root.style.setProperty("--mouse-y", y)
 	root.style.setProperty("--mouse-scale", z )
-	console.log(x, y, z)
+	// console.log(x, y, z)
 	let stack = document.getElementById("stackOimages")
 	// stack.style.translate = translateXY(x,y)
 })
@@ -69,26 +69,33 @@ if(window.addEventListener) {
 }
 
 function mover(i) {
+	let id
 	if (i == undefined) {
-		let id = "stack_reference" // reference image
+		id = "stack_reference" // reference image
 	} else {
 		id = "stack_" + i // reference image
 	}
-	console.log(id)
 	let el = document.getElementById(id)
+	console.log(`mover ${i} id ${id} el ${el}`)
+	el.classList.add("frontmost")
+	el.classList.add("blackback")
 	el.style.zIndex = 6969
 }
 
 function mout(i) {
+	let id
 	if (i == undefined) {
-		let id = "stack_reference" // reference image
+		id = "stack_reference" // reference image
 	} else {
 		id = "stack_" + i // reference image
 	}
-	console.log(id)
 	let el = document.getElementById(id)
-	el.style.zIndex = 100 + i
+	console.log(`mover ${i} id ${id} el ${el}`)
+	el.classList.remove("frontmost")
+	el.classList.remove("blackback")
+	el.style.zIndex = 10 + i
 }
+
 function fileChanged(f) { // http://127.0.0.1:8888/aminosee/output/Brown_Kiwi_NW_013982187v1/aminosee_histogram.json
 	if (f == undefined) { f = "Brown_Kiwi_NW_013982187v1" }
 	let histoURL = `${urlprefix}${f}aminosee_histogram.json`
@@ -162,7 +169,7 @@ function pageLoaded() {
 	// fileChanged("Brown_Kiwi_NW_013982187v1")
 	// fileChanged("output/Brown_Kiwi_NW_013982187v1/images/Brown_Kiwi_NW_013982187v1.fa_linear_c111_Reference_fix_sci.png") // http://localhost:8888/aminosee/output/Brown_Kiwi_NW_013982187v1/images/Brown_Kiwi_NW_013982187v1.fa_linear_c111_Reference_fix_sci.png
 	// loadHistogramJson(urlprefix + 'Brown_Kiwi_NW_013982187v1/aminosee_histogram.json');
-	// attachHandlers()
+	attachHandlers()
 	initVariables()
 	sceneCameraSetup()
 	setScene()
@@ -301,18 +308,6 @@ function getParameterFromURL( param ) { // extract filename to load from url
 	return param
 }
 
-function mover(i) {
-	console.log(`mover ${i}`)
-	let el = document.getElementById(`stack_${i}`)
-	el.classList.add("frontmost")
-	el.classList.add("blackback")
-}
-function mout(i) {
-	console.log(`mout ${i}`)
-	document.getElementById(`stack_${i}`).classList.remove("frontmost")
-	el.classList.remove("frontmost")
-	el.classList.remove("blackback")
-}
 function setupColorPicker() {
 
 	var cloudCanvas = document.getElementById("cloudCanvas")

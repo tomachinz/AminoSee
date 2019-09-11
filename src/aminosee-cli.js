@@ -3419,7 +3419,7 @@ class AminoSeeNoEvil {
 				<script src="https://www.funk.co.nz/aminosee/public/hilbert2D.js"></script>
 				<script src="https://www.funk.co.nz/aminosee/public/WebGL.js"></script>
 				<script src="https://www.funk.co.nz/aminosee/public/hammer.min.js"></script>
-       
+
 
 				-->
 
@@ -3458,7 +3458,7 @@ class AminoSeeNoEvil {
 				${( this.test ? " this.test " : this.imageStack( histogramJson ))}
 </div>
 
-				<table>
+				<table style="tr:hover { background-color: #ffff99; }">
 				<thead>
 				<tr>
 				<th>Amino Acid</th>
@@ -3479,7 +3479,7 @@ class AminoSeeNoEvil {
 			let c =      hsvToRgb( theHue / 360, 0.5, 1.0 )
 			let richC = hsvToRgb( theHue / 360, 0.95, 0.75 )
 			// let imghil = this.aminoFilenameIndex(p)[0] // first elemewnt in array is the hilbert image
-			let imghil = this.pepTable[p].hilbert_master 
+			let imghil = this.pepTable[p].hilbert_master
 			// let imglin = this.aminoFilenameIndex(p)[1] // second element is linear
 			let imglin = this.pepTable[p].linear_master // second element is linear
 			if ( thePep == "Reference" ) {  this.pepTable[p].Histocount = this.genomeSize  }
@@ -3488,7 +3488,7 @@ class AminoSeeNoEvil {
 			} else {
 				html += `
 						<!--  onmouseover="mover(this)" onmouseout="mout(this)" -->
-						<tr class="pepTable" id="row_${p}" style="background-color: hsl( ${theHue} , 50%, 100%);" onmouseover="mover(${p})" onmouseout="mout(${p})">
+						<tr class="pepTable" id="row_${p}" style="background-color: hsl( ${theHue} , 50%, 100%);" onmouseover="mover(${p})" onmouseout="mout(${p})" onclick="mover(${p})">
 						<td style="background-color: white;">${p}. ${ this.pepTable[p].Codon} </td>
 						<td style="background-color: rgb(${richC});"><p class="fineprint" style="background-color: black; background-color: rgba(0,0,0,0.5); color: white;">${theHue}&#xB0;</p></td>
 						<td style="background-color: rgb(${c}); color: black; font-weight: bold; "> <p class="fineprint" style="background-color: white; background-color: rgba(255,255,255,0.5); color: black;">${c}</p></td>
@@ -3561,7 +3561,7 @@ class AminoSeeNoEvil {
 
 				<br /><br />
 				<a name="scrollHILBERT" ></a>
-	
+
 
 
 				<a name="scrollLINEAR" ></a>
@@ -3579,7 +3579,7 @@ class AminoSeeNoEvil {
 				In prokaryotes, E. coli is found to use AUG 83%, GUG 14%, and UUG 3% as START codons. The lacA and lacI coding this.regions in the E coli lac operon don’t have AUG START codon and instead use UUG and GUG as initiation codons respectively.</p>
 				<h2>Linear Projection</h2>
 				The following image is in raster order, top left to bottom right:
-				<a name="scrollLINEAR" ></a>				
+				<a name="scrollLINEAR" ></a>
 				<a href="images/${ this.pepTable[0].linear_master }" ><img src="images/${ this.pepTable[0].linear_master  }" width="99%" height="auto" style="border: 4px black; background: black;" ></a>
 				<br/>
 
