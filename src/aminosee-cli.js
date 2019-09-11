@@ -4979,21 +4979,21 @@ class AminoSeeNoEvil {
 
 		html += `<ul id="stackOimages">
 				`
-		for ( let p = 0; p < this.pepTable.length; p++ ) { // standard peptide loop
-			let item = histogramJson.pepTable[p]
+		for ( let p = 0; p < pepTable.length; p++ ) { // standard peptide loop
+			let item = pepTable[p]
 			let thePep = item.Codon
 			let theHue = item.Hue
 			let c =      hsvToRgb( theHue/360, 0.5, 1.0 )
 			let z =      item.z
 			let name =   item.name
-			let proportion = p / this.pepTable.length
+			let proportion = (p / pepTable.length) - 0.5
 			let style =  `
 			position: absolute;
       top:  50%;
       left: 50%;
       transform: translate(
-       calc(var(--mouse-y, 0) * ${proportion * 90}%),
-       calc(var(--mouse-x, 0) * ${proportion * 90}%));
+       calc(var(--mouse-y, 0) * ${proportion * 100}%),
+       calc(var(--mouse-x, 0) * ${proportion * 100}%));
       border: 1px dashed hsv(${theHue/360}, 0.5, 1.0);
       z-index: ${p+1};
 `
@@ -5002,9 +5002,9 @@ class AminoSeeNoEvil {
 			// let hilbert_master =    item.hilbert_master;
 			// let linear_preview =    item.linear_master;
 			// let hilbert_preview =    item.hilbert_master;
-			let src = histogramJson.pepTable[p].hilbert_master
-			this.pepTable[p].hilbert_master = this.aminoFilenameIndex(p)[0]
-			this.pepTable[p].linear_master = this.aminoFilenameIndex(p)[1]
+			let src = pepTable[p].hilbert_master
+			// this.pepTable[p].hilbert_master = this.aminoFilenameIndex(p)[0]
+			// this.pepTable[p].linear_master = this.aminoFilenameIndex(p)[1]
 			// this.pepTable[ p ].hilbert_preview = this.aminoFilenameIndex( p )[0];
 			// this.pepTable[ p ].linear_preview = this.aminoFilenameIndex( p )[1];
 
