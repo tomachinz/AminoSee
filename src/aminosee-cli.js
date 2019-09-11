@@ -3446,10 +3446,9 @@ class AminoSeeNoEvil {
 				'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f); })(window,document,'script','dataLayer','GTM-P8JX');</script>
 				<!-- End Google Tag Manager -->
 
-				<nav style="position: fixed; top: 8px; left: 8px; z-index:9999; background-color: #123456;">  </nav>
-
-				<a href="../../" class="button">AminoSee Home</a> | <a href="../" class="button">Parent</a>
-
+				<nav style="position: fixed; top: 8px; left: 8px; z-index:9999; background-color: #123456;" class="handylinks">
+				    <a href="../../" class="button handylinks">AminoSee Home</a> | <a href="../" class="button">Parent</a>
+        </nav>
 				<h1>${ this.justNameOfDNA}</h1>
 				<h2>AminoSee DNA Render Summary for ${ this.currentFile } ${ this.artistc ? "Artistic" : "Science" } render mode</h2>
 				<h3>M${this.dimension}C${this.codonsPerPixel}H${onesigbitTolocale( this.codonsPerPixelHILBERT )}</h3>
@@ -4978,7 +4977,7 @@ class AminoSeeNoEvil {
 		let pepTable = histogramJson.pepTable
 		// output(beautify(summary))
 
-		html += `<ul id="stackOimages" class="stack">
+		html += `<ul id="stackOimages">
 				`
 		for ( let p = 0; p < this.pepTable.length; p++ ) { // standard peptide loop
 			let item = histogramJson.pepTable[p]
@@ -4989,11 +4988,14 @@ class AminoSeeNoEvil {
 			let name =   item.name
 			let proportion = p / this.pepTable.length
 			let style =  `
-			position: relative;
-top:  calc(var(--mouse-y, 0) * ${proportion * 90}%);
-left: calc(var(--mouse-x, 0) * ${proportion * 90}%);
-border: 1px dashed hsv(${theHue/360}, 0.5, 1.0);
-z-index: ${p+1};
+			position: absolute;
+      top:  50%;
+      left: 50%;
+      transform: translate(
+       calc(var(--mouse-y, 0) * ${proportion * 90}%),
+       calc(var(--mouse-x, 0) * ${proportion * 90}%));
+      border: 1px dashed hsv(${theHue/360}, 0.5, 1.0);
+      z-index: ${p+1};
 `
   			// style = "border: 1px dashed blue;"
 			// let linear_master =    item.linear_master;
@@ -5013,10 +5015,10 @@ z-index: ${p+1};
 				html += `<!-- ${thePep.Codon}  width="20%" height="20%" -->`
 			} else {
 				html += `
-						<li class="stack"><div class="stack_${p}">
+						<li class="stack" id="stack_${p}" style="${style}">
 						{${p}} <a href="images/${src}" title="${name} ${thePep}">${thePep} <br/>
-						<img src="images/${src}" id="stack_${p}" alt="${name} ${thePep}" title="${name}" style="${style}" onmouseover="mover(${p})" onmouseout="mout(${p})"></a>
-						</div></li>
+						<img src="images/${src}" alt="${name} ${thePep}" title="${name}" onmouseover="mover(${p})" onmouseout="mout(${p})"></a>
+						</li>
 						`
 			}
 		}
@@ -6012,7 +6014,13 @@ function balanceColour( red, green, blue, alpha) {
 	if ( alpha > max ) {
 		alpha = max
 	}
-	return  [ Math.round(red * scaleGamma), Math.round(green * scaleGamma), Math.round(blue * scaleGamma), Math.round( ( this.isHighlightSet ? alpha * scaleGamma : 255 )  )]
+  if ( this.focusPeptide == "Reference" ) {
+    return expand( [ Math.round(red * scaleGamma), Math.round(green * scaleGamma), Math.round(blue * scaleGamma), Math.round( ( this.isHighlightSet ? alpha * scaleGamma : 255 )  )] )
+  } else {
+    return [ Math.round(red * scaleGamma), Math.round(green * scaleGamma), Math.round(blue * scaleGamma), Math.round( ( this.isHighlightSet ? alpha * scaleGamma : 255 )  )]
+  }
+
+
 	// return  [ Math.round(red * scaleGamma), Math.round(green * scaleGamma), Math.round(blue * scaleGamma), Math.round(alpha * scaleGamma)]
 }
 function genericPNG(rgbArray, width, height, filename, cb) {
