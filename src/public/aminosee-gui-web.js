@@ -35,10 +35,17 @@ const root = document.documentElement
 document.addEventListener("mousemove", evt => {
 	let x = evt.clientX / innerWidth
 	let y = evt.clientY / innerHeight
+	let z = (x+1) * (y+1) * 128
+
+	// x *= 2
+	// y *= 2
+	// x -= 1
+	// y -= 1 
 
 	root.style.setProperty("--mouse-x", x)
 	root.style.setProperty("--mouse-y", y)
-	// console.log(x,y)
+	root.style.setProperty("--mouse-scale", z )
+	console.log(x, y, z)
 	let stack = document.getElementById("stackOimages")
 	// stack.style.translate = translateXY(x,y)
 })

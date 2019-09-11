@@ -921,9 +921,10 @@ class AminoSeeNoEvil {
       if ( this.quiet ) {
 				time = 1000
         log("exiting")
-        process.exit()
-        retrn
-			}
+        // process.exit()
+        this.quit(0, "no command")
+        return
+	}
       if ( cliruns < 3) {
 				output("FIRST RUN!!! Opening the demo... use the command aminosee demo to see this first run demo in future")
 				this.firstRun()
@@ -3435,7 +3436,7 @@ class AminoSeeNoEvil {
 				padding: 4px;
 				</style>
 				</head>
-				<body>
+				<body class="dark">
 				<!-- Google Tag Manager -->
 				<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-P8JX"
 				height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
@@ -3453,16 +3454,9 @@ class AminoSeeNoEvil {
 				<h2>AminoSee DNA Render Summary for ${ this.currentFile } ${ this.artistc ? "Artistic" : "Science" } render mode</h2>
 				<h3>M${this.dimension}C${this.codonsPerPixel}H${onesigbitTolocale( this.codonsPerPixelHILBERT )}</h3>
 
-
-				<a href="#scrollLINEAR" class="button" title"Click To Scroll Down To See LINEAR"><br />
-				<img id="oi" width="128" height="128" style="border: 4px black; background: black;" src="images/${ this.pepTable[0].linear_master }">
-				1D Linear Map Image
-				</a>
-				<a href="#scrollHILBERT" class="button" title"Click To Scroll Down To See 2D Hilbert Map"><br />
-				<img width="128" height="128" style="border: 4px black background: black;" src="images/${ this.pepTable[0].hilbert_master }">
-				2D Hilbert Map Image
-				</a>
-
+<div id="stack_wrapper">
+				${( this.test ? " this.test " : this.imageStack( histogramJson ))}
+</div>
 
 				<table>
 				<thead>
@@ -3501,9 +3495,7 @@ class AminoSeeNoEvil {
 						<td>${ this.pepTable[p].Histocount.toLocaleString()}</td>
 						<td>${ this.pepTable[p].Description}</td>
 						<td style="background-color: white;"><a href="images/${ imghil }" class="button" title="Amino filter: ${ thePep }"><img width="48" height="16" class="blackback" src="images/${ imghil }" alt="${ this.justNameOfDNA } ${ thePep }"></a></td>
-						<!-- <td style="background-color: white;">
-						<a href="images/${ imglin }" class="button" title="Amino filter: ${ thePep }"><img width="48" height="16" class="blackback" src="images/${ imglin }" alt="${ this.justNameOfDNA } ${ thePep }"></a>
-						</td> -->
+						<!-- <td style="background-color: white;"> <a href="images/${ imglin }" class="button" title="Amino filter: ${ thePep }"><img width="48" height="16" class="blackback" src="images/${ imglin }" alt="${ this.justNameOfDNA } ${ thePep }"></a> </td> -->
 						</tr>
 						`
 			}
@@ -3521,6 +3513,14 @@ class AminoSeeNoEvil {
 				</tfoot>
 				</table>
 
+				<a href="#scrollLINEAR" class="button" title"Click To Scroll Down To See LINEAR"><br />
+				<img id="oi" width="64" height="64" style="border: 4px black; background: black;" src="images/${ this.pepTable[0].linear_master }">
+				1D Linear Map Image
+				</a>
+				<a href="#scrollHILBERT" class="button" title"Click To Scroll Down To See 2D Hilbert Map"><br />
+				<img width="64" height="64" style="border: 4px black background: black;" src="images/${ this.pepTable[0].hilbert_master }">
+				2D Hilbert Map Image
+				</a>
 
 				<div id="monkeys">
 
@@ -3562,7 +3562,6 @@ class AminoSeeNoEvil {
 				<br /><br />
 				<a name="scrollHILBERT" ></a>
 	
-				${( this.test ? " this.test " : this.imageStack( histogramJson ))}
 
 
 				<a name="scrollLINEAR" ></a>
@@ -4988,6 +4987,14 @@ class AminoSeeNoEvil {
 			let c =      hsvToRgb( theHue/360, 0.5, 1.0 )
 			let z =      item.z
 			let name =   item.name
+			let proportion = p / this.pepTable.length
+			let style =  `
+top:  calc(var(--mouse-y, 0) * ${proportion * 90}%);
+left: calc(var(--mouse-x, 0) * ${proportion * 90}%);
+border: 1px dashed hsv(${theHue/360}, 0.5, 1.0);
+z-index: ${p};
+`
+  			// style = "border: 1px dashed blue;"
 			// let linear_master =    item.linear_master;
 			// let hilbert_master =    item.hilbert_master;
 			// let linear_preview =    item.linear_master;
@@ -5005,8 +5012,10 @@ class AminoSeeNoEvil {
 				html += `<!-- ${thePep.Codon} -->`
 			} else {
 				html += `
-						<li>{${p}} <a href="images/${src}" title="${name} ${thePep}">${thePep} <br/>
-						<img src="images/${src}" id="stack_${p}" width="20%" height="20%" alt="${name} ${thePep}" title="${name} style="z-index: ${p*10};" ${thePep}" onmouseover="mover(${p})" onmouseout="mout(${p})"></a></li>
+						<li class="stack"><div class="stack_${p}">
+						{${p}} <a href="images/${src}" title="${name} ${thePep}">${thePep} <br/>
+						<img src="images/${src}" id="stack_${p}" width="20%" height="20%" alt="${name} ${thePep}" title="${name}" style="${style}" onmouseover="mover(${p})" onmouseout="mout(${p})"></a>
+						</div></li>
 						`
 			}
 		}
