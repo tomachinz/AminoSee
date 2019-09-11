@@ -20,39 +20,50 @@ html, body, form, input, textarea, a, p, h1, h2, h3, h4, h5, h6, div {
 }
 
 /* body height 100vh width 100vw background transparent radial-gradient(at calc(var(--mouse-x, 0) * 100%) calc(var(--mouse-y, 0) * 100%), yellow, green) no-repeat 0 0 #  */
-#stack0images {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+/* #stack0images img {
+    position: absolute;
+ }*/
+ 
+#stack0images ul {
+    position: absolute;
 }
 
 .stack {
+  /*position: relative;*/
+  /*width: 50%;*/
   background-color: #222222;
+  /*top: 50%;*/
+  /*left: 50%;*/
+  /*transform: translate(-50% , -50%) */
+}
+ul.stack {
+  /*visibility: hidden;*/
+  /*display: none;*/
+    list-style: none;     
+
+}
+li.stack {
+  /*visibility: hidden;*/
+  /*display: none;*/
+  list-style: none;     
+
+}
+div.stack {
+  position: aboslute;
+
 }
 
-#stack_0 {
-  top: calc(var(--mouse-y, 0) * 100%);
-  left: calc(var(--mouse-x, 0) * 100%);
-  transform: translate(calc(var(--mouse-x, 0) * 100%) px, calc(var(--mouse-y, 0) * 100%) px)
+#stack_0, #stack_1,  #stack_2,  #stack_3,  #stack_4, #stack_5, #stack_6,  #stack_7,  #stack_8,  #stack_9, #stack_10, #stack_11,  #stack_12,  #stack_13,  #stack_14, #stack_15, #stack_16,  #stack_17,  #stack_18,  #stack_19, #stack_20, #stack_21,  #stack_22,  #stack_23,  #stack_24  {
+  position: absolute;
+  visibility: visible;
+  /*display: block;*/
+  /*position: relative;*/
+  /*background-color: #222222;*/
+  width: calc(var(--mouse-scale, 128) ) px;
+  height: calc(var(--mouse-scale, 128) ) px;
+
 }
 
-#stack_1 {
-  top: calc(var(--mouse-y, 0) * 100%);
-  left: calc(var(--mouse-x, 0) * 100%);
-  transform: translate(calc(var(--mouse-x, 0) * 100%) px, calc(var(--mouse-y, 0) * 100%) px)
-}
-
-#stack_2 {
-  top: calc(var(--mouse-y, 0) * 100%);
-  left: calc(var(--mouse-x, 0) * 100%);
-  transform: translate(calc(var(--mouse-x, 0) * 100%) px, calc(var(--mouse-y, 0) * 100%) px)
-}
-
-/* style="z-index: ${i}; " */
-/* #stackOimages img {
-
-} */
 input[type=button], input[type=submit], input[type=reset] {
   min-width: 140px;
   padding: 8px 8px;

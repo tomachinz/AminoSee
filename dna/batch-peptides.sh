@@ -49,31 +49,31 @@ find_way_peptides () {
     echo linux
     DASHF=" "
   fi
-  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -qd --index                      $1 $2 $3 $4 $5 $6 $7 "{}" \;
-  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -qd --index  --peptide=Glutamic_acid $1 $2 $3 $4 $5 $6 $7 "{}" \;
-  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -qd --index  --peptide=Aspartic_acid $1 $2 $3 $4 $5 $6 $7 "{}" \;
-  # find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -qd --index  --peptide="Start Codons" $1 $2 $3 $4 $5 $6 $7 "{}" \;
-  # find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -qd --index  --peptide="Stop Codons" $1 $2 $3 $4 $5 $6 $7 "{}" \;
-  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -qd --index  --peptide=Ochre $1 $2 $3 $4 $5 $6 $7 "{}" \;
-  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -qd --index  --peptide=Amber $1 $2 $3 $4 $5 $6 $7 "{}" \;
-  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -qd --index  --peptide=Cysteine $1 $2 $3 $4 $5 $6 $7 "{}" \;
-  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -qd --index  --peptide=Glycine $1 $2 $3 $4 $5 $6 $7 "{}" \;
-  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -qd --index  --peptide=Alanine $1 $2 $3 $4 $5 $6 $7 "{}" \;
-  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -qd --index  --peptide=Methionine $1 $2 $3 $4 $5 $6 $7 "{}" \;
-  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -qd --index  --peptide=Valine $1 $2 $3 $4 $5 $6 $7 "{}" \;
-  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -qd --index  --peptide=Leucine $1 $2 $3 $4 $5 $6 $7 "{}" \;
-  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -qd --index  --peptide=Isoleucine $1 $2 $3 $4 $5 $6 $7 "{}" \;
-  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -qd --index  --peptide=Phenylalanine $1 $2 $3 $4 $5 $6 $7 "{}" \;
-  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -qd --index  --peptide=Tryptophan $1 $2 $3 $4 $5 $6 $7 "{}" \;
-  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -qd --index  --peptide=Serine $1 $2 $3 $4 $5 $6 $7 "{}" \;
-  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -qd --index  --peptide=Threonine $1 $2 $3 $4 $5 $6 $7 "{}" \;
-  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -qd --index  --peptide=Opal $1 $2 $3 $4 $5 $6 $7 "{}" \;
-  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -qd --index  --peptide=Glutamine $1 $2 $3 $4 $5 $6 $7 "{}" \;
-  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -qd --index  --peptide=Asparagine $1 $2 $3 $4 $5 $6 $7 "{}" \;
-  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -qd --index  --peptide=Tyrosine $1 $2 $3 $4 $5 $6 $7 "{}" \;
-  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -qd --index  --peptide=Arginine $1 $2 $3 $4 $5 $6 $7 "{}" \;
-  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -qd --index  --peptide=Lysine $1 $2 $3 $4 $5 $6 $7 "{}" \;
-  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -qd --index  --peptide=Histidine $1 $2 $3 $4 $5 $6 $7 "{}" \;
+  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -q  --index                      $1 $2 $3 $4 $5 $6 $7 "{}" \;
+  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -q  --index  --peptide=Glutamic_acid $1 $2 $3 $4 $5 $6 $7 "{}" \;
+  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -q  --index  --peptide=Aspartic_acid $1 $2 $3 $4 $5 $6 $7 "{}" \;
+  # find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -q  --index  --peptide="Start Codons" $1 $2 $3 $4 $5 $6 $7 "{}" \;
+  # find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -q  --index  --peptide="Stop Codons" $1 $2 $3 $4 $5 $6 $7 "{}" \;
+  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -q  --index  --peptide=Ochre $1 $2 $3 $4 $5 $6 $7 "{}" \;
+  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -q  --index  --peptide=Amber $1 $2 $3 $4 $5 $6 $7 "{}" \;
+  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -q  --index  --peptide=Cysteine $1 $2 $3 $4 $5 $6 $7 "{}" \;
+  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -q  --index  --peptide=Glycine $1 $2 $3 $4 $5 $6 $7 "{}" \;
+  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -q  --index  --peptide=Alanine $1 $2 $3 $4 $5 $6 $7 "{}" \;
+  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -q  --index  --peptide=Methionine $1 $2 $3 $4 $5 $6 $7 "{}" \;
+  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -q  --index  --peptide=Valine $1 $2 $3 $4 $5 $6 $7 "{}" \;
+  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -q  --index  --peptide=Leucine $1 $2 $3 $4 $5 $6 $7 "{}" \;
+  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -q  --index  --peptide=Isoleucine $1 $2 $3 $4 $5 $6 $7 "{}" \;
+  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -q  --index  --peptide=Phenylalanine $1 $2 $3 $4 $5 $6 $7 "{}" \;
+  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -q  --index  --peptide=Tryptophan $1 $2 $3 $4 $5 $6 $7 "{}" \;
+  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -q  --index  --peptide=Serine $1 $2 $3 $4 $5 $6 $7 "{}" \;
+  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -q  --index  --peptide=Threonine $1 $2 $3 $4 $5 $6 $7 "{}" \;
+  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -q  --index  --peptide=Opal $1 $2 $3 $4 $5 $6 $7 "{}" \;
+  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -q  --index  --peptide=Glutamine $1 $2 $3 $4 $5 $6 $7 "{}" \;
+  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -q  --index  --peptide=Asparagine $1 $2 $3 $4 $5 $6 $7 "{}" \;
+  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -q  --index  --peptide=Tyrosine $1 $2 $3 $4 $5 $6 $7 "{}" \;
+  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -q  --index  --peptide=Arginine $1 $2 $3 $4 $5 $6 $7 "{}" \;
+  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -q  --index  --peptide=Lysine $1 $2 $3 $4 $5 $6 $7 "{}" \;
+  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -q  --index  --peptide=Histidine $1 $2 $3 $4 $5 $6 $7 "{}" \;
 
 
   echo "                                         =///"
@@ -89,12 +89,12 @@ series_peptides $1 $2 $3 $4 $5 $6 $7 $8 $9 &
 sleep 3
 series_peptides $1 $2 $3 $4 $5 $6 $7 $8 $9 &
 sleep 3
-series_peptides $1 $2 $3 $4 $5 $6 $7 $8 $9 &
+series_peptides $1 $2 $3 $4 $5 $6 $7 $8 $9
 sleep 3
-series_peptides $1 $2 $3 $4 $5 $6 $7 $8 $9 &
+series_peptides $1 $2 $3 $4 $5 $6 $7 $8 $9
 sleep 3
 asterix_peptides $1 $2 $3 $4 $5 $6 $7 $8 $9
-sleep 3
+# sleep 3
 find_way_peptides
 
 #
