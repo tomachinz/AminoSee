@@ -3400,7 +3400,7 @@ class AminoSeeNoEvil {
 				<link rel="stylesheet" type="text/css" href="../../public/AminoSee.css">
 				<link href='https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz:700,400,200,100' rel='stylesheet' type='text/css'>
 				<link href="https://www.funk.co.nz/css/menu.css" rel="stylesheet">
-				<link href="https://www.funk.co.nz/css/funk2014.css" rel="stylesheet">
+				<link href="https://www.funk.co.nz/css/funk2019.css" rel="stylesheet">
 				<!-- ////////////////////////////////////////
 				${radMessage}
 				-->
@@ -3488,13 +3488,13 @@ class AminoSeeNoEvil {
 			} else {
 				html += `
 						<!--  onmouseover="mover(this)" onmouseout="mout(this)" -->
-						<tr class="pepTable" id="row_${p}" style="background-color: hsl( ${theHue} , 50%, 100%);">
+						<tr class="pepTable" id="row_${p}" style="background-color: hsl( ${theHue} , 50%, 100%);" onmouseover="mover(${p})" onmouseout="mout(${p})">
 						<td style="background-color: white;">${p}. ${ this.pepTable[p].Codon} </td>
 						<td style="background-color: rgb(${richC});"><p class="fineprint" style="background-color: black; background-color: rgba(0,0,0,0.5); color: white;">${theHue}&#xB0;</p></td>
 						<td style="background-color: rgb(${c}); color: black; font-weight: bold; "> <p class="fineprint" style="background-color: white; background-color: rgba(255,255,255,0.5); color: black;">${c}</p></td>
 						<td>${ this.pepTable[p].Histocount.toLocaleString()}</td>
 						<td>${ this.pepTable[p].Description}</td>
-						<td style="background-color: white;"><a href="images/${ imghil }" class="button" title="Amino filter: ${ thePep }"><img width="48" height="16" class="blackback" src="images/${ imghil }" alt="${ this.justNameOfDNA } ${ thePep }"></a></td>
+						<td style="background-color: white; color: black;"><a href="images/${ imghil }" class="button" title="Amino filter: ${ thePep }"><img width="48" height="16" class="blackback" src="images/${ imghil }" alt="${ this.justNameOfDNA } ${ thePep }"></a></td>
 						<!-- <td style="background-color: white;"> <a href="images/${ imglin }" class="button" title="Amino filter: ${ thePep }"><img width="48" height="16" class="blackback" src="images/${ imglin }" alt="${ this.justNameOfDNA } ${ thePep }"></a> </td> -->
 						</tr>
 						`
@@ -4989,10 +4989,11 @@ class AminoSeeNoEvil {
 			let name =   item.name
 			let proportion = p / this.pepTable.length
 			let style =  `
+			position: relative;
 top:  calc(var(--mouse-y, 0) * ${proportion * 90}%);
 left: calc(var(--mouse-x, 0) * ${proportion * 90}%);
 border: 1px dashed hsv(${theHue/360}, 0.5, 1.0);
-z-index: ${p};
+z-index: ${p+1};
 `
   			// style = "border: 1px dashed blue;"
 			// let linear_master =    item.linear_master;
@@ -5009,12 +5010,12 @@ z-index: ${p};
 			// bugtxt( src );
 			// html +=  ". ";
 			if (thePep == "Start Codons" || thePep == "Stop Codons" || thePep == "Non-coding NNN") {
-				html += `<!-- ${thePep.Codon} -->`
+				html += `<!-- ${thePep.Codon}  width="20%" height="20%" -->`
 			} else {
 				html += `
 						<li class="stack"><div class="stack_${p}">
 						{${p}} <a href="images/${src}" title="${name} ${thePep}">${thePep} <br/>
-						<img src="images/${src}" id="stack_${p}" width="20%" height="20%" alt="${name} ${thePep}" title="${name}" style="${style}" onmouseover="mover(${p})" onmouseout="mout(${p})"></a>
+						<img src="images/${src}" id="stack_${p}" alt="${name} ${thePep}" title="${name}" style="${style}" onmouseover="mover(${p})" onmouseout="mout(${p})"></a>
 						</div></li>
 						`
 			}

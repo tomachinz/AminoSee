@@ -35,12 +35,12 @@ const root = document.documentElement
 document.addEventListener("mousemove", evt => {
 	let x = evt.clientX / innerWidth
 	let y = evt.clientY / innerHeight
-	let z = (x+1) * (y+1) * 128
+	let z = (x+1) * (y+1)
 
 	// x *= 2
 	// y *= 2
 	// x -= 1
-	// y -= 1 
+	// y -= 1
 
 	root.style.setProperty("--mouse-x", x)
 	root.style.setProperty("--mouse-y", y)
@@ -303,11 +303,15 @@ function getParameterFromURL( param ) { // extract filename to load from url
 
 function mover(i) {
 	console.log(`mover ${i}`)
-	document.getElementById(`stack_${i}`).classList.add("frontmost")
+	let el = document.getElementById(`stack_${i}`)
+	el.classList.add("frontmost")
+	el.classList.add("blackback")
 }
 function mout(i) {
 	console.log(`mout ${i}`)
 	document.getElementById(`stack_${i}`).classList.remove("frontmost")
+	el.classList.remove("frontmost")
+	el.classList.remove("blackback")
 }
 function setupColorPicker() {
 

@@ -15,3 +15,10 @@ eval $DRYCOMMAND
 #/usr/bin/rsync --archive --verbose --delete --dry-run --stats /Users/tom/AminoSee_Output/ /Volumes/aminosee/dna/AminoSee_Output/
 # CLONECOMMAND="/usr/bin/rsync --archive --verbose --stats  --dry-run  --exclude={'*_linear_*'} tom@cheese:/home/tom/Sites/AminoSee/dna/AminoSee_Output/  /Users/tom/AminoSee_Output/ "
 # WETCOMMAND="/usr/bin/rsync --archive --verbose --stats  --exclude={'*_linear_[ABCDEFGHIJKLMNOPQRSTUVWXYZ]'} /Users/tom/AminoSee_Output/ tom@cheese:/home/tom/Sites/AminoSee/dna/AminoSee_Output/ "
+
+
+DRYCOMMAND="/usr/bin/rsync --archive --verbose --stats --hard-links  /Users/tom/AminoSee_webroot/output/  /Users/tom/Dropbox/Sites/funk.co.nz/aminosee/output/ "
+echo ABout to run:
+echo $DRYCOMMAND
+sleep 2
+eval $DRYCOMMAND
