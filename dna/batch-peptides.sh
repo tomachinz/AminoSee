@@ -1,13 +1,12 @@
 #!/bin/sh
 aminosee_do () {
-  nice -n 1 aminosee   $1 $2 $3 $4 $5 $6 $7 $8 $9
-  # sleep 5
-#  nice -n 15 aminosee --slow --quiet --no-image --no-html --index * $1 $2 $3 $4 $5 $6 $7 $8 $9
+  nice -n 1 aminosee  -q $1 $2 $3 $4 $5 $6 $7 $8 $9
+  sleep 1
+  nice -n 15 aminosee --slow --quiet --no-image --no-html --index * $1 $2 $3 $4 $5 $6 $7 $8 $9
 }
 
 series_peptides () {
   echo $1 $2 $3 $4 $5 $6 $7 $8 $9 START RENDER
-
   aminosee_do        $1 $2 $3 $4 $5 $6 $7 $8 $9
   aminosee_do  --quiet  --peptide=Glutamic_acid $1 $2 $3 $4 $5 $6 $7 $8 $9
   aminosee_do  --quiet  --peptide=Aspartic_acid $1 $2 $3 $4 $5 $6 $7 $8 $9
@@ -32,28 +31,24 @@ series_peptides () {
   aminosee_do  --quiet  --peptide=Arginine $1 $2 $3 $4 $5 $6 $7 $8 $9
   aminosee_do  --quiet  --peptide=Lysine $1 $2 $3 $4 $5 $6 $7 $8 $9
   aminosee_do  --image  --peptide=Histidine  $1 $2 $3 $4 $5 $6 $7 $8 $9
-
   echo $1 $2 $3 $4 $5 $6 $7 $8 $9 END RENDER
-
 }
 
 find_way_peptides () {
   echo STARTING SERIAL DECODE FOR $1 $2 $3 $4 $5 $6 $7 $8 $9
 
-  if [ $(uname)=Darwin ]; then
+  if [ $(uname)="Darwin" ]; then
     echo macos
     DASHF=" -f "
   fi
 
-  if [ $(uname)=Linux ]; then
+  if [ $(uname)="Linux" ]; then
     echo linux
     DASHF=" "
   fi
   find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -q  --index                      $1 $2 $3 $4 $5 $6 $7 "{}" \;
   find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -q  --index  --peptide=Glutamic_acid $1 $2 $3 $4 $5 $6 $7 "{}" \;
   find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -q  --index  --peptide=Aspartic_acid $1 $2 $3 $4 $5 $6 $7 "{}" \;
-  # find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -q  --index  --peptide="Start Codons" $1 $2 $3 $4 $5 $6 $7 "{}" \;
-  # find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -q  --index  --peptide="Stop Codons" $1 $2 $3 $4 $5 $6 $7 "{}" \;
   find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -q  --index  --peptide=Ochre $1 $2 $3 $4 $5 $6 $7 "{}" \;
   find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -q  --index  --peptide=Amber $1 $2 $3 $4 $5 $6 $7 "{}" \;
   find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -q  --index  --peptide=Cysteine $1 $2 $3 $4 $5 $6 $7 "{}" \;
@@ -75,17 +70,12 @@ find_way_peptides () {
   find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -q  --index  --peptide=Lysine $1 $2 $3 $4 $5 $6 $7 "{}" \;
   find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -q  --index  --peptide=Histidine $1 $2 $3 $4 $5 $6 $7 "{}" \;
 
-
-  echo "                                         =///"
-  echo "-------------------------------------------"
   echo FINISHED SERIAL DECODE FOR $1 $2 $3 $4 $5 $6 $7
-  echo "-------------------------------------------"
-  echo "                                         =///"
 }
 
-series_peptides $1 $2 $3 $4 $5 $6 $7 $8 $9
-find_way_peptides &
-asterix_peptides $1 $2 $3 $4 $5 $6 $7 $8 $9
+# series_peptides $1 $2 $3 $4 $5 $6 $7 $8 $9
+find_way_peptides  $1 $2 $3 $4 $5 $6 $7 $8 $9
+asterix_peptides
 #
 # sleep 3
 # series_peptides $1 $2 $3 $4 $5 $6 $7 $8 $9
