@@ -10,8 +10,7 @@ aminosee_do () {
   nice -n $NICE aminosee $1 $2 $3 $4 $5 $6 $7 $8 * &
   sleep 1
   nice -n $NICE aminosee --quiet --index -m5 $1 *
-  NICE=($NICE+1)
-  echo $NICE
+
 }
 
 
