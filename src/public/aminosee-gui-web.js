@@ -93,7 +93,7 @@ function mout(i) {
 	// console.log(`mover ${i} id ${id} el ${el}`)
 	el.classList.remove("frontmost")
 	el.classList.remove("blackback")
-	el.style.zIndex = 10 + i
+	el.style.zIndex =  i - 1
 }
 function fileInit(file) {
 	let path = window.location.pathname
