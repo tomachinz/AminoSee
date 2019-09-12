@@ -3848,7 +3848,9 @@ class AminoSeeNoEvil {
 	hilbertFinished() {
 		mode(`Hilbert curve done (${this.justNameOfHILBERT}). Waiting on (${ this.storage()})`)
 		log( `H: ${status} ` )
-		this.openOutputs()
+    if ( remain < 5) {
+      this.openOutputs()
+    }
 		termDrawImage(this.fileHILBERT, "hilbert curve")
 
 		if ( brute ) {
