@@ -56,8 +56,8 @@ cp -r node_modules/lazyness/*                                    dist/root/node_
 # for the awesome shell window:
 cp    node_modules/xterm/dist/xterm.js                           src/public/
 cp    node_modules/xterm/dist/xterm.css                          src/public/
-cp    node_modules/xterm/dist/xterm.css                          src/public/
-cp    node_modules/three/build/three.min.js                      src/public
+cp    node_modules/xterm/dist/xterm.js.map                       src/public/
+cp    node_modules/three/build/three.min.js                      src/public/
 #
 # echo creating distributions
 # echo COPYING LIBRARIES INTO /dist/* APP ROOT FOLDERS
