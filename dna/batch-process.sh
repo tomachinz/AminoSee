@@ -12,10 +12,13 @@ aminosee_do () {
 }
 
 aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 * &
-aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 *
+aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 * &
 aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 * &
 aminosee_do $1 $2 $3 $4 $5 $6 $7 $8 *
 
 
 find -f *.fa *.mfa *.gbk *.txt -exec  aminosee {} $1 $2 $3 $4 $5 $6 $7 $8   \;
-aminosee_do * --reg
+
+open ./batch-peptides.sh * &
+open ./batch-peptides.sh * &
+open ./batch-peptides.sh *
