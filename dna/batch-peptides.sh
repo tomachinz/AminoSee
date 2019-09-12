@@ -1,8 +1,9 @@
 #!/bin/sh
 aminosee_do () {
-  nice -n 1 aminosee  -q $1 $2 $3 $4 $5 $6 $7 $8 $9
+  nice -n 8 aminosee  -q $1 $2 $3 $4 $5 $6 $7 $8 $9 &
   sleep 1
-  nice -n 15 aminosee --slow --quiet --no-image --no-html --index * $1 $2 $3 $4 $5 $6 $7 $8 $9
+  nice -n 9 aminosee  -q --delay 1000 $5 $6 $7 $8 $9
+  # nice -n 15 aminosee --slow --quiet --no-image --no-html --index * $1 $2 $3 $4 $5 $6 $7 $8 $9
 }
 
 series_peptides () {
@@ -73,8 +74,10 @@ find_way_peptides () {
   echo FINISHED SERIAL DECODE FOR $1 $2 $3 $4 $5 $6 $7
 }
 
-# series_peptides $1 $2 $3 $4 $5 $6 $7 $8 $9
-find_way_peptides  $1 $2 $3 $4 $5 $6 $7 $8 $9
+series_peptides $1 $2 $3 $4 $5 $6 $7 $8 $9 &
+sleep 1
+series_peptides $1 $2 $3 $4 $5 $6 $7 $8 $9
+find_way_peptides  $1 $2 $3 $4 $5 $6 $7 $8 $9 &
 asterix_peptides
 #
 # sleep 3
