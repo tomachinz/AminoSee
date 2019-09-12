@@ -2633,8 +2633,8 @@ class AminoSeeNoEvil {
       	output("master linear done")
       })
 
+    this.calcHilbertFilenames()
 		this.prepareHilbertArray()
-		this.calcHilbertFilenames()
 		this.fancyFilenames()
 
     printRadMessage("something aint right")
