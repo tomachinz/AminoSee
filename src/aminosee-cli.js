@@ -1896,12 +1896,12 @@ class AminoSeeNoEvil {
 		// }, this.raceDelay)
 	}
 	initStream() {
-		mode("Initialising Stream: " + this.justNameOfPNG)
+    this.runid = new Date().getTime()
+		mode(`Initialising Stream: ${this.runid} ${this.justNameOfPNG}`)
 		output( chalk.rgb(64, 128, 255).bold( status ))
-		output(`OUTPUT FOLDER: ${ blueWhite( blueWhite( path.normalize( this.outputPath )))}`)
+		output(`Output folder --->> ${ blueWhite( blueWhite( path.normalize( this.outputPath )))}`)
 		this.setNextFile()
 		// this.timestamp = Math.round(+new Date()/1000)
-		this.runid = new Date().getTime()
 
 		if ( isShuttingDown == true ) { output(`Shutting down after this render ${ blueWhite(this.justNameOfPNG)}`) }
 		if ( renderLock == false) {
@@ -1943,7 +1943,9 @@ class AminoSeeNoEvil {
 		}
 		// startStreamingPng();
 		procTitle( `${bytes( this.baseChars )} c${ this.codonsPerPixel } m${this.dimension}`)
-    this.streamStarted()
+    setImmediate(()=>{
+      this.streamStarted()
+    })
     // this.drawHistogram()
 		try {
 			// var that = this
@@ -3465,9 +3467,9 @@ ${this.justNameOfHILBERT}`
 				<h2>AminoSee DNA Render Summary for ${ this.currentFile } ${ this.artistc ? "Artistic" : "Science" } render mode</h2>
 				<h3>M${this.dimension}C${this.codonsPerPixel}H${onesigbitTolocale( this.codonsPerPixelHILBERT )}</h3>
 
-<div id="stack_wrapper">
-				${( this.test ? " this.test " : this.imageStack( histogramJson ))}
-</div>
+        <div id="stack_wrapper">
+        				${( this.test ? " this.test " : this.imageStack( histogramJson ))}
+        </div>
 				<table style="background-color: white; color: black;">
 				<thead>
 				<tr class="light">
@@ -5014,18 +5016,21 @@ ${this.justNameOfHILBERT}`
 			let item = pepTable[p]
 			let thePep = item.Codon
 			let theHue = item.Hue
-			let c =      hsvToRgb( theHue/360, 0.5, 1.0 )
+      let c =      hsvToRgb( theHue / 360, 0.5, 1.0 )
 			let z =      item.z
 			let name =   item.name
 			let proportion = (p / pepTable.length) - 0.5
+      let minimumSize = 64
 			let style =  `
 			position: absolute;
       top:  50%;
       left: 50%;
+      width: calc(${proportion} * ${minimumSize});
+      height: calc(${proportion} * ${minimumSize});
       transform: translate(
-       calc(var(--mouse-y, 0) * ${proportion * 100}%),
-       calc(var(--mouse-x, 0) * ${proportion * 100}%));
-      border: 1px dashed hsv(${theHue/360}, 0.5, 1.0);
+       calc(var(--mouse-y, 0) * ${proportion * 200}%),
+       calc(var(--mouse-x, 0) * ${proportion * 200}%));
+      border: 1px dashed rgb(${c});
       z-index: ${p+1};
 `
   			// style = "border: 1px dashed blue;"
