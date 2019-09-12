@@ -3436,7 +3436,7 @@ class AminoSeeNoEvil {
 				padding: 4px;
 				</style>
 				</head>
-				<body class="dark">
+				<body class="dark handylinks">
 				<!-- Google Tag Manager -->
 				<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-P8JX"
 				height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
@@ -3456,11 +3456,10 @@ class AminoSeeNoEvil {
 <div id="stack_wrapper">
 				${( this.test ? " this.test " : this.imageStack( histogramJson ))}
 </div>
-
-				<table style="tr:hover { background-color: #ffff99; }">
+				<table style="background-color: white; color: black;">
 				<thead>
-				<tr>
-				<th>Amino Acid</th>
+				<tr class="light">
+				<th class="light" >Amino Acid</th>
 				<th>Hue&#xB0;</th>
 				<th>RGB</th>
 				<th>Count</th>
@@ -3487,7 +3486,7 @@ class AminoSeeNoEvil {
 			} else {
 				html += `
 						<!--  onmouseover="mover(this)" onmouseout="mout(this)" -->
-						<tr class="pepTable" id="row_${p}" style="background-color: hsl( ${theHue} , 50%, 100%);" onmouseover="mover(${p})" onmouseout="mout(${p})" onclick="mover(${p})">
+						<tr class="pepTable" id="row_${p}" style="tr { background-color: yellow; } tr:hover { background-color: rgb(${c}); }" onmouseover="mover(${p})" onmouseout="mout(${p})" onclick="mover(${p})">
 						<td style="background-color: white;">${p}. ${ this.pepTable[p].Codon} </td>
 						<td style="background-color: rgb(${richC});"><p class="fineprint" style="background-color: black; background-color: rgba(0,0,0,0.5); color: white;">${theHue}&#xB0;</p></td>
 						<td style="background-color: rgb(${c}); color: black; font-weight: bold; "> <p class="fineprint" style="background-color: white; background-color: rgba(255,255,255,0.5); color: black;">${c}</p></td>

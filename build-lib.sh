@@ -44,7 +44,7 @@ wget  --output-document src/public/fetch.min.js                   https://cdnjs.
 # cp -v aminosee-stdinpipe.js                                      dist/root/
 
 cp -v node_modules/sliced/index.js                               dist/root/node_modules/sliced/index.js
-cp -v node_modules/deep-defaults/lib/index.js                    dist/root/node_modules/deep-defaults/lib
+cp -v node_modules/deep-defaults/lib/index.js                      dist/root/node_modules/deep-defaults/lib
 cp -v node_modules/terminal-kit/lib/termconfig/xterm.generic.js  dist/root/node_modules/termconfig
 cp -v node_modules/terminal-kit/lib/termconfig/xterm.generic.js  dist/root/termconfig
 cp -v node_modules/get-cursor-position/build/Release/pos.node    dist/root
@@ -56,7 +56,8 @@ cp -r node_modules/lazyness/*                                    dist/root/node_
 # for the awesome shell window:
 cp    node_modules/xterm/dist/xterm.js                           src/public/
 cp    node_modules/xterm/dist/xterm.css                          src/public/
-
+cp    node_modules/xterm/dist/xterm.css                          src/public/
+cp    node_modules/three/build/three.min.js                      src/public
 #
 # echo creating distributions
 # echo COPYING LIBRARIES INTO /dist/* APP ROOT FOLDERS
