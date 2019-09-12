@@ -178,7 +178,7 @@ function attachHandlers(pepTable) {
 function pageLoaded() {
 	let json = fileInit("Brown_Kiwi_NW_013982187v1")
 	// fileChanged("output/Brown_Kiwi_NW_013982187v1/images/Brown_Kiwi_NW_013982187v1.fa_linear_c111_Reference_fix_sci.png") // http://localhost:8888/aminosee/output/Brown_Kiwi_NW_013982187v1/images/Brown_Kiwi_NW_013982187v1.fa_linear_c111_Reference_fix_sci.png
-	loadHistogramJson(urlprefix + "Brown_Kiwi_NW_013982187v1/aminosee_histogram.json")
+	loadHistogramJson("output/Brown_Kiwi_NW_013982187v1/aminosee_histogram.json")
 	attachHandlers(json)
 	initVariables()
 
