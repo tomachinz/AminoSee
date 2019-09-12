@@ -2921,7 +2921,8 @@ class AminoSeeNoEvil {
 					isShuttingDown = true
 				}
 				setTimeout( () => {
-					let msg = `${batchProgress()} Great success with render of (${this.justNameOfDNA})`
+					let msg = `${batchProgress()} Great success with render of (${this.justNameOfPNG})
+${this.justNameOfHILBERT}`
 					notQuiet(msg)
 					saySomethingEpic()
 					renderLock = false
@@ -2993,7 +2994,9 @@ class AminoSeeNoEvil {
 		log(`Received quit(${code}) ${reason}`)
 		if ( renderLock == true ) {
 			output("still rendering") // maybe this happens during graceful shutdown
-			return false
+      if ( code !== 130 ) {
+        return false
+      }
 		}
 
 		if ( this.isStorageBusy ) {

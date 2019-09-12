@@ -178,7 +178,8 @@ function buildServer() {
 	data.saySomethingEpic()
 	let sFiles = [
 		{ "source": path.join( appPath, "public" ),                "dest": path.join( webroot , "public"  )},
-		{ "source": path.join( appPath, "aminosee.html"),"dest": path.join( webroot , "index.html")},
+		{ "source": path.join( appPath, "aminosee-web.html"),"dest": path.join( webroot , "index.html")},
+		{ "source": path.join( appPath, "aminosee-web.html"),"dest": path.join( webroot , "404.html")},
 		{ "source": path.join( appPath, "favicon.ico"),  "dest": path.join( webroot , "favicon.ico")}
 	]
 	for (let i=0; i<sFiles.length; i++) {
@@ -491,7 +492,7 @@ function getServerURL(fragment) {
 	let internalIp = require("internal-ip")
 	let indexfile = ""
 	// if ( args.devmode ) {
-	// indexfile = "aminosee.html"
+	// indexfile = "aminosee-web.html"
 	// }
 	if (fragment == undefined) {
 		fragment = "/"
@@ -528,8 +529,8 @@ function symlinkGUI(cb) { // does:  ln -s /Users.....AminoSee/public, /Users....
 	fullSrc = path.normalize( path.resolve(appPath , "public") )
 	fullDest = path.normalize( path.resolve(this.webroot , "public") )
 	createSymlink(fullSrc, fullDest)
-	fullSrc = path.normalize( path.resolve(appPath , "aminosee.html") )
-	fullDest = path.normalize( path.resolve(this.webroot , "aminosee.html") ) // Protects users privacy in current working directory
+	fullSrc = path.normalize( path.resolve(appPath , "aminosee-web.html") )
+	fullDest = path.normalize( path.resolve(this.webroot , "index.html") ) // Protects users privacy in current working directory
 	createSymlink(fullSrc, fullDest)
 	fullSrc = path.normalize( path.resolve(appPath , "node_modules") )
 	fullDest = path.normalize( path.resolve(this.webroot , "node_modules") ) // MOVES INTO ROOT

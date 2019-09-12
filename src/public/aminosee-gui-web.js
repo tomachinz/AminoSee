@@ -1,8 +1,8 @@
 // "use strict";
 
-let hilbertPoints, herbs, zoom, progress, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, justNameOfFile, filename, verbose, spline, point, vertices, colorsReady, controlsShowing, devmode, fileUploadShowing, maxcolorpix, nextColors, cpu, subdivisions, userFeedback, contextBitmap, pauseIntent, linewidth, pepTable
+let hilbertPoints, herbs, zoom, progress, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, justNameOfFile, filename, verbose, spline, point, vertices, colorsReady, controlsShowing, devmode, fileUploadShowing, maxcolorpix, nextColors, cpu, subdivisions, userFeedback, contextBitmap, pauseIntent, linewidth, pepTable, isDetailsPage
 let sprites = []
-pauseIntent = false
+pauseIntent = isDetailsPage = false
 maxcolorpix = 262144 // for large genomes
 linewidth = 8;
 ( window.location.toString().indexOf("electron") ==-1 ? isElectron = false : isElectron = true )
@@ -76,7 +76,7 @@ function mover(i) {
 		id = "stack_" + i // reference image
 	}
 	let el = document.getElementById(id)
-	console.log(`mover ${i} id ${id} el ${el}`)
+	// console.log(`mover ${i} id ${id} el ${el}`)
 	el.classList.add("frontmost")
 	el.classList.add("blackback")
 	el.style.zIndex = 6969
@@ -90,25 +90,35 @@ function mout(i) {
 		id = "stack_" + i // reference image
 	}
 	let el = document.getElementById(id)
-	console.log(`mover ${i} id ${id} el ${el}`)
+	// console.log(`mover ${i} id ${id} el ${el}`)
 	el.classList.remove("frontmost")
 	el.classList.remove("blackback")
 	el.style.zIndex = 10 + i
 }
-
-function fileChanged(f) { // http://127.0.0.1:8888/aminosee/output/Brown_Kiwi_NW_013982187v1/aminosee_histogram.json
-	if (f == undefined) { f = "Brown_Kiwi_NW_013982187v1" }
-	let histoURL = `${urlprefix}${f}aminosee_histogram.json`
+function fileInit(file) {
 	let path = window.location.pathname
-	let newURL = `${path}#?selectedGenome=${f}`
-	// let image = `${f}/images/${justNameOfPNG}`
-	history.pushState(stateObj, justNameOfFile, newURL)
-	document.getElementById("oi").innerHTML = `<img id="current_image" src="${f}" width="64px" height="64px">`
-	// document.getElementById("oi").src = f
+	if (file == undefined) { file = "Brown_Kiwi_NW_013982187v1" }
+	if ( path.indexOf("/output/") !== -1 ) {
+		isDetailsPage = true
+	} else {
+		isDetailsPage = false
+		document.getElementById("oi").innerHTML = `<img id="current_image" src="${file}" width="64px" height="64px">`
 
+	}
+	let histoURL = `${urlprefix}${file}aminosee_histogram.json`
+	// document.getElementById("oi").src = file
+
+	return  loadHistogramJson(histoURL)
+}
+function fileChanged(file) { // http://127.0.0.1:8888/aminosee/output/Brown_Kiwi_NW_013982187v1/aminosee_histogram.json
+	let path = window.location.pathname
+	let newURL = `${path}#?selectedGenome=${file}`
+	// let image = `${file}/images/${justNameOfPNG}`
 	setupFNames()
 	loadImage()
-	let genomeJson = loadHistogramJson(histoURL)
+	history.pushState(stateObj, justNameOfFile, newURL)
+	return fileInit(file)
+	// return  loadHistogramJson(histoURL)
 }
 function loadHistogramJson(histoURL) {
 	let histogramJson
@@ -158,7 +168,7 @@ function toggleDevmode() {
 		togglePause() // done twice to re-trigger the autopause
 	}
 }
-function attachHandlers() {
+function attachHandlers(pepTable) {
 	for (let pepTableIndex = 0; pepTableIndex < pepTable.length;  pepTableIndex++) {
 		let element = document.getElementById(`row_${pepTableIndex}`)
 		element.addEventListener("mouseover", mover)
@@ -166,20 +176,26 @@ function attachHandlers() {
 	}
 }
 function pageLoaded() {
-	// fileChanged("Brown_Kiwi_NW_013982187v1")
+	let json = fileInit("Brown_Kiwi_NW_013982187v1")
 	// fileChanged("output/Brown_Kiwi_NW_013982187v1/images/Brown_Kiwi_NW_013982187v1.fa_linear_c111_Reference_fix_sci.png") // http://localhost:8888/aminosee/output/Brown_Kiwi_NW_013982187v1/images/Brown_Kiwi_NW_013982187v1.fa_linear_c111_Reference_fix_sci.png
-	// loadHistogramJson(urlprefix + 'Brown_Kiwi_NW_013982187v1/aminosee_histogram.json');
-	attachHandlers()
+	loadHistogramJson(urlprefix + "Brown_Kiwi_NW_013982187v1/aminosee_histogram.json")
+	attachHandlers(json)
 	initVariables()
-	sceneCameraSetup()
-	setScene()
-	init2D() // has to run after scene created
-	setupFNames()
-	animate()
-	// setupColorPicker();
-	stat("[pageLoaded] Welcome to the Amino See DNA viewer")
-	toggleDevmode()
 
+	if ( isDetailsPage == false ) {
+		sceneCameraSetup()
+		setScene()
+		init2D() // has to run after scene created
+		setupFNames()
+		animate()
+		stat("[pageLoaded] Welcome to the Amino See DNA viewer")
+		toggleDevmode()
+
+	} else {
+		stat("[details page loaded] Welcome to the Amino See DNA viewer")
+	}
+
+	// setupColorPicker();
 	// parseApache()
 }
 function jsonTest() {
