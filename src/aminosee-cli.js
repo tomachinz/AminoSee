@@ -98,7 +98,7 @@ const targetPixels = 4660000 // for big genomes use setting flag -c 1 to achieve
 // BigInt.prototype.toJSON = function() { return this.toString(); }; // shim for big int
 // BigInt.prototype.toBSON = function() { return this.toString(); }; // Add a `toBSON()` to enable MongoDB to store BigInts as strings
 let autoStartGui = true
-let cfile, streamLineNr, renderLock, jobArgs, killServersOnQuit, webserverEnabled, cliInstance, tx, ty, termPixels, cliruns, gbprocessed, projectprefs, userprefs, genomesRendered, progato, commandString, batchSize, quiet, url, port, status, remain, lastHammered, darkenFactor, highlightFactor, loopCounter, webroot, tups,  opensFile , opensHtml , opensImage, previousImage
+let cfile, streamLineNr, renderLock, jobArgs, killServersOnQuit, webserverEnabled, cliInstance, tx, ty, termPixels, cliruns, gbprocessed, projectprefs, userprefs, genomesRendered, progato, commandString, batchSize, quiet, url, port, status, remain, lastHammered, darkenFactor, highlightFactor, loopCounter, webroot, tups,  opensFile , opensHtml , opensImage, previousImage, isHighlightSet
 // let theGUI
 tups = opensFile = opensHtml = opensImage = 0 // terminal flossing
 let opens = 0 // session local counter to avoid having way too many windows opened.
@@ -250,6 +250,7 @@ function setupApp() {
 	threads.push( cliInstance )
 	termSize()
 	webroot = locateWebroot()
+  cliInstance.resized()
 	cliInstance.setupJob( populateArgs( process.argv ), "module exports"  )
 	cliInstance.outputPath = path.join( webroot, netFoldername) // ~/AminoSee_webroot/output
 
@@ -334,7 +335,7 @@ class AminoSeeNoEvil {
 		this.openHtml = true
 		 opensHtml = 0 // how many times have we popped up a browser.
 		this.highlightTriplets = []
-		this.isHighlightSet = false
+		isHighlightSet = false
 		this.isHilbertPossible = true // set false if -c flags used.
 		this.isDiskFinLinear = true // flag shows if saving png is complete
 		this.isDiskFinHilbert = true // flag shows if saving hilbert png is complete
@@ -397,7 +398,6 @@ class AminoSeeNoEvil {
 		this.maxpix = targetPixels
 		this.setNextFile()
 		termSize()
-		// this.resized(tx, ty);
 		this.previousImage = this.justNameOfDNA
 		// output(logo());
 
@@ -604,7 +604,7 @@ class AminoSeeNoEvil {
 			this.focusTriplet = this.triplet
 			if (this.triplet !== "Reference") {
 				output(`Found triplet ${ this.triplet } with colour ${ this.tripletToHue( this.triplet )}°`)
-				this.isHighlightSet = true
+				isHighlightSet = true
 				output(`Custom triplet ${chalk.bgWhite.blue ( this.triplet )} set. Others will be mostly transparent.`)
 			} else {
 				output(`Error could not lookup this.triplet: ${ this.triplet }`)
@@ -619,7 +619,7 @@ class AminoSeeNoEvil {
 			this.peptide = tidyPeptideName( this.usersPeptide )
 
 			if ( this.peptide !== "Reference"  ) { // this colour is a flag for  this.error
-				this.isHighlightSet = true
+				isHighlightSet = true
 				this.index = false // disable html report
 				output(blueWhite(`Custom peptide: ${ this.usersPeptide } using ${ this.peptide }`))
 			} else {
@@ -631,12 +631,12 @@ class AminoSeeNoEvil {
 		}
 		this.focusPeptide = this.peptide
 		if ( this.peptide == "Reference" && this.triplet == "Reference") {
-			this.isHighlightSet = false
+			isHighlightSet = false
 			this.index = true // disable html report
 			this.report = true
 		} else {
 			output(`Peptide  ${ chalk.inverse(this.focusPeptide) } triplet ${ chalk.inverse( this.triplet )}`)
-			this.isHighlightSet = true
+			isHighlightSet = true
 			this.index = false // disable html report
 			this.report = false
 		}
@@ -779,7 +779,7 @@ class AminoSeeNoEvil {
 		} else { this.gui = false }
 
 
-		if ( this.isHighlightSet ) {
+		if ( isHighlightSet ) {
 			output(`Custom peptide: ${blueWhite( this.focusPeptide )}  Triplet: ${ blueWhite( this.triplet ) }`)
 		} else {
 			log("No custom peptide set.")
@@ -1076,12 +1076,11 @@ class AminoSeeNoEvil {
 		this.setDebugCols()
 		tx = term.width; ty = term.height
 		output(`Terminal resized: ${tx} x ${ty} and has at least ${termPixels} chars. Fullscreen mode enabled, use --no-fullscreen to prevent`)
-		if ( this.args.fulscreen == false) {
-			this.fullscreen = false
-		} else {
-			this.fullscreen = true
-
-		}
+		// if ( this.args.fullscreen == false) {
+		// 	this.fullscreen = false
+		// } else {
+		// 	this.fullscreen = true
+		// }
 		this.colDebug = this.setDebugCols() // Math.round(term.width / 3);
 		this.msPerUpdate  = minUpdateTime
 		// cliInstance.msPerUpdate  = minUpdateTime;
@@ -1944,7 +1943,8 @@ class AminoSeeNoEvil {
 		}
 		// startStreamingPng();
 		procTitle( `${bytes( this.baseChars )} c${ this.codonsPerPixel } m${this.dimension}`)
-
+    this.streamStarted()
+    // this.drawHistogram()
 		try {
 			// var that = this
 			let closure = path.resolve( this.dnafile )
@@ -1982,7 +1982,6 @@ class AminoSeeNoEvil {
 				output("Unknown error was caught during streaming init " + e)
 			}
 		}
-		this.streamStarted()
 
 		// output("FINISHED INIT " + cliInstance.howMany);
 
@@ -2063,7 +2062,8 @@ class AminoSeeNoEvil {
 		}, fileLockingDelay)
 	}
 	manageLocks(time) {
-		if ( this.lockTimer !== undefined) { clearTimeout(this.lockTimer) }
+		// if ( typeof this.lockTimer !== "undefined") { clearTimeout(this.lockTimer) }
+    // clearTimeout(this.lockTimer)
 		if ( isShuttingDown == true ) { return false }
 		var that = this
 
@@ -2071,9 +2071,11 @@ class AminoSeeNoEvil {
 			if ( renderLock == true ) {
 				that.fastUpdate()
 				if (  that.percentComplete < 0.9 &&  that.timeRemain > 20000 ) { // helps to eliminate concurrency issues
-					that.mkRenderFolders("manage locks")
-					that.tLock()
-					if (time < 60001) { time + 5000 }
+					// that.mkRenderFolders("manage locks")
+          if ( debounce(10000) == true ) {
+            that.tLock()
+          }
+					if (time < 60001) { time + 10000 }
 					that.manageLocks(time)
 				} else {
 					log("Over 90% done / less than 20 seconds: " + nicePercent(that.percentComplete) + " time remain: " + humanizeDuration( that.timeRemain))
@@ -2250,7 +2252,7 @@ class AminoSeeNoEvil {
 	highlightFilename(talkwithpep) { // return small fragment of the filename
 		if ( typeof talkwithpep == "undefined" ) { talkwithpep = "Reference" }
 		let ret = ""
-		if ( this.isHighlightSet ) {
+		if ( isHighlightSet ) {
 			if ( this.triplet !== "Reference") {
 				ret += `__${spaceTo_( this.triplet ).toUpperCase()}` // looks better uppercase
 			} else if ( talkwithpep  !== "Reference") {
@@ -2337,7 +2339,7 @@ class AminoSeeNoEvil {
 		  error("thread re-entry inside setupLinearNames")
 		  return false
 		}
-		let msg = `Setup linear names: ${ this.currentFile } highlight set: ${this.isHighlightSet} peptide: ${this.peptide} focus: ${this.focusPeptide} triplet ${this.triplet}`
+		let msg = `Setup linear names: ${ this.currentFile } highlight set: ${isHighlightSet} peptide: ${this.peptide} focus: ${this.focusPeptide} triplet ${this.triplet}`
 		this.focusPeptide = this.peptide
 		mode(msg)
 		log(msg)
@@ -2606,7 +2608,7 @@ class AminoSeeNoEvil {
 		log(chalk.inverse(`Finished linear render of ${ this.justNameOfDNA}. Array length: ${ pixels.toLocaleString() } = ${ this.pixelClock.toLocaleString() } saving images`))
 		// term.eraseDisplayBelow()
 
-		if (this.test) { // the calibration generates its own image
+		if (this.test == true) { // the calibration generates its own image
 			this.shrinkFactor = 1
 		} else { // regular DNA processing
 			userprefs.aminosee.cliruns++ // = cliruns // increment run counter. for a future high score table stat and things maybe.
@@ -2624,19 +2626,26 @@ class AminoSeeNoEvil {
 		let { shrinkFactor, codonsPerPixelHILBERT } = calculateShrinkage( this.pixelClock, this.dimension, this.codonsPerPixel )
 		this.shrinkFactor = shrinkFactor
 		this.codonsPerPixelHILBERT =  codonsPerPixelHILBERT
-		this.savePNG( () => {
-			log("master linear done")
-		})
+
+    this.mkRenderFolders()
+
+      this.savePNG( () => {
+      	output("master linear done")
+      })
+
 		this.prepareHilbertArray()
 		this.calcHilbertFilenames()
 		this.fancyFilenames()
-		this.mkRenderFolders()
+
+    printRadMessage("something aint right")
 		mode("main render async.series")
 
-		this.savePNG( this.saveHilbert( this.saveHTML( this.postRenderPoll() )))
+		this.savePNG( this.saveHilbert( this.saveHTML( () => {
+      // this.postRenderPoll()
+      output( "Saving complete............... next: " + cliInstance.nextFile )
 
+    })))
 
-		log( "Saving complete............... next: " + cliInstance.nextFile )
 
 
 
@@ -3080,7 +3089,7 @@ ${this.justNameOfHILBERT}`
 			// build a three digit triplet one char at a time
 			let c = cleanChar(l.charAt(column)) // has to be ATCG or a . for cleaned chars and line breaks
 			this.charClock++
-			while ( c == "." && c !== "N") { // biff it and get another
+			while ( c == "." || c == "N") { // cleanChar turns everything else into either . or N - biff it and get another
 				// ERROR DETECTING
 				// IMPLMENTED AFTER ENABLEDING "N" TO AFFECT THE IMAGE
 				// ITS AT THE STAGE WHERE IT CAN EAT ANY FILE WITH DNA
@@ -3160,7 +3169,7 @@ ${this.justNameOfHILBERT}`
 			pixelGamma = highlightFactor
 		} else if ( this.aminoacid == peptide) {
 			pixelGamma = highlightFactor
-		} else if ( brute == true || this.isHighlightSet == true) {
+		} else if ( brute == true || isHighlightSet == true) {
 			pixelGamma = darkenFactor
 		} else {
 			pixelGamma = 1
@@ -3187,7 +3196,7 @@ ${this.justNameOfHILBERT}`
 		this.blue  = bc[2]
 		this.alpha = bc[3]
 
-    if ( debug ) {
+    if ( debug && this.verbose ) {
       console.log( this.printRGB() )
     }
 		// this.rgbArray.push(Math.round( this.red ))
@@ -3358,24 +3367,24 @@ ${this.justNameOfHILBERT}`
 	}
 	aminoFilenameIndex(id) { // return the png files for the report
 		let returnedHil, returnedPNG
-		let backupHighlight = this.isHighlightSet
-		// output(`codons per pixel hilibert: ${this.codonsPerPixelHILBERT}`)
+		let backupHighlight = isHighlightSet
+		log(`codons per pixel hilibert: ${this.codonsPerPixelHILBERT}`)
 		if (id === undefined || id < 1) { // for the reference image
 			this.focusPeptide = "Reference"
-			this.isHighlightSet = false
+			isHighlightSet = false
 		} else {
 			this.focusPeptide = this.pepTable[id].Codon
-			this.isHighlightSet = true
+			isHighlightSet = true
 		}
-		// if ( renderLock == true ) {
-		returnedHil  = this.generateFilenameHilbert(  ) // this.isHighlightSet needs to be false for reference
-		// } else {
-		//   returnedHil = "rendering..."
-		// }
+		if ( renderLock == true ) {
+		returnedHil  = this.generateFilenameHilbert() // isHighlightSet needs to be false for reference
+		} else {
+		  returnedHil = "rendering..."
+		}
 
-		returnedPNG = this.generateFilenamePNG() // this.isHighlightSet needs to be false for reference
+		returnedPNG = this.generateFilenamePNG() // isHighlightSet needs to be false for reference
 		this.focusPeptide = this.peptide
-		this.isHighlightSet = backupHighlight
+		isHighlightSet = backupHighlight
 		return [ returnedHil, returnedPNG ]
 	}
 	getImageType() {
@@ -3746,7 +3755,6 @@ ${this.justNameOfHILBERT}`
 		let hilpix = hilbPixels[ this.dimension ]
 
 		this.antiAliasArray = this.resampleByFactor( this.shrinkFactor )
-
 		this.hWidth = Math.sqrt(hilpix)
 		this.hHeight  = this.hWidth
 		this.hilbertImage = [ ] // wipe the memory
@@ -4722,7 +4730,10 @@ ${this.justNameOfHILBERT}`
 		this.progUpdate( this.percentComplete )
 
 		if ( this.updates == false ) {
-			redoline(`${blueWhite( nicePercent(this.percentComplete) )} elapsed: `  + blueWhite(`${ fixedWidth(10, humanizeDuration( this.msElapsed )) }         ${humanizeDuration( this.timeRemain)} remain ${ chalk.bold( this.justNameOfPNG )}`))
+      term.eraseLine()
+      console.log(`[${batchProgress() + chalk.bold( this.justNameOfPNG) + " / "+ humanizeDuration( this.timeRemain)  + " / "+ this.printRGB()}] `)
+      term.up(1)
+      // process.exit()
 			return false
 		}
 		tups++
@@ -4773,7 +4784,9 @@ ${this.justNameOfHILBERT}`
 		output(`Output path: ${chalk.underline(  blueWhite( path.join( this.outputPath, this.justNameOfDNA)))}`)
 		output( this.printRGB() )
 		term.right( this.termMarginLeft )
-		term.eraseDisplayBelow()
+    if ( this.clear == true ) {
+      term.eraseDisplayBelow()
+    }
 
 		if (term.height - 32  >   termHistoHeight  +  termDisplayHeight && tx - 8 > wideScreen) {
 			if ( this.fullscreen == true ) { output( this.blurb() ) }
@@ -4799,15 +4812,29 @@ ${this.justNameOfHILBERT}`
 
 	}
   printRGB() {
-    return `Last Acid: ${ chalk.inverse.rgb(
+    let ret = `Last Acid: ${ chalk.inverse.rgb(
 			ceiling( this.red ),
 			ceiling( this.green ),
 			ceiling( this.blue )).bgWhite.bold( fixedWidth(16, "  " + this.aminoacid + "   ") )
-		} Last pixel: ` + chalk.bold(
+		}`
+    ret += ` Focus: [${( this.focusPeptide == this.aminoacid ? chalk.inverse(this.focusPeptide) : this.focusPeptide )} ${ isHighlightSet }] Last pixel: `
+    ret += chalk.bold(
+      chalk.rgb( this.mixRGBA[0], this.mixRGBA[1], this.mixRGBA[2]).bgBlack.inverse( "RGB: " )) +
+      chalk.rgb( this.mixRGBA[0], 0, 0).inverse.bgBlue(  fixedWidth(7, `R:  ${this.mixRGBA[0]}` )) +
+      chalk.rgb(0, this.mixRGBA[1], 0).inverse.bgRed( fixedWidth(10, `G:  ${this.mixRGBA[1]}` )) +
+      chalk.rgb(0, 0, this.mixRGBA[2]).inverse.bgYellow(fixedWidth(8, `B:  ${this.mixRGBA[2]}` )) +
+
+      chalk.rgb(this.red, 0, 0).inverse.bgBlue(  fixedWidth(7, `R:  ${this.red}` )) +
+      chalk.rgb(0, this.green, 0).inverse.bgRed( fixedWidth(10, `G:  ${this.green}` )) +
+      chalk.rgb(0, 0, this.blue).inverse.bgYellow(fixedWidth(8, `B:  ${this.blue}` )) +
+
 			chalk.rgb(this.peakRed, 0, 0).inverse.bgBlue(  fixedWidth(7, `R:  ${this.peakRed}` )) +
-				chalk.rgb(0, this.peakGreen, 0).inverse.bgRed( fixedWidth(10, `G:  ${this.peakGreen}` )) +
-				chalk.rgb(0, 0, this.peakBlue).inverse.bgYellow(fixedWidth(8, `B:  ${this.peakBlue}` )) +
-				chalk.rgb(this.peakAlpha, this.peakAlpha, this.peakAlpha).inverse.bgBlue(maxWidth(8, `A:  ${this.peakAlpha}` )))
+			chalk.rgb(0, this.peakGreen, 0).inverse.bgRed( fixedWidth(10, `G:  ${this.peakGreen}` )) +
+			chalk.rgb(0, 0, this.peakBlue).inverse.bgYellow(fixedWidth(8, `B:  ${this.peakBlue}` )) +
+			chalk.rgb(this.peakAlpha, this.peakAlpha, this.peakAlpha).inverse.bgBlue(maxWidth(8, `A:  ${this.peakAlpha}` ))
+      ret += ` ${this.pixelStacking}`
+    // log(ret)
+    return ret
   }
 	memToString() {
 		let memReturn = "Memory load: [ "
@@ -4829,7 +4856,7 @@ ${this.justNameOfHILBERT}`
 	highlightOrNothin() { // no highlight, no return!
 		this.focusPeptide = this.peptide
 		return ( cliInstance.isHighlightSet ?  cliInstance.peptideOrNothing() + cliInstance.tripletOrNothing()  : "" )
-		// return ( this.isHighlightSet ?  this.peptideOrNothing() + this.tripletOrNothing()  : "" )
+		// return ( isHighlightSet ?  this.peptideOrNothing() + this.tripletOrNothing()  : "" )
 	}
 	peptideOrNothing() {
 		return ( this.focusPeptide == "Reference" ? "" : this.focusPeptide )
@@ -4946,7 +4973,7 @@ ${this.justNameOfHILBERT}`
 				this.green  = tempcolor[1]
 				this.blue   = tempcolor[2]
 
-				if ( this.isHighlightSet ) {
+				if ( isHighlightSet == true ) {
 					if (this.aminoacid == this.focusPeptide ) {
 						this.alpha = 255
 					} else {
@@ -5673,7 +5700,7 @@ function redoline(txt) {
 	term.eraseLine()
 	// output(maxWidth( term.width - 2, txt));
 	// output(` [ ${ maxWidth( tx / 2, removeNonAscii( txt ))} ] `)
-	console.log(` [ ${ maxWidth( tx / 2,  txt )} ] `)
+	console.log(` [ ${ maxWidth( tx - 2,  txt )} ] `)
 	term.up( 1 )
 }
 function deresSeconds(ms){
@@ -5906,6 +5933,8 @@ function clearCheck() { // maybe clear the terminal
 		term.eraseDisplayBelow()
 		process.stdout.write("[nc] "+ status)
 	}
+  console.log("[c] "+ status)
+
 }
 function stopWork(reason) {
 	if (reason === undefined) { error("You have to give a reason") }
@@ -6018,10 +6047,12 @@ function balanceColour( red, green, blue, alpha) {
 	if ( alpha > max ) {
 		alpha = max
 	}
-  if ( this.focusPeptide == "Reference" ) {
-    return expand( [ Math.round(red * scaleGamma), Math.round(green * scaleGamma), Math.round(blue * scaleGamma), Math.round( ( this.isHighlightSet ? alpha * scaleGamma : 255 )  )] )
+  if ( this.peptide == "Reference" ) {
+    output("expanding")
+    return expand( [ Math.round(red * scaleGamma), Math.round(green * scaleGamma), Math.round(blue * scaleGamma), Math.round( ( isHighlightSet ? alpha * scaleGamma : 255 )  )] )
   } else {
-    return [ Math.round(red * scaleGamma), Math.round(green * scaleGamma), Math.round(blue * scaleGamma), Math.round( ( this.isHighlightSet ? alpha * scaleGamma : 255 )  )]
+    // output("regular " + isHighlightSet )
+    return [ Math.round(red * scaleGamma), Math.round(green * scaleGamma), Math.round(blue * scaleGamma), Math.round( ( isHighlightSet ? alpha * scaleGamma : 255 )  )]
   }
 
 
