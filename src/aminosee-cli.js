@@ -167,7 +167,7 @@ function populateArgs(procArgv) { // returns args
     boolean: [ "artistic", "clear", "chrome", "devmode", "debug", "demo", "dnabg", "explorer", "file", "force", "fullscreen", "firefox", "gui", "html", "image", "keyboard", "list", "progress", "quiet", "reg", "recycle", "redraw", "slow", "serve", "safari", "test", "updates", "verbose", "view" ],
     string: [ "url", "output", "triplet", "peptide", "ratio" ],
     alias: { a: "artistic", b: "dnabg", c: "codons", d: "devmode", f: "force", finder: "explorer", h: "help", k: "keyboard", m: "magnitude", o: "output", p: "peptide", i: "image", t: "triplet", u: "updates", q: "quiet", r: "reg", w: "width", v: "verbose", x: "explorer", view: "html" },
-    default: { brute: false, debug: false, gui: false, html: true, image: true, index: true, clear: false, explorer: false, quiet: false, keyboard: true, progress: false, redraw: true, updates: true, stop: false, serve: false, fullscreen: false },
+    default: { brute: false, debug: false, gui: false, html: true, image: true, index: false, clear: false, explorer: false, quiet: false, keyboard: true, progress: false, redraw: true, updates: true, stop: false, serve: false, fullscreen: false },
     stopEarly: false
   } // NUMERIC INPUTS: codons, magnitude, width, maxpix
   let args = minimist(procArgv.slice(2), options)
@@ -552,6 +552,8 @@ function pushCli(cs) {
             output(`Nice, using custom resolution: ${usersPix.toLocaleString()}`)
           }
         }
+      } else {
+        this.maxpix = targetPixels
       }
       // this is weird: load the value into dimension; if set its custom if not its auto.
       if ( args.magnitude || args.m ) {
@@ -1806,23 +1808,27 @@ function pushCli(cs) {
         }
         log("But lets render it again...")
       }
-      if ( this.checkLocks( this.fileTouch )) {
-        let msg = batchProgress() + " Render already in progress by another thread: "
-        output(msg +  blueWhite( path.basename( this.justNameOfPNG ))) // <---  another node maybe working on, NO RENDER
-        mode(msg + this.justNameOfPNG)
-        log("Use --force or delete this file with:")
-        log( chalk.italic(`rm ${path.normalize( this.fileTouch )}`) )
-        this.slowSkipNext(msg)
-        return false
-      }
-      mode(`Lock OK proceeding to render ${ this.justNameOfPNG } in ${ humanizeDuration( fileLockingDelay ) }... ${ this.busy() }`)
-      log( `S: ${status} ` )
-      this.justNameOfPNG = this.generateFilenamePNG()
+
       // setTimeout( () => {
         if ( renderLock == false) {
-          this.touchLockAndStartStream() // <<<<------------- THIS IS WHERE MAGIC STARTS!!!!
+          if ( this.checkLocks( this.fileTouch )) {
+            let msg = batchProgress() + " Render already in progress by another thread: "
+            output(msg +  blueWhite( path.basename( this.justNameOfPNG ))) // <---  another node maybe working on, NO RENDER
+            mode(msg + this.justNameOfPNG)
+            log("Use --force or delete this file with:")
+            log( chalk.italic(`rm ${path.normalize( this.fileTouch )}`) )
+            this.slowSkipNext(msg)
+            return false
+          }
+          mode(`Lock OK proceeding to render ${ this.justNameOfPNG } in ${ humanizeDuration( fileLockingDelay ) }... ${ this.busy() }`)
+          log( `S: ${status} ` )
+          this.justNameOfPNG = this.generateFilenamePNG()
+          if ( renderLock == false) {
+            this.touchLockAndStartStream() // <<<<------------- THIS IS WHERE MAGIC STARTS!!!!
+
+}
         } else {
-          log("Stopped")
+          error("Stopped")
         }
       // }, this.raceDelay)
     }
@@ -2130,7 +2136,7 @@ Source: ${ this.justNameOfCurrentFile}
 Full path: ${this.dnafile }
 Started: ${ formatAMPM(this.startDate) } Finished: ${ formatAMPM(new Date())} Used: ${humanizeDuration( this.runningDuration )} ${ this.isStorageBusy ? " " : "(ongoing)"}
 Machine load averages: ${ this.loadAverages()}
-DNA Input bytes: ${ bytes( this.baseChars ) } ${ bytes( this.bytesPerMs * 1000 ) }/sec
+Bandwidth: ${ bytes( this.bytesPerMs * 1000 ) } / sec DNA Filesize: ${ bytes( this.baseChars ) }
 Image Output bytes: ${ this.isStorageBusy == true ? bytes( this.rgbArray.length ) : "(busy)" }
 Pixels (linear): ${ this.pixelClock.toLocaleString()} Image aspect Ratio: ${ this.ratio }
 Pixels (hilbert): ${hilbPixels[ this.dimension ].toLocaleString()} ${(  this.dimension ? "(auto)" : "(manual -m)")} Dimension ${ this.dimension } Hilbert curve
@@ -2718,38 +2724,42 @@ AminoSee version: ${version}`
         //   this.pepTable = loadedJson.pepTable
         // }
         // process.exit();
-        let hypertext, filename
+        let hypertext
         if ( this.test == true ) {
           hypertext = this.htmlTemplate( this.testSummary() )
         } else {
           hypertext = this.htmlTemplate( histogramJson )
         }
-        // this.htmlFinished()
-        // return
+
         // let histotext = beautify( JSON.stringify( histogramJson ), null, 2, 100);
         // let histotext =  JSON.stringify( histogramJson )
         let histotext =  histogramJson.toString()
         log(histotext)
-        if (this.userCPP == "auto" && this.magnitude == "auto" && this.artistic == false && this.index == false) {
-          if ( debug ) {
-            filename = path.resolve( this.outputPath, this.justNameOfDNA, "main.html")
-          } else {
-            filename = path.resolve( this.outputPath, this.justNameOfDNA, "index.html")
-          }
-          this.fileWrite(filename, hypertext, cb) // the main.html is only written is user did not set --codons or --magnitude or --peptide or --triplet or --artistic
-        } else if (this.artistic && this.userCPP == "auto") {
-          this.fileWrite( path.resolve( this.outputPath, this.justNameOfDNA, "artistic.html"), hypertext, cb)
+
+        const isHighRes = this.dimension > defaultPreviewDimension
+
+
+        if ( debug ) {
+          this.fileWrite(path.resolve( this.outputPath, this.justNameOfDNA, "debug.html"), hypertext)
         }
 
-        if ( this.index ) {
-          filename = path.resolve( this.outputPath, this.justNameOfDNA, "index.html")
-          this.fileWrite( filename, hypertext )
+        if ( isHighRes ) {
+          this.fileWrite(path.resolve( this.outputPath, this.justNameOfDNA, "highres.html"), hypertext)
         }
+
+        if ( this.index || !isHighRes ) { // if it wont make the users computer explode... set it as index page!
+          this.fileWrite(path.resolve( this.outputPath, this.justNameOfDNA, "index.html"), hypertext)
+        }
+
+        if ( this.artistic ) {
+          this.fileWrite( path.resolve( this.outputPath, this.justNameOfDNA, "artistic.html"), hypertext)
+        }
+
         this.fileWrite( this.fileHTML, hypertext )
-        this.fileWrite( histogramFile, histotext )
-        this.htmlFinished()
-        runcb(cb)
-        log(`peptide: ${this.peptide} focus ${this.focusPeptide}`)
+        this.fileWrite( histogramFile, histotext, () => {
+          this.htmlFinished()
+          runcb(cb)
+        })
       }
       fileWrite(file, contents, cb) {
         this.mkRenderFolders()
@@ -4758,7 +4768,7 @@ AminoSee version: ${version}`
             `| Next file >>> ${maxWidth(24, this.nextFile)}`,
             `| Codons:${ fixedWidth(14, " " +  this.genomeSize.toLocaleString())}`,
             `  DNA Sample: ${ fixedWidth(tx/4, this.rawDNA) } ${ this.showFlags()}`,
-            `  RunID: ${chalk.rgb(128, 0, 0).bold( this.timestamp )} acids per pixel: ${ twosigbitsTolocale( this.codonsPerPixel )}   Term x,y: (${tx},${ty}) ${chalk.inverse( this.highlightOrNothin())} ${this.peptide} ${status}`
+            `  RunID: ${chalk.rgb(128, 0, 0).bold( this.runid )} acids per pixel: ${ twosigbitsTolocale( this.codonsPerPixel )}   Term x,y: (${tx},${ty}) ${chalk.inverse( this.highlightOrNothin())} ${this.peptide} ${status}`
           ]
           clearCheck()
           if ( this.fullscreen == true ) {

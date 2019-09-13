@@ -15,12 +15,17 @@ aminosee_do () {
 
 
 aminosee_do $1 &
+sleep 2
 aminosee_do $1 &
+sleep 2
 aminosee_do $1 * &
+sleep 2
 aminosee_do $1 $2 $3 $4 $5 $6 $7 $8
 
 open ./batch-peptides.sh * &
+sleep 2
 open ./batch-peptides.sh * &
+sleep 2
 open ./batch-peptides.sh *
 
 
