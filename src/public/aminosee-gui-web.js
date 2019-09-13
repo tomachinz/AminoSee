@@ -188,11 +188,11 @@ function pageLoaded() {
 		init2D() // has to run after scene created
 		setupFNames()
 		animate()
-		stat("[pageLoaded] Welcome to the Amino See DNA viewer")
+		stat("[pageLoaded] Welcome to the AminoSeeNoEvil DNA viewer")
 		toggleDevmode()
 
 	} else {
-		stat("[details page loaded] Welcome to the Amino See DNA viewer")
+		stat("[details page loaded] Welcome to the AminoSeeNoEvil DNA viewer")
 	}
 
 	// setupColorPicker();

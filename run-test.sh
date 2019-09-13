@@ -34,10 +34,12 @@ echo STARTING SERVER TO RUN IN BACKGROUND
 aminosee --serve &
 echo aminosee $1 $2 $3 $4 $5 $6 $7 $8 $9 $10  --no-image
 aminosee $1 $2 $3 $4 $5 $6 $7 $8 $9 $10  --no-image
-test_do "NETWORKED CLUSTER RENDER TEST $NETWORK" -fv --peptide=Phenylalanine $FAST $NETWORK $MEDIUM $1
-test_do "FORCED RENDER (HAS BUG SEEMS TO BLOCK TEST)" -fv $MEDIUM $FAST $1 $2 $3 $4 $5 $6 $7 $8 $9 $10  --no-image
-test_do "CALIBRATION IMAGES" --demo --no-image $1 $2 $3 $4
-test_do 'Curious back walk bug' -d --debug $FAST Influenza-A-virus-H9N2-NC_004905.gbk Streptococcus_virus_2972.gbk $1
+test_do "Networked cluster render test $NETWORK" -fv --peptide=Phenylalanine $FAST $NETWORK $MEDIUM $1
+test_do "Test use of --maxpix=5000000" --maxpix=5000000 -v $SLOW $MEDIUM $FAST $NETWORK $1 $2 $3 $4 $5 $6 $7 $8 $9
+test_do "Forced re-render verbose no image" -fv $MEDIUM $FAST $1 $2 $3 $4 $5 $6 $7 $8 $9 $10  --no-image
+test_do "Demo -m4 no image" --demo -m4 --no-image $1 $2 $3 $4
+test_do "Test -m5" --demo -m4 $1 $2 $3 $4
+test_do 'Curious back walk bug debug' -d --debug $FAST Influenza-A-virus-H9N2-NC_004905.gbk Streptococcus_virus_2972.gbk $1
 test_do "QUIET MODE WITH PARAMS" -q $1 $2 $3 $4 $5 $6 $7 $8 $9 $10  --no-image
 test_do "VERBOSE MODE" -v  -p=Lysine  $1 $2 $3 $4 $5 $6 $7 $8 $9 $10  --no-image
 test_do "USING INCORRECT SINGLE DASH FOR -help" -help $1 $2 $3 $4 $5 $6 $7 $8 $9 $10  --no-image
@@ -45,17 +47,16 @@ test_do "THREE OF SAME FILE IN A ROW: $FAST WITH PEPTIDE=AMBER" $FAST $FAST $FAS
 test_do "Wonky caps aspartic_ACID" $FAST  --force --peptide=aspartic_ACID $1 $2 $3 $4 $5 $6 $7 $8 $9 $10  --no-image
 test_do "gluTAMIC_aCID" $FAST -fb --peptide="gluTAMIC_aCID" $1 $2 $3 $4 $5 $6 $7 $8 $9 $10  --no-image
 test_do "PROGRESS BARS" $MEDIUM $FAST $1 $2 --force --peptide=opal -q --progress --dnabg $3 $4 $5 $6 $7 $8 $9 $10  --no-image
-# tes_do "GARBAGE FILENAMES FUZZING like   txt.txt.txt etc" $SLOW actualFileToThelieftistoseeifbatchrendersthroughthis junk asdfadsf $FAST qwert txt.txt.txt $1 $2 $3 $4 $5 $6 $7 $8 $9 $10  --no-image
+test_do "GARBAGE FILENAMES FUZZING like   txt.txt.txt etc" -q $SLOW actualFileToThelieftistoseeifbatchrendersthroughthis junk asdfadsf $FAST qwert txt.txt.txt $1 $2 $3 $4 $5 $6 $7 $8 $9 $10  --no-image
 
 echo THE NEXT ONES RENDER NON-STANDARD
-test_do "Triplet ACT Square ratio"  $FAST $MEDIUM --triplet=ACT --ratio=sqr $1 $2 $3 $4
-test_do "Triplet TTT and ochre was not designed to do both" $FAST    --triplet=TTT --peptide=ochre --ratio=sqr $1 $2 $3 $4
-test_do "Triplet CAT ratio sqr" $FAST $MEDIUM   --triplet=CAT --ratio=sqr $1 $2 $3 $4
-test_do "m5 Golden" $FAST $MEDIUM  -m5 --ratio=gol $1 $2 $3 $4
-test_do "c100 Golden" $FAST $MEDIUM  -c100 --ratio=golden $1 $2 $3 $4
-test_do "c100 Golden regmarks " $FAST $MEDIUM  -c2 --regmarks --ratio=gol $1 $2 $3 $4
-echo KEYBOARD MODE TEST
-test_do "Ochre KEYBOARD HANGS TEST"         $FAST      $1 $2 $3 $4 $5 $6 $7 $8 $9 $10  --no-image  --peptide=Methionine --keyboard
+test_do "Triplet ACT Square ratio"  $FAST $MEDIUM --triplet=ACT --ratio=sqr $1 $2 $3 $4  --no-image
+test_do "Triplet TTT and ochre was not designed to do both" $FAST    --triplet=TTT --peptide=ochre --ratio=sqr $1 $2 $3 $4  --no-image
+test_do "Triplet CAT ratio sqr" $FAST $MEDIUM   --triplet=CAT --ratio=sqr $1 $2 $3 $4 --no-image
+test_do "m5 Golden" $FAST $MEDIUM  -m5 --ratio=gol $1 $2 $3 $4 --no-image
+test_do "c100 Golden" $FAST $MEDIUM  -c100 --ratio=golden $1 $2 $3 $4 --no-image
+test_do "c100 Golden regmarks" $FAST $MEDIUM  -c2 --regmarks --ratio=gol $1 $2 $3 $4 --no-image
+test_do "Ochre KEYBOARD MODE TEST"  $FAST      $1 $2 $3 $4 $5 $6 $7 $8 $9 $10  --no-image  --peptide=Methionine --keyboard
 # test_do "Amber"         $FAST      $1 $2 $3 $4 $5 $6 $7 $8 $9 $10  --no-image    --force --no-updates -m7 --ratio=sqr --peptide=Amber
 # test_do "Methionine"    $FAST      $1 $2 $3 $4 $5 $6 $7 $8 $9 $10  --no-image   --no-updates -m5 --peptide=Methionine --ratio=sqr
 # test_do " -m 8 --peptide=Cysteine" $1 $2 $3 $4 $5 $6 $7 $8 $9 $10  --no-image   -m 8 --peptide=Cysteine

@@ -3042,10 +3042,9 @@ AminoSee version: ${version}`
           }
 
           if (remain > 0 ) {
-            output(`There is more work (${remain}) . Rendering: ${this.busy()} Load: ${os.loadavg()}`)
+            output(`There is more work (${remain}) . Rendering: ${this.justNameOfPNG} ${this.timeRemain}`)
             if ( renderLock ) {
               output("shutdown halted due to rendering")
-
               return true
             }
           }
