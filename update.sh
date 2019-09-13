@@ -1,6 +1,8 @@
 #!/bin/sh
 echo "About to run: git reset --hard HEAD~1   !!!!!!!!!!!"
 echo "About to run: git reset --hard HEAD~1   !!!!!!!!!!!"
+# wget http://cheese:8080/job/AminoSee/build?token=ACGTGTAGCAGTAGCTGATGTCGTGCATGCTGATGA
+wget http://jenkins.tomachi.co/job/AminoSee/build?token=ACGTGTAGCAGTAGCTGATGTCGTGCATGCTGATGA 
 pwd
 git status
 echo "About to run: git reset --hard HEAD~1   !!!!!!!!!!!"
