@@ -10,7 +10,7 @@ log("Electron mode: " + isElectron + " window.location: " + window.location)
 let autostopdelay = 300000 // ms
 let devautostop = 5000
 let downloaderDisabled
-let levels = 2 // default 2
+let levels = 1 // default 2
 let cubes = 0 // 1 gives just the row of three at bottom. 2 gives two rows for 6 boxes.
 // let cubes = 1; // 1 gives just the row of three at bottom. 2 gives two rows for 6 boxes.
 // let cubes = 2; // 1 gives just the row of three at bottom. 2 gives two rows for 6 boxes.
@@ -193,6 +193,7 @@ function pageLoaded() {
 
 	} else {
 		stat("[details page loaded] Welcome to the AminoSeeNoEvil DNA viewer")
+		loadImage()
 	}
 
 	// setupColorPicker();

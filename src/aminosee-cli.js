@@ -1322,7 +1322,7 @@ function pushCli(cs) {
             status  = "TERMINATED WITH CONTROL-C"
             that.gracefulQuit(0, "Control-c")
             destroyKeyboardUI()
-
+            output("Press control-c again to exit")
             if ( renderLock == true && this.timeRemain < 10000) {
               that.msPerUpdate = 800
               output("Closing in 5 seconds")
@@ -1818,13 +1818,13 @@ function pushCli(cs) {
       mode(`Lock OK proceeding to render ${ this.justNameOfPNG } in ${ humanizeDuration( fileLockingDelay ) }... ${ this.busy() }`)
       log( `S: ${status} ` )
       this.justNameOfPNG = this.generateFilenamePNG()
-      setTimeout( () => {
+      // setTimeout( () => {
         if ( renderLock == false) {
           this.touchLockAndStartStream() // <<<<------------- THIS IS WHERE MAGIC STARTS!!!!
         } else {
           log("Stopped")
         }
-      }, this.raceDelay)
+      // }, this.raceDelay)
     }
 
     firstRun() {
@@ -2108,7 +2108,7 @@ function pushCli(cs) {
 
       }
       showFlags() {
-        return `${(  this.force ? "F" : "-"    )}${( this.updates ? "U" : "-" )}C_${ this.userCPP }${( this.keyboard ? "K" : "-" )}${(  this.dnabg ? "B" : "-"  )}${( this.verbose ? "V" : "-"  )}${(  this.artistic ? "A" : "-"    )}${(  this.args.ratio || this.args.r ? `${ this.ratio }` : "---"    )}${( this.dimension ? "M" + this.dimension : "-")}${( this.reg?"REG":"")} C${ onesigbitTolocale( this.codonsPerPixel )}${( brute ? "BRUTE" : "-" )}${( this.index ? "I" : "-" )}`
+        return `${(  this.force ? "F" : "-"    )}${( this.updates ? "U" : "-" )}C_${ this.userCPP }${( this.keyboard ? "K" : "-" )}${(  this.dnabg ? "B" : "-"  )}${( this.verbose ? "V" : "-"  )}${(  this.artistic ? "A" : "-"    )}${(  this.args.ratio || this.args.r ? `${ this.ratio }` : "---"    )}${( this.dimension ? "M" + this.dimension : "-")}${( this.reg?"REG":"")} C${ onesigbitTolocale( this.codonsPerPixel )}${( brute ? "BRUTE" : "-" )}${( this.index ? "I" : "-" )}${ this.maxpix }`
       }
       testSummary() {
         return `TEST
@@ -2133,7 +2133,8 @@ Machine load averages: ${ this.loadAverages()}
 DNA Input bytes: ${ bytes( this.baseChars ) } ${ bytes( this.bytesPerMs * 1000 ) }/sec
 Image Output bytes: ${ this.isStorageBusy == true ? bytes( this.rgbArray.length ) : "(busy)" }
 Pixels (linear): ${ this.pixelClock.toLocaleString()} Image aspect Ratio: ${ this.ratio }
-Pixels (hilbert): ${hilbPixels[ this.dimension ].toLocaleString()} ${(  this.dimension ? "(auto)" : "(manual -m)")}
+Pixels (hilbert): ${hilbPixels[ this.dimension ].toLocaleString()} ${(  this.dimension ? "(auto)" : "(manual -m)")} Dimension ${ this.dimension } Hilbert curve
+Linear to Hilbert reduction: ${ this.isStorageBusy ?  twosigbitsTolocale( this.shrinkFactor) : unknown } Oversampling: ${ twosigbitsTolocale(overSampleFactor)}
 Custom flags: ${ this.showFlags()} "${( this.artistic ? "Artistic mode" : "Science mode" )}" render style
 Estimated Codons: ${Math.round( this.estimatedPixels).toLocaleString()} (filesize % 3)
 Actual Codons matched: ${ this.genomeSize.toLocaleString()} ${ this.isStorageBusy ? " " : "(so far)" }
@@ -2141,12 +2142,10 @@ Estimate accuracy: ${ this.isStorageBusy ? Math.round((( this.estimatedPixels / 
 Non-coding characters: ${ this.errorClock.toLocaleString()}
 Coding characters: ${ this.charClock.toLocaleString()}
 Codons per pixel: ${ twosigbitsTolocale( this.codonsPerPixel )} (linear) ${ this.isStorageBusy ? twosigbitsTolocale( this.codonsPerPixelHILBERT ) : unknown } (hilbert projection)
-Linear to Hilbert reduction: ${ this.isStorageBusy ?  twosigbitsTolocale( this.shrinkFactor) : unknown } Oversampling: ${ twosigbitsTolocale(overSampleFactor)}
 Max pix setting: ${ this.maxpix.toLocaleString()}
-Dimension ${ this.dimension } Hilbert curve
 Darken Factor ${ twosigbitsTolocale(darkenFactor)} / Highlight Factor ${ twosigbitsTolocale( highlightFactor)}
-Gigabytes processed on ${ hostname }: ${ gbprocessed.toLocaleString()} Run serial: ${ cliruns} UID: ${ this.runid }
-Total renders: ${ userprefs.aminosee.completed } Project opens: ${ projectprefs.aminosee.opens } (only increments when using --image --help --html or --explorer)
+${ onesigbitTolocale( gbprocessed ) } Gigabytes processed on ${ hostname }:
+Render serial: ${ cliruns.toLocaleString() } Render UID: ${ this.runid }
 AminoSee version: ${version}`
       }
 
@@ -2705,7 +2704,7 @@ AminoSee version: ${version}`
           runcb(cb)
           return false
         }
-        mode("saving HTML")
+        mode("Saving HTML")
         this.pepTable.sort( this.compareHistocount )
         let histogramJson =  this.getRenderObject()
         let histogramFile = this.generateFilenameHistogram()
@@ -4821,7 +4820,7 @@ AminoSee version: ${version}`
             ceiling( this.green ),
             ceiling( this.blue )).bgWhite.bold( fixedWidth(16, "  " + this.aminoacid + "   ") )
           }`
-          ret += ` Focus: [${( this.focusPeptide == this.aminoacid ? chalk.inverse(this.focusPeptide) : this.focusPeptide )} ${ isHighlightSet }] Last pixel: `
+          ret += ` Focus: [${( this.focusPeptide == this.aminoacid ? chalk.inverse(this.focusPeptide) : this.focusPeptide )}] Last pixel: `
           ret += chalk.bold(
             chalk.rgb( this.mixRGBA[0], this.mixRGBA[1], this.mixRGBA[2]).bgBlack.inverse( "RGB: " )) +
             chalk.rgb( this.mixRGBA[0], 0, 0).inverse.bgBlue(  fixedWidth(7, `R:  ${this.mixRGBA[0]}` )) +
@@ -5027,11 +5026,11 @@ AminoSee version: ${version}`
               position: absolute;
               top:  50%;
               left: 50%;
-              width: calc(${proportion} * ${minimumSize});
-              height: calc(${proportion} * ${minimumSize});
+              width: calc(${proportion} * ${minimumSize})px;
+              height: calc(${proportion} * ${minimumSize})px;
               transform: translate(
-                calc(var(--mouse-y, 0) * ${proportion * 200}%),
-                calc(var(--mouse-x, 0) * ${proportion * 200}%));
+                calc(var(--mouse-x, 0) * ${proportion * 200}%),
+                calc(var(--mouse-y, 0) * ${proportion * 200}%));
                 border: 1px dotted rgba(${c},0.5);
                 z-index: ${p+1};
                 `

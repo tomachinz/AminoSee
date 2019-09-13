@@ -292,6 +292,7 @@ form, input, textarea {
 }
 
 #butbar {
+  background-color: yellow;
   text-align: left;
   flex-direction: row;
   /* | row-reverse | column | column-reverse; */
