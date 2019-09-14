@@ -2651,38 +2651,38 @@ AminoSee version: ${version}`
         printRadMessage("something aint right")
         mode("main render async.series")
 
-        // this.savePNG( this.saveHilbert( this.saveHTML( () => {
-        //   // this.postRenderPoll()
-        //   output( "Saving complete............... next: " + cliInstance.nextFile )
+        this.savePNG( this.saveHilbert( this.saveHTML( () => {
+          // this.postRenderPoll()
+          output( "Saving complete............... next: " + cliInstance.nextFile )
+
+        })))
+
+
+
         //
-        // })))
-
-
-
-
-
-        async.waterfall( [
-          // async.series( [
-          function ( cb ) {
-            mode("async start " + cliInstance.currentFile)
-            cliInstance.savePNG(cb)
-            log(status)
-          },
-          function ( cb ) {
-            cliInstance.saveHilbert( cb )
-          },
-          function ( cb ) {
-            cliInstance.saveHTML( cb )
-          }
-        ])
-        .exec( function( error ) {
-          cliInstance.setNextFile()
-          setTimeout( () => {
-            cliInstance.postRenderPoll("End of async.series")
-          }, cliInstance.raceDelay)
-
-          if ( error ) { log( "Doh! " + error )  }
-        })
+        //
+        // async.waterfall( [
+        //   // async.series( [
+        //   function ( cb ) {
+        //     mode("async start " + cliInstance.currentFile)
+        //     cliInstance.savePNG(cb)
+        //     log(status)
+        //   },
+        //   function ( cb ) {
+        //     cliInstance.saveHilbert( cb )
+        //   },
+        //   function ( cb ) {
+        //     cliInstance.saveHTML( cb )
+        //   }
+        // ])
+        // .exec( function( error ) {
+        //   cliInstance.setNextFile()
+        //   setTimeout( () => {
+        //     cliInstance.postRenderPoll("End of async.series")
+        //   }, cliInstance.raceDelay)
+        //
+        //   if ( error ) { log( "Doh! " + error )  }
+        // })
 
       }
       compareHue(a,b) {
@@ -5036,7 +5036,6 @@ AminoSee version: ${version}`
               let thePep = item.Codon
               let theHue = item.Hue
               let c =      hsvToRgb( theHue / 360, 0.5, 1.0 )
-              let z =      item.z
               let name =   item.name
               let proportion = (p / pepTable.length) - 0.5
               let minimumSize = 64
@@ -5110,6 +5109,7 @@ AminoSee version: ${version}`
               //   }
               // })
               html += "</ul> <!-- END stackOimages MA man -->"
+              log(html)
               return html
             }
           } // <<< --- END OF CLASS
