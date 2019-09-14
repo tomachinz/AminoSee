@@ -1,6 +1,6 @@
 const wideScreen = 140 // shrinks terminal display
 const windows7 = 100
-let termDisplayHeight = 16 // the stats about the file etc
+let termDisplayHeight = 15 // the stats about the file etc
 let termHistoHeight = 30 // this histrogram
 const radMessage = `
 🧬  MADE IN NEW ZEALAND
@@ -1324,15 +1324,18 @@ function pushCli(cs) {
             status  = "TERMINATED WITH CONTROL-C"
             that.gracefulQuit(0, "Control-c")
             destroyKeyboardUI()
-            output("Press control-c again to exit")
+            output(blueWhite("Press control-c again to exit"))
             if ( renderLock == true && this.timeRemain < 10000) {
               that.msPerUpdate = 800
               output("Closing in 5 seconds")
               setTimeout(()=> {
                 that.gracefulQuit(130, "Control-c")
-              }, 500)
+              }, 5000)
             } else {
-              that.gracefulQuit(130, "Control-c")
+              that.quit(130, "Control-c")
+              setTimeout(()=> {
+                process.exit()
+              }, 500)
             }
           }
           if ( key.name == "s") {
@@ -1484,9 +1487,9 @@ function pushCli(cs) {
       }
       mode( `Graceful shutdown in progress... code ${code} reason ${reason}`)
       server.stop()
-      if ( renderLock ) {
-        output( blueWhite( `R: ${status} still rendering: ${this.justNameOfPNG}` ) )
-      }
+      // if ( renderLock ) {
+      //   output( blueWhite( `R: ${status} still rendering: ${this.justNameOfPNG}` ) )
+      // }
       bugtxt("webserverEnabled: " + webserverEnabled + " killServersOnQuit: "+ killServersOnQuit)
       // printRadMessage(  status )
       isShuttingDown = true
@@ -1885,7 +1888,7 @@ function pushCli(cs) {
         } else{
           this.gracefulQuit(0, "fast reset")
           // this.destroyProgress()
-          // destroyKeyboardUI()
+          destroyKeyboardUI()
           // isShuttingDown = true
           // this.quit(0, " resetting " + reason)
         }
@@ -1903,7 +1906,7 @@ function pushCli(cs) {
     }
     initStream() {
       this.runid = new Date().getTime()
-      mode(`Initialising Stream: ${this.runid} ${this.justNameOfPNG}`)
+      mode(`Initialising Stream: ${cliruns.toLocaleString()} ${this.justNameOfPNG}`)
       output( chalk.rgb(64, 128, 255).bold( status ))
       output(`Output folder --->> ${ blueWhite( blueWhite( path.normalize( this.outputPath )))}`)
       this.setNextFile()
@@ -2589,10 +2592,11 @@ AminoSee version: ${version}`
           let msg = `EXCEPTION DURING this.rgbArray.length / 4 = ${err}`
           rollbackFolder( path.resolve( this.outputPath, this.justNameOfDNA) )
           // error(msg)
-          // renderLock = false
-          // this.slowSkipNext(msg)
+          renderLock = false
+          this.slowSkipNext(msg)
           return false
         }
+        redoline(chalk.inverse(`Finished linear render of ${ this.justNameOfDNA}. Array length: ${ pixels.toLocaleString() } = ${ this.pixelClock.toLocaleString() } saving images`))
         if ( pixels < 64) {
           let msg = `less than 64 pixels produced: pixels = ${pixels}`
           mode(msg)
@@ -2612,7 +2616,6 @@ AminoSee version: ${version}`
           return false
         }
         this.setIsDiskBusy( true )
-        log(chalk.inverse(`Finished linear render of ${ this.justNameOfDNA}. Array length: ${ pixels.toLocaleString() } = ${ this.pixelClock.toLocaleString() } saving images`))
         // term.eraseDisplayBelow()
 
         if (this.test == true) { // the calibration generates its own image
@@ -2636,8 +2639,9 @@ AminoSee version: ${version}`
 
         this.mkRenderFolders()
 
+
         this.savePNG( () => {
-          output("master linear done")
+          output("master linear done2")
         })
 
         this.calcHilbertFilenames()
@@ -2647,38 +2651,38 @@ AminoSee version: ${version}`
         printRadMessage("something aint right")
         mode("main render async.series")
 
-        this.savePNG( this.saveHilbert( this.saveHTML( () => {
-          // this.postRenderPoll()
-          output( "Saving complete............... next: " + cliInstance.nextFile )
-
-        })))
-
-
-
-
-
-        // async.waterfall( [
-        // async.series( [
-        // 	function ( cb ) {
-        // 		mode("async start " + cliInstance.currentFile)
-        // 		cliInstance.savePNG(cb)
-        // 		log(status)
-        // 	},
-        // 	function ( cb ) {
-        // 		cliInstance.saveHilbert( cb )
-        // 	},
-        // 	function ( cb ) {
-        // 		cliInstance.saveHTML( cb )
-        // 	}
-        // ])
-        // 	.exec( function( error ) {
-        // 		cliInstance.setNextFile()
-        // 		setTimeout( () => {
-        // 			cliInstance.postRenderPoll("End of async.series")
-        // 		}, cliInstance.raceDelay)
+        // this.savePNG( this.saveHilbert( this.saveHTML( () => {
+        //   // this.postRenderPoll()
+        //   output( "Saving complete............... next: " + cliInstance.nextFile )
         //
-        // 		if ( error ) { log( "Doh! " + error )  }
-        // 	})
+        // })))
+
+
+
+
+
+        async.waterfall( [
+          // async.series( [
+          function ( cb ) {
+            mode("async start " + cliInstance.currentFile)
+            cliInstance.savePNG(cb)
+            log(status)
+          },
+          function ( cb ) {
+            cliInstance.saveHilbert( cb )
+          },
+          function ( cb ) {
+            cliInstance.saveHTML( cb )
+          }
+        ])
+        .exec( function( error ) {
+          cliInstance.setNextFile()
+          setTimeout( () => {
+            cliInstance.postRenderPoll("End of async.series")
+          }, cliInstance.raceDelay)
+
+          if ( error ) { log( "Doh! " + error )  }
+        })
 
       }
       compareHue(a,b) {
@@ -3013,9 +3017,11 @@ AminoSee version: ${version}`
           if (code === undefined) { code = 0 } // dont terminate with 0
           log(`Received quit(${code}) ${reason}`)
           if ( renderLock == true ) {
-            output("still rendering") // maybe this happens during graceful shutdown
             if ( code !== 130 ) {
+              output("still rendering") // maybe this happens during graceful shutdown
               return false
+            } else {
+              output("halting render") // maybe this happens during graceful shutdown
             }
           }
 
@@ -3052,10 +3058,10 @@ AminoSee version: ${version}`
 
           if (remain > 0 ) {
             output(`There is more work (${remain}) . Rendering: ${this.justNameOfPNG} ${this.timeRemain}`)
-            if ( renderLock ) {
-              output("shutdown halted due to rendering")
-              return true
-            }
+            // if ( renderLock ) {
+            //   output("shutdown halted due to rendering")
+            //   return true
+            // }
           }
 
           isShuttingDown = true
@@ -3083,7 +3089,7 @@ AminoSee version: ${version}`
           if ( renderLock == false ) { error("thread entered process line!")}
           renderLock = true
           streamLineNr++
-          status = `Streaming line: ${streamLineNr} ${ maxWidth(64, status) }`
+          status = `Streaming line: ${streamLineNr}`
           if ( debounce(500 )) { this.progUpdate( this.percentComplete ) }
 
 
@@ -4743,8 +4749,10 @@ AminoSee version: ${version}`
           this.progUpdate( this.percentComplete )
 
           if ( this.updates == false ) {
+            const msg = batchProgress() +  " / " + humanizeDuration( this.timeRemain)  +  " / "
+            wTitle(msg)
             term.eraseLine()
-            console.log(`[${batchProgress() + chalk.bold( this.justNameOfPNG) + " / "+ humanizeDuration( this.timeRemain)  + " / "+ this.printRGB()}] `)
+            console.log(`[${msg + chalk.bold( this.justNameOfPNG)} / ${this.printRGB()}]`)
             term.up(1)
             // process.exit()
             return false
@@ -5190,7 +5198,7 @@ AminoSee version: ${version}`
               txt = hostname
             }
 
-            txt = `${batchProgress()} | ${ removeNonAscii(  maxWidth( 48, txt ))} @${hostname} ` + ( isShuttingDown ? " SHUTTING DOWN " : " " )// + new Date()
+            txt = `${batchProgress()} | ${ removeNonAscii(  maxWidth( 48, txt ))} Run:${cliInstance.runid}@${hostname} ` + ( isShuttingDown ? " SHUTTING DOWN " : " " )// + new Date()
 
             if (typeof cliInstance !== "undefined") {
               cliInstance.progUpdate( this.percentComplete )
@@ -5847,11 +5855,11 @@ AminoSee version: ${version}`
             let sig = "SIGTERM"
             output(`${batchProgress()} Received ${sig} signal`)
             if ( remain > 0 || streamLineNr > 0 ) {
-              destroyKeyboardUI()
-            } else {
               output(`ignoring but unlocking keyboard ${batchProgress()}`)
+            } else {
+              output(`unlocking keyboard ${batchProgress()}`)
             }
-
+              destroyKeyboardUI()
             // cliInstance.gracefulQuit(130, sig)
             // cliInstance.destroyProgress();
             // process.exitCode = 130;
@@ -6283,12 +6291,15 @@ AminoSee version: ${version}`
             return dim
           }
           function runcb( cb ) {
-            log("runcb")
             if( typeof cb !== "undefined") {
-              bugtxt(blueWhite( "run callback"))
               if( typeof cb === "function") {
+                log("run cb")
                 cb()
+              } else {
+                log(blueWhite( "cb is not a function?"))
               }
+            } else {
+              log("no cb")
             }
           }
           function removeNonAscii(str) {
