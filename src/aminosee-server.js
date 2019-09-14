@@ -33,7 +33,6 @@ module.exports = (options) => {
 	setArgs(options);
 	[ userprefs, projectprefs ] = setupPrefs()
 	log(appFilename)
-	stop() // ironically, guess what we gotta do first?
 
 	try {
 		start()
@@ -387,7 +386,7 @@ function stop() {
 		output( chalk.italic( "taskkill /IM 'aminosee.funk.nz_server' /F"))
 	} else {
 		try {
-			spawn("killall", ["aminosee.funk.nz_server", "", "0"], { stdio: "pipe" })
+			spawn("killall", ["aminosee.funk.nz_foreground", "", "0"], { stdio: "pipe" })
 		} catch(err) {
 			if ( err.indexOf("ENOENT") !== -1 ) {
 				output("Unable to shutdown server with 'killall aminosee.funk.nz_server' perhaps this is running on windows? Try task manager")
@@ -430,6 +429,7 @@ function readLockPort(file) {
 }
 
 function start() { // return the port number
+	stop() // ironically, guess what we gotta do first?
 	starts++
 	if ( starts > 4 ) {
 		output("you seem to be trying to start the server too much. odd.")
@@ -452,7 +452,7 @@ function start() { // return the port number
 		output(`Server already started, using lock file port of (${port}) from: ${ path.normalize( filenameServerLock )}`)
 		output("Restarting server")
 		deleteFile(filenameServerLock)
-		stop()
+		// stop()
 		port = backupPort
 		foregroundserver()
 		// open( `${url}/output/${args.currentGenome}`, {wait: false}).then(() => {

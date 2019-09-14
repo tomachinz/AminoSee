@@ -2271,7 +2271,7 @@ AminoSee version: ${version}`
         } else {
           ret += "_Reference"
         }
-        log(`return: ${ blueWhite( ret )} this.focusTriplet: ${this.focusTriplet} talkwithpep ${ talkwithpep}`)
+        bugtxt(`return: ${ blueWhite( ret )} this.focusTriplet: ${this.focusTriplet} talkwithpep ${ talkwithpep}`)
         return ret
       }
       calcHilbertFilenames() {
@@ -2761,9 +2761,9 @@ AminoSee version: ${version}`
 
         this.fileWrite( this.fileHTML, hypertext )
         this.fileWrite( histogramFile, histotext, () => {
-          this.htmlFinished()
           runcb(cb)
         })
+        this.htmlFinished()
       }
       fileWrite(file, contents, cb) {
         this.mkRenderFolders()

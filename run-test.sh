@@ -50,7 +50,7 @@ test_do "PROGRESS BARS" $MEDIUM $FAST $1 $2 --force --peptide=opal -q --progress
 test_do "GARBAGE FILENAMES FUZZING like   txt.txt.txt etc" -q $SLOW actualFileToThelieftistoseeifbatchrendersthroughthis junk asdfadsf $FAST qwert txt.txt.txt $1 $2 $3 $4 $5 $6 $7 $8 $9 $10  --no-image
 
 echo THE NEXT ONES RENDER NON-STANDARD
-test_do "Triplet ACT Square ratio"  $FAST $MEDIUM --triplet=ACT --ratio=sqr $1 $2 $3 $4  --no-image
+test_do "Triplet ACT Square ratio disable keyboard" --no-keyboard $FAST $MEDIUM --triplet=ACT --ratio=sqr $1 $2 $3 $4  --no-image
 test_do "Triplet TTT and ochre was not designed to do both" $FAST    --triplet=TTT --peptide=ochre --ratio=sqr $1 $2 $3 $4  --no-image
 test_do "Triplet CAT ratio sqr" $FAST $MEDIUM   --triplet=CAT --ratio=sqr $1 $2 $3 $4 --no-image
 test_do "m5 Golden" $FAST $MEDIUM  -m5 --ratio=gol $1 $2 $3 $4 --no-image
