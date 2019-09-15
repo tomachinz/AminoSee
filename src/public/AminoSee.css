@@ -78,7 +78,8 @@ img.stack {
 
 .frontmost {
   z-index: 6969;
-  background-color: #222222;
+  /* background-color: #222222; */
+  background-color: rgba(0, 0, 0, 0.2);
 }
 
 #stack_0, #stack_1, #stack_2, #stack_3, #stack_4, #stack_5, #stack_6, #stack_7, #stack_8, #stack_9, #stack_10, #stack_11, #stack_12, #stack_13, #stack_14, #stack_15, #stack_16, #stack_17, #stack_18, #stack_19, #stack_20, #stack_21, #stack_22, #stack_23, #stack_24 {
