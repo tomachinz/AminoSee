@@ -65,7 +65,6 @@ const bytes = require("bytes")
 const PNG = require("pngjs").PNG
 const os = require("os")
 const humanizeDuration = require("humanize-duration")
-const appFilename = require.main.filename //     /bin/aminosee.js is 11 chars
 const hostname = os.hostname()
 const chalk = require("chalk")
 const obviousFoldername = "AminoSee_webroot" // descriptive for users
@@ -830,7 +829,7 @@ function pushCli(cs) {
         let  n = Math.round( args.delay )
         if ( n > 1 ) {
           this.raceDelay = n
-          output(`Set custom delay to ${humanizeDuration( n) }`)
+          notQuiet(`Set custom delay to ${humanizeDuration( n) }`)
         }
       }
       /////////////////////////////////////////////////////
@@ -1070,7 +1069,7 @@ function pushCli(cs) {
 
     resized(tx, ty) {
       clearCheck()
-      // term.clear()
+      term.clear()
 
       // term.erase()
       termSize()
@@ -2726,11 +2725,11 @@ AminoSee version: ${version}`
         // output( beautify( histogramJson , null, 2, 100) )
 
 
-        // if ( doesFileExist( histogramFile ) ) {
-        //   let loadedJson = readParseJson( histogramFile )
-        //   console.log( beautify( JSON.stringify( loadedJson ), null, 2, 100) )
-        //   this.pepTable = loadedJson.pepTable
-        // }
+        if ( doesFileExist( histogramFile ) ) {
+          let loadedJson = readParseJson( histogramFile )
+          console.log( beautify( JSON.stringify( loadedJson ), null, 2, 100) )
+          this.pepTable = loadedJson.pepTable
+        }
         // process.exit();
         let hypertext
         if ( this.test == true ) {
@@ -4949,7 +4948,6 @@ AminoSee version: ${version}`
             } else {
               return 120
             }
-            return 120
           }
           peptideToHue(str) {
             console.warn(`str ${str}`)
@@ -6078,10 +6076,9 @@ AminoSee version: ${version}`
               alpha = max
             }
             if ( cliInstance.peptide == "Reference" ) {
-              output("expanding")
+              redoline(`expand ${this.pixelClock}`)
               return expand( [ Math.round(red * scaleGamma), Math.round(green * scaleGamma), Math.round(blue * scaleGamma), Math.round( ( isHighlightSet ? alpha * scaleGamma : 255 )  )] )
             } else {
-              output(this.peptide)
               return [ Math.round(red * scaleGamma), Math.round(green * scaleGamma), Math.round(blue * scaleGamma), Math.round( ( isHighlightSet ? alpha * scaleGamma : 255 )  )]
             }
 

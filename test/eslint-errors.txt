@@ -1,48 +1,44 @@
 
 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee_src/src/aminosee-cli.js
-    42:7   error  'readParseJson' is assigned a value but never used    no-unused-vars
-    47:7   error  'beautify' is assigned a value but never used         no-unused-vars
     49:7   error  'stream' is assigned a value but never used           no-unused-vars
-    68:7   error  'appFilename' is assigned a value but never used      no-unused-vars
-    88:7   error  'max32bitInteger' is assigned a value but never used  no-unused-vars
-  1202:17  error  'file' is defined but never used                      no-unused-vars
-  1527:15  error  'runTerminalCommand' is not defined                   no-undef
-  1566:11  error  'temp' is assigned a value but never used             no-unused-vars
-  1568:40  error  'aPeptideCodon' is not defined                        no-undef
-  2180:11  error  Unreachable code                                      no-unreachable
-  2294:34  error  'focus' is defined but never used                     no-unused-vars
-  2360:15  error  'cppBackup' is assigned a value but never used        no-unused-vars
-  2361:15  error  'hcpBackup' is assigned a value but never used        no-unused-vars
-  2921:21  error  'that' is assigned a value but never used             no-unused-vars
-  3689:11  error  'recycleHistogram' is not defined                     no-undef
-  3689:43  error  'generateFilenameHistogram' is not defined            no-undef
-  3695:29  error  'decodePNG' is not defined                            no-undef
-  3702:15  error  'saveDocuments' is not defined                        no-undef
-  3864:23  error  'resolve' is defined but never used                   no-unused-vars
-  3867:28  error  'err' is defined but never used                       no-unused-vars
-  3982:23  error  'resolve' is defined but never used                   no-unused-vars
-  3985:28  error  'err' is defined but never used                       no-unused-vars
-  3985:33  error  'resolve' is defined but never used                   no-unused-vars
-  4009:23  error  'resolve' is defined but never used                   no-unused-vars
-  4012:28  error  'err' is defined but never used                       no-unused-vars
-  4012:33  error  'resolve' is defined but never used                   no-unused-vars
-  4389:30  error  'brushTeeth' is not defined                           no-undef
-  4390:29  error  'getRoomTemperature' is not defined                   no-undef
-  4396:22  error  'changeClothes' is not defined                        no-undef
-  4398:22  error  'changeClothes' is not defined                        no-undef
-  4553:33  error  Empty block statement                                 no-empty
-  4687:29  error  'index' is defined but never used                     no-unused-vars
-  4763:15  error  'text' is assigned a value but never used             no-unused-vars
-  4948:13  error  Unreachable code                                      no-unreachable
-  4972:17  error  'theMatch' is assigned a value but never used         no-unused-vars
-  5314:20  error  'minWidthRight' is defined but never used             no-unused-vars
-  5474:20  error  'rgbToHsl' is defined but never used                  no-unused-vars
-  5509:20  error  'hslToRgb' is defined but never used                  no-unused-vars
-  5546:20  error  'rgbToHsv' is defined but never used                  no-unused-vars
-  5789:20  error  'bgOpen' is defined but never used                    no-unused-vars
-  5791:47  error  'options' is assigned a value but never used          no-unused-vars
-  6100:17  error  'retProm' is assigned a value but never used          no-unused-vars
-  6234:17  error  'dimension' is assigned a value but never used        no-unused-vars
+    87:7   error  'max32bitInteger' is assigned a value but never used  no-unused-vars
+  1201:17  error  'file' is defined but never used                      no-unused-vars
+  1526:15  error  'runTerminalCommand' is not defined                   no-undef
+  1565:11  error  'temp' is assigned a value but never used             no-unused-vars
+  1567:40  error  'aPeptideCodon' is not defined                        no-undef
+  2183:11  error  Unreachable code                                      no-unreachable
+  2297:34  error  'focus' is defined but never used                     no-unused-vars
+  2363:15  error  'cppBackup' is assigned a value but never used        no-unused-vars
+  2364:15  error  'hcpBackup' is assigned a value but never used        no-unused-vars
+  2924:21  error  'that' is assigned a value but never used             no-unused-vars
+  3692:11  error  'recycleHistogram' is not defined                     no-undef
+  3692:43  error  'generateFilenameHistogram' is not defined            no-undef
+  3698:29  error  'decodePNG' is not defined                            no-undef
+  3705:15  error  'saveDocuments' is not defined                        no-undef
+  3867:23  error  'resolve' is defined but never used                   no-unused-vars
+  3870:28  error  'err' is defined but never used                       no-unused-vars
+  3985:23  error  'resolve' is defined but never used                   no-unused-vars
+  3988:28  error  'err' is defined but never used                       no-unused-vars
+  3988:33  error  'resolve' is defined but never used                   no-unused-vars
+  4012:23  error  'resolve' is defined but never used                   no-unused-vars
+  4015:28  error  'err' is defined but never used                       no-unused-vars
+  4015:33  error  'resolve' is defined but never used                   no-unused-vars
+  4392:30  error  'brushTeeth' is not defined                           no-undef
+  4393:29  error  'getRoomTemperature' is not defined                   no-undef
+  4399:22  error  'changeClothes' is not defined                        no-undef
+  4401:22  error  'changeClothes' is not defined                        no-undef
+  4556:33  error  Empty block statement                                 no-empty
+  4690:29  error  'index' is defined but never used                     no-unused-vars
+  4766:15  error  'text' is assigned a value but never used             no-unused-vars
+  4974:17  error  'theMatch' is assigned a value but never used         no-unused-vars
+  5318:20  error  'minWidthRight' is defined but never used             no-unused-vars
+  5478:20  error  'rgbToHsl' is defined but never used                  no-unused-vars
+  5513:20  error  'hslToRgb' is defined but never used                  no-unused-vars
+  5550:20  error  'rgbToHsv' is defined but never used                  no-unused-vars
+  5793:20  error  'bgOpen' is defined but never used                    no-unused-vars
+  5795:47  error  'options' is assigned a value but never used          no-unused-vars
+  6103:17  error  'retProm' is assigned a value but never used          no-unused-vars
+  6237:17  error  'dimension' is assigned a value but never used        no-unused-vars
 
-✖ 43 problems (43 errors, 0 warnings)
+✖ 39 problems (39 errors, 0 warnings)
 
