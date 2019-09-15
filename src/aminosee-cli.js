@@ -5039,17 +5039,19 @@ AminoSee version: ${version}`
               let name =   item.name
               let proportion = (p / pepTable.length) - 0.5
               let minimumSize = 64
-              let style =  `
+              let styleLi =  `
               position: absolute;
               top:  50%;
               left: 50%;
-              width: calc(${proportion} * ${minimumSize})px;
-              height: calc(${proportion} * ${minimumSize})px;
               transform: translate(
-                calc(var(--mouse-x, 0) * ${proportion * 200}%),
-                calc(var(--mouse-y, 0) * ${proportion * 200}%));
+                calc(var(--mouse-x, 0) * ${proportion * 100}%),
+                calc(var(--mouse-y, 0) * ${proportion * 100}%));
                 border: 1px dotted rgba(${c},0.5);
                 z-index: ${p+1};
+                `
+                let styleImg =  `
+                width: calc(${proportion} * ${minimumSize})px;
+                height: calc(${proportion} * ${minimumSize})px;
                 `
                 // style = "border: 1px dashed blue;"
                 // let linear_master =    item.linear_master;
@@ -5069,9 +5071,9 @@ AminoSee version: ${version}`
                   html += `<!-- ${thePep.Codon}  width="20%" height="20%" -->`
                 } else {
                   html += `
-                  <li class="stack" id="stack_${p}" style="${style}">
+                  <li class="stack" id="stack_${p}" style="${styleLi}">
                   {${p}} <a href="images/${src}" title="${name} ${thePep}">${thePep} <br/>
-                  <img src="images/${src}" alt="${name} ${thePep}" title="${name}" onmouseover="mover(${p})" onmouseout="mout(${p})"></a>
+                  <img src="images/${src}" alt="${name} ${thePep}" title="${name}" onmouseover="mover(${p})" onmouseout="mout(${p})" style="${styleImg}"></a>
                   </li>
                   `
                 }

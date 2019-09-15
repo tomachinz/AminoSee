@@ -35,7 +35,7 @@ const root = document.documentElement
 document.addEventListener("mousemove", evt => {
 	let x = evt.clientX / innerWidth
 	let y = evt.clientY / innerHeight
-	let z = (x+1) * (y+1)
+	let z = (x+0.5) * (y+0.5)
 
 	// x *= 2
 	// y *= 2

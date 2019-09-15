@@ -128,7 +128,7 @@ asterix_peptides () {
   echo STARTING MULTI-THREAD DECODE FOR $1 $2 $3 $4 $5 $6 $7
   # echo "-------------------------------------------"
 
-  nice -n 1 aminosee   --maxpix 5000000  *  --force $1 $2 $3 $4 $5 $6 $7 $8 $9 &
+  nice -n 1 aminosee   --maxpix 5000000  *   $1 $2 $3 $4 $5 $6 $7 $8 $9 &
   nice -n 2 aminosee   --maxpix 5000000  --no-html --quiet *  --peptide=Glutamic_acid $1 $2 $3 $4 $5 $6 $7 $8 $9
   nice -n 2 aminosee   --maxpix 5000000  --no-html --quiet *  --peptide=Aspartic_acid $1 $2 $3 $4 $5 $6 $7 $8 $9
   nice -n 2 aminosee   --maxpix 5000000  --no-html --quiet *  --peptide=Ochre $1 $2 $3 $4 $5 $6 $7 $8 $9
