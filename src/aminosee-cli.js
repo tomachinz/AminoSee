@@ -39,7 +39,7 @@ const createSymlink = data.createSymlink
 const asciiart = data.asciiart
 const extensions = data.extensions
 const saySomethingEpic = data.saySomethingEpic
-const readParseJson = data.readParseJson
+// const readParseJson = data.readParseJson
 // OPEN SOURCE PACKAGES FROM NPM
 const path = require("path")
 const open = require("open")
@@ -2726,11 +2726,11 @@ AminoSee version: ${version}`
         // output( beautify( histogramJson , null, 2, 100) )
 
 
-        if ( doesFileExist( histogramFile ) ) {
-          let loadedJson = readParseJson( histogramFile )
-          console.log( beautify( JSON.stringify( loadedJson ), null, 2, 100) )
-          this.pepTable = loadedJson.pepTable
-        }
+        // if ( doesFileExist( histogramFile ) ) {
+        //   let loadedJson = readParseJson( histogramFile )
+        //   console.log( beautify( JSON.stringify( loadedJson ), null, 2, 100) )
+        //   this.pepTable = loadedJson.pepTable
+        // }
         // process.exit();
         let hypertext
         if ( this.test == true ) {
