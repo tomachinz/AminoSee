@@ -2653,12 +2653,13 @@ AminoSee version: ${version}`
 
         printRadMessage("something aint right")
         mode("main render async.series")
-
-        this.savePNG( this.saveHilbert( this.saveHTML( () => {
+        this.saveHTML( () => {
           // this.postRenderPoll()
           output( "Saving complete............... next: " + cliInstance.nextFile )
 
-        })))
+        })
+
+        this.savePNG( this.saveHilbert( ))
 
 
 
@@ -6076,7 +6077,6 @@ AminoSee version: ${version}`
               alpha = max
             }
             if ( cliInstance.peptide == "Reference" ) {
-              redoline(`expand ${this.pixelClock}`)
               return expand( [ Math.round(red * scaleGamma), Math.round(green * scaleGamma), Math.round(blue * scaleGamma), Math.round( ( isHighlightSet ? alpha * scaleGamma : 255 )  )] )
             } else {
               return [ Math.round(red * scaleGamma), Math.round(green * scaleGamma), Math.round(blue * scaleGamma), Math.round( ( isHighlightSet ? alpha * scaleGamma : 255 )  )]
