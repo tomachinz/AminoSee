@@ -1077,7 +1077,7 @@ function pushCli(cs) {
       termDrawImage(this.filePNG, "resized")
       this.setDebugCols()
       tx = term.width; ty = term.height
-      output(`Terminal resized: ${tx} x ${ty} and has at least ${termPixels} chars. Fullscreen mode enabled, use --no-fullscreen to prevent`)
+      log(`Terminal resized: ${tx} x ${ty} and has at least ${termPixels} chars. Fullscreen mode enabled, use --no-fullscreen to prevent`)
       // if ( this.args.fullscreen == false) {
       // 	this.fullscreen = false
       // } else {
@@ -1741,7 +1741,11 @@ function pushCli(cs) {
       }
       if (!this.checkFileExtension( this.dnafile )) {
         let msg = maxWidth( tx/2, `${ batchProgress() } wrong file extension. ${this.dnafile}`)
-        notQuiet( msg )
+        if ( this.verbose ) {
+          redoline(msg)
+        } else {
+          notQuiet( msg )
+        }
         log( `Must be one of ${ extensions }`)
         if ( remain > 0 && !renderLock) {
           this.fastReset(msg)
@@ -1803,7 +1807,7 @@ function pushCli(cs) {
         log(`isStorageBusy ${this.isStorageBusy} Storage: [${this.isStorageBusy}]`)
         termDrawImage(this.filePNG, "Done! ")
         let msg = `Already rendered image: ${  maxWidth(tx / 3, this.justNameOfPNG)}.`
-        log(msg)
+        output(msg)
         if ( this.force == false ) {
           this.openOutputs()
           this.slowSkipNext(msg)
@@ -3475,7 +3479,7 @@ AminoSee version: ${version}`
   'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f); })(window,document,'script','dataLayer','GTM-P8JX');</script>
   <!-- End Google Tag Manager -->
 
-  <nav style="position: fixed; top: 8px; left: 8px; z-index:9999; background-color: #123456;" class="handylinks">
+  <nav style="position: fixed; top: 8px; left: 8px; z-index:9999; background-color: #123456;" id="handylinks">
   <a href="../../" class="button handylinks">AminoSee Home</a> | <a href="../" class="button">Parent</a>
   </nav>
   <h1>${ this.justNameOfDNA}</h1>
@@ -6073,11 +6077,11 @@ AminoSee version: ${version}`
             if ( alpha > max ) {
               alpha = max
             }
-            if ( this.peptide == "Reference" ) {
+            if ( cliInstance.peptide == "Reference" ) {
               output("expanding")
               return expand( [ Math.round(red * scaleGamma), Math.round(green * scaleGamma), Math.round(blue * scaleGamma), Math.round( ( isHighlightSet ? alpha * scaleGamma : 255 )  )] )
             } else {
-              // output("regular " + isHighlightSet )
+              output(this.peptide)
               return [ Math.round(red * scaleGamma), Math.round(green * scaleGamma), Math.round(blue * scaleGamma), Math.round( ( isHighlightSet ? alpha * scaleGamma : 255 )  )]
             }
 
