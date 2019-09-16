@@ -79,8 +79,8 @@ series_peptides $1 $2 $3 $4 $5 $6 $7 $8 $9
 echo finished will continue in one hour
 sleep 3600
 asterix_peptides
-echo finished will continue in one hour
-sleep 3600
+# echo finished will continue in one hour
+# sleep 3600
 find_way_peptides  $1 $2 $3 $4 $5 $6 $7 $8 $9
 #
 # sleep 3
