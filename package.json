@@ -103,7 +103,7 @@
     "humanize-duration": "^3.20.1",
     "husky": "^3.0.4",
     "internal-ip": "^4.3.0",
-    "json-beautify": "^1.1.0",
+    "json-beautify": "^1.1.1",
     "keypress": "^0.2.1",
     "lazyness": "^1.1.1",
     "local-web-server": "^3.0.7",
