@@ -76,11 +76,11 @@ find_way_peptides () {
 }
 
 series_peptides $1 $2 $3 $4 $5 $6 $7 $8 $9
-echo finished will continue in one hour
-sleep 3600
+echo finished will continue in one minute
+sleep 58
 asterix_peptides
-# echo finished will continue in one hour
-# sleep 3600
+echo finished will continue in one minute
+sleep 58
 find_way_peptides  $1 $2 $3 $4 $5 $6 $7 $8 $9
 #
 # sleep 3
