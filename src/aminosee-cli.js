@@ -1,4 +1,4 @@
-const blackPoint = 32 // use 255 to remove effect, it increase colour saturation
+const blackPoint = 128 // use 255 to remove effect, it increase colour saturation
 const wideScreen = 140 // shrinks terminal display
 const windows7 = 100
 let termDisplayHeight = 15 // the stats about the file etc
@@ -1178,6 +1178,7 @@ function pushCli(cs) {
         magnitude:  this.magnitude,
         dimension:  this.dimension,
         previewdimension: 5,
+        blackPoint: blackPoint,
         darkenFactor: darkenFactor,
         highlightFactor: highlightFactor,
         correction: "Expand",
@@ -2159,7 +2160,7 @@ Non-coding characters: ${ this.errorClock.toLocaleString()}
 Coding characters: ${ this.charClock.toLocaleString()}
 Codons per pixel: ${ twosigbitsTolocale( this.codonsPerPixel )} (linear) ${ this.isStorageBusy ? twosigbitsTolocale( this.codonsPerPixelHILBERT ) : unknown } (hilbert projection)
 Max pix setting: ${ this.maxpix.toLocaleString()}
-Darken Factor ${ twosigbitsTolocale(darkenFactor)} / Highlight Factor ${ twosigbitsTolocale( highlightFactor)}
+Darken Factor ${ twosigbitsTolocale(darkenFactor)} / Highlight Factor ${ twosigbitsTolocale( highlightFactor)} Black Point: ${blackPoint}
 ${ onesigbitTolocale( gbprocessed ) } Gigabytes processed on ${ hostname }:
 Render serial: ${ cliruns.toLocaleString() } Render UID: ${ this.runid }
 AminoSee version: ${version}`
@@ -2935,6 +2936,7 @@ AminoSee version: ${version}`
                     cliInstance.runCycle()
                   } else {
                     output("busy")
+                    this.quit(0,"test "+ remain)
                   }
                 }, this.raceDelay)
               } else {
@@ -3025,7 +3027,7 @@ AminoSee version: ${version}`
           if (code === undefined) { code = 0 } // dont terminate with 0
           log(`Received quit(${code}) ${reason}`)
           if ( renderLock == true ) {
-            if ( code !== 130 ) {
+            if ( code == 0 ) {
               output("still rendering") // maybe this happens during graceful shutdown
               return false
             } else {
@@ -3552,6 +3554,7 @@ AminoSee version: ${version}`
           <img id="oi" width="64" height="64" style="border: 4px black; background: black;" src="images/${ this.pepTable[0].linear_master }">
           1D Linear Map Image
           </a>
+
           <a href="#scrollHILBERT" class="button" title"Click To Scroll Down To See 2D Hilbert Map"><br />
           <img width="64" height="64" style="border: 4px black background: black;" src="images/${ this.pepTable[0].hilbert_master }">
           2D Hilbert Map Image
@@ -3595,14 +3598,19 @@ AminoSee version: ${version}`
           html += `</div>
 
           <br /><br />
+
+          <h2>Hilbert Projection</h2>
           <a name="scrollHILBERT" ></a>
+          This is a curve that touches each pixel exactly once, without crossing over or breaking.
+          <a href="images/${ this.pepTable[0].hilbert_master }" ><img src="images/${ this.pepTable[0].hilbert_master  }" width="99%" height="auto" style="border: 4px black; background: black;" ></a>
+          <br/>
 
-
-
+          <h2>Linear Projection</h2>
           <a name="scrollLINEAR" ></a>
-          <a href="images/${ this.pepTable[0].linear_master }" ><img src="images/${ this.pepTable[0].linear_master  }" width-"99%" height="auto"></a>
-
-
+          The following image is in raster order, top left to bottom right:
+          <a name="scrollLINEAR" ></a>
+          <a href="images/${ this.pepTable[0].linear_master }" ><img src="images/${ this.pepTable[0].linear_master  }" width="99%" height="auto" style="border: 4px black; background: black;" ></a>
+          <br/>
 
           <h2>About Start and Stop Codons</h2>
           <p>The codon AUG is called the START codon as it the first codon in the transcribed mRNA that undergoes translation. AUG is the most common START codon and it codes for the amino acid methionine (Met) in eukaryotes and formyl methionine (fMet) in prokaryotes. During protein synthesis, the tRNA recognizes the START codon AUG with the help of some initiation factors and starts translation of mRNA.
@@ -3612,11 +3620,7 @@ AminoSee version: ${version}`
           Non-AUG START codons are rarely found in eukaryotic genomes. Apart from the usual Met codon, mammalian cells can also START translation with the amino acid leucine with the help of a leucyl-tRNA decoding the CUG codon. Mitochondrial genomes use AUA and AUU in humans and GUG and UUG in prokaryotes as alternate START codons.
 
           In prokaryotes, E. coli is found to use AUG 83%, GUG 14%, and UUG 3% as START codons. The lacA and lacI coding this.regions in the E coli lac operon don’t have AUG START codon and instead use UUG and GUG as initiation codons respectively.</p>
-          <h2>Linear Projection</h2>
-          The following image is in raster order, top left to bottom right:
-          <a name="scrollLINEAR" ></a>
-          <a href="images/${ this.pepTable[0].linear_master }" ><img src="images/${ this.pepTable[0].linear_master  }" width="99%" height="auto" style="border: 4px black; background: black;" ></a>
-          <br/>
+
 
           <div id="googleads">
 
@@ -4354,7 +4358,6 @@ AminoSee version: ${version}`
           }
         }
         runCycle(cb) {
-
           if (renderLock == false) {
             error(`Thread re-entered runCycle ${loopCounter}`)
             runcb( cb )
@@ -4367,7 +4370,7 @@ AminoSee version: ${version}`
           if ( loopCounter > batchSize || isShuttingDown || remain < 1 ) {
             this.testStop()
             runcb( cb )
-            // this.quit(1, "test complete")
+            this.quit(1, "test complete")
             return false
           }
 
@@ -4381,12 +4384,11 @@ AminoSee version: ${version}`
           // both kinds is currently making it's own calls to postRenderPoll
           this.bothKindsTestPattern((cb) => { // renderLock must be true
             log(`test patterns returned ${this.storage()}`)
+            this.testStop()
             // this.openOutputs()
             this.setIsDiskBusy( false )
             this.postRenderPoll("test patterns returned")
             renderLock = false
-            this.testStop()
-
             runcb( cb )
           }) // <<--------- sets up both linear and hilbert arrays but only saves the Hilbert.
           // this.updates = false
@@ -4419,6 +4421,7 @@ AminoSee version: ${version}`
           // this.pixelClock = -1; // gets around zero length check
           // this.quit(0, 'test stop');
           this.isShuttingDown = true
+          renderLock = false
           killAllTimers()
           this.destroyProgress()
           destroyKeyboardUI()
