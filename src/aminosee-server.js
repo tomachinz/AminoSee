@@ -33,13 +33,29 @@ module.exports = (options) => {
 	setArgs(options);
 	[ userprefs, projectprefs ] = setupPrefs()
 	log(appFilename)
+	// stop()
 
-	try {
-		start()
-		return args.openPage
-	} catch(err) {
-		return "port in use" // err
-	}
+
+		var tcpPortUsed = require("tcp-port-used")
+		tcpPortUsed.check(port, "127.0.0.1")
+		.then(function(inUse) {
+		    console.log(`tcp-port-used Port ${port} usage: ${inUse}`)
+				if (!inUse) {
+					try {
+						start()
+						return args.openPage
+					} catch(err) {
+						return "port in use" // err
+					}
+
+				} else {
+					output("busy")
+				}
+		}, function(err) {
+		    console.error("tcp-port-used Error on check:", err.message)
+		console.log("exit")
+		})
+
 }
 
 function setArgs( TheArgs ) {
@@ -270,7 +286,7 @@ function spawnBackground(p) { // Spawn background server
 	return didStart
 }
 function foregroundserver() {
-	process.title = "aminosee.funk.nz_foreground"
+	process.title = "aminosee.funk.nz (server)"
 	let didStart = false
 	// var root = path.join(__dirname)
 	log( `webroot ${webroot}` )
@@ -386,7 +402,7 @@ function stop() {
 		output( chalk.italic( "taskkill /IM 'aminosee.funk.nz_server' /F"))
 	} else {
 		try {
-			spawn("killall", ["aminosee.funk.nz_foreground", "", "0"], { stdio: "pipe" })
+			spawn("killall", ["aminosee.funk.nz (server)", "", "0"], { stdio: "pipe" })
 		} catch(err) {
 			if ( err.indexOf("ENOENT") !== -1 ) {
 				output("Unable to shutdown server with 'killall aminosee.funk.nz_server' perhaps this is running on windows? Try task manager")
@@ -395,7 +411,7 @@ function stop() {
 			}
 		}
 		try {
-			spawn("killall", ["aminosee.funk.nz_foreground", "", "0"], { stdio: "pipe" })
+			spawn("killall", ["aminosee.funk.nz (server)", "", "0"], { stdio: "pipe" })
 		} catch(err) {
 			if ( err.indexOf("ENOENT") !== -1 ) {
 				output("Unable to shutdown server with 'killall aminosee.funk.nz_server' perhaps this is running on windows? Try task manager")
@@ -429,7 +445,10 @@ function readLockPort(file) {
 }
 
 function start() { // return the port number
-	stop() // ironically, guess what we gotta do first?
+
+
+
+
 	starts++
 	if ( starts > 4 ) {
 		output("you seem to be trying to start the server too much. odd.")
@@ -454,21 +473,20 @@ function start() { // return the port number
 		deleteFile(filenameServerLock)
 		// stop()
 		port = backupPort
-		foregroundserver()
-		// open( `${url}/output/${args.currentGenome}`, {wait: false}).then(() => {
-		// 	log("browser closed")
-		// }).catch(function () {
-		//  })
+		// foregroundserver()
+
 
 	} else {
 		log("No locks found, starting server ")
-		// stop() // sounds odd, but helps avoid port in use issue :)
 		if ( args.background == true ) {
 			selfSpawn( options )
 		} else {
 			log("Foreground")
 			foregroundserver( options )
-			// spawnBackground() // works great but relies on http-server being installed globally
+			open( `${url}/output/${args.currentGenome}`, {wait: false}).then(() => {
+				log("browser closed")
+			}).catch(function () {
+			 })
 		}
 		log(`filenameServerLock: ${filenameServerLock}`)
 	}

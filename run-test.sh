@@ -38,7 +38,9 @@ test_do "Networked cluster render test $NETWORK" -fv --peptide=Phenylalanine $FA
 test_do "Test use of --maxpix=5000000" --maxpix=5000000 -v $SLOW $MEDIUM $FAST $NETWORK $1 $2 $3 $4 $5 $6 $7 $8 $9
 test_do "Forced re-render verbose no image" -fv $MEDIUM $FAST $1 $2 $3 $4 $5 $6 $7 $8 $9 $10  --no-image
 test_do "Demo -m4 no image" --demo -m4 --no-image $1 $2 $3 $4
-test_do "Test -m5" --demo -m4 $1 $2 $3 $4
+test_do "Test -m5" --demo -m4 -q $1 $2 $3 $4
+test_do "Test -m5" --test -p=Red -m4 $1 $2 $3 $4
+test_do "Test -m5" --test -p=Green -m4 $1 $2 $3 $4
 test_do 'Curious back walk bug debug' -d --debug $FAST Influenza-A-virus-H9N2-NC_004905.gbk Streptococcus_virus_2972.gbk $1
 test_do "QUIET MODE WITH PARAMS" -q $1 $2 $3 $4 $5 $6 $7 $8 $9 $10  --no-image
 test_do "VERBOSE MODE" -v  -p=Lysine  $1 $2 $3 $4 $5 $6 $7 $8 $9 $10  --no-image

@@ -85,11 +85,12 @@ const maxCanonical = 32 // max length of canonical name
 const hilbPixels = [ 64, 256, 1024, 4096, 16384, 65536, 262144, 1048576, 4194304, 16777216, 67108864 ] // I've personally never seen a mag 9 or 10 image, cos my computer breaks down. 67 Megapixel hilbert curve!! the last two are breaking nodes heap and call stack both.
 const widthMax = 960 // i wanted these to be tall and slim kinda like the most common way of diagrammatically showing chromosomes
 const defaultPort = 4321
-const max32bitInteger = 2147483647
+// const max32bitInteger = 2147483647
 const minUpdateTime = 200
 const openLocalHtml = false // affects auto-open HTML.
 const fileLockingDelay = 2000
-const targetPixels = 4660000 // for big genomes use setting flag -c 1 to achieve highest resolution and bypass this taret max render size
+// const targetPixels = 4660000 // for big genomes use setting flag -c 1 to achieve highest resolution and bypass this taret max render size
+const targetPixels = 1000000 // for web
 // let bodyParser = require('body-parser');
 // const gv = require('genversion');
 // let gui = require('./public/aminosee-gui-web.js');
@@ -395,7 +396,6 @@ function pushCli(cs) {
       this.dimension = defaultMagnitude // var that the hilbert projection is be downsampled to
       this.msPerUpdate  = minUpdateTime // min milliseconds per update its increased for long renders
       this.termMarginTop = (term.height -  termDisplayHeight -   termHistoHeight ) / 4
-      this.maxpix = targetPixels
       this.setNextFile()
       termSize()
       this.previousImage = this.justNameOfDNA
@@ -406,7 +406,20 @@ function pushCli(cs) {
       } else {
         this.quiet = false
       }
-
+      if ( args.maxpix ) {
+        let usersPix = Math.round( args.maxpix )
+        if ( usersPix < 100000 ) {
+          output("maxpix too low. using --maxpix=1000000")
+          this.maxpix = 1000000
+        } else {
+          this.maxpix = usersPix
+          if ( usersPix > targetPixels ) {
+            output(`Nice, using custom resolution: ${usersPix.toLocaleString()}`)
+          }
+        }
+      } else {
+        this.maxpix = targetPixels
+      }
 
       if ( args.fullscreen == true) {
         log("fullscreen terminal output enabled")
@@ -541,20 +554,7 @@ function pushCli(cs) {
         this.codonsPerPixel = defaultC
         this.userCPP = "auto"
       }
-      if ( args.maxpix ) {
-        let usersPix = Math.round( args.maxpix )
-        if ( usersPix < 100000 ) {
-          output("maxpix too low. using --maxpix=1000000")
-          this.maxpix = 1000000
-        } else {
-          this.maxpix = usersPix
-          if ( usersPix > targetPixels ) {
-            output(`Nice, using custom resolution: ${usersPix.toLocaleString()}`)
-          }
-        }
-      } else {
-        this.maxpix = targetPixels
-      }
+
       // this is weird: load the value into dimension; if set its custom if not its auto.
       if ( args.magnitude || args.m ) {
         output( args.magnitude )
@@ -565,7 +565,6 @@ function pushCli(cs) {
           output("Magnitude must be an integer number between 3 and 9. Using -m 3 for 4096 pixel curve.")
         } else if ( this.dimension > theoreticalMaxMagnitude) {
           this.dimension = theoreticalMaxMagnitude
-          // this.maxpix = 32000000
           output("Magnitude must be an integer number between 3 and 9 or so. 9 you may run out of memory.")
         } else if (  this.dimension > 2 &&  this.dimension < 9) {
           output(`Using custom output magnitude: ${ this.dimension }`)
@@ -987,7 +986,11 @@ function pushCli(cs) {
         // this.currentURL = server.foregroundserver()
         this.currentURL = this.generateURL()
         // this.currentURL = server.start( generateTheArgs() )
-        server( generateTheArgs() )
+        try {
+          server( generateTheArgs() )
+        } catch (err) {
+          output(`error starting server: ${fixedWidth(tx/2, err)}`)
+        }
         webserverEnabled = false
       }
 
@@ -1304,7 +1307,6 @@ function pushCli(cs) {
 
           if ( key.name == "q" || key.name == "escape" ) {
             killServersOnQuit = false
-            // killAllTimers()
             that.gracefulQuit(0, "Q esc")
           } else if ( !key.ctrl || key.name !== "c") {
             if ( autoStartGui && key.name == "g") {
@@ -1320,7 +1322,7 @@ function pushCli(cs) {
           // W (webserver)           C (clear scrn)            U (updates stats)       X (search ~ for DNA)
           // O (open images after render)                      or [space]       G  (experimental carlo GUI)
 
-          if ( key.ctrl && key.name == "c") {
+          if ( key.ctrl && (key.name == "c" || key.name == "d"  )) {
             process.stdin.pause() // stop sending control-c here, send now to parent, which is gonna kill us on the second go with control-c
             status  = "TERMINATED WITH CONTROL-C"
             that.gracefulQuit(0, "Control-c")
@@ -1635,14 +1637,14 @@ function pushCli(cs) {
       if (remain <= 0) {
         mode("Happiness.")
         data.saySomethingEpic()
-        log(chalk.bgRed.yellow( `R: ${status} ` ))
+        // log(chalk.bgRed.yellow( `R: ${status} ` ))
         if ( !this.quiet ) {
           printRadMessage(  status )
         }
         if ( killServersOnQuit ) {
           // output("Control-c to stop server")
           setTimeout( () => {
-            this.quit(0,  status )
+            this.quit(1,  status )
           }), 10
         } else {
           output("Control-c to stop server")
@@ -3390,7 +3392,6 @@ AminoSee version: ${version}`
         aminoFilenameIndex(id) { // return the png files for the report
           let returnedHil, returnedPNG
           let backupHighlight = isHighlightSet
-          log(`codons per pixel hilibert: ${this.codonsPerPixelHILBERT}`)
           if (id === undefined || id < 1) { // for the reference image
             this.focusPeptide = "Reference"
             isHighlightSet = false
