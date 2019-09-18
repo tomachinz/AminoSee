@@ -1,3 +1,4 @@
+const blackPoint = 32 // use 255 to remove effect, it increase colour saturation
 const wideScreen = 140 // shrinks terminal display
 const windows7 = 100
 let termDisplayHeight = 15 // the stats about the file etc
@@ -166,7 +167,7 @@ function populateArgs(procArgv) { // returns args
     boolean: [ "artistic", "clear", "chrome", "devmode", "debug", "demo", "dnabg", "explorer", "file", "force", "fullscreen", "firefox", "gui", "html", "image", "keyboard", "list", "progress", "quiet", "reg", "recycle", "redraw", "slow", "serve", "safari", "test", "updates", "verbose", "view" ],
     string: [ "url", "output", "triplet", "peptide", "ratio" ],
     alias: { a: "artistic", b: "dnabg", c: "codons", d: "devmode", f: "force", finder: "explorer", h: "help", k: "keyboard", m: "magnitude", o: "output", p: "peptide", i: "image", t: "triplet", u: "updates", q: "quiet", r: "reg", w: "width", v: "verbose", x: "explorer", view: "html" },
-    default: { brute: false, debug: false, gui: false, html: true, image: true, index: false, clear: false, explorer: false, quiet: false, keyboard: true, progress: false, redraw: true, updates: true, stop: false, serve: false, fullscreen: false },
+    default: { brute: false, debug: false, gui: false, html: true, image: true, index: false, clear: false, explorer: false, quiet: false, keyboard: true, progress: false, redraw: true, updates: true, stop: false, serve: true, fullscreen: false },
     stopEarly: false
   } // NUMERIC INPUTS: codons, magnitude, width, maxpix
   let args = minimist(procArgv.slice(2), options)
@@ -313,7 +314,7 @@ function pushCli(cs) {
       this.outFoldername = ""
       this.genomeSize = 0
       this.killServersOnQuit = true
-      this.maxMsPerUpdate  = 15000 // milliseconds per updatethis.maxpix = targetPixels; //
+      this.maxMsPerUpdate  = 15000 // milliseconds per update
       this.timeRemain = 1
       this.debugGears = 1
       this.done = 0
@@ -542,7 +543,7 @@ function pushCli(cs) {
       }
       if ( args.maxpix ) {
         let usersPix = Math.round( args.maxpix )
-        if ( usersPix < 1000000 ) {
+        if ( usersPix < 100000 ) {
           output("maxpix too low. using --maxpix=1000000")
           this.maxpix = 1000000
         } else {
@@ -564,7 +565,7 @@ function pushCli(cs) {
           output("Magnitude must be an integer number between 3 and 9. Using -m 3 for 4096 pixel curve.")
         } else if ( this.dimension > theoreticalMaxMagnitude) {
           this.dimension = theoreticalMaxMagnitude
-          this.maxpix = 32000000
+          // this.maxpix = 32000000
           output("Magnitude must be an integer number between 3 and 9 or so. 9 you may run out of memory.")
         } else if (  this.dimension > 2 &&  this.dimension < 9) {
           output(`Using custom output magnitude: ${ this.dimension }`)
@@ -1296,7 +1297,8 @@ function pushCli(cs) {
       process.stdin.resume() // means start consuming
       // listen for the "keypress" event
       process.stdin.on("keypress", function (ch, key) {
-        output(`got keypress: ${ chalk.inverse( key.name )}`)
+        // term.down(1)
+        out(`got keypress: ${ chalk.inverse( key.name )}`)
 
         if ( key ) {
 
@@ -4842,7 +4844,7 @@ AminoSee version: ${version}`
             ceiling( this.green ),
             ceiling( this.blue )).bgWhite.bold( fixedWidth(16, "  " + this.aminoacid + "   ") )
           }`
-          ret += ` Focus: [${( this.focusPeptide == this.aminoacid ? chalk.inverse(this.focusPeptide) : this.focusPeptide )}] Last pixel: `
+          ret += "Last pixel: "
           ret += chalk.bold(
             chalk.rgb( this.mixRGBA[0], this.mixRGBA[1], this.mixRGBA[2]).bgBlack.inverse( "RGB: " )) +
             chalk.rgb( this.mixRGBA[0], 0, 0).inverse.bgBlue(  fixedWidth(7, `R:  ${this.mixRGBA[0]}` )) +
@@ -4851,13 +4853,14 @@ AminoSee version: ${version}`
 
             chalk.rgb(this.red, 0, 0).inverse.bgBlue(  fixedWidth(7, `R:  ${this.red}` )) +
             chalk.rgb(0, this.green, 0).inverse.bgRed( fixedWidth(10, `G:  ${this.green}` )) +
-            chalk.rgb(0, 0, this.blue).inverse.bgYellow(fixedWidth(8, `B:  ${this.blue}` )) +
-
-            chalk.rgb(this.peakRed, 0, 0).inverse.bgBlue(  fixedWidth(7, `R:  ${this.peakRed}` )) +
-            chalk.rgb(0, this.peakGreen, 0).inverse.bgRed( fixedWidth(10, `G:  ${this.peakGreen}` )) +
-            chalk.rgb(0, 0, this.peakBlue).inverse.bgYellow(fixedWidth(8, `B:  ${this.peakBlue}` )) +
-            chalk.rgb(this.peakAlpha, this.peakAlpha, this.peakAlpha).inverse.bgBlue(maxWidth(8, `A:  ${this.peakAlpha}` ))
+            chalk.rgb(0, 0, this.blue).inverse.bgYellow(fixedWidth(8, `B:  ${this.blue}` )) // +
+            //
+            // chalk.rgb(this.peakRed, 0, 0).inverse.bgBlue(  fixedWidth(7, `R:  ${this.peakRed}` )) +
+            // chalk.rgb(0, this.peakGreen, 0).inverse.bgRed( fixedWidth(10, `G:  ${this.peakGreen}` )) +
+            // chalk.rgb(0, 0, this.peakBlue).inverse.bgYellow(fixedWidth(8, `B:  ${this.peakBlue}` )) +
+            // chalk.rgb(this.peakAlpha, this.peakAlpha, this.peakAlpha).inverse.bgBlue(maxWidth(8, `A:  ${this.peakAlpha}` ))
             ret += ` ${this.pixelStacking}`
+
             // log(ret)
             return ret
           }
@@ -5726,11 +5729,15 @@ AminoSee version: ${version}`
             return that
           }
           function redoline(txt) {
-            term.eraseLine()
-            // output(maxWidth( term.width - 2, txt));
-            // output(` [ ${ maxWidth( tx / 2, removeNonAscii( txt ))} ] `)
-            console.log(` [ ${ maxWidth( tx - 2,  txt )} ] `)
-            term.up( 1 )
+            if (debounce(100)) {
+              term.eraseLine()
+              console.log(` [ ${ maxWidth( tx - 2,  txt )} ] `)
+              term.up( 1 )
+            } else {
+              // term.eraseLine()
+              // console.log(` [ ${ maxWidth( tx - 2,  txt )} ] `)
+              // term.up( 1 )
+            }
           }
           function deresSeconds(ms){
             return Math.round(ms/1000) * 1000
@@ -6029,36 +6036,46 @@ AminoSee version: ${version}`
           function getArgs() {
             return this.args
           }
-          const blackPoint = 64
           function expand( red, green, blue, alpha) {
-            let max = Math.min( red, green, blue ) // find brightest channel
 
-            let min = Math.min( red, green, blue ) // find brightest channel
-            if ( min > blackPoint ) {
-              let scaleBlack = blackPoint / min
-              if ( red == min ) {
+            red = parseInt(red)
+            green = parseInt(green)
+            blue = parseInt(blue)
+
+            let scaleBlack = 1
+            let maxi = Math.max( red, green, blue ) // find brightest channel
+            let mini = Math.min( red, green, blue ) // find brightest channel
+            // log(`expand: rgba [${red} ${green} ${blue}] min [${mini}] max [${maxi}] scaleBlack [${scaleBlack}] blackPoint [${blackPoint}]`)
+
+            if ( mini > blackPoint ) { // if the colour is too unsaturated
+              scaleBlack = blackPoint / mini // if the min is 100, and blackPoint is 64,
+              // scaleBlack will be 0.64 * 100 = 64
+              if ( red == mini ) {
                 red = blackPoint
-                if ( green == max) {
-                  blue *= scaleBlack / 2
+                if ( green == maxi) {
+                  blue *= scaleBlack
                 } else {
-                  green *= scaleBlack / 2
+                  green *= scaleBlack
                 }
-              } else if ( green == min) {
+              } else if ( green == mini) {
                 green = blackPoint
-                if ( red == max) {
-                  blue *= scaleBlack / 2
+                if ( red == maxi) {
+                  blue *= scaleBlack
                 } else {
-                  red *= scaleBlack / 2
+                  red *= scaleBlack
                 }
-              } else if ( blue == min ) {
+              } else if ( blue == mini ) {
                 blue = blackPoint
-                if ( green == max) {
-                  red *= scaleBlack / 2
+                if ( green == maxi) {
+                  red *= scaleBlack
                 } else {
-                  green *= scaleBlack / 2
+                  green *= scaleBlack
                 }
               }
+            } else {
+              bugtxt("not expanding")
             }
+            bugtxt(`expand: rgba [${red} ${green} ${blue}] mini [${mini}] maxi [${maxi}] scaleBlack [${scaleBlack}] blackPoint [${blackPoint}]`)
             return [red, green, blue, alpha ]
           }
           function balanceColour( red, green, blue, alpha) {
@@ -6076,10 +6093,10 @@ AminoSee version: ${version}`
             if ( alpha > max ) {
               alpha = max
             }
-            if ( cliInstance.peptide == "Reference" ) {
-              return expand( [ Math.round(red * scaleGamma), Math.round(green * scaleGamma), Math.round(blue * scaleGamma), Math.round( ( isHighlightSet ? alpha * scaleGamma : 255 )  )] )
+            if ( !isHighlightSet ) {
+              return expand( Math.round(red * scaleGamma), Math.round(green * scaleGamma), Math.round(blue * scaleGamma), Math.round( 255   ) )
             } else {
-              return [ Math.round(red * scaleGamma), Math.round(green * scaleGamma), Math.round(blue * scaleGamma), Math.round( ( isHighlightSet ? alpha * scaleGamma : 255 )  )]
+              return [ Math.round(red * scaleGamma), Math.round(green * scaleGamma), Math.round(blue * scaleGamma), Math.round(  alpha * scaleGamma  )]
             }
 
 
