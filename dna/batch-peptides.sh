@@ -1,9 +1,9 @@
 #!/bin/sh
 aminosee_do () {
-  nice -n 8 aminosee  -q $1 &
+  # nice -n 8 aminosee  -q $1 &
   sleep 1
-  nice -n 9 aminosee --maxpix 5000000   -q --delay 1000 $1 $2 $3 $4 $5 $6 $7 $8 $9
-  nice -n 15 aminosee --slow --quiet --maxpix 5000000 * $1 $2 $3 $4 $5 $6 $7 $8 $9
+  nice -n 9 aminosee --maxpix 5000000 -q --delay 1000 $1 $2 $3 $4 $5 $6 $7 $8 $9
+  nice -n 15 aminosee --slow --quiet --maxpix 1000000 * $1 $2 $3 $4 $5 $6 $7 $8 $9
 }
 
 series_peptides () {
