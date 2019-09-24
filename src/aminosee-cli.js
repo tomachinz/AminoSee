@@ -1,4 +1,4 @@
-const targetPixels = 8888888 // arbitrarily huge amount of pixels as target max resolution (8.8MP).
+const targetPixels = 6000000 // arbitrarily huge amount of pixels as target max resolution (8.8MP).
 // if estimated pixels is less than this, the render will show 1 pixel per codon
 const defaultMagnitude = 6 // each +1 is 4x more pixels
 const blackPoint = 128 // use 255 to remove effect, it increase colour saturation
