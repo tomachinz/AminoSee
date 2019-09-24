@@ -40,7 +40,7 @@ module.exports = (options) => {
 		tcpPortUsed.check(port, "127.0.0.1")
 		.then(function(inUse) {
 		    console.log(`tcp-port-used Port ${port} usage: ${inUse}`)
-				if (!inUse) {
+				if ( inUse == false ) {
 					try {
 						start()
 						return args.openPage
@@ -69,6 +69,7 @@ function setArgs( TheArgs ) {
 			openHtml: false,
 			currentURL: "/index.html#shouldnotopen",
 			gzip: true,
+			directoryListing: true,
 			background: false,
 			debug: false
 		}
@@ -208,7 +209,6 @@ function buildServer() {
 
 function selfSpawn() {
 	let didStart = false
-	output(chalk.yellow(`Starting BACKGROUND web server at ${chalk.underline(getServerURL())}`))
 	process.title = "aminosee_evilspawn"
 	log( args )
 	let evilSpawn
@@ -248,7 +248,7 @@ function selfSpawn() {
 function spawnBackground(p) { // Spawn background server
 	let didStart = false
 	if (p !== undefined) { port = p }
-	let options = [ webroot, `-p${port}`, "-o", ( args && args.justNameOfDNA ? args.justNameOfDNA  : "/" ), ( args && args.gzip ? "--gzip" : "") ]
+	let options = [ webroot, `-p${port}`, "-o", ( args && args.justNameOfDNA ? args.justNameOfDNA  : "/" ), ( args && args.gzip ? "--gzip" : ""), "-d" ]
 	output(options.toString())
 	output(chalk.yellow(`Starting BACKGROUND web server at ${chalk.underline(getServerURL())}`))
 	console.log(options)
@@ -294,6 +294,7 @@ function foregroundserver() {
 		var server = httpserver.createServer({
 			root: webroot,
 			robots: true,
+			directoryListing: true,
 			headers: {
 				"Access-Control-Allow-Origin": "*",
 				"Access-Control-Allow-Credentials": "true"
@@ -447,6 +448,7 @@ function readLockPort(file) {
 function start() { // return the port number
 
 
+	output(chalk.yellow(`Starting foreground web server at ${chalk.underline(getServerURL())}`))
 
 
 	starts++
@@ -464,7 +466,7 @@ function start() { // return the port number
 	setupPrefs()
 	buildServer()
 	notQuiet(`web root: ${webroot}`)
-	let options = [ webroot, "-p", port, "-o" ]
+	let options = [ webroot, "-p", port, "-o", "--gzip", "-d" ] // -o open -i autoindex
 	// let options = [ webroot , "", "-p", port, "-o" ]
 	if ( serverLock() == true ) {
 		port = readLockPort(filenameServerLock)

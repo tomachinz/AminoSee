@@ -734,6 +734,7 @@ function pushCli(cs) {
         this.serve = true
         this.keyboard = true
         // killServersOnQuit = false
+        this.justNameOfPNG = "not rendering - running web server"
       } else {
         log("Webserver run in foreground, will exit with app, use --serve to spawn background process ")
         this.serve = false
@@ -872,7 +873,7 @@ function pushCli(cs) {
       quiet = this.quiet
       bugtxt(`the args -->> ${this.args}`)
 
-      // notQuiet(`OUTPUT FOLDER:   ${ blueWhite( path.normalize( this.outputPath )) }`)
+      notQuiet(`Output folder:  [ ${ blueWhite( path.normalize( this.outputPath )) } ]`)
 
 
       remain = args._.length
@@ -1327,17 +1328,17 @@ function pushCli(cs) {
           if ( key.ctrl && (key.name == "c" || key.name == "d"  )) {
             process.stdin.pause() // stop sending control-c here, send now to parent, which is gonna kill us on the second go with control-c
             status  = "TERMINATED WITH CONTROL-C"
-            that.gracefulQuit(0, "Control-c")
+            that.gracefulQuit(0, "Control-c bo")
             destroyKeyboardUI()
-            output(blueWhite("Press control-c again to exit"))
             if ( renderLock == true && this.timeRemain < 10000) {
               that.msPerUpdate = 800
               output("Closing in 5 seconds")
               setTimeout(()=> {
                 that.gracefulQuit(130, "Control-c")
+                output(blueWhite("Press control-c again to exit"))
               }, 5000)
             } else {
-              that.quit(130, "Control-c")
+              // that.quit(130, "Control-c")
               setTimeout(()=> {
                 process.exit()
               }, 500)
@@ -1487,7 +1488,7 @@ function pushCli(cs) {
       }
     }
     gracefulQuit(code, reason) {
-      if ( typeof code === "undefined" ) {
+      if ( typeof code == "undefined" ) {
         code = 0
       }
       mode( `Graceful shutdown in progress... code ${code} reason ${reason}`)
@@ -1500,7 +1501,7 @@ function pushCli(cs) {
       isShuttingDown = true
       this.args._= []
       cliInstance.args._= []
-      remain = 1
+      // remain = 1
       batchSize = 0
       // debug = true
       // this.devmode = true
@@ -2126,7 +2127,7 @@ function pushCli(cs) {
 
       }
       showFlags() {
-        return `${(  this.force ? "F" : "-"    )}${( this.updates ? "U" : "-" )}C_${ this.userCPP }${( this.keyboard ? "K" : "-" )}${(  this.dnabg ? "B" : "-"  )}${( this.verbose ? "V" : "-"  )}${(  this.artistic ? "A" : "-"    )}${(  this.args.ratio || this.args.r ? `${ this.ratio }` : "---"    )}${( this.dimension ? "M" + this.dimension : "-")}${( this.reg?"REG":"")} C${ onesigbitTolocale( this.codonsPerPixel )}${( brute ? "BRUTE" : "-" )}${( this.index ? "I" : "-" )}${ this.maxpix }`
+        return `${(  this.force ? "F" : "-"    )}${( this.updates ? "U" : "-" )}C_${ this.userCPP }${( this.keyboard ? "K" : "-" )}${(  this.dnabg ? "B" : "-"  )}${( this.verbose ? "V" : "-"  )}${(  this.artistic ? "A" : "-"    )}${(  this.args.ratio || this.args.r ? `${ this.ratio }` : "---"    )}${( this.dimension ? "M" + this.dimension : "-")}${( this.reg?"REG":"")} C${ onesigbitTolocale( this.codonsPerPixel )}${( brute ? "BRUTE" : "-" )}${( this.index ? "I" : "-" )}${ this.maxpix.toLocaleString() }`
       }
       testSummary() {
         return `TEST
@@ -2542,12 +2543,12 @@ AminoSee version: ${version}`
       }
 
       mkRenderFolders(reason) {
-        log(`Making render folders for ${ this.filePNG}`)
+        bugtxt(`Making render folders for ${ this.filePNG}`)
         this.mkdir() // create the webroot dir if it not exist
         this.mkdir( "output" )
         this.mkdir( path.join( "output", this.justNameOfDNA ) ) // genome render dir
         this.mkdir( path.join( "output", this.justNameOfDNA, "images" ) ) // genome render dir
-        log(`Done making render folders for ${ this.justNameOfDNA} ${reason}`)
+        bugtxt(`Done making render folders for ${ this.justNameOfDNA} ${reason}`)
       }
       fancyFilenames() {
         // if ( this.updates ) {
@@ -3025,7 +3026,7 @@ AminoSee version: ${version}`
             }
           }
           mode("quit " + reason)
-          if (code === undefined) { code = 0 } // dont terminate with 0
+          if (typeof code == "undefined") { code = 0 } // dont terminate with 0
           log(`Received quit(${code}) ${reason}`)
           if ( renderLock == true ) {
             if ( code == 0 ) {
@@ -3068,7 +3069,7 @@ AminoSee version: ${version}`
           }
 
           if (remain > 0 ) {
-            output(`There is more work (${remain}) . Rendering: ${this.justNameOfPNG} ${this.timeRemain}`)
+            output(`There is more work (${remain}). Rendering: ${this.justNameOfPNG} ${this.timeRemain}`)
             // if ( renderLock ) {
             //   output("shutdown halted due to rendering")
             //   return true
@@ -3088,7 +3089,7 @@ AminoSee version: ${version}`
           if (code > 0) {
             setImmediate(() => {
               setTimeout( () => {
-                process.stdout.write(`${code} ${reason}`)
+                // process.stdout.write(`${code} ${reason}`)
                 this.args._ = []
                 term.processExit(code)
                 process.exit()
@@ -5717,13 +5718,10 @@ AminoSee version: ${version}`
           }
           function mode(txt) { // good for debugging
             wTitle(txt)
-            var that = gimmeDat()
             status = txt
             if ( debug ) {
               // redoline(txt);
               console.log(txt)
-            } else if (that.quiet == false){
-              log(`@${txt}`)
             }
           }
           function gimmeDat() {
@@ -5869,14 +5867,19 @@ AminoSee version: ${version}`
           //   }).then( log('PNG2 then') ).catch( log('PNG2 catch') );
           // }
           process.on("SIGTERM", () => {
-            let sig = "SIGTERM"
-            output(`${batchProgress()} Received ${sig} signal`)
+            let sig = `${batchProgress()} SIGTERM `
+
+
             if ( remain > 0 || streamLineNr > 0 ) {
-              output(`ignoring but unlocking keyboard ${batchProgress()}`)
+              sig += `ignoring but unlocking keyboard ${batchProgress()}`
             } else {
-              output(`unlocking keyboard ${batchProgress()}`)
+              sig += `unlocking keyboard ${batchProgress()}`
             }
-              destroyKeyboardUI()
+            if (debounce()) {
+              notQuiet(`${sig}`)
+            }
+
+            destroyKeyboardUI()
             // cliInstance.gracefulQuit(130, sig)
             // cliInstance.destroyProgress();
             // process.exitCode = 130;
