@@ -120,7 +120,7 @@
     "request": "^2.88.0",
     "save": "^2.4.0",
     "serve": "^11.1.0",
-    "serve-handler": "^6.1.1",
+    "serve-handler": "^6.1.2",
     "sliced": "^1.0.1",
     "spdy": "^4.0.1",
     "stream-file": "^0.2.4",
