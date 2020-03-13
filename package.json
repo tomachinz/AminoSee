@@ -107,7 +107,7 @@
     "keypress": "^0.2.1",
     "lazyness": "^1.1.1",
     "local-web-server": "^3.0.7",
-    "minimist": "^1.2.0",
+    "minimist": "^1.2.2",
     "node-gyp": "^5.0.3",
     "node-pty": "^0.8.1",
     "npm-merge-driver": "^2.3.5",
