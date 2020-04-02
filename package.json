@@ -94,7 +94,7 @@
     "cucumber": "^5.1.0",
     "cypress": "^3.4.1",
     "dat.gui": "^0.7.6",
-    "ecstatic": "^4.1.2",
+    "ecstatic": "^4.1.4",
     "eslint": "^6.2.2",
     "eslint-config-rallycoding": "^3.2.0",
     "event-stream": "^4.0.1",
