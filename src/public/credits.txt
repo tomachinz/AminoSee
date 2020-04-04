@@ -7,8 +7,8 @@
 
 Thanks to Christos Georghiou who designed the 'See No Evil Hear No Evil Monkeys' http://christosgeorghiou.com/
 
-Checkout the music from the drummer who wrote    10169 of code for this app at https://www.funk.co.nz/tomachi
-10169 lines of code
+Checkout the music from the drummer who wrote    30559 of code for this app at https://www.funk.co.nz/tomachi
+30559 lines of code
 File drag and drop code by http://twitter.com/craigbuckler
 http://optimalworks.net/ http://sitepoint.com/
 File drag and drop code by http://twitter.com/craigbuckler Craig Buckler
@@ -17,12 +17,12 @@ http://optimalworks.net/ OptimalWorks.net http://sitepoint.com/
 Based on OpenShift guest https://github.com/mrdoob/three.js/blob/8413a860aa95ed29c79cbb7f857c97d7880d260f/examples/canvas_lines_colors.html
 
 Count of packages used:
-    2091
+    2098
 
-as at Thu 19 Sep 2019 00:02:42 NZST the following open source node npm packages used:
+as at Mon 16 Dec 2019 00:37:40 NZDT the following open source node npm packages used:
 
 
-aminosee@1.28.0 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee_src
+aminosee@1.28.2 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee_src
 ├─┬ @gmod/indexedfasta@1.0.13
 │ ├─┬ @babel/runtime-corejs2@7.4.5
 │ │ ├── core-js@2.6.8
@@ -2081,6 +2081,13 @@ aminosee@1.28.0 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee_src
 │     └── minimalistic-assert@1.0.1
 ├── stream-file@0.2.4
 ├── systeminformation@4.14.8
+├─┬ tcp-port-used@1.0.1
+│ ├─┬ debug@4.1.0
+│ │ └── ms@2.1.1 deduped
+│ └─┬ is2@2.0.1
+│   ├── deep-is@0.1.3 deduped
+│   ├── ip-regex@2.1.0 deduped
+│   └── is-url@1.2.4
 ├─┬ terminal-kit@1.31.1
 │ ├─┬ @cronvel/get-pixels@3.3.1
 │ │ ├── jpeg-js@0.1.2

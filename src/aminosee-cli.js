@@ -1812,7 +1812,7 @@ function pushCli(cs) {
       if (doesFileExist(this.filePNG)) {
         log(`isStorageBusy ${this.isStorageBusy} Storage: [${this.isStorageBusy}]`)
         termDrawImage(this.filePNG, "Done! ")
-        let msg = `Already rendered image: ${  maxWidth(tx / 3, this.justNameOfPNG)}.`
+        let msg = `Already rendered image: ${  maxWidth(tx / 3, this.filePNG)}.`
         output(msg)
         if ( this.force == false ) {
           this.openOutputs()
@@ -5903,21 +5903,20 @@ AminoSee version: ${version}`
             if (fullpath === undefined) { fullpath = previousImage }
             if (fullpath === undefined) { log("not opening"); return false }
             if (reason === undefined) { reason = "BUG. Reminder: always set a reason" }
-            // if ( that.force == true) { return false }
+            if ( that.force == true) { return false }
             if ( quiet == true ) { out("quiet"); return false }
-            // term.saveCursor()
+            term.saveCursor()
             // clearCheck();
-            // output(chalk.inverse("Terminal image: " +  basename(fullpath)))
-            // setTimeout( () => {
+            output(chalk.inverse("Terminal image: " +  basename(fullpath)))
             output("Loading image: " +   path.normalize( fullpath ))
             term.drawImage( fullpath, { shrink: { width: tx * 0.8,  height: ty  * 0.8 } }, () => {
-              // term.drawImage( fullpath, { shrink: { width: tx * 0.8,  height: ty  * 0.8, left: tx/2, top: ty/2 } }, () => {
+              term.drawImage( fullpath, { shrink: { width: tx * 0.8,  height: ty  * 0.8, left: tx/2, top: ty/2 } }, () => {
               output(`Terminal image: ${ chalk.inverse(  basename(fullpath) ) } ${ reason}`)
-              // term.restoreCursor();
+              term.restoreCursor();
               runcb(cb)
             })
-            // },  1)
-            // }, 10000 )
+           })
+      
 
 
           }
