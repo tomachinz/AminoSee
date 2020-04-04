@@ -45,9 +45,6 @@
 
 		<!-- <a href="https://www.funk.co.nz/" style="width: 100px;" title="Return to FUNK Homepage"><img src="https://www.funk.co.nz/images/nav/funk-logo-140px.png" width="140" height="70" alt="www.funk.co.nz" style="position: fixed; top: -2px; left: 26px;"/></a> -->
 
-
-
-
 		<div id="info">
 			<div id="monkeys">
 				<div>
@@ -73,7 +70,6 @@
 							<option value="output/27MB_TestPattern/images/">27 MB Test Pattern</option>
 							<option value="output/3MB_TestPattern/images/">3 MB Test Pattern</option>
 							<option value="output/50KB_TestPattern/images/">50 KB Test Pattern</option>
-
 							<option value="output/megabase/images/megabase.fa_linear_c1_Reference_fix_sci.png" >Megabase</option>
 							<option value="output/Brown_Kiwi_NW_013982187v1/images/Brown_Kiwi_NW_013982187v1.fa_linear_c111_Reference_fix_sci.png">Brown Kiwi</option>
 							<option value="calibration/AminoSee_Calibration_reg_linear_8.png">AminoSee Calibration Large</option>
@@ -117,8 +113,8 @@
 <h1>Welcome to the Amino<span style="color: #888888;">See</span><span style="color: #dddddd;">NoEvil</span> DNA Viewer</h1>
 
 		<h2 style="color: white;">
-			try the <a href="output/Brown_Kiwi_NW_013982187v1/">Brown Kiwi</a>, <a href="output/Caenorhabditisel.dna_sm.toplevel/" style="color: white;">C.elegans</a>... and now also <a href="output/Sars2-COVID-19WueteGenome-ss-RNA/">Sars2-COVID-19WueteGenome-ss-RNA</a></h2>
-		* 3D mode is only showing test patterns at this time. Try using WASD keys to move about.
+			try the <a href="output/Brown_Kiwi_NW_013982187v1/" style="color: white;">Brown Kiwi</a>, <a href="output/Caenorhabditisel.dna_sm.toplevel/" style="color: white;" style="color: white;">C.elegans</a>... and now also <a href="output/Sars2-COVID-19WueteGenome-ss-RNA/" style="color: white;">Sars2-COVID-19WueteGenome-ss-RNA</a></h2>
+		* Try using WASD keys to move about.
 
 </div>
 		
