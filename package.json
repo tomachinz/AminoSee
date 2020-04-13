@@ -78,7 +78,7 @@
     "terminal-kit": "^1.31.1",
     "three": "^0.106.2",
     "vows": "^0.8.2",
-    "xterm": "^3.14.5"
+    "xterm": "^4.5.0"
   },
   "devDependencies": {
     "@gmod/indexedfasta": "^1.0.13",
