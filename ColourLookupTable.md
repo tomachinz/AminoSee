@@ -1,6 +1,6 @@
-
 ## The Colour Lookup Table   
-Amino Acids   Hue°	RGB	              Count     Description
+```
+**Amino Acids**  **Hue°**	**RGB*     **Count**     **Description**
 Amber	        47°   255,227,128       666,921   STOP CODONS
 Tryptophan    188°  128,238,255       893,683   Group I: Nonpolar amino acids
 Methionine    110°  149,255,128       944,572   START Codon
@@ -24,3 +24,5 @@ Phenylalanine 172°  128,255,238     3,020,290	  Group I: Nonpolar amino acids
 Isoleucine    157°  128,255,206     3,097,667	  Group I: Nonpolar amino acids  
 Serine        203°  128,206,255     4,389,976	  Group II: Polar, uncharged amino acids
 Leucine       141°  128,255,172     5,447,658	  Group I: Nonpolar amino acids
+
+```

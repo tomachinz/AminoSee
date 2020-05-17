@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-gb">
 <head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-	<title>AminoSee DNA Viewer :: WebGL 3D DNA Visualisation Pseudo-Hilbert Curve Projection :: Funk NZ</title>
-	<meta name="description" content="A new way to view DNA that attributes a colour hue to each Amino acid codon triplet">
+	<title>AminoSeeNoEvil DNA Visualisation :: a Pseudo-Hilbert Curve based WebGL 3D DNA Viewer Renderer :: AminoSee.Funk.NZ</title>
+	<meta name="description" content="Convert large ascii-triplet DNA files into png images. 25 unique colour hues represent the 4 start/stop codons plus 21 Amino acids. Supports any ASCII text based genome such as FASTA, GBK, .txt, .gff etc, if it has text like GTAGCCTAGTCGATTCAG or maybe UUGCUTGUTGUTGUTGTUCUT then AminoSee can render up a set of images of it!">
 	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 	<meta http-equiv="Content-Security-Policy" content="default-src http://127.0.0.1:8888 https://dev.funk.co.nz https://www.funk.co.nz  http://www.funk.co.nz * data: blob: 'unsafe-inline' 'unsafe-eval' ws: wss:;">
 	<script src="public/three.min.js"></script>
@@ -107,17 +107,17 @@
 			</div>
 		</div>
 
-<div id="dark">
-	
+<div id="dark" style="padding: 64px;">
+
 
 <h1>Welcome to the Amino<span style="color: #888888;">See</span><span style="color: #dddddd;">NoEvil</span> DNA Viewer</h1>
 
 		<h2 style="color: white;">
-			try the <a href="output/Brown_Kiwi_NW_013982187v1/" style="color: white;">Brown Kiwi</a>, <a href="output/Caenorhabditisel.dna_sm.toplevel/" style="color: white;" style="color: white;">C.elegans</a>... and now also <a href="output/Sars2-COVID-19WueteGenome-ss-RNA/" style="color: white;">Sars2-COVID-19WueteGenome-ss-RNA</a></h2>
+			try the <a href="output/Brown_Kiwi_NW_013982187v1/" style="color: white;">Brown Kiwi</a>, <a href="output/Caenorhabditisel.dna_sm.toplevel/" style="color: white;" style="color: white;">C.elegans</a>... and now also <a href="output/Sars2-COVID-19WueteGenome-ss-RNA/" style="color: white;">Sars2 COVID-19 ss-RNA</a></h2>
 		* Try using WASD keys to move about.
 
 </div>
-		
+
 
 		<div id="controls" onclick="resume()" style="text-align: center;">
 			<div id="fileheader">
