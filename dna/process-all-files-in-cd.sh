@@ -64,14 +64,14 @@ if [ $(uname)=Darwin ]; then
   echo macos
   find -f *.fa *.mfa *.gbk *.txt
   sleep 2
-  find -f *.fa *.mfa *.gbk *.txt -exec parallel_peptides {} $1 $2 $3 $4 $5 $6 $7   \;
+  find -f *.fa *.mfa *.gbk *.txt -exec ./batch-peptides.sh {} $1 $2 $3 $4 $5 $6 $7   \;
 fi
 
 if [ $(uname)=Linux ]; then
   echo linux
   find *.fa *.mfa *.gbk *.txt
   sleep 2
-  find *.fa *.mfa *.gbk *.txt -exec parallel_peptides {} $1 $2 $3 $4 $5 $6 $7   \;
+  find *.fa *.mfa *.gbk *.txt -exec ./batch-peptides.sh {} $1 $2 $3 $4 $5 $6 $7   \;
 fi
 
 

@@ -31,6 +31,9 @@ test/reports
 build
 .clinic
 
+# Cypress testing suite
+cypress/videos/*
+
 # Logs
 logs
 *.log

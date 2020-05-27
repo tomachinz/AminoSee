@@ -160,8 +160,8 @@ function generateTheArgs() {
     background: cliInstance.background,
     currentURL: cliInstance.currentURL
   }
-  // log("sending args from CLI:")
-  // log( theArgs )
+  log("sending args from CLI:")
+  log( theArgs )
   return theArgs
 }
 function populateArgs(procArgv) { // returns args
@@ -669,7 +669,7 @@ function pushCli(cs) {
         output("verbose enabled. AminoSee version: " + version)
         bugtxt(`os.platform(): ${os.platform()} ${process.cwd()}`)
         this.verbose = true
-        // termDisplayHeight -= 2
+        termDisplayHeight -= 2
       } else {
         log("verbose mode disabled")
         this.verbose = false
@@ -682,7 +682,7 @@ function pushCli(cs) {
         this.openHtml = false
       }
       if ( args.html == true || args.chrome || args.firefox  || args.safari  || args.report  || args.open) {
-        output("opening html")
+        output(`opening html set true ${this.justNameOfDNA}`)
         this.openHtml = true
       } else {
         log("not opening html")
@@ -738,8 +738,9 @@ function pushCli(cs) {
       } else {
         log("Webserver run in foreground, will exit with app, use --serve to spawn background process ")
         this.serve = false
+        killServersOnQuit = true
       }
-
+      // server.start(this.justNameOfDNA)
       if ( args.clear ) {
         log("screen clearing enabled.")
         this.clear = true
@@ -858,11 +859,11 @@ function pushCli(cs) {
         // this.raceDelay -= 1000 // if you turn devmode on and off a lot it will slow down
         // this.verbose = false
         // this.updates = true
-        // this.clear = true
+        // this.clear = false
         // this.openHtml = true
-        // this.openImage = true
-        // this.openFileExplorer = true
-        // termDisplayHeight--
+        // this.openImage = false
+        // this.openFileExplorer = false
+        termDisplayHeight--
       }
 
       /////////////////////////////////////////////////////////////////
@@ -891,6 +892,28 @@ function pushCli(cs) {
       }
 
 
+              if ( webserverEnabled ) {
+                server.stop()
+                output(`Starting mini server at: ${ webroot } `)
+                output(`Using URL: ${ chalk.underline( url )}`)
+                this.setupKeyboardUI()
+                autoStartGui = false
+                // output(`Server running at: ${ chalk.underline( url ) } to stop use: aminosee --stop `)
+                // server.setArgs( generateTheArgs() )
+                // this.currentURL = server.foregroundserver()
+                this.currentURL = this.generateURL()
+                // this.currentURL = server.start( generateTheArgs() )
+                try {
+                  server( generateTheArgs() )
+                  // server.start( this.currentURL )
+                } catch (err) {
+                  output(`error starting server: ${fixedWidth(tx/2, err)}`)
+                }
+                webserverEnabled = false
+              } else {
+                log("Not opening webpage")
+              }
+
       if ( remain > 0 ) {
         mode(remain + " Ω first command Ω ")
         output(chalk.green(`${chalk.underline("Job items Ω ")} ${batchProgress()} ` ))
@@ -898,6 +921,9 @@ function pushCli(cs) {
         this.dnafile = args._.toString()
         // this.slowSkipNext()
         // this.fastReset("first command")
+
+
+
         if ( !this.test ) {
           this.pollForStream()
         } else if ( this.demo ) {
@@ -977,24 +1003,7 @@ function pushCli(cs) {
       }
 
 
-      if ( webserverEnabled ) {
-        // server.stop()
-        output(`Starting mini server at: ${ webroot } `)
-        output(`Using URL: ${ chalk.underline( url )}`)
-        this.setupKeyboardUI()
-        autoStartGui = false
-        // output(`Server running at: ${ chalk.underline( url ) } to stop use: aminosee --stop `)
-        // server.setArgs( generateTheArgs() )
-        // this.currentURL = server.foregroundserver()
-        this.currentURL = this.generateURL()
-        // this.currentURL = server.start( generateTheArgs() )
-        try {
-          server( generateTheArgs() )
-        } catch (err) {
-          output(`error starting server: ${fixedWidth(tx/2, err)}`)
-        }
-        webserverEnabled = false
-      }
+
 
       // if ( this.gui == true && this.quiet == false ) {
       // 	theGUI = startGUI()
@@ -1299,6 +1308,7 @@ function pushCli(cs) {
       } catch(err) {
         log(`Could not use interactive keyboard due to: ${err}`)
         notQuiet("Probably you are running from a shell script. --keyboard mode requires interactive shell.")
+        destroyKeyboardUI()
       }
       process.stdin.resume() // means start consuming
       // listen for the "keypress" event
@@ -1332,7 +1342,7 @@ function pushCli(cs) {
             destroyKeyboardUI()
             if ( renderLock == true && this.timeRemain < 10000) {
               that.msPerUpdate = 800
-              output("Closing in 5 seconds")
+              output("Closing in 5 seconds. Press [Esc] or [Q] key")
               setTimeout(()=> {
                 that.gracefulQuit(130, "Control-c")
                 output(blueWhite("Press control-c again to exit"))
@@ -1449,7 +1459,7 @@ function pushCli(cs) {
 
         // pushCli('--serve');
         // output( server.foregroundserver() )
-        server.start( generateTheArgs() )
+        // server.start( generateTheArgs() )
         autoStartGui = false
 
       } else {
@@ -3486,8 +3496,10 @@ AminoSee version: ${version}`
   'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f); })(window,document,'script','dataLayer','GTM-P8JX');</script>
   <!-- End Google Tag Manager -->
 
-  <nav style="position: fixed; top: 8px; left: 8px; z-index:9999; background-color: #123456;" id="handylinks">
-  <a href="../../" class="button handylinks">AminoSee Home</a> | <a href="../" class="button">Parent</a>
+  <nav style="position: relative; padding: 32px;">
+  <div id="handylinks"  style="position: fixed; top: 8px; left: 8px; z-index:9999; background-color: #123456; padding: 16px; margin-bottom: 64px;">
+  <a href="../../">AminoSee Home</a> | <a href="../">Parent</a>
+  </div>
   </nav>
   <h1>${ this.justNameOfDNA}</h1>
   <h2>AminoSee DNA Render Summary for ${ this.currentFile } ${ this.artistc ? "Artistic" : "Science" } render mode</h2>
@@ -5912,11 +5924,11 @@ AminoSee version: ${version}`
             term.drawImage( fullpath, { shrink: { width: tx * 0.8,  height: ty  * 0.8 } }, () => {
               term.drawImage( fullpath, { shrink: { width: tx * 0.8,  height: ty  * 0.8, left: tx/2, top: ty/2 } }, () => {
               output(`Terminal image: ${ chalk.inverse(  basename(fullpath) ) } ${ reason}`)
-              term.restoreCursor();
+              term.restoreCursor()
               runcb(cb)
             })
            })
-      
+
 
 
           }

@@ -3,14 +3,14 @@ const httpserver = require("http-server") // cant have - in js
 const aminosee = require("./aminosee-cli")
 const data = require("./aminosee-data")
 const doesFileExist   = data.doesFileExist
-const doesFolderExist = data.doesFolderExist
+// const doesFolderExist = data.doesFolderExist
 const createSymlink   = data.createSymlink
 const deleteFile      = data.deleteFile
 const recordFile      = data.recordFile
-const fixedWidth			= aminosee.fixedWidth
+// const fixedWidth			= aminosee.fixedWidth
 const Preferences = require("preferences")
 const chalk = require("chalk")
-const term = require("terminal-kit").terminal
+// const term = require("terminal-kit").terminal
 const path = require("path")
 const os = require("os")
 const spawn = require("cross-spawn")
@@ -19,17 +19,19 @@ const defaulturl = "http://localhost:4321"
 const appFilename = require.main.filename //     /bin/aminosee.js is 11 chars
 const defaultPort = 4321
 const backupPort = 43210
-const useSymlinks = false
+// const useSymlinks = false
 
 let debug = false
 let autoStartGui = false
 let starts = -1
-let outputPath, filenameServerLock, url, projectprefs, userprefs, port, cliruns, gbprocessed, args, theserver, genomes, webroot
+let outputPath, filenameServerLock, url, projectprefs, userprefs, port, cliruns, gbprocessed, args, theserver, genomes, webroot, fragment
+
+
 setArgs()
 
 module.exports = (options) => {
 	port = defaultPort
-	// process.title = "aminosee.funk.nz_server"
+	process.title = "aminosee.funk.nz_server"
 	setArgs(options);
 	[ userprefs, projectprefs ] = setupPrefs()
 	log(appFilename)
@@ -60,7 +62,8 @@ module.exports = (options) => {
 
 function setArgs( TheArgs ) {
 	webroot = path.resolve( os.homedir(), "AminoSee_webroot")
-	if ( TheArgs === undefined ) {
+	port = defaultPort
+	if ( typeof TheArgs == "undefined" ) {
 		args = {
 			verbose: false,
 			webroot: webroot,
@@ -507,20 +510,21 @@ function error(err) {
 function openPage(relative) {
 	output("Opening page: " + relative)
 }
-function getServerURL(fragment) {
+function getServerURL() {
 
 	let internalIp = require("internal-ip")
 	let indexfile = ""
 	// if ( args.devmode ) {
 	// indexfile = "aminosee-web.html"
 	// }
-	if (fragment == undefined) {
+	fragment = args.justNameOfDNA
+	if (typeof fragment == undefined) {
 		fragment = "/"
 	} else {
 		fragment = `/output/${fragment}/${indexfile}`
 	}
 	let serverURL = `http://${internalIp.v4.sync()}:${port}${fragment}`
-	output(`serverURL returns ${serverURL} and also ${url}`)
+	output(`serverURL returns ${serverURL} and fragment ${fragment} the port ${port}`)
 	if ( serverURL !== url ) {
 		output("Maybe this is a bug, and I am exploring various web servers and runinng multiples in this version, so I got confused. You mite want to set the server URL base with:")
 		output(`aminosee --url=${serverURL}`)
