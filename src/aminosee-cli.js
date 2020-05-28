@@ -3,7 +3,7 @@ const targetPixels = 6000000 // arbitrarily huge amount of pixels as target max 
 const defaultMagnitude = 6 // each +1 is 4x more pixels
 const blackPoint = 128 // use 255 to remove effect, it increase colour saturation
 const wideScreen = 140 // shrinks terminal display
-const windows7 = 100
+const windows7 = 100 // shitty os, shitty terminal, ah well
 let termDisplayHeight = 15 // the stats about the file etc
 let termHistoHeight = 30 // this histrogram
 const radMessage = `
@@ -12,7 +12,7 @@ const radMessage = `
 ╠═╣││││││││ │╚═╗├┤ ├┤    ║║║║║╠═╣  ╚╗╔╝│├┤ │││├┤ ├┬┘
 ╩ ╩┴ ┴┴┘└┘└─┘╚═╝└─┘└─┘  ═╩╝╝╚╝╩ ╩   ╚╝ ┴└─┘└┴┘└─┘┴└─
 by Tom Atkinson          aminosee.funk.nz
-ah-mee no-see         "I see it now...  I AminoSee it!"
+ah-mee no-see      "I see it now...  I AminoSee it!"
 `
 
 const siteDescription = "A unique visualisation of DNA or RNA residing in text files, AminoSee is a way to render huge genomics files into a PNG image using an infinite space filling curve from 18th century! Computation is done locally, and the files do not leave your machine. A back-end terminal daemon cli command that can be scripted is combined with a front-end GUI using the Carlo, AminoSee features asynchronous streaming processing enabling arbitrary size files to be processed. It has been tested with files in excess of 4 GB and does not need the whole file in memory at any time. Due to issues with the 'aminosee *' command, a batch script is provided for bulk rendering in the dna/ folder. Alertively use the GUI to Drag and drop files to render a unique colour view of RNA or DNA stoRed in text files, output to PNG graphics file, then launches an WebGL this.browser that projects the image onto a 3D Hilbert curve for immersive viewing, using THREEjs. Command line options alow one to filter by peptide."
@@ -146,6 +146,8 @@ function generateTheArgs() {
       background: false,
       currentURL: url
     }
+  } else {
+    log(`Not undefined: ${cliInstance}`)
   }
   const theArgs = {
     port: defaultPort,
@@ -169,7 +171,7 @@ function populateArgs(procArgv) { // returns args
     boolean: [ "artistic", "clear", "chrome", "devmode", "debug", "demo", "dnabg", "explorer", "file", "force", "fullscreen", "firefox", "gui", "html", "image", "keyboard", "list", "progress", "quiet", "reg", "recycle", "redraw", "slow", "serve", "safari", "test", "updates", "verbose", "view" ],
     string: [ "url", "output", "triplet", "peptide", "ratio" ],
     alias: { a: "artistic", b: "dnabg", c: "codons", d: "devmode", f: "force", finder: "explorer", h: "help", k: "keyboard", m: "magnitude", o: "output", p: "peptide", i: "image", t: "triplet", u: "updates", q: "quiet", r: "reg", w: "width", v: "verbose", x: "explorer", view: "html" },
-    default: { brute: false, debug: false, gui: false, html: true, image: true, index: false, clear: false, explorer: false, quiet: false, keyboard: true, progress: false, redraw: true, updates: true, stop: false, serve: true, fullscreen: false },
+    default: { brute: false, debug: false, force: false, gui: false, html: true, image: true, index: false, clear: false, explorer: false, quiet: false, keyboard: true, progress: false, redraw: true, updates: true, stop: false, serve: true, fullscreen: false },
     stopEarly: false
   } // NUMERIC INPUTS: codons, magnitude, width, maxpix
   let args = minimist(procArgv.slice(2), options)
@@ -308,7 +310,6 @@ function pushCli(cs) {
       this.usersPeptide = "not set"
       this.usersTriplet = "not set"
       this.rawDNA = "this aint sushi"
-      this.force = "strange"
       this.startDate = new Date() // required for touch locks.
       this.timestamp = new Date()
       this.now = this.startDate
@@ -699,9 +700,11 @@ function pushCli(cs) {
       //   log(`Easter egg: enabling dnabg mode!!`)
       //   this.dnabg = true
       // } // if you actually use the program, this easter egg starts showing raw DNA as the background after 100 megs or 69 runs.
-      if ( args.force || args.f) {
+      if ( this.force == true) {
         output("force overwrite enabled.")
         this.force = true
+      } else {
+        log("No force overwrite")
       }
       if ( args.explorer || args.finder) {
         output("will open folder in File Manager / Finder / File Explorer when done.")
@@ -1823,13 +1826,14 @@ function pushCli(cs) {
         log(`isStorageBusy ${this.isStorageBusy} Storage: [${this.isStorageBusy}]`)
         termDrawImage(this.filePNG, "Done! ")
         let msg = `Already rendered image: ${  maxWidth(tx / 3, this.filePNG)}.`
-        output(msg)
         if ( this.force == false ) {
           this.openOutputs()
           this.slowSkipNext(msg)
           return false
+        } else {
+          msg += " But lets render it again anyway...?!"
         }
-        log("But lets render it again...")
+        output(msg)
       }
 
       // setTimeout( () => {
