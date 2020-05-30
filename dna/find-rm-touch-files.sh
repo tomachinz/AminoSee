@@ -1,6 +1,7 @@
 #!/bin/bash
 
-COMMAND=" find   .  | grep AminoSee_BUSY_LOCK "
+# COMMAND=" find   .  | grep AminoSee_BUSY_LOCK "
+COMMAND=" find   ~/AminoSee_webroot/  | grep AminoSee_BUSY_LOCK "
 PREVIEW="$1 | xargs $XARGPARAM $ ls -laH $ "
 DELETE="$1  | xargs $XARGPARAM $ rm -v $ "
 

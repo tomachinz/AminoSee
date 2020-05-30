@@ -15,7 +15,7 @@ echo npm run start
 npm run start
 #npm link
 #echo about to run this as regular user:
-echo npm link 
+echo npm link
      npm link 
 sleep 1
 echo to install for all users enter admin pass. then you can juust type "aminosee" at the shell

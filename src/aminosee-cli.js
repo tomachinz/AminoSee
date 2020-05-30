@@ -171,7 +171,7 @@ function populateArgs(procArgv) { // returns args
     boolean: [ "artistic", "clear", "chrome", "devmode", "debug", "demo", "dnabg", "explorer", "file", "force", "fullscreen", "firefox", "gui", "html", "image", "keyboard", "list", "progress", "quiet", "reg", "recycle", "redraw", "slow", "serve", "safari", "test", "updates", "verbose", "view" ],
     string: [ "url", "output", "triplet", "peptide", "ratio" ],
     alias: { a: "artistic", b: "dnabg", c: "codons", d: "devmode", f: "force", finder: "explorer", h: "help", k: "keyboard", m: "magnitude", o: "output", p: "peptide", i: "image", t: "triplet", u: "updates", q: "quiet", r: "reg", w: "width", v: "verbose", x: "explorer", view: "html" },
-    default: { brute: false, debug: false, force: false, gui: false, html: true, image: true, index: false, clear: false, explorer: false, quiet: false, keyboard: true, progress: false, redraw: true, updates: true, stop: false, serve: true, fullscreen: false },
+    default: { brute: false, debug: false, keyboard: true, progress: false, redraw: true, updates: true, stop: false, serve: true, fullscreen: false }, // html: true, image: true, index: false, clear: false, explorer: false, quiet: false, gui: false,
     stopEarly: false
   } // NUMERIC INPUTS: codons, magnitude, width, maxpix
   let args = minimist(procArgv.slice(2), options)
@@ -696,11 +696,11 @@ function pushCli(cs) {
         log("dnabg mode disabled.")
         this.dnabg = false
       }
-      // if ( cliruns > 69 || gbprocessed  > 0.2 || opens > 24 && Math.random() > 0.994) {
-      //   log(`Easter egg: enabling dnabg mode!!`)
-      //   this.dnabg = true
-      // } // if you actually use the program, this easter egg starts showing raw DNA as the background after 100 megs or 69 runs.
-      if ( this.force == true) {
+      if ( cliruns > 69 || gbprocessed  > 0.2 || opens > 24 && Math.random() > 0.994) {
+        log("Easter egg: enabling dnabg mode!!")
+        this.dnabg = true // for laffs
+      } // after processing 200 megabytes, this easter egg starts showing raw DNA as the background after 100 megs or 69 runs.
+      if ( args.force ) {
         output("force overwrite enabled.")
         this.force = true
       } else {
@@ -1486,7 +1486,7 @@ function pushCli(cs) {
     }
     toggleForce() {
       this.force = !this.force
-      log(`force overwrite ${this.force}`)
+      log(`force overwrite toggled ${this.force}`)
     }
 
     toggleClearScreen() {

@@ -31,7 +31,8 @@ setArgs()
 
 module.exports = (options) => {
 	port = defaultPort
-	process.title = "aminosee.funk.nz_server"
+	fragment = aminosee.justNameOfDNA
+	process.title = `aminosee.funk.nz_server ${fragment}`
 	setArgs(options);
 	[ userprefs, projectprefs ] = setupPrefs()
 	log(appFilename)
@@ -343,8 +344,10 @@ function foregroundserver() {
 				output(`unknown error starting server: ${err}`)
 			}
 		}
+	} else {
+		return args.openPage
 	}
-	return args.openPage
+
 
 	// return server
 
@@ -524,7 +527,8 @@ function getServerURL() {
 		fragment = `/output/${fragment}/${indexfile}`
 	}
 	let serverURL = `http://${internalIp.v4.sync()}:${port}${fragment}`
-	output(`serverURL returns ${serverURL} and fragment ${fragment} the port ${port}`)
+	output(`serverURL returns ${serverURL} and fragment ${fragment} the port ${port}  args.justNameOfDNA ${ args.justNameOfDNA }`)
+	
 	if ( serverURL !== url ) {
 		output("Maybe this is a bug, and I am exploring various web servers and runinng multiples in this version, so I got confused. You mite want to set the server URL base with:")
 		output(`aminosee --url=${serverURL}`)
