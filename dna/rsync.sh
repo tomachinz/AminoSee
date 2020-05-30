@@ -1,7 +1,7 @@
 
-CLONECOMMAND="/usr/bin/rsync --archive --verbose --stats  --dry-run tom@cheese.funk.nz:/home/tom/Sites/AminoSee/dna/AminoSee_webroot/output/  /Users/tom/AminoSee_webroot/output/"
-DRYCOMMAND="/usr/bin/rsync --archive --verbose --stats              tom@cheese.funk.nz:/home/tom/Sites/AminoSee/dna/AminoSee_webroot/output/  /Users/tom/AminoSee_webroot/output/ "
-WETCOMMAND="/usr/bin/rsync --archive --verbose --stats              tom@cheese.funk.nz:/home/tom/Sites/AminoSee/dna/AminoSee_webroot/output/  /Users/tom/AminoSee_webroot/output/ "
+CLONECOMMAND="/usr/bin/rsync --update --archive --verbose --stats  --dry-run tom@cheese.funk.nz:/home/tom/Sites/AminoSee/dna/AminoSee_webroot/output/  /Users/tom/AminoSee_webroot/output/"
+DRYCOMMAND="/usr/bin/rsync --update --archive --verbose --stats              tom@cheese.funk.nz:/home/tom/Sites/AminoSee/dna/AminoSee_webroot/output/  /Users/tom/AminoSee_webroot/output/ "
+WETCOMMAND="/usr/bin/rsync --update --archive --verbose --stats              tom@cheese.funk.nz:/home/tom/Sites/AminoSee/dna/AminoSee_webroot/output/  /Users/tom/AminoSee_webroot/output/ "
 
 eval $CLONECOMMAND
 echo
@@ -17,7 +17,7 @@ eval $DRYCOMMAND
 # WETCOMMAND="/usr/bin/rsync --archive --verbose --stats  --exclude={'*_linear_[ABCDEFGHIJKLMNOPQRSTUVWXYZ]'} /Users/tom/AminoSee_Output/ tom@cheese.funk.nz:/home/tom/Sites/AminoSee/dna/AminoSee_Output/ "
 
 
-DRYCOMMAND="/usr/bin/rsync --archive --verbose --stats --hard-links  /Users/tom/AminoSee_webroot/output/  /Users/tom/Dropbox/Sites/funk.co.nz/aminosee/output/ "
+DRYCOMMAND="/usr/bin/rsync --update --archive --verbose --stats --dry-run /Users/tom/AminoSee_webroot/output/  /Users/tom/Dropbox/Sites/funk.co.nz/aminosee/output/ "
 echo ABout to run:
 echo $DRYCOMMAND
 sleep 2

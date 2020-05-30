@@ -64,7 +64,8 @@ module.exports = (options) => {
 function setArgs( TheArgs ) {
 	webroot = path.resolve( os.homedir(), "AminoSee_webroot")
 	port = defaultPort
-	if ( typeof TheArgs == "undefined" ) {
+	log("setArgs running")
+	if ( typeof TheArgs === undefined ) {
 		args = {
 			verbose: false,
 			webroot: webroot,
@@ -77,23 +78,23 @@ function setArgs( TheArgs ) {
 			background: false,
 			debug: false
 		}
-		log("using default args")
+		output("using default args")
 
 	} else {
 		args = TheArgs
-		log("using dynamic args")
+		output("using dynamic args")
 	}
-	// output( TheArgs )
-	outputPath = args.output
+	output( TheArgs )
+	// outputPath = args.output
 	filenameServerLock = path.resolve( webroot, "aminosee_server_lock.txt")
-	debug = args.debug
-	if ( args.debug ) {
-		debug = true
-		log("debug mode ENABLED")
-	} else {
-		debug = false
-		log( "debug mode DISABLED")
-	}
+	debug = true
+	// if ( args.debug ) {
+	// 	debug = true
+	// 	log("debug mode ENABLED")
+	// } else {
+	// 	debug = false
+	// 	log( "debug mode DISABLED")
+	// }
 	if ( debug ) {
 		log( "args received: ")
 		console.log( args )
@@ -491,10 +492,16 @@ function start() { // return the port number
 		} else {
 			log("Foreground")
 			foregroundserver( options )
-			open( `${url}/output/${args.currentGenome}`, {wait: false}).then(() => {
-				log("browser closed")
-			}).catch(function () {
-			 })
+			if ( args.html ) {
+				output(`Opening url ${url}`)
+				open( `${url}/output/${args.currentGenome}`, {wait: false}).then(() => {
+					log("browser closed")
+				}).catch(function () {
+				 })
+			} else {
+
+			}
+
 		}
 		log(`filenameServerLock: ${filenameServerLock}`)
 	}
@@ -528,7 +535,7 @@ function getServerURL() {
 	}
 	let serverURL = `http://${internalIp.v4.sync()}:${port}${fragment}`
 	output(`serverURL returns ${serverURL} and fragment ${fragment} the port ${port}  args.justNameOfDNA ${ args.justNameOfDNA }`)
-	
+
 	if ( serverURL !== url ) {
 		output("Maybe this is a bug, and I am exploring various web servers and runinng multiples in this version, so I got confused. You mite want to set the server URL base with:")
 		output(`aminosee --url=${serverURL}`)

@@ -700,7 +700,7 @@ function pushCli(cs) {
         log("Easter egg: enabling dnabg mode!!")
         this.dnabg = true // for laffs
       } // after processing 200 megabytes, this easter egg starts showing raw DNA as the background after 100 megs or 69 runs.
-      if ( args.force ) {
+      if ( args.force === true) {
         output("force overwrite enabled.")
         this.force = true
       } else {
@@ -736,7 +736,7 @@ function pushCli(cs) {
         webserverEnabled = true
         this.serve = true
         this.keyboard = true
-        // killServersOnQuit = false
+        killServersOnQuit = false
         this.justNameOfPNG = "not rendering - running web server"
       } else {
         log("Webserver run in foreground, will exit with app, use --serve to spawn background process ")
@@ -839,7 +839,7 @@ function pushCli(cs) {
         }
       }
       /////////////////////////////////////////////////////
-      output(`devmode ${this.devmode}`)
+
       if (this.devmode == true) {
         this.quiet = false
         this.verbose = true
@@ -857,7 +857,7 @@ function pushCli(cs) {
         if (debug == true) {
           this.raceDelay += 200 // this helps considerably!
         }
-        output("AminoSee has been slowed to " + blueWhite( this.raceDelay ))
+        log("AminoSee has been slowed to " + blueWhite( this.raceDelay ))
       } else {
         // this.raceDelay -= 1000 // if you turn devmode on and off a lot it will slow down
         // this.verbose = false
@@ -2665,7 +2665,7 @@ AminoSee version: ${version}`
 
 
         this.savePNG( () => {
-          output("master linear done2")
+          log("savePNG: master linear done")
         })
 
         this.calcHilbertFilenames()
