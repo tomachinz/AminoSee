@@ -135,9 +135,9 @@ body {
 }
 
 /* DEBUG */
-div, span {
-   border: 1px dotted white; 
-}
+/*div, span {*/
+   /*border: 1px dotted white; */
+/*}*/
 
 #supercontainer {
   padding: 0;
@@ -279,7 +279,7 @@ form, input, textarea {
 }
 
 #butbar, #butbar div {
-  border: 1px dotted white;
+  /*border: 1px dotted white;*/
   /* background-color: rgb(25, 25, 0); */
   /* background-color: rgba(255, 255, 0, 0.1); */
   text-align: center;

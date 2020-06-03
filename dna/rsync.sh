@@ -17,7 +17,7 @@
 # WETCOMMAND="/usr/bin/rsync --archive --verbose --stats  --exclude={'*_linear_[ABCDEFGHIJKLMNOPQRSTUVWXYZ]'} /Users/tom/AminoSee_Output/ tom@cheese.funk.nz:/home/tom/Sites/AminoSee/dna/AminoSee_Output/ "
 
 
-DRYCOMMAND="/usr/bin/rsync --update --archive --verbose --stats --delete --dry-run /Users/tom/AminoSee_webroot/output/  /Users/tom/Dropbox/Sites/funk.co.nz/aminosee/output/ "
+DRYCOMMAND="/usr/bin/rsync --update --archive --verbose --stats --delete /Users/tom/AminoSee_webroot/output/  /Users/tom/Dropbox/Sites/funk.co.nz/aminosee/output/ "
 echo ABout to run:
 echo $DRYCOMMAND
 sleep 2
