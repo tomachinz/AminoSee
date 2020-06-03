@@ -30,9 +30,7 @@ W (webserver)           C (clear scrn)            U (updates stats)       X (sea
 O (open images after render)                      or [space]
 `
 const helixEmoji =" 🧬  "
-const lineBreak = `
-`
-// const settings = require('./aminosee-settings');
+const settings = require("./aminosee-settings")
 const version = require("./aminosee-version")
 const server = require("./aminosee-server")
 const data = require("./aminosee-data")
@@ -1087,7 +1085,7 @@ function pushCli(cs) {
 
     resized(tx, ty) {
       clearCheck()
-      term.clear()
+      // term.clear()
 
       // term.erase()
       termSize()
@@ -1501,7 +1499,7 @@ function pushCli(cs) {
       }
     }
     gracefulQuit(code, reason) {
-      if ( typeof code == "undefined" ) {
+      if ( typeof code === "undefined" ) {
         code = 0
       }
       mode( `Graceful shutdown in progress... code ${code} reason ${reason}`)
@@ -1664,7 +1662,7 @@ function pushCli(cs) {
           }), 10
         } else {
           output("Control-c to stop server")
-          this.quit(0,  status )
+          this.quit(1,  status )
         }
         return false
       }
@@ -1676,7 +1674,7 @@ function pushCli(cs) {
         this.fastReset( status )
         return false
       }
-      if ( file === undefined) {
+      if ( typeof file === "undefined") {
         mode("undefined after resolve: " + file)
         this.fastReset( status )
         return false
@@ -1740,8 +1738,8 @@ function pushCli(cs) {
         this.quit(0, reason)
         return false
       }
-      if ( this.dnafile === undefined || this.currentFile === undefined) {
-        reason = "dnafile === undefined"
+      if ( typeof this.dnafile === "undefined" || typeof this.currentFile === "undefined") {
+        reason = "dnafile is undefined"
         mode(reason)
         this.slowSkipNext(reason)
         return false
@@ -1897,7 +1895,7 @@ function pushCli(cs) {
       status = maxWidth( tx / 2, status)
       if ( renderLock ) { error("draining threads from reset"); return false }
       log( status)
-      if ( reason === undefined ) { error("must set a reason when using reset") }
+      if ( typeof reason === "undefined" ) { error("must set a reason when using reset") }
       this.setIsDiskBusy( false )
       try {
         remain = this.args._.length
@@ -2248,8 +2246,8 @@ AminoSee version: ${version}`
           this.codonsPerPixel = defaultC
         } else if ( this.codonsPerPixel > 6000) {
           this.codonsPerPixel = 6000
-        } else if ( isNaN( this.codonsPerPixel ) || this.codonsPerPixel === undefined) {
-          error("codonsPerPixel == NaN || this.codonsPerPixel === undefined")
+        } else if ( isNaN( this.codonsPerPixel ) || typeof this.codonsPerPixel === "undefined") {
+          error("codonsPerPixel is NaN || this.codonsPerPixel is undefined")
           this.codonsPerPixel = defaultC
         }
         if ( this.artistic == true) {
@@ -2321,13 +2319,13 @@ AminoSee version: ${version}`
       }
 
       generateFilenameTouch( focus ) { // we need the *fullpath* of this one
-        if ( focus === undefined ) {
+        if ( typeof focus === "undefined" ) {
           focus = this.peptide
         }
         return `AminoSee_BUSY_LOCK_${ maxWidth(12, this.justNameOfPNG )}_c${ onesigbitTolocale( this.codonsPerPixel ) }${ this.highlightFilename( focus ) }${ this.getImageType() }.txt`
       }
       generateFilenamePNG( focus ) {
-        if ( focus === undefined ) {
+        if ( typeof focus === "undefined" ) {
           focus = this.peptide
         }
         this.justNameOfPNG = `${ this.justNameOfDNA}.${ this.extension }_linear_c${ onesigbitTolocale( this.codonsPerPixel )}${ this.highlightFilename( focus ) }${this.getImageType() }.png`
@@ -2336,7 +2334,7 @@ AminoSee version: ${version}`
 
 
       generateFilenameHilbert( focus ) { // needs  this.dimension estimatedPixels
-        if ( focus === undefined ) {
+        if ( typeof focus === "undefined" ) {
           focus = this.focusPeptide
         }
         if ( this.test) {
@@ -2916,7 +2914,7 @@ AminoSee version: ${version}`
       postRenderPoll(reason) { // renderLock on late, off early
         log(`post render reason: ${ blueWhite( reason )}`)
 
-        if ( reason === undefined) { ("reason must be defined for postRenderPoll") }
+        if ( typeof reason === "undefined") { ("reason must be defined for postRenderPoll") }
         if ( this.verbose ) {
           log(chalk.inverse(`Finishing saving (${reason}), ${this.busy()} waiting on ${ this.storage() } ${ remain } files to go.`))
         }
@@ -3031,7 +3029,7 @@ AminoSee version: ${version}`
         }
 
         quit(code, reason) {
-          if ( reason === undefined) {
+          if ( typeof reason === "undefined") {
             error("must set reason")
             if ( this !== undefined) {
               reason =  status
@@ -3045,6 +3043,7 @@ AminoSee version: ${version}`
           if ( renderLock == true ) {
             if ( code == 0 ) {
               output("still rendering") // maybe this happens during graceful shutdown
+              this.pollForStream()
               return false
             } else {
               output("halting render") // maybe this happens during graceful shutdown
@@ -3410,7 +3409,7 @@ AminoSee version: ${version}`
         aminoFilenameIndex(id) { // return the png files for the report
           let returnedHil, returnedPNG
           let backupHighlight = isHighlightSet
-          if (id === undefined || id < 1) { // for the reference image
+          if (typeof id === "undefined" || id < 1) { // for the reference image
             this.focusPeptide = "Reference"
             isHighlightSet = false
           } else {
@@ -3439,7 +3438,7 @@ AminoSee version: ${version}`
 
         htmlTemplate(histogramJson) {
           // let histogramJson;
-          if (histogramJson === undefined) {
+          if (typeof histogramJson === "undefined") {
             histogramJson = this.getRenderObject()
             // ;
           }
@@ -4293,7 +4292,7 @@ AminoSee version: ${version}`
           let dir2make
           let ret = true
 
-          if ( relative === undefined || relative == "/") {
+          if ( typeof relative === "undefined" || relative == "/") {
             relative = "output"
             // dir2make = path.resolve( this.outputPath ) // just make the output folder itself if not present
             dir2make = webroot // just make the output folder itself if not present
@@ -4513,7 +4512,7 @@ AminoSee version: ${version}`
           }
         }
         throttledFreq(gears) { // used to prevent super fast computers from spitting too much output
-          if (gears === undefined) { gears = this.debugGears } else { this.debugGears = gears} // wow that is one line
+          if (typeof gears === "undefined") { gears = this.debugGears } else { this.debugGears = gears} // wow that is one line
           return this.estimatedPixels / (( this.codonsPerSec + 1) * gears) // numbers get bigger on fast machines.
         }
 
@@ -4594,7 +4593,7 @@ AminoSee version: ${version}`
         //   output(txt);
         // }
         out(txt) {
-          if (txt === undefined || this.quiet == true) { return false}
+          if (typeof txt === "undefined" || this.quiet == true) { return false}
           term.eraseDisplayBelow
           redoline(txt)
           if ( this.updates == true && renderLock == true) {
@@ -4605,7 +4604,7 @@ AminoSee version: ${version}`
 
 
         clout(txt) {
-          if (txt === undefined) {
+          if (typeof txt === "undefined") {
             txt = " "
             return false
           }
@@ -4654,7 +4653,7 @@ AminoSee version: ${version}`
 
         returnRadMessage(array) {
           let returnText = ""
-          if (array === undefined) {
+          if (typeof array === "undefined") {
             array = ["    ________", "    ________", "    ________", "    ________", "    ________", "", "Output path:", this.outputPath ]
             // array = [ "    ________", "    ________", "    ________", "    ________", "    ________", "", "Output path:"," " ];
           }
@@ -4835,6 +4834,7 @@ AminoSee version: ${version}`
           term.right( this.termMarginLeft )
           if ( this.clear == true ) {
             term.eraseDisplayBelow()
+            output("term.eraseDisplayBelow")
           }
 
           if (term.height - 32  >   termHistoHeight  +  termDisplayHeight && tx - 8 > wideScreen) {
@@ -5198,7 +5198,7 @@ AminoSee version: ${version}`
             }
           }
           function debounce( ms ) {
-            if ( ms === undefined ) { ms = 150 } // half second
+            if ( typeof ms === "undefined" ) { ms = 150 } // half second
             let d = new Date().getTime()
             if ( d + ms > lastHammered ) {
               lastHammered = d + ms*2
@@ -5238,21 +5238,21 @@ AminoSee version: ${version}`
             term.windowTitle(helixEmoji +  txt )
           }
           function bugout(txt) {
-            if (typeof txt == "undefined") { return  }
-            let splitScreen = ""
-            if (typeof cliInstance !== "undefined" ) {
-              let colWidth = Math.round(tx / 3) - 1
-              if (cliInstance.test == true) {
-                splitScreen += chalk.rgb(64,64,64).inverse( fixedWidth( colWidth - 10,  `[Test: ${remain} ${ nicePercent(cliInstance.percentComplete) } Highlt${( cliInstance.isHighlightSet ? cliInstance.focusPeptide + " " : " ")} >>>    `))
-              } else {
-                splitScreen += chalk.rgb(64,64,64).inverse( fixedWidth( colWidth - 10,  `[ ${batchProgress()} ${new Date().getTime()} ${ status } ${ nicePercent(cliInstance.percentComplete) } ] >>>   `))
-              }
-              splitScreen += fixedWidth( colWidth*2,` ${ removeNonAscii( txt)} `)
-            } else {
-              splitScreen += txt
-            }
+            if (typeof txt === "undefined") { return  }
+            // let splitScreen = ""
+            // if (typeof cliInstance !== "undefined" ) {
+            //   let colWidth = Math.round(tx / 3) - 1
+            //   if (cliInstance.test == true) {
+            //     splitScreen += chalk.rgb(64,64,64).inverse( fixedWidth( colWidth - 10,  `[Test: ${remain} ${ nicePercent(cliInstance.percentComplete) } Highlt${( cliInstance.isHighlightSet ? cliInstance.focusPeptide + " " : " ")} >>>    `))
+            //   } else {
+            //     splitScreen += chalk.rgb(64,64,64).inverse( fixedWidth( colWidth - 10,  `[ ${batchProgress()} ${new Date().getTime()} ${ status } ${ nicePercent(cliInstance.percentComplete) } ] >>>   `))
+            //   }
+            //   splitScreen += fixedWidth( colWidth*2,` ${ removeNonAscii( txt)} `)
+            // } else {
+            //   splitScreen += txt
+            // }
             term.eraseLine()
-            console.log(splitScreen)
+            console.log(txt)
           }
           function deleteFile(file) {
             let ret = false
@@ -5330,19 +5330,19 @@ AminoSee version: ${version}`
             return minWidth(wide, maxWidth(wide, str))
           }
           function maxWidth(wide, str) { // shorten it if you need to
-            if ( str === undefined) { return "0" }
+            if ( typeof str === "undefined") { return "0" }
             if (str) {
               if (str.length > wide) { str = str.substring(0,wide) }
             }
             return str
           }
           function minWidth(wide, str) { // make it wider
-            if ( str === undefined) { str = " ~@~ " + wide}
+            if ( typeof str === "undefined") { str = " ~@~ " + wide}
             while(str.length < wide) { 	str = str  +  " " }
             return str
           }
           function minWidthRight(wide, str) { // make it wider
-            if ( str === undefined) { return " " }
+            if ( typeof str === "undefined") { return " " }
             while(str.length < wide) { str += " ~ " }
             return str
           }
@@ -5351,7 +5351,7 @@ AminoSee version: ${version}`
           }
           function spaceTo_(str) {
             // log(str);
-            if (str === undefined) {
+            if (typeof str === "undefined") {
               return ""
             } else {
               str += ""
@@ -5646,7 +5646,7 @@ AminoSee version: ${version}`
           //   }
           function basename(f) {
             return path.basename(f)
-            // if (f === undefined) { f = "was_not_set";  console.warn(f); }
+            // if (typeof f === "undefined") { f = "was_not_set";  console.warn(f); }
             // return f.replace(/^.*[\\\/]/, '');
           }
 
@@ -5655,8 +5655,8 @@ AminoSee version: ${version}`
           function fileSystemChecks(file) { // make sure file is writable or folder exists etc
             let problem = false
             let name = basename( path.resolve(file))
-            let msg = `Stats for file ${name}` + lineBreak
-            if (file === undefined) { return false }
+            let msg = `Stats for file ${name}`
+            if (typeof file === "undefined") { return false }
             if (!doesFileExist(file)) {
               file = path.resolve(file)
             }
@@ -5742,9 +5742,9 @@ AminoSee version: ${version}`
           }
           function gimmeDat() {
             let that
-            if ( cliInstance !== undefined) {  that = cliInstance }
-            if ( this !== undefined)        {  that = this }
-            if ( that === undefined)        {  that = false }
+            if ( typeof cliInstance !== "undefined") {  that = cliInstance }
+            if ( typeof this === "undefined")        {  that = this }
+            if ( typeof that === "undefined")        {  that = false }
             return that
           }
           function redoline(txt) {
@@ -5811,16 +5811,16 @@ AminoSee version: ${version}`
 
           }
           function charAtCheck(file) { // if the this.dnafile starts with - return false
-            if ( file === undefined) { return false }
+            if ( typeof file === "undefined") { return false }
             if ( file.charAt(0) == "-") {
               log(`cant use files that begin with a dash - ${ file }`)
               return false
             } else { return true }
           }
           function bgOpen(file, options, callback) {
-            if ( file === undefined) { error("file must be supplied") }
-            if ( options === undefined) { let options = { wait: false } }
-            if ( callback === undefined) { open( file, options )  } else {
+            if ( typeof file === "undefined") { error("file must be supplied") }
+            if ( typeof options === "undefined") { let options = { wait: false } }
+            if ( typeof callback === "undefined") { open( file, options )  } else {
               open( file, options, callback)
             }
             projectprefs.aminosee.opens++ // increment open counter.
@@ -5916,9 +5916,9 @@ AminoSee version: ${version}`
           function termDrawImage(fullpath, reason, cb) {
             // return true
             if ( this.quiet || !this.openImage ) { log("not opening"); return false }
-            if (fullpath === undefined) { fullpath = previousImage }
-            if (fullpath === undefined) { log("not opening"); return false }
-            if (reason === undefined) { reason = "BUG. Reminder: always set a reason" }
+            if (typeof fullpath === "undefined") { fullpath = previousImage }
+            if (typeof fullpath === "undefined") { log("not opening"); return false }
+            if (typeof reason === "undefined") { reason = "BUG. Reminder: always set a reason" }
             if ( that.force == true) { return false }
             if ( quiet == true ) { out("quiet"); return false }
             term.saveCursor()
@@ -5937,11 +5937,11 @@ AminoSee version: ${version}`
 
           }
           function nicePercent(percent) {
-            if (percent === undefined) { percent = cliInstance.percentComplete; log("% was undef") }
+            if (typeof percent === "undefined") { percent = cliInstance.percentComplete; log("% was undef") }
             return minWidth(4, (Math.round(  percent*1000) / 10)) + "%"
           }
           function tidyPeptideName(str) { // give it "OPAL" it gives "Opal". GIVE it aspartic_ACID or "gluTAMic acid". also it gives "Reference"
-            if (str === undefined) {
+            if (typeof str === "undefined") {
               log(`no str was set: ${str} will return "Reference"`)
               return "Reference"
             }
@@ -5996,12 +5996,12 @@ AminoSee version: ${version}`
 
           }
           function stopWork(reason) {
-            if (reason === undefined) { error("You have to give a reason") }
+            if (typeof reason === "undefined") { error("You have to give a reason") }
             cliInstance.gracefulQuit(0, reason)
           }
           function locateWebroot( filename ) {
 
-            if ( filename === undefined ) {
+            if ( typeof filename === "undefined" ) {
               filename = __filename //path.resolve( __dirname) // check executable dir
               log("Found alongside executable: " + filename)
             } else {
@@ -6200,7 +6200,7 @@ AminoSee version: ${version}`
           function printRadMessage(arr) {
             // return
             // output( returnRadMessage(arr) );
-            if (arr === undefined) {
+            if (typeof arr === "undefined") {
               arr = ["    ", "    ", "    ", "    ", "    ", "", "Output path:", cliInstance.outputPath ]
               // arr = [ "    ________", "    ________", "    ________", "    ________", "    ________", "", "Output path:"," " ];
             }

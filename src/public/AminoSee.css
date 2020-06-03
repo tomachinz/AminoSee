@@ -6,6 +6,7 @@ html, body, form, input, textarea, a, p, h1, h2, h3, h4, h5, h6, div {
 #monkeys h1, #monkeys h1.a {
   font-size: 23.4px;
   grid-area: footer;
+
 }
 
 #monkeys h2, #monkeys h2.a {
@@ -16,7 +17,6 @@ html, body, form, input, textarea, a, p, h1, h2, h3, h4, h5, h6, div {
   background-color: #000000;
   margin: 0;
   overflow: hidden;
-  /* background-color: yellow; */
 }
 
 /* body height 100vh width 100vw background transparent radial-gradient(at calc(var(--mouse-x, 0) * 100%) calc(var(--mouse-y, 0) * 100%), yellow, green) no-repeat 0 0 { */
@@ -28,19 +28,15 @@ body {
 
 #stack_wrapper {
   background-color: #222222;
-  /* background-color: cyan; */
   position: absolute;
-  /* top: 64px; */
   left: 50%;
   transform: translateX(-50%);
-  /* width: 100%;
-  height: 100%; */
   width: 99%;
   height: 32px;
 }
 
 #stack0images ul {
-  position: absolute;
+  position: fixed;
   z-index: 10;
 }
 
@@ -48,12 +44,7 @@ a.stack {
   text-decoration: none;
   visibility: hidden;
   display: none;
-  /* z-index: 10; */
-  /*position: relative;*/
-  /*width: 50%;*/
-  /*top: 50%;*/
-  /*left: 50%;*/
-  /*transform: translate(-50% , -50%) */
+ 
 }
 
 ul, li {
@@ -62,10 +53,6 @@ ul, li {
   list-style: none;
 }
 
-/* div.stack {
-  position: absolute;
-  z-index: 10;
-} */
 img.stack {
   width: calc(var("--mouse-scale", 1)px);
   height: calc(var("--mouse-scale", 1)px);
@@ -78,12 +65,11 @@ img.stack {
 
 .frontmost {
   z-index: 6969;
-  /* background-color: #222222; */
-  background-color: rgba(0, 0, 0, 0.2);
+  background-color: #000000; 
+  background-color: rgba(0, 0, 0, 0.7);
 }
 
 #stack_0, #stack_1, #stack_2, #stack_3, #stack_4, #stack_5, #stack_6, #stack_7, #stack_8, #stack_9, #stack_10, #stack_11, #stack_12, #stack_13, #stack_14, #stack_15, #stack_16, #stack_17, #stack_18, #stack_19, #stack_20, #stack_21, #stack_22, #stack_23, #stack_24 {
-  /* position: absolute; */
   visibility: visible;
   position: relative;
   width: calc(var("--mouse-scale", 1)/4)px;
@@ -150,7 +136,7 @@ body {
 
 /* DEBUG */
 div, span {
-  /* border: 1px dotted white; */
+   border: 1px dotted white; 
 }
 
 #supercontainer {
@@ -292,22 +278,25 @@ form, input, textarea {
   grid-column: span 8;
 }
 
-#butbar {
-  background-color: yellow;
-  text-align: left;
+#butbar, #butbar div {
+  border: 1px dotted white;
+  /* background-color: rgb(25, 25, 0); */
+  /* background-color: rgba(255, 255, 0, 0.1); */
+  text-align: center;
   flex-direction: row;
   /* | row-reverse | column | column-reverse; */
-  flex-flow: row wrap;
+  /* flex-flow: row wrap; */
   padding: 0;
   margin: 0;
   list-style: none;
   -ms-box-orient: horizontal;
-  display: -webkit-box;
+  /* display: -webkit-box;
   display: -moz-box;
   display: -ms-flexbox;
   display: -moz-flex;
   display: -webkit-flex;
-  display: flex;
+  display: flex; */
+  /* display: grid; */
 }
 
 /* .tinyButton , , input.tinyButton {
@@ -479,15 +468,13 @@ a:hover {
 }
 
 #monkeys {
-  position: fixed;
   bottom: 0;
   right: 0;
   max-width: 295;
-  z-index: 10;
   background-color: white;
   padding: 16px;
   white-space: nowrap;
-  /* text-align: center; */
+  text-align: center; 
 }
 
 #drag-file {

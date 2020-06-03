@@ -65,7 +65,7 @@ function setArgs( TheArgs ) {
 	webroot = path.resolve( os.homedir(), "AminoSee_webroot")
 	port = defaultPort
 	log("setArgs running")
-	if ( typeof TheArgs === undefined ) {
+	if ( typeof TheArgs === "undefined" ) {
 		args = {
 			verbose: false,
 			webroot: webroot,
@@ -96,9 +96,7 @@ function setArgs( TheArgs ) {
 	// 	log( "debug mode DISABLED")
 	// }
 	if ( debug ) {
-		log( "args received: ")
-		console.log( args )
-		log( "args received: ")
+		log(`args: ${args.toString()}`)
 	}
 }
 function setupPrefs() {
@@ -150,8 +148,8 @@ function notQuiet(txt) {
 	log(txt)
 }
 function output(txt) {
-	if ( txt === undefined) {	console.log; return }
-	console.log(txt)
+	if ( typeof txt === "undefined" || !debug ) {	console.log(); return }
+	console.log(`server: ${txt}`)
 	// console.log(chalk.bgBlue(" [ " + txt.substring(0, term.width -10  )+ " ]"))
 }
 /** https://stackoverflow.com/questions/13786160/copy-folder-recursively-in-node-js/26038979

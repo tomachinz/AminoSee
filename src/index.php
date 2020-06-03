@@ -30,7 +30,7 @@
 	<!-- End Google Tag Manager -->
 </head>
 
-<body id="webgl" class="black nocse">
+<body id="webgl" class="dark nocse">
 	<?php include '../includes/menu.php';?>
 
 	<div id="bgCanvFixed">
@@ -80,13 +80,13 @@
 						</select>
 						</form>
 
-						<p class="white small hidable">
-							<a href="/pdf/AminoSee_WhitePaper_09Jan2019.pdf" class="small hidable">WHITE PAPER PDF</a> |
-							<a href="/blog/news/aminosee-dna-visualisation" class="small hidable">2018 Press Release</a> |
-							<a href="output" class="small hidable">2D IMAGE RENDERS</a> |
-							<a href="calibration/AminoSee_Calibration_reg_HILBERT_8.png" class="small hidable">Calibration</a> |
-							<a href="dist" class="small hidable" title="Download executable for win, linux, and macos">DOWNLOAD</a> |
-							<a href="https://github.com/tomachinz/AminoSee" class="small hidable" title="Github Source Code Repo">SOURCE</a>
+						<p class="hidable" style="background-color: black; color: white;">
+							<a href="output" class="button hidable">2D IMAGE RENDERS</a> |
+							<a href="/pdf/AminoSee_WhitePaper_09Jan2019.pdf" class="button hidable">WHITE PAPER PDF</a> |
+							<a href="/blog/news/aminosee-dna-visualisation" class="button hidable">2018 Press Release</a> |
+							<a href="calibration/AminoSee_Calibration_reg_HILBERT_8.png" class="button hidable">Calibration</a> |
+							<a href="dist" class="button hidable" title="Download executable for win, linux, and macos">DOWNLOAD</a> |
+							<a href="https://github.com/tomachinz/AminoSee" class="button hidable" title="Github Source Code Repo">SOURCE</a>
 							<br />
 						</p>
 					</div>
@@ -119,7 +119,7 @@
 </div>
 
 
-		<div id="controls" onclick="resume()" style="text-align: center;">
+		<div id="controls" class="grid" onclick="resume()" style="text-align: center; width: 100%;">
 			<div id="fileheader">
 				<label class="custom-file-upload">
 					Custom Upload
@@ -132,17 +132,17 @@
 				</div>
 
 				<br>
-				<div id="#butbar">
-					<input type="button" name="lessdetail" value="Less Detail [-]" onclick="lessdetail()" title="Less detail" class="flex-item">
-					<input type="button" name="moredetail" value="More Detail [+]" onclick="moredetail()" title="More detail" class="flex-item">
-					<input type="button" id="pause" name="pause" value="Pause [P]" onclick="togglePause()" class="flex-item">
-					<input type="button" id="spin" name="spin" value="Stop Rotate [R]" onclick="toggleSpin()" class="flex-item">
-					<input type="button" id="amongst" name="amongst" value="Get Amoungst It [G]" onclick="getAmongstIt()" title="Put the camera wang in the middle o dat dere" class="flex-item">
-					<input type="button" id="perspective" name="perspective" value="Perspective [V]iew" onclick="toggleView()" class="flex-item">
-					<input type="button" id="reset" name="reset" value="Reset [U]" onclick="reset()" class="flex-item">
-					<input type="button" id="testcolour" name="testcolour" value="Test Colours [T]" onclick="testColour()" class="flex-item">
-					<input type="button" id="loadImage" name="loadImage" value="Load Image [L]" onclick="loadImage()" class="flex-item">
-					<!-- <input disabled type="button" id="fileupload" name="fileupload" value="Upload DNA (soon)" onclick="//toggleFileUpload()" class="flex-item"> -->
+				<div id="butbar" style="width: 100%;">
+					<input type="button" name="lessdetail" value="Less Detail [-]" onclick="lessdetail()" title="Less detail" >
+					<input type="button" name="moredetail" value="More Detail [+]" onclick="moredetail()" title="More detail" >
+					<input type="button" id="pause" name="pause" value="Pause [P]" onclick="togglePause()" >
+					<input type="button" id="spin" name="spin" value="Stop Rotate [R]" onclick="toggleSpin()" >
+					<input type="button" id="amongst" name="amongst" value="Get Amoungst It [G]" onclick="getAmongstIt()" title="Put the camera wang in the middle o dat dere" >
+					<input type="button" id="perspective" name="perspective" value="Perspective [V]iew" onclick="toggleView()" >
+					<input type="button" id="reset" name="reset" value="Reset [U]" onclick="reset()" >
+					<input type="button" id="testcolour" name="testcolour" value="Test Colours [T]" onclick="testColour()" >
+					<input type="button" id="loadImage" name="loadImage" value="Load Image [L]" onclick="loadImage()" >
+					<!-- <input disabled type="button" id="fileupload" name="fileupload" value="Upload DNA (soon)" onclick="//toggleFileUpload()" > -->
 					<br>
 					<input type="button" class="tinyButton flex-item" name="A" value="Left [A]" onclick="cursorLeft()">
 					<input type="button" class="tinyButton flex-item" name="W" value="Fwd  [W]" onclick="cursorUp()">
