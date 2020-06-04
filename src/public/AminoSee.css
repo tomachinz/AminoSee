@@ -6,7 +6,6 @@ html, body, form, input, textarea, a, p, h1, h2, h3, h4, h5, h6, div {
 #monkeys h1, #monkeys h1.a {
   font-size: 23.4px;
   grid-area: footer;
-
 }
 
 #monkeys h2, #monkeys h2.a {
@@ -44,7 +43,6 @@ a.stack {
   text-decoration: none;
   visibility: hidden;
   display: none;
- 
 }
 
 ul, li {
@@ -65,7 +63,7 @@ img.stack {
 
 .frontmost {
   z-index: 6969;
-  background-color: #000000; 
+  background-color: #000000;
   background-color: rgba(0, 0, 0, 0.7);
 }
 
@@ -136,9 +134,8 @@ body {
 
 /* DEBUG */
 /*div, span {*/
-   /*border: 1px dotted white; */
+/*border: 1px dotted white; */
 /*}*/
-
 #supercontainer {
   padding: 0;
   margin: 0 0 0 0;
@@ -216,16 +213,16 @@ form, input, textarea {
 
 #info {
   /* white-space: nowrap; */
-  position: absolute;
+  position: relative;
   /* width: 70%; */
-  /* margin-left: 15%; */
-  margin-right: 15%;
+  margin-left: 5%;
+  margin-right: 5%;
   color: #ffffff;
-  padding: 16px;
+  padding: 32px;
   font-family: Monospace;
-  text-align: right;
+  /* text-align: right; */
   z-index: 10;
-  height: 40%;
+  /* height: 40%; */
 }
 
 #supercontainer {
@@ -303,19 +300,20 @@ form, input, textarea {
 	font-size: 0.8rem;
 	max-width: 32px;
 } */
-#controls {
+#controls, input.controls {
   position: fixed;
   z-index: 10;
   grid-column: span 8;
   margin-left: 50%;
-  transform: translateX(-50%)
-}
-
-input.controls {
+  transform: translateX(-50%);
   height: 16px;
   top: 32px;
 }
 
+/* {
+  height: 16px;
+  top: 32px;
+} */
 #monkeys img {
   /* max-width: 220px; */
 }
@@ -474,7 +472,7 @@ a:hover {
   background-color: white;
   padding: 16px;
   white-space: nowrap;
-  text-align: center; 
+  text-align: center;
 }
 
 #drag-file {

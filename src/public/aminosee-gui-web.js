@@ -1034,8 +1034,13 @@ function toggleControls() {
 		document.getElementById("butbar").style.visibility = "hidden"
 		document.getElementById("description").classList.add("hidden")
 		document.getElementById("description").classList.add("hidden")
-		document.getElementById("monkeys").classList.add("tiny")
-		// document.getElementById('nav').style.visibility = 'hidden';
+		document.getElementById("monkeys").classList.add("hidden")
+		document.getElementById("info").classList.add("hidden")
+		document.getElementById("info").style.visibility = "hidden"
+		document.getElementById("info").style.display = "none"
+
+		// document.getElementById("monkeys").classList.add("tiny")
+		// document.getElementBy('nav').style.visibility = 'hidden';
 		// document.getElementById('description').style.visibility = 'hidden';
 		// document.getElementById('description').style.display = 'none';
 		// document.getElementById('description').classList.remove('hidable');    // document.getElementById('description').classList.remove('hidable');
@@ -1049,7 +1054,11 @@ function toggleControls() {
 		document.getElementById("description").classList.remove("hidden")
 		document.getElementById("description").classList.add("hidable")
 		document.getElementById("h2").classList.remove("hidden")
-		document.getElementById("monkeys").classList.remove("tiny")
+		document.getElementById("monkeys").classList.remove("hidden")
+		document.getElementById("info").classList.remove("hidden")
+		document.getElementById("info").style.visibility = "visible"
+		document.getElementById("info").style.display = "block"
+
 		// document.getElementById('description').style.display = 'block';
 		// document.getElementById('description').style.visibility = 'visible';
 		// document.getElementById('nav').style.visibility = 'visible';

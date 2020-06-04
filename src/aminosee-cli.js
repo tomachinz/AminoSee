@@ -116,7 +116,7 @@ webserverEnabled = false
 genomesRendered = [dummyFilename]
 renderLock = false
 module.exports = () => {
-  mode("exports")
+  // mode("exports")
   setupApp()
   mode("module exit")
   log( `S: ${status} ` )
@@ -1656,12 +1656,12 @@ function pushCli(cs) {
           printRadMessage(  status )
         }
         if ( killServersOnQuit ) {
-          // output("Control-c to stop server")
+          output("Control-c to stop server")
           setTimeout( () => {
             this.quit(1,  status )
           }), 10
         } else {
-          output("Control-c to stop server")
+          // output("Control-c to stop server")
           this.quit(1,  status )
         }
         return false
@@ -1753,17 +1753,16 @@ function pushCli(cs) {
       // }
       if ( this.demo == true ) {
         output("demo mode (disabled?)")
-        // runDemo()
+        runDemo()
         return false
       }
       if (!this.checkFileExtension( this.dnafile )) {
-        let msg = maxWidth( tx/2, `${ batchProgress() } wrong file extension. ${this.dnafile}`)
+        let msg = maxWidth( tx/2, `${ batchProgress() } wrong file extension. ${this.dnafile}. Must be one of ${ extensions }`)
         if ( this.verbose ) {
           redoline(msg)
         } else {
           notQuiet( msg )
         }
-        log( `Must be one of ${ extensions }`)
         if ( remain > 0 && !renderLock) {
           this.fastReset(msg)
         } else {
@@ -4048,13 +4047,13 @@ AminoSee version: ${version}`
             })
           }).then().catch()
 
-
+// img_png.pack()
 
           // new Promise(resolve =>
           //   img_png.pack()
           //   .pipe(wstreamLINEAR)
-          //   .on('finish', resolve)
-          // );
+          //   .on("finish", resolve)
+          // )
 
           // setTimeout( () => {
           //   this.isDiskFinHTML = true;
@@ -5990,7 +5989,7 @@ AminoSee version: ${version}`
               term.eraseDisplayBelow()
             } else {
               term.eraseDisplayBelow()
-              process.stdout.write("[nc] "+ status)
+              process.stdout.write(" "+ status)
             }
             console.log("[c] "+ status)
 

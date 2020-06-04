@@ -34,7 +34,8 @@
 	<?php include '../includes/menu.php';?>
 
 	<div id="bgCanvFixed">
-		<canvas id="canvas" width="512" height="512" style="width: 512px; height: 512px;"></canvas>
+		<!-- <canvas id="canvas" width="512" height="512" style="width: 512px; height: 512px;"></canvas> -->
+		<canvas id="canvas" width="99%" height="auto" style="width: 512px; height: 512px;"></canvas>
 	</div>
 
 
@@ -45,8 +46,8 @@
 
 		<!-- <a href="https://www.funk.co.nz/" style="width: 100px;" title="Return to FUNK Homepage"><img src="https://www.funk.co.nz/images/nav/funk-logo-140px.png" width="140" height="70" alt="www.funk.co.nz" style="position: fixed; top: -2px; left: 26px;"/></a> -->
 
-		<div id="info">
-			<div id="monkeys">
+		<div id="info" class="hidable">
+			<div id="monkeys" class="hidable">
 				<div>
 					<input type="button" id="hide" name="hide" value="Hide Controls [H]" onclick="toggleControls()"><br>
 					<a href="https://www.funk.co.nz/aminosee/" onclick="toggleControls(); return false;">
@@ -91,6 +92,58 @@
 						</p>
 					</div>
 				</div>
+
+
+
+				<div id="butbar" class="grid monkeystyle" onclick="resume()" style="text-align: center; width: 100%;">
+					<div id="fileheader">
+						<label class="custom-file-upload">
+							Custom Upload
+							<input type="file" id="choosefiles" name="file" value="example-sequence.fa" multiple /></label>
+							<input disabled type="button" id="cancel" class="fineprint small hidden" name="cancel" value="Cancel" onclick="cancel()">
+							<span class="fineprint whitetext">Any ASCII text file containing DNA or RNA sequences in first 1k</span>
+							<br />
+							Hire Me: <a href="https://tomachi.co/about/hire-me">for recruiters</a>
+							<output id="list"></output>
+						</div>
+
+						<br>
+						<div style="width: 100%;">
+							<input type="button" name="lessdetail" value="Less Detail [-]" onclick="lessdetail()" title="Less detail" >
+							<input type="button" name="moredetail" value="More Detail [+]" onclick="moredetail()" title="More detail" >
+							<input type="button" id="pause" name="pause" value="Pause [P]" onclick="togglePause()" >
+							<input type="button" id="spin" name="spin" value="Stop Rotate [R]" onclick="toggleSpin()" >
+							<input type="button" id="amongst" name="amongst" value="Get Amoungst It [G]" onclick="getAmongstIt()" title="Put the camera wang in the middle o dat dere" >
+							<input type="button" id="perspective" name="perspective" value="Perspective [V]iew" onclick="toggleView()" >
+							<input type="button" id="reset" name="reset" value="Reset [U]" onclick="reset()" >
+							<input type="button" id="testcolour" name="testcolour" value="Test Colours [T]" onclick="testColour()" >
+							<input type="button" id="loadImage" name="loadImage" value="Load Image [L]" onclick="loadImage()" >
+							<!-- <input disabled type="button" id="fileupload" name="fileupload" value="Upload DNA (soon)" onclick="//toggleFileUpload()" > -->
+							<br>
+							<input type="button" class="tinyButton flex-item" name="A" value="Left [A]" onclick="cursorLeft()">
+							<input type="button" class="tinyButton flex-item" name="W" value="Fwd  [W]" onclick="cursorUp()">
+							<input type="button" class="tinyButton flex-item" name="S" value="Back [S]" onclick="cursorDown()">
+							<input type="button" class="tinyButton flex-item" name="D" value="Right[D]" onclick="cursorRight()">
+							<br>
+							<label class="fineprint whitetext"><input type="checkbox" id="autostop" name="autostop" value="pause after running for 5 minutes" onchange="autostopChanged()" checked>pause after running for 5 minutes</label>
+							<br>
+
+						</div>
+
+
+						<div id="progress_bar" class="">
+							<div class="percent">0%</div>
+						</div>
+						<div id="modalBox" class="hidden">
+							im normally hidden
+							<input type="button" id="modalBoxButton" value="OK [ENTER]">
+						</div>
+						<div class="footer"></div>
+					</div>
+
+
+
+
 			</div>
 
 			<div id="status" class="headingStatus">
@@ -119,51 +172,7 @@
 </div>
 
 
-		<div id="controls" class="grid" onclick="resume()" style="text-align: center; width: 100%;">
-			<div id="fileheader">
-				<label class="custom-file-upload">
-					Custom Upload
-					<input type="file" id="choosefiles" name="file" value="example-sequence.fa" multiple /></label>
-					<input disabled type="button" id="cancel" class="fineprint small hidden" name="cancel" value="Cancel" onclick="cancel()">
-					<span class="fineprint whitetext">Any ASCII text file containing DNA or RNA sequences in first 1k</span>
-					<br />
-					Hire Me: <a href="https://tomachi.co/about/hire-me">for recruiters</a>
-					<output id="list"></output>
-				</div>
 
-				<br>
-				<div id="butbar" style="width: 100%;">
-					<input type="button" name="lessdetail" value="Less Detail [-]" onclick="lessdetail()" title="Less detail" >
-					<input type="button" name="moredetail" value="More Detail [+]" onclick="moredetail()" title="More detail" >
-					<input type="button" id="pause" name="pause" value="Pause [P]" onclick="togglePause()" >
-					<input type="button" id="spin" name="spin" value="Stop Rotate [R]" onclick="toggleSpin()" >
-					<input type="button" id="amongst" name="amongst" value="Get Amoungst It [G]" onclick="getAmongstIt()" title="Put the camera wang in the middle o dat dere" >
-					<input type="button" id="perspective" name="perspective" value="Perspective [V]iew" onclick="toggleView()" >
-					<input type="button" id="reset" name="reset" value="Reset [U]" onclick="reset()" >
-					<input type="button" id="testcolour" name="testcolour" value="Test Colours [T]" onclick="testColour()" >
-					<input type="button" id="loadImage" name="loadImage" value="Load Image [L]" onclick="loadImage()" >
-					<!-- <input disabled type="button" id="fileupload" name="fileupload" value="Upload DNA (soon)" onclick="//toggleFileUpload()" > -->
-					<br>
-					<input type="button" class="tinyButton flex-item" name="A" value="Left [A]" onclick="cursorLeft()">
-					<input type="button" class="tinyButton flex-item" name="W" value="Fwd  [W]" onclick="cursorUp()">
-					<input type="button" class="tinyButton flex-item" name="S" value="Back [S]" onclick="cursorDown()">
-					<input type="button" class="tinyButton flex-item" name="D" value="Right[D]" onclick="cursorRight()">
-					<br>
-					<label class="fineprint whitetext"><input type="checkbox" id="autostop" name="autostop" value="pause after running for 5 minutes" onchange="autostopChanged()" checked>pause after running for 5 minutes</label>
-					<br>
-
-				</div>
-
-
-				<div id="progress_bar" class="">
-					<div class="percent">0%</div>
-				</div>
-				<div id="modalBox" class="hidden">
-					im normally hidden
-					<input type="button" id="modalBoxButton" value="OK [ENTER]">
-				</div>
-				<div class="footer"></div>
-			</div>
 		</div>
 	</body>
 	</html>
