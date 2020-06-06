@@ -58,30 +58,34 @@
 						<h2 id="h2">DNA/RNA Chromosome Viewer</h2>
 						<p id="description" class="small hidable">A new way to view DNA that attributes a colour hue to each Amino acid codon triplet</p>
 
+					</div>
+					<div>
 						<form action="../">
-						<select id="genomeMenu" name="selectedGenome" onchange="fileChanged(this.options[this.selectedIndex].value)">
-							<option value="output/Brown_Kiwi_NW_013982187v1/images/Brown_Kiwi_NW_013982187v1.fa_linear_c111_Reference_fix_sci.png">Brown Kiwi</option>
-							<option value="output/Caenorhabditisel.dna_sm.toplevel/images/">Caenorhabditis Elegans Worm</option>
-							<option value="output/Chimp_Clint_chrY/images/">Clint the Chimps Y</option>
-							<option value="output/Gorilla_gorGor4_chr2A/images/">Gorgor the Gorilla Chr 2A</option>
-							<option value="output/Influenza-A-virus-H9N2-NC_004905/images/">Influenza A virus H9N2</option>
-							<option value="output/Kyokai7_BABQ01000000/images/">Kyokai Yeast</option>
-							<option value="output/Mycoplasmapneumoosome.Chromosome/images/">Mycoplasma Calibration Large</option>
-							<option value="output/Streptococcus_virus_2972/images/">Streptococcus virus</option>
-							<option value="output/27MB_TestPattern/images/">27 MB Test Pattern</option>
-							<option value="output/3MB_TestPattern/images/">3 MB Test Pattern</option>
-							<option value="output/50KB_TestPattern/images/">50 KB Test Pattern</option>
-							<option value="output/megabase/images/megabase.fa_linear_c1_Reference_fix_sci.png" >Megabase</option>
-							<option value="output/Brown_Kiwi_NW_013982187v1/images/Brown_Kiwi_NW_013982187v1.fa_linear_c111_Reference_fix_sci.png">Brown Kiwi</option>
-							<option value="calibration/AminoSee_Calibration_reg_linear_8.png">AminoSee Calibration Large</option>
-							<option value="calibration/AminoSee_Calibration_reg_linear_2.png">AminoSee Calibration Small</option>
-							<option value="output/Caenorhabditisel.dna_sm.toplevel/images/Caenorhabditisel.dna_sm.toplevel.fa_linear_c7_Reference_fix_sci.png">C.elegans</option>
-							<option value="public/seenoevilmonkeys.jpg">AminoSeeNoEvil Monkeys</option>
-							<option value="/images/nav/funk-logo-140px.png" selected>Funk Logo 140px</option>
-						</select>
+							<select id="genomeMenu" name="selectedGenome" onchange="fileChanged(this.options[this.selectedIndex].value)">
+								<option value="output/Brown_Kiwi_NW_013982187v1/images/Brown_Kiwi_NW_013982187v1.fa_linear_c111_Reference_fix_sci.png">Brown Kiwi</option>
+								<option value="output/Caenorhabditisel.dna_sm.toplevel/images/">Caenorhabditis Elegans Worm</option>
+								<option value="output/Chimp_Clint_chrY/images/">Clint the Chimps Y</option>
+								<option value="output/Gorilla_gorGor4_chr2A/images/">Gorgor the Gorilla Chr 2A</option>
+								<option value="output/Influenza-A-virus-H9N2-NC_004905/images/">Influenza A virus H9N2</option>
+								<option value="output/Kyokai7_BABQ01000000/images/">Kyokai Yeast</option>
+								<option value="output/Mycoplasmapneumoosome.Chromosome/images/">Mycoplasma Calibration Large</option>
+								<option value="output/Streptococcus_virus_2972/images/">Streptococcus virus</option>
+								<option value="output/27MB_TestPattern/images/">27 MB Test Pattern</option>
+								<option value="output/3MB_TestPattern/images/">3 MB Test Pattern</option>
+								<option value="output/50KB_TestPattern/images/">50 KB Test Pattern</option>
+								<option value="output/megabase/images/megabase.fa_linear_c1_Reference_fix_sci.png" >Megabase</option>
+								<option value="output/Brown_Kiwi_NW_013982187v1/images/Brown_Kiwi_NW_013982187v1.fa_linear_c111_Reference_fix_sci.png">Brown Kiwi</option>
+								<option value="calibration/AminoSee_Calibration_reg_linear_8.png">AminoSee Calibration Large</option>
+								<option value="calibration/AminoSee_Calibration_reg_linear_2.png">AminoSee Calibration Small</option>
+								<option value="output/Caenorhabditisel.dna_sm.toplevel/images/Caenorhabditisel.dna_sm.toplevel.fa_linear_c7_Reference_fix_sci.png">C.elegans</option>
+								<option value="public/seenoevilmonkeys.jpg">AminoSeeNoEvil Monkeys</option>
+								<option value="/images/nav/funk-logo-140px.png" selected>Funk Logo 140px</option>
+							</select>
 						</form>
+					</div>
+					<div>
 
-						<p class="hidable" style="background-color: black; color: white;">
+						<p class="hidable button dark">
 							<a href="output" class="button hidable">2D IMAGE RENDERS</a> |
 							<a href="/pdf/AminoSee_WhitePaper_09Jan2019.pdf" class="button hidable">WHITE PAPER PDF</a> |
 							<a href="/blog/news/aminosee-dna-visualisation" class="button hidable">2018 Press Release</a> |
@@ -91,88 +95,88 @@
 							<br />
 						</p>
 					</div>
+
+
+
+
+					<div id="butbar" class="grid monkeystyle" onclick="resume()" style="text-align: center; width: 100%;">
+						<div id="fileheader">
+							<label class="custom-file-upload">
+								Custom Upload
+								<input type="file" id="choosefiles" name="file" value="example-sequence.fa" multiple /></label>
+								<input disabled type="button" id="cancel" class="fineprint small hidden" name="cancel" value="Cancel" onclick="cancel()">
+								<span class="fineprint whitetext">Any ASCII text file containing DNA or RNA sequences in first 1k</span>
+								<br />
+								Hire Me: <a href="https://tomachi.co/about/hire-me">for recruiters</a>
+								<output id="list"></output>
+							</div>
+
+							<br>
+							<div style="width: 100%;">
+								<input type="button" name="lessdetail" value="Less Detail [-]" onclick="lessdetail()" title="Less detail" >
+								<input type="button" name="moredetail" value="More Detail [+]" onclick="moredetail()" title="More detail" >
+								<input type="button" id="pause" name="pause" value="Pause [P]" onclick="togglePause()" >
+								<input type="button" id="spin" name="spin" value="Stop Rotate [R]" onclick="toggleSpin()" >
+								<input type="button" id="amongst" name="amongst" value="Get Amoungst It [G]" onclick="getAmongstIt()" title="Put the camera wang in the middle o dat dere" >
+								<input type="button" id="perspective" name="perspective" value="Perspective [V]iew" onclick="toggleView()" >
+								<input type="button" id="reset" name="reset" value="Reset [U]" onclick="reset()" >
+								<input type="button" id="testcolour" name="testcolour" value="Test Colours [T]" onclick="testColour()" >
+								<input type="button" id="loadImage" name="loadImage" value="Load Image [L]" onclick="loadImage()" >
+								<!-- <input disabled type="button" id="fileupload" name="fileupload" value="Upload DNA (soon)" onclick="//toggleFileUpload()" > -->
+								<br>
+								<input type="button" class="tinyButton flex-item" name="A" value="Left [A]" onclick="cursorLeft()">
+								<input type="button" class="tinyButton flex-item" name="W" value="Fwd  [W]" onclick="cursorUp()">
+								<input type="button" class="tinyButton flex-item" name="S" value="Back [S]" onclick="cursorDown()">
+								<input type="button" class="tinyButton flex-item" name="D" value="Right[D]" onclick="cursorRight()">
+								<br>
+								<label class="fineprint whitetext"><input type="checkbox" id="autostop" name="autostop" value="pause after running for 5 minutes" onchange="autostopChanged()" checked>pause after running for 5 minutes</label>
+								<br>
+
+							</div>
+
+
+							<div id="progress_bar" class="">
+								<div class="percent">0%</div>
+							</div>
+							<div id="modalBox" class="hidden">
+								im normally hidden
+								<input type="button" id="modalBoxButton" value="OK [ENTER]">
+							</div>
+							<div class="footer"></div>
+						</div>
+
+
+
+
+					</div>
+
+					<div id="status" class="headingStatus">
+						...loading...
+						<div id="oi">
+							<img id="current_image" src="output/Brown_Kiwi_NW_013982187v1/images/Brown_Kiwi_NW_013982187v1.fa_linear_c111_Reference_fix_sci.png" width="64px" height="64px">
+						</div>
+					</div>
+					<div id="stats" class="stats whitetext">
+						<h6>loading</h6>
+						<pre>
+							...loading...
+						</pre>
+					</div>
 				</div>
 
+				<div id="dark" style="padding: 64px;">
 
 
-				<div id="butbar" class="grid monkeystyle" onclick="resume()" style="text-align: center; width: 100%;">
-					<div id="fileheader">
-						<label class="custom-file-upload">
-							Custom Upload
-							<input type="file" id="choosefiles" name="file" value="example-sequence.fa" multiple /></label>
-							<input disabled type="button" id="cancel" class="fineprint small hidden" name="cancel" value="Cancel" onclick="cancel()">
-							<span class="fineprint whitetext">Any ASCII text file containing DNA or RNA sequences in first 1k</span>
-							<br />
-							Hire Me: <a href="https://tomachi.co/about/hire-me">for recruiters</a>
-							<output id="list"></output>
-						</div>
+					<h1>Welcome to the Amino<span style="color: #888888;">See</span><span style="color: #dddddd;">NoEvil</span> DNA Viewer</h1>
 
-						<br>
-						<div style="width: 100%;">
-							<input type="button" name="lessdetail" value="Less Detail [-]" onclick="lessdetail()" title="Less detail" >
-							<input type="button" name="moredetail" value="More Detail [+]" onclick="moredetail()" title="More detail" >
-							<input type="button" id="pause" name="pause" value="Pause [P]" onclick="togglePause()" >
-							<input type="button" id="spin" name="spin" value="Stop Rotate [R]" onclick="toggleSpin()" >
-							<input type="button" id="amongst" name="amongst" value="Get Amoungst It [G]" onclick="getAmongstIt()" title="Put the camera wang in the middle o dat dere" >
-							<input type="button" id="perspective" name="perspective" value="Perspective [V]iew" onclick="toggleView()" >
-							<input type="button" id="reset" name="reset" value="Reset [U]" onclick="reset()" >
-							<input type="button" id="testcolour" name="testcolour" value="Test Colours [T]" onclick="testColour()" >
-							<input type="button" id="loadImage" name="loadImage" value="Load Image [L]" onclick="loadImage()" >
-							<!-- <input disabled type="button" id="fileupload" name="fileupload" value="Upload DNA (soon)" onclick="//toggleFileUpload()" > -->
-							<br>
-							<input type="button" class="tinyButton flex-item" name="A" value="Left [A]" onclick="cursorLeft()">
-							<input type="button" class="tinyButton flex-item" name="W" value="Fwd  [W]" onclick="cursorUp()">
-							<input type="button" class="tinyButton flex-item" name="S" value="Back [S]" onclick="cursorDown()">
-							<input type="button" class="tinyButton flex-item" name="D" value="Right[D]" onclick="cursorRight()">
-							<br>
-							<label class="fineprint whitetext"><input type="checkbox" id="autostop" name="autostop" value="pause after running for 5 minutes" onchange="autostopChanged()" checked>pause after running for 5 minutes</label>
-							<br>
+					<h2 class="dark">
+						try the <a href="output/Brown_Kiwi_NW_013982187v1/" class="black">Brown Kiwi</a>, <a href="output/Caenorhabditisel.dna_sm.toplevel/" style="color: white;" style="color: white;">C.elegans</a>... and now also <a href="output/Sars2-COVID-19WueteGenome-ss-RNA/" style="color: white;">Sars2 COVID-19 ss-RNA</a></h2>
+						* Try using WASD keys to move about.
 
-						</div>
-
-
-						<div id="progress_bar" class="">
-							<div class="percent">0%</div>
-						</div>
-						<div id="modalBox" class="hidden">
-							im normally hidden
-							<input type="button" id="modalBoxButton" value="OK [ENTER]">
-						</div>
-						<div class="footer"></div>
 					</div>
 
 
 
-
-			</div>
-
-			<div id="status" class="headingStatus">
-				...loading...
-				<div id="oi">
-					<img id="current_image" src="output/Brown_Kiwi_NW_013982187v1/images/Brown_Kiwi_NW_013982187v1.fa_linear_c111_Reference_fix_sci.png" width="64px" height="64px">
 				</div>
-			</div>
-			<div id="stats" class="stats whitetext">
-				<h6>loading</h6>
-				<pre>
-					...loading...
-				</pre>
-			</div>
-		</div>
-
-<div id="dark" style="padding: 64px;">
-
-
-<h1>Welcome to the Amino<span style="color: #888888;">See</span><span style="color: #dddddd;">NoEvil</span> DNA Viewer</h1>
-
-		<h2 style="color: white;">
-			try the <a href="output/Brown_Kiwi_NW_013982187v1/" style="color: white;">Brown Kiwi</a>, <a href="output/Caenorhabditisel.dna_sm.toplevel/" style="color: white;" style="color: white;">C.elegans</a>... and now also <a href="output/Sars2-COVID-19WueteGenome-ss-RNA/" style="color: white;">Sars2 COVID-19 ss-RNA</a></h2>
-		* Try using WASD keys to move about.
-
-</div>
-
-
-
-		</div>
-	</body>
-	</html>
+			</body>
+			</html>
