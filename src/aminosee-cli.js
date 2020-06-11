@@ -115,6 +115,8 @@ let brute = false // used while accelerating the render 20x
 webserverEnabled = false
 genomesRendered = [dummyFilename]
 renderLock = false
+isHighlightSet = false
+status = "load"
 module.exports = () => {
   // mode("exports")
   setupApp()
@@ -387,7 +389,9 @@ function pushCli(cs) {
       batchSize = remain
 
       this.dnafile = path.resolve( cfile )
+      // output("setting")
       this.justNameOfDNA = this.genomeCanonicalisaton( this.dnafile )
+      // output(`set to ${this.justNameOfDNA}`)
       this.currentFile = path.resolve(__dirname, "dna" , dummyFilename)
       this.outputPath = path.join( webroot, netFoldername)
       this.imgPath = path.resolve( this.outputPath, this.justNameOfDNA, "images")
@@ -711,12 +715,12 @@ function pushCli(cs) {
         log("will not open folder in File Manager / Finder / File Explorer when done.")
         this.openFileExplorer = false
       }
-      if ( args.help || args.h) {
+      if ( args.help ) {
         this.help = true
         autoStartGui = false
-        setTimeout( () => {
+        // setTimeout( () => {
           this.helpCmd()
-        }, this.raceDelay)
+        // }, this.raceDelay)
       } else {
         this.help = false
       }
@@ -875,7 +879,7 @@ function pushCli(cs) {
       quiet = this.quiet
       bugtxt(`the args -->> ${this.args}`)
 
-      notQuiet(`Output folder:  [ ${ blueWhite( path.normalize( this.outputPath )) } ]`)
+      notQuiet(`Output folder:  ${ blueWhite( path.normalize( this.outputPath )) }`)
 
 
       remain = args._.length
@@ -895,6 +899,7 @@ function pushCli(cs) {
 
               if ( webserverEnabled ) {
                 server.stop()
+                output()
                 output(`Starting mini server at: ${ webroot } `)
                 output(`Using URL: ${ chalk.underline( url )}`)
                 this.setupKeyboardUI()
@@ -1315,6 +1320,10 @@ function pushCli(cs) {
       // listen for the "keypress" event
       process.stdin.on("keypress", function (ch, key) {
         // term.down(1)
+        if ( typeof key === "undefined") {
+          log("undefined key")
+          return
+        }
         out(`got keypress: ${ chalk.inverse( key.name )}`)
 
         if ( key ) {
@@ -1757,12 +1766,13 @@ function pushCli(cs) {
         return false
       }
       if (!this.checkFileExtension( this.dnafile )) {
-        let msg = maxWidth( tx/2, `${ batchProgress() } wrong file extension. ${this.dnafile}. Must be one of ${ extensions }`)
-        if ( this.verbose ) {
-          redoline(msg)
-        } else {
-          notQuiet( msg )
-        }
+        let msg = `${ batchProgress() } wrong file extension: ${this.dnafile}. Must be one of ${ extensions }`
+        redoline(msg)
+        // if ( this.verbose ) {
+        //   redoline(msg)
+        // } else {
+        //   notQuiet( msg )
+        // }
         if ( remain > 0 && !renderLock) {
           this.fastReset(msg)
         } else {
@@ -2082,7 +2092,7 @@ function pushCli(cs) {
         // var that = this;
         // output(`Started ${ ( this.force ? 'forced ' : '' ) }render of ${this.justNameOfPNG} next is ${this.nextFile}`);
         setTimeout(() => {
-          clearCheck()
+          // clearCheck()
           term.eraseDisplayBelow()
           if ( renderLock == true ) {
             this.manageLocks(fileLockingDelay)
@@ -2224,7 +2234,7 @@ AminoSee version: ${version}`
         }
 
         if ( this.userCPP !== "auto" ) {
-          output(`Manual zoom level override enabled at: ${ this.userCPP } codons per pixel.`)
+          log(`Manual zoom level override enabled at: ${ this.userCPP } codons per pixel.`)
           this.codonsPerPixel = this.userCPP
         } else {
           log("Automatic codons per pixel setting")
@@ -2469,7 +2479,7 @@ AminoSee version: ${version}`
 
       helpCmd() {
         mode("Showing help command --help")
-        termDrawImage( path.resolve(__filename, "src", "public", "512_icon.png"), "--help section", () => {
+        // termDrawImage( path.resolve(__filename, "src", "public", "512_icon.png"), "--help section", () => {
           output( blueWhite( chalk.bold.italic("Welcome to the AminoSee DNA Viewer!")))
           output(siteDescription)
           output(chalk.bgBlue ("USAGE:"))
@@ -2478,8 +2488,6 @@ AminoSee version: ${version}`
           output("wget https://www.funk.co.nz/aminosee/dna/megabase.fa")
           output("This CLI is to convert sequence found in ASCII/RTF-8 text files - tested with .mfa .fa .gbk up to  into .png graphics. works with .mfa .fa .gbk DNA text files. It's been tested with files up to 3 GB, and uses asynchronous streaming architecture! Pass the name of the DNA file via command line, and it will put the images in a folder called 'output' in the same folder.")
           output(chalk.bgBlue ("HELP:"))
-          output("Author:         tom@funk.co.nz or +64212576422")
-          output("calls only between 2pm and 8pm NZT (GMT+11hrs)")
           output("Author:         tom@funk.co.nz or +64212576422")
           output("calls only between 2pm and 8pm NZT (GMT+11hrs)")
           output(chalk.bgBlue ("SUPPORT:"))
@@ -2491,7 +2499,7 @@ AminoSee version: ${version}`
           output("  --triplet=[ATCGU]..   -t=GGG            any 3 nucleotides")
           output("  --codons [1-999] -c2       reduce detail to half size res")
           output("  --codons [1-999] -c100         packs 100 codons per pixel")
-          output("  -- magnitude [0-8] -m9 crashes my mac 4096x4096 -m8 maximum 2048x2048 resolution")
+          output("  --magnitude [0-8] -m9 crashes my mac 4096x4096 -m8 maximum 2048x2048 resolution")
           output(chalk.bgBlue ("FLAGS:"))
           output("  --ratio=[square|golden|fixed] fixed is default: 960px width variable height aspect")
           output("  --ratio=fix --ratio=golden --ratio=sqr aspect ratio proportions")
@@ -2529,7 +2537,7 @@ AminoSee version: ${version}`
           if ( this.quiet == false) {
             printRadMessage( [ `software version ${version}` ] )
           }
-        })
+        // })
 
 
         if ( this.keybaord ) {
@@ -2545,12 +2553,14 @@ AminoSee version: ${version}`
           // }
           // countdown('Press [Q] to quit this.now, [S] to launch a web server in background thread or wait ', 15000, blockingServer());
           // countdown('Press [S] to launch a web server in background thread or quit in ', 4000);
-          setTimeout( () => {
-            countdown("Closing in " , 6000, () => {
-              this.quit(1,"Help")
-            } )
-          }, 4000)
+          // setTimeout( () => {
+          //   countdown("Closing in " , 6000, () => {
+          //     this.quit(1,"Help")
+          //   } )
+          // }, 4000)
         }
+        this.quit(1,"Help")
+
       }
 
       mkRenderFolders(reason) {
@@ -2568,7 +2578,7 @@ AminoSee version: ${version}`
         // }
 
         output()
-        output(chalk.bold(`Render Filenames for ${ this.justNameOfDNA}:`))
+        log(chalk.bold(`Render Filenames for ${ this.justNameOfDNA}:`))
         output(chalk.rgb(255, 255, 255).inverse(    fixedWidth( this.colDebug*2,  `Input DNA File: ${ path.normalize( this.dnafile )}`)))
         output(chalk.rgb(200,200,200).inverse(      fixedWidth( this.colDebug*2,  `Linear PNG: ${ this.justNameOfPNG }`)))
         output(chalk.rgb(150,150,150).inverse(      fixedWidth( this.colDebug*2,  `Hilbert PNG: ${ this.justNameOfHILBERT }`)))
@@ -2673,8 +2683,7 @@ AminoSee version: ${version}`
         mode("main render async.series")
         this.saveHTML( () => {
           // this.postRenderPoll()
-          output( "Saving complete............... next: " + cliInstance.nextFile )
-
+          redoline( "Saving complete............... next: " + cliInstance.nextFile )
         })
 
         this.savePNG( this.saveHilbert( ))
@@ -2731,7 +2740,7 @@ AminoSee version: ${version}`
           this.isDiskFinHTML = true
         }
         if (this.isDiskFinHTML == true ) { // set just above
-          output(`status ${status} not saving`)
+          log(`status ${status} not saving`)
           this.htmlFinished()
           runcb(cb)
           return false
@@ -5098,7 +5107,7 @@ AminoSee version: ${version}`
                   html += `<!-- ${thePep.Codon}  width="20%" height="20%" -->`
                 } else {
                   html += `
-                  <li class="stack" id="stack_${p}" style="${styleLi}">
+                  <li class="stack" id="stack_${p}" style="${styleLi}"  onmouseover="mover(${p})" onmouseout="mout(${p})">
                   {${p}} <a href="images/${src}" title="${name} ${thePep}">${thePep} <br/>
                   <img src="images/${src}" alt="${name} ${thePep}" title="${name}" onmouseover="mover(${p})" onmouseout="mout(${p})" style="${styleImg}"></a>
                   </li>
@@ -5170,18 +5179,21 @@ AminoSee version: ${version}`
 
           }
           function output(txt) {
-            if (typeof txt == "undefined") { txt = " "} else {
+            if (typeof txt === "undefined") { txt = " "} else {
               if ( cliInstance ) {
-                if ( typeof cliInstance.justNameOfPNG == "undefined" ) {
+                if ( typeof cliInstance.justNameOfPNG === "undefined" ) {
                   wTitle(`${  txt }`) // put it on the terminal windowbar or in tmux
                 }
               }
+              // console.log()
             }
             term.eraseLine()
             if ( debug ) {
               bugout( txt )
-            } else {
+            } else if (!this.quiet){
               console.log( txt )
+            } else {
+              process.stdout.write(".")
             }
             term.eraseLine()
           }
@@ -5918,7 +5930,7 @@ AminoSee version: ${version}`
             if (typeof fullpath === "undefined") { fullpath = previousImage }
             if (typeof fullpath === "undefined") { log("not opening"); return false }
             if (typeof reason === "undefined") { reason = "BUG. Reminder: always set a reason" }
-            if ( that.force == true) { return false }
+            // if ( that.force == true) { return false }
             if ( quiet == true ) { out("quiet"); return false }
             term.saveCursor()
             // clearCheck();
@@ -5984,15 +5996,14 @@ AminoSee version: ${version}`
             return [ x, y ]
           }
           function clearCheck() { // maybe clear the terminal
-            if ( this.clear == true) {
+            if ( this.clear === true) {
               term.clear()
               term.eraseDisplayBelow()
             } else {
               term.eraseDisplayBelow()
-              process.stdout.write(" "+ status)
+              // process.stdout.write(" "+ status)
+              // console.log(this.clear + " [c] "+ status)
             }
-            console.log("[c] "+ status)
-
           }
           function stopWork(reason) {
             if (typeof reason === "undefined") { error("You have to give a reason") }
@@ -6002,7 +6013,7 @@ AminoSee version: ${version}`
 
             if ( typeof filename === "undefined" ) {
               filename = __filename //path.resolve( __dirname) // check executable dir
-              log("Found alongside executable: " + filename)
+              // output("Found alongside executable: " + filename)
             } else {
               log( blueWhite(`using: ${filename}`))
             }
@@ -6298,7 +6309,7 @@ AminoSee version: ${version}`
             shrinkFactor = linearpix / hilpix // THE GUTS OF IT
             codonsPerPixelHILBERT = cpp * shrinkFactor
             this.codonsPerPixelHILBERT = codonsPerPixelHILBERT
-            output(`bestFit ${bestFit} shrinkFactor [${shrinkFactor}] codons per pixel [${codonsPerPixelHILBERT}]`)
+            log(`bestFit ${bestFit} shrinkFactor [${shrinkFactor}] codons per pixel [${codonsPerPixelHILBERT}]`)
             return {
               shrinkFactor: shrinkFactor,
               codonsPerPixelHILBERT: codonsPerPixelHILBERT
@@ -6382,7 +6393,8 @@ AminoSee version: ${version}`
             if (cliInstance.quiet == true) {
               process.stdout.write(".")
             } else {
-              output( txt )
+              process.stdout.write(` [${txt}] `)
+              // output( txt )
             }
           }
           function killAllTimers() {

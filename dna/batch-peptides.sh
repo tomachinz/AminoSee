@@ -5,11 +5,11 @@ sleep 2
 aminosee_do () {
 	echo AminoSee batch script
 	echo
-	echo $1 $2 $3 $4 
+	echo $1 $2 $3 $4
 	echo
-  nice -n 4 aminosee -q  --maxpix=5000000 $1 $2 $3 $4 
+  nice -n 4 aminosee -q --maxpix=5000000 $1 $2 $3 $4
 	echo
-	echo just finished: $1 $2 $3 $4 
+	echo just finished: $1 $2 $3 $4
 	echo
 	sleep 1
 }
@@ -17,30 +17,30 @@ aminosee_do () {
 series_peptides () {
   echo $1 $2 $3 $4 START RENDER
 	echo
-  aminosee_do      $1 $2 $3 $4 
-  aminosee_do  --peptide=Glutamic_acid $1 $2 $3 $4 
-  aminosee_do  --peptide=Aspartic_acid $1 $2 $3 $4 
-  aminosee_do  --peptide=Ochre $1 $2 $3 $4 
-  aminosee_do  --peptide=Amber $1 $2 $3 $4 
-  aminosee_do  --peptide=Opal $1 $2 $3 $4 
-  aminosee_do  --peptide=Methionine $1 $2 $3 $4 
-  aminosee_do  --peptide=Cysteine $1 $2 $3 $4 
-  aminosee_do  --peptide=Glycine $1 $2 $3 $4 
-  aminosee_do  --peptide=Alanine $1 $2 $3 $4 
-  aminosee_do  --peptide=Valine $1 $2 $3 $4 
-  aminosee_do  --peptide=Leucine $1 $2 $3 $4 
-  aminosee_do  --peptide=Isoleucine $1 $2 $3 $4 
-  aminosee_do  --peptide=Phenylalanine $1 $2 $3 $4 
-  aminosee_do  --peptide=Proline $1 $2 $3 $4 
-  aminosee_do  --peptide=Tryptophan $1 $2 $3 $4 
-  aminosee_do  --peptide=Serine $1 $2 $3 $4 
-  aminosee_do  --peptide=Threonine $1 $2 $3 $4 
-  aminosee_do  --peptide=Glutamine $1 $2 $3 $4 
-  aminosee_do  --peptide=Asparagine $1 $2 $3 $4 
-  aminosee_do  --peptide=Tyrosine $1 $2 $3 $4 
-  aminosee_do  --peptide=Arginine $1 $2 $3 $4 
-  aminosee_do  --peptide=Lysine $1 $2 $3 $4 
-  aminosee_do  --peptide=Histidine  $1 $2 $3 $4 
+  aminosee_do      $1 $2 $3 $4
+  aminosee_do  --peptide=Glutamic_acid $1 $2 $3 $4
+  aminosee_do  --peptide=Aspartic_acid $1 $2 $3 $4
+  aminosee_do  --peptide=Ochre $1 $2 $3 $4
+  aminosee_do  --peptide=Amber $1 $2 $3 $4
+  aminosee_do  --peptide=Opal $1 $2 $3 $4
+  aminosee_do  --peptide=Methionine $1 $2 $3 $4
+  aminosee_do  --peptide=Cysteine $1 $2 $3 $4
+  aminosee_do  --peptide=Glycine $1 $2 $3 $4
+  aminosee_do  --peptide=Alanine $1 $2 $3 $4
+  aminosee_do  --peptide=Valine $1 $2 $3 $4
+  aminosee_do  --peptide=Leucine $1 $2 $3 $4
+  aminosee_do  --peptide=Isoleucine $1 $2 $3 $4
+  aminosee_do  --peptide=Phenylalanine $1 $2 $3 $4
+  aminosee_do  --peptide=Proline $1 $2 $3 $4
+  aminosee_do  --peptide=Tryptophan $1 $2 $3 $4
+  aminosee_do  --peptide=Serine $1 $2 $3 $4
+  aminosee_do  --peptide=Threonine $1 $2 $3 $4
+  aminosee_do  --peptide=Glutamine $1 $2 $3 $4
+  aminosee_do  --peptide=Asparagine $1 $2 $3 $4
+  aminosee_do  --peptide=Tyrosine $1 $2 $3 $4
+  aminosee_do  --peptide=Arginine $1 $2 $3 $4
+  aminosee_do  --peptide=Lysine $1 $2 $3 $4
+  aminosee_do  --peptide=Histidine  $1 $2 $3 $4
 	echo
   echo $1 $2 $3 $4  END RENDER
 }
@@ -114,7 +114,7 @@ if [ -z "$1" ]; then
 	nice -n 2 aminosee   --maxpix=5000000  --no-html --quiet *  --peptide=Lysine
 	nice -n 2 aminosee   --maxpix=5000000                    *  --peptide=Histidine
   exit
-else 
+else
   series_peptides $1 $2 $3 $4
 fi
 

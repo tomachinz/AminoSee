@@ -5,22 +5,19 @@ echo  "./batch-peptides.sh megabase.fa --force *"
 echo Then you can re-render all but not thrash your CPU
 find . | awk '{sub(/.\//," ")}1'
 NICE=1
-aminosee_do () {
-  sleep 1
-  nice -n $NICE aminosee $1 $2 $3 $4 $5 $6 $7 $8 * &
-  sleep 1
-  nice -n $NICE aminosee --quiet --index -m5 $1 *
 
-}
+./batch-peptides.sh  $1 $2 $3 $4 $5 $6 $7 $8 &
+sleep 2
+ ./batch-peptides.sh  $1 $2 $3 $4 $5 $6 $7 $8 &
+sleep 2
+ ./batch-peptides.sh  $1 $2 $3 $4 $5 $6 $7 $8
 
 
-aminosee_do $1 &
-sleep 2
-aminosee_do $1 &
-sleep 2
-aminosee_do $1 * &
-sleep 2
-aminosee_do $1 $2 $3 $4 $5 $6 $7 $8
+echo
+echo sleeping for an hour and then rendering all in current directory
+echo
+
+sleep 3600
 
 ./batch-peptides.sh * &
 sleep 2
@@ -29,4 +26,4 @@ sleep 2
  ./batch-peptides.sh *
 
 
-find -f *.fa *.mfa *.gbk *.txt -exec  aminosee {} $1 $2 $3 $4 $5 $6 $7 $8   \;
+find -f *.fa *.mfa *.gbk *.txt -exec   ./batch-peptides.sh  {}   \;

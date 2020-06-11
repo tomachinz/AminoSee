@@ -30,35 +30,32 @@ let outputPath, filenameServerLock, url, projectprefs, userprefs, port, cliruns,
 setArgs()
 
 module.exports = (options) => {
+	var tcpPortUsed = require("tcp-port-used")
+	fragment = "not-set"
 	port = defaultPort
-	fragment = aminosee.justNameOfDNA
+	// fragment = aminosee.justNameOfDNA
 	process.title = `aminosee.funk.nz_server ${fragment}`
 	setArgs(options);
 	[ userprefs, projectprefs ] = setupPrefs()
 	log(appFilename)
-	// stop()
 
-
-		var tcpPortUsed = require("tcp-port-used")
-		tcpPortUsed.check(port, "127.0.0.1")
-		.then(function(inUse) {
-		    console.log(`tcp-port-used Port ${port} usage: ${inUse}`)
-				if ( inUse == false ) {
-					try {
-						start()
-						return args.openPage
-					} catch(err) {
-						return "port in use" // err
-					}
-
-				} else {
-					output("busy")
-				}
-		}, function(err) {
-		    console.error("tcp-port-used Error on check:", err.message)
+	tcpPortUsed.check(port, "127.0.0.1")
+	.then(function(inUse) {
+		output(`tcp-port-used Port ${port} inUse: ${inUse}`)
+		if ( inUse == false ) {
+			try {
+				start()
+				return args.openPage
+			} catch(err) {
+				return "port in use" // err
+			}
+		} else {
+			output("busy")
+		}
+	}, function(err) {
+		console.error("tcp-port-used Error on check:", err.message)
 		console.log("exit")
-		})
-
+	})
 }
 
 function setArgs( TheArgs ) {
@@ -78,26 +75,16 @@ function setArgs( TheArgs ) {
 			background: false,
 			debug: false
 		}
-		output("using default args")
+		log("using default args")
+		log(`args: ${args.toString()}`)
 
 	} else {
 		args = TheArgs
 		output("using dynamic args")
+		output(`TheArgs: ${TheArgs.toString()}`)
 	}
-	output( TheArgs )
-	// outputPath = args.output
 	filenameServerLock = path.resolve( webroot, "aminosee_server_lock.txt")
-	debug = true
-	// if ( args.debug ) {
-	// 	debug = true
-	// 	log("debug mode ENABLED")
-	// } else {
-	// 	debug = false
-	// 	log( "debug mode DISABLED")
-	// }
-	if ( debug ) {
-		log(`args: ${args.toString()}`)
-	}
+
 }
 function setupPrefs() {
 	let projconf = path.join( webroot, "aminosee_project.conf" )
@@ -153,10 +140,10 @@ function output(txt) {
 	// console.log(chalk.bgBlue(" [ " + txt.substring(0, term.width -10  )+ " ]"))
 }
 /** https://stackoverflow.com/questions/13786160/copy-folder-recursively-in-node-js/26038979
-		* Look ma, it's cp -R.
-		* @param {string} src The path to the thing to copy.
-		* @param {string} dest The path to the new copy.
-		*/
+* Look ma, it's cp -R.
+* @param {string} src The path to the thing to copy.
+* @param {string} dest The path to the new copy.
+*/
 function copyRecursiveSync(src, dest) {
 	log(`Will try to recursive copy from ${src} to ${dest}`)
 	var exists = doesFileExist(src)
@@ -181,7 +168,7 @@ function copyRecursiveSync(src, dest) {
 		fs.readdirSync(src).forEach(function(childItemName) {
 			log(childItemName)
 			copyRecursiveSync(path.join(src, childItemName),
-				path.join(dest, childItemName))
+			path.join(dest, childItemName))
 		})
 	} else {
 		log("making symlink ")
@@ -250,7 +237,7 @@ function selfSpawn() {
 
 function spawnBackground(p) { // Spawn background server
 	let didStart = false
-	if (p !== undefined) { port = p }
+	if (typeof p !== "undefined") { port = p }
 	let options = [ webroot, `-p${port}`, "-o", ( args && args.justNameOfDNA ? args.justNameOfDNA  : "/" ), ( args && args.gzip ? "--gzip" : ""), "-d" ]
 	output(options.toString())
 	output(chalk.yellow(`Starting BACKGROUND web server at ${chalk.underline(getServerURL())}`))
@@ -313,7 +300,7 @@ function foregroundserver() {
 
 
 	try {
-			server.listen(port)
+		server.listen(port)
 		didStart = true
 	} catch(err) {
 		if ( err.indexOf("EADDRINUSE") !== -1 ) {
@@ -392,7 +379,7 @@ function startServeHandler(o, port) {
 		// aminosee.bugtxt(err)
 		return false
 	}
-	output("startServeHandler complete")
+	aminosee.output("startServeHandler complete")
 }
 
 
@@ -495,7 +482,7 @@ function start() { // return the port number
 				open( `${url}/output/${args.currentGenome}`, {wait: false}).then(() => {
 					log("browser closed")
 				}).catch(function () {
-				 })
+				})
 			} else {
 
 			}
@@ -525,14 +512,14 @@ function getServerURL() {
 	// if ( args.devmode ) {
 	// indexfile = "aminosee-web.html"
 	// }
-	fragment = args.justNameOfDNA
-	if (typeof fragment == undefined) {
+	fragment = "not-set"// args.justNameOfDNA
+	if (typeof fragment === "undefined") {
 		fragment = "/"
 	} else {
 		fragment = `/output/${fragment}/${indexfile}`
 	}
 	let serverURL = `http://${internalIp.v4.sync()}:${port}${fragment}`
-	output(`serverURL returns ${serverURL} and fragment ${fragment} the port ${port}  args.justNameOfDNA ${ args.justNameOfDNA }`)
+	output(`serverURL returns ${serverURL} and fragment ${fragment} the port ${port}`)
 
 	if ( serverURL !== url ) {
 		output("Maybe this is a bug, and I am exploring various web servers and runinng multiples in this version, so I got confused. You mite want to set the server URL base with:")
@@ -568,7 +555,7 @@ function symlinkGUI(cb) { // does:  ln -s /Users.....AminoSee/public, /Users....
 	fullSrc = path.normalize( path.resolve(appPath , "node_modules") )
 	fullDest = path.normalize( path.resolve(this.webroot , "node_modules") ) // MOVES INTO ROOT
 	createSymlink(fullSrc, fullDest)
-	if (cb !== undefined) {
+	if (typeof cb !== "undefined") {
 		cb()
 	}
 }
