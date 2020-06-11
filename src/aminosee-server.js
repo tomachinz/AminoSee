@@ -3,14 +3,14 @@ const httpserver = require("http-server") // cant have - in js
 const aminosee = require("./aminosee-cli")
 const data = require("./aminosee-data")
 const doesFileExist   = data.doesFileExist
-const doesFolderExist = data.doesFolderExist
+// const doesFolderExist = data.doesFolderExist
 const createSymlink   = data.createSymlink
 const deleteFile      = data.deleteFile
 const recordFile      = data.recordFile
-const fixedWidth			= aminosee.fixedWidth
+// const fixedWidth			= aminosee.fixedWidth
 const Preferences = require("preferences")
 const chalk = require("chalk")
-const term = require("terminal-kit").terminal
+// const term = require("terminal-kit").terminal
 const path = require("path")
 const os = require("os")
 const spawn = require("cross-spawn")
@@ -19,33 +19,53 @@ const defaulturl = "http://localhost:4321"
 const appFilename = require.main.filename //     /bin/aminosee.js is 11 chars
 const defaultPort = 4321
 const backupPort = 43210
-const useSymlinks = false
+// const useSymlinks = false
 
 let debug = false
 let autoStartGui = false
 let starts = -1
-let outputPath, filenameServerLock, url, projectprefs, userprefs, port, cliruns, gbprocessed, args, theserver, genomes, webroot
+let outputPath, filenameServerLock, url, projectprefs, userprefs, port, cliruns, gbprocessed, args, theserver, genomes, webroot, fragment
+
+
 setArgs()
 
 module.exports = (options) => {
 	port = defaultPort
-	// process.title = "aminosee.funk.nz_server"
+	fragment = aminosee.justNameOfDNA
+	process.title = `aminosee.funk.nz_server ${fragment}`
 	setArgs(options);
 	[ userprefs, projectprefs ] = setupPrefs()
 	log(appFilename)
-	stop() // ironically, guess what we gotta do first?
+	// stop()
 
-	try {
-		start()
-		return args.openPage
-	} catch(err) {
-		return "port in use" // err
-	}
+
+		var tcpPortUsed = require("tcp-port-used")
+		tcpPortUsed.check(port, "127.0.0.1")
+		.then(function(inUse) {
+		    console.log(`tcp-port-used Port ${port} usage: ${inUse}`)
+				if ( inUse == false ) {
+					try {
+						start()
+						return args.openPage
+					} catch(err) {
+						return "port in use" // err
+					}
+
+				} else {
+					output("busy")
+				}
+		}, function(err) {
+		    console.error("tcp-port-used Error on check:", err.message)
+		console.log("exit")
+		})
+
 }
 
 function setArgs( TheArgs ) {
 	webroot = path.resolve( os.homedir(), "AminoSee_webroot")
-	if ( TheArgs === undefined ) {
+	port = defaultPort
+	log("setArgs running")
+	if ( typeof TheArgs === "undefined" ) {
 		args = {
 			verbose: false,
 			webroot: webroot,
@@ -54,30 +74,29 @@ function setArgs( TheArgs ) {
 			openHtml: false,
 			currentURL: "/index.html#shouldnotopen",
 			gzip: true,
+			directoryListing: true,
 			background: false,
 			debug: false
 		}
-		log("using default args")
+		output("using default args")
 
 	} else {
 		args = TheArgs
-		log("using dynamic args")
+		output("using dynamic args")
 	}
-	// output( TheArgs )
-	outputPath = args.output
+	output( TheArgs )
+	// outputPath = args.output
 	filenameServerLock = path.resolve( webroot, "aminosee_server_lock.txt")
-	debug = args.debug
-	if ( args.debug ) {
-		debug = true
-		log("debug mode ENABLED")
-	} else {
-		debug = false
-		log( "debug mode DISABLED")
-	}
+	debug = true
+	// if ( args.debug ) {
+	// 	debug = true
+	// 	log("debug mode ENABLED")
+	// } else {
+	// 	debug = false
+	// 	log( "debug mode DISABLED")
+	// }
 	if ( debug ) {
-		log( "args received: ")
-		console.log( args )
-		log( "args received: ")
+		log(`args: ${args.toString()}`)
 	}
 }
 function setupPrefs() {
@@ -129,8 +148,8 @@ function notQuiet(txt) {
 	log(txt)
 }
 function output(txt) {
-	if ( txt === undefined) {	console.log; return }
-	console.log(txt)
+	if ( typeof txt === "undefined" || !debug ) {	console.log(); return }
+	console.log(`server: ${txt}`)
 	// console.log(chalk.bgBlue(" [ " + txt.substring(0, term.width -10  )+ " ]"))
 }
 /** https://stackoverflow.com/questions/13786160/copy-folder-recursively-in-node-js/26038979
@@ -178,7 +197,8 @@ function buildServer() {
 	data.saySomethingEpic()
 	let sFiles = [
 		{ "source": path.join( appPath, "public" ),                "dest": path.join( webroot , "public"  )},
-		{ "source": path.join( appPath, "aminosee.html"),"dest": path.join( webroot , "index.html")},
+		{ "source": path.join( appPath, "aminosee-web.html"),"dest": path.join( webroot , "index.html")},
+		{ "source": path.join( appPath, "aminosee-web.html"),"dest": path.join( webroot , "404.html")},
 		{ "source": path.join( appPath, "favicon.ico"),  "dest": path.join( webroot , "favicon.ico")}
 	]
 	for (let i=0; i<sFiles.length; i++) {
@@ -192,7 +212,6 @@ function buildServer() {
 
 function selfSpawn() {
 	let didStart = false
-	output(chalk.yellow(`Starting BACKGROUND web server at ${chalk.underline(getServerURL())}`))
 	process.title = "aminosee_evilspawn"
 	log( args )
 	let evilSpawn
@@ -232,7 +251,7 @@ function selfSpawn() {
 function spawnBackground(p) { // Spawn background server
 	let didStart = false
 	if (p !== undefined) { port = p }
-	let options = [ webroot, `-p${port}`, "-o", ( args && args.justNameOfDNA ? args.justNameOfDNA  : "/" ), ( args && args.gzip ? "--gzip" : "") ]
+	let options = [ webroot, `-p${port}`, "-o", ( args && args.justNameOfDNA ? args.justNameOfDNA  : "/" ), ( args && args.gzip ? "--gzip" : ""), "-d" ]
 	output(options.toString())
 	output(chalk.yellow(`Starting BACKGROUND web server at ${chalk.underline(getServerURL())}`))
 	console.log(options)
@@ -270,7 +289,7 @@ function spawnBackground(p) { // Spawn background server
 	return didStart
 }
 function foregroundserver() {
-	process.title = "aminosee.funk.nz_foreground"
+	process.title = "aminosee.funk.nz (server)"
 	let didStart = false
 	// var root = path.join(__dirname)
 	log( `webroot ${webroot}` )
@@ -278,6 +297,7 @@ function foregroundserver() {
 		var server = httpserver.createServer({
 			root: webroot,
 			robots: true,
+			directoryListing: true,
 			headers: {
 				"Access-Control-Allow-Origin": "*",
 				"Access-Control-Allow-Credentials": "true"
@@ -323,8 +343,10 @@ function foregroundserver() {
 				output(`unknown error starting server: ${err}`)
 			}
 		}
+	} else {
+		return args.openPage
 	}
-	return args.openPage
+
 
 	// return server
 
@@ -386,7 +408,7 @@ function stop() {
 		output( chalk.italic( "taskkill /IM 'aminosee.funk.nz_server' /F"))
 	} else {
 		try {
-			spawn("killall", ["aminosee.funk.nz_server", "", "0"], { stdio: "pipe" })
+			spawn("killall", ["aminosee.funk.nz (server)", "", "0"], { stdio: "pipe" })
 		} catch(err) {
 			if ( err.indexOf("ENOENT") !== -1 ) {
 				output("Unable to shutdown server with 'killall aminosee.funk.nz_server' perhaps this is running on windows? Try task manager")
@@ -395,7 +417,7 @@ function stop() {
 			}
 		}
 		try {
-			spawn("killall", ["aminosee.funk.nz_foreground", "", "0"], { stdio: "pipe" })
+			spawn("killall", ["aminosee.funk.nz (server)", "", "0"], { stdio: "pipe" })
 		} catch(err) {
 			if ( err.indexOf("ENOENT") !== -1 ) {
 				output("Unable to shutdown server with 'killall aminosee.funk.nz_server' perhaps this is running on windows? Try task manager")
@@ -429,6 +451,11 @@ function readLockPort(file) {
 }
 
 function start() { // return the port number
+
+
+	output(chalk.yellow(`Starting foreground web server at ${chalk.underline(getServerURL())}`))
+
+
 	starts++
 	if ( starts > 4 ) {
 		output("you seem to be trying to start the server too much. odd.")
@@ -444,30 +471,35 @@ function start() { // return the port number
 	setupPrefs()
 	buildServer()
 	notQuiet(`web root: ${webroot}`)
-	let options = [ webroot, "-p", port, "-o" ]
+	let options = [ webroot, "-p", port, "-o", "--gzip", "-d" ] // -o open -i autoindex
 	// let options = [ webroot , "", "-p", port, "-o" ]
 	if ( serverLock() == true ) {
 		port = readLockPort(filenameServerLock)
 		output(`Server already started, using lock file port of (${port}) from: ${ path.normalize( filenameServerLock )}`)
 		output("Restarting server")
 		deleteFile(filenameServerLock)
-		stop()
+		// stop()
 		port = backupPort
-		foregroundserver()
-		// open( `${url}/output/${args.currentGenome}`, {wait: false}).then(() => {
-		// 	log("browser closed")
-		// }).catch(function () {
-		//  })
+		// foregroundserver()
+
 
 	} else {
 		log("No locks found, starting server ")
-		// stop() // sounds odd, but helps avoid port in use issue :)
 		if ( args.background == true ) {
 			selfSpawn( options )
 		} else {
 			log("Foreground")
 			foregroundserver( options )
-			// spawnBackground() // works great but relies on http-server being installed globally
+			if ( args.html ) {
+				output(`Opening url ${url}`)
+				open( `${url}/output/${args.currentGenome}`, {wait: false}).then(() => {
+					log("browser closed")
+				}).catch(function () {
+				 })
+			} else {
+
+			}
+
 		}
 		log(`filenameServerLock: ${filenameServerLock}`)
 	}
@@ -486,20 +518,22 @@ function error(err) {
 function openPage(relative) {
 	output("Opening page: " + relative)
 }
-function getServerURL(fragment) {
+function getServerURL() {
 
 	let internalIp = require("internal-ip")
 	let indexfile = ""
 	// if ( args.devmode ) {
-	// indexfile = "aminosee.html"
+	// indexfile = "aminosee-web.html"
 	// }
-	if (fragment == undefined) {
+	fragment = args.justNameOfDNA
+	if (typeof fragment == undefined) {
 		fragment = "/"
 	} else {
 		fragment = `/output/${fragment}/${indexfile}`
 	}
 	let serverURL = `http://${internalIp.v4.sync()}:${port}${fragment}`
-	output(`serverURL returns ${serverURL} and also ${url}`)
+	output(`serverURL returns ${serverURL} and fragment ${fragment} the port ${port}  args.justNameOfDNA ${ args.justNameOfDNA }`)
+
 	if ( serverURL !== url ) {
 		output("Maybe this is a bug, and I am exploring various web servers and runinng multiples in this version, so I got confused. You mite want to set the server URL base with:")
 		output(`aminosee --url=${serverURL}`)
@@ -528,8 +562,8 @@ function symlinkGUI(cb) { // does:  ln -s /Users.....AminoSee/public, /Users....
 	fullSrc = path.normalize( path.resolve(appPath , "public") )
 	fullDest = path.normalize( path.resolve(this.webroot , "public") )
 	createSymlink(fullSrc, fullDest)
-	fullSrc = path.normalize( path.resolve(appPath , "aminosee.html") )
-	fullDest = path.normalize( path.resolve(this.webroot , "aminosee.html") ) // Protects users privacy in current working directory
+	fullSrc = path.normalize( path.resolve(appPath , "aminosee-web.html") )
+	fullDest = path.normalize( path.resolve(this.webroot , "index.html") ) // Protects users privacy in current working directory
 	createSymlink(fullSrc, fullDest)
 	fullSrc = path.normalize( path.resolve(appPath , "node_modules") )
 	fullDest = path.normalize( path.resolve(this.webroot , "node_modules") ) // MOVES INTO ROOT

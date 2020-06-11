@@ -16,52 +16,62 @@ html, body, form, input, textarea, a, p, h1, h2, h3, h4, h5, h6, div {
   background-color: #000000;
   margin: 0;
   overflow: hidden;
-  /* background-color: yellow; */
 }
 
-/* body height 100vh width 100vw background transparent radial-gradient(at calc(var(--mouse-x, 0) * 100%) calc(var(--mouse-y, 0) * 100%), yellow, green) no-repeat 0 0 #  */
-/* #stack0images img {
-    position: absolute;
- }*/
- 
-#stack0images ul {
-    position: absolute;
+/* body height 100vh width 100vw background transparent radial-gradient(at calc(var(--mouse-x, 0) * 100%) calc(var(--mouse-y, 0) * 100%), yellow, green) no-repeat 0 0 { */
+body {
+  height: 100vh;
+  width: 100vw;
+  /* background: transparent radial-gradient(at calc(var(--mouse-x, 0) * 100%) calc(var(--mouse-y, 0) * 100%), yellow, green) no-repeat 0 0; */
 }
 
-.stack {
-  /*position: relative;*/
-  /*width: 50%;*/
+#stack_wrapper {
   background-color: #222222;
-  /*top: 50%;*/
-  /*left: 50%;*/
-  /*transform: translate(-50% , -50%) */
-}
-ul.stack {
-  /*visibility: hidden;*/
-  /*display: none;*/
-    list-style: none;     
-
-}
-li.stack {
-  /*visibility: hidden;*/
-  /*display: none;*/
-  list-style: none;     
-
-}
-div.stack {
-  position: aboslute;
-
-}
-
-#stack_0, #stack_1,  #stack_2,  #stack_3,  #stack_4, #stack_5, #stack_6,  #stack_7,  #stack_8,  #stack_9, #stack_10, #stack_11,  #stack_12,  #stack_13,  #stack_14, #stack_15, #stack_16,  #stack_17,  #stack_18,  #stack_19, #stack_20, #stack_21,  #stack_22,  #stack_23,  #stack_24  {
   position: absolute;
-  visibility: visible;
-  /*display: block;*/
-  /*position: relative;*/
-  /*background-color: #222222;*/
-  width: calc(var(--mouse-scale, 128) ) px;
-  height: calc(var(--mouse-scale, 128) ) px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 99%;
+  height: 32px;
+}
 
+#stack0images ul {
+  position: fixed;
+  z-index: 10;
+}
+
+a.stack {
+  text-decoration: none;
+  visibility: hidden;
+  display: none;
+}
+
+ul, li {
+  /*visibility: hidden;*/
+  /*display: none;*/
+  list-style: none;
+}
+
+img.stack {
+  width: calc(var("--mouse-scale", 1)px);
+  height: calc(var("--mouse-scale", 1)px);
+  padding: 16px 16px;
+}
+
+.behind {
+  z-index: -1;
+}
+
+.frontmost {
+  z-index: 6969;
+  background-color: #000000;
+  background-color: rgba(0, 0, 0, 0.7);
+}
+
+#stack_0, #stack_1, #stack_2, #stack_3, #stack_4, #stack_5, #stack_6, #stack_7, #stack_8, #stack_9, #stack_10, #stack_11, #stack_12, #stack_13, #stack_14, #stack_15, #stack_16, #stack_17, #stack_18, #stack_19, #stack_20, #stack_21, #stack_22, #stack_23, #stack_24 {
+  visibility: visible;
+  position: relative;
+  width: calc(var("--mouse-scale", 1)/4)px;
+  height: calc(var("--mouse-scale", 1)/4)px;
 }
 
 input[type=button], input[type=submit], input[type=reset] {
@@ -123,10 +133,9 @@ body {
 }
 
 /* DEBUG */
-div, span {
-  /* border: 1px dotted white; */
-}
-
+/*div, span {*/
+/*border: 1px dotted white; */
+/*}*/
 #supercontainer {
   padding: 0;
   margin: 0 0 0 0;
@@ -204,16 +213,16 @@ form, input, textarea {
 
 #info {
   /* white-space: nowrap; */
-  position: absolute;
+  position: relative;
   /* width: 70%; */
-  /* margin-left: 15%; */
-  margin-right: 15%;
+  margin-left: 5%;
+  margin-right: 5%;
   color: #ffffff;
-  padding: 16px;
+  padding: 32px;
   font-family: Monospace;
-  text-align: right;
+  /* text-align: right; */
   z-index: 10;
-  height: 40%;
+  /* height: 40%; */
 }
 
 #supercontainer {
@@ -266,40 +275,45 @@ form, input, textarea {
   grid-column: span 8;
 }
 
-#butbar {
-  text-align: left;
+#butbar, #butbar div {
+  /*border: 1px dotted white;*/
+  /* background-color: rgb(25, 25, 0); */
+  /* background-color: rgba(255, 255, 0, 0.1); */
+  text-align: center;
   flex-direction: row;
   /* | row-reverse | column | column-reverse; */
-  flex-flow: row wrap;
+  /* flex-flow: row wrap; */
   padding: 0;
   margin: 0;
   list-style: none;
   -ms-box-orient: horizontal;
-  display: -webkit-box;
+  /* display: -webkit-box;
   display: -moz-box;
   display: -ms-flexbox;
   display: -moz-flex;
   display: -webkit-flex;
-  display: flex;
+  display: flex; */
+  /* display: grid; */
 }
 
 /* .tinyButton , , input.tinyButton {
 	font-size: 0.8rem;
 	max-width: 32px;
 } */
-#controls {
+#controls, input.controls {
   position: fixed;
   z-index: 10;
   grid-column: span 8;
   margin-left: 50%;
-  transform: translateX(-50%)
-}
-
-input.controls {
+  transform: translateX(-50%);
   height: 16px;
   top: 32px;
 }
 
+/* {
+  height: 16px;
+  top: 32px;
+} */
 #monkeys img {
   /* max-width: 220px; */
 }
@@ -452,15 +466,13 @@ a:hover {
 }
 
 #monkeys {
-  position: fixed;
   bottom: 0;
   right: 0;
   max-width: 295;
-  z-index: 10;
   background-color: white;
   padding: 16px;
   white-space: nowrap;
-  /* text-align: center; */
+  text-align: center;
 }
 
 #drag-file {
@@ -531,7 +543,7 @@ img {
 }
 
 pre {
-  width: 95%;
+  /* width: 95%; */
   height: 8em;
   font-family: monospace;
   font-size: 0.9em;

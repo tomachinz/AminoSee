@@ -1,5 +1,6 @@
 # AMINOSEE IGNORES
 .DS_Store
+._.DS_Store
 aminosee/
 AminoSee-win.exe
 AminoSee-macos
@@ -30,6 +31,9 @@ AminoSee_Output
 test/reports
 build
 .clinic
+
+# Cypress testing suite
+cypress/videos/*
 
 # Logs
 logs

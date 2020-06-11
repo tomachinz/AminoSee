@@ -162,7 +162,7 @@ async function run() {
 
 	// await app.runCarlo()
 	// await app.load('http://10.0.0.24:43210/public/');
-	// await app.load('public/index.html');
+	// await app.load('public/aminosee-desktop.html');
 	return app
 }
 async function shimyShim(txt) {

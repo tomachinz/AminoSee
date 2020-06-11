@@ -11,7 +11,7 @@ if [ $(uname)=Linux ]; then
   FINDPARAM=" "
 fi
 # COMMAND="find  -f ./output/  | grep -E '_linear_[ABCDEFGHIJKLMNOPQRSTUVWXYZ].*_fix_sci.png' "
-COMMAND=" find  -f ./AminoSee_webroot/output | grep __ | grep linear  "
+COMMAND=" find  -f ./output | grep __ | grep linear  "
 PREVIEW="$COMMAND | xargs $XARGPARAM $ ls -laH $ "
 DELETE="$COMMAND  | xargs $XARGPARAM $ rm -v $ "
 CONFIG="list-of-files-to-be-deleted.txt"
@@ -59,5 +59,5 @@ doit "$COMMAND"
 COMMAND="find -f ./output/ | grep -E 'AminoSee_BUSY_LOCK.*.txt' "
 doit "$COMMAND"
 
-# find  -f ./output/ |   grep -E '_linear_[ABCDEFGHIJKLMNOPQRSTUVWXYZ].*'  | xargs -J $ rm -v $ 
+# find  -f ./output/ |   grep -E '_linear_[ABCDEFGHIJKLMNOPQRSTUVWXYZ].*'  | xargs -J $ rm -v $
 # COMMAND="find -f ./output/ | grep -E 'AminoSee_BUSY_LOCK.*.txt' "

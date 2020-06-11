@@ -2,10 +2,10 @@ OUTPUTFILEMP4="gource.mp4"
 OUTPUTFILEWEBM="gource.webm"
 
 # THIS LAST ABOUT A MINUTE
-COMMAND="gource --date-format '%d / %m / %Y %a' --camera-mode overview -1600x1040 --seconds-per-day 0.26 --auto-skip-seconds 0.1 --max-file-lag 0.1 --background-image src/public/WhitePaper_800px.png --logo src/public/funk-logo-140px.png  --font-size 14 --key --bloom-multiplier 0.01321 --bloom-intensity 1 --background 012345  -e 0.15 --title 'github.com/tomachinz/AminoSee'"
+COMMAND="gource --date-format '%d / %m / %Y %a' --camera-mode overview -1600x1040 --seconds-per-day 0.06 --auto-skip-seconds 5 --max-file-lag 5 --background-image src/public/WhitePaper_800px.png --logo src/public/funk-logo-140px.png  --font-size 14 --key --bloom-multiplier 0.01321 --bloom-intensity 1 --background 012345  -e 0.15 --title 'github.com/tomachinz/AminoSee'"
 
 # TARGETTING 30 SECONDS
-COMMAND="gource --date-format '%d / %m / %Y %a' --camera-mode overview -1600x1040 --seconds-per-day 0.12 --auto-skip-seconds 0.1 --max-file-lag 0.2 --background-image src/public/WhitePaper_800px.png --logo src/public/funk-logo-140px.png  --font-size 14 --key --bloom-multiplier 0.01321 --bloom-intensity 1 --background 012244  -e 0.1 --title 'github.com/tomachinz/AminoSee'"
+# COMMAND="gource --date-format '%d / %m / %Y %a' --camera-mode overview -1600x1040 --seconds-per-day 0.12 --auto-skip-seconds 0.1 --max-file-lag 0.2 --background-image src/public/WhitePaper_800px.png --logo src/public/funk-logo-140px.png  --font-size 14 --key --bloom-multiplier 0.01321 --bloom-intensity 1 --background 012244  -e 0.1 --title 'github.com/tomachinz/AminoSee'"
 
 
 echo About to run...:

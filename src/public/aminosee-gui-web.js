@@ -1,8 +1,8 @@
 // "use strict";
 
-let hilbertPoints, herbs, zoom, progress, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, justNameOfFile, filename, verbose, spline, point, vertices, colorsReady, controlsShowing, devmode, fileUploadShowing, maxcolorpix, nextColors, cpu, subdivisions, userFeedback, contextBitmap, pauseIntent, linewidth, pepTable
+let hilbertPoints, herbs, zoom, progress, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, justNameOfFile, filename, verbose, spline, point, vertices, colorsReady, controlsShowing, devmode, fileUploadShowing, maxcolorpix, nextColors, cpu, subdivisions, userFeedback, contextBitmap, pauseIntent, linewidth, pepTable, isDetailsPage
 let sprites = []
-pauseIntent = false
+pauseIntent = isDetailsPage = false
 maxcolorpix = 262144 // for large genomes
 linewidth = 8;
 ( window.location.toString().indexOf("electron") ==-1 ? isElectron = false : isElectron = true )
@@ -10,7 +10,7 @@ log("Electron mode: " + isElectron + " window.location: " + window.location)
 let autostopdelay = 300000 // ms
 let devautostop = 5000
 let downloaderDisabled
-let levels = 2 // default 2
+let levels = 1 // default 2
 let cubes = 0 // 1 gives just the row of three at bottom. 2 gives two rows for 6 boxes.
 // let cubes = 1; // 1 gives just the row of three at bottom. 2 gives two rows for 6 boxes.
 // let cubes = 2; // 1 gives just the row of three at bottom. 2 gives two rows for 6 boxes.
@@ -35,17 +35,17 @@ const root = document.documentElement
 document.addEventListener("mousemove", evt => {
 	let x = evt.clientX / innerWidth
 	let y = evt.clientY / innerHeight
-	let z = (x+1) * (y+1) * 128
+	let z = (x+0.5) * (y+0.5)
 
 	// x *= 2
 	// y *= 2
 	// x -= 1
-	// y -= 1 
+	// y -= 1
 
 	root.style.setProperty("--mouse-x", x)
 	root.style.setProperty("--mouse-y", y)
 	root.style.setProperty("--mouse-scale", z )
-	console.log(x, y, z)
+	// console.log(x, y, z)
 	let stack = document.getElementById("stackOimages")
 	// stack.style.translate = translateXY(x,y)
 })
@@ -68,40 +68,119 @@ if(window.addEventListener) {
 	window.attachEvent("onload",pageLoaded) //IE
 }
 
+  function handleStart(evt) {
+    evt.preventDefault()
+    console.log("touchstart.")
+    var el = document.getElementById("canvas")
+    // var ctx = el.getContext("2d");
+    var touches = evt.changedTouches
+
+    for (var i = 0; i < touches.length; i++) {
+      console.log("touchstart:" + i + "...")
+      // ongoingTouches.push(copyTouch(touches[i]));
+      // var color = colorForTouch(touches[i]);
+      // ctx.beginPath();
+      // ctx.arc(touches[i].pageX, touches[i].pageY, 4, 0, 2 * Math.PI, false);  // a circle at the start
+      // ctx.fillStyle = color;
+      // ctx.fill();
+      console.log("touchstart:" + i + ".")
+    }
+  }
+  function handleMove(evt) {
+    evt.preventDefault()
+    var el = document.getElementById("canvas")
+    var ctx = el.getContext("2d")
+    var touches = evt.changedTouches
+
+
+		mouseX = evt.clientX - windowHalfX
+		mouseY = evt.clientY - windowHalfY
+
+    for (var i = 0; i < touches.length; i++) {
+      var color = colorForTouch(touches[i])
+      var idx = ongoingTouchIndexById(touches[i].identifier)
+
+      if (idx >= 0) {
+        console.log("continuing touch "+idx)
+        ctx.beginPath()
+        console.log("ctx.moveTo(" + ongoingTouches[idx].pageX + ", " + ongoingTouches[idx].pageY + ");")
+        ctx.moveTo(ongoingTouches[idx].pageX, ongoingTouches[idx].pageY)
+        console.log("ctx.lineTo(" + touches[i].pageX + ", " + touches[i].pageY + ");")
+        ctx.lineTo(touches[i].pageX, touches[i].pageY)
+        ctx.lineWidth = 4
+        ctx.strokeStyle = color
+        ctx.stroke()
+
+        ongoingTouches.splice(idx, 1, copyTouch(touches[i]))  // swap in the new touch record
+        console.log(".")
+      } else {
+        console.log("can't figure out which touch to continue")
+      }
+    }
+  }
+
+  function startup() {
+  var el = document.getElementById("canvas")
+  el.addEventListener("touchstart", handleStart, false)
+  el.addEventListener("touchend", handleEnd, false)
+  el.addEventListener("touchcancel", handleCancel, false)
+  el.addEventListener("touchmove", handleMove, false)
+}
+
+document.addEventListener("DOMContentLoaded", startup)
+
+
 function mover(i) {
+	let id
 	if (i == undefined) {
-		let id = "stack_reference" // reference image
+		id = "stack_reference" // reference image
 	} else {
 		id = "stack_" + i // reference image
 	}
-	console.log(id)
 	let el = document.getElementById(id)
+	console.log(`mover ${i} id ${id} el ${el}`)
+	el.classList.add("frontmost")
+	el.classList.add("blackback")
 	el.style.zIndex = 6969
 }
 
 function mout(i) {
+	let id
 	if (i == undefined) {
-		let id = "stack_reference" // reference image
+		id = "stack_reference" // reference image
 	} else {
 		id = "stack_" + i // reference image
 	}
-	console.log(id)
 	let el = document.getElementById(id)
-	el.style.zIndex = 100 + i
+	// console.log(`mover ${i} id ${id} el ${el}`)
+	el.classList.remove("frontmost")
+	el.classList.remove("blackback")
+	el.style.zIndex =  i - 1
 }
-function fileChanged(f) { // http://127.0.0.1:8888/aminosee/output/Brown_Kiwi_NW_013982187v1/aminosee_histogram.json
-	if (f == undefined) { f = "Brown_Kiwi_NW_013982187v1" }
-	let histoURL = `${urlprefix}${f}aminosee_histogram.json`
+function fileInit(file) {
 	let path = window.location.pathname
-	let newURL = `${path}#?selectedGenome=${f}`
-	// let image = `${f}/images/${justNameOfPNG}`
-	history.pushState(stateObj, justNameOfFile, newURL)
-	document.getElementById("oi").innerHTML = `<img id="current_image" src="${f}" width="64px" height="64px">`
-	// document.getElementById("oi").src = f
+	if (file == undefined) { file = "Brown_Kiwi_NW_013982187v1" }
+	if ( path.indexOf("/output/") !== -1 ) {
+		isDetailsPage = true
+	} else {
+		isDetailsPage = false
+		document.getElementById("oi").innerHTML = `<img id="current_image" src="${file}" width="64px" height="64px">`
 
+	}
+	let histoURL = `${urlprefix}${file}aminosee_histogram.json`
+	// document.getElementById("oi").src = file
+
+	return  loadHistogramJson(histoURL)
+}
+function fileChanged(file) { // http://127.0.0.1:8888/aminosee/output/Brown_Kiwi_NW_013982187v1/aminosee_histogram.json
+	let path = window.location.pathname
+	let newURL = `${path}#?selectedGenome=${file}`
+	// let image = `${file}/images/${justNameOfPNG}`
 	setupFNames()
 	loadImage()
-	let genomeJson = loadHistogramJson(histoURL)
+	history.pushState(stateObj, justNameOfFile, newURL)
+	return fileInit(file)
+	// return  loadHistogramJson(histoURL)
 }
 function loadHistogramJson(histoURL) {
 	let histogramJson
@@ -151,7 +230,7 @@ function toggleDevmode() {
 		togglePause() // done twice to re-trigger the autopause
 	}
 }
-function attachHandlers() {
+function attachHandlers(pepTable) {
 	for (let pepTableIndex = 0; pepTableIndex < pepTable.length;  pepTableIndex++) {
 		let element = document.getElementById(`row_${pepTableIndex}`)
 		element.addEventListener("mouseover", mover)
@@ -159,20 +238,27 @@ function attachHandlers() {
 	}
 }
 function pageLoaded() {
-	// fileChanged("Brown_Kiwi_NW_013982187v1")
+	let json = fileInit("Brown_Kiwi_NW_013982187v1")
 	// fileChanged("output/Brown_Kiwi_NW_013982187v1/images/Brown_Kiwi_NW_013982187v1.fa_linear_c111_Reference_fix_sci.png") // http://localhost:8888/aminosee/output/Brown_Kiwi_NW_013982187v1/images/Brown_Kiwi_NW_013982187v1.fa_linear_c111_Reference_fix_sci.png
-	// loadHistogramJson(urlprefix + 'Brown_Kiwi_NW_013982187v1/aminosee_histogram.json');
-	// attachHandlers()
+	loadHistogramJson("output/Brown_Kiwi_NW_013982187v1/aminosee_histogram.json")
+	attachHandlers(json)
 	initVariables()
-	sceneCameraSetup()
-	setScene()
-	init2D() // has to run after scene created
-	setupFNames()
-	animate()
-	// setupColorPicker();
-	stat("[pageLoaded] Welcome to the Amino See DNA viewer")
-	toggleDevmode()
 
+	if ( isDetailsPage == false ) {
+		sceneCameraSetup()
+		setScene()
+		init2D() // has to run after scene created
+		setupFNames()
+		animate()
+		stat("[pageLoaded] Welcome to the AminoSeeNoEvil DNA viewer")
+		toggleDevmode()
+
+	} else {
+		stat("[details page loaded] Welcome to the AminoSeeNoEvil DNA viewer")
+		loadImage()
+	}
+
+	// setupColorPicker();
 	// parseApache()
 }
 function jsonTest() {
@@ -301,14 +387,6 @@ function getParameterFromURL( param ) { // extract filename to load from url
 	return param
 }
 
-function mover(i) {
-	console.log(`mover ${i}`)
-	document.getElementById(`stack_${i}`).classList.add("frontmost")
-}
-function mout(i) {
-	console.log(`mout ${i}`)
-	document.getElementById(`stack_${i}`).classList.remove("frontmost")
-}
 function setupColorPicker() {
 
 	var cloudCanvas = document.getElementById("cloudCanvas")
@@ -956,8 +1034,13 @@ function toggleControls() {
 		document.getElementById("butbar").style.visibility = "hidden"
 		document.getElementById("description").classList.add("hidden")
 		document.getElementById("description").classList.add("hidden")
-		document.getElementById("monkeys").classList.add("tiny")
-		// document.getElementById('nav').style.visibility = 'hidden';
+		document.getElementById("monkeys").classList.add("hidden")
+		document.getElementById("info").classList.add("hidden")
+		document.getElementById("info").style.visibility = "hidden"
+		document.getElementById("info").style.display = "none"
+
+		// document.getElementById("monkeys").classList.add("tiny")
+		// document.getElementBy('nav').style.visibility = 'hidden';
 		// document.getElementById('description').style.visibility = 'hidden';
 		// document.getElementById('description').style.display = 'none';
 		// document.getElementById('description').classList.remove('hidable');    // document.getElementById('description').classList.remove('hidable');
@@ -971,7 +1054,11 @@ function toggleControls() {
 		document.getElementById("description").classList.remove("hidden")
 		document.getElementById("description").classList.add("hidable")
 		document.getElementById("h2").classList.remove("hidden")
-		document.getElementById("monkeys").classList.remove("tiny")
+		document.getElementById("monkeys").classList.remove("hidden")
+		document.getElementById("info").classList.remove("hidden")
+		document.getElementById("info").style.visibility = "visible"
+		document.getElementById("info").style.display = "block"
+
 		// document.getElementById('description').style.display = 'block';
 		// document.getElementById('description').style.visibility = 'visible';
 		// document.getElementById('nav').style.visibility = 'visible';
