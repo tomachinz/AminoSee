@@ -318,8 +318,9 @@ form, input, textarea {
   /* max-width: 220px; */
 }
 
-#monkeys h1, #monkeys b, #monkeys p, #monkeys h2 {
+#monkeys h1, #monkeys b, #monkeys p, #monkeys h2, #monkeys input, #monkeys textarea, div.monkeys, pre.monkeys, #monkeys pre {
   color: black;
+  background-color: white;
 }
 
 #monkeys.tiny h1, #monkeys.tiny b, #monkeys.tiny p, #monkeys.tiny h2 {

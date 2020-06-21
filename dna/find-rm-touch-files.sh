@@ -1,5 +1,5 @@
 #!/bin/bash
-
+# example: AminoSee_BUSY_LOCK_Pongoabelii._c11__Lysine_fix_sci.txt
 # COMMAND=" find   .  | grep AminoSee_BUSY_LOCK "
 COMMAND=" find   ~/AminoSee_webroot/  | grep AminoSee_BUSY_LOCK "
 PREVIEW="$1 | xargs $XARGPARAM $ ls -laH $ "
@@ -9,18 +9,18 @@ DELETE="$1  | xargs $XARGPARAM $ rm -v $ "
 
 if [ $(uname)=Darwin ]; then
    echo macos
-   find . | grep AminoSee_BUSY_LOCK | xargs -J $ ls -laH $
+   find -f ~/AminoSee_webroot/ | grep AminoSee_BUSY_LOCK | xargs -J $ ls -laH $
    echo "DELETING THE FILES ABOVE IN 7 SECONDS"
    sleep 7
-   find . | grep AminoSee_BUSY_LOCK | xargs -J $ rm -v $
+   find -f ~/AminoSee_webroot/ | grep AminoSee_BUSY_LOCK | xargs -J $ rm -v $
 fi
 
 if [ $(uname)=Linux ]; then
   echo linux
-  find   .  | grep AminoSee_BUSY_LOCK  | xargs -I $ ls -laH $
+  find   ~/AminoSee_webroot/  | grep AminoSee_BUSY_LOCK  | xargs -I $ ls -laH $
   echo "DELETING THE FILES ABOVE IN 7 SECONDS"
   sleep 7
-  find   .  | grep AminoSee_BUSY_LOCK  | xargs -I $ rm -v $
+  find   ~/AminoSee_webroot/  | grep AminoSee_BUSY_LOCK  | xargs -I $ rm -v $
 
 fi
 

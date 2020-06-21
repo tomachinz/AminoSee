@@ -271,7 +271,7 @@ function pushCli(cs) {
   class AminoSeeNoEvil {
     constructor(o) { // CLI commands, this.files, *
       if ( typeof o === "undefined" ) {
-        // this.outputPath = locateWebroot()
+        this.outputPath = locateWebroot()
       } else {
         this.outputPath = o
       }
@@ -475,14 +475,17 @@ function pushCli(cs) {
       } else {
         debug = false
       }
-      url = projectprefs.aminosee.url
-      if ( typeof url === "undefined" ) {
-        url = `http://${hostname}:4321`
-      }
+
       if ( args.url ) {
         url = args.url
         projectprefs.aminosee.url = url
       }
+      url = projectprefs.aminosee.url
+      if ( typeof url === "undefined" ) {
+        url = `http://${hostname}:4321`
+      }
+      output(`Setting project preferences to: ${url} but projectprefs.aminosee.url ${projectprefs.aminosee.url}`)
+
       if ( args.progress ) {
         this.updateProgress = true // whether to show the progress bars
         log("progress bars enabled")
@@ -538,7 +541,7 @@ function pushCli(cs) {
       log(`Browser set to ${ this.browser } options: --chrome --firefox --safari`)
       if ( args.image || args.i ) {
         this.openImage = true
-        log("will automatically open image")
+        output("will automatically open image")
       } else {
         log("will not open image")
         this.openImage = false
@@ -626,7 +629,7 @@ function pushCli(cs) {
         if ( this.peptide !== "Reference"  ) { // this colour is a flag for  this.error
           isHighlightSet = true
           this.index = false // disable html report
-          output(blueWhite(`Custom peptide: ${ this.usersPeptide } using ${ this.peptide }`))
+          log(blueWhite(`Custom peptide: ${ this.usersPeptide }`))
         } else {
           output(blueWhite(`Sorry, could not lookup users peptide: ${ this.usersPeptide } using ${ this.peptide }`))
         }
@@ -640,7 +643,7 @@ function pushCli(cs) {
         this.index = true // disable html report
         this.report = true
       } else {
-        output(`Peptide  ${ chalk.inverse(this.focusPeptide) } triplet ${ chalk.inverse( this.triplet )}`)
+        // output(`Peptide  ${ chalk.inverse(this.focusPeptide) } triplet ${ chalk.inverse( this.triplet )}`)
         isHighlightSet = true
         this.index = false // disable html report
         this.report = false
@@ -902,6 +905,7 @@ function pushCli(cs) {
                 output()
                 output(`Starting mini server at: ${ webroot } `)
                 output(`Using URL: ${ chalk.underline( url )}`)
+                projectprefs.aminosee.url = url
                 this.setupKeyboardUI()
                 autoStartGui = false
                 // output(`Server running at: ${ chalk.underline( url ) } to stop use: aminosee --stop `)
@@ -1606,11 +1610,11 @@ function pushCli(cs) {
 
 
     storage() {
-      // return `${(isDiskFinLinear ? 'Linear ' : '')} ${(isDiskFinHilbert ? 'Hilbert ' : '')} ${(isDiskFinHTML ? 'HTML ' : '' )}`;
       return `${( !this.isDiskFinLinear ? "Linear" : "OK ")} ${( !this.isDiskFinHilbert ? "Hilbert" : "OK ")} ${( !this.isDiskFinHTML ? "HTML" : "OK " )}`
     }
 
     setNextFile() {
+      procTitle("init")
       try {
         this.nextFile = this.args._[1] // not the last but the second to last
       } catch(e) {
@@ -1831,16 +1835,21 @@ function pushCli(cs) {
       }
       if (doesFileExist(this.filePNG)) {
         log(`isStorageBusy ${this.isStorageBusy} Storage: [${this.isStorageBusy}]`)
-        termDrawImage(this.filePNG, "Done! ")
-        let msg = `Already rendered image: ${  maxWidth(tx / 3, this.filePNG)}.`
+        termDrawImage(this.filePNG, "linear render previously done", () => {
+          let msg = `Already rendered image: ${  maxWidth(tx / 3, path.basename(this.filePNG))}.`
+          if ( this.force == false ) {
+            this.openOutputs()
+            this.slowSkipNext(msg)
+            return false
+          } else {
+            msg += " But lets render it again anyway...?!"
+          }
+          output(msg)
+        })
         if ( this.force == false ) {
-          this.openOutputs()
-          this.slowSkipNext(msg)
-          return false
-        } else {
-          msg += " But lets render it again anyway...?!"
-        }
-        output(msg)
+        return false
+      }
+
       }
 
       // setTimeout( () => {
@@ -2052,7 +2061,6 @@ function pushCli(cs) {
           let pep = this.pepTable[ p ]
           let currentLinearArray  =  this.pepTable[ p ].lm_array
           let currentHilbertArray =  this.pepTable[ p ].hm_array
-          // saveLinearPNG();
 
           mode("disk storm " + p)
           let pixels, width, height = 0
@@ -2479,7 +2487,9 @@ AminoSee version: ${version}`
 
       helpCmd() {
         mode("Showing help command --help")
-        // termDrawImage( path.resolve(__filename, "src", "public", "512_icon.png"), "--help section", () => {
+        const image = path.resolve(path.dirname(__filename), "public", "favicon.png")
+        output(`image: ${image}` )
+        termDrawImage( image , "--help section", () => {
           output( blueWhite( chalk.bold.italic("Welcome to the AminoSee DNA Viewer!")))
           output(siteDescription)
           output(chalk.bgBlue ("USAGE:"))
@@ -2537,7 +2547,7 @@ AminoSee version: ${version}`
           if ( this.quiet == false) {
             printRadMessage( [ `software version ${version}` ] )
           }
-        // })
+        })
 
 
         if ( this.keybaord ) {
@@ -2814,7 +2824,7 @@ AminoSee version: ${version}`
               try {
                 fs.utimesSync( file, tomachisBirthday, tomachisBirthday ) //
               } catch( err ) {
-                output(`Unknown error: ${blueWhite( err )}`)
+                output(`Unknown error setting utimesSync: ${file}, ${tomachisBirthday}, ${blueWhite( err )}`)
               }
             }
             log("$ " + file)
@@ -2874,9 +2884,9 @@ AminoSee version: ${version}`
           outski,
           cb
         )
-        if ( this.msElapsed > 10000) {
-          termDrawImage( this.filePNG, "lock file")
-        }
+        // if ( this.msElapsed > 10000) {
+        //   termDrawImage( this.filePNG, "lock file")
+        // }
         if ( !this.quiet ) {
           // term.saveCursor()
           // output(chalk.bgWhite.rgb(48,48,64).inverse( this.blurb() ));
@@ -2949,7 +2959,7 @@ AminoSee version: ${version}`
             renderLock = false
             if ( remain > 1) {
               output(` [ Starting another cycle in ${ humanizeDuration( this.raceDelay )}`)
-                var that = this
+                // var that = this
                 setTimeout( () => {
                   if ( renderLock == false ) {
                     output("now")
@@ -2976,14 +2986,14 @@ AminoSee version: ${version}`
               if ( remain < 1) {
                 isShuttingDown = true
               }
-              setTimeout( () => {
+              // setTimeout( () => {
                 let msg = `${batchProgress()} Great success with render of (${this.justNameOfPNG})
                 ${this.justNameOfHILBERT}`
                 notQuiet(msg)
                 saySomethingEpic()
                 renderLock = false
                 this.slowSkipNext(msg)
-              }, this.raceDelay )
+              // }, this.raceDelay )
             }
           } else {
             log(` [ ${reason} wait on storage: ${chalk.inverse( this.storage() )}  ] `)
@@ -4051,7 +4061,7 @@ AminoSee version: ${version}`
               // this.isDiskFinHTML = true
               // this.isDiskFinLinear = true;
               this.linearFinished()
-              termDrawImage( this.filePNG, "linear curve", cb )
+              // termDrawImage( this.filePNG, "linear curve", cb )
               runcb(cb)
             })
           }).then().catch()
@@ -4497,7 +4507,7 @@ AminoSee version: ${version}`
           this.genomeSize =  this.baseChars
           this.estimatedPixels =  this.baseChars
           this.charClock =  this.baseChars
-          this.pixelClock =  this.baseChars
+          this.pixelClock =  this.baseChars // DURING TEST PIXEL CLOCK = HILBERT CLOCK
           remain = batchSize -  magnitude
           output(`magnitude ${magnitude} remain ${remain} batchSize ${batchSize}`)
           return true
@@ -5926,7 +5936,7 @@ AminoSee version: ${version}`
           })
           function termDrawImage(fullpath, reason, cb) {
             // return true
-            if ( this.quiet || !this.openImage ) { log("not opening"); return false }
+            if ( cliInstance.quiet ) { log("not opening"); return false }
             if (typeof fullpath === "undefined") { fullpath = previousImage }
             if (typeof fullpath === "undefined") { log("not opening"); return false }
             if (typeof reason === "undefined") { reason = "BUG. Reminder: always set a reason" }
@@ -5934,11 +5944,11 @@ AminoSee version: ${version}`
             if ( quiet == true ) { out("quiet"); return false }
             term.saveCursor()
             // clearCheck();
-            output(chalk.inverse("Terminal image: " +  basename(fullpath)))
-            output("Loading image: " +   path.normalize( fullpath ))
+            // output(chalk.inverse("Terminal image: " +  basename(fullpath)))
+            // output("Loading image: " +   path.normalize( fullpath ))
             term.drawImage( fullpath, { shrink: { width: tx * 0.8,  height: ty  * 0.8 } }, () => {
               term.drawImage( fullpath, { shrink: { width: tx * 0.8,  height: ty  * 0.8, left: tx/2, top: ty/2 } }, () => {
-              output(`Terminal image: ${ chalk.inverse(  basename(fullpath) ) } ${ reason}`)
+              output(`Terminal image: ${ chalk.inverse(  path.basename(fullpath) ) } ${ reason}`)
               term.restoreCursor()
               runcb(cb)
             })

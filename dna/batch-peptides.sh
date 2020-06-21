@@ -1,23 +1,24 @@
 #!/bin/sh
 echo input was: $1
 echo
-sleep 2
+# sleep 2
 aminosee_do () {
-	echo AminoSee batch script
+	echo AminoSee batch script with seven parameters
 	echo
-	echo $1 $2 $3 $4
+	echo $1 $2 $3 $4 $5 $6 $7
 	echo
-  nice -n 4 aminosee -q --maxpix=5000000 $1 $2 $3 $4
+  nice -n 4 aminosee -q --maxpix=5000000 $1 $2 $3 $4 $5 $6 $7
 	echo
-	echo just finished: $1 $2 $3 $4
+	echo Batch Peptides Script Finished: $1 $2 $3 $4 $5 $6 $7
 	echo
 	sleep 1
 }
 
 series_peptides () {
-  echo $1 $2 $3 $4 START RENDER
+	echo START RENDER with four parameters:
+	echo $1 $2 $3 $4
 	echo
-  aminosee_do      $1 $2 $3 $4
+  aminosee_do  --index    $1 $2 $3 $4
   aminosee_do  --peptide=Glutamic_acid $1 $2 $3 $4
   aminosee_do  --peptide=Aspartic_acid $1 $2 $3 $4
   aminosee_do  --peptide=Ochre $1 $2 $3 $4
@@ -42,7 +43,6 @@ series_peptides () {
   aminosee_do  --peptide=Lysine $1 $2 $3 $4
   aminosee_do  --peptide=Histidine  $1 $2 $3 $4
 	echo
-  echo $1 $2 $3 $4  END RENDER
 }
 
 find_way_peptides () {
@@ -58,28 +58,28 @@ find_way_peptides () {
     DASHF=" "
   fi
   find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee --maxpix=5000000                    $1 $2 $3 $4 $5 $6 $7 "{}" \;
-  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee --maxpix=5000000--quit --peptide=Glutamic_acid $1 $2 $3 $4 $5 $6 $7 "{}" \;
-  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee --maxpix=5000000--quit --peptide=Aspartic_acid $1 $2 $3 $4 $5 $6 $7 "{}" \;
-  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee --maxpix=5000000--quit --peptide=Ochre $1 $2 $3 $4 $5 $6 $7 "{}" \;
-  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee --maxpix=5000000--quit --peptide=Amber $1 $2 $3 $4 $5 $6 $7 "{}" \;
-  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee --maxpix=5000000--quit --peptide=Cysteine $1 $2 $3 $4 $5 $6 $7 "{}" \;
-  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee --maxpix=5000000--quit --peptide=Glycine $1 $2 $3 $4 $5 $6 $7 "{}" \;
-  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee --maxpix=5000000--quit --peptide=Alanine $1 $2 $3 $4 $5 $6 $7 "{}" \;
-  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee --maxpix=5000000--quit --peptide=Methionine $1 $2 $3 $4 $5 $6 $7 "{}" \;
-  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee --maxpix=5000000--quit --peptide=Valine $1 $2 $3 $4 $5 $6 $7 "{}" \;
-  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee --maxpix=5000000--quit --peptide=Leucine $1 $2 $3 $4 $5 $6 $7 "{}" \;
-  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee --maxpix=5000000--quit --peptide=Isoleucine $1 $2 $3 $4 $5 $6 $7 "{}" \;
-  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee --maxpix=5000000--quit --peptide=Phenylalanine $1 $2 $3 $4 $5 $6 $7 "{}" \;
-  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee --maxpix=5000000--quit --peptide=Tryptophan $1 $2 $3 $4 $5 $6 $7 "{}" \;
-  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee --maxpix=5000000--quit --peptide=Serine $1 $2 $3 $4 $5 $6 $7 "{}" \;
-  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee --maxpix=5000000--quit --peptide=Threonine $1 $2 $3 $4 $5 $6 $7 "{}" \;
-  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee --maxpix=5000000--quit --peptide=Opal $1 $2 $3 $4 $5 $6 $7 "{}" \;
-  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee --maxpix=5000000--quit --peptide=Glutamine $1 $2 $3 $4 $5 $6 $7 "{}" \;
-  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee --maxpix=5000000--quit --peptide=Asparagine $1 $2 $3 $4 $5 $6 $7 "{}" \;
-  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee --maxpix=5000000--quit --peptide=Tyrosine $1 $2 $3 $4 $5 $6 $7 "{}" \;
-  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee --maxpix=5000000--quit --peptide=Arginine $1 $2 $3 $4 $5 $6 $7 "{}" \;
-  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee --maxpix=5000000--quit --peptide=Lysine $1 $2 $3 $4 $5 $6 $7 "{}" \;
-  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee --maxpix=5000000--quit --peptide=Histidine $1 $2 $3 $4 $5 $6 $7 "{}" \;
+  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee --maxpix=5000000 --peptide=Glutamic_acid $1 $2 $3 $4 $5 $6 $7 "{}" \;
+  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee --maxpix=5000000 --peptide=Aspartic_acid $1 $2 $3 $4 $5 $6 $7 "{}" \;
+  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee --maxpix=5000000 --peptide=Ochre $1 $2 $3 $4 $5 $6 $7 "{}" \;
+  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee --maxpix=5000000 --peptide=Amber $1 $2 $3 $4 $5 $6 $7 "{}" \;
+  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee --maxpix=5000000 --peptide=Cysteine $1 $2 $3 $4 $5 $6 $7 "{}" \;
+  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee --maxpix=5000000 --peptide=Glycine $1 $2 $3 $4 $5 $6 $7 "{}" \;
+  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee --maxpix=5000000 --peptide=Alanine $1 $2 $3 $4 $5 $6 $7 "{}" \;
+  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee --maxpix=5000000 --peptide=Methionine $1 $2 $3 $4 $5 $6 $7 "{}" \;
+  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee --maxpix=5000000 --peptide=Valine $1 $2 $3 $4 $5 $6 $7 "{}" \;
+  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee --maxpix=5000000 --peptide=Leucine $1 $2 $3 $4 $5 $6 $7 "{}" \;
+  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee --maxpix=5000000 --peptide=Isoleucine $1 $2 $3 $4 $5 $6 $7 "{}" \;
+  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee --maxpix=5000000 --peptide=Phenylalanine $1 $2 $3 $4 $5 $6 $7 "{}" \;
+  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee --maxpix=5000000 --peptide=Tryptophan $1 $2 $3 $4 $5 $6 $7 "{}" \;
+  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee --maxpix=5000000 --peptide=Serine $1 $2 $3 $4 $5 $6 $7 "{}" \;
+  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee --maxpix=5000000 --peptide=Threonine $1 $2 $3 $4 $5 $6 $7 "{}" \;
+  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee --maxpix=5000000 --peptide=Opal $1 $2 $3 $4 $5 $6 $7 "{}" \;
+  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee --maxpix=5000000 --peptide=Glutamine $1 $2 $3 $4 $5 $6 $7 "{}" \;
+  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee --maxpix=5000000 --peptide=Asparagine $1 $2 $3 $4 $5 $6 $7 "{}" \;
+  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee --maxpix=5000000 --peptide=Tyrosine $1 $2 $3 $4 $5 $6 $7 "{}" \;
+  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee --maxpix=5000000 --peptide=Arginine $1 $2 $3 $4 $5 $6 $7 "{}" \;
+  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee --maxpix=5000000 --peptide=Lysine $1 $2 $3 $4 $5 $6 $7 "{}" \;
+  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee --maxpix=5000000 --peptide=Histidine $1 $2 $3 $4 $5 $6 $7 "{}" \;
 
   echo FINISHED SERIAL DECODE FOR $1 $2 $3 $4 $5 $6 $7
 }
@@ -87,9 +87,12 @@ find_way_peptides () {
 
 
 if [ -z "$1" ]; then
-  echo usage: ./batch-peptides.sh [ASCII-DNA-File.txt]  or *
+  echo usage: ./batch-peptides.sh [ASCII-DNA-File.txt]
   echo
-	nice -n 1 aminosee   --maxpix=5000000  -q --no-image *
+	echo will now run aminosee batch using the files:
+	echo *
+	echo
+	nice -n 1 aminosee   --maxpix=5000000  --index -q *
 	nice -n 2 aminosee   --maxpix=5000000  --no-html --quiet *  --peptide=Glutamic_acid
 	nice -n 2 aminosee   --maxpix=5000000  --no-html --quiet *  --peptide=Aspartic_acid
 	nice -n 2 aminosee   --maxpix=5000000  --no-html --quiet *  --peptide=Ochre
@@ -117,40 +120,3 @@ if [ -z "$1" ]; then
 else
   series_peptides $1 $2 $3 $4
 fi
-
-
-# THIS HELPS DUE TO * PASSING MORE THAN 9 FILES INTO THE BATCH
-
-
-
-asterix_peptides () {
-  # echo "                                         =///"
-  # echo "-------------------------------------------"
-  echo STARTING MULTI-THREAD DECODE FOR $1 $2 $3 $4 $5 $6 $7
-  # echo "-------------------------------------------"
-
-  nice -n 1 aminosee   --maxpix=5000000  *   $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 $13 $14 $15 $16
-  nice -n 2 aminosee   --maxpix=5000000  --no-html --quiet *  --peptide=Glutamic_acid $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 $13 $14 $15 $16
-  nice -n 2 aminosee   --maxpix=5000000  --no-html --quiet *  --peptide=Aspartic_acid $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 $13 $14 $15 $16
-  nice -n 2 aminosee   --maxpix=5000000  --no-html --quiet *  --peptide=Ochre $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 $13 $14 $15 $16
-  nice -n 2 aminosee   --maxpix=5000000  --no-html --quiet *  --peptide=Amber $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 $13 $14 $15 $16
-  nice -n 2 aminosee   --maxpix=5000000  --no-html --quiet *  --peptide=Opal $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 $13 $14 $15 $16
-  nice -n 2 aminosee   --maxpix=5000000  --no-html --quiet *  --peptide=Methionine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 $13 $14 $15 $16
-  nice -n 2 aminosee   --maxpix=5000000  --no-html --quiet *  --peptide=Cysteine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 $13 $14 $15 $16
-  nice -n 2 aminosee   --maxpix=5000000  --no-html --quiet *  --peptide=Glycine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 $13 $14 $15 $16
-  nice -n 2 aminosee   --maxpix=5000000  --no-html --quiet *  --peptide=Alanine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 $13 $14 $15 $16
-  nice -n 2 aminosee   --maxpix=5000000  --no-html --quiet *  --peptide=Valine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 $13 $14 $15 $16
-  nice -n 2 aminosee   --maxpix=5000000  --no-html --quiet *  --peptide=Leucine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 $13 $14 $15 $16
-  nice -n 2 aminosee   --maxpix=5000000  --no-html --quiet *  --peptide=Isoleucine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 $13 $14 $15 $16
-  nice -n 2 aminosee   --maxpix=5000000  --no-html --quiet *  --peptide=Phenylalanine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 $13 $14 $15 $16
-  nice -n 2 aminosee   --maxpix=5000000  --no-html --quiet *  --peptide=Proline $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 $13 $14 $15 $16
-  nice -n 2 aminosee   --maxpix=5000000  --no-html --quiet *  --peptide=Tryptophan $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 $13 $14 $15 $16
-  nice -n 2 aminosee   --maxpix=5000000  --no-html --quiet *  --peptide=Serine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 $13 $14 $15 $16
-  nice -n 2 aminosee   --maxpix=5000000  --no-html --quiet *  --peptide=Threonine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 $13 $14 $15 $16
-  nice -n 2 aminosee   --maxpix=5000000  --no-html --quiet *  --peptide=Glutamine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 $13 $14 $15 $16
-  nice -n 2 aminosee   --maxpix=5000000  --no-html --quiet *  --peptide=Asparagine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 $13 $14 $15 $16
-  nice -n 2 aminosee   --maxpix=5000000  --no-html --quiet *  --peptide=Tyrosine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 $13 $14 $15 $16
-  nice -n 2 aminosee   --maxpix=5000000  --no-html --quiet *  --peptide=Arginine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 $13 $14 $15 $16
-  nice -n 2 aminosee   --maxpix=5000000  --no-html --quiet *  --peptide=Lysine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 $13 $14 $15 $16
-  nice -n 2 aminosee   --maxpix=5000000                *  --peptide=Histidine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 $13 $14 $15 $16
-}
