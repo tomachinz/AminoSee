@@ -84,7 +84,7 @@
 						</form>
 					</div>
 					<div class="dark">
-						<p class="hidable dark">
+						<p class="hidable dark button" style="background-color: black;">
 							<a href="output">2D IMAGE RENDERS</a> |
 							<a href="/pdf/AminoSee_WhitePaper_09Jan2019.pdf" class="button hidable">WHITE PAPER PDF</a> |
 							<a href="/blog/news/aminosee-dna-visualisation" class="button hidable">2018 Press Release</a> |

@@ -742,7 +742,7 @@ function pushCli(cs) {
         this.serve = true
         this.keyboard = true
         killServersOnQuit = false
-        this.justNameOfPNG = "not rendering - running web server"
+        this.justNameOfPNG = "undefined"
       } else {
         log("Webserver run in foreground, will exit with app, use --serve to spawn background process ")
         this.serve = false
@@ -900,29 +900,29 @@ function pushCli(cs) {
       }
 
 
-              if ( webserverEnabled ) {
-                server.stop()
-                output()
-                output(`Starting mini server at: ${ webroot } `)
-                output(`Using URL: ${ chalk.underline( url )}`)
-                projectprefs.aminosee.url = url
-                this.setupKeyboardUI()
-                autoStartGui = false
-                // output(`Server running at: ${ chalk.underline( url ) } to stop use: aminosee --stop `)
-                // server.setArgs( generateTheArgs() )
-                // this.currentURL = server.foregroundserver()
-                this.currentURL = this.generateURL()
-                // this.currentURL = server.start( generateTheArgs() )
-                try {
-                  server( generateTheArgs() )
-                  // server.start( this.currentURL )
-                } catch (err) {
-                  output(`error starting server: ${fixedWidth(tx/2, err)}`)
-                }
-                webserverEnabled = false
-              } else {
-                log("Not opening webpage")
-              }
+      if ( webserverEnabled ) {
+        server.stop()
+        output()
+        output(`Starting mini server at: ${ webroot } `)
+        output(`Using URL: ${ chalk.underline( url )}`)
+        projectprefs.aminosee.url = url
+        this.setupKeyboardUI()
+        autoStartGui = false
+        // output(`Server running at: ${ chalk.underline( url ) } to stop use: aminosee --stop `)
+        // server.setArgs( generateTheArgs() )
+        // this.currentURL = server.foregroundserver()
+        this.currentURL = this.generateURL()
+        // this.currentURL = server.start( generateTheArgs() )
+        try {
+          server( generateTheArgs() )
+          // server.start( this.currentURL )
+        } catch (err) {
+          output(`error starting server: ${fixedWidth(tx/2, err)}`)
+        }
+        webserverEnabled = false
+      } else {
+        log("Not opening webpage")
+      }
 
       if ( remain > 0 ) {
         mode(remain + " Ω first command Ω ")
@@ -1834,7 +1834,6 @@ function pushCli(cs) {
         return true
       }
       if (doesFileExist(this.filePNG)) {
-        log(`isStorageBusy ${this.isStorageBusy} Storage: [${this.isStorageBusy}]`)
         termDrawImage(this.filePNG, "linear render previously done", () => {
           let msg = `Already rendered image: ${  maxWidth(tx / 3, path.basename(this.filePNG))}.`
           if ( this.force == false ) {
@@ -1910,6 +1909,7 @@ function pushCli(cs) {
     // }
     fastReset(reason){
       mode(`FAST RESET JOB ${batchProgress()} (${ this.storage()} ${ this.busy()}) Reason ${reason} Storage:  current: ${ this.currentFile } next: ${ this.nextFile}`)
+      mode(`${batchProgress()} (Reason ${reason} current: ${ this.currentFile } next: ${ this.nextFile}`)
       status = maxWidth( tx / 2, status)
       if ( renderLock ) { error("draining threads from reset"); return false }
       log( status)
@@ -2156,7 +2156,7 @@ function pushCli(cs) {
 
       }
       showFlags() {
-        return `${(  this.force ? "F" : "-"    )}${( this.updates ? "U" : "-" )}C_${ this.userCPP }${( this.keyboard ? "K" : "-" )}${(  this.dnabg ? "B" : "-"  )}${( this.verbose ? "V" : "-"  )}${(  this.artistic ? "A" : "-"    )}${(  this.args.ratio || this.args.r ? `${ this.ratio }` : "---"    )}${( this.dimension ? "M" + this.dimension : "-")}${( this.reg?"REG":"")} C${ onesigbitTolocale( this.codonsPerPixel )}${( brute ? "BRUTE" : "-" )}${( this.index ? "I" : "-" )}${ this.maxpix.toLocaleString() }`
+        return `${(  this.force ? "F" : "-"    )}${( this.updates ? "U" : "-" )}C_${ this.userCPP }${( this.keyboard ? "K" : "-" )}${(  this.dnabg ? "B" : "-"  )}${( this.verbose ? "V" : "-"  )}${(  this.artistic ? "A" : "-"    )}${(  this.args.ratio || this.args.r ? `${ this.ratio }` : "---"    )}${( this.dimension ? "M" + this.dimension : "-")}${( this.reg?"REG":"")} C${ onesigbitTolocale( this.codonsPerPixel )}${( brute ? "BRUTE" : "-" )}${( this.index ? "I_" : "_" )}${ this.maxpix.toLocaleString() }`
       }
       testSummary() {
         return `TEST
@@ -2549,7 +2549,6 @@ AminoSee version: ${version}`
           }
         })
 
-
         if ( this.keybaord ) {
           this.setupKeyboardUI() // allows fast quit with [Q]
         }
@@ -2582,11 +2581,6 @@ AminoSee version: ${version}`
         bugtxt(`Done making render folders for ${ this.justNameOfDNA} ${reason}`)
       }
       fancyFilenames() {
-        // if ( this.updates ) {
-        // 	term.up(9)
-        // 	term.eraseDisplayBelow()
-        // }
-
         output()
         log(chalk.bold(`Render Filenames for ${ this.justNameOfDNA}:`))
         output(chalk.rgb(255, 255, 255).inverse(    fixedWidth( this.colDebug*2,  `Input DNA File: ${ path.normalize( this.dnafile )}`)))
@@ -2689,7 +2683,7 @@ AminoSee version: ${version}`
         this.prepareHilbertArray()
         this.fancyFilenames()
 
-        printRadMessage("something aint right")
+        // printRadMessage("something aint right")
         mode("main render async.series")
         this.saveHTML( () => {
           // this.postRenderPoll()
@@ -3096,7 +3090,7 @@ AminoSee version: ${version}`
             log("CLI mode clean exit.")
             return true
           } else {
-            log(chalk.bgWhite.red (`Active process.exit going on. last file: ${ this.dnafile } currently: ${this.busy()} percent complete ${  this.percentComplete}`))
+            log(chalk.bgWhite.red ("Goodbye"))
           }
 
           if (remain > 0 ) {
@@ -3465,13 +3459,11 @@ AminoSee version: ${version}`
   <html lang="en">
   <head>
   <meta charset="utf-8"/>
-  <head>
-  <title>${ this.justNameOfDNA} :: AminoSee HTML Report :: DNA Viewer by Tom Atkinson :: ${ this.currentFile }</title>
+  <title>${ this.justNameOfDNA} :: AminoSee HTML Report :: DNA Viewer by Tom Atkinson :: ${ path.basename(this.currentFile) }</title>
   <meta name="description" content="${ siteDescription }">
   <link rel="stylesheet" type="text/css" href="../../public/AminoSee.css">
   <link href='https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz:700,400,200,100' rel='stylesheet' type='text/css'>
   <link href="https://www.funk.co.nz/css/menu.css" rel="stylesheet">
-  <link href="https://www.funk.co.nz/css/funk2019.css" rel="stylesheet">
   <!-- ////////////////////////////////////////
   ${radMessage}
   -->
@@ -3483,16 +3475,7 @@ AminoSee version: ${version}`
   });
   </script>
 
-  <!-- REMOTE LOADED STYLES
-  <script src="https://www.funk.co.nz/aminosee/public/three.min.js"></script>
-  <script src="https://www.funk.co.nz/aminosee/public/jquery.min.js"></script>
-  <script src="https://www.funk.co.nz/aminosee/public/hilbert3D.js"></script>
-  <script src="https://www.funk.co.nz/aminosee/public/hilbert2D.js"></script>
-  <script src="https://www.funk.co.nz/aminosee/public/WebGL.js"></script>
-  <script src="https://www.funk.co.nz/aminosee/public/hammer.min.js"></script>
 
-
-  -->
 
   <script async src="../../public/three.min.js"></script>
   <script async src="../../public/jquery.min.js"></script>
@@ -3507,7 +3490,7 @@ AminoSee version: ${version}`
   padding: 4px;
   </style>
   </head>
-  <body class="dark handylinks">
+  <body class="aminosee">
   <!-- Google Tag Manager -->
   <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-P8JX"
   height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
@@ -3518,7 +3501,7 @@ AminoSee version: ${version}`
   <!-- End Google Tag Manager -->
 
   <nav style="position: relative; padding: 32px;">
-  <div id="handylinks"  style="position: fixed; top: 8px; left: 8px; z-index:9999; background-color: #123456; padding: 16px; margin-bottom: 64px;">
+  <div id="aminosee" class="dark"  style="position: fixed; top: 8px; left: 8px; z-index:9999; background-color: #123456; padding: 16px; margin-bottom: 64px;">
   <a href="../../">AminoSee Home</a> | <a href="../">Parent</a>
   </div>
   </nav>
@@ -3526,10 +3509,26 @@ AminoSee version: ${version}`
   <h2>AminoSee DNA Render Summary for ${ this.currentFile } ${ this.artistc ? "Artistic" : "Science" } render mode</h2>
   <h3>M${this.dimension}C${this.codonsPerPixel}H${onesigbitTolocale( this.codonsPerPixelHILBERT )}</h3>
 
-  <div id="stack_wrapper">
-  ${( this.test ? " this.test " : this.imageStack( histogramJson ))}
+  <div id="render_summary" class="grid-container">
+    <div id="stack_wrapper">
+    ${( this.test ? " this.test " : this.imageStack( histogramJson ))}
+    </div>
+
+    <div class="grid-item 32piximg">
+      <a href="#scrollLINEAR" class="button" title="Click To Scroll Down To See LINEAR"><br />
+        <img id="oi" width="64" height="64" style="border: 4px black; background: black;" src="images/${ this.pepTable[0].linear_master }">
+      1D Linear Map Image
+      </a>
+    </div>
+    <div class="grid-item 32piximg">
+      <a href="#scrollHILBERT" class="button" title="Click To Scroll Down To See 2D Hilbert Map"><br />
+        <img width="64" height="64" style="border: 4px black background: black;" src="images/${ this.pepTable[0].hilbert_master }">
+      2D Hilbert Map Image
+      </a>
+    </div>
   </div>
-  <table style="background-color: white; color: black;">
+
+  <table class="32piximg" style="background-color: white; color: black;">
   <thead>
   <tr class="light">
   <th class="light" >Amino Acid</th>
@@ -3560,14 +3559,14 @@ AminoSee version: ${version}`
             } else {
               html += `
               <!--  onmouseover="mover(this)" onmouseout="mout(this)" -->
-              <tr class="pepTable" id="row_${p}" style="tr { background-color: yellow; } tr:hover { background-color: rgb(${c}); }" onmouseover="mover(${p})" onmouseout="mout(${p})" onclick="mover(${p})">
-              <td style="background-color: white;">${p}. ${ this.pepTable[p].Codon} </td>
+              <tr class="pepTable" id="row_${p}" style="tr { background-color: yellow; } tr:hover { background-color: rgb(${c}); }" onmouseover="mover(${p})" onmouseout="mout(${p})" onclick="mclick(${p})">
+              <td>${p}. ${ this.pepTable[p].Codon} </td>
               <td style="background-color: rgb(${richC});"><p class="fineprint" style="background-color: black; background-color: rgba(0,0,0,0.5); color: white;">${theHue}&#xB0;</p></td>
               <td style="background-color: rgb(${c}); color: black; font-weight: bold; "> <p class="fineprint" style="background-color: white; background-color: rgba(255,255,255,0.5); color: black;">${c}</p></td>
               <td>${ this.pepTable[p].Histocount.toLocaleString()}</td>
               <td>${ this.pepTable[p].Description}</td>
-              <td style="background-color: white; color: black;"><a href="images/${ imghil }" class="button" title="Amino filter: ${ thePep }"  onmouseover="mover(${p})" onmouseout="mout(${p})" style="${style}"><img width="48" height="16" class="blackback" src="images/${ imghil }" alt="${ this.justNameOfDNA } ${ thePep }"></a></td>
-              <!-- <td style="background-color: white;"> <a href="images/${ imglin }" class="button" title="Amino filter: ${ thePep }"><img width="48" height="16" class="blackback" src="images/${ imglin }" alt="${ this.justNameOfDNA } ${ thePep }"></a> </td> -->
+              <td style="background-color: white; color: black; height: 16px;"><a href="images/${ imghil }" class="button" title="Amino filter: ${ thePep }"  onmouseover="mover(${p})" onmouseout="mout(${p})" style="${style}"><img width="32" height="32" class="blackback" src="images/${ imghil }" alt="${ this.justNameOfDNA } ${ thePep }"></a></td>
+              <!-- <td style="background-color: white;"> <a href="images/${ imglin }" class="button" title="Amino filter: ${ thePep }"><img width="32" height="32" class="blackback 32piximg" src="images/${ imglin }" alt="${ this.justNameOfDNA } ${ thePep }"></a> </td> -->
               </tr>
               `
             }
@@ -3584,28 +3583,18 @@ AminoSee version: ${version}`
           </tr>
           </tfoot>
           </table>
-
-          <a href="#scrollLINEAR" class="button" title"Click To Scroll Down To See LINEAR"><br />
-          <img id="oi" width="64" height="64" style="border: 4px black; background: black;" src="images/${ this.pepTable[0].linear_master }">
-          1D Linear Map Image
-          </a>
-
-          <a href="#scrollHILBERT" class="button" title"Click To Scroll Down To See 2D Hilbert Map"><br />
-          <img width="64" height="64" style="border: 4px black background: black;" src="images/${ this.pepTable[0].hilbert_master }">
-          2D Hilbert Map Image
-          </a>
-
+        <div class="grid-container">
+          <div class="grid-item 32piximg">
+            <h2>Render Summary</h2>
+            <pre class="fineprint">
+                ${ this.renderObjToString( histogramJson )}
+            </pre>
+          </div>
+        </div>
           <div id="monkeys">
 
 
-          <div id="render_summary" style="text-align: right; float: right;">
-          <h2>Render Summary</h2>
-          <div class="fineprint">
-          <pre>
-          ${ this.renderObjToString( histogramJson )}
-          </pre>
-          </div>
-          </div>
+
 
 
           <div><a href="http://aminosee.funk.nz/">
@@ -3637,14 +3626,14 @@ AminoSee version: ${version}`
           <h2>Hilbert Projection</h2>
           <a name="scrollHILBERT" ></a>
           This is a curve that touches each pixel exactly once, without crossing over or breaking.
-          <a href="images/${ this.pepTable[0].hilbert_master }" ><img src="images/${ this.pepTable[0].hilbert_master  }" width="99%" height="auto" style="border: 4px black; background: black;" ></a>
+          <a href="images/${ this.pepTable[0].hilbert_master }" ><img src="images/${ this.pepTable[0].hilbert_master  }" style="border: 4px black; background: black;" ></a>
           <br/>
 
           <h2>Linear Projection</h2>
           <a name="scrollLINEAR" ></a>
           The following image is in raster order, top left to bottom right:
           <a name="scrollLINEAR" ></a>
-          <a href="images/${ this.pepTable[0].linear_master }" ><img src="images/${ this.pepTable[0].linear_master  }" width="99%" height="auto" style="border: 4px black; background: black;" ></a>
+          <a href="images/${ this.pepTable[0].linear_master }" ><img src="images/${ this.pepTable[0].linear_master  }" style="border: 4px black; background: black;" ></a>
           <br/>
 
           <h2>About Start and Stop Codons</h2>
@@ -3814,8 +3803,7 @@ AminoSee version: ${version}`
           term.eraseDisplayBelow()
           mode("save hilbert")
           procTitle( `m${ this.dimension } hilbert curve`)
-
-          notQuiet(chalk.bgBlue.yellow( " Getting in touch with my man from 1891...   ॐ    David Hilbert    ॐ    ") )
+          output(chalk.bgBlue.yellow( " Getting in touch with my man from 1891...   ॐ    David Hilbert    ॐ    ") )
           bugtxt( this.justNameOfDNA)
           let hilpix = hilbPixels[ this.dimension ]
 
@@ -4281,21 +4269,21 @@ AminoSee version: ${version}`
             log("Use --html or --image to automatically open files after render, and \"aminosee demo\" to generate this.test pattern and download a 1 MB DNA file from aminosee.funk.nz")
             log(`values of this.openHtml ${ this.openHtml }   this.openImage ${ this.openImage}`)
           }
-          if (  opensFile  > 2) { // notice the s
-            log("no more windows")
-            this.openFileExplorer = false
-            return false
-          }
-          if (  opensImage > 2) {
-            log("no more windows")
-            this.openImage = false
-            return false
-          }
-          if (  opensHtml > 2) {
-            log("no more windows")
-            this.openHtml = false
-            return false
-          }
+          // if (  opensFile  > 2) { // notice the s
+          //   log("no more windows")
+          //   this.openFileExplorer = false
+          //   return false
+          // }
+          // if (  opensImage > 2) {
+          //   log("no more windows")
+          //   this.openImage = false
+          //   return false
+          // }
+          // if (  opensHtml > 2) {
+          //   log("no more windows")
+          //   this.openHtml = false
+          //   return false
+          // }
           if ( opens == 0 ) {
             log(`not opening ${opens} times`)
           } else {
@@ -5099,27 +5087,17 @@ AminoSee version: ${version}`
                 width: calc(${proportion} * ${minimumSize})px;
                 height: calc(${proportion} * ${minimumSize})px;
                 `
-                // style = "border: 1px dashed blue;"
-                // let linear_master =    item.linear_master;
-                // let hilbert_master =    item.hilbert_master;
-                // let linear_preview =    item.linear_master;
-                // let hilbert_preview =    item.hilbert_master;
+              styleLi = styleLi.replace(`
+`, " ")
                 let src = pepTable[p].hilbert_master
-                // this.pepTable[p].hilbert_master = this.aminoFilenameIndex(p)[0]
-                // this.pepTable[p].linear_master = this.aminoFilenameIndex(p)[1]
-                // this.pepTable[ p ].hilbert_preview = this.aminoFilenameIndex( p )[0];
-                // this.pepTable[ p ].linear_preview = this.aminoFilenameIndex( p )[1];
-
-                // let zoom = 3
-                // bugtxt( src );
-                // html +=  ". ";
                 if (thePep == "Start Codons" || thePep == "Stop Codons" || thePep == "Non-coding NNN") {
                   html += `<!-- ${thePep.Codon}  width="20%" height="20%" -->`
                 } else {
                   html += `
-                  <li class="stack" id="stack_${p}" style="${styleLi}"  onmouseover="mover(${p})" onmouseout="mout(${p})">
-                  {${p}} <a href="images/${src}" title="${name} ${thePep}">${thePep} <br/>
-                  <img src="images/${src}" alt="${name} ${thePep}" title="${name}" onmouseover="mover(${p})" onmouseout="mout(${p})" style="${styleImg}"></a>
+                  <li class="stack" id="stack_${p}" onmouseover="mover(${p})" onmouseout="mout(${p})" onclick="mclick(${p})" style="${styleLi}">
+                    {${p}} <a href="images/${src}" title="${name} ${thePep}">${thePep} <br/>
+                      <img src="images/${src}" alt="${name} ${thePep}" title="${name}" onmouseover="mover(${p})" onmouseout="mout(${p})" style="${styleImg}">
+                    </a>
                   </li>
                   `
                 }
@@ -5486,6 +5464,7 @@ AminoSee version: ${version}`
             log( 	blueWhite(`cliruns 		 = ${cliruns}`) )
             log( 	blueWhite(`url 				 = ${url}`) )
             log( 	blueWhite(`gbprocessed = ${gbprocessed}`) )
+
             return [ userprefs, projectprefs ]
           }
           function logo() {
@@ -6362,7 +6341,7 @@ AminoSee version: ${version}`
                 log(blueWhite( "cb is not a function?"))
               }
             } else {
-              log("no cb")
+              // log("no cb")
             }
           }
           function removeNonAscii(str) {
@@ -6375,7 +6354,11 @@ AminoSee version: ${version}`
             return str.replace(/[^\x20-\x7E]/g, "")
           }
           function procTitle( txt ) {
-            process.title = `aminosee.funk.nz (${ maxWidth( 32, txt + " " + cliInstance.justNameOfPNG) + " " + cliInstance.highlightOrNothin()})`
+            if ( typeof cliInstance.justNameOfPNG !== "undefined" && cliInstance.justNameOfPNG !== "unset" ) { // check if not set as a string called unset also
+              process.title = `aminosee.funk.nz (${ maxWidth( 32, txt + " " + cliInstance.justNameOfPNG) + " " + cliInstance.highlightOrNothin()})`
+            } else {
+              process.title = `aminosee.funk.nz (server: ${url})`
+            }
           }
           function removeLocks(lockfile, devmode, cb) { // just remove the lock files.
             mode( "remove locks")

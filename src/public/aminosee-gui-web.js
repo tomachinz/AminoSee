@@ -1,6 +1,6 @@
 // "use strict";
 
-let hilbertPoints, herbs, zoom, progress, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, justNameOfFile, filename, verbose, spline, point, vertices, colorsReady, controlsShowing, devmode, fileUploadShowing, maxcolorpix, nextColors, cpu, subdivisions, userFeedback, contextBitmap, pauseIntent, linewidth, pepTable, isDetailsPage
+let hilbertPoints, herbs, zoom, progress, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, justNameOfFile, filename, verbose, spline, point, vertices, colorsReady, controlsShowing, devmode, fileUploadShowing, maxcolorpix, nextColors, cpu, subdivisions, userFeedback, contextBitmap, pauseIntent, linewidth, pepTable, isDetailsPage, willClear
 let sprites = []
 pauseIntent = isDetailsPage = false
 maxcolorpix = 262144 // for large genomes
@@ -21,6 +21,7 @@ perspective = true
 paused = false
 spinning = true
 colorsReady = false
+willClear = true
 zoom = 2 //  defalt 2
 distance = 900 // default 900
 let stateObj = { txt: "loading..." }
@@ -132,19 +133,25 @@ document.addEventListener("DOMContentLoaded", startup)
 
 function mover(i) {
 	let id
-	if (i == undefined) {
+	if (typeof i === "undefined") {
 		id = "stack_reference" // reference image
 	} else {
 		id = "stack_" + i // reference image
 	}
 	let el = document.getElementById(id)
+	let row = document.getElementById(`row_${i}`)
 	console.log(`mover ${i} id ${id} el ${el}`)
 	el.classList.add("frontmost")
 	el.classList.add("blackback")
 	el.style.zIndex = 6969
+	row.classList.add("dark")
+	row.style.background = "#000000"
+	row.style.color = "white"
+	// row.innerHTML = "gone burger"
 }
 
 function mout(i) {
+	if (!willClear) { willClear = true; return false} // used by onclick
 	let id
 	if (i == undefined) {
 		id = "stack_reference" // reference image
@@ -152,14 +159,25 @@ function mout(i) {
 		id = "stack_" + i // reference image
 	}
 	let el = document.getElementById(id)
-	// console.log(`mover ${i} id ${id} el ${el}`)
+	let row = document.getElementById(`row_${i}`)
 	el.classList.remove("frontmost")
 	el.classList.remove("blackback")
 	el.style.zIndex =  i - 1
+	row.style.background = "white"
+	row.style.color = "black"
+}
+function mclick(i) {
+	// reset all clicked previously
+	for (c=0; c<=23; c++) {
+		mout(c)
+	}
+	console.log(`click ${i}`)
+	willClear = false // keeps the row selected during mouse out
+	mover(i)
 }
 function fileInit(file) {
 	let path = window.location.pathname
-	if (file == undefined) { file = "Brown_Kiwi_NW_013982187v1" }
+	if (file == undefined) { file = "aminosee_histogram.json" }
 	if ( path.indexOf("/output/") !== -1 ) {
 		isDetailsPage = true
 	} else {
@@ -167,12 +185,13 @@ function fileInit(file) {
 		document.getElementById("oi").innerHTML = `<img id="current_image" src="${file}" width="64px" height="64px">`
 
 	}
-	let histoURL = `${urlprefix}${file}aminosee_histogram.json`
+	let histoURL = `${urlprefix}${file}`
 	// document.getElementById("oi").src = file
+	console.log(`click ${histoURL}`)
 
 	return  loadHistogramJson(histoURL)
 }
-function fileChanged(file) { // http://127.0.0.1:8888/aminosee/output/Brown_Kiwi_NW_013982187v1/aminosee_histogram.json
+function fileChanged(file) { // http://127.0.0.1:8888/aminosee/output/Chimp_Clint_chrY/aminosee_histogram.json
 	let path = window.location.pathname
 	let newURL = `${path}#?selectedGenome=${file}`
 	// let image = `${file}/images/${justNameOfPNG}`
@@ -180,15 +199,14 @@ function fileChanged(file) { // http://127.0.0.1:8888/aminosee/output/Brown_Kiwi
 	loadImage()
 	history.pushState(stateObj, justNameOfFile, newURL)
 	return fileInit(file)
-	// return  loadHistogramJson(histoURL)
 }
 function loadHistogramJson(histoURL) {
 	let histogramJson
-	console.log("FETCH") // filename
+	console.log(`FETCH ${histoURL}`) // filename
 	fetch( histoURL )
 		.then(response => response.json())
 		.then(json => {
-			console.log(json)
+			console.log(`results of the fetch ${json}`)
 			histogramJson = json
 			buildPage(histogramJson)
 			return histogramJson
@@ -238,9 +256,8 @@ function attachHandlers(pepTable) {
 	}
 }
 function pageLoaded() {
-	let json = fileInit("Brown_Kiwi_NW_013982187v1")
-	// fileChanged("output/Brown_Kiwi_NW_013982187v1/images/Brown_Kiwi_NW_013982187v1.fa_linear_c111_Reference_fix_sci.png") // http://localhost:8888/aminosee/output/Brown_Kiwi_NW_013982187v1/images/Brown_Kiwi_NW_013982187v1.fa_linear_c111_Reference_fix_sci.png
-	loadHistogramJson("output/Brown_Kiwi_NW_013982187v1/aminosee_histogram.json")
+	let json = fileInit()
+	// fileChanged("output/Chimp_Clint_chrY/images/Chimp_Clint_chrY.fa_linear_c111_Reference_fix_sci.png") // http://localhost:8888/aminosee/output/Chimp_Clint_chrY/images/Chimp_Clint_chrY.fa_linear_c111_Reference_fix_sci.png
 	attachHandlers(json)
 	initVariables()
 
@@ -262,7 +279,7 @@ function pageLoaded() {
 	// parseApache()
 }
 function jsonTest() {
-	fetch("output/Brown_Kiwi_NW_013982187v1/aminosee_histogram.json")
+	fetch("output/Chimp_Clint_chrY/aminosee_histogram.json")
 		.then(function(response) {
 			return response.json()
 		})
@@ -319,7 +336,7 @@ function initVariables() {
 }
 
 function addSpriteToScene(src, zindex) {
-	// var spriteMap = new THREE.TextureLoader().load( "output/Brown_Kiwi_NW_013982187v1/images/Brown_Kiwi_NW_013982187v1.fa_HILBERT__Reference_m7_c397.2.png" );
+	// var spriteMap = new THREE.TextureLoader().load( "output/Chimp_Clint_chrY/images/Chimp_Clint_chrY.fa_HILBERT__Reference_m7_c397.2.png" );
 	console.log(src)
 	var spriteMap = new THREE.TextureLoader().load( src )
 	var spriteMaterial = new THREE.SpriteMaterial( { map: spriteMap, color: 0xffffff } )
@@ -379,9 +396,10 @@ function getParameterFromURL( param ) { // extract filename to load from url
 
 
 	} else {
-		// param = `output/Brown_Kiwi_NW_01398187v1/images/Brown_Kiwi_NW_013982187v1.fa_HILBERT__Reference_m7_c397.2.png`;
-		console.log("no param set in URL")
-		param = "output/Brown_Kiwi_NW_013982187v1/images/Brown_Kiwi_NW_013982187v1.fa_linear_c111_Reference_fix_sci.png"
+		// param = `output/Brown_Kiwi_NW_01398187v1/images/Chimp_Clint_chrY.fa_HILBERT__Reference_m7_c397.2.png`;
+		console.log("no param set in URL, will check current directory")
+
+		param = "output/Chimp_Clint_chrY/images/Chimp_Clint_chrY.gbk_linear_c2_Reference_sqr_sci.png"
 	}
 	console.log(`loading ${param}`)
 	return param

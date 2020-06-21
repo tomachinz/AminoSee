@@ -17,31 +17,31 @@ parallel_peptides () {
   echo STARTING PARALLEL DECODE FOR $1 $2 $3
   echo "-------------------------------------------"
   echo "                                         =///"
-aminosee_do            1 $1 $2 0 $1 $2 $3 $4 &
-aminosee_do_foreground 1 $1 $2 $3 $4 --peptide=Ochre
-aminosee_do            2 $1 $2 $3 $4 --peptide=Glutamic
-aminosee_do_foreground 3 $1 $2 $3 $4 --peptide=Aspartic
-aminosee_do            4 $1 $2 $3 $4 --peptide=Amber
-aminosee_do_foreground 5 $1 $2 $3 $4 --peptide=Cysteine
-aminosee_do            6 $1 $2 $3 $4 --peptide=Glycine
-aminosee_do_foreground 7 $1 $2 $3 $4 --peptide=Alanine
+  aminosee_do            1 $1 $2 0 $1 $2 $3 $4 &
+  aminosee_do_foreground 1 $1 $2 $3 $4 --peptide=Ochre
+  aminosee_do            2 $1 $2 $3 $4 --peptide=Glutamic_acid
+  aminosee_do_foreground 3 $1 $2 $3 $4 --peptide=Aspartic_acid
+  aminosee_do            4 $1 $2 $3 $4 --peptide=Amber
+  aminosee_do_foreground 5 $1 $2 $3 $4 --peptide=Cysteine
+  aminosee_do            6 $1 $2 $3 $4 --peptide=Glycine
+  aminosee_do_foreground 7 $1 $2 $3 $4 --peptide=Alanine
 
-aminosee_do            1 $1 $2 $3 $4 --peptide=Methionine
-aminosee_do            2 $1 $2 $3 $4 --peptide=Valine
-aminosee_do_foreground 3 $1 $2 $3 $4 --peptide=Leucine
-aminosee_do            4 $1 $2 $3 $4 --peptide=Isoleucine
-aminosee_do_foreground 5 $1 $2 $3 $4 --peptide=Phenylalanine
-aminosee_do            6 $1 $2 $3 $4 --peptide=Tryptophan
-aminosee_do            7 $1 $2 $3 $4 --peptide=Serine
-aminosee_do_foreground 8 $1 $2 $3 $4 --peptide=Threonine
+  aminosee_do            1 $1 $2 $3 $4 --peptide=Methionine
+  aminosee_do            2 $1 $2 $3 $4 --peptide=Valine
+  aminosee_do_foreground 3 $1 $2 $3 $4 --peptide=Leucine
+  aminosee_do            4 $1 $2 $3 $4 --peptide=Isoleucine
+  aminosee_do_foreground 5 $1 $2 $3 $4 --peptide=Phenylalanine
+  aminosee_do            6 $1 $2 $3 $4 --peptide=Tryptophan
+  aminosee_do            7 $1 $2 $3 $4 --peptide=Serine
+  aminosee_do_foreground 8 $1 $2 $3 $4 --peptide=Threonine
 
-aminosee_do            1 $1 $2 $3 $4 --peptide=Opal
-aminosee_do_foreground 2 $1 $2 $3 $4 --peptide=Glutamine
-aminosee_do            3 $1 $2 $3 $4 --peptide=Asparagine
-aminosee_do_foreground 4 $1 $2 $3 $4 --peptide=Tyrosine
-aminosee_do            5 $1 $2 $3 $4 --peptide=Arginine
-aminosee_do_foreground 6 $1 $2 $3 $4 --peptide=Lysine
-aminosee_do_foreground 7 $1 $2 $3 $4 --peptide=Histidine
+  aminosee_do            1 $1 $2 $3 $4 --peptide=Opal
+  aminosee_do_foreground 2 $1 $2 $3 $4 --peptide=Glutamine
+  aminosee_do            3 $1 $2 $3 $4 --peptide=Asparagine
+  aminosee_do_foreground 4 $1 $2 $3 $4 --peptide=Tyrosine
+  aminosee_do            5 $1 $2 $3 $4 --peptide=Arginine
+  aminosee_do_foreground 6 $1 $2 $3 $4 --peptide=Lysine
+  aminosee_do_foreground 7 $1 $2 $3 $4 --peptide=Histidine
 
   echo "                                         =///"
   echo "-------------------------------------------"

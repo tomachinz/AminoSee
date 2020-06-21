@@ -25,6 +25,58 @@ body {
   /* background: transparent radial-gradient(at calc(var(--mouse-x, 0) * 100%) calc(var(--mouse-y, 0) * 100%), yellow, green) no-repeat 0 0; */
 }
 
+img.32piximg, img>.32piximg {
+  height: 24px;
+  width: 24px;
+}
+
+body.dark, html.dark, body.aminosee {
+  background-color: #012345;
+  background-image: url("//www.funk.co.nz/gif/bg-big-blue-gradient.gif");
+  background-repeat: repeat-x;
+  color: white;
+  text-decoration-color: white;
+}
+
+#header a:hover, #handylinks a:hover, a:hover.button, .dark>a:hover, #omd a:hover, {
+  text-decoration: underline;
+  background: white;
+  color: black;
+  text-decoration-color: black;
+}
+
+#handylinks a, #buttonlink a, a.button, .aminosee a, .aminosee>a, .button>a {
+  color: white;
+  text-decoration-color: white;
+  background-color: #012345;
+  background-color: rgba(200, 200, 255, 0.125);
+  border-top: 1px solid white;
+  border-radius: 4px;
+  margin: 2px 2px 2px 2px;
+  padding: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 42px;
+}
+
+.small, button.small, form.small, input.small, textarea.small, a.small, p.small, div.small, span.small {
+  margin: 0;
+  padding: 0;
+}
+
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(4, 2fr);
+  grid-column-gap: 32px;
+  grid-template-rows: 40% 60%;
+}
+
+.grid-item {
+  display: inline-grid;
+  grid-column: span 1;
+}
+
 #stack_wrapper {
   background-color: #222222;
   position: absolute;
@@ -150,8 +202,6 @@ form, input, textarea {
   padding: 1px;
   margin: 1px 1px 1px 1px;
 }
-
-#stats pre {}
 
 .small, a.small {
   font-size: 16px;
@@ -544,15 +594,12 @@ img {
 }
 
 pre {
-  /* width: 95%; */
-  height: 8em;
   font-family: monospace;
   font-size: 0.9em;
   padding: 1px 2px;
   margin: 0 0 1em auto;
   border: 1px inset #666;
-  background-color: #eee;
-  overflow: auto;
+  overflow: scroll;
 }
 
 #messages {
