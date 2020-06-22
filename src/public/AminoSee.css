@@ -26,13 +26,13 @@ body {
 }
 
 img.32piximg, img>.32piximg {
-  height: 24px;
-  width: 24px;
+  height: 16px;
+  width: 16px;
 }
 
 body.dark, html.dark, body.aminosee {
   background-color: #012345;
-  background-image: url("//www.funk.co.nz/gif/bg-big-blue-gradient.gif");
+  background-image: url("https://www.funk.co.nz/gif/bg-big-blue-gradient.gif");
   background-repeat: repeat-x;
   color: white;
   text-decoration-color: white;
@@ -484,13 +484,15 @@ form, input, textarea {
 }
 
 a {
-  color: #006;
+  color: white;
+  text-decoration-color: white;
   text-decoration: none;
 }
 
 a:hover {
   text-decoration: underline;
   color: orange;
+  text-decoration-color: orange;
   background-color: black;
 }
 

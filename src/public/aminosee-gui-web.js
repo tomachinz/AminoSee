@@ -249,7 +249,7 @@ function toggleDevmode() {
 	}
 }
 function attachHandlers(pepTable) {
-	for (let pepTableIndex = 0; pepTableIndex < pepTable.length;  pepTableIndex++) {
+	for (let pepTableIndex = 0; pepTableIndex < 24;  pepTableIndex++) {
 		let element = document.getElementById(`row_${pepTableIndex}`)
 		element.addEventListener("mouseover", mover)
 		element.addEventListener("mouseout", mout)

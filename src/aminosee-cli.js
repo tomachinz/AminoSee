@@ -1,6 +1,9 @@
-const targetPixels = 6000000 // arbitrarily huge amount of pixels as target max resolution (8.8MP).
+let targetPixels = 8800000 // arbitrarily huge amount of pixels as target max resolution (8.8MP).
 // if estimated pixels is less than this, the render will show 1 pixel per codon
-const defaultMagnitude = 6 // each +1 is 4x more pixels
+let defaultMagnitude = 7 // each +1 is 4x more pixels
+const defaultPreviewDimension = 5 // was 500 MB per page before.
+const theoreticalMaxMagnitude = 10 // max for auto setting
+const overSampleFactor = 4 // your linear image divided by this will be the hilbert image size.
 const blackPoint = 128 // use 255 to remove effect, it increase colour saturation
 const wideScreen = 140 // shrinks terminal display
 const windows7 = 100 // shitty os, shitty terminal, ah well
@@ -78,9 +81,7 @@ const closeBrowser = "If the process apears frozen, it's waiting for your this.b
 const tomachisBirthday = new Date(  ) // Epoch timestamp: 221962393 is Date and time (GMT): Thursday, January 13, 1977 12:13:13 AM or 1:13:13 PM GMT+13:00 DST in New Zealand Time.
 const defaultC = 1 // back when it could not handle 3+GB files.
 const artisticHighlightLength = 36 // px only use in artistic this.mode. must be 6 or 12 currently
-const defaultPreviewDimension = 5 // was 500 MB per page before.
-const theoreticalMaxMagnitude = 10 // max for auto setting
-const overSampleFactor = 4 // your linear image divided by this will be the hilbert image size.
+
 const maxCanonical = 32 // max length of canonical name
 const hilbPixels = [ 64, 256, 1024, 4096, 16384, 65536, 262144, 1048576, 4194304, 16777216, 67108864 ] // I've personally never seen a mag 9 or 10 image, cos my computer breaks down. 67 Megapixel hilbert curve!! the last two are breaking nodes heap and call stack both.
 const widthMax = 960 // i wanted these to be tall and slim kinda like the most common way of diagrammatically showing chromosomes
@@ -118,7 +119,7 @@ renderLock = false
 isHighlightSet = false
 status = "load"
 module.exports = () => {
-  // mode("exports")
+  mode("exports")
   setupApp()
   mode("module exit")
   log( `S: ${status} ` )
@@ -136,9 +137,9 @@ function startGUI() {
   // return carlo
 }
 function generateTheArgs() {
-  if ( typeof cliInstance === "undefined" ) {
-    webroot = locateWebroot()
-    cliInstance = {
+  webroot = locateWebroot()
+
+  let theArgs = {
       verbose: false,
       webroot: webroot,
       outputPath: path.join( webroot, netFoldername ),
@@ -146,21 +147,25 @@ function generateTheArgs() {
       background: false,
       currentURL: url
     }
+  if ( typeof cliInstance === "undefined" ) {
+    webroot = locateWebroot()
+
   } else {
     log(`Not undefined: ${cliInstance}`)
-  }
-  const theArgs = {
-    port: defaultPort,
-    verbose: cliInstance.verbose,
-    output: cliInstance.outputPath,
-    serve: true,
-    gzip: true,
-    logip: true,
-    webroot: webroot,
-    openHtml: cliInstance.openHtml,
-    https: true,
-    background: cliInstance.background,
-    currentURL: cliInstance.currentURL
+
+    const theArgs = {
+      port: defaultPort,
+      verbose: cliInstance.verbose,
+      output: cliInstance.outputPath,
+      serve: true,
+      gzip: true,
+      logip: true,
+      webroot: webroot,
+      openHtml: cliInstance.openHtml,
+      https: true,
+      background: cliInstance.background,
+      currentURL: cliInstance.currentURL
+    }
   }
   log("sending args from CLI:")
   log( theArgs )
@@ -171,7 +176,7 @@ function populateArgs(procArgv) { // returns args
     boolean: [ "artistic", "clear", "chrome", "devmode", "debug", "demo", "dnabg", "explorer", "file", "force", "fullscreen", "firefox", "gui", "html", "image", "keyboard", "list", "progress", "quiet", "reg", "recycle", "redraw", "slow", "serve", "safari", "test", "updates", "verbose", "view" ],
     string: [ "url", "output", "triplet", "peptide", "ratio" ],
     alias: { a: "artistic", b: "dnabg", c: "codons", d: "devmode", f: "force", finder: "explorer", h: "help", k: "keyboard", m: "magnitude", o: "output", p: "peptide", i: "image", t: "triplet", u: "updates", q: "quiet", r: "reg", w: "width", v: "verbose", x: "explorer", view: "html" },
-    default: { brute: false, debug: false, keyboard: true, progress: false, redraw: true, updates: true, stop: false, serve: true, fullscreen: false }, // html: true, image: true, index: false, clear: false, explorer: false, quiet: false, gui: false,
+    default: { brute: false, debug: false, keyboard: false, progress: false, redraw: true, updates: true, stop: false, serve: true, fullscreen: false }, // html: true, image: true, index: false, clear: false, explorer: false, quiet: false, gui: false,
     stopEarly: false
   } // NUMERIC INPUTS: codons, magnitude, width, maxpix
   let args = minimist(procArgv.slice(2), options)
@@ -291,7 +296,7 @@ function pushCli(cs) {
       mode("setup job " + reason + this.busy())
       log( `setup job:  ${status}   ${reason} ${ maxWidth(32,   args.toString() ) }` )
       // [ userprefs, projectprefs ] = setupPrefs()
-
+      setupPrefs()
       // do stuff aside from creating any changes. eg if you just run "aminosee" by itself.
       // for each render batch sent through newJob, here is where "this" be instantiated once per newJob
       // for each DNA file, run setupRender
@@ -398,6 +403,7 @@ function pushCli(cs) {
       this.extension = this.getFileExtension( this.currentFile )
       this.started = this.startDate.getTime() // required for touch locks.
       this.dimension = defaultMagnitude // var that the hilbert projection is be downsampled to
+      this.magnitude = defaultMagnitude
       this.msPerUpdate  = minUpdateTime // min milliseconds per update its increased for long renders
       this.termMarginTop = (term.height -  termDisplayHeight -   termHistoHeight ) / 4
       this.setNextFile()
@@ -420,11 +426,12 @@ function pushCli(cs) {
           if ( usersPix > targetPixels ) {
             output(`Nice, using custom resolution: ${usersPix.toLocaleString()}`)
           }
+          targetPixels = this.maxpix
         }
       } else {
         this.maxpix = targetPixels
       }
-
+      targetPixels = this.maxpix
       if ( args.fullscreen == true) {
         log("fullscreen terminal output enabled")
         this.fullscreen = true
@@ -479,12 +486,13 @@ function pushCli(cs) {
       if ( args.url ) {
         url = args.url
         projectprefs.aminosee.url = url
-      }
-      url = projectprefs.aminosee.url
-      if ( typeof url === "undefined" ) {
+        output(`Setting project preferences to: ${url} but projectprefs.aminosee.url ${projectprefs.aminosee.url}`)
+      } else if (typeof projectprefs.aminosee.url === "undefined") {
         url = `http://${hostname}:4321`
+      } else {
+        url = projectprefs.aminosee.url
       }
-      output(`Setting project preferences to: ${url} but projectprefs.aminosee.url ${projectprefs.aminosee.url}`)
+
 
       if ( args.progress ) {
         this.updateProgress = true // whether to show the progress bars
@@ -575,6 +583,7 @@ function pushCli(cs) {
           output("Magnitude must be an integer number between 3 and 9 or so. 9 you may run out of memory.")
         } else if (  this.dimension > 2 &&  this.dimension < 9) {
           output(`Using custom output magnitude: ${ this.dimension }`)
+          defaultMagnitude = this.dimension
         }
       } else {
         this.magnitude = "auto"
@@ -640,7 +649,7 @@ function pushCli(cs) {
       this.focusPeptide = this.peptide
       if ( this.peptide == "Reference" && this.triplet == "Reference") {
         isHighlightSet = false
-        this.index = true // disable html report
+        // this.index = true // disable html report
         this.report = true
       } else {
         // output(`Peptide  ${ chalk.inverse(this.focusPeptide) } triplet ${ chalk.inverse( this.triplet )}`)
@@ -902,10 +911,11 @@ function pushCli(cs) {
 
       if ( webserverEnabled ) {
         server.stop()
+        url = projectprefs.aminosee.url
         output()
         output(`Starting mini server at: ${ webroot } `)
         output(`Using URL: ${ chalk.underline( url )}`)
-        projectprefs.aminosee.url = url
+        // projectprefs.aminosee.url = url
         this.setupKeyboardUI()
         autoStartGui = false
         // output(`Server running at: ${ chalk.underline( url ) } to stop use: aminosee --stop `)
@@ -913,8 +923,11 @@ function pushCli(cs) {
         // this.currentURL = server.foregroundserver()
         this.currentURL = this.generateURL()
         // this.currentURL = server.start( generateTheArgs() )
+        let theargs =  generateTheArgs()
+        console.log( theargs )
+
         try {
-          server( generateTheArgs() )
+          server( theargs )
           // server.start( this.currentURL )
         } catch (err) {
           output(`error starting server: ${fixedWidth(tx/2, err)}`)
@@ -931,10 +944,11 @@ function pushCli(cs) {
         this.dnafile = args._.toString()
         // this.slowSkipNext()
         // this.fastReset("first command")
+        // this.pollForStream()
 
 
-
-        if ( !this.test ) {
+        if ( this.test !== true ) {
+          log("polling")
           this.pollForStream()
         } else if ( this.demo ) {
           runDemo()
@@ -942,14 +956,6 @@ function pushCli(cs) {
           this.generateTestPatterns()
         }
 
-
-        // setImmediate( () => {
-        // 	log("prepare state returned")               // this.pollForStream();
-        // 	setImmediate( () => {
-        // 		log(`----------------- ${ this.justNameOfDNA  } -----------------`)
-        // 	})
-        // })
-        // })
 
 
       } else if ( remain < 1  ) {
@@ -961,7 +967,7 @@ function pushCli(cs) {
           time = 1000
           log("exiting")
           // process.exit()
-          this.quit(0, "no command")
+          // this.quit(0, "no command")
           return
         }
         if ( cliruns < 3) {
@@ -1098,7 +1104,7 @@ function pushCli(cs) {
 
       // term.erase()
       termSize()
-      termDrawImage(this.filePNG, "resized")
+      // termDrawImage(this.filePNG, "resized")
       this.setDebugCols()
       tx = term.width; ty = term.height
       log(`Terminal resized: ${tx} x ${ty} and has at least ${termPixels} chars. Fullscreen mode enabled, use --no-fullscreen to prevent`)
@@ -1198,7 +1204,7 @@ function pushCli(cs) {
         opacity: this.opacity,
         magnitude:  this.magnitude,
         dimension:  this.dimension,
-        previewdimension: 5,
+        previewdimension: defaultPreviewDimension,
         blackPoint: blackPoint,
         darkenFactor: darkenFactor,
         highlightFactor: highlightFactor,
@@ -1814,7 +1820,6 @@ function pushCli(cs) {
       msg = `>>> PREFLIGHT <<< ${ remain } ${ path.normalize( this.currentFile )} reason: ${reason}`
       log(msg)
       redoline(msg)
-      log("Checking for previous render"+ this.filePNG)
       if (this.extension == "zip") {
         // streamingZip(this.dnafile )
         this.fastReset(`${this.dnafile }  ZIP file`)
@@ -1833,6 +1838,8 @@ function pushCli(cs) {
         this.slowSkipNext(msg)
         return true
       }
+      log("Checking for previous render of "+ path.basename(this.filePNG))
+
       if (doesFileExist(this.filePNG)) {
         termDrawImage(this.filePNG, "linear render previously done", () => {
           let msg = `Already rendered image: ${  maxWidth(tx / 3, path.basename(this.filePNG))}.`
@@ -1846,8 +1853,8 @@ function pushCli(cs) {
           output(msg)
         })
         if ( this.force == false ) {
-        return false
-      }
+          return false
+        }
 
       }
 
@@ -2220,14 +2227,14 @@ AminoSee version: ${version}`
         } else { // use a file
           this.isStreamingPipe = false // cat Human.genome | aminosee
           this.estimatedPixels =  this.baseChars / 3 // divide by 4 times 3
-          if ( this.estimatedPixels > 256 ) {
+          if ( this.estimatedPixels > 1024 ) {
             if ( this.magnitude == "auto") {
               log(`est pixels : ${this.estimatedPixels}` )
               this.dimension = optimumDimension ( this.estimatedPixels, this.magnitude )
             }
           } else {
             let msg = "Not enough pixels to form image"
-            renderLock = false
+            // renderLock = false
             this.slowSkipNext(msg)
             return false
           }
@@ -2664,7 +2671,7 @@ AminoSee version: ${version}`
           genomesRendered.join( dedupeArray( projectprefs.aminosee.genomes) )
           genomesRendered.push( this.justNameOfDNA )
           genomesRendered = dedupeArray( genomesRendered ) // de dupe in case of re-renders
-          projectprefs.aminosee.genomes = dedupeArray( genomesRendered )
+          projectprefs.aminosee.genomes = genomesRendered
           log( `genomesRendered ${genomesRendered}` )
         }
 
@@ -2674,10 +2681,10 @@ AminoSee version: ${version}`
 
         this.mkRenderFolders()
 
-
-        this.savePNG( () => {
-          log("savePNG: master linear done")
-        })
+        //
+        // this.savePNG( () => {
+        //   log("savePNG: master linear done")
+        // })
 
         this.calcHilbertFilenames()
         this.prepareHilbertArray()
@@ -2686,7 +2693,7 @@ AminoSee version: ${version}`
         // printRadMessage("something aint right")
         mode("main render async.series")
         this.saveHTML( () => {
-          // this.postRenderPoll()
+          this.postRenderPoll()
           redoline( "Saving complete............... next: " + cliInstance.nextFile )
         })
 
@@ -2756,13 +2763,6 @@ AminoSee version: ${version}`
         bugtxt(`globalVariablesDoSuck: ${	this.focusPeptide}`)
         // output( beautify( histogramJson , null, 2, 100) )
 
-
-        // if ( doesFileExist( histogramFile ) ) {
-        //   let loadedJson = readParseJson( histogramFile )
-        //   console.log( beautify( JSON.stringify( loadedJson ), null, 2, 100) )
-        //   this.pepTable = loadedJson.pepTable
-        // }
-        // process.exit();
         let hypertext
         if ( this.test == true ) {
           hypertext = this.htmlTemplate( this.testSummary() )
@@ -2782,8 +2782,10 @@ AminoSee version: ${version}`
           this.fileWrite(path.resolve( this.outputPath, this.justNameOfDNA, "debug.html"), hypertext)
         }
 
-        if ( isHighRes ) {
+        if ( this.dimension > defaultPreviewDimension ) {
           this.fileWrite(path.resolve( this.outputPath, this.justNameOfDNA, "highres.html"), hypertext)
+        } else {
+          output( blueWhite("NOT HIGH RES"))
         }
 
         if ( this.index || !isHighRes ) { // if it wont make the users computer explode... set it as index page!
@@ -2923,10 +2925,30 @@ AminoSee version: ${version}`
           }
         }, this.raceDelay)
       }
+      createPreviews(cb) {
+        // let scaleDownFactor = 1 / ()\
+
+        this.dimension = defaultMagnitude = defaultPreviewDimension
+        const shrinkFactor = hilbPixels[ defaultMagnitude ] / (this.pixelClock / 4)
+        this.shrinkFactor = shrinkFactor
+        output(`making smaller resolution previews from source pixels ${this.pixelClock} ${this.dimension} to ${defaultPreviewDimension} shrinkFactor ${shrinkFactor}`)
+        this.index = true // disable html report
+        this.isDiskFinLinear = true;
+        this.isDiskFinHTML = false;
+        // this.hilbertImage = this.resampleByFactor( shrinkFactor  )
+        this.hWidth = Math.sqrt(this.hilbertImage.length / 2)
+        this.hHeight  = this.hWidth
+
+        this.saveDocsSync()
+
+        // this.saveHilbert()
+        // this.continueHilbertArray( () => { this.saveHTML() } )
+        runcb( cb )
+      }
       postRenderPoll(reason) { // renderLock on late, off early
         log(`post render reason: ${ blueWhite( reason )}`)
 
-        if ( typeof reason === "undefined") { ("reason must be defined for postRenderPoll") }
+        if ( typeof reason === "undefined") { error("reason must be defined for postRenderPoll") }
         if ( this.verbose ) {
           log(chalk.inverse(`Finishing saving (${reason}), ${this.busy()} waiting on ${ this.storage() } ${ remain } files to go.`))
         }
@@ -2935,7 +2957,6 @@ AminoSee version: ${version}`
           log(chalk.bgRed("another thread has continued"))
           if ( !this.test ) {
             return false
-
           }
         }
 
@@ -2944,7 +2965,17 @@ AminoSee version: ${version}`
         // if its the right this.extension go to sleep
         // check if all the disk is finished and if so change the locks
         if ( this.isDiskFinLinear == true && this.isDiskFinHilbert == true && this.isDiskFinHTML == true ) {
-          renderLock = false
+
+          if (this.dimension > defaultPreviewDimension) {
+              this.createPreviews( () => {
+                this.postRenderPoll(`finished creating previews`)
+              })
+            return false;
+          } else {
+            output(`not making previews this.dimension ${this.dimension} is not > defaultPreviewDimension ${defaultPreviewDimension}`)
+          }
+
+          // renderLock = false
           log(` [ storage threads ready: ${chalk.inverse( this.storage() )} ] test: ${this.test} reason: ${reason}`)
           this.setIsDiskBusy( false )
           this.openOutputs()
@@ -2954,7 +2985,7 @@ AminoSee version: ${version}`
             if ( remain > 1) {
               output(` [ Starting another cycle in ${ humanizeDuration( this.raceDelay )}`)
                 // var that = this
-                setTimeout( () => {
+                // setTimeout( () => {
                   if ( renderLock == false ) {
                     output("now")
                     renderLock = true
@@ -2964,7 +2995,7 @@ AminoSee version: ${version}`
                     output("busy")
                     this.quit(0,"test "+ remain)
                   }
-                }, this.raceDelay)
+                // }, this.raceDelay)
               } else {
                 remain--
                 renderLock = false
@@ -2980,14 +3011,11 @@ AminoSee version: ${version}`
               if ( remain < 1) {
                 isShuttingDown = true
               }
-              // setTimeout( () => {
-                let msg = `${batchProgress()} Great success with render of (${this.justNameOfPNG})
-                ${this.justNameOfHILBERT}`
-                notQuiet(msg)
-                saySomethingEpic()
-                renderLock = false
-                this.slowSkipNext(msg)
-              // }, this.raceDelay )
+              let msg = `${batchProgress()} Great success with render of (${this.justNameOfPNG})
+              ${this.justNameOfHILBERT}`
+              notQuiet(msg)
+              saySomethingEpic()
+              this.slowSkipNext(msg)
             }
           } else {
             log(` [ ${reason} wait on storage: ${chalk.inverse( this.storage() )}  ] `)
@@ -3454,6 +3482,12 @@ AminoSee version: ${version}`
             histogramJson = this.getRenderObject()
             // ;
           }
+          let highres
+          if (this.genomeSize > 2000000) {
+             highres =`<a href="index.html">Standard-Res</a> | <a href="highres.html">High-Res</a>`
+          } else {
+             highres = " "
+          }
           var html = `
 <!DOCTYPE html>
   <html lang="en">
@@ -3502,7 +3536,7 @@ AminoSee version: ${version}`
 
   <nav style="position: relative; padding: 32px;">
   <div id="aminosee" class="dark"  style="position: fixed; top: 8px; left: 8px; z-index:9999; background-color: #123456; padding: 16px; margin-bottom: 64px;">
-  <a href="../../">AminoSee Home</a> | <a href="../">Parent</a>
+  <a href="../../" class="button">AminoSee Home</a> | <a href="../?C=M;O=D">Parent</a> ${highres}
   </div>
   </nav>
   <h1>${ this.justNameOfDNA}</h1>
@@ -3803,8 +3837,9 @@ AminoSee version: ${version}`
           term.eraseDisplayBelow()
           mode("save hilbert")
           procTitle( `m${ this.dimension } hilbert curve`)
-          output(chalk.bgBlue.yellow( " Getting in touch with my man from 1891...   ॐ    David Hilbert    ॐ    ") )
+          output(chalk.bgBlue.yellow( " Getting in touch with my man from 1891...   ॐ    David Hilbert    ॐ    " + this.shrinkFactor) )
           bugtxt( this.justNameOfDNA)
+
           let hilpix = hilbPixels[ this.dimension ]
 
           this.antiAliasArray = this.resampleByFactor( this.shrinkFactor )
@@ -3915,14 +3950,14 @@ AminoSee version: ${version}`
           if ( remain < 5) {
             this.openOutputs()
           }
-          termDrawImage(this.fileHILBERT, "hilbert curve")
-
-          if ( brute ) {
-            if ( this.isDiskFinHilbert ) { this.postRenderPoll("brute finished" ) }
-          } else {
-            this.isDiskFinHilbert = true
-            this.postRenderPoll( "hilbertFinished" )
-          }
+          termDrawImage(this.fileHILBERT, "hilbert curve", () => {
+            if ( brute ) {
+              if ( this.isDiskFinHilbert ) { this.postRenderPoll("brute finished" ) }
+            } else {
+              this.isDiskFinHilbert = true
+              this.postRenderPoll( "hilbertFinished" )
+            }
+          })
         }
 
         linearFinished() {
@@ -4785,7 +4820,7 @@ AminoSee version: ${version}`
             const msg = batchProgress() +  " / " + humanizeDuration( this.timeRemain)  +  " / "
             wTitle(msg)
             term.eraseLine()
-            console.log(`[${msg + chalk.bold( this.justNameOfPNG)} / ${this.printRGB()}]`)
+            console.log(`[${msg + chalk.bold( maxWidth(12 ,  this.justNameOfPNG))} / ${this.printRGB()}]`)
             term.up(1)
             // process.exit()
             return false
@@ -5915,7 +5950,7 @@ AminoSee version: ${version}`
           })
           function termDrawImage(fullpath, reason, cb) {
             // return true
-            if ( cliInstance.quiet ) { log("not opening"); return false }
+            if ( cliInstance.quiet || debug ) { log("not opening"); return false }
             if (typeof fullpath === "undefined") { fullpath = previousImage }
             if (typeof fullpath === "undefined") { log("not opening"); return false }
             if (typeof reason === "undefined") { reason = "BUG. Reminder: always set a reason" }
@@ -5925,16 +5960,11 @@ AminoSee version: ${version}`
             // clearCheck();
             // output(chalk.inverse("Terminal image: " +  basename(fullpath)))
             // output("Loading image: " +   path.normalize( fullpath ))
-            term.drawImage( fullpath, { shrink: { width: tx * 0.8,  height: ty  * 0.8 } }, () => {
               term.drawImage( fullpath, { shrink: { width: tx * 0.8,  height: ty  * 0.8, left: tx/2, top: ty/2 } }, () => {
-              output(`Terminal image: ${ chalk.inverse(  path.basename(fullpath) ) } ${ reason}`)
-              term.restoreCursor()
-              runcb(cb)
-            })
-           })
-
-
-
+                output(`Terminal image: ${ chalk.inverse(  path.basename(fullpath) ) } ${ reason}`)
+                term.restoreCursor()
+                runcb(cb)
+              })
           }
           function nicePercent(percent) {
             if (typeof percent === "undefined") { percent = cliInstance.percentComplete; log("% was undef") }
@@ -6336,7 +6366,8 @@ AminoSee version: ${version}`
             if( typeof cb !== "undefined") {
               if( typeof cb === "function") {
                 log("run cb")
-                cb()
+                setTimeout( cb, 200)
+                // cb()
               } else {
                 log(blueWhite( "cb is not a function?"))
               }
