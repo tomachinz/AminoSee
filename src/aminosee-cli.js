@@ -319,7 +319,7 @@ function pushCli(cs) {
       darkenFactor = 0.25 // if user has chosen to highlight an amino acid others are darkened
       highlightFactor = 4.0 // highten brightening.
       loopCounter = 0
-      this.raceDelay = 169 // so i learnt a lot on this project. one day this line shall disappear replaced by promises.
+      this.raceDelay = 269 // so i learnt a lot on this project. one day this line shall disappear replaced by promises.
       this.charClock = 0
       this.pixelClock = 0
       this.peptide = this.triplet = this.focusTriplet = this.focusPeptide = "Reference" // used to be "none" is now "Reference"
