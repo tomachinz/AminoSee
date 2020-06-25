@@ -16,15 +16,19 @@ if [ -z "$1" ]; then
   sleep 2
   ./batch-peptides.sh  &
   sleep 2
+  ./batch-peptides.sh  &
+  sleep 2
   ./batch-peptides.sh
 else
-  echo processing $1 $2 $3 $4
+  echo processing $1 $2 $3 $4 $5 $6 $7 $8
   echo
   ./batch-peptides.sh  $1 $2 $3 $4 $5 $6 $7 $8 &
   sleep 2
   ./batch-peptides.sh  $1 $2 $3 $4 $5 $6 $7 $8 &
   sleep 2
-  ./batch-peptides.sh  $1 $2 $3 $4 $5 $6 $7 $8
+  ./batch-peptides.sh  $1 $2 $3 $4 $5 $6 $7 $8 &
+  sleep 2
+  ./batch-peptides.sh
 fi
 
 

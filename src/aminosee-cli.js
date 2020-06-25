@@ -124,7 +124,7 @@ aminosee_json = status = "initialising"
 module.exports = () => {
   mode("exports")
   setupApp()
-  setupKeyboardUI2()
+  // setupKeyboardUI2()
   mode("module exit")
   // destroyKeyboardUI()
   // cliInstance.quit(0, status)
@@ -251,8 +251,9 @@ function pushCli(cs) {
   }
   function setupApp() {
     if ( renderLock ) { error("draining thread from setupApp"); return false }
-
-    [ userprefs, projectprefs ] = setupPrefs()
+    output(`Setting up`)
+    // [ userprefs, projectprefs ] = setupPrefs()
+    setupPrefs()
     lastHammered = new Date()
 
     if ( this.updateProgress == true ) {
@@ -269,7 +270,7 @@ function pushCli(cs) {
     threads.push( cliInstance )
     termSize()
     // webroot = locateWebroot()
-    cliInstance.resized()
+    // cliInstance.resized()
     cliInstance.setupJob( populateArgs( process.argv ), "module exports"  )
     cliInstance.outputPath = path.join( webroot, netFoldername) // ~/AminoSee_webroot/output
 
@@ -319,7 +320,7 @@ function pushCli(cs) {
       darkenFactor = 0.25 // if user has chosen to highlight an amino acid others are darkened
       highlightFactor = 4.0 // highten brightening.
       loopCounter = 0
-      this.raceDelay = 269 // so i learnt a lot on this project. one day this line shall disappear replaced by promises.
+      this.raceDelay = 469 // so i learnt a lot on this project. one day this line shall disappear replaced by promises.
       this.charClock = 0
       this.pixelClock = 0
       this.peptide = this.triplet = this.focusTriplet = this.focusPeptide = "Reference" // used to be "none" is now "Reference"
@@ -424,6 +425,8 @@ function pushCli(cs) {
 
       if ( args.quiet || args.q ) { // needs to be at top to cut back clutter during batch rendering
         this.quiet = true
+        this.keyboard = false
+        destroyKeyboardUI()
       } else {
         this.quiet = false
       }
@@ -980,7 +983,7 @@ function pushCli(cs) {
           time = 1000
           log("exiting")
           // process.exit()
-          // this.quit(0, "no command")
+          this.quit(0, "no command")
           return
         }
         if ( cliruns < 3) {
@@ -1113,7 +1116,7 @@ function pushCli(cs) {
 
     resized(tx, ty) {
       clearCheck()
-      // term.clear()
+      term.clear()
 
       // term.erase()
       termSize()
@@ -1699,12 +1702,12 @@ function pushCli(cs) {
           printRadMessage(  status )
         }
         if ( killServersOnQuit ) {
-          output("Control-c to stop server")
+          // output("Control-c to stop server")
           setTimeout( () => {
             this.quit(1,  status )
           }), 10
         } else {
-          output("Control-c to stop server")
+          // output("Control-c to stop server")
           this.quit(1,  status )
         }
         return false
@@ -1961,26 +1964,25 @@ function pushCli(cs) {
         if ( renderLock) {
           output("not resetting")
         } else{
+          output("quitting?")
+
           this.gracefulQuit(0, "fast reset")
           // this.destroyProgress()
           destroyKeyboardUI()
           // isShuttingDown = true
-          // this.quit(0, " resetting " + reason)
+          this.quit(0, " resetting " + reason)
         }
-
         return false
       }
       this.currentFile = this.args._.shift()
-      // this.setNextFile()
+      this.setNextFile()
       setTimeout( () => {
       if ( !renderLock ) {
         mode("yadda not rendering")
         this.pollForStream( status )
       } else {
         output("dabba rendering")
-
       }
-
       }, this.raceDelay)
     }
     initStream() {
@@ -2643,7 +2645,7 @@ function pushCli(cs) {
         output(chalk.rgb(150,150,150).inverse(      fixedWidth( this.colDebug*2,  `Hilbert PNG: ${ this.justNameOfHILBERT }`)))
         output(chalk.rgb(100,100,180).inverse.underline(fixedWidth( this.colDebug*2, `HTML: ${ path.normalize( this.fileHTML )}`)))
         log(chalk.white.bgBlue.inverse(        fixedWidth( this.colDebug*2,  `Lockfile: ${ path.normalize( this.fileTouch )}`)))
-        output(blueWhite(fixedWidth( this.colDebug*2,  `URL: ${ chalk.underline( this.currentURL )}`)))
+        output(blueWhite(  `URL: ${ chalk.underline( fixedWidth( this.colDebug, this.currentURL ))}`))
       }
       setIsDiskBusy(boolean) {
         if (boolean) { // busy!
@@ -2984,8 +2986,8 @@ function pushCli(cs) {
       createPreviews(cb) {
         if ( this.test ) { return false; }
         this.dimension = this.magnitude = defaultMagnitude = defaultPreviewDimension
-        const shrinkFactor = hilbPixels[ defaultMagnitude ] / this.pixelClock
         const pixels =  hilbPixels[ defaultMagnitude ]
+        const shrinkFactor =  this.pixelClock / pixels
         const c = calculateShrinkage( pixels, defaultMagnitude, this.codonsPerPixel ) // danger: can change this.file of Hilbert images!
         this.shrinkFactor = shrinkFactor
         output(`making smaller resolution previews from source pixels ${this.pixelClock} codons per pixel ${this.codonsPerPixel} new codons per pixel ${c} ${this.dimension} to ${defaultPreviewDimension} shrinkFactor ${shrinkFactor}`)
@@ -2997,8 +2999,12 @@ function pushCli(cs) {
         this.hHeight  = this.hWidth
         this.index =true;
         this.codonsPerPixelHILBERT *= shrinkFactor
+        output(this.codonsPerPixelHILBERT )
         this.fancyFilenames()
         this.calcHilbertFilename()
+        this.calcHilbertFilename()
+        this.prepareHilbertArray()
+        this.fancyFilenames()
         // this.prepareHilbertArray()
 
 
@@ -4023,7 +4029,7 @@ function pushCli(cs) {
         }
         hilbertFinished() {
           mode(`Hilbert curve done (${this.justNameOfHILBERT}). Waiting on (${ this.storage()})`)
-          log( `H: ${status} ` )
+          notQuiet( `H: ${status} ` )
           if ( remain < 5) {
             this.openOutputs()
           }
@@ -4067,10 +4073,14 @@ function pushCli(cs) {
           let hilpix = hilbPixels[ this.dimension ]
           const testWidth = Math.round(Math.sqrt(hilpix))
           const linearWidth = Math.round(Math.sqrt(hilpix))
+          const testPath = path.resolve(webroot , "calibration")
+          const highlight = ""
+
+          this.fileHILBERT = path.resolve(testPath, `AminoSee_Calibration${ this.dimension }${ this.regmarks }`)
 
           this.hilbertImage = [ hilpix*4 ] // setup arrays
           this.rgbArray = [ hilpix*4 ]
-          log( `Generating hilbert curve of the ${ this.dimension + 1 }th dimension with ${remain} remaining.`)
+          output( `Generating hilbert curve of the ${ this.dimension + 1 }th dimension with ${remain} remaining. File: ${this.fileHILBERT}`)
           bugtxt( chalk.bgWhite(`Math.sqrt(hilpix): [${Math.sqrt(hilpix)}])`))
           bugtxt( this.fileHILBERT )
 
@@ -4128,6 +4138,7 @@ function pushCli(cs) {
             }
           })
           hilbert_img_png.data = Buffer.from( hilbert_img_data )
+          output(`this.fileHILBERT ${this.fileHILBERT}`)
           let wstreamHILBERT = fs.createWriteStream( this.fileHILBERT )
 
           new Promise(resolve => {
@@ -4453,7 +4464,7 @@ function pushCli(cs) {
         }
 
         generateTestPatterns(cb) {
-          // renderLock = true
+          renderLock = true
           this.setupRender()
           loopCounter = 1
           this.openHtml = false
@@ -4529,7 +4540,7 @@ function pushCli(cs) {
             this.setIsDiskBusy( false )
             this.postRenderPoll("test patterns returned")
             renderLock = false
-            runcb( cb )
+            // runcb( cb )
           }) // <<--------- sets up both linear and hilbert arrays but only saves the Hilbert.
           // this.updates = false
           // this.drawHistogram()
@@ -4570,6 +4581,7 @@ function pushCli(cs) {
           magnitude--
           if (renderLock) { return false; }
           renderLock = true
+          output(`webroot ${webroot}`)
 
           let testPath = path.resolve(webroot , "calibration")
           let regmarks = this.getRegmarks()
@@ -4583,7 +4595,7 @@ function pushCli(cs) {
           this.focusTriplet = "Reference"
           this.ratio = "sqr"
           this.magnitude = this.dimension = remain = magnitude
-
+          output(`testPath ${testPath}`)
           // NON INDEPENDANT VARS. THESE ARE STAND-INS FOR A WAY TO FILTER THE IMAGE BY RED / GREEN / BLUE
           // IN THIS CASE HAS NOTHING TO DO WITH PEPTIDES :)
           if ( this.focusPeptide == "Opal" || this.focusPeptide == "Blue") {
@@ -4601,10 +4613,9 @@ function pushCli(cs) {
           this.justNameOfHILBERT = `${ this.justNameOfDNA}_HILBERT_${  magnitude }.png`
           this.fileHTML    = path.resolve(testPath, this.justNameOfDNA + ".html")
           this.filePNG     = path.resolve(testPath, this.justNameOfPNG)
-          this.fileHILBERT = path.resolve(testPath, this.justNameOfHILBERT)
+          this.fileHILBERT = path.resolve(testPath, this.justNameOfHILBERT) //           this.justNameOfDNA = `AminoSee_Calibration${ highlight }${ regmarks }`
           this.fileTouch   = path.resolve(testPath, this.justNameOfDNA + "_LOCK.txt")
           this.dnafile = this.justNameOfDNA
-
           this.currentFile = this.justNameOfDNA
           cfile = this.currentFile
 
@@ -6045,7 +6056,7 @@ function pushCli(cs) {
               // output(chalk.inverse("Terminal image: " +  basename(fullpath)))
               // output("Loading image: " +   path.normalize( fullpath ))
               term.drawImage( fullpath, { shrink: { width: tx * 0.8,  height: ty  * 0.8, left: tx/2, top: ty/2 } }, () => {
-                output(`Terminal image: ${ chalk.inverse(  path.basename(fullpath) ) } ${ reason}`)
+                log(`Terminal image: ${ chalk.inverse(  path.basename(fullpath) ) } ${ reason}`)
                 term.restoreCursor()
                 runcb(cb)
               })
