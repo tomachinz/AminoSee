@@ -1,6 +1,6 @@
 const open = require("open")
 const httpserver = require("http-server") // cant have - in js
-const aminosee = require("./aminosee-cli")
+// const aminosee = require("./aminosee-cli")
 const data = require("./aminosee-data")
 const doesFileExist   = data.doesFileExist
 // const doesFolderExist = data.doesFolderExist
@@ -85,7 +85,7 @@ function setArgs( TheArgs ) {
 		output("using dynamic args")
 		output(`TheArgs: ${TheArgs.toString()}`)
 	}
-	filenameServerLock = path.resolve( webroot, "aminosee_server_lock.txt")
+	filenameServerLock = path.resolve( webroot, "output", "aminosee_server_lock.txt")
 
 }
 function setupPrefs() {
@@ -124,6 +124,8 @@ function setupPrefs() {
 
 }
 function log(txt) {
+	// output( `log txt: ${txt}` )
+
 	if ( args ) {
 		if ( args.verbose) {
 			if ( args.verbose == true) {
@@ -139,7 +141,6 @@ function notQuiet(txt) {
 function output(txt) {
 	if ( typeof txt === "undefined" || !debug ) {	console.log(); return }
 	console.log(`server: ${txt}`)
-	// console.log(chalk.bgBlue(" [ " + txt.substring(0, term.width -10  )+ " ]"))
 }
 /** https://stackoverflow.com/questions/13786160/copy-folder-recursively-in-node-js/26038979
 * Look ma, it's cp -R.
@@ -301,6 +302,8 @@ function foregroundserver() {
 	}
 
 
+	output(`listen on port ${port}`)
+	stop()
 	try {
 		server.listen(port)
 		didStart = true
@@ -308,7 +311,8 @@ function foregroundserver() {
 		if ( err.indexOf("EADDRINUSE") !== -1 ) {
 			output(`port ${port} in use, trying backup port: ${backupPort}`)
 		} else {
-			output(`unknown error starting server: ${err}`)
+			// output(`unknown error starting server: ${err}`)
+			output(`probably the address is in use`)
 		}
 	}
 	if ( !didStart ) {
@@ -453,9 +457,9 @@ function start() { // return the port number
 	log("Attempting to start server with args:")
 	log( args)
 	if ( args.verbose ) {
-		console.log( args )
+		log( args )
 	}
-	filenameServerLock = path.resolve( args.webroot, "aminosee_server_lock.txt")
+	filenameServerLock = path.resolve( args.webroot, "output", "aminosee_server_lock.txt")
 	if ( args.stop == true ) { stop(); return true }
 	setupPrefs()
 	buildServer()
@@ -540,6 +544,7 @@ function serverLock() {
 	} else {
 		log("Server starting up...")
 		recordFile(filenameServerLock, port, () => {
+			output(`server started`)
 		})
 		return false
 	}
