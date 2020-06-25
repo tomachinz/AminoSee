@@ -1290,6 +1290,7 @@ function pushCli(cs) {
       //
       if (this.test) {
         this.testInit()
+        // return false
       } else {
         this.setupLinearNames() // will not include Hilbert file name. Need to wait until after render and calcHilbertFilename
       }
@@ -2202,7 +2203,7 @@ function pushCli(cs) {
         ${ ( this.peptide || this.triplet ) ?  "Highlights: " + ( this.peptide || this.triplet) : " "}
         Your custom flags: TEST${(  this.force ? "F" : ""    )}${(  this.userCPP == "auto"  ? `C${ this.userCPP }` : ""    )}${(  this.devmode ? "D" : ""    )}${(  this.args.ratio || this.args.r ? `${ this.ratio }` : ""    )}${(  this.args.magnitude || this.args.m ? `M${ this.dimension }` : ""    )}
         ${(  this.artistic ? " Artistic this.mode" : " Science this.mode"    )}
-        Max magnitude: ${ this.dimension } ${ this.dimension } / 10 Max pix: ${ this.maxpix.toLocaleString()}
+        Max magnitude: ${ this.dimension } / 10 Max pix: ${ this.maxpix.toLocaleString()}
         Hilbert Magnitude: ${ this.dimension } / ${defaultMagnitude}
         Hilbert Curve Pixels: ${hilbPixels[ this.dimension ]}`
       }
@@ -2396,7 +2397,7 @@ function pushCli(cs) {
 
       generateFilenameHilbert( focus ) { // needs  this.dimension estimatedPixels
         mode(`Generate filename for Hilbert proj`)
-        if ( renderLock == true ) { error(`removing thread`); return `currently_rendering_${this.fileHILBERT}`; }
+        // if ( renderLock == true ) { error(`removing thread`); return `currently_rendering_${this.fileHILBERT}`; }
         output(`generateFilenameHilbert ${this.justNameOfDNA} ${focus}` + blueWhite(` this.pixelClock ${this.pixelClock}  this.magnitude ${this.magnitude} this.codonsPerPixelHILBERT ${this.codonsPerPixelHILBERT}`))
         let thename
         if ( typeof focus === "undefined" ) {
@@ -3026,19 +3027,9 @@ function pushCli(cs) {
         // if its the right this.extension go to sleep  <----- bug ?
         // check if all the disk is finished and if so change the locks
         if ( this.isDiskFinLinear == true && this.isDiskFinHilbert == true && this.isDiskFinHTML == true ) {
-          output(`this.dimension ${this.dimension} > defaultPreviewDimension ${defaultPreviewDimension}`)
+          output(`this.dimension ${this.dimension} > defaultPreviewDimension ${defaultPreviewDimension} is test: ${this.test}`)
 
-          if (this.dimension >= defaultPreviewDimension) { //
-            this.setIsDiskBusy( true )
-            this.createPreviews( () => {
-              log(`previews created. this.dimension = -1`)
-              this.dimension = -1
-            })
-            // this.postRenderPoll(`Outputting standard resolution version if this genomes is really huge`)
-            return false;
-          } else {
-            output(`This render is at --magnitude=4 or less not consider detailed enough for high res. It will be the standard resolution. magnitude: ${this.dimension} required: ${defaultPreviewDimension}`)
-          }
+
 
           // renderLock = false
           log(` [ storage threads ready: ${chalk.inverse( this.storage() )} ] test: ${this.test} reason: ${reason}`)
@@ -3069,6 +3060,20 @@ function pushCli(cs) {
 
 
             } else {
+
+              if (this.dimension >= defaultPreviewDimension) {
+                this.setIsDiskBusy( true )
+                this.createPreviews( () => {
+                  log(`previews created. this.dimension = -1`)
+                  this.dimension = -1
+                })
+                // this.postRenderPoll(`Outputting standard resolution version if this genomes is really huge`)
+                return false;
+              } else {
+                // output(`This render is at --magnitude=4 or less not consider detailed enough for high res. It will be the standard resolution. magnitude: ${this.dimension} required: ${defaultPreviewDimension} test: ${this.test}`)
+              }
+
+
               log("DONE")
               clearTimeout( this.updatesTimer)
               clearTimeout( this.progTimer)
@@ -4513,7 +4518,7 @@ function pushCli(cs) {
             output(  chalk.italic("Normally this level of nested curves will crash the node callstack!!!" ) )
           }
 
-
+          renderLock = true
           this.setIsDiskBusy( true )
           // both kinds is currently making it's own calls to postRenderPoll
           this.bothKindsTestPattern((cb) => { // renderLock must be true
@@ -4576,7 +4581,7 @@ function pushCli(cs) {
           this.runningDuration = 1
           this.focusTriplet = "Reference"
           this.ratio = "sqr"
-          this.dimension = remain = magnitude
+          this.magnitude = this.dimension = remain = magnitude
 
           // NON INDEPENDANT VARS. THESE ARE STAND-INS FOR A WAY TO FILTER THE IMAGE BY RED / GREEN / BLUE
           // IN THIS CASE HAS NOTHING TO DO WITH PEPTIDES :)
@@ -5270,8 +5275,8 @@ function pushCli(cs) {
             }
             function output(txt) {
               if (typeof txt === "undefined") { txt = " " } else {
-                if ( cliInstance ) {
-                  if ( typeof cliInstance.justNameOfPNG === "undefined" ) {
+                if ( typeof cliInstance !== "undefined") {
+                  if ( typeof cliInstance.justNameOfPNG !== "undefined" ) {
                     // txt += `cliInstance.justNameOfPNG === "undefined"`
                     wTitle(`${  txt }`) // put it on the terminal windowbar or in tmux
                   }
@@ -5279,15 +5284,18 @@ function pushCli(cs) {
                 // console.log()
               }
               // term.eraseLine()
+              // wTitle(`${  txt }`) // put it on the terminal windowbar or in tmux
+              // console.log( txt )
 
+              if (this.quiet) {
+                process.stdout.write(".")
+              } else {
+                console.log( txt )
+              }
               if ( debug ) {
                 bugout( txt )
-              } else if (!this.quiet){
-                console.log( txt )
-              } else {
-                process.stdout.write(".")
               }
-              // term.eraseLine()
+
             }
             function out(txt) {
               // let that = gimmeDat();
