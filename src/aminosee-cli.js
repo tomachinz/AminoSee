@@ -127,7 +127,7 @@ module.exports = () => {
   setupKeyboardUI2()
   mode("module exit")
   // destroyKeyboardUI()
-  cliInstance.quit(0, status)
+  // cliInstance.quit(0, status)
   log( `S: ${status} ` )
 }
 function startGUI() {
@@ -1278,7 +1278,7 @@ function pushCli(cs) {
       this.isDiskFinHilbert = true
       this.isDiskFinLinear = true
       this.isStorageBusy = false
-      // this.currentFile = this.args._[0].toString();
+      this.currentFile = this.args._[0].toString();
       this.dnafile = path.resolve( this.currentFile )
       this.justNameOfDNA = this.genomeCanonicalisaton( this.dnafile )
       for (let h=0; h < dnaTriplets.length; h++) {
@@ -1672,7 +1672,7 @@ function pushCli(cs) {
         error( `P: ${ maxWidth(24,  status)} ` )
         return false
       } else {
-        output(`Polling for work... ${this.busy()} ${batchProgress()} ${nicePercent()} ${streamLineNr}`)
+        redoline(`Polling for work... ${this.busy()} ${batchProgress()} ${nicePercent()} ${streamLineNr}`)
       }
       if ( this.test == true || this.demo ) { // uses a loop not polling.
         // error("test is in look for work?")
@@ -1836,22 +1836,6 @@ function pushCli(cs) {
         this.fastReset("charAtCheck returned false: "+ this.dnafile )
         return false
       }
-
-      ///////////////// BEGIN MODIFYING GLOBALS //////////////////////////////
-      if ( renderLock ) { error("draining threads from reset"); return false }
-      mode("setup render " + this.busy() + " " + this.currentFile)
-
-
-      this.setupRender( this.currentFile )
-      msg = `>>> PREFLIGHT <<< ${ remain } ${ path.normalize( this.currentFile )} reason: ${reason}`
-      log(msg)
-      redoline(msg)
-      if (this.extension == "zip") {
-        // streamingZip(this.dnafile )
-        msg = `${this.dnafile }  ZIP file`
-        this.slowSkipNext(msg)
-        return false
-      }
       if ( this.checkFileExtension( this.currentFile ) == false)  {
         msg = `File Format not supported: (${ this.getFileExtension( this.currentFile)}) Please try: ${ extensions }`
         mode(msg)
@@ -1865,6 +1849,22 @@ function pushCli(cs) {
         this.slowSkipNext(msg)
         return true
       }
+
+
+      ///////////////// BEGIN MODIFYING GLOBALS //////////////////////////////
+      if ( renderLock ) { error("draining threads from reset"); return false }
+      mode("setup render " + this.busy() + " " + this.currentFile)
+      this.setupRender( this.currentFile )
+      msg = `>>> PREFLIGHT <<< ${ remain } ${ path.normalize( this.currentFile )} reason: ${reason}`
+      log(msg)
+      redoline(msg)
+      if (this.extension == "zip") {
+        // streamingZip(this.dnafile )
+        msg = `${this.dnafile }  ZIP file`
+        this.slowSkipNext(msg)
+        return false
+      }
+
       log("Checking for previous render of "+ path.basename(this.filePNG))
 
       if (doesFileExist(this.filePNG)) {
@@ -1971,7 +1971,7 @@ function pushCli(cs) {
         return false
       }
       this.currentFile = this.args._.shift()
-      this.setNextFile()
+      // this.setNextFile()
       setTimeout( () => {
       if ( !renderLock ) {
         mode("yadda not rendering")
@@ -3162,6 +3162,7 @@ function pushCli(cs) {
 
           if ( this.isStorageBusy ) {
             output("still saving to storage - will exit after save") // maybe this happens during graceful shutdown
+            return
           }
 
 
@@ -5862,11 +5863,11 @@ function pushCli(cs) {
             }
             function redoline(txt) {
               if (debounce(10)) {
-                if ( debug ) {
-                  term.eraseLine()
+                // if ( debug ) {
+                  // term.eraseLine()
                   console.log(` [ ${ maxWidth( tx - 2,  txt )} ] `)
                   term.up( 1 )
-                }
+                // }
               } else {
                 // term.eraseLine()
                 // console.log(` [ ${ maxWidth( tx - 2,  txt )} ] `)
@@ -6622,7 +6623,7 @@ function pushCli(cs) {
 
                     if ( key.name == "q" || key.name == "escape" ) {
                       killServersOnQuit = false
-                      that.gracefulQuit(0, "Q esc")
+                      // that.gracefulQuit(0, "Q esc")
                     } else if ( !key.ctrl || key.name !== "c") {
                       if ( autoStartGui && key.name == "g") {
                         output(`Starting GUI from key command: ${key.name} ${status}`)
@@ -6640,13 +6641,13 @@ function pushCli(cs) {
                     if ( key.ctrl && (key.name == "c" || key.name == "d"  )) {
                       process.stdin.pause() // stop sending control-c here, send now to parent, which is gonna kill us on the second go with control-c
                       status  = "TERMINATED WITH CONTROL-C"
-                      that.gracefulQuit(0, "Control-c bo")
+                      // that.gracefulQuit(0, "Control-c bo")
                       destroyKeyboardUI()
                       if ( renderLock == true && this.timeRemain < 10000) {
                         that.msPerUpdate = 800
                         output("Closing in 5 seconds. Press [Esc] or [Q] key")
                         setTimeout(()=> {
-                          that.gracefulQuit(130, "Control-c")
+                          // that.gracefulQuit(130, "Control-c")
                           output(blueWhite("Press control-c again to exit"))
                         }, 5000)
                       } else {
