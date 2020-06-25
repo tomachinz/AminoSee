@@ -15,7 +15,7 @@ let cubes = 0 // 1 gives just the row of three at bottom. 2 gives two rows for 6
 // let cubes = 1; // 1 gives just the row of three at bottom. 2 gives two rows for 6 boxes.
 // let cubes = 2; // 1 gives just the row of three at bottom. 2 gives two rows for 6 boxes.
 verbose = false
-filename = getParameterFromURL("selectedGenome")
+filename = getParameterFromURL()
 fileUploadShowing = false
 perspective = true
 paused = false
@@ -69,63 +69,64 @@ if(window.addEventListener) {
 	window.attachEvent("onload",pageLoaded) //IE
 }
 
-  function handleStart(evt) {
-    evt.preventDefault()
-    console.log("touchstart.")
-    var el = document.getElementById("canvas")
-    // var ctx = el.getContext("2d");
-    var touches = evt.changedTouches
+function handleStart(evt) {
+	evt.preventDefault()
+	console.log("touchstart.")
+	var el = document.getElementById("canvas")
+	// var ctx = el.getContext("2d");
+	var touches = evt.changedTouches
 
-    for (var i = 0; i < touches.length; i++) {
-      console.log("touchstart:" + i + "...")
-      // ongoingTouches.push(copyTouch(touches[i]));
-      // var color = colorForTouch(touches[i]);
-      // ctx.beginPath();
-      // ctx.arc(touches[i].pageX, touches[i].pageY, 4, 0, 2 * Math.PI, false);  // a circle at the start
-      // ctx.fillStyle = color;
-      // ctx.fill();
-      console.log("touchstart:" + i + ".")
-    }
-  }
-  function handleMove(evt) {
-    evt.preventDefault()
-    var el = document.getElementById("canvas")
-    var ctx = el.getContext("2d")
-    var touches = evt.changedTouches
+	for (var i = 0; i < touches.length; i++) {
+		console.log("touchstart:" + i + "...")
+		// ongoingTouches.push(copyTouch(touches[i]));
+		// var color = colorForTouch(touches[i]);
+		// ctx.beginPath();
+		// ctx.arc(touches[i].pageX, touches[i].pageY, 4, 0, 2 * Math.PI, false);  // a circle at the start
+		// ctx.fillStyle = color;
+		// ctx.fill();
+		console.log("touchstart:" + i + ".")
+	}
+}
+function handleMove(evt) {
+	evt.preventDefault()
+	var el = document.getElementById("canvas")
+	var ctx = el.getContext("2d")
+	var touches = evt.changedTouches
 
 
-		mouseX = evt.clientX - windowHalfX
-		mouseY = evt.clientY - windowHalfY
+	mouseX = evt.clientX - windowHalfX
+	mouseY = evt.clientY - windowHalfY
 
-    for (var i = 0; i < touches.length; i++) {
-      var color = colorForTouch(touches[i])
-      var idx = ongoingTouchIndexById(touches[i].identifier)
+	for (var i = 0; i < touches.length; i++) {
+		var color = colorForTouch(touches[i])
+		var idx = ongoingTouchIndexById(touches[i].identifier)
 
-      if (idx >= 0) {
-        console.log("continuing touch "+idx)
-        ctx.beginPath()
-        console.log("ctx.moveTo(" + ongoingTouches[idx].pageX + ", " + ongoingTouches[idx].pageY + ");")
-        ctx.moveTo(ongoingTouches[idx].pageX, ongoingTouches[idx].pageY)
-        console.log("ctx.lineTo(" + touches[i].pageX + ", " + touches[i].pageY + ");")
-        ctx.lineTo(touches[i].pageX, touches[i].pageY)
-        ctx.lineWidth = 4
-        ctx.strokeStyle = color
-        ctx.stroke()
+		if (idx >= 0) {
+			console.log("continuing touch "+idx)
+			ctx.beginPath()
+			console.log("ctx.moveTo(" + ongoingTouches[idx].pageX + ", " + ongoingTouches[idx].pageY + ");")
+			ctx.moveTo(ongoingTouches[idx].pageX, ongoingTouches[idx].pageY)
+			console.log("ctx.lineTo(" + touches[i].pageX + ", " + touches[i].pageY + ");")
+			ctx.lineTo(touches[i].pageX, touches[i].pageY)
+			ctx.lineWidth = 4
+			ctx.strokeStyle = color
+			ctx.stroke()
 
-        ongoingTouches.splice(idx, 1, copyTouch(touches[i]))  // swap in the new touch record
-        console.log(".")
-      } else {
-        console.log("can't figure out which touch to continue")
-      }
-    }
-  }
+			ongoingTouches.splice(idx, 1, copyTouch(touches[i]))  // swap in the new touch record
+			console.log(".")
+		} else {
+			console.log("can't figure out which touch to continue")
+		}
+	}
+}
 
-  function startup() {
-  var el = document.getElementById("canvas")
-  el.addEventListener("touchstart", handleStart, false)
-  el.addEventListener("touchend", handleEnd, false)
-  el.addEventListener("touchcancel", handleCancel, false)
-  el.addEventListener("touchmove", handleMove, false)
+function startup() {
+	// var el = document.getElementById("canvas")
+	var el = document.getElementById("aminosee")
+	el.addEventListener("touchstart", handleStart, false)
+	el.addEventListener("touchend", handleEnd, false)
+	el.addEventListener("touchcancel", handleCancel, false)
+	el.addEventListener("touchmove", handleMove, false)
 }
 
 document.addEventListener("DOMContentLoaded", startup)
@@ -177,7 +178,7 @@ function mclick(i) {
 }
 function fileInit(file) {
 	let path = window.location.pathname
-	if (file == undefined) { file = "aminosee_histogram.json" }
+	if (typeof file === "undefined") { file = "aminosee_histogram.json" }
 	if ( path.indexOf("/output/") !== -1 ) {
 		isDetailsPage = true
 	} else {
@@ -185,10 +186,11 @@ function fileInit(file) {
 		document.getElementById("oi").innerHTML = `<img id="current_image" src="${file}" width="64px" height="64px">`
 
 	}
-	let histoURL = `${urlprefix}${file}`
-	// document.getElementById("oi").src = file
+	// let histoURL = `${urlprefix}/${file}`
+	let histoURL = `${urlprefix}/${justNameOfDNA}/${file}`
+	document.getElementById("oi").src = file
 	console.log(`click ${histoURL}`)
-
+	alert(`histogram ${histoURL}`)
 	return  loadHistogramJson(histoURL)
 }
 function fileChanged(file) { // http://127.0.0.1:8888/aminosee/output/Chimp_Clint_chrY/aminosee_histogram.json
@@ -368,41 +370,42 @@ function init2D() {
 }
 
 
-function getParameterFromURL( param ) { // extract filename to load from url
+function getParameterFromURL() { // extract the genome from the page URL params / paths
 	let href = window.location.href
-	let index = href.indexOf( param )
-	if ( index !== -1 ) { // if its not not there
-		param = href.substring(index) // its gonna grab everything past here thats a bug
-
-		index = param.indexOf("=")
-		if ( index !== -1 ) {
-			param = param.substring(index + 1) //CHOP OFF THE =
-		}
-
-		index = param.indexOf("&") // fixed by stopping at &, should probably add # and ? and =
-		if ( index !== -1) {
-			param = param.substring(0, index)
-		}
-
-		index = param.indexOf("#") // fixed by stopping at &, should probably add # and ? and =
-		if ( index !== -1) {
-			param = param.substring(0, index)
-		}
-
-		index = param.indexOf("?") // fixed by stopping at &, should probably add # and ? and =
-		if ( index !== -1) {
-			param = param.substring(0, index)
-		}
+	let index = -1
+	urlparam = href.indexOf("selectedGenome")
 
 
-	} else {
-		// param = `output/Brown_Kiwi_NW_01398187v1/images/Chimp_Clint_chrY.fa_HILBERT__Reference_m7_c397.2.png`;
-		console.log("no param set in URL, will check current directory")
-
-		param = "output/Chimp_Clint_chrY/images/Chimp_Clint_chrY.gbk_linear_c2_Reference_sqr_sci.png"
+	index = href.indexOf("/output/")
+	if ( index !== -1 ) {
+		const frag = href.substring(index, href.length)
+		const endindex = frag.indexOf("/")
+		return frag.substring(0, endindex) //CHOP OFF THE END,which could be /index.html etc
 	}
-	console.log(`loading ${param}`)
-	return param
+
+	href = href.substring(urlparam +1)
+	index = href.indexOf("=")
+	if ( index !== -1 ) {
+		return href.substring(index + 1) //CHOP OFF THE =
+	}
+
+	index = href.indexOf("&") // fixed by stopping at &, should probably add # and ? and =
+	if ( index !== -1) {
+		return href.substring(0, index)
+	}
+
+	index = href.indexOf("#") // fixed by stopping at &, should probably add # and ? and =
+	if ( index !== -1) {
+		return href.substring(0, index)
+	}
+
+	index = href.indexOf("?") // fixed by stopping at &, should probably add # and ? and =
+	if ( index !== -1) {
+		return href.substring(0, index)
+	}
+
+	console.log("no param set in URL")
+	return href
 }
 
 function setupColorPicker() {

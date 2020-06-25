@@ -85,7 +85,7 @@
 					</div>
 					<div class="dark">
 						<p class="hidable dark button" style="background-color: black;">
-							<a href="output">2D IMAGE RENDERS</a> |
+							<a href="output" class="button hidable">2D IMAGE RENDERS</a> |
 							<a href="/pdf/AminoSee_WhitePaper_09Jan2019.pdf" class="button hidable">WHITE PAPER PDF</a> |
 							<a href="/blog/news/aminosee-dna-visualisation" class="button hidable">2018 Press Release</a> |
 							<a href="calibration/AminoSee_Calibration_reg_HILBERT_8.png" class="button hidable">Calibration</a> |
@@ -169,9 +169,8 @@
 					<h1>Welcome to the Amino<span style="color: #888888;">See</span><span style="color: #dddddd;">NoEvil</span> DNA Viewer</h1>
 
 					<h2 class="dark">
-						try the <a href="output/Brown_Kiwi_NW_013982187v1/">Brown Kiwi</a>, <a href="output/Caenorhabditisel.dna_sm.toplevel/">C.elegans</a>... and now also <a href="output/Sars2-COVID-19WueteGenome-ss-RNA/">Sars2 COVID-19 ss-RNA</a></h2>
+						<a href="output/Chimp_Clint_chrY/">Clint the Chimp</a> is looking the best today, new version of the software. This stuff takes a lot of render power to make. try the <a href="output/Brown_Kiwi_NW_013982187v1/">Brown Kiwi</a>, <a href="output/Caenorhabditisel.dna_sm.toplevel/">C.elegans</a>... and now also <a href="output/Sars2-COVID-19WueteGenome-ss-RNA/">Sars2 COVID-19 ss-RNA</a></h2>
 						* Try using WASD keys to move about.
-
 					</div>
 
 

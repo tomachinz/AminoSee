@@ -122,7 +122,7 @@ module.exports = () => {
   mode("exports")
   setupApp()
   mode("module exit")
-  log( `S: ${status} ` )
+  // log( `S: ${status} ` )
 }
 function startGUI() {
   cliInstance.gui = true
@@ -176,7 +176,7 @@ function populateArgs(procArgv) { // returns args
     boolean: [ "artistic", "clear", "chrome", "devmode", "debug", "demo", "dnabg", "explorer", "file", "force", "fullscreen", "firefox", "gui", "html", "image", "keyboard", "list", "progress", "quiet", "reg", "recycle", "redraw", "slow", "serve", "safari", "test", "updates", "verbose", "view" ],
     string: [ "url", "output", "triplet", "peptide", "ratio" ],
     alias: { a: "artistic", b: "dnabg", c: "codons", d: "devmode", f: "force", finder: "explorer", h: "help", k: "keyboard", m: "magnitude", o: "output", p: "peptide", i: "image", t: "triplet", u: "updates", q: "quiet", r: "reg", w: "width", v: "verbose", x: "explorer", view: "html" },
-    default: { brute: false, debug: false, keyboard: false, progress: false, redraw: true, updates: true, stop: false, serve: true, fullscreen: false }, // html: true, image: true, index: false, clear: false, explorer: false, quiet: false, gui: false,
+    default: { brute: false, debug: false, keyboard: true, progress: false, redraw: true, updates: true, stop: false, serve: true, fullscreen: false }, // html: true, image: true, index: false, clear: false, explorer: false, quiet: false, gui: false,
     stopEarly: false
   } // NUMERIC INPUTS: codons, magnitude, width, maxpix
   let args = minimist(procArgv.slice(2), options)
@@ -245,16 +245,16 @@ function pushCli(cs) {
     [ userprefs, projectprefs ] = setupPrefs()
     lastHammered = new Date()
 
-    // if ( this.updateProgress == true ) {
-    // 	progato = term.progressBar( {
-    // 		width: 80 ,
-    // 		title: "Daily tasks:" ,
-    // 		eta: true ,
-    // 		percent: true ,
-    // 		inline: true,
-    // 		items: remain
-    // 	} )
-    // }
+    if ( this.updateProgress == true ) {
+    	progato = term.progressBar( {
+    		width: 80 ,
+    		title: "Daily tasks:" ,
+    		eta: true ,
+    		percent: true ,
+    		inline: true,
+    		items: remain
+    	} )
+    }
     cliInstance = new AminoSeeNoEvil()
     threads.push( cliInstance )
     termSize()
@@ -478,7 +478,7 @@ function pushCli(cs) {
       }
       if ( args.debug ) {
         debug = true
-        output("debug mode ENABLED")
+        output("💩 debug mode ENABLED 💩")
       } else {
         debug = false
       }
@@ -503,7 +503,7 @@ function pushCli(cs) {
       }
       this.devmode = false
       if ( args.devmode || args.d) { // needs to be at top sochanges can be overridden! but after debug.
-        output("devmode enabled.")
+        output("💩 devmode enabled 💩")
         this.toggleDevmode() // make sure debug is set first above
       }
       if ( args.recycle ) { // needs to be at top so  changes can be overridden! but after debug.
@@ -511,7 +511,7 @@ function pushCli(cs) {
         this.recycEnabled = true
       } else { this.recycEnabled = false }
       if ( args.keyboard || args.k ) {
-        log("KEYBOARD MODE HAS SOME BUGS ATM SORRY")
+        log("💩 KEYBOARD MODE HAS SOME BUGS ATM SORRY 💩")
         this.keyboard = true
         termDisplayHeight += 4 // display bigger
         if ( this.verbose == true) {
@@ -556,7 +556,7 @@ function pushCli(cs) {
       }
       if ( args.any || args.a) {
         this.anyfile = true
-        output("will ignore filetype extensions list and try to use any file")
+        output("will ignore filetype extensions - and try to use any file as ASCII DNA. If it contains words like CAT this may work. Unlikely to.")
       } else {
         log(`will only open files with extensions: ${extensions}`)
         this.anyfile = false
@@ -638,9 +638,9 @@ function pushCli(cs) {
         if ( this.peptide !== "Reference"  ) { // this colour is a flag for  this.error
           isHighlightSet = true
           this.index = false // disable html report
-          log(blueWhite(`Custom peptide: ${ this.usersPeptide }`))
+          notQuiet("No report is made when focussed on: " + blueWhite(`Custom peptide: ${ this.usersPeptide }`))
         } else {
-          output(blueWhite(`Sorry, could not lookup users peptide: ${ this.usersPeptide } using ${ this.peptide }`))
+          notQuiet(blueWhite(`Sorry, could not lookup users peptide: ${ this.usersPeptide } using ${ this.peptide }`))
         }
       } else {
         log("No custom peptide chosen. Will render standard reference type image")
@@ -672,11 +672,12 @@ function pushCli(cs) {
         log("1:1 science mode enabled.")
         this.artistic = false
       }
-      if ( args.index ) {
+      if ( args.index && !isHighlightSet || args.magnitude <= defaultPreviewDimension) {
         notQuiet("INDEX.HTML will also be written out")
         this.index = true
-      } else if ( args.codons ) {
-        log("Will only output index file is -c flag is not used")
+        this.report = true
+      } else if ( isHighlightSet ) {
+        notQuiet("Can not output index.html file when a focus flag is in use eg (like --peptide=Alanine or --triplet=AAA)")
         this.index = false
       }
 
@@ -751,7 +752,7 @@ function pushCli(cs) {
         this.serve = true
         this.keyboard = true
         killServersOnQuit = false
-        this.justNameOfPNG = "undefined"
+        this.justNameOfPNG = "unset"
       } else {
         log("Webserver run in foreground, will exit with app, use --serve to spawn background process ")
         this.serve = false
@@ -776,9 +777,9 @@ function pushCli(cs) {
       }
       if ( args.reg || args.r) { // NEEDS TO BE ABOVE TEST
         this.reg = true
-        output("using regmarks")
+        notQuiet("using regmarks")
       } else {
-        log("no regmarks")
+        notQuiet("no regmarks")
         this.reg = false
       }
 
@@ -908,14 +909,12 @@ function pushCli(cs) {
         runDemo()
       }
 
+      server.stop() // kludge? maybe remove later
 
       if ( webserverEnabled ) {
-        server.stop()
         url = projectprefs.aminosee.url
         output()
-        output(`Starting mini server at: ${ webroot } `)
-        output(`Using URL: ${ chalk.underline( url )}`)
-        // projectprefs.aminosee.url = url
+        output(`Starting mini server at: ${ webroot } ${ batchProgress()}`)
         this.setupKeyboardUI()
         autoStartGui = false
         // output(`Server running at: ${ chalk.underline( url ) } to stop use: aminosee --stop `)
@@ -924,7 +923,7 @@ function pushCli(cs) {
         this.currentURL = this.generateURL()
         // this.currentURL = server.start( generateTheArgs() )
         let theargs =  generateTheArgs()
-        console.log( theargs )
+        log( theargs )
 
         try {
           server( theargs )
@@ -939,7 +938,7 @@ function pushCli(cs) {
 
       if ( remain > 0 ) {
         mode(remain + " Ω first command Ω ")
-        output(chalk.green(`${chalk.underline("Job items Ω ")} ${batchProgress()} ` ))
+        notQuiet(chalk.green(`${chalk.underline("Job items Ω ")} ${batchProgress()} ` ))
         log(this.outputPath)
         this.dnafile = args._.toString()
         // this.slowSkipNext()
@@ -1019,7 +1018,7 @@ function pushCli(cs) {
       }
 
 
-
+      notQuiet("Hello. Breathing is a wonderful thing.")
 
       // if ( this.gui == true && this.quiet == false ) {
       // 	theGUI = startGUI()
@@ -1062,12 +1061,12 @@ function pushCli(cs) {
       }
     }
     destroyProgress() { // this.now thats a fucking cool name if ever there was!
-      // if (remain == -1) {
-      // }
       if ( this.updateProgress == true) {
         if ( typeof progato !== "undefined" ) {
-          progato.stop()
-          //  progato = null;
+          try {
+            progato.stop()
+            progato = null;
+          } catch(e) {}
         }
       }
       clearTimeout( this.updatesTimer)
@@ -1300,12 +1299,12 @@ function pushCli(cs) {
     progUpdate(obj) {  // allows to disable all the prog bars in one place
       if ( this.updateProgress == true) {
         if ( typeof progato !== "undefined" && obj ) {
-          // this.fastUpdate()
-          // redoline(`Progress ${obj}`)
+          this.fastUpdate()
+          redoline(`Progress ${obj}`)
           progato.update(obj)
         }
       } else {
-        // redoline(`progress dummy function: ${obj}`)
+        redoline(`progress dummy function: ${obj}`)
         // bugtxt(`progress dummy function: ${obj}`)
       }
     }
@@ -1620,24 +1619,35 @@ function pushCli(cs) {
     }
 
     setNextFile() {
-      procTitle("init")
-      try {
-        this.nextFile = this.args._[1] // not the last but the second to last
-      } catch(e) {
-        this.nextFile = "...Finito..."
-      }
-      if ( typeof this.nextFile === "undefined" ) {
-        this.nextFile = "...Loading..."
-        return false
-      } else if (doesFileExist( this.nextFile)) {
-        if ( this.checkFileExtension( path.resolve( this.nextFile )) == false ) {
-          this.nextFile += chalk.inverse(" (will skip) ")
-        } else {
-          this.nextFile += chalk.inverse(" (will render) ")
+      // procTitle("about to set next file")
+      // out(`*`)
+      // setTimeout( () => {
+        procTitle("setting set next file")
+        out(`*`)
+        try {
+          this.nextFile = this.args._[1] // not the last but the second to last
+        } catch(e) {
+          this.nextFile = "...Finito..."
         }
-        return true
-      }
-      if ( remain < 1 ) { return }
+        if ( typeof this.nextFile === "undefined" ) {
+          this.nextFile = "...Loading..."
+          return false
+        } else if (doesFileExist( this.nextFile)) {
+          if ( this.checkFileExtension( path.resolve( this.nextFile )) == false ) {
+            this.nextFile += chalk.inverse(" (will skip) ")
+          } else {
+            this.nextFile += chalk.inverse(" (will render) ")
+          }
+          return true
+        }
+        if ( remain < 1 ) { return }
+
+
+      // }, this.raceDelay)
+
+
+
+
 
     }
     pollForStream( reason ) {
@@ -1677,7 +1687,7 @@ function pushCli(cs) {
         if ( killServersOnQuit ) {
           output("Control-c to stop server")
           setTimeout( () => {
-            this.quit(1,  status )
+            // this.quit(1,  status )
           }), 10
         } else {
           // output("Control-c to stop server")
@@ -1946,7 +1956,11 @@ function pushCli(cs) {
       this.setNextFile()
       // setTimeout( () => {
       if ( !renderLock ) {
+        output("yadda")
         this.pollForStream( maxWidth(12, status ))
+      } else {
+        output("dabba")
+
       }
 
       // }, this.raceDelay)
@@ -1954,7 +1968,7 @@ function pushCli(cs) {
     initStream() {
       this.runid = new Date().getTime()
       mode(`Initialising Stream: ${cliruns.toLocaleString()} ${this.justNameOfPNG}`)
-      output( chalk.rgb(64, 128, 255).bold( status ))
+      notQuiet( chalk.rgb(64, 128, 255).bold( status ))
       output(`Output folder --->> ${ blueWhite( blueWhite( path.normalize( this.outputPath )))}`)
       this.setNextFile()
       // this.timestamp = Math.round(+new Date()/1000)
@@ -2337,9 +2351,8 @@ AminoSee version: ${version}`
         return this.currentURL
       }
 
-      generateFilenameHistogram( focus ) {
-        this.fileHistogram = path.resolve( this.outputPath, this.justNameOfDNA, "aminosee_histogram.json")
-        return this.fileHistogram
+      generateFilenameHistogram() {
+        return path.resolve( this.outputPath, this.justNameOfDNA, "aminosee_histogram.json")
       }
 
       generateFilenameTouch( focus ) { // we need the *fullpath* of this one
@@ -2370,6 +2383,9 @@ AminoSee version: ${version}`
           this.fileHILBERT = path.resolve( this.imgPath, this.justNameOfHILBERT )
         }
         log(`generateFilenameHilbert: ${this.justNameOfHILBERT} focus: ${blueWhite(focus)}`)
+        if ( this.justNameOfHILBERT.substring("NaN") !== -1) {
+          error(` this.justNameOfHILBERT.substring("NaN") !== -1)`)
+        }
         return this.justNameOfHILBERT
       }
       generateFilenameHTML() {
@@ -2773,7 +2789,7 @@ AminoSee version: ${version}`
         // let histotext = beautify( JSON.stringify( histogramJson ), null, 2, 100);
         // let histotext =  JSON.stringify( histogramJson )
         let histotext =  histogramJson.toString()
-        log(histotext)
+        output(histotext)
 
         const isHighRes = this.dimension > defaultPreviewDimension
 
@@ -2784,12 +2800,14 @@ AminoSee version: ${version}`
 
         if ( this.dimension > defaultPreviewDimension ) {
           this.fileWrite(path.resolve( this.outputPath, this.justNameOfDNA, "highres.html"), hypertext)
-        } else {
-          output( blueWhite("NOT HIGH RES"))
+          output( blueWhite(`Writing high resolution report for the directory ${this.justNameOfDNA}`))
+        } else if ( this.dimension = defaultPreviewDimension ) {
+          this.index = true;
         }
 
         if ( this.index || !isHighRes ) { // if it wont make the users computer explode... set it as index page!
           this.fileWrite(path.resolve( this.outputPath, this.justNameOfDNA, "index.html"), hypertext)
+          output( blueWhite(`Writing default report for the directory ${this.justNameOfDNA}`))
         }
 
         if ( this.artistic ) {
@@ -2928,16 +2946,21 @@ AminoSee version: ${version}`
       createPreviews(cb) {
         // let scaleDownFactor = 1 / ()\
 
-        this.dimension = defaultMagnitude = defaultPreviewDimension
-        const shrinkFactor = hilbPixels[ defaultMagnitude ] / (this.pixelClock / 4)
+        this.dimension = this.magnitude = defaultMagnitude = defaultPreviewDimension
+        const shrinkFactor = hilbPixels[ defaultMagnitude ] / (this.pixelClock*4)
         this.shrinkFactor = shrinkFactor
         output(`making smaller resolution previews from source pixels ${this.pixelClock} ${this.dimension} to ${defaultPreviewDimension} shrinkFactor ${shrinkFactor}`)
-        this.index = true // disable html report
+        // this.index = true // enable html report
         this.isDiskFinLinear = true;
         this.isDiskFinHTML = false;
-        // this.hilbertImage = this.resampleByFactor( shrinkFactor  )
-        this.hWidth = Math.sqrt(this.hilbertImage.length / 2)
+        this.hilbertImage = this.resampleByFactor( shrinkFactor  )
+        this.hWidth = Math.sqrt(this.hilbertImage.length / 4)
         this.hHeight  = this.hWidth
+        this.index =true;
+        this.calcHilbertFilenames()
+        // this.prepareHilbertArray()
+        this.fancyFilenames()
+
 
         this.saveDocsSync()
 
@@ -2965,14 +2988,16 @@ AminoSee version: ${version}`
         // if its the right this.extension go to sleep
         // check if all the disk is finished and if so change the locks
         if ( this.isDiskFinLinear == true && this.isDiskFinHilbert == true && this.isDiskFinHTML == true ) {
+          output(`this.dimension ${this.dimension} > defaultPreviewDimension ${defaultPreviewDimension}`)
 
-          if (this.dimension > defaultPreviewDimension) {
-              this.createPreviews( () => {
-                this.postRenderPoll(`finished creating previews`)
-              })
+          if (this.dimension >= defaultPreviewDimension) { //
+            this.setIsDiskBusy( true )
+            this.createPreviews( () => {
+              this.postRenderPoll(`Outputting standard resolution version if this genomes is really huge`)
+            })
             return false;
           } else {
-            output(`not making previews this.dimension ${this.dimension} is not > defaultPreviewDimension ${defaultPreviewDimension}`)
+            output(`This render is at --magnitude=4 or less not consider detailed enough for high res. It will be the standard resolution. magnitude: ${this.dimension} required: ${defaultPreviewDimension}`)
           }
 
           // renderLock = false
@@ -3018,7 +3043,7 @@ AminoSee version: ${version}`
               this.slowSkipNext(msg)
             }
           } else {
-            log(` [ ${reason} wait on storage: ${chalk.inverse( this.storage() )}  ] `)
+            notQuiet(` [ ${reason} wait on storage: ${chalk.inverse( this.storage() )}  ] `)
           }
         }
         getFilesizeInBytes(file) {
@@ -3122,7 +3147,7 @@ AminoSee version: ${version}`
           }
 
           if (remain > 0 ) {
-            output(`There is more work (${remain}). Rendering: ${this.justNameOfPNG} ${this.timeRemain}`)
+            error(`There is more work (${remain}). Rendering: ${this.justNameOfPNG} ${this.timeRemain}`)
             // if ( renderLock ) {
             //   output("shutdown halted due to rendering")
             //   return true
@@ -3517,14 +3542,14 @@ AminoSee version: ${version}`
   <script async src="../../public/hilbert2D.js"></script>
   <script async src="../../public/WebGL.js"></script>
   <script async src="../../public/hammer.min.js"></script>
-  <script async src="../../public/aminosee-gui-web.js"></script>
+  <script src="../../public/aminosee-gui-web.js"></script>
   <style>
   border: 1px black;
   backround: black;
   padding: 4px;
   </style>
   </head>
-  <body class="aminosee">
+  <body id="aminosee" class="aminosee">
   <!-- Google Tag Manager -->
   <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-P8JX"
   height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
@@ -3971,7 +3996,11 @@ AminoSee version: ${version}`
             mode(`DNA linear render done (${this.justNameOfPNG}). Waiting on (${ this.storage()})`)
           }
           log(`Finished ${this.filePNG}`)
-          this.postRenderPoll( `R: ${status} ` )
+          // this.postRenderPoll( `R: ${status} ` )
+          setTimeout(() => {
+            error(`Maybe this is a bug?`)
+            this.postRenderPoll(`seems like a bug or race cond inside linearFinished`)
+          }, 500)
         }
 
         bothKindsTestPattern( cb ) {
@@ -5205,6 +5234,7 @@ AminoSee version: ${version}`
             if (typeof txt === "undefined") { txt = " "} else {
               if ( cliInstance ) {
                 if ( typeof cliInstance.justNameOfPNG === "undefined" ) {
+                  txt += `cliInstance.justNameOfPNG === "undefined"`
                   wTitle(`${  txt }`) // put it on the terminal windowbar or in tmux
                 }
               }
@@ -5218,13 +5248,13 @@ AminoSee version: ${version}`
             } else {
               process.stdout.write(".")
             }
-            term.eraseLine()
+            // term.eraseLine()
           }
           function out(txt) {
             // let that = gimmeDat();
             // if ( that.quiet == false || debug ) {
             // term.column(1)
-            if (debug ) {
+            if ( debug ) {
               process.stdout.write(chalk.blue(" [ ") + removeNonAscii( txt ) + chalk.blue(" ] "))
             } else {
               process.stdout.write(".")
@@ -5258,7 +5288,7 @@ AminoSee version: ${version}`
             if ( !debounce() ) {
               return false
             }
-            if (typeof this == "undefined") {
+            if (typeof this === "undefined") {
               txt = hostname
             }
 
@@ -5267,7 +5297,6 @@ AminoSee version: ${version}`
             if (typeof cliInstance !== "undefined") {
               cliInstance.progUpdate( this.percentComplete )
               txt += `${cliInstance.justNameOfPNG} ${new Date().getTime()}`
-
             }
             term.windowTitle(helixEmoji +  txt )
           }
@@ -6053,7 +6082,7 @@ AminoSee version: ${version}`
 
             let clusterRender = false
 
-            log(`If the following paths contain a directory named ${obviousFoldername} they will be used for output:`)
+            log(`If your DNA source directory paths contain a directory with a magic name: '${obviousFoldername}' then will be used for output instead of your home folder at $HOME or ~`)
 
             webroot =  path.resolve( path.dirname( filename ), obviousFoldername) // support drag and drop in the GUI
 
@@ -6366,7 +6395,7 @@ AminoSee version: ${version}`
             if( typeof cb !== "undefined") {
               if( typeof cb === "function") {
                 log("run cb")
-                setTimeout( cb, 200)
+                setTimeout( cb, 2000)
                 // cb()
               } else {
                 log(blueWhite( "cb is not a function?"))
@@ -6407,7 +6436,7 @@ AminoSee version: ${version}`
               }
             }
             if ( devmode == true ) {
-              output("Because you are using --devmode, the lock file is not deleted. This is useful during development of the app because when I interupt the render with Control-c, AminoSee will skip that file next time, unless I use --force. Lock files are safe to delete at any time.")
+              notQuiet("Because you are using --devmode, the lock file is not deleted. This is useful during development of the app because when I interupt the render with Control-c, AminoSee will skip that file next time, unless I use --force. Lock files are safe to delete at any time.")
             } else {
               deleteFile( lockfile )
             }
@@ -6456,7 +6485,7 @@ AminoSee version: ${version}`
               error(`internal state not consistent: ${path.basename(fullpath)} !== ${cliInstance.justNameOfDNA}`)
               return
             } else {
-              output("here goes nothing, about to remove folder: "+ path.basename(fullpath))
+              notQuiet("here goes nothing, about to remove folder: "+ path.basename(fullpath))
             }
             deleteFile( cliInstance.filePNG )
             deleteFile( cliInstance.fileHILBERT )
@@ -6496,12 +6525,12 @@ AminoSee version: ${version}`
               }
 
               output(`DEBUG MODE IS ENABLED. STOPPING: ${err}`)
-              // process.exit()
               throw new Error(err)
+              process.exit()
             } else {
-              cliInstance.raceDelay += 250
+              cliInstance.raceDelay += 50
               output()
-              notQuiet(`💩 Caught error: ${err} INCREASING DELAY BY 250 ms`)
+              notQuiet(`💩 Caught error: ${err} INCREASING DELAY BY 50 ms`)
               output()
             }
           }

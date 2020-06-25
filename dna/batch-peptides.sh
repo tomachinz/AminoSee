@@ -70,6 +70,30 @@ find_way_peptides () {
   find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee  --peptide=Histidine $1 $2 $3 $4 $5 $6 $7 "{}" \;
 
   echo FINISHED SERIAL DECODE FOR $1 $2 $3 $4 $5 $6 $7
+
+	find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -m5  --index                 $1 $2 $3 $4 $5 $6 $7 "{}" \;
+	find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -m5  --peptide=Glutamic_acid $1 $2 $3 $4 $5 $6 $7 "{}" \;
+	find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -m5  --peptide=Aspartic_acid $1 $2 $3 $4 $5 $6 $7 "{}" \;
+	find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -m5  --peptide=Ochre $1 $2 $3 $4 $5 $6 $7 "{}" \;
+	find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -m5  --peptide=Amber $1 $2 $3 $4 $5 $6 $7 "{}" \;
+	find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -m5  --peptide=Cysteine $1 $2 $3 $4 $5 $6 $7 "{}" \;
+	find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -m5  --peptide=Glycine $1 $2 $3 $4 $5 $6 $7 "{}" \;
+	find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -m5  --peptide=Alanine $1 $2 $3 $4 $5 $6 $7 "{}" \;
+	find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -m5  --peptide=Methionine $1 $2 $3 $4 $5 $6 $7 "{}" \;
+	find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -m5  --peptide=Valine $1 $2 $3 $4 $5 $6 $7 "{}" \;
+	find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -m5  --peptide=Leucine $1 $2 $3 $4 $5 $6 $7 "{}" \;
+	find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -m5  --peptide=Isoleucine $1 $2 $3 $4 $5 $6 $7 "{}" \;
+	find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -m5  --peptide=Phenylalanine $1 $2 $3 $4 $5 $6 $7 "{}" \;
+	find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -m5  --peptide=Tryptophan $1 $2 $3 $4 $5 $6 $7 "{}" \;
+	find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -m5  --peptide=Serine $1 $2 $3 $4 $5 $6 $7 "{}" \;
+	find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -m5  --peptide=Threonine $1 $2 $3 $4 $5 $6 $7 "{}" \;
+	find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -m5  --peptide=Opal $1 $2 $3 $4 $5 $6 $7 "{}" \;
+	find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -m5  --peptide=Glutamine $1 $2 $3 $4 $5 $6 $7 "{}" \;
+	find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -m5  --peptide=Asparagine $1 $2 $3 $4 $5 $6 $7 "{}" \;
+	find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -m5  --peptide=Tyrosine $1 $2 $3 $4 $5 $6 $7 "{}" \;
+	find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -m5  --peptide=Arginine $1 $2 $3 $4 $5 $6 $7 "{}" \;
+	find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -m5  --peptide=Lysine $1 $2 $3 $4 $5 $6 $7 "{}" \;
+	find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -m5  --peptide=Histidine $1 $2 $3 $4 $5 $6 $7 "{}" \;
 }
 
 
@@ -105,8 +129,9 @@ if [ -z "$1" ]; then
 	nice -n 2 aminosee --no-keyboard  --quiet *  --peptide=Lysine
 	nice -n 2 aminosee                        *  --peptide=Histidine
 	echo
-	echo end of batch peptides
+	echo end of batch peptides - now doing "find way" brute forcing it
   # exit
+	find_way_peptides
 else
   series_peptides $1 $2 $3 $4
 fi
