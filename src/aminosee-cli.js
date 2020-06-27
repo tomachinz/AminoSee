@@ -102,7 +102,7 @@ const fileLockingDelay = 2000
 // BigInt.prototype.toJSON = function() { return this.toString(); }; // shim for big int
 // BigInt.prototype.toBSON = function() { return this.toString(); }; // Add a `toBSON()` to enable MongoDB to store BigInts as strings
 let autoStartGui = true
-let cfile, streamLineNr, renderLock, jobArgs, killServersOnQuit, webserverEnabled, cliInstance, tx, ty, termPixels, cliruns, gbprocessed, projectprefs, userprefs, genomesRendered, progato, commandString, batchSize, quiet, url, port, status, remain, lastHammered, darkenFactor, highlightFactor, loopCounter, webroot, tups,  opensFile , opensHtml , opensImage, previousImage, isHighlightSet, aminosee_json
+let cfile, streamLineNr, renderLock, jobArgs, killServersOnQuit, webserverEnabled, cliInstance, tx, ty, termPixels, cliruns, gbprocessed, projectprefs, userprefs, genomesRendered, progato, commandString, batchSize, quiet, url, port, status, remain, lastHammered, darkenFactor, highlightFactor, loopCounter, webroot, tups,  opensFile , opensHtml , opensImage, previousImage, isHighlightSet, aminosee_json, hilpix
 // let theGUI
 tups = opensFile = opensHtml = opensImage = 0 // terminal flossing
 let opens = 0 // session local counter to avoid having way too many windows opened.
@@ -116,6 +116,7 @@ let threads = [] // an array of AminoSeNoEvil instances.
 let clear = false
 let debug = false // should be false for PRODUCTION
 let brute = false // used while accelerating the render 20x
+let setuplock = false // used while accelerating the render 20x
 webserverEnabled = false
 genomesRendered = [dummyFilename]
 renderLock = false
@@ -125,10 +126,8 @@ module.exports = () => {
   mode("exports")
   setupApp()
   // setupKeyboardUI2()
-  mode("module exit")
+  // mode("module exit")
   // destroyKeyboardUI()
-  // cliInstance.quit(0, status)
-  log( `S: ${status} ` )
 }
 function startGUI() {
   cliInstance.gui = true
@@ -184,7 +183,7 @@ function populateArgs(procArgv) { // returns args
     boolean: [ "artistic", "clear", "chrome", "devmode", "debug", "demo", "dnabg", "explorer", "file", "force", "fullscreen", "firefox", "gui", "html", "image", "keyboard", "list", "progress", "quiet", "reg", "recycle", "redraw", "slow", "serve", "safari", "test", "updates", "verbose", "view" ],
     string: [ "url", "output", "triplet", "peptide", "ratio" ],
     alias: { a: "artistic", b: "dnabg", c: "codons", d: "devmode", f: "force", finder: "explorer", h: "help", k: "keyboard", m: "magnitude", o: "output", p: "peptide", i: "image", t: "triplet", u: "updates", q: "quiet", r: "reg", w: "width", v: "verbose", x: "explorer", view: "html" },
-    default: { brute: false, debug: false, keyboard: true, progress: false, redraw: true, updates: true, stop: false, serve: false, fullscreen: false }, // html: true, image: true, index: false, clear: false, explorer: false, quiet: false, gui: false,
+    default: { brute: false, debug: false, keyboard: false, progress: true, redraw: true, updates: true, stop: false, serve: false, fullscreen: false }, // html: true, image: true, index: false, clear: false, explorer: false, quiet: false, gui: false,
     stopEarly: false
   } // NUMERIC INPUTS: codons, magnitude, width, maxpix
   let args = minimist(procArgv.slice(2), options)
@@ -241,9 +240,9 @@ function pushCli(cs) {
           log(`configuring parameter: [${job}]`)
         }
       }
-      let thread = newJob(jobArgs)
-      threads.push( thread )
-      output(`NUMBER OF THREADS: ${threads.length}`)
+      // let thread = newJob(jobArgs)
+      // threads.push( thread )
+      // output(`NUMBER OF THREADS: ${threads.length}`)
     }
 
 
@@ -252,8 +251,7 @@ function pushCli(cs) {
   function setupApp() {
     if ( renderLock ) { error("draining thread from setupApp"); return false }
     output(`Setting up`)
-    // [ userprefs, projectprefs ] = setupPrefs()
-    setupPrefs()
+
     lastHammered = new Date()
 
     if ( this.updateProgress == true ) {
@@ -267,22 +265,22 @@ function pushCli(cs) {
       } )
     }
     cliInstance = new AminoSeeNoEvil()
+    // [ userprefs, projectprefs ] = cliInstance.setupPrefs()
+    // cliInstance.setupPrefs()
     threads.push( cliInstance )
     termSize()
     // webroot = locateWebroot()
     // cliInstance.resized()
-    cliInstance.setupJob( populateArgs( process.argv ), "module exports"  )
     cliInstance.outputPath = path.join( webroot, netFoldername) // ~/AminoSee_webroot/output
+    cliInstance.setupJob( populateArgs( process.argv ), "module exports"  )
 
   }
-  function newJob( job ) { // used node and CLI tool.
-    // output( job )
-    let nuThread = new AminoSeeNoEvil()
-    // populateArgs( process.argv )
-    // nuThread.setupJob( process.argv );
-    nuThread.setupJob( job, `new job ${job}` ) // do stuff that is needed even just to run "aminosee" with no options.
-    return nuThread
-  }
+  // function newJob( job ) { // used node and CLI tool.
+  //   let nuThread = new AminoSeeNoEvil()
+  //   populateArgs( process.argv )
+  //   nuThread.setupJob( job, `new job ${job}` ) // do stuff that is needed even just to run "aminosee" with no options.
+  //   return nuThread
+  // }
 
   class AminoSeeNoEvil {
     constructor(o) { // CLI commands, this.files, *
@@ -292,7 +290,7 @@ function pushCli(cs) {
         this.outputPath = o
       }
       output( logo() );
-      [ projectprefs, userprefs] = setupPrefs()
+      [ projectprefs, userprefs] = this.setupPrefs()
       this.red = this.green = this.blue = this.alpha = 0
       term.on("resize", () => {
         this.resized()
@@ -300,15 +298,19 @@ function pushCli(cs) {
       process.stdout.on("resize", () => {
         this.resized()
       })
+
     }
 
 
     setupJob( args, reason ) {
+      if ( setuplock ) { output(`Id love to know why this fires twice`) }
+      setuplock = true
+      if ( typeof reason === "undefined") { error(`reason must not be undef`); }
       if ( renderLock === true ) { error("draining threads from setupJob"); return false }
       mode("setup job " + reason + this.busy())
-      log( `setup job:  ${status}   ${reason} ${ maxWidth(32,   args.toString() ) }` )
-      // [ userprefs, projectprefs ] = setupPrefs()
-      setupPrefs()
+      output( `setup job:  ${status}   ${reason} ${ maxWidth(32,   args.toString() ) }` )
+      // [ userprefs, projectprefs ] = this.setupPrefs()
+      this.setupPrefs()
       // do stuff aside from creating any changes. eg if you just run "aminosee" by itself.
       // for each render batch sent through newJob, here is where "this" be instantiated once per newJob
       // for each DNA file, run setupRender
@@ -320,7 +322,7 @@ function pushCli(cs) {
       darkenFactor = 0.25 // if user has chosen to highlight an amino acid others are darkened
       highlightFactor = 4.0 // highten brightening.
       loopCounter = 0
-      this.raceDelay = 469 // so i learnt a lot on this project. one day this line shall disappear replaced by promises.
+      this.raceDelay = 1469 // so i learnt a lot on this project. one day this line shall disappear replaced by promises.
       this.charClock = 0
       this.pixelClock = 0
       this.peptide = this.triplet = this.focusTriplet = this.focusPeptide = "Reference" // used to be "none" is now "Reference"
@@ -378,6 +380,8 @@ function pushCli(cs) {
       this.pepTable = data.pepTable
       this.args = args // populateArgs(procArgv); // this.args;
       // this.currentFile = args._[0].toString()
+      this.setNextFile()
+
       if ( args.demo ) {
         this.demo = true
         this.test = true
@@ -418,7 +422,6 @@ function pushCli(cs) {
       this.magnitude = defaultMagnitude
       this.msPerUpdate  = minUpdateTime // min milliseconds per update its increased for long renders
       this.termMarginTop = (term.height -  termDisplayHeight -   termHistoHeight ) / 4
-      this.setNextFile()
       termSize()
       this.previousImage = this.justNameOfDNA
       // output(logo());
@@ -492,7 +495,7 @@ function pushCli(cs) {
       }
       if ( args.debug ) {
         debug = true
-        output("💩 debug mode ENABLED 💩")
+        // output("💩 debug mode ENABLED 💩")
       } else {
         debug = false
       }
@@ -517,7 +520,6 @@ function pushCli(cs) {
       }
       this.devmode = false
       if ( args.devmode || args.d ) { // needs to be at top sochanges can be overridden! but after debug.
-        output("💩 devmode enabled 💩")
         this.toggleDevmode() // make sure debug is set first above
       }
       if ( args.recycle ) { // needs to be at top so  changes can be overridden! but after debug.
@@ -823,7 +825,7 @@ function pushCli(cs) {
       }
       bugtxt( `args: [${args.toString()}]`)
       if ( args.get ) {
-        this.downloadMegabase( this.pollForStream) //.then(out("megabase done"));//.catch(log("mega fucked up"));
+        this.downloadMegabase( this.fastReset) //.then(out("megabase done"));//.catch(log("mega fucked up"));
       }
       if ( args.demo ) {
         this.demo = true
@@ -960,12 +962,12 @@ function pushCli(cs) {
         this.dnafile = args._.toString()
         // this.slowSkipNext()
         // this.fastReset("first command")
-        // this.pollForStream()
 
 
         if ( this.test !== true ) {
           log("polling")
-          this.pollForStream()
+          // this.fastReset(`first command`)
+          this.pollForStream(`first commands`)
         } else if ( this.demo ) {
           runDemo()
         } else {
@@ -1120,7 +1122,6 @@ function pushCli(cs) {
 
       // term.erase()
       termSize()
-      // termDrawImage(this.filePNG, "resized")
       this.setDebugCols()
       tx = term.width; ty = term.height
       log(`Terminal resized: ${tx} x ${ty} and has at least ${termPixels} chars. Fullscreen mode enabled, use --no-fullscreen to prevent`)
@@ -1160,7 +1161,7 @@ function pushCli(cs) {
     }
 
     getRenderObject() { // return part of the histogramJson obj
-      if ( renderLock ) { error(`getRenderObject`); return false; }
+      if ( renderLock == true) { output(`thread entered getRenderObject`); return false; }
       mode(`getRenderObject`)
       for ( let p = 0; p < this.pepTable.length; p++ ) { // standard peptide loop
         const pep =  this.pepTable[ p ]
@@ -1250,8 +1251,8 @@ function pushCli(cs) {
 
 
     setupRender(file) { // blank all the variables
-      if ( renderLock == true) { error("draining threads from setupRender"); return false }
-      mode(`Preparing to render ${batchProgress()}`)
+      if ( renderLock == true) { error("draining threads from render setup"); return false }
+      mode(`Preparing to render ${batchProgress()} ${this.currentFile}`)
       output(blueWhite(status))
       this.startDate = new Date() // required for touch locks.
       this.started = this.startDate.getTime() // required for touch locks.
@@ -1642,13 +1643,17 @@ function pushCli(cs) {
     }
 
     setNextFile() {
-      return false
-      mode(`setting up the next file`)
+      // return false
+      cfile = this.args._[0]
+      this.currentFile = cfile
+
+      mode(`setting up the next file ${cfile}`)
       // procTitle("about to set next file")
       // out(`*`)
       // setTimeout( () => {
-      procTitle("setting set next file")
+      procTitle(`setting set next file ${cfile}`)
       out(`*`)
+
       try {
         this.nextFile = this.args._[1] // not the last but the second to last
       } catch(e) {
@@ -1670,12 +1675,13 @@ function pushCli(cs) {
     pollForStream( reason ) {
       let file, msg
       mode( batchProgress()+ " pre-polling " + reason)
+      file = this.args._[0]
       if ( renderLock == true ) {
-        mode(`removing thread ${ this.justNameOfDNA} ${ this.busy() } ${ this.storage() } reason: ${reason}`)
+        mode(`removing thread ${ file } ${ this.busy() } ${ this.storage() } reason: ${reason}`)
         error( `P: ${ maxWidth(24,  status)} ` )
         return false
       } else {
-        redoline(`Polling for work... ${this.busy()} ${batchProgress()} ${nicePercent()} ${streamLineNr}`)
+        redoline(`Polling for work... ${this.busy()} ${file} ${batchProgress()} ${nicePercent()} ${streamLineNr}`)
       }
       if ( this.test == true || this.demo ) { // uses a loop not polling.
         // error("test is in look for work?")
@@ -1705,7 +1711,7 @@ function pushCli(cs) {
           // output("Control-c to stop server")
           setTimeout( () => {
             this.quit(1,  status )
-          }), 10
+          }, 10)
         } else {
           // output("Control-c to stop server")
           this.quit(1,  status )
@@ -1734,7 +1740,6 @@ function pushCli(cs) {
       this.genomeCanonicalisaton(file)
       remain = this.args._.length
       this.setNextFile()
-      this.currentFile = file
 
       // let msg =  `Checking job ${ batchProgress() }: ${ blueWhite(  this.highlightOrNothin() )} ${fixedWidth(tx /2, file)} verbose`
       //
@@ -1857,7 +1862,6 @@ function pushCli(cs) {
       ///////////////// BEGIN MODIFYING GLOBALS //////////////////////////////
       if ( renderLock ) { error("draining threads from reset"); return false }
       mode("setup render " + this.busy() + " " + this.currentFile)
-      this.setupRender( this.currentFile )
       msg = `>>> PREFLIGHT <<< ${ remain } ${ path.normalize( this.currentFile )} reason: ${reason}`
       log(msg)
       redoline(msg)
@@ -1868,7 +1872,7 @@ function pushCli(cs) {
         return false
       }
 
-      log("Checking for previous render of "+ path.basename(this.filePNG))
+      log(`Checking for previous render of ${cfile}`)
 
       if (doesFileExist(this.filePNG)) {
         this.previousImage = this.filePNG
@@ -1888,6 +1892,8 @@ function pushCli(cs) {
         }
 
       }
+
+      this.setupRender( this.currentFile )
 
       // setTimeout( () => {
       if ( renderLock == false) {
@@ -1961,16 +1967,16 @@ function pushCli(cs) {
         return false
       }
       if (remain < 1 ) {
-        if ( renderLock) {
+        if ( renderLock ) {
           output("not resetting")
         } else{
-          output("quitting?")
+          mode("quitting?")
 
-          this.gracefulQuit(0, "fast reset")
+          // this.gracefulQuit(0, "fast reset")
           // this.destroyProgress()
-          destroyKeyboardUI()
+          // destroyKeyboardUI()
           // isShuttingDown = true
-          this.quit(0, " resetting " + reason)
+          // this.quit(0, " resetting " + reason)
         }
         return false
       }
@@ -1978,16 +1984,19 @@ function pushCli(cs) {
       this.setNextFile()
       setTimeout( () => {
       if ( !renderLock ) {
-        mode("yadda not rendering")
-        this.pollForStream( status )
-      } else {
-        output("dabba rendering")
-      }
+          mode("yabba not rendering")
+          this.pollForStream( status )
+        } else {
+          mode("dabba do rendering")
+          // this.fastReset(`end of polling`)
+
+        }
       }, this.raceDelay)
     }
     initStream() {
       this.runid = new Date().getTime()
       mode(`Initialising Stream: ${cliruns.toLocaleString()} ${this.justNameOfPNG}`)
+      this.setNextFile()
       notQuiet( chalk.rgb(64, 128, 255).bold( status ))
       output(`Output folder --->> ${ blueWhite( blueWhite( path.normalize( this.outputPath )))}`)
       this.setNextFile()
@@ -2086,7 +2095,7 @@ function pushCli(cs) {
         this.pepTable[p].hm_array = [0,0,0,0]
         this.pepTable[p].mixRGBA  = [0,0,0,0]
         this.pepTable[p].linear_master = this.generateFilenamePNG( this.pepTable[p].Codon )//  this.aminoFilenameIndex(p)[1]
-        this.pepTable[p].hilbert_master =  this.generateFilenameHilbert( this.pepTable[p].Codon )//  this.aminoFilenameIndex(p)[0]
+        // this.pepTable[p].hilbert_master =  this.generateFilenameHilbert( this.pepTable[p].Codon )//  this.aminoFilenameIndex(p)[0]
         log(`initialise ${p}`)
         bugtxt( this.pepTable[p] )		}
 
@@ -2095,7 +2104,7 @@ function pushCli(cs) {
         log("WE BE STORMIN")
         if ( brute == false) { runcb(cb); return false }
         killAllTimers()
-        log("LIKE NORMAN")
+        output("LIKE NORMAN")
 
         for ( let p = 1; p < this.pepTable.length; p++ ) { // standard peptide loop
           let pep = this.pepTable[ p ]
@@ -2118,7 +2127,7 @@ function pushCli(cs) {
           log(`saving to ${fullpath}`)
           if ( p == this.pepTable.length -1 ) { // trigger the callback on the last one
             genericPNG( currentHilbertArray, width, height, fullpath , () => {
-              this.hilbertFinished()
+              // this.hilbertFinished() // DISK STORM
             })
           } else {
             genericPNG( currentHilbertArray, width, height, fullpath)
@@ -2221,7 +2230,7 @@ function pushCli(cs) {
         Bandwidth: ${ bytes( this.bytesPerMs * 1000 ) } / sec DNA Filesize: ${ bytes( this.baseChars ) }
         Image Output bytes: ${ this.isStorageBusy == true ? bytes( this.rgbArray.length ) : "(busy)" }
         Pixels (linear): ${ this.pixelClock.toLocaleString()} Image aspect Ratio: ${ this.ratio }
-        Pixels (hilbert): ${hilbPixels[ this.dimension ].toLocaleString()} ${(  this.dimension ? "(auto)" : "(manual -m)")} Dimension ${ this.dimension } Hilbert curve
+        Pixels (hilbert): ${hilbPixels[ this.dimension ]} ${(  this.dimension ? "(auto)" : "(manual -m)")} Dimension ${ this.dimension } Hilbert curve
         Linear to Hilbert reduction: ${ this.isStorageBusy ?  twosigbitsTolocale( this.shrinkFactor) : unknown } Oversampling: ${ twosigbitsTolocale(overSampleFactor)}
         Custom flags: ${ this.showFlags()} "${( this.artistic ? "Artistic mode" : "Science mode" )}" render style
         Estimated Codons: ${Math.round( this.estimatedPixels).toLocaleString()} (filesize % 3)
@@ -2413,7 +2422,8 @@ function pushCli(cs) {
         }
         log(`thename: ${thename} focus: ${blueWhite(focus)} codonsPerPixelHILBERT ${this.codonsPerPixelHILBERT} `)
         if ( thename.substring("NaN") !== -1) {
-          error(`thename contains NaN this.justNameOfHILBERT.substring("NaN") !== -1) ${thename}`)
+          // error(`thename contains NaN this.justNameOfHILBERT.substring("NaN") !== -1) ${thename}`)
+          output(`ERROR: thename contains NaN this.justNameOfHILBERT.substring("NaN") !== -1) ${thename}`)
         }
         this.justNameOfHILBERT =  thename
         this.fileHILBERT = path.resolve( this.imgPath, thename )
@@ -2813,7 +2823,7 @@ function pushCli(cs) {
         let histogramJson =  this.getRenderObject()
         let histogramFile = this.generateFilenameHistogram()
         bugtxt(`globalVariablesDoSuck: ${	this.focusPeptide}`)
-        // output( beautify( histogramJson , null, 2, 100) )
+        output( beautify( histogramJson , null, 2, 100) )
 
         let hypertext
         if ( this.test == true ) {
@@ -2939,7 +2949,6 @@ function pushCli(cs) {
           cb
         )
         // if ( this.msElapsed > 10000) {
-        //   termDrawImage( this.filePNG, "lock file")
         // }
         if ( !this.quiet ) {
           // term.saveCursor()
@@ -3080,7 +3089,7 @@ function pushCli(cs) {
               }
 
 
-              log("DONE")
+              output("DONE")
               clearTimeout( this.updatesTimer)
               clearTimeout( this.progTimer)
               removeLocks( this.fileTouch, this.devmode)
@@ -3158,8 +3167,9 @@ function pushCli(cs) {
           log(`Received quit(${code}) ${reason}`)
           if ( renderLock == true ) {
             if ( code == 0 ) {
-              output("still rendering") // maybe this happens during graceful shutdown
-              this.pollForStream()
+              mode("still rendering") // maybe this happens during graceful shutdown
+              this.fastReset(status)
+              // this.pollForStream()
               return false
             } else {
               output("halting render") // maybe this happens during graceful shutdown
@@ -3355,7 +3365,10 @@ function pushCli(cs) {
           this.alpha = bc[3]
 
           if ( debug && this.verbose ) {
-            console.log( this.printRGB() )
+            if (debounce()) {
+              console.log( this.printRGB() )
+            }
+
           }
           // this.rgbArray.push(Math.round( this.red ))
           // this.rgbArray.push(Math.round( this.green ))
@@ -3849,13 +3862,13 @@ function pushCli(cs) {
               this.isDiskFinLinear = true
               this.calcHilbertFilename()
               this.rgbArray = this.data
-              // this.saveHilbert( this.hilbertFinished);
               saveDocuments()
             })
           } catch(e) {
             output(`Failure during recycling: ${e} will poll for work`)
             this.isDiskFinHilbert = true
-            this.pollForStream("recycle fail")
+            this.fastReset(`recycle fail`)
+            // this.pollForStream("recycle fail")
             return false
           }
         }
@@ -3904,7 +3917,7 @@ function pushCli(cs) {
           if ( renderLock == false ) { error("locks should be on during hilbert curve") }
 
           if ( this.isHilbertPossible  == false ) {
-            this.hilbertFinished()
+            this.isDiskFinHilbert = true
             runcb(cb)
             return false
           }
@@ -3922,7 +3935,7 @@ function pushCli(cs) {
           output(chalk.bgBlue.red( " Getting in touch with my man from 1891...   ॐ    David Hilbert    ॐ    " + this.shrinkFactor) )
           bugtxt( this.justNameOfDNA)
 
-          let hilpix = hilbPixels[ this.dimension ]
+          hilpix = hilbPixels[ this.dimension ]
 
           this.antiAliasArray = this.resampleByFactor( this.shrinkFactor )
           this.hWidth = Math.sqrt(hilpix)
@@ -3979,7 +3992,7 @@ function pushCli(cs) {
           //     this.pepTable[p].linear_preview = this.aminoFilenameIndex(p)[1]
           //   }
           // }
-          log("Done projected 100% of " + hilpix.toLocaleString())
+          // log("Done projected 100% of " + hilpix.toLocaleString())
           this.hilbertFinished()
           runcb(cb)
 
@@ -3990,13 +4003,15 @@ function pushCli(cs) {
 
         // resample the large 760px wide linear image into a smaller square hilbert curve
         saveHilbert(cb) {
-          if ( !this.isHilbertPossible ) { this.hilbertFinished() ; return false }
+          if ( this.isDiskFinHilbert ) { error(`double thread trying to render hilbert maps jesus christo`)}
+          if ( !this.isHilbertPossible ) {
+            this.isDiskFinHilbert = true
+            // this.postRenderPoll( "hilbertFinished" )
+            return false
+          }
           // clearTimeout( updatesTimer)
-          this.diskStorm( () => {
-            log("disk storm has returned")
-          })
+          this.isDiskFinHilbert = false
           this.calcHilbertFilename()
-
           // var hilbert_img_data = Uint8ClampedArray.from( this.hilbertImage )
           var hilbert_img_data = this.hilbertImage
           var hilbert_img_png = new PNG({
@@ -4017,7 +4032,7 @@ function pushCli(cs) {
             hilbert_img_png.pack()
             .pipe(wstream)
             .on("finish", (err) => {
-              that.hilbertFinished()
+              // that.hilbertFinished()
               runcb(cb)
             })
           }).then( out("Hilbert done") ).catch( out("hb catch") )
@@ -4070,7 +4085,7 @@ function pushCli(cs) {
           renderLock = true
 
           let h = require("hilbert-2d")
-          let hilpix = hilbPixels[ this.dimension ]
+          hilpix = hilbPixels[ this.dimension ]
           const testWidth = Math.round(Math.sqrt(hilpix))
           const linearWidth = Math.round(Math.sqrt(hilpix))
           const testPath = path.resolve(webroot , "calibration")
@@ -4177,25 +4192,10 @@ function pushCli(cs) {
               // this.isDiskFinHTML = true
               // this.isDiskFinLinear = true;
               this.linearFinished()
-              // termDrawImage( this.filePNG, "linear curve", cb )
               runcb(cb)
             })
           }).then().catch()
 
-          // img_png.pack()
-
-          // new Promise(resolve =>
-          //   img_png.pack()
-          //   .pipe(wstreamLINEAR)
-          //   .on("finish", resolve)
-          // )
-
-          // setTimeout( () => {
-          //   this.isDiskFinHTML = true;
-          //   this.linearFinished();
-          //   this.hilbertFinished();
-          // }, 4000)
-          //
 
 
 
@@ -4658,7 +4658,7 @@ function pushCli(cs) {
           let brightness = 1/ shrinkX
           let downsampleSize = hilbPixels[ this.dimension ] // 2X over sampling high grade y'all!
           let antiAliasArray = [ downsampleSize  * 4 ] // RGBA needs 4 cells per pixel
-          log(`Resampling linear image of size in pixels ${this.pixelClock.toLocaleString()} by the factor ${ twosigbitsTolocale( shrinkX)}X brightness per amino acid ${brightness} destination hilbert curve pixels ${downsampleSize.toLocaleString()} `)
+          log(`Resampling linear image of size in pixels ${this.pixelClock.toLocaleString()} by the factor ${ twosigbitsTolocale( shrinkX)}X brightness per amino acid ${brightness} destination hilbert curve pixels ${downsampleSize} `)
           this.debugFreq = Math.round(downsampleSize/100)
           // SHRINK LINEAR IMAGE:
           this.progUpdate({ title: "Resample by X" + shrinkX, items: remain, syncMode: true })
@@ -5268,6 +5268,69 @@ function pushCli(cs) {
                 log(html)
                 return html
               }
+
+
+
+              setupPrefs() {
+                locateWebroot()
+                this.outputPath = path.resolve( webroot, "output")
+
+                projectprefs = new Preferences("nz.funk.aminosee.project", {
+                  aminosee: {
+                    cliruns: 0,
+                    gbprocessed: 0,
+                    opens: 0,
+                    genomes: [ "megabase", "50KB_TestPattern" ],
+                    url: "http://localhost:4321",
+                    port: defaultPort
+                  }
+                }, {
+                  encrypt: false,
+                  file: path.resolve( os.homedir(), obviousFoldername, "aminosee_project.conf"),
+                  format: "yaml"
+                })
+
+                userprefs = new Preferences("nz.funk.aminosee.user", {
+                  aminosee: {
+                    cliruns: 0,
+                    guiruns: 0,
+                    gbprocessed: 0,
+                    completed: 0
+                  }
+                }, {
+                  encrypt: false,
+                  file: path.resolve( os.homedir(), ".config", "preferences", "nz.funk.aminosee.conf"),
+                  format: "yaml"
+                })
+                // Preferences can be accessed directly
+                userprefs.aminosee.cliruns++ // increment run counter. for a future high score table stat and things maybe.
+                cliruns++
+                if (  userprefs.aminosee.cliruns > cliruns ) {
+                  cliruns = Math.round( userprefs.aminosee.cliruns )
+                }
+                gbprocessed  = Math.round( userprefs.aminosee.gbprocessed )
+                genomesRendered = projectprefs.aminosee.genomes
+                url = projectprefs.aminosee.url
+                log( 	blueWhite(`webroot 		 = ${webroot}`) )
+                log( 	blueWhite(`cliruns 		 = ${cliruns}`) )
+                log( 	blueWhite(`url 				 = ${url}`) )
+                log( 	blueWhite(`gbprocessed = ${gbprocessed}`) )
+                output(`Preferences setup`)
+                return [ userprefs, projectprefs ]
+              }
+
+
+
+
+
+
+
+
+
+
+
+
+
             } // <<< --- END OF CLASS
 
             function bugtxt(txt) { // full debug output
@@ -5341,7 +5404,7 @@ function pushCli(cs) {
               }
             }
             function batchProgress() {
-              return `[${threads.length}] ${remain}/${batchSize}:${streamLineNr}`
+              return `[${threads.length} ${cfile} ] ${remain}/${batchSize}:${streamLineNr}`
             }
             function wTitle(txt) {
               if ( !debounce() ) {
@@ -5350,13 +5413,16 @@ function pushCli(cs) {
               if (typeof this === "undefined") {
                 txt = hostname
               }
-
-              txt = `${batchProgress()} | ${ removeNonAscii(  maxWidth( 48, txt ))} Run:${cliInstance.runid}@${hostname} ` + ( isShuttingDown ? " SHUTTING DOWN " : " " )// + new Date()
-
-              if (typeof cliInstance !== "undefined") {
+              if (typeof cliInstance === "undefined") {
+                runid = -1
+                isShuttingDown = false
+              } else {
+                runid = cliInstance.runid
                 cliInstance.progUpdate( this.percentComplete )
                 txt += `${cliInstance.justNameOfPNG} ${new Date().getTime()}`
               }
+
+              txt = `${cfile} ${batchProgress()} | ${ removeNonAscii( maxWidth( 48, txt ))} Run:${runid}@${hostname} ` + ( isShuttingDown ? " SHUTTING DOWN " : " " )// + new Date()
               term.windowTitle(helixEmoji +  txt )
             }
             function bugout(txt) {
@@ -5545,53 +5611,53 @@ function pushCli(cs) {
               } )
 
             }
-            function setupPrefs() {
-              locateWebroot()
-              this.outputPath = path.resolve( webroot, "output")
-
-              projectprefs = new Preferences("nz.funk.aminosee.project", {
-                aminosee: {
-                  cliruns: 0,
-                  gbprocessed: 0,
-                  opens: 0,
-                  genomes: [ "megabase", "50KB_TestPattern" ],
-                  url: "http://localhost:4321",
-                  port: defaultPort
-                }
-              }, {
-                encrypt: false,
-                file: path.resolve( os.homedir(), obviousFoldername, "aminosee_project.conf"),
-                format: "yaml"
-              })
-
-              userprefs = new Preferences("nz.funk.aminosee.user", {
-                aminosee: {
-                  cliruns: 0,
-                  guiruns: 0,
-                  gbprocessed: 0,
-                  completed: 0
-                }
-              }, {
-                encrypt: false,
-                file: path.resolve( os.homedir(), ".config", "preferences", "nz.funk.aminosee.conf"),
-                format: "yaml"
-              })
-              // Preferences can be accessed directly
-              userprefs.aminosee.cliruns++ // increment run counter. for a future high score table stat and things maybe.
-              cliruns++
-              if (  userprefs.aminosee.cliruns > cliruns ) {
-                cliruns = Math.round( userprefs.aminosee.cliruns )
-              }
-              gbprocessed  = Math.round( userprefs.aminosee.gbprocessed )
-              genomesRendered = projectprefs.aminosee.genomes
-              url = projectprefs.aminosee.url
-              log( 	blueWhite(`webroot 		 = ${webroot}`) )
-              log( 	blueWhite(`cliruns 		 = ${cliruns}`) )
-              log( 	blueWhite(`url 				 = ${url}`) )
-              log( 	blueWhite(`gbprocessed = ${gbprocessed}`) )
-
-              return [ userprefs, projectprefs ]
-            }
+            // function setupPrefs(that) {
+            //   locateWebroot()
+            //   that.outputPath = path.resolve( webroot, "output")
+            //
+            //   projectprefs = new Preferences("nz.funk.aminosee.project", {
+            //     aminosee: {
+            //       cliruns: 0,
+            //       gbprocessed: 0,
+            //       opens: 0,
+            //       genomes: [ "megabase", "50KB_TestPattern" ],
+            //       url: "http://localhost:4321",
+            //       port: defaultPort
+            //     }
+            //   }, {
+            //     encrypt: false,
+            //     file: path.resolve( os.homedir(), obviousFoldername, "aminosee_project.conf"),
+            //     format: "yaml"
+            //   })
+            //
+            //   userprefs = new Preferences("nz.funk.aminosee.user", {
+            //     aminosee: {
+            //       cliruns: 0,
+            //       guiruns: 0,
+            //       gbprocessed: 0,
+            //       completed: 0
+            //     }
+            //   }, {
+            //     encrypt: false,
+            //     file: path.resolve( os.homedir(), ".config", "preferences", "nz.funk.aminosee.conf"),
+            //     format: "yaml"
+            //   })
+            //   // Preferences can be accessed directly
+            //   userprefs.aminosee.cliruns++ // increment run counter. for a future high score table stat and things maybe.
+            //   cliruns++
+            //   if (  userprefs.aminosee.cliruns > cliruns ) {
+            //     cliruns = Math.round( userprefs.aminosee.cliruns )
+            //   }
+            //   gbprocessed  = Math.round( userprefs.aminosee.gbprocessed )
+            //   genomesRendered = projectprefs.aminosee.genomes
+            //   url = projectprefs.aminosee.url
+            //   log( 	blueWhite(`webroot 		 = ${webroot}`) )
+            //   log( 	blueWhite(`cliruns 		 = ${cliruns}`) )
+            //   log( 	blueWhite(`url 				 = ${url}`) )
+            //   log( 	blueWhite(`gbprocessed = ${gbprocessed}`) )
+            //
+            //   return [ userprefs, projectprefs ]
+            // }
             function logo() {
               return `${helixEmoji + chalk.rgb(255, 255, 255).inverse(" Amino")}${chalk.rgb(196,196,196).inverse("See")}${chalk.rgb(128,128,128).inverse("No")}${chalk.grey.inverse("Evil ") }  v${chalk.rgb(255,255,0)(version)} AminoSee DNA Viewer`
               // process.stdout.write(`v${chalk.rgb(255,255,0).bgBlue(version)}`);
@@ -6398,7 +6464,7 @@ function pushCli(cs) {
               // give it a large number of pixels
               // it will choose a hilbert dimension
               // and return the shrinkage factor, codons per pixel hilbert
-              let dimension, hilpix, codonsPerPixelHILBERT, shrinkFactor
+              let dimension, codonsPerPixelHILBERT, shrinkFactor
               let bestFit = optimumDimension (linearpix, "auto")
 
               if ( bestFit > defaultMagnitude ) {
@@ -6755,11 +6821,11 @@ function pushCli(cs) {
             module.exports.out = out
             module.exports.output = output
             module.exports.AminoSeeNoEvil = AminoSeeNoEvil
-            module.exports.newJob = newJob
+            // module.exports.newJob = newJob
             module.exports.pushCli = pushCli
             module.exports.terminalRGB = terminalRGB
             module.exports.stopWork = stopWork
-            module.exports.setupPrefs = setupPrefs
+            // module.exports.setupPrefs = this.setupPrefs
             module.exports.fileWrite = (a,b,c) => { this.fileWrite(a,b,c) }
             module.exports.deleteFile = deleteFile
             module.exports.maxWidth = maxWidth

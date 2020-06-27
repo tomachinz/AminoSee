@@ -35,8 +35,8 @@ fi
 
 #
 # echo
-# echo sleeping for an hour and then rendering all in current directory
+echo sleeping for an hour and then rendering all in current directory
 # echo
-# sleep 3600
+sleep 3600
 # ./batch-peptides.sh
-# find -f *.fa *.mfa *.gbk *.txt -exec  ./batch-peptides.sh  {}   \;
+find -f *.fa *.mfa *.gbk *.txt -exec  ./batch-peptides.sh  {}   \;
