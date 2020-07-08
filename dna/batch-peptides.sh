@@ -110,6 +110,12 @@ if [ -z "$1" ]; then
 	nice -n 2 aminosee --no-keyboard  --quiet *  --peptide=Ochre
 	nice -n 2 aminosee --no-keyboard  --quiet *  --peptide=Amber
 	nice -n 2 aminosee --no-keyboard  --quiet *  --peptide=Opal
+
+
+	echo ow doing "find way" brute forcing it
+  # exit
+	find_way_peptides
+
 	nice -n 2 aminosee --no-keyboard  --quiet *  --peptide=Methionine
 	nice -n 2 aminosee --no-keyboard  --quiet *  --peptide=Cysteine
 	nice -n 2 aminosee --no-keyboard  --quiet *  --peptide=Glycine
@@ -129,9 +135,8 @@ if [ -z "$1" ]; then
 	nice -n 2 aminosee --no-keyboard  --quiet *  --peptide=Lysine
 	nice -n 2 aminosee                        *  --peptide=Histidine
 	echo
-	echo end of batch peptides - now doing "find way" brute forcing it
-  # exit
-	find_way_peptides
+	echo end of batch peptides - n
+
 else
   series_peptides $1 $2 $3 $4
 fi

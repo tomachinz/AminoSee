@@ -64,3 +64,5 @@ cp    node_modules/three/build/three.min.js                      src/public/
 cp -r  docs/* dist/Aminosee_macos
 cp -r  docs/* dist/Aminosee_linux
 cp -r  docs/* dist/Aminosee_win
+
+./gource.sh

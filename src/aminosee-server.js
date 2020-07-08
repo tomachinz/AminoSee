@@ -1,6 +1,7 @@
 const open = require("open")
 const httpserver = require("http-server") // cant have - in js
 // const aminosee = require("./aminosee-cli")
+// const error = require("./aminosee-cli").error
 const data = require("./aminosee-data")
 const doesFileExist   = data.doesFileExist
 // const doesFolderExist = data.doesFolderExist
@@ -38,7 +39,8 @@ module.exports = (options) => {
 	output(`Using fragment: ${ chalk.underline( fragment )}`)
 
 	setArgs(options);
-	[ userprefs, projectprefs ] = setupPrefs()
+	// [ userprefs, projectprefs ] = setupPrefs()
+	setupPrefs()
 	log(appFilename)
 
 	tcpPortUsed.check(port, "127.0.0.1")

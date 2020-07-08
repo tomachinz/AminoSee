@@ -142,10 +142,13 @@ input[type=button], input[type=submit], input[type=reset] {
 	padding: 4px 4px;
 } */
 #hide {
+  position: relative;
+  transform: translateY(-64px);
   font-size: 20px;
   pading: 8px;
   font-weight: bold;
   color: black;
+  margin: 0 0 0 0;
 }
 
 input[type=number] {
@@ -154,7 +157,8 @@ input[type=number] {
 
 #bgCanvFixed {
   position: fixed;
-  z-index: -1 margin: 0 0 0 0;
+  z-index: -1;
+  margin: 0 0 0 0;
   padding: 0;
 }
 
@@ -241,7 +245,7 @@ form, input, textarea {
 .modalCentered, #colorPicker, div.modalCentered {
   font-size: 26px;
   position: relative;
-  text-align: center;
+  /* text-align: center; */
   z-index: 11;
   top: 50%;
   bottom: 50%;
@@ -251,6 +255,7 @@ form, input, textarea {
   height: 64px;
   background-color: rgb(255, 240, 50);
   background-color: rgba(255, 240, 50, 0.7);
+  background-color: purple;
   color: #003;
   font-weight: bold;
   padding: 64px;
@@ -335,7 +340,7 @@ form, input, textarea {
   /*border: 1px dotted white;*/
   /* background-color: rgb(25, 25, 0); */
   /* background-color: rgba(255, 255, 0, 0.1); */
-  text-align: center;
+  /* text-align: center; */
   flex-direction: row;
   /* | row-reverse | column | column-reverse; */
   /* flex-flow: row wrap; */
@@ -360,7 +365,7 @@ form, input, textarea {
   position: fixed;
   z-index: 10;
   grid-column: span 8;
-  margin-left: 50%;
+  /* margin-left: 50%; */
   transform: translateX(-50%);
   height: 16px;
   top: 32px;
@@ -407,7 +412,7 @@ form, input, textarea {
 
 @media screen and (min-width: 1440px) {
   #monkeys img {
-    max-width: 220px;
+    max-width: 320px;
   }
 
   .gadgets {
@@ -429,7 +434,8 @@ form, input, textarea {
   }
 
   #monkeys img {
-    max-width: 64px;
+    /* max-width: 64px; */
+    max-width: 220px;
   }
 
   .gadgets {
@@ -531,13 +537,13 @@ a:hover {
   background-color: white;
   padding: 16px;
   white-space: nowrap;
-  text-align: center;
+  /* text-align: center; */
 }
 
 #drag-file {
   background-color: blue;
   color: white;
-  text-align: center;
+  /* text-align: center; */
   width: 300px;
   height: 300px;
 }
@@ -581,7 +587,7 @@ legend {
 #filedrag {
   display: none;
   font-weight: bold;
-  text-align: center;
+  /* text-align: center; */
   padding: 2em 0;
   margin: 1em 0;
   color: #012345;

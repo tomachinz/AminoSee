@@ -34,6 +34,7 @@ echo STARTING SERVER TO RUN IN BACKGROUND
 aminosee --serve &
 echo aminosee $1 $2 $3 $4 $5 $6 $7 $8 $9 $10  --no-image
 aminosee $1 $2 $3 $4 $5 $6 $7 $8 $9 $10  --no-image
+test_do "Ochre KEYBOARD MODE TEST"  $FAST      $1 $2 $3 $4 $5 $6 $7 $8 $9 $10  --no-image  --peptide=Methionine --keyboard
 test_do "Networked cluster render test $NETWORK" -fv --peptide=Phenylalanine $FAST $NETWORK $MEDIUM $1
 test_do "Test use of --maxpix=5000000" --maxpix=5000000 -v $SLOW $MEDIUM $FAST $NETWORK $1 $2 $3 $4 $5 $6 $7 $8 $9
 test_do "Forced re-render verbose no image" -fv $MEDIUM $FAST $1 $2 $3 $4 $5 $6 $7 $8 $9 $10  --no-image
@@ -58,7 +59,6 @@ test_do "Triplet CAT ratio sqr" $FAST $MEDIUM   --triplet=CAT --ratio=sqr $1 $2 
 test_do "m5 Golden" $FAST $MEDIUM  -m5 --ratio=gol $1 $2 $3 $4 --no-image
 test_do "c100 Golden" $FAST $MEDIUM  -c100 --ratio=golden $1 $2 $3 $4 --no-image
 test_do "c100 Golden regmarks" $FAST $MEDIUM  -c2 --regmarks --ratio=gol $1 $2 $3 $4 --no-image
-test_do "Ochre KEYBOARD MODE TEST"  $FAST      $1 $2 $3 $4 $5 $6 $7 $8 $9 $10  --no-image  --peptide=Methionine --keyboard
 # test_do "Amber"         $FAST      $1 $2 $3 $4 $5 $6 $7 $8 $9 $10  --no-image    --force --no-updates -m7 --ratio=sqr --peptide=Amber
 # test_do "Methionine"    $FAST      $1 $2 $3 $4 $5 $6 $7 $8 $9 $10  --no-image   --no-updates -m5 --peptide=Methionine --ratio=sqr
 # test_do " -m 8 --peptide=Cysteine" $1 $2 $3 $4 $5 $6 $7 $8 $9 $10  --no-image   -m 8 --peptide=Cysteine

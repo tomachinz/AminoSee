@@ -83,6 +83,7 @@ function out(txt) {
 	process.stdout.write(chalk.blue("[") + txt + chalk.blue("]"))
 }
 function deleteFile(file) {
+	if ( !doesFileExist(file) ) { log(`file went out the back for a spliff`); return false; }
 	try {
 		fs.unlinkSync(path.resolve(file), (err) => {
 			log("Removing file OK...")
@@ -93,8 +94,6 @@ function deleteFile(file) {
 	}
 }
 function recordFile(file, contents, cb) {
-
-
 	try {
 		fs.writeFile(file, contents, "utf8", function (err, cb) {
 			if (err) {
@@ -104,17 +103,16 @@ function recordFile(file, contents, cb) {
 					bugtxt("Set permissions for file: " + file)
 					fs.chmodSync(file, "0777")
 				} catch(e) {
-					output("Could not set permission for file: " + file + " due to " + e)
+					log("Could not set permission for file: " + file + " due to " + e)
 				}
 			}
-			log("$ " + file)
+			output("$ " + file)
 			if ( cb !== undefined ) { cb() }
 		})
 	} catch(err) {
 		log(`[catch] Issue with saving: ${file} ${err}`)
-		if ( cb !== undefined ) { cb() }
 	}
-
+	if ( typeof cb !== "undefined" ) { cb() }
 }
 function doesFolderExist(f) {
 	if ( doesFileExist(f) ) {

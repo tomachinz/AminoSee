@@ -1,31 +1,37 @@
+TITLE="github.com/tomachinz/AminoSee       Audio track by TOMACHI: Mechanoid Rein"
 OUTPUTFILEMP4="gource.mp4"
 OUTPUTFILEWEBM="gource.webm"
-
+OUTPUTFILEAUDIO="gource_music.mp4"
 # THIS LAST ABOUT A MINUTE
-COMMAND="gource --date-format '%d / %m / %Y %a' --camera-mode overview -1600x1040 --seconds-per-day 0.06 --auto-skip-seconds 5 --max-file-lag 5 --background-image src/public/WhitePaper_800px.png --logo src/public/funk-logo-140px.png  --font-size 14 --key --bloom-multiplier 0.01321 --bloom-intensity 1 --background 012345  -e 0.15 --title 'github.com/tomachinz/AminoSee'"
 
-# TARGETTING 30 SECONDS
-# COMMAND="gource --date-format '%d / %m / %Y %a' --camera-mode overview -1600x1040 --seconds-per-day 0.12 --auto-skip-seconds 0.1 --max-file-lag 0.2 --background-image src/public/WhitePaper_800px.png --logo src/public/funk-logo-140px.png  --font-size 14 --key --bloom-multiplier 0.01321 --bloom-intensity 1 --background 012244  -e 0.1 --title 'github.com/tomachinz/AminoSee'"
+FASTCOMMAND="gource --date-format '%d / %m / %Y %a' --camera-mode overview -1600x1040 --seconds-per-day 0.01 --auto-skip-seconds 1 --max-file-lag 20 --background-image src/public/WhitePaper_800px.png --logo src/public/funk-logo-140px.png  --font-size 15 --key --bloom-multiplier 0.021321 --bloom-intensity 1 --background 012345  -e 0.15 --title '$TITLE'"
+ENCODE="$FASTCOMMAND -o - | ffmpeg -probesize 63M  -y -r 60 -f image2pipe -vcodec ppm -i - -vcodec libx264  -b:v 1000k -preset slow -pix_fmt yuv420p -crf 1 -threads 0 -bf 0 fast_$OUTPUTFILEMP4"
+echo THIS IS PREVIEW quit to render
+eval $FASTCOMMAND
+echo THIS IS ENCODE
+eval $ENCODE
+echo ADDING A TUNE IM WORKING ON TO THE AUDIO TO THE VIDEO
+ffmpeg -i fast_$OUTPUTFILEMP4 -i "/Volumes/13xOLDSKOOL/Users/tom/Projects OLDSKOOL/Album2 The Atkinson Diet 13inch/Mechanoid Rain/Bounces/Mechanoid_Rain-18Jan2019_Version.wav" -c:v copy -c:a aac -strict experimental -filter:a "volume=1.0" fast_$OUTPUTFILEAUDIO 
+sleep 1
 
 
+COMMAND="gource --date-format '%d / %m / %Y %a' --camera-mode overview -1600x1040 --seconds-per-day 0.1 --auto-skip-seconds 4 --max-file-lag 20 --background-image src/public/WhitePaper_800px.png --logo src/public/funk-logo-140px.png  --font-size 15 --key --bloom-multiplier 0.021321 --bloom-intensity 1 --background 012345  -e 0.15 --title '$TITLE'"
+ENCODE="$COMMAND -o - | ffmpeg -probesize 63M  -y -r 60 -f image2pipe -vcodec ppm -i - -vcodec libx264  -b:v 1000k -preset slow -pix_fmt yuv420p -crf 1 -threads 0 -bf 0 $OUTPUTFILEMP4"
 echo About to run...:
 echo $COMMAND
-sleep 1
 echo THIS IS PREVIEW QUIT TO RENDER TO DISK PROPER
 eval $COMMAND
 echo About to encode the MP4 video soon, using this...:
-ENCODE="$COMMAND -o - | ffmpeg -probesize 63M  -y -r 60 -f image2pipe -vcodec ppm -i - -vcodec libx264  -b:v 1000k -preset slow -pix_fmt yuv420p -crf 1 -threads 0 -bf 0 $OUTPUTFILEMP4"
 echo $ENCODE
-sleep 1
 eval $ENCODE
-
+echo ADDING A TUNE IM WORKING ON TO THE AUDIO TO THE VIDEO
+ffmpeg -i $OUTPUTFILEMP4 -i "/Volumes/13xOLDSKOOL/Users/tom/Projects OLDSKOOL/Album2 The Atkinson Diet 13inch/Mechanoid Rain/Bounces/Mechanoid_Rain-18Jan2019_Version.wav" -c:v copy -c:a aac -strict experimental -filter:a "volume=1.0" $OUTPUTFILEAUDIO
 
 # echo About to encode the WEBM video soon, using this...:
 # ENCODE="$COMMAND -o - | ffmpeg -probesize 100M  -y -r 60 -f image2pipe ppm -i - -vcodec libvpx -acodec libvorbis -b:v 1024k -preset slow -pix_fmt yuv420p -crf 1 -threads 0 -bf 0 $OUTPUTFILEWEBM"
 # echo $ENCODE
 # sleep 1
 # eval $ENCODE
-
 
 
 
