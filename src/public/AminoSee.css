@@ -90,6 +90,7 @@ body.dark, html.dark, body.aminosee {
   transform: translateX(-50%);
   width: 99%;
   height: 32px;
+  border: #666666 1px;
 }
 
 #stack0images ul {
@@ -113,6 +114,8 @@ img.stack {
   width: calc(var("--mouse-scale", 1)px);
   height: calc(var("--mouse-scale", 1)px);
   padding: 16px 16px;
+  background-color: #666666;
+  background-color: rgba(0, 0, 0, 0.3);
 }
 
 .behind {

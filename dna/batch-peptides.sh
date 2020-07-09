@@ -71,29 +71,29 @@ find_way_peptides () {
 
   echo FINISHED SERIAL DECODE FOR $1 $2 $3 $4 $5 $6 $7
 
-	find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -m5  --index                 $1 $2 $3 $4 $5 $6 $7 "{}" \;
-	find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -m5  --peptide=Glutamic_acid $1 $2 $3 $4 $5 $6 $7 "{}" \;
-	find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -m5  --peptide=Aspartic_acid $1 $2 $3 $4 $5 $6 $7 "{}" \;
-	find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -m5  --peptide=Ochre $1 $2 $3 $4 $5 $6 $7 "{}" \;
-	find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -m5  --peptide=Amber $1 $2 $3 $4 $5 $6 $7 "{}" \;
-	find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -m5  --peptide=Cysteine $1 $2 $3 $4 $5 $6 $7 "{}" \;
-	find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -m5  --peptide=Glycine $1 $2 $3 $4 $5 $6 $7 "{}" \;
-	find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -m5  --peptide=Alanine $1 $2 $3 $4 $5 $6 $7 "{}" \;
-	find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -m5  --peptide=Methionine $1 $2 $3 $4 $5 $6 $7 "{}" \;
-	find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -m5  --peptide=Valine $1 $2 $3 $4 $5 $6 $7 "{}" \;
-	find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -m5  --peptide=Leucine $1 $2 $3 $4 $5 $6 $7 "{}" \;
-	find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -m5  --peptide=Isoleucine $1 $2 $3 $4 $5 $6 $7 "{}" \;
-	find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -m5  --peptide=Phenylalanine $1 $2 $3 $4 $5 $6 $7 "{}" \;
-	find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -m5  --peptide=Tryptophan $1 $2 $3 $4 $5 $6 $7 "{}" \;
-	find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -m5  --peptide=Serine $1 $2 $3 $4 $5 $6 $7 "{}" \;
-	find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -m5  --peptide=Threonine $1 $2 $3 $4 $5 $6 $7 "{}" \;
-	find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -m5  --peptide=Opal $1 $2 $3 $4 $5 $6 $7 "{}" \;
-	find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -m5  --peptide=Glutamine $1 $2 $3 $4 $5 $6 $7 "{}" \;
-	find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -m5  --peptide=Asparagine $1 $2 $3 $4 $5 $6 $7 "{}" \;
-	find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -m5  --peptide=Tyrosine $1 $2 $3 $4 $5 $6 $7 "{}" \;
-	find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -m5  --peptide=Arginine $1 $2 $3 $4 $5 $6 $7 "{}" \;
-	find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -m5  --peptide=Lysine $1 $2 $3 $4 $5 $6 $7 "{}" \;
-	find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee -m5  --peptide=Histidine $1 $2 $3 $4 $5 $6 $7 "{}" \;
+	find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee --maxpix=5000000 --index                 $1 $2 $3 $4 $5 $6 $7 "{}" \;
+	find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee --maxpix=5000000 --peptide=Glutamic_acid $1 $2 $3 $4 $5 $6 $7 "{}" \;
+	find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee --maxpix=5000000 --peptide=Aspartic_acid $1 $2 $3 $4 $5 $6 $7 "{}" \;
+	find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee --maxpix=5000000 --peptide=Ochre $1 $2 $3 $4 $5 $6 $7 "{}" \;
+	find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee --maxpix=5000000 --peptide=Amber $1 $2 $3 $4 $5 $6 $7 "{}" \;
+	find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee --maxpix=5000000 --peptide=Cysteine $1 $2 $3 $4 $5 $6 $7 "{}" \;
+	find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee --maxpix=5000000 --peptide=Glycine $1 $2 $3 $4 $5 $6 $7 "{}" \;
+	find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee --maxpix=5000000 --peptide=Alanine $1 $2 $3 $4 $5 $6 $7 "{}" \;
+	find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee --maxpix=5000000 --peptide=Methionine $1 $2 $3 $4 $5 $6 $7 "{}" \;
+	find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee --maxpix=5000000 --peptide=Valine $1 $2 $3 $4 $5 $6 $7 "{}" \;
+	find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee --maxpix=5000000 --peptide=Leucine $1 $2 $3 $4 $5 $6 $7 "{}" \;
+	find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee --maxpix=5000000 --peptide=Isoleucine $1 $2 $3 $4 $5 $6 $7 "{}" \;
+	find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee --maxpix=5000000 --peptide=Phenylalanine $1 $2 $3 $4 $5 $6 $7 "{}" \;
+	find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee --maxpix=5000000 --peptide=Tryptophan $1 $2 $3 $4 $5 $6 $7 "{}" \;
+	find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee --maxpix=5000000 --peptide=Serine $1 $2 $3 $4 $5 $6 $7 "{}" \;
+	find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee --maxpix=5000000 --peptide=Threonine $1 $2 $3 $4 $5 $6 $7 "{}" \;
+	find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee --maxpix=5000000 --peptide=Opal $1 $2 $3 $4 $5 $6 $7 "{}" \;
+	find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee --maxpix=5000000 --peptide=Glutamine $1 $2 $3 $4 $5 $6 $7 "{}" \;
+	find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee --maxpix=5000000 --peptide=Asparagine $1 $2 $3 $4 $5 $6 $7 "{}" \;
+	find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee --maxpix=5000000 --peptide=Tyrosine $1 $2 $3 $4 $5 $6 $7 "{}" \;
+	find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee --maxpix=5000000 --peptide=Arginine $1 $2 $3 $4 $5 $6 $7 "{}" \;
+	find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee --maxpix=5000000 --peptide=Lysine $1 $2 $3 $4 $5 $6 $7 "{}" \;
+	find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee --maxpix=5000000 --peptide=Histidine $1 $2 $3 $4 $5 $6 $7 "{}" \;
 }
 
 

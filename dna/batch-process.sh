@@ -22,6 +22,9 @@ if [ -z "$1" ]; then
 else
   echo processing $1 $2 $3 $4 $5 $6 $7 $8
   echo
+  echo Asterix:
+  echo $*
+  echo ===========================
   ./batch-peptides.sh  $1 $2 $3 $4 $5 $6 $7 $8 &
   sleep 2
   ./batch-peptides.sh  $1 $2 $3 $4 $5 $6 $7 $8 &
