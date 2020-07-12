@@ -12,13 +12,13 @@ if [ -z "$1" ]; then
   echo
   echo processing all files in current directory: $(pwd)
   echo
-  ./batch-peptides.sh  &
+  ./batch-peptides.sh -q --noupdates &
   sleep 2
-  ./batch-peptides.sh  &
+  ./batch-peptides.sh -q &
   sleep 2
-  ./batch-peptides.sh  &
+  ./batch-peptides.sh &
   sleep 2
-  ./batch-peptides.sh
+  ./batch-peptides.sh * --html
 else
   echo processing $1 $2 $3 $4 $5 $6 $7 $8
   echo
@@ -27,10 +27,11 @@ else
   echo ===========================
   ./batch-peptides.sh  $1 $2 $3 $4 $5 $6 $7 $8 &
   sleep 2
-  ./batch-peptides.sh  $1 $2 $3 $4 $5 $6 $7 $8 &
+  ./batch-peptides.sh -q  $1 $2 $3 $4 $5 $6 $7 $8 &
   sleep 2
-  ./batch-peptides.sh  $1 $2 $3 $4 $5 $6 $7 $8 &
+  ./batch-peptides.sh -q  $1 $2 $3 $4 $5 $6 $7 $8 &
   sleep 2
+  ./batch-peptides.sh -q $1 $2 $3 $4 $5 $6 $7 $8
   ./batch-peptides.sh
 fi
 

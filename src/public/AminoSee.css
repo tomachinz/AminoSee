@@ -84,7 +84,6 @@ body.dark, html.dark, body.aminosee {
 }
 
 #stack_wrapper {
-  background-color: #222222;
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
@@ -96,6 +95,7 @@ body.dark, html.dark, body.aminosee {
 #stack0images ul {
   position: fixed;
   z-index: 10;
+  background-color: #222222;
 }
 
 a.stack {

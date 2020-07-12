@@ -17,14 +17,15 @@ test_do () {
   echo __________________________________________
   echo
   echo
-  echo START
-  echo $1 $2 $3 $4 $5 $6 $7 $8 $9 $10
-  nice aminosee $2 $3 $4 $5 $6 $7 $8 $9 $10
+  echo START $1
+  echo
+  echo aminosee $2 $3 $4 $5 $6 $7 $8
+  nice aminosee $2 $3 $4 $5 $6 $7 $8
   echo
   echo
   echo
   echo END
-  echo $1 $2 $3 $4 $5 $6 $7 $8 $9 $10  --no-image
+  echo $1 $2 $3 $4 $5 $6 $7 $8
 }
 echo STOPPPING SERVER
 aminosee --stop
@@ -34,7 +35,7 @@ echo STARTING SERVER TO RUN IN BACKGROUND
 aminosee --serve &
 echo aminosee $1 $2 $3 $4 $5 $6 $7 $8 $9 $10  --no-image
 aminosee $1 $2 $3 $4 $5 $6 $7 $8 $9 $10  --no-image
-test_do "Ochre KEYBOARD MODE TEST"  $FAST      $1 $2 $3 $4 $5 $6 $7 $8 $9 $10  --no-image  --peptide=Methionine --keyboard
+test_do "KEYBOARD MODE"  $FAST  $1 $2 $3 $4 $5 $6 $7 $8 $9 $10  --no-image  --peptide=Methionine --keyboard
 test_do "Networked cluster render test $NETWORK" -fv --peptide=Phenylalanine $FAST $NETWORK $MEDIUM $1
 test_do "Test use of --maxpix=5000000" --maxpix=5000000 -v $SLOW $MEDIUM $FAST $NETWORK $1 $2 $3 $4 $5 $6 $7 $8 $9
 test_do "Forced re-render verbose no image" -fv $MEDIUM $FAST $1 $2 $3 $4 $5 $6 $7 $8 $9 $10  --no-image

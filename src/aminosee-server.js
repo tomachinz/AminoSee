@@ -36,7 +36,7 @@ module.exports = (options) => {
 	port = defaultPort
 	// fragment = aminosee.justNameOfDNA
 	process.title = `aminosee.funk.nz_server ${fragment}`
-	output(`Using fragment: ${ chalk.underline( fragment )}`)
+	output(`AminoSee built-in webserver ${ chalk.underline( fragment )}`)
 
 	setArgs(options);
 	// [ userprefs, projectprefs ] = setupPrefs()
