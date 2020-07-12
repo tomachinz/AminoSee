@@ -12,9 +12,9 @@ if [ -z "$1" ]; then
   echo
   echo processing all files in current directory: $(pwd)
   echo
-  ./batch-peptides.sh -q --noupdates &
+  ./batch-peptides.sh &
   sleep 2
-  ./batch-peptides.sh -q &
+  ./batch-peptides.sh &
   sleep 2
   ./batch-peptides.sh &
   sleep 2
