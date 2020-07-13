@@ -324,7 +324,7 @@ function pushCli(cs) {
       darkenFactor = 0.25 // if user has chosen to highlight an amino acid others are darkened
       highlightFactor = 4.0 // highten brightening.
       loopCounter = 0
-      this.raceDelay = 469 // so i learnt a lot on this project. one day this line shall disappear replaced by promises.
+      this.raceDelay = 569 // so i learnt a lot on this project. one day this line shall disappear replaced by promises.
       this.charClock = 0
       this.pixelClock = 0
       this.peptide = this.triplet = this.focusTriplet = this.focusPeptide = "Reference" // used to be "none" is now "Reference"
@@ -1891,7 +1891,7 @@ function pushCli(cs) {
         this.openOutputs()
 
         if ( this.force == false ) {
-          output(`skipping ${cfile}`)
+          output(`skipping ${ path.basename( this.filePNG) }`)
           // renderLock = false
 
 
@@ -2373,6 +2373,8 @@ function pushCli(cs) {
       // REQUIRES RENDERING TO MEMORY PRIOR
 
       let { shrinkFactor, codonsPerPixelHILBERT } = calculateShrinkage( this.pixelClock, this.dimension, this.codonsPerPixel )
+      output(`save docs shrinkFactor, codonsPerPixelHILBERT ${shrinkFactor}, ${codonsPerPixelHILBERT}`)
+      output(`save docs shrinkFactor, codonsPerPixelHILBERT ${shrinkFactor}, ${codonsPerPixelHILBERT}`)
       output(`save docs shrinkFactor, codonsPerPixelHILBERT ${shrinkFactor}, ${codonsPerPixelHILBERT}`)
       this.shrinkFactor = shrinkFactor
       this.codonsPerPixelHILBERT =  codonsPerPixelHILBERT
@@ -2993,11 +2995,15 @@ function pushCli(cs) {
       this.dimension = this.magnitude = defaultMagnitude = defaultPreviewDimension // 5
       const pixels =  hilbPixels[ defaultPreviewDimension ] // 65536
       this.maxpix = pixels * overSampleFactor
-      let { shrinkFactor, codonsPerPixelHILBERT } =  calculateShrinkage( this.pixelClock, defaultPreviewDimension, this.codonsPerPixel ) // danger: can change this.file of Hilbert images!
-      this.shrinkFactor = shrinkFactor
-      this.codonsPerPixelHILBERT = codonsPerPixelHILBERT
+      // let { shrinkFactor, codonsPerPixelHILBERT } =  calculateShrinkage( this.pixelClock, defaultPreviewDimension, this.codonsPerPixel ) // danger: can change this.file of Hilbert images!
+      // this.shrinkFactor = shrinkFactor
+      // this.codonsPerPixelHILBERT = codonsPerPixelHILBERT
+      // output(`previews codonsPerPixelHILBERT ${shrinkFactor}, ${codonsPerPixelHILBERT}`)
+      // output(`previews codonsPerPixelHILBERT ${shrinkFactor}, ${codonsPerPixelHILBERT}`)
+      // output(`previews codonsPerPixelHILBERT ${shrinkFactor}, ${codonsPerPixelHILBERT}`)
+
       // output(blueWhite(`ShrinkFactor ${shrinkFactor}`) + `making smaller resolution previews from source pixels ${ this.pixelClock.toLocaleString()} codons per pixel ${this.codonsPerPixel} new codons per pixel ${shrinkFactor} ${this.dimension} to ${defaultPreviewDimension} `)
-      output(blueWhite(`Creating previews at magnitude ${this.magnitude} ${this.dimension}`) + ` from source pixels ${ this.pixelClock.toLocaleString()} codons per pixel ${this.codonsPerPixel} new codons per pixel ${this.codonsPerPixelHILBERT} ${this.dimension} to ${defaultPreviewDimension} `)
+      // output(blueWhite(`Creating previews at magnitude ${this.magnitude} ${this.dimension}`) + ` from source pixels ${ this.pixelClock.toLocaleString()} codons per pixel ${this.codonsPerPixel} new codons per pixel ${this.codonsPerPixelHILBERT} ${this.dimension} to ${defaultPreviewDimension} `)
 
       this.index = true // auto enable html report for preveiws
       this.isDiskFinHilbert = false;
@@ -5164,8 +5170,8 @@ function pushCli(cs) {
             top:  50%;
             left: 50%;
             transform: translate(
-              calc(var(--mouse-x, 0) * ${proportion * 100}%),
-              calc(var(--mouse-y, 0) * ${proportion * 100}%));
+              calc(1 + var(--mouse-x, 0) * ${proportion * 100}%),
+              calc(1 + var(--mouse-y, 0) * ${proportion * 100}%));
               border: 1px dotted rgba(${c},0.5);
               z-index: ${p+1};
               `

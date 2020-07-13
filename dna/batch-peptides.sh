@@ -39,7 +39,7 @@ series_peptides () {
 	echo START RENDER with ten parameters:
 	echo $1 $2 $3 $4 $5 $6 $7 $8 $9 $10
 	echo
-  nice -n 1 aminosee -m5 --index   --force  $1 $2 $3 $4 $5 $6 $7 $8 $9 $10
+  nice -n 1 aminosee -m5 --index    $1 $2 $3 $4 $5 $6 $7 $8 $9 $10
   nice -n 4 aminosee -m5     --peptide=Glutamic_acid $1 $2 $3 $4 $5 $6 $7 $8 $9 $10
   nice -n 4 aminosee -m5     --peptide=Aspartic_acid $1 $2 $3 $4 $5 $6 $7 $8 $9 $10
   nice -n 4 aminosee -m5     --peptide=Ochre $1 $2 $3 $4 $5 $6 $7 $8 $9 $10
