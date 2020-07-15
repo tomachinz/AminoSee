@@ -25,13 +25,13 @@ else
   echo Asterix:
   echo $*
   echo ===========================
-  ./batch-peptides.sh  $1 $2 $3 $4 $5 $6 $7 $8 &
+  ./batch-peptides.sh  $* &
   sleep 2
-  ./batch-peptides.sh -q  $1 $2 $3 $4 $5 $6 $7 $8 &
+  ./batch-peptides.sh -q  $* &
   sleep 2
-  ./batch-peptides.sh -q  $1 $2 $3 $4 $5 $6 $7 $8 &
+  ./batch-peptides.sh -q  $* &
   sleep 2
-  ./batch-peptides.sh -q $1 $2 $3 $4 $5 $6 $7 $8
+  ./batch-peptides.sh -q $*
   ./batch-peptides.sh
 fi
 

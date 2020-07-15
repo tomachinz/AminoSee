@@ -3,6 +3,16 @@ let targetPixels = 8800000 // arbitrarily huge amount of pixels as target max re
 // let targetPixels = 5000000 // arbitrarily huge amount of pixels as target max resolution (8.8MP).
 // if estimated pixels is less than this, the render will show 1 pixel per codon
 let defaultMagnitude = 8 // each +1 is 4x more pixels
+const defaultC = 1 // back when it could not handle 3+GB files.
+const artisticHighlightLength = 36 // px only use in artistic this.mode. must be 6 or 12 currently
+const maxCanonical = 32 // max length of canonical name
+const hilbPixels = [ 64, 256, 1024, 4096, 16384, 65536, 262144, 1048576, 4194304, 16777216, 67108864 ] // I've personally never seen a mag 9 or 10 image, cos my computer breaks down. 67 Megapixel hilbert curve!! the last two are breaking nodes heap and call stack both.
+const widthMax = 960 // i wanted these to be tall and slim kinda like the most common way of diagrammatically showing chromosomes
+const defaultPort = 4321
+// const max32bitInteger = 2147483647
+const minUpdateTime = 2000
+const openLocalHtml = false // affects auto-open HTML.
+const fileLockingDelay = 2000
 const defaultPreviewDimension = 5 // was 500 MB per page before.
 const theoreticalMaxMagnitude = 10 // max for auto setting
 const overSampleFactor = 4 // your linear image divided by this will be the hilbert image size.
@@ -84,17 +94,7 @@ const dummyFilename = "50KB_TestPattern.txt"
 const closeBrowser = "If the process apears frozen, it's waiting for your this.browser or image viewer to quit. Escape with [ CONTROL-C ] or use --no-image --no-html"
 // const tomachisBirthday = new Date( 221962393 ) // Epoch timestamp: 221962393 is Date and time (GMT): Thursday, January 13, 1977 12:13:13 AM or 1:13:13 PM GMT+13:00 DST in New Zealand Time.
 const tomachisBirthday = new Date(  ) // Epoch timestamp: 221962393 is Date and time (GMT): Thursday, January 13, 1977 12:13:13 AM or 1:13:13 PM GMT+13:00 DST in New Zealand Time.
-const defaultC = 1 // back when it could not handle 3+GB files.
-const artisticHighlightLength = 36 // px only use in artistic this.mode. must be 6 or 12 currently
 
-const maxCanonical = 32 // max length of canonical name
-const hilbPixels = [ 64, 256, 1024, 4096, 16384, 65536, 262144, 1048576, 4194304, 16777216, 67108864 ] // I've personally never seen a mag 9 or 10 image, cos my computer breaks down. 67 Megapixel hilbert curve!! the last two are breaking nodes heap and call stack both.
-const widthMax = 960 // i wanted these to be tall and slim kinda like the most common way of diagrammatically showing chromosomes
-const defaultPort = 4321
-// const max32bitInteger = 2147483647
-const minUpdateTime = 200
-const openLocalHtml = false // affects auto-open HTML.
-const fileLockingDelay = 2000
 // const targetPixels = 1000000 // for web
 // let bodyParser = require('body-parser');
 // const gv = require('genversion');
@@ -767,7 +767,6 @@ function pushCli(cs) {
         this.serve = true
         this.keyboard = true
         killServersOnQuit = false
-        this.justNameOfPNG = "unset"
       } else {
         log("Foreground webserver will exit with app, use --serve to spawn background process ")
         this.serve = false
@@ -1575,6 +1574,9 @@ function pushCli(cs) {
     downloadMegabase(cb) {
       this.currentFile = "megabase.fa"
       cfile = this.currentFile
+      if (typeof cb === "undefined") {
+        error(`you need to pass callback to downloadMegabase`)
+      }
       let promiseMegabase = new Promise(function(resolve,reject) {
         try {
           var exists = doesFileExist( this.currentFile)
@@ -1870,26 +1872,25 @@ function pushCli(cs) {
         return false
       }
 
-      log(`Checking for previous render of ${cfile}`)
       this.setupRender( this.currentFile )
+      output(`Checking for previous render of ${this.filePNG}`)
 
       if (doesFileExist(this.filePNG)) {
         this.setupPrefs() // store reference if the conf was wiped
         this.previousImage = this.filePNG
         let msg = `Already rendered image: ${  maxWidth(tx / 3, path.basename(this.filePNG))}.`
+        output(msg)
 
         termDrawImage(this.filePNG, "linear render previously done", (msg) => {
           mode(msg)
-          output(msg)
           setTimeout( (msg) => {
             msg = `already rendered`
             this.fastReset(msg)
-            this.slowSkipNext(msg)
+            // this.slowSkipNext(msg)
           }, this.raceDelay)
         })
         addToRendered(this.justNameOfDNA)
         this.openOutputs()
-
         if ( this.force == false ) {
           output(`skipping ${ path.basename( this.filePNG) }`)
           // renderLock = false
@@ -1915,7 +1916,7 @@ function pushCli(cs) {
         }
         mode(`Lock OK proceeding to render ${ this.justNameOfPNG } in ${ humanizeDuration( fileLockingDelay ) }... ${ this.busy() }`)
         log( `S: ${status} ` )
-        this.justNameOfPNG = this.generateFilenamePNG()
+        // this.justNameOfPNG = this.generateFilenamePNG()
         if ( renderLock == false) {
           this.touchLockAndStartStream() // <<<<------------- THIS IS WHERE MAGIC STARTS!!!!
         } else {
@@ -1960,7 +1961,6 @@ function pushCli(cs) {
     // }
     fastReset(reason){
       mode(`FAST RESET JOB ${batchProgress()} (${ this.storage()} ${ this.busy()}) Reason ${reason} Storage:  current: ${ this.currentFile } next: ${ this.nextFile}`)
-      mode(`${batchProgress()} (Reason ${reason} current: ${ this.currentFile } next: ${ this.nextFile}`)
       status = maxWidth( tx / 2, status)
       if ( renderLock ) { error("draining threads from reset"); return false }
       log( status)
@@ -2412,6 +2412,7 @@ function pushCli(cs) {
     }
 
     generateFilenameTouch( focus ) { // we need the *fullpath* of this one
+      mode(`inside generateFilenameTouch function`)
       if ( typeof focus === "undefined" ) {
         focus = this.peptide
       }
@@ -2812,10 +2813,10 @@ function pushCli(cs) {
         hypertext = this.htmlTemplate( histogramJson )
       }
 
-      let histotext = beautify( JSON.stringify( histogramJson ), null, 2, 100);
+      let histotext = beautify( histogramJson , null, 2, 100);
       // let histotext =  JSON.stringify( histogramJson )
       // let histotext =  histogramJson.toString()
-      // output(histotext)
+      output(histotext)
 
       // const isHighRes = this.dimension > defaultPreviewDimension
       const isHighRes = this.genomeSize > hilbPixels[ defaultPreviewDimension ]
@@ -3065,13 +3066,16 @@ function pushCli(cs) {
               if (this.dimension > defaultPreviewDimension) {
                 this.renderLock = true
                 this.setIsDiskBusy( true )
-                this.createPreviews( () => {
-                  mode(`Previews created ${this.justNameOfPNG}`)
-                  this.dimension = -1
-                  const msg = `Previews created. Not polling.`
-                  output(msg)
-                  // this.postRenderPoll(msg)
-                })
+                setTimeout( () => {
+                  this.createPreviews( () => {
+                    mode(`Previews created ${this.justNameOfPNG}`)
+                    this.dimension = -1
+                    const msg = `Previews created. Not polling.`
+                    output(msg)
+                    // this.postRenderPoll(msg)
+                  })
+                }, this.raceDelay * 2 )
+
               } else {
                 this.slowSkipNext(msg)
               }
@@ -3606,8 +3610,8 @@ function pushCli(cs) {
         </div>
         </nav>
         <h1>${ this.justNameOfDNA}</h1>
-        <h2>AminoSee DNA Render Summary for ${ this.currentFile } ${ this.artistc ? "Artistic" : "Science" } render mode</h2>
-        <h3>M${this.dimension}C${this.codonsPerPixel}H${onesigbitTolocale( this.codonsPerPixelHILBERT )}</h3>
+        <h2>AminoSee DNA Render Summary</h2>
+        <h3>Hilbert curvers of dimension ${this.dimension} used, yielding images with ~${onesigbitTolocale(this.codonsPerPixelHILBERT)} codons per pixel including non-coding regions. Linear reference file shows exactly ${onesigbitTolocale( this.codonsPerPixel )} codons per pixel</h3>
 
         <div id="render_summary" class="grid-container">
         <div id="stack_wrapper">
@@ -5326,6 +5330,7 @@ function pushCli(cs) {
             // }
           }
           function out(txt) {
+            if (typeof txt === "undefined") { txt = "." }
             if ( debug ) {
               process.stdout.write(chalk.blue(" [ ") + removeNonAscii( txt ) + chalk.blue(" ] "))
             } else {
@@ -5360,7 +5365,7 @@ function pushCli(cs) {
             if ( !debounce() ) {
               return false
             }
-            txt += `--> ${cfile} ${new Date().getTime()}`
+            txt = `${status} ---> ${cfile} ${new Date().getTime()}` + txt
 
             if (typeof this === "undefined") {
               txt = hostname
@@ -5896,6 +5901,7 @@ function pushCli(cs) {
               term.up( 1 )
               // }
             } else {
+              out()
               // term.eraseLine()
               // console.log(` [ ${ maxWidth( tx - 2,  txt )} ] `)
               // term.up( 1 )
@@ -6461,9 +6467,10 @@ function pushCli(cs) {
                 // cb()
               } else {
                 output(blueWhite( "cb is not a function?"))
+                output( cb )
               }
             } else {
-              mode("you didnt pass a callback?!")
+              mode("you didn't pass a callback?!")
             }
           }
           function removeNonAscii(str) {
@@ -6543,14 +6550,15 @@ function pushCli(cs) {
             return this.aminoacid
           }
           function rollbackFolder(fullpath) {
+            out(`Rolling back`)
             if ( path.basename(fullpath) !== cliInstance.justNameOfDNA ) {
               error(`internal state not consistent: ${path.basename(fullpath)} !== ${cliInstance.justNameOfDNA}`)
               return
             } else {
               notQuiet("here goes nothing, about to remove folder: "+ path.basename(fullpath))
             }
-            deleteFile( cliInstance.filePNG )
-            deleteFile( cliInstance.fileHILBERT )
+            // deleteFile( cliInstance.filePNG )
+            // deleteFile( cliInstance.fileHILBERT )
             deleteFile( cliInstance.fileTouch )
             deleteFile( cliInstance.fileHistogram )
             deleteFile( cliInstance.fileHTML )
@@ -6665,7 +6673,6 @@ function pushCli(cs) {
           function error(err) {
             mode(`💩 Error during ${status}: [${ maxWidth(16,  err)}] ${cliInstance.justNameOfDNA} ${cliInstance.busy()}`)
             output( `💩 error: ${status}` )
-            // output( beautify(aminosee_json) )
             cliInstance.calcUpdate()
             if ( debug == true ) {
               if ( cliInstance.quiet == false ) {
@@ -6675,11 +6682,13 @@ function pushCli(cs) {
               }
 
               output(`DEBUG MODE IS ENABLED. STOPPING: ${err}`)
+              // output( beautify(aminosee_json) )
+
               throw new Error(err)
             } else {
               cliInstance.raceDelay += 50
               output()
-              notQuiet(`💩 Caught error: ${err} INCREASING DELAY BY 50 ms`)
+              output(`💩 Caught error: ${err} INCREASING DELAY BY 50 ms`)
               output()
             }
           }

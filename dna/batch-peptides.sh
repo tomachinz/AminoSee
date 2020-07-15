@@ -5,64 +5,64 @@ echo
 
 series_peptides () {
 	echo START RENDER with ten parameters:
-	echo $1 $2 $3 $4 $5 $6 $7 $8 $9 $10
+	echo $*
 	echo
-  nice -n 1 aminosee      $1 $2 $3 $4 $5 $6 $7 $8 $9 $10
-  nice -n 4 aminosee -q   --peptide=Glutamic_acid $1 $2 $3 $4 $5 $6 $7 $8 $9 $10
-  nice -n 4 aminosee -q   --peptide=Aspartic_acid $1 $2 $3 $4 $5 $6 $7 $8 $9 $10
-  nice -n 4 aminosee -q   --peptide=Ochre $1 $2 $3 $4 $5 $6 $7 $8 $9 $10
-  nice -n 4 aminosee -q   --peptide=Amber $1 $2 $3 $4 $5 $6 $7 $8 $9 $10
-  nice -n 4 aminosee -q   --peptide=Opal $1 $2 $3 $4 $5 $6 $7 $8 $9 $10
-  nice -n 4 aminosee -q   --peptide=Methionine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10
-  nice -n 4 aminosee -q   --peptide=Cysteine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10
-  nice -n 4 aminosee -q   --peptide=Glycine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10
-  nice -n 4 aminosee -q   --peptide=Alanine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10
-  nice -n 4 aminosee -q   --peptide=Valine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10
-  nice -n 4 aminosee -q   --peptide=Leucine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10
-  nice -n 4 aminosee -q   --peptide=Isoleucine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10
-  nice -n 4 aminosee -q   --peptide=Phenylalanine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10
-  nice -n 4 aminosee -q   --peptide=Proline $1 $2 $3 $4 $5 $6 $7 $8 $9 $10
-  nice -n 4 aminosee -q   --peptide=Tryptophan $1 $2 $3 $4 $5 $6 $7 $8 $9 $10
-  nice -n 4 aminosee -q   --peptide=Serine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10
-  nice -n 4 aminosee -q   --peptide=Threonine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10
-  nice -n 4 aminosee -q   --peptide=Glutamine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10
-  nice -n 4 aminosee -q   --peptide=Asparagine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10
-  nice -n 4 aminosee -q   --peptide=Tyrosine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10
-  nice -n 4 aminosee -q   --peptide=Arginine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10
-  nice -n 4 aminosee -q   --peptide=Lysine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10
-  nice -n 4 aminosee      --peptide=Histidine  $1 $2 $3 $4 $5 $6 $7 $8 $9 $10
+  nice -n 1 aminosee      $*
+  nice -n 4 aminosee -q   --peptide=Glutamic_acid $*
+  nice -n 4 aminosee -q   --peptide=Aspartic_acid $*
+  nice -n 4 aminosee -q   --peptide=Ochre $*
+  nice -n 4 aminosee -q   --peptide=Amber $*
+  nice -n 4 aminosee -q   --peptide=Opal $*
+  nice -n 4 aminosee -q   --peptide=Methionine $*
+  nice -n 4 aminosee -q   --peptide=Cysteine $*
+  nice -n 4 aminosee -q   --peptide=Glycine $*
+  nice -n 4 aminosee -q   --peptide=Alanine $*
+  nice -n 4 aminosee -q   --peptide=Valine $*
+  nice -n 4 aminosee -q   --peptide=Leucine $*
+  nice -n 4 aminosee -q   --peptide=Isoleucine $* 
+  nice -n 4 aminosee -q   --peptide=Phenylalanine $*
+  nice -n 4 aminosee -q   --peptide=Proline $*
+  nice -n 4 aminosee -q   --peptide=Tryptophan $*
+  nice -n 4 aminosee -q   --peptide=Serine $*
+  nice -n 4 aminosee -q   --peptide=Threonine $*
+  nice -n 4 aminosee -q   --peptide=Glutamine $*
+  nice -n 4 aminosee -q   --peptide=Asparagine $*
+  nice -n 4 aminosee -q   --peptide=Tyrosine $*
+  nice -n 4 aminosee -q   --peptide=Arginine $*
+  nice -n 4 aminosee -q   --peptide=Lysine $*
+  nice -n 4 aminosee      --peptide=Histidine  $*
 	echo
 	echo done
 	sleep 1
 
 
 	echo START RENDER with ten parameters:
-	echo $1 $2 $3 $4 $5 $6 $7 $8 $9 $10
+	echo $*
 	echo
-  nice -n 1 aminosee -m5 --index    $1 $2 $3 $4 $5 $6 $7 $8 $9 $10
-  nice -n 4 aminosee -m5     --peptide=Glutamic_acid $1 $2 $3 $4 $5 $6 $7 $8 $9 $10
-  nice -n 4 aminosee -m5     --peptide=Aspartic_acid $1 $2 $3 $4 $5 $6 $7 $8 $9 $10
-  nice -n 4 aminosee -m5     --peptide=Ochre $1 $2 $3 $4 $5 $6 $7 $8 $9 $10
-  nice -n 4 aminosee -m5     --peptide=Amber $1 $2 $3 $4 $5 $6 $7 $8 $9 $10
-  nice -n 4 aminosee -m5     --peptide=Opal $1 $2 $3 $4 $5 $6 $7 $8 $9 $10
-  nice -n 4 aminosee -m5     --peptide=Methionine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10
-  nice -n 4 aminosee -m5     --peptide=Cysteine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10
-  nice -n 4 aminosee -m5     --peptide=Glycine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10
-  nice -n 4 aminosee -m5     --peptide=Alanine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10
-  nice -n 4 aminosee -m5     --peptide=Valine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10
-  nice -n 4 aminosee -m5     --peptide=Leucine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10
-  nice -n 4 aminosee -m5     --peptide=Isoleucine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10
-  nice -n 4 aminosee -m5     --peptide=Phenylalanine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10
-  nice -n 4 aminosee -m5     --peptide=Proline $1 $2 $3 $4 $5 $6 $7 $8 $9 $10
-  nice -n 4 aminosee -m5     --peptide=Tryptophan $1 $2 $3 $4 $5 $6 $7 $8 $9 $10
-  nice -n 4 aminosee -m5     --peptide=Serine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10
-  nice -n 4 aminosee -m5     --peptide=Threonine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10
-  nice -n 4 aminosee -m5     --peptide=Glutamine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10
-  nice -n 4 aminosee -m5     --peptide=Asparagine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10
-  nice -n 4 aminosee -m5     --peptide=Tyrosine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10
-  nice -n 4 aminosee -m5     --peptide=Arginine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10
-  nice -n 4 aminosee -m5     --peptide=Lysine $1 $2 $3 $4 $5 $6 $7 $8 $9 $10
-  nice -n 4 aminosee -m5       --peptide=Histidine  $1 $2 $3 $4 $5 $6 $7 $8 $9 $10
+  nice -n 1 aminosee -m5 --index    $*
+  nice -n 4 aminosee -m5     --peptide=Glutamic_acid $*
+  nice -n 4 aminosee -m5     --peptide=Aspartic_acid $*
+  nice -n 4 aminosee -m5     --peptide=Ochre $*
+  nice -n 4 aminosee -m5     --peptide=Amber $*
+  nice -n 4 aminosee -m5     --peptide=Opal $*
+  nice -n 4 aminosee -m5     --peptide=Methionine $*
+  nice -n 4 aminosee -m5     --peptide=Cysteine $*
+  nice -n 4 aminosee -m5     --peptide=Glycine $*
+  nice -n 4 aminosee -m5     --peptide=Alanine $*
+  nice -n 4 aminosee -m5     --peptide=Valine $*
+  nice -n 4 aminosee -m5     --peptide=Leucine $*
+  nice -n 4 aminosee -m5     --peptide=Isoleucine $*
+  nice -n 4 aminosee -m5     --peptide=Phenylalanine $*
+  nice -n 4 aminosee -m5     --peptide=Proline $*
+  nice -n 4 aminosee -m5     --peptide=Tryptophan $*
+  nice -n 4 aminosee -m5     --peptide=Serine $*
+  nice -n 4 aminosee -m5     --peptide=Threonine $*
+  nice -n 4 aminosee -m5     --peptide=Glutamine $*
+  nice -n 4 aminosee -m5     --peptide=Asparagine $*
+  nice -n 4 aminosee -m5     --peptide=Tyrosine $*
+  nice -n 4 aminosee -m5     --peptide=Arginine $*
+  nice -n 4 aminosee -m5     --peptide=Lysine $*
+  nice -n 4 aminosee -m5       --peptide=Histidine  $*
 	echo
 	echo done
 	sleep 1
@@ -130,7 +130,7 @@ find_way_peptides () {
 
 
 
-  echo STARTING SERIAL DECODE FOR $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 $13 $14 $15 $16
+  echo STARTING SERIAL DECODE FOR $*  $11 $12 $13 $14 $15 $16
   if [ $(uname)="Darwin" ]; then
     echo macos
     DASHF=" -f "
@@ -202,5 +202,5 @@ if [ -z "$1" ]; then
   # exit
 	find_way_peptides
 else
-  series_peptides $1 $2 $3 $4 $5 $6 $7 $8 $9 $10
+  series_peptides $*
 fi
