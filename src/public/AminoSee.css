@@ -85,23 +85,25 @@ body.dark, html.dark, body.aminosee {
 
 #stack_wrapper {
   position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
+  /* left: 50%; */
+  top: 50%;
+  /* transform: translateX(-50%); */
   width: 99%;
   height: 32px;
   border: #666666 1px;
+  /* background-color: yellow; */
 }
 
 #stack0images ul {
-  position: fixed;
+  position: relative;
   z-index: 10;
   background-color: #222222;
 }
 
 a.stack {
   text-decoration: none;
-  visibility: hidden;
-  display: none;
+  /* visibility: hidden; */
+  /* display: none; */
 }
 
 ul, li {
@@ -111,8 +113,8 @@ ul, li {
 }
 
 img.stack {
-  width: calc(var("--mouse-scale", 1)px);
-  height: calc(var("--mouse-scale", 1)px);
+  /* width: calc(var("--mouse-scale", 1)px); */
+  /* height: calc(var("--mouse-scale", 1)px); */
   padding: 16px 16px;
   background-color: #666666;
   background-color: rgba(0, 0, 0, 0.3);
@@ -131,8 +133,8 @@ img.stack {
 #stack_0, #stack_1, #stack_2, #stack_3, #stack_4, #stack_5, #stack_6, #stack_7, #stack_8, #stack_9, #stack_10, #stack_11, #stack_12, #stack_13, #stack_14, #stack_15, #stack_16, #stack_17, #stack_18, #stack_19, #stack_20, #stack_21, #stack_22, #stack_23, #stack_24 {
   visibility: visible;
   position: relative;
-  width: calc(var("--mouse-scale", 1)/4)px;
-  height: calc(var("--mouse-scale", 1)/4)px;
+  /* width: calc(var("--mouse-scale", 1)/4)px; */
+  /* height: calc(var("--mouse-scale", 1)/4)px; */
 }
 
 input[type=button], input[type=submit], input[type=reset] {

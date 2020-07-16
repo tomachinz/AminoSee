@@ -1,6 +1,6 @@
 // "use strict";
 
-let hilbertPoints, herbs, zoom, progress, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, justNameOfFile, selectedGenome, verbose, spline, point, vertices, colorsReady, controlsShowing, devmode, fileUploadShowing, maxcolorpix, nextColors, cpu, subdivisions, userFeedback, contextBitmap, pauseIntent, linewidth, pepTable, isDetailsPage, willClear
+let hilbertPoints, herbs, zoom, progress, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, justNameOfFile, selectedImage, verbose, spline, point, vertices, colorsReady, controlsShowing, devmode, fileUploadShowing, maxcolorpix, nextColors, cpu, subdivisions, userFeedback, contextBitmap, pauseIntent, linewidth, pepTable, isDetailsPage, willClear
 let sprites = []
 pauseIntent = isDetailsPage = false
 maxcolorpix = 262144 // for large genomes
@@ -15,7 +15,7 @@ let cubes = 0 // 1 gives just the row of three at bottom. 2 gives two rows for 6
 // let cubes = 1; // 1 gives just the row of three at bottom. 2 gives two rows for 6 boxes.
 // let cubes = 2; // 1 gives just the row of three at bottom. 2 gives two rows for 6 boxes.
 verbose = false
-selectedGenome = getGenomeFromURL()
+selectedImage = getSelectedImage()
 fileUploadShowing = false
 perspective = true
 paused = false
@@ -197,7 +197,7 @@ function fileInit(file) {
 }
 function fileChanged(file) { // http://127.0.0.1:8888/aminosee/output/Chimp_Clint_chrY/aminosee_histogram.json
 	let path = window.location.pathname
-	let newURL = `${path}#?selectedGenome=${file}`
+	let newURL = `${path}#?selectedImage=${file}`
 	// let image = `${file}/images/${justNameOfPNG}`
 	setupFNames()
 	loadImage()
@@ -292,7 +292,7 @@ function jsonTest() {
 		})
 }
 function initVariables() {
-	selectedGenome = getGenomeFromURL("selectedGenome")
+	selectedImage = getSelectedImage("selectedImage")
 	// create a simple instance
 	// by default, it only adds horizontal recognizers
 	hammerIt(document.getElementById("canvas"))
@@ -370,47 +370,42 @@ function init2D() {
 	sceneCameraSetup()
 	addOffscreenImage()
 }
-
-
 function getGenomeFromURL() { // extract the genome from the page URL params / paths
-	// if
-	// can be either one of
-	// http://www.funk.co.nz/aminosee/#?selectedGenome=output/Chimp_Clint_chrY
-	// http://www.funk.co.nz/aminosee/#?selectedGenome=calibration/AminoSee_Calibration_reg_linear_8.png
 	// http://www.funk.co.nz/aminosee/output/Chimp_Clint_chrY/
 	let href = window.location.href
-	let index = -1
-	urlparam = href.indexOf("selectedGenome")
-
-
 	index = href.indexOf("/output/")
 	if ( index !== -1 ) {
 		const frag = href.substring(index, href.length)
 		const endindex = frag.indexOf("/")
 		return frag.substring(0, endindex) //CHOP OFF THE END,which could be /index.html etc
 	}
+	return getSelectedImage() // fallback
+}
+function getSelectedImage() { // extract the genome from the page URL params / paths
+	// if
+	// can be either one of
+	// http://www.funk.co.nz/aminosee/#?selectedImage=output/Chimp_Clint_chrY
+	// http://www.funk.co.nz/aminosee/#?selectedImage=calibration/AminoSee_Calibration_reg_linear_8.png
+	let href = window.location.href
+	let index = href.indexOf("selectedImage")
 
-	href = href.substring(urlparam +1)
+	href = href.substring(index + 1)
 	index = href.indexOf("=")
 	if ( index !== -1 ) {
 		return href.substring(index + 1) //CHOP OFF THE =
 	}
-
 	index = href.indexOf("&") // fixed by stopping at &, should probably add # and ? and =
 	if ( index !== -1) {
 		return href.substring(0, index)
 	}
-
 	index = href.indexOf("#") // fixed by stopping at &, should probably add # and ? and =
 	if ( index !== -1) {
 		return href.substring(0, index)
 	}
-
 	index = href.indexOf("?") // fixed by stopping at &, should probably add # and ? and =
 	if ( index !== -1) {
 		return href.substring(0, index)
 	}
-
 	console.log("no param set in URL")
 	return href
 }
@@ -810,7 +805,7 @@ function replaceFilepathFileName(f) {
 	return f.replace(/^.*[\\\/]/, "")
 }
 function setupFNames() {
-	justNameOfFile = replaceFilepathFileName(selectedGenome)
+	justNameOfFile = replaceFilepathFileName(selectedImage)
 }
 
 function getStats() {
@@ -818,8 +813,8 @@ function getStats() {
   <h6>${justNameOfFile}</h6>
 
   <div id="oi">
-  <img id="current_image" src="${selectedGenome}" width="64px" height="64px">
-  <img id="offscreen_image" src="${selectedGenome}" style="postion: fixed; transform: translateXY(+100%, -100%);">
+  <img id="current_image" src="${selectedImage}" width="64px" height="64px">
+  <img id="offscreen_image" src="${selectedImage}" style="postion: fixed; transform: translateXY(+100%, -100%);">
   </div>
 
   <pre>
@@ -926,8 +921,8 @@ function loadImage() {
 	size = herbs*subdivisions
 	// var img = document.getElementById('offscreen_image');
 	var img = document.createElement("img")
-	img.src = selectedGenome
-	// alert(selectedGenome)
+	img.src = selectedImage
+	// alert(selectedImage)
 	var ocanvas = document.createElement("canvas")
 	ocanvas.width = img.width
 	ocanvas.height = img.height
