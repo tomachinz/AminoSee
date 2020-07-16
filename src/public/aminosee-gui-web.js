@@ -1,6 +1,6 @@
 // "use strict";
 
-let hilbertPoints, herbs, zoom, progress, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, justNameOfFile, filename, verbose, spline, point, vertices, colorsReady, controlsShowing, devmode, fileUploadShowing, maxcolorpix, nextColors, cpu, subdivisions, userFeedback, contextBitmap, pauseIntent, linewidth, pepTable, isDetailsPage, willClear
+let hilbertPoints, herbs, zoom, progress, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, justNameOfFile, selectedGenome, verbose, spline, point, vertices, colorsReady, controlsShowing, devmode, fileUploadShowing, maxcolorpix, nextColors, cpu, subdivisions, userFeedback, contextBitmap, pauseIntent, linewidth, pepTable, isDetailsPage, willClear
 let sprites = []
 pauseIntent = isDetailsPage = false
 maxcolorpix = 262144 // for large genomes
@@ -15,7 +15,7 @@ let cubes = 0 // 1 gives just the row of three at bottom. 2 gives two rows for 6
 // let cubes = 1; // 1 gives just the row of three at bottom. 2 gives two rows for 6 boxes.
 // let cubes = 2; // 1 gives just the row of three at bottom. 2 gives two rows for 6 boxes.
 verbose = false
-filename = getParameterFromURL()
+selectedGenome = getGenomeFromURL()
 fileUploadShowing = false
 perspective = true
 paused = false
@@ -64,14 +64,14 @@ if ( docloc.indexOf("funk.co.nz") == -1 ) {
 	urlprefix = "funk.co.nz/aminosee/output/"
 }
 if(window.addEventListener) {
-	window.addEventListener("load",pageLoaded,false) //W3C
+	window.addEventListener("load", pageLoaded,false) //W3C
 } else {
-	window.attachEvent("onload",pageLoaded) //IE
+	window.attachEvent("onload", pageLoaded) //IE
 }
 
 function handleStart(evt) {
 	evt.preventDefault()
-	console.log("touchstart.")
+	console.log("handleStart " + evt)
 	var el = document.getElementById("canvas")
 	// var ctx = el.getContext("2d");
 	var touches = evt.changedTouches
@@ -84,8 +84,10 @@ function handleStart(evt) {
 		// ctx.arc(touches[i].pageX, touches[i].pageY, 4, 0, 2 * Math.PI, false);  // a circle at the start
 		// ctx.fillStyle = color;
 		// ctx.fill();
-		console.log("touchstart:" + i + ".")
 	}
+}
+function handleEnd(evt) {
+	console.log("handleEnd " + evt)
 }
 function handleMove(evt) {
 	evt.preventDefault()
@@ -125,11 +127,10 @@ function startup() {
 	var el = document.getElementById("aminosee")
 	el.addEventListener("touchstart", handleStart, false)
 	el.addEventListener("touchend", handleEnd, false)
-	el.addEventListener("touchcancel", handleCancel, false)
+	// el.addEventListener("touchcancel", handleCancel, false)
 	el.addEventListener("touchmove", handleMove, false)
 }
 
-document.addEventListener("DOMContentLoaded", startup)
 
 
 function mover(i) {
@@ -178,19 +179,20 @@ function mclick(i) {
 }
 function fileInit(file) {
 	let path = window.location.pathname
+	justNameOfDNA = getGenomeFromURL()
 	if (typeof file === "undefined") { file = "aminosee_histogram.json" }
 	if ( path.indexOf("/output/") !== -1 ) {
 		isDetailsPage = true
 	} else {
 		isDetailsPage = false
 		document.getElementById("oi").innerHTML = `<img id="current_image" src="${file}" width="64px" height="64px">`
-
 	}
+
 	// let histoURL = `${urlprefix}/${file}`
 	let histoURL = `${urlprefix}/${justNameOfDNA}/${file}`
 	document.getElementById("oi").src = file
 	console.log(`click ${histoURL}`)
-	alert(`histogram ${histoURL}`)
+	// alert(`histogram ${histoURL}`)
 	return  loadHistogramJson(histoURL)
 }
 function fileChanged(file) { // http://127.0.0.1:8888/aminosee/output/Chimp_Clint_chrY/aminosee_histogram.json
@@ -204,7 +206,7 @@ function fileChanged(file) { // http://127.0.0.1:8888/aminosee/output/Chimp_Clin
 }
 function loadHistogramJson(histoURL) {
 	let histogramJson
-	console.log(`FETCH ${histoURL}`) // filename
+	console.log(`FETCH ${histoURL}`) // justNameOfDNA
 	fetch( histoURL )
 		.then(response => response.json())
 		.then(json => {
@@ -290,7 +292,7 @@ function jsonTest() {
 		})
 }
 function initVariables() {
-	filename = getParameterFromURL("selectedGenome")
+	selectedGenome = getGenomeFromURL("selectedGenome")
 	// create a simple instance
 	// by default, it only adds horizontal recognizers
 	hammerIt(document.getElementById("canvas"))
@@ -370,7 +372,12 @@ function init2D() {
 }
 
 
-function getParameterFromURL() { // extract the genome from the page URL params / paths
+function getGenomeFromURL() { // extract the genome from the page URL params / paths
+	// if
+	// can be either one of
+	// http://www.funk.co.nz/aminosee/#?selectedGenome=output/Chimp_Clint_chrY
+	// http://www.funk.co.nz/aminosee/#?selectedGenome=calibration/AminoSee_Calibration_reg_linear_8.png
+	// http://www.funk.co.nz/aminosee/output/Chimp_Clint_chrY/
 	let href = window.location.href
 	let index = -1
 	urlparam = href.indexOf("selectedGenome")
@@ -803,7 +810,7 @@ function replaceFilepathFileName(f) {
 	return f.replace(/^.*[\\\/]/, "")
 }
 function setupFNames() {
-	justNameOfFile = replaceFilepathFileName(filename)
+	justNameOfFile = replaceFilepathFileName(selectedGenome)
 }
 
 function getStats() {
@@ -811,8 +818,8 @@ function getStats() {
   <h6>${justNameOfFile}</h6>
 
   <div id="oi">
-  <img id="current_image" src="${filename}" width="64px" height="64px">
-  <img id="offscreen_image" src="${filename}" style="postion: fixed; transform: translateXY(+100%, -100%);">
+  <img id="current_image" src="${selectedGenome}" width="64px" height="64px">
+  <img id="offscreen_image" src="${selectedGenome}" style="postion: fixed; transform: translateXY(+100%, -100%);">
   </div>
 
   <pre>
@@ -919,8 +926,8 @@ function loadImage() {
 	size = herbs*subdivisions
 	// var img = document.getElementById('offscreen_image');
 	var img = document.createElement("img")
-	img.src = filename
-	// alert(filename)
+	img.src = selectedGenome
+	// alert(selectedGenome)
 	var ocanvas = document.createElement("canvas")
 	ocanvas.width = img.width
 	ocanvas.height = img.height
@@ -1749,3 +1756,4 @@ function imageStack(histogramJson) {
 	return hhh
 }
 // pageLoaded();
+document.addEventListener("DOMContentLoaded", startup)

@@ -8,7 +8,8 @@ NICE=1
 
 if [ -z "$1" ]; then
   echo useage:
-  echo ./batch-procecss.sh Brown_Kiwi.dna
+  echo ./batch-process.sh Brown_Kiwi.dna
+  echo ./batch-process.sh *
   echo
   echo processing all files in current directory: $(pwd)
   echo
@@ -18,20 +19,20 @@ if [ -z "$1" ]; then
   sleep 2
   ./batch-peptides.sh &
   sleep 2
-  ./batch-peptides.sh * --html
+  ./batch-peptides.sh *
 else
-  echo processing $1 $2 $3 $4 $5 $6 $7 $8
+  echo processing $*
   echo
   echo Asterix:
   echo $*
   echo ===========================
   ./batch-peptides.sh  $* &
   sleep 2
-  ./batch-peptides.sh -q  $* &
+  ./batch-peptides.sh  $* &
   sleep 2
-  ./batch-peptides.sh -q  $* &
+  ./batch-peptides.sh  $* &
   sleep 2
-  ./batch-peptides.sh -q $*
+  ./batch-peptides.sh  $*
   ./batch-peptides.sh
 fi
 
@@ -39,8 +40,8 @@ fi
 
 #
 # echo
-echo sleeping for an hour and then rendering all in current directory
+echo sleeping for a minute and then rendering all in current directory
 # echo
-sleep 3600
+sleep 60
 # ./batch-peptides.sh
 find -f *.fa *.mfa *.gbk *.txt -exec  ./batch-peptides.sh  {}   \;
