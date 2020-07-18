@@ -133,13 +133,19 @@ find_way_peptides () {
   echo STARTING SERIAL DECODE FOR $*  $11 $12 $13 $14 $15 $16
   if [ $(uname)="Darwin" ]; then
     echo macos
-    DASHF=" -f "
+		# DASHF=" -f  "
+		DASHF=" -L  * | grep -E \"(txt|mfa|gbk|txt|fa)\""
   fi
 
   if [ $(uname)="Linux" ]; then
     echo linux
     DASHF=" "
   fi
+
+
+ 	find  -L  * | grep -E "(txt|mfa|gbk|txt|fa)" | xargs -J $ nice aminosee --peptide=Histidine --image $
+	find  -L  * | grep -E "(txt|mfa|gbk|txt|fa)" | xargs -J $ nice aminosee $
+
   find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee                     $* "{}" \;
   find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee  --peptide=Glutamic_acid $* "{}" \;
   find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee  --peptide=Aspartic_acid $* "{}" \;
