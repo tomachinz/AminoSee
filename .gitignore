@@ -10,6 +10,9 @@ funk.co.nz-aminosee/
 dist/
 backup/
 src/public/gource.mp4
+.mp4
+.git
+.clinic
 calibration
 AminoSee_*.png
 dna/*.fa
@@ -23,10 +26,15 @@ dna/*.touch
 dna/27MB_TestPattern.txt
 dna/3MB_TestPattern.txt
 dna/AminoSee_webroot
+dna/Retired-DNA/
 audio
-demo
+demo/
+video/
+test/
+build/
 AminoSee_Output
 images/
+lib/
 
 # this kludge is so i can have a shell script in there "process-all-files-in-cd.sh"
 test/reports

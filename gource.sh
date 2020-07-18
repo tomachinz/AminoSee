@@ -1,17 +1,19 @@
 TITLE="github.com/tomachinz/AminoSee       Audio track by TOMACHI: Mechanoid Rein"
-OUTPUTFILEMP4="gource.mp4"
-OUTPUTFILEWEBM="gource.webm"
-OUTPUTFILEAUDIO="gource_music.mp4"
+OUTPUTFILEMP4="video/gource.mp4"
+FASTOUTPUTFILEMP4="video/fast_gource.mp4"
+OUTPUTFILEWEBM="video/gource.webm"
+OUTPUTFILEAUDIO="video/gource_music.mp4"
+FASTOUTPUTFILEAUDIO="video/fast_gource_music.mp4"
 # THIS LAST ABOUT A MINUTE
-
 FASTCOMMAND="gource --date-format '%d / %m / %Y %a' --camera-mode overview -1600x1040 --seconds-per-day 0.01 --auto-skip-seconds 1 --max-file-lag 20 --background-image src/public/WhitePaper_800px.png --logo src/public/funk-logo-140px.png  --font-size 15 --key --bloom-multiplier 0.021321 --bloom-intensity 1 --background 012345  -e 0.15 --title '$TITLE'"
-ENCODE="$FASTCOMMAND -o - | ffmpeg -probesize 63M  -y -r 60 -f image2pipe -vcodec ppm -i - -vcodec libx264  -b:v 1000k -preset slow -pix_fmt yuv420p -crf 1 -threads 0 -bf 0 fast_$OUTPUTFILEMP4"
+ENCODE="$FASTCOMMAND -o - | ffmpeg -probesize 63M  -y -r 60 -f image2pipe -vcodec ppm -i - -vcodec libx264  -b:v 1000k -preset slow -pix_fmt yuv420p -crf 1 -threads 0 -bf 0 $FASTOUTPUTFILEAUDIO"
+mkdir video
 echo THIS IS PREVIEW quit to render
 eval $FASTCOMMAND
 echo THIS IS ENCODE
 eval $ENCODE
 echo ADDING A TUNE IM WORKING ON TO THE AUDIO TO THE VIDEO
-ffmpeg -i fast_$OUTPUTFILEMP4 -i "/Volumes/13xOLDSKOOL/Users/tom/Projects OLDSKOOL/Album2 The Atkinson Diet 13inch/Mechanoid Rain/Bounces/Mechanoid_Rain-18Jan2019_Version.wav" -c:v copy -c:a aac -strict experimental -filter:a "volume=1.0" fast_$OUTPUTFILEAUDIO 
+ffmpeg -i $FASTOUTPUTFILEMP4 -i "/Volumes/13xOLDSKOOL/Users/tom/Projects OLDSKOOL/Album2 The Atkinson Diet 13inch/Mechanoid Rain/Bounces/Mechanoid_Rain-18Jan2019_Version.wav" -c:v copy -c:a aac -strict experimental -filter:a "volume=1.0" fast_$OUTPUTFILEAUDIO
 sleep 1
 
 

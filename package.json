@@ -17,7 +17,7 @@
   "build": {
     "productName": "aminosee",
     "appId": "nz.funk.aminosee",
-    "copyright": "Copyright © 2018-2019 Tom Atkinson",
+    "copyright": "Copyright © 2018-2020 Tom Atkinson",
     "icon": "src/public/favicon.png",
     "directories": [
       "src/public/*",
@@ -32,6 +32,7 @@
     }
   },
   "scripts": {
+    "postpublish": "PACKAGE_VERSION=$(cat package.json | grep \\\"version\\\" | head -1 | awk -F: '{ print $2 }' | sed 's/[\",]//g' | tr -d '[[:space:]]') && git tag v$PACKAGE_VERSION && git push --tags",
     "cypress": "node_modules/.bin/cypress open",
     "demo": "node bin/aminosee demo",
     "credits": "./build-credits.sh",
