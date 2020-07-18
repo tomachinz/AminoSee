@@ -5130,16 +5130,18 @@ function pushCli(cs) {
             let theHue = item.Hue
             let c =      hsvToRgb( theHue / 360, 0.5, 1.0 )
             let name =   item.name
-            let proportion = 0.25 + (p+1 / pepTable.length * -1)
+            let proportion = (-0.5 + ((p+1) / pepTable.length )) * 2
             // let proportion =  (p+1 / pepTable.length)
+
+            output(`prop ${proportion}`)
             let minimumSize = 64
             let styleLi =  `
             position: fixed;
             top:  50%;
             left: 50%;
             transform: translate(
-              calc(-50% + var(--mouse-x, 0)  * ${proportion * 10}%),
-              calc(-50% + var(--mouse-y, 0)  * ${proportion * 10}%)
+              calc( -50% + var(--mouse-x, 0) * ${proportion*100}%),
+              calc( -50% + var(--mouse-y, 0) * ${proportion*100}%)
             );
             border-top:    1px solid rgba(255, 255, 255, 0.4);
             border-left:   2px solid rgba(${c}), 0.8);
