@@ -86,7 +86,7 @@ body.dark, html.dark, body.aminosee {
 #stack_wrapper {
   position: absolute;
   /* left: 50%; */
-  top: 50%;
+  top: 50%w;
   /* transform: translateX(-50%); */
   width: 99%;
   height: 32px;
@@ -223,6 +223,8 @@ form, input, textarea {
 }
 
 #stats {
+  visibility: hidden;
+  display: none;
   position: fixed;
   bottom: 0;
   left: 0;

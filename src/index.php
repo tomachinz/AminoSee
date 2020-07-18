@@ -12,7 +12,7 @@
 	<script src="public/WebGL.js"></script>
 	<script src="public/sprites.js"></script>
 	<script src="public/hammer.min.js"></script>
-	<script src="aminosee-gui-web.js"></script>
+	<script src="public/aminosee-gui-web.js"></script>
 	<!-- <script src="bundle.js"></script> -->
 	<link rel="stylesheet" type="text/css" href="public/AminoSee.css">
 	<link href='https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz:700,400,200,100' rel='stylesheet' type='text/css'>
@@ -68,7 +68,7 @@
 					<select id="genomeMenu" name="selectedGenome" onchange="fileChanged(this.options[this.selectedIndex].value)">
 						<option value="output/Brown_Kiwi_NW_013982187v1/images/Brown_Kiwi_NW_013982187v1.fa_linear_c111_Reference_fix_sci.png">Brown Kiwi</option>
 						<option value="output/Caenorhabditisel.dna_sm.toplevel/images/">Caenorhabditis Elegans Worm</option>
-						<option value="output/Chimp_Clint_chrY/images/">Clint the Chimps Y</option>
+						<option selected value="output/Chimp_Clint_chrY/images/">Clint the Chimps Y</option>
 						<option value="output/Gorilla_gorGor4_chr2A/images/">Gorgor the Gorilla Chr 2A</option>
 						<option value="output/Influenza-A-virus-H9N2-NC_004905/images/">Influenza A virus H9N2</option>
 						<option value="output/Kyokai7_BABQ01000000/images/">Kyokai Yeast</option>
@@ -83,11 +83,11 @@
 						<option value="calibration/AminoSee_Calibration_reg_linear_2.png">AminoSee Calibration Small</option>
 						<option value="output/Caenorhabditisel.dna_sm.toplevel/images/Caenorhabditisel.dna_sm.toplevel.fa_linear_c7_Reference_fix_sci.png">C.elegans</option>
 						<option value="public/seenoevilmonkeys.jpg">AminoSeeNoEvil Monkeys</option>
-						<option value="/images/nav/funk-logo-140px.png" selected>Funk Logo 140px</option>
+						<option value="/images/nav/funk-logo-140px.png">Funk Logo 140px</option>
 					</select>
 				</form>
 			</div>
-			<div class="hidable dark">hide this shit
+			<div class="hidable dark">
 				<p class="hidable dark button" style="background-color: black;">
 					<a href="output" class="button hidable">2D IMAGE RENDERS</a> |
 					<a href="/pdf/AminoSee_WhitePaper_09Jan2019.pdf" class="button hidable">WHITE PAPER PDF</a> |
@@ -156,7 +156,7 @@
 			<div id="status" class="headingStatus">
 				...loading...
 				<div id="oi">
-					<img id="current_image" src="output/Brown_Kiwi_NW_013982187v1/images/Brown_Kiwi_NW_013982187v1.fa_linear_c87_Reference_fix_sci.png" width="64" height="64">
+					<img id="current_image" src="output/Chimp_Clint_chrY/images/Chimp_Clint_chrY.gbk.aminosee_linear_c41_Reference_fix_sci.png" width="64" height="64">
 				</div>
 			</div>
 			<div id="stats" class="stats whitetext">
@@ -172,7 +172,7 @@
 				<h1>Welcome to the Amino<span style="color: #888888;">See</span><span style="color: #dddddd;">NoEvil</span> DNA Viewer</h1>
 
 				<h2 class="dark">
-					<a href="output/Chimp_Clint_chrY/">Clint the Chimp</a> is looking the best today, new version of the software. This stuff takes a lot of render power to make. try the <a href="output/Brown_Kiwi_NW_013982187v1/">Brown Kiwi</a>, <a href="output/Caenorhabditisel.dna_sm.toplevel/">C.elegans</a>... and now also <a href="output/Sars2-COVID-19WueteGenome-ss-RNA/">Sars2 COVID-19 ss-RNA</a></h2>
+					<a href="output/Chimp_Clint_chrY/">Clint the Chimp</a> is looking the best today, new version of the software. This stuff takes a lot of render power to make. try the <a href="output/Caenorhabditisel.dna_sm.toplevel/">C.elegans</a>... and now also <a href="output/Sars2-COVID-19WueteGenome-ss-RNA/">Sars2 COVID-19 ss-RNA</a></h2>
 					* Try using WASD keys to move about.
 				</div>
 
