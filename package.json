@@ -129,7 +129,7 @@
     "tcp-port-used": "^1.0.1",
     "through": "^2.3.8",
     "uniq": "^1.0.1",
-    "webpack-node-externals": "^1.7.2",
+    "webpack-node-externals": "^2.5.0",
     "xmlhttprequest": "^1.8.0"
   },
   "keywords": [
