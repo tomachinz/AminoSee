@@ -143,8 +143,31 @@ find_way_peptides () {
   fi
 
 
- 	find  -L  * | grep -E "(txt|mfa|gbk|txt|fa)" | xargs -J $ nice aminosee --peptide=Histidine --image $
-	find  -L  * | grep -E "(txt|mfa|gbk|txt|fa)" | xargs -J $ nice aminosee $
+	find  -L  * | grep -E "(txt|mfa|gbk|txt|fa)" | xargs -J $ aminosee --image $ $*
+	find  -L  * | grep -E "(txt|mfa|gbk|txt|fa)" | xargs -J $ nice aminosee $                     $* 
+  find  -L  * | grep -E "(txt|mfa|gbk|txt|fa)" | xargs -J $ nice aminosee $  --peptide=Glutamic_acid $*
+  find  -L  * | grep -E "(txt|mfa|gbk|txt|fa)" | xargs -J $ nice aminosee $  --peptide=Aspartic_acid $*
+  find  -L  * | grep -E "(txt|mfa|gbk|txt|fa)" | xargs -J $ nice aminosee $  --peptide=Ochre $*
+  find  -L  * | grep -E "(txt|mfa|gbk|txt|fa)" | xargs -J $ nice aminosee $  --peptide=Amber $*
+  find  -L  * | grep -E "(txt|mfa|gbk|txt|fa)" | xargs -J $ nice aminosee $  --peptide=Cysteine $*
+  find  -L  * | grep -E "(txt|mfa|gbk|txt|fa)" | xargs -J $ nice aminosee $  --peptide=Glycine $*
+  find  -L  * | grep -E "(txt|mfa|gbk|txt|fa)" | xargs -J $ nice aminosee $  --peptide=Alanine $*
+  find  -L  * | grep -E "(txt|mfa|gbk|txt|fa)" | xargs -J $ nice aminosee $  --peptide=Methionine $*
+  find  -L  * | grep -E "(txt|mfa|gbk|txt|fa)" | xargs -J $ nice aminosee $  --peptide=Valine $*
+  find  -L  * | grep -E "(txt|mfa|gbk|txt|fa)" | xargs -J $ nice aminosee $  --peptide=Leucine $*
+  find  -L  * | grep -E "(txt|mfa|gbk|txt|fa)" | xargs -J $ nice aminosee $  --peptide=Isoleucine $*
+  find  -L  * | grep -E "(txt|mfa|gbk|txt|fa)" | xargs -J $ nice aminosee $  --peptide=Phenylalanine $*
+  find  -L  * | grep -E "(txt|mfa|gbk|txt|fa)" | xargs -J $ nice aminosee $  --peptide=Tryptophan $*
+  find  -L  * | grep -E "(txt|mfa|gbk|txt|fa)" | xargs -J $ nice aminosee $  --peptide=Serine $*
+  find  -L  * | grep -E "(txt|mfa|gbk|txt|fa)" | xargs -J $ nice aminosee $  --peptide=Threonine $*
+  find  -L  * | grep -E "(txt|mfa|gbk|txt|fa)" | xargs -J $ nice aminosee $  --peptide=Opal $*
+  find  -L  * | grep -E "(txt|mfa|gbk|txt|fa)" | xargs -J $ nice aminosee $  --peptide=Glutamine $*
+  find  -L  * | grep -E "(txt|mfa|gbk|txt|fa)" | xargs -J $ nice aminosee $  --peptide=Asparagine $*
+  find  -L  * | grep -E "(txt|mfa|gbk|txt|fa)" | xargs -J $ nice aminosee $  --peptide=Tyrosine $*
+  find  -L  * | grep -E "(txt|mfa|gbk|txt|fa)" | xargs -J $ nice aminosee $  --peptide=Arginine $*
+  find  -L  * | grep -E "(txt|mfa|gbk|txt|fa)" | xargs -J $ nice aminosee $  --peptide=Lysine $*
+  find  -L  * | grep -E "(txt|mfa|gbk|txt|fa)" | xargs -J $ nice aminosee $  --peptide=Histidine $*
+
 
   find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee                     $* "{}" \;
   find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee  --peptide=Glutamic_acid $* "{}" \;

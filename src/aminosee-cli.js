@@ -6510,7 +6510,7 @@ function pushCli(cs) {
           return this.aminoacid
         }
         function rollbackFolder(fullpath) {
-          out(`Rolling back`)
+          output(`Rolling back folder ${path.basename(fullpath)}`)
           if ( path.basename(fullpath) !== cliInstance.justNameOfDNA ) {
             error(`internal state not consistent: ${path.basename(fullpath)} !== ${cliInstance.justNameOfDNA}`)
             return

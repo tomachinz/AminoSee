@@ -1,3 +1,5 @@
+EXCLUDE="\"*.sync-conflict-*\",\"/swapfile\",\"/backup*/\",\"/dev/*\",\"/proc/*\",\"/sys/*\",\"/tmp/*\",\"/run/*\",\"/mnt/*\",\"/media/*\",\"/lost+found\",\".Trashes/*\",\".TemporaryItems/*\",\".stfolder/*\",\".stversions/*\",\".SyncArchive/*\",\"_CCC Archives/*\",\"TEMP/*\",\"Volumes/*\",\".Spotlight-V100/*\",\".fseventsd/*\",\"private/var/vm/*\",\".DS_Store\""
+
 opn() {
   echo Open in Finder $OPN
   ls -la $OPN
@@ -22,18 +24,42 @@ escapespace() {
   echo
   sleep 1
 }
+checkifexists() {
+  CHECK=$(echo "$1" | sed "s/ /\\\ /g")
+  CHECKNOESCAPE="$1"
+  echo Checking $CHECKNOESCAPE
+  echo =======================================================================
+  echo Directory exists OK if the following not show error and it opens in finder
+  if [ -d "$CHECKNOESCAPE" ]; then
+    touch "$CHECKNOESCAPE"
+    echo the first 5 items are shown
+    ls -laH "$CHECKNOESCAPE" | tail -n 5
+    open "$CHECKNOESCAPE"
+    echo
+  else
+    eval cd $CHECKNOESCAPE
+    pwd
+    ls
+    pwd
+    echo ERROR: Directory does not appear to exist, exiting script...
+    echo
+    exit
+  fi
+  echo =======================================================================
+  echo
+}
 twowayupdate() {
   escapespace "$1" "$2"
-  COMMAND=" -arv --update --stats --exclude={$EXCLUDE} $SOURCE $DEST | pv"
+  COMMAND=" -arv --update --stats --exclude={$EXCLUDE} $SOURCE $DEST "
   runrsync
-  COMMAND=" -arv --update --stats --exclude={$EXCLUDE} $DEST $SOURCE | pv"
+  COMMAND=" -arv --update --stats --exclude={$EXCLUDE} $DEST $SOURCE "
   runrsync
 }
 hardlinkeddirectory() {
   escapespace "$1" "$2"
-  COMMAND=" --hard-links --recursive  --stats --exclude={$EXCLUDE} $SOURCE $DEST | pv"
+  COMMAND=" --hard-links --recursive  --stats --exclude={$EXCLUDE} $SOURCE $DEST "
   runrsync
-  COMMAND=" -arv --update --stats --exclude={$EXCLUDE} $DEST $SOURCE | pv"
+  COMMAND=" -arv --update --stats --exclude={$EXCLUDE} $DEST $SOURCE "
   runrsync
 }
 
@@ -77,7 +103,7 @@ runrsync() {
   echo
 	echo doing 	DRY-RUN that above in 1 seconds...
 	sleep 1
-	eval nice -n 18 rsync --dry-run $COMMAND
+	eval "rsync --dry-run $COMMAND"
   echo
   echo completed Dry-run, now proceeding for real
   echo
@@ -85,18 +111,18 @@ runrsync() {
 	echo MAKE SURE BOTH PATHS HAVE TRAILING SLASH!!
 	echo
   echo
-  echo rsync $COMMAND
+  echo sudo rsync $COMMAND
   echo
 	echo doing FOR REAL that above in 6 seconds...
 	sleep 6
-	eval "sudo nice -n 10 rsync $COMMAND"
+	eval "sudo rsync $COMMAND"
   echo
 	echo
 	echo DONE!
   echo
 	echo "=========================================="
-	echo continuing in 10 seconds
-  sleep 10
+	echo continuing in 2 seconds
+  sleep 2
 }
 
 twowayupdate /Users/tom/AminoSee_webroot/output/  /Volumes/HotelVermont/Users/tom/AminoSee_webroot/output/

@@ -154,15 +154,13 @@
 			</div><!-- end of main monkey business -->
 
 			<div id="status" class="headingStatus">
-				...loading...
 				<div id="oi">
 					<img id="current_image" src="output/Chimp_Clint_chrY/images/Chimp_Clint_chrY.gbk.aminosee_linear_c41_Reference_fix_sci.png" width="64" height="64">
 				</div>
 			</div>
 			<div id="stats" class="stats whitetext">
-				<h6>loading</h6>
+				<h6> </h6>
 				<pre>
-					...loading...
 				</pre>
 			</div>
 
@@ -172,7 +170,7 @@
 				<h1>Welcome to the Amino<span style="color: #888888;">See</span><span style="color: #dddddd;">NoEvil</span> DNA Viewer</h1>
 
 				<h2 class="dark">
-					<a href="output/Chimp_Clint_chrY/">Clint the Chimp</a> is looking the best today, new version of the software. This stuff takes a lot of render power to make. try the <a href="output/Caenorhabditisel.dna_sm.toplevel/">C.elegans</a>... and now also <a href="output/Sars2-COVID-19WueteGenome-ss-RNA/">Sars2 COVID-19 ss-RNA</a></h2>
+					<a href="output/Chimp_Clint_chrY/">Clint the Chimp</a> is looking the best today, new version of the software. This stuff takes a lot of render power to make. try the <a href="output/Kyokai7_BABQ01000000/">Yeast (Kyokai7_BABQ01000000)</a>... and now also <a href="output/Sars2-COVID-19WueteGenome-ss-RNA/">Sars2 COVID-19 ss-RNA</a></h2>
 					* Try using WASD keys to move about.
 				</div>
 
