@@ -1645,7 +1645,7 @@ function pushCli(cs) {
 
       mode( `loading up the next file ${cfile} then ${this.nextFile} ${batchProgress()}` )
       notQuiet( `************************* ${status}` )
-      procTitle( `loading` )
+      procTitle( `loading ${path.basename{cfile}}` )
       try {
         this.nextFile = this.args._[1] // not the last but the second to last
       } catch(e) {
