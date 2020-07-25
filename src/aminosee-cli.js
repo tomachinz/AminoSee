@@ -174,8 +174,10 @@ function generateTheArgs() {
       currentURL: cliInstance.currentURL
     }
   }
-  log("sending args from CLI:")
-  // console.log( theArgs )
+  log("generateTheArgs")
+  if ( cliInstance.verbose ) {
+    console.log( theArgs )
+  }
   return theArgs
 }
 function populateArgs(procArgv) { // returns args
@@ -594,7 +596,7 @@ function pushCli(cs) {
         log(`Using auto magnitude with limit ${defaultMagnitude}th dimension`)
       }
       usersMagnitude = this.dimension
-      output(`Max pixels: ${ this.maxpix } Hilbert curve dimension: ${ this.dimension } mag setting: ${ this.magnitude }`)
+      log(`Max pixels: ${ this.maxpix } Hilbert curve dimension: ${ this.dimension } mag setting: ${ this.magnitude }`)
       if ( args.ratio || args.r ) {
         this.ratio = args.ratio.toLowerCase()
         this.userRatio = "custom"
@@ -754,13 +756,15 @@ function pushCli(cs) {
       if ( args.serve == true) {
         output(`Webserver enabled`)
         webserverEnabled = true
+        killServersOnQuit = false
         this.serve = true
         this.keyboard = true
-        killServersOnQuit = false
+        // countdown("shutdown in ", 360000, () => { out('foreground ended') } )
       } else {
         log("Foreground webserver will exit with app, use --serve to spawn background process ")
-        this.serve = false
         killServersOnQuit = true
+        // this.serve = false
+        // webserverEnabled = false
       }
 
       if ( args.clear ) {
@@ -771,7 +775,7 @@ function pushCli(cs) {
         this.clear = false
       }
       if ( args.updates || args.u) {
-        log("statistics this.updates enabled")
+        log("statistics updates enabled")
         this.updates = true
       } else {
         log("statistics this.updates disabled")
@@ -798,12 +802,12 @@ function pushCli(cs) {
         this.openImage = false
         this.gui = false
         this.serve = false
-        this.quit(1, `--stop`)
+        // this.quit(1, `--stop`)
       }
-      if ( args.gui ) {
-        log("Running AminoSee graphical user interface... use --no-gui to prevent GUI")
-        this.gui = true
-      } else { this.gui = false }
+      // if ( args.gui ) {
+      //   log("Running AminoSee graphical user interface... use --no-gui to prevent GUI")
+      //   this.gui = true
+      // } else { this.gui = false }
 
 
       if ( isHighlightSet ) {
@@ -905,16 +909,14 @@ function pushCli(cs) {
       if ( this.test == true ) {
         output("Ω Running test Ω")
         remain = this.dimension
-        // this.dimension = args.magnitude
-        // setImmediate(() => {
         this.generateTestPatterns(() => {
-          this.quit(0, "test patterns")
-          // })
+          output(`finished with test pattern`)
+          // this.quit(0, "test patterns")
         })
-
         return false
+      }
 
-      } else if ( this.demo == true ) {
+      if ( this.demo == true ) {
         mode("demo mode")
         remain = this.dimension
         runDemo()
@@ -922,18 +924,17 @@ function pushCli(cs) {
 
       // output(`webserverEnabled: ${webserverEnabled}`)
       if ( webserverEnabled == true ) {
-        output(`Starting webserver2222222`)
+        output(`Starting webserver`)
         let theargs =  generateTheArgs()
         bugtxt(theargs)
         server.stop() // kludge? maybe remove later
         url = projectprefs.aminosee.url
         output()
-        // output(`Starting mini server at: ${ webroot } ${ batchProgress()} webserverEnabled ${webserverEnabled}`)
         this.setupKeyboardUI()
         autoStartGui = false
         // output(`Server running at: ${ chalk.underline( url ) } to stop use: aminosee --stop `)
         server.setArgs(theargs)
-        server()
+        // server()
         // this.currentURL = server.foregroundserver()
         // this.currentURL = this.generateURL()
         // this.currentURL = server.start( theargs )
@@ -942,7 +943,7 @@ function pushCli(cs) {
         // output( theargs )
         // output(`starting server in a tick`)
         // runcb( () => {
-        //   output(`starting server now`)
+          output(`starting server now`)
         //   try {
         //     // server.start( this.currentURL )
         //   } catch (err) {
@@ -956,7 +957,8 @@ function pushCli(cs) {
       } else {
         log("Not opening webpage")
       }
-      if ( renderLock === true ) { error("draining threads from setupJob?!"); return false }
+      if ( renderLock == true ) { error("draining threads from setupJob?!"); return false }
+      if ( this.serve ) { return }
 
       if ( remain > 0 ) {
         mode(remain + " Ω work remaining Ω  first command")
@@ -981,7 +983,6 @@ function pushCli(cs) {
       } else {
         let time = 5000
         mode("no command")
-
         if ( this.quiet ) {
           time = 1000
           log("exiting")
@@ -997,24 +998,16 @@ function pushCli(cs) {
         }
         termSize()
         log(`Your terminal size: (${tx},${ty})`)
-        if ( tx > 82 ) {
-          notQuiet(`Try running -->>>    ${ chalk.italic( "aminosee Human_Genome.txt Gorilla.dna Chimp.fa Orangutan.gbk --image")}`)
-          notQuiet(`usage      --->>>    ${ chalk.italic( "aminosee [*/dna-file.txt] [--help|--test|--demo|--force|--html|--image|--keyboard]    ")}`)
-        }
-        notQuiet(`example    --->>>    ${ chalk.italic( "aminosee --help ")}`)
-        notQuiet(`user interface ->    ${ chalk.italic( "aminosee --gui ")}`)
-        notQuiet()
 
+        // output(`remain ${remain}`)
 
         log(`will hold CLI for ${humanizeDuration(time)}`)
+        listGenomes()
 
-        if ( !isShuttingDown && !this.serve ) {
-          log("quick " + time)
-          printRadMessage(["Welcome... this is a CLI app run from the terminal, see above", "[Q] or [Esc] key to exit now", " ", "PRESS ANY KEY", "to open the interface", chalk.italic( "aminosee --help"), " " + (batchProgress()) ])
-          // output( interactiveKeysGuide )
+        if ( this.help || this.verbose ) {
+          output(`Welcome... this is a CLI app run from the terminal, see above [Q] or [Esc] key to exit now `)
+          output( interactiveKeysGuide )
           cliInstance.setupKeyboardUI()
-          listGenomes()
-          output(`Try aminosee *      or aminosee --help`)
           if ( this.gui ) {
             log("GUI")
             startGUI()
@@ -1024,16 +1017,18 @@ function pushCli(cs) {
             cliInstance.updatesTimer = countdown("closing in ", time, () => {
               mode("time out from no command")
               destroyKeyboardUI()
-              if ( this.gui == false ) { // if the GUI is up, dont exit
-                isShuttingDown = true
-                this.quit(0, "no command and no gui or server")
-              } else {
-                output("waiting for GUI or server to close")
-                this.quit(0, "no command. gui is true.")
-              }
+              // if ( this.gui == false ) { // if the GUI is up, dont exit
+              //   isShuttingDown = true
+              //   this.quit(0, "no command and no gui or server")
+              // } else {
+              //   output("waiting for GUI or server to close")
+              //   this.quit(0, "no command. gui is true.")
+              // }
             })
           }
         }
+
+
         // isShuttingDown = true
       }
 
@@ -1153,7 +1148,7 @@ function pushCli(cs) {
     }
 
     getRenderObject() { // return part of the histogramJson obj
-      if ( this.isDiskFinHTML == true) { error(`finished writing HTML how so!!?`); }
+      // if ( this.isDiskFinHTML == true) { error(`finished writing HTML how so!!?`); }
       mode(`getRenderObject`)
       for ( let p = 0; p < this.pepTable.length; p++ ) { // standard peptide loop
         const pep =  this.pepTable[ p ]
@@ -1166,7 +1161,6 @@ function pushCli(cs) {
         //   this.pepTable[ p ].mixRGBA = this.tripletToRGBA(pep.Codon) // this will this.report this.alpha info
         // }
         if ( pep.Codon == "Reference" ) { this.pepTable[ p ].Histocount = this.genomeSize }
-        // if ( isHighres() && isPreview )
         this.pepTable[ p ].src = this.aminoFilenameIndex( p )[1]
         this.pepTable[ p ].hilbert_master = this.aminoFilenameIndex( p )[0]
         this.pepTable[ p ].linear_master = this.aminoFilenameIndex( p )[1]
@@ -1174,6 +1168,12 @@ function pushCli(cs) {
         this.pepTable[ p ].linear_preview = this.aminoFilenameIndex( p )[3]
         this.pepTable[ p ].mixRGBA = this.tripletToRGBA(pep.Codon) // this will this.report this.alpha info
         bugtxt(`ext: ${ this.extension } this.pepTable[ ${p} ].src ${ this.pepTable[ p ].src} codons per pixel: ${codonsPerPixelHILBERT}` )
+
+        if ( isPreview ) {
+          this.pepTable[ p ].hilbert_preview = this.aminoFilenameIndex( p )[2]
+
+        }
+
       }
 
       this.pepTable.sort( this.compareHue )
@@ -1305,6 +1305,8 @@ function pushCli(cs) {
         // FILENAMES
         this.pepTable[ p ].linear_master = this.aminoFilenameIndex( p )[0]
         this.pepTable[ p ].linear_preview = this.aminoFilenameIndex( p )[1]
+        this.pepTable[ p ].hilbert_master = this.aminoFilenameIndex( p )[2]
+        this.pepTable[ p ].hilbert_preview = this.aminoFilenameIndex( p )[3]
       }
     }
 
@@ -1686,7 +1688,6 @@ function pushCli(cs) {
         error(`thread re-entry in prepare state ${this.justNameOfPNG}`)
         return false
       }
-      this.setNextFile()
 
       // terminateIfUndef(cfile)
       if (remain <= 0) {
@@ -1699,8 +1700,13 @@ function pushCli(cs) {
 
       mode(`Checking file ${batchProgress()}`)
 
-      if ( cfile.indexOf("...") !== -1) {
+      if ( cfile.indexOf("...") !== -1 || cfile.indexOf("AminoSee_BUSY") !== -1 ) {
         mode( "Cant use files with three dots in the file ... (for some reason?)")
+        this.preRenderReset( status )
+        return false
+      }
+      if ( cfile.indexOf("AminoSee_BUSY") !== -1 ) {
+        mode( "Stating lock files hmmm")
         this.preRenderReset( status )
         return false
       }
@@ -1973,10 +1979,8 @@ function pushCli(cs) {
     initStream() {
       this.runid = new Date().getTime()
       mode(`Initialising Stream: ${cliruns.toLocaleString()} ${this.justNameOfPNG}`)
-      // this.setNextFile()
       notQuiet( chalk.rgb(64, 128, 255).bold( status ))
       log(`Output folder --->> ${ blueWhite( blueWhite( path.normalize( this.outputPath )))}`)
-      // this.setNextFile()
       // this.timestamp = Math.round(+new Date()/1000)
 
       if ( isShuttingDown == true ) { output(`Shutting down after this render ${ blueWhite(this.justNameOfPNG)}`) }
@@ -2529,7 +2533,6 @@ function pushCli(cs) {
       // }
 
       // this.fancyFilenames();
-      // this.setNextFile()
     }
     qualifyPath(f) {
       return path.resolve( this.outputPath, this.justNameOfDNA, f  )
@@ -2942,7 +2945,7 @@ function pushCli(cs) {
         this.fastUpdate()
         if ( renderLock ) { error(reason); return false; }
         if ( remain < 1 ) { this.quit(0, "Finished batch"); return false; }
-        this.setNextFile()
+        // this.setNextFile()
         output( `remain ${remain} ${cfile}`)
         this.pollForStream(`safe polling`)
       }, this.raceDelay)
@@ -2970,8 +2973,8 @@ function pushCli(cs) {
 
       this.index = true // auto enable html report for preveiws
       this.isDiskFinHilbert = false;
-      this.isDiskFinLinear = true;
-      this.isDiskFinHTML = true;
+      // this.isDiskFinLinear = true;
+      // this.isDiskFinHTML = true;
       this.isStorageBusy = true;
       this.hWidth = Math.sqrt(pixels)
       this.hHeight  = this.hWidth
@@ -3036,7 +3039,7 @@ function pushCli(cs) {
                 setTimeout( () => {
                   this.createPreviews( () => {
                     mode(`Previews created ${this.justNameOfPNG}`)
-                    this.dimension = -1
+                    // this.dimension = -1
                     const msg = `Previews created. Not polling.`
                     output(msg)
                     output(msg)
@@ -3045,9 +3048,9 @@ function pushCli(cs) {
                 }, this.raceDelay * 2 )
 
               } else {
-                // this.preRenderReset(`not making previews`)
+                output(`used standard resolution`)
               }
-              this.preRenderReset(`not making previews`)
+              this.preRenderReset(`resetting`)
 
             })
             if ( remain < 1) {
@@ -3107,8 +3110,16 @@ function pushCli(cs) {
       }
 
       quit(code, reason) {
-        output(`received shutdown signal`)
-        // return
+        output(`received shutdown signal ${code} ${reason}`)
+
+
+        if (killServersOnQuit == false) {
+          output(`Webserver running in foreground.`)
+          log("If you get a lot of servers running, use Control-C instead of [Q] to issues a 'killall node' command to kill all of them")
+          return
+        }
+
+
         killAllTimers()
         destroyKeyboardUI()
         this.destroyProgress()
@@ -3144,7 +3155,7 @@ function pushCli(cs) {
           output("Not disabling keyboard mode.")
         }
         if (code == 0) {
-          output("CLI mode clean exit.")
+          log("CLI mode clean exit.")
           return true
         } else {
           log(chalk.bgWhite.red ("Goodbye"))
@@ -3159,7 +3170,9 @@ function pushCli(cs) {
         }
         ///////////////////// below here is defo gonna quit
 
-
+        if (webserverEnabled == true) { // control-c kills server
+          server.stop()
+        }
 
 
         // term.eraseDisplayBelow()
@@ -3168,13 +3181,7 @@ function pushCli(cs) {
         deleteFile( this.fileTouch ) // removeLocks( this.fileTouch, this.devmode );
         killAllTimers()
 
-        if (killServersOnQuit == true) {
-          if (webserverEnabled == true) { // control-c kills server
-            server.stop()
-          }
-        } else if (webserverEnabled == true) {
-          log("If you get a lot of servers running, use Control-C instead of [Q] to issues a 'killall node' command to kill all of them")
-        }
+
         printRadMessage([ ` ${(killServersOnQuit ?  'AminoSee has shutdown' : ' ' )}`, `${( this.verbose ?  ' Exit code: '+ code : '' )}`,  (killServersOnQuit == false ? server.getServerURL() : ' '), remain ]);
 
       }
@@ -3494,21 +3501,23 @@ function pushCli(cs) {
           isHighlightSet = true
         }
 
-
-        hilbert_master  = this.generateFilenameHilbert(this.peptide) // isHighlightSet needs to be false for reference
+        hilbert_master  =
         linear_master = this.generateFilenamePNG() // isHighlightSet needs to be false for reference
 
-        // if ( isHighres() ) {
-        //   isPreview = true
-        //   this.dimension = defaultPreviewDimension
-        // }
+        if ( isPreview ) { // master is high res, preview is low res file from this pass
+          hilbert_master = this.pepTable.hilbert_master
+          hilbert_preview =  this.generateFilenameHilbert(this.peptide)
+        } else {
+          hilbert_master = this.generateFilenameHilbert(this.peptide)
+          hilbert_preview = hilbert_master // prev and master are the same
+        }
 
         // output(`values for peptid and focus ${this.peptide} ${this.peptide}`)
 
 
         this.peptide = this.usersPeptide
         isHighlightSet = backupBoolean
-        return [ hilbert_master, linear_master ]
+        return [ hilbert_master, linear_master, hilbert_preview ]
       }
       getImageType() {
         let t = ""
@@ -3623,7 +3632,13 @@ function pushCli(cs) {
           let theHue = this.pepTable[p].Hue
           let c =      hsvToRgb( theHue / 360, 0.5, 1.0 )
           let richC = hsvToRgb( theHue / 360, 0.95, 0.75 )
-          let imghil = this.aminoFilenameIndex(p)[0] // first elemewnt in array is the hilbert image
+          let imghil
+          if ( isPreview ) {
+            imghil = this.aminoFilenameIndex(p)[2]
+          } else {
+            imghil = this.aminoFilenameIndex(p)[0]
+          }
+
           this.pepTable[p].hilbert_master = imghil
           // let imglin = this.aminoFilenameIndex(p)[1] // second element is linear
           let imglin = this.pepTable[p].linear_master // second element is linear
@@ -3978,10 +3993,10 @@ function pushCli(cs) {
           .on("finish", (err) => {
             // that()
             // runcb(cb)
-            this.hilbertFinished(cfile)
+            // this.hilbertFinished(cfile)
           })
         }).then().catch()
-        // this.hilbertFinished(cfile)
+        this.hilbertFinished(cfile)
         if (typeof cb !== "undefined") { runcb(cb) }
       }
       htmlFinished() {
@@ -4468,12 +4483,13 @@ function pushCli(cs) {
 
         renderLock = true
         this.setIsDiskBusy( true )
+        this.isDiskFinHTML = true
+
         // both kinds is currently making it's own calls to postRenderPoll
         this.bothKindsTestPattern((cb) => { // renderLock must be true
           log(`test patterns returned ${this.storage()}`)
           this.testStop()
           this.setIsDiskBusy( false )
-          this.isDiskFinHTML = true
           this.isStorageBusy = false
           this.postRenderPoll("test patterns returned")
           // renderLock = false
@@ -4563,6 +4579,7 @@ function pushCli(cs) {
         this.pixelClock =  this.baseChars // DURING TEST PIXEL CLOCK = HILBERT CLOCK
         remain = batchSize -  magnitude
         output(`cfile ${cfile } magnitude ${magnitude} remain ${remain} batchSize ${batchSize}`)
+        this.isDiskFinHTML = true
         return true
       }
 
@@ -5133,7 +5150,7 @@ function pushCli(cs) {
             let proportion = (-0.5 + ((p+1) / pepTable.length )) * 2
             // let proportion =  (p+1 / pepTable.length)
 
-            output(`prop ${proportion}`)
+            // output(`prop ${proportion}`)
             let minimumSize = 64
             let styleLi =  `
             position: fixed;
@@ -5163,7 +5180,7 @@ function pushCli(cs) {
               } else {
                 html += `
                 <li  id="stack_${p}" onmouseover="mover(${p})" onmouseout="mout(${p})" onclick="mclick(${p})">
-                {${p}} <a href="images/${src}" title="${name} ${thePep}" style="${styleLi}">${thePep} <br/>
+                  <a href="images/${src}" title="${name} ${thePep}" style="${styleLi}">${p}. ${thePep} <br/>
                 <img src="images/${src}" alt="${name} ${thePep}" title="${name}" onmouseover="mover(${p})" onmouseout="mout(${p})">
                 </a>
                 </li>
@@ -5831,14 +5848,14 @@ function pushCli(cs) {
           // return chalk.rgb(_r,_g,_b).bgBlack(_text)
         }
         function countdown(text, timeMs, cb) {
-          // return false
-          if (text == "") { return }
-          let msg =  chalk.rgb(100,140,180)( "@ " + text + humanizeDuration ( deresSeconds(timeMs)))
-          if ( this.quiet ) {
+          if ( this.quiet || text == "" ) {
             log(msg)
-          } else {
-            redoline(msg)
+            return false
           }
+
+          let msg =  chalk.rgb(100,140,180)( "@ " + text + humanizeDuration ( deresSeconds(timeMs)))
+          redoline(msg)
+
           if ( timeMs > 0 ) {
             cliInstance.progTimer = setTimeout(() => {
               if ( typeof cb !== "undefined" ) {
@@ -6034,7 +6051,7 @@ function pushCli(cs) {
         function nicePercent(percent) {
           if (typeof percent === "undefined") { percent = cliInstance.percentComplete; }
           const ret = minWidth(4, (Math.round(  percent*1000) / 10)) + "%"
-          log(`progress ${ret}`)
+          redoline(`progress ${ret}`)
           return ret
         }
         function tidyPeptideName(str) { // give it "OPAL" it gives "Opal". GIVE it aspartic_ACID or "gluTAMic acid". also it gives "Reference"
@@ -6538,10 +6555,24 @@ function pushCli(cs) {
         }
         function listGenomes() {
           let dd = dedupeArray( genomesRendered )
-          for( let g =0; g < dd.length; g++) {
-            output(`${g}. ${dd[g]}`)
+          if ( dd.length > 0 ) {
+            for( let g =0; g < dd.length; g++) {
+              output(`${g}. ${dd[g]}`)
+            }
+          } else {
+            output(`usage:`)
+            output(`aminosee *`)
+            output(`aminosee --help`)
 
+            if ( tx > 82 ) {
+              notQuiet(`>>>    ${ chalk.italic( "aminosee Human_Genome.txt Gorilla.dna Chimp.fa Orangutan.gbk --image")}`)
+              notQuiet(`>>>    ${ chalk.italic( "aminosee [*/dna-file.txt] [--help|--test|--demo|--force|--html|--image|--keyboard]    ")}`)
+            }
+            notQuiet(`>>>    ${ chalk.italic( "aminosee --help ")}`)
+            notQuiet(`>>>    ${ chalk.italic( "aminosee --gui ")}`)
+            notQuiet()
           }
+
         }
         function saveIMAGE(filename, imagedata, width, height, cb) {
           log("saveIMAGE: " + filename)

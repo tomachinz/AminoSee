@@ -189,7 +189,8 @@ function fileInit(file) {
 	}
 
 	// let histoURL = `${urlprefix}/${file}`
-	let histoURL = `${urlprefix}/${justNameOfDNA}/${file}`
+	// let histoURL = `${urlprefix}/${justNameOfDNA}/${file}`
+	let histoURL = `aminosee_histogram.json`
 	document.getElementById("oi").src = file
 	console.log(`click ${histoURL}`)
 	// alert(`histogram ${histoURL}`)

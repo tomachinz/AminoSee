@@ -92,7 +92,29 @@ printsourcedest() {
 	sleep 2
   dodu
 }
+removelocks() {
+  echo $1
+  cd $1
+  pwd
+  sleep 100
+  ls -la
+  sudo chown -v -R $USER .
+  echo
+  ls -la
+  pwd
+  echo "Removing bandwidth hogging linear files"
+	echo "=========================================="
+  echo
+  echo trimming $NUMTOREMOVE linear files from website public
+  FILESTOREMOVE=$( find  -L  * | grep AminoSee_BUSY )
+  NUMTOREMOVE=$( echo $FILESTOREMOVE | wc -l )
+  echo DELETING in 5 seconds
+  tail -n 32 $FILESTOREMOVE
+  sleep 5
+  echo $FILESTOREMOVE |  xargs -J $ rm -v $
+}
 runrsync() {
+  # removelocks $SOURCE
   echo
 	echo COPYING WITH RSYNC FROM $SOURCE TO $DEST
 	echo MAKE SURE BOTH PATHS HAVE TRAILING SLASH!!
@@ -113,16 +135,20 @@ runrsync() {
   echo
   echo sudo rsync $COMMAND
   echo
-	echo doing FOR REAL that above in 6 seconds...
-	sleep 6
+	echo doing FOR REAL that above in 2 seconds...
+	sleep 2
 	eval "sudo rsync $COMMAND"
   echo
 	echo
-	echo DONE!
+	echo DONE! will now chown to $USER
   echo
-	echo "=========================================="
-	echo continuing in 2 seconds
-  sleep 2
+  # cd ~/AminoSee_webroot
+  # FILESTOREMOVE=$( find  -L  * | grep -E "AminoSee_BUSY|linear.*__" )
+  # NUMTOREMOVE=$( echo $FILESTOREMOVE | wc -l )
+  # echo DELETING in 5 seconds
+  # tail -n 32 $FILESTOREMOVE
+  # sleep 5
+  # echo $FILESTOREMOVE |  xargs -J $ rm -v $
 }
 
 twowayupdate /Users/tom/AminoSee_webroot/output/  /Volumes/HotelVermont/Users/tom/AminoSee_webroot/output/

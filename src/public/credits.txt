@@ -7,8 +7,8 @@
 
 Thanks to Christos Georghiou who designed the 'See No Evil Hear No Evil Monkeys' http://christosgeorghiou.com/
 
-Checkout the music from the drummer who wrote    10644 of code for this app at https://www.funk.co.nz/tomachi
-10644 lines of code
+Checkout the music from the drummer who wrote    10646 of code for this app at https://www.funk.co.nz/tomachi
+10646 lines of code
 File drag and drop code by http://twitter.com/craigbuckler
 http://optimalworks.net/ http://sitepoint.com/
 File drag and drop code by http://twitter.com/craigbuckler Craig Buckler
@@ -17,9 +17,9 @@ http://optimalworks.net/ OptimalWorks.net http://sitepoint.com/
 Based on OpenShift guest https://github.com/mrdoob/three.js/blob/8413a860aa95ed29c79cbb7f857c97d7880d260f/examples/canvas_lines_colors.html
 
 Count of packages used:
-    1981
+    1980
 
-as at Sat 18 Jul 2020 17:55:28 NZST the following open source node npm packages used:
+as at Sun 26 Jul 2020 04:51:37 NZST the following open source node npm packages used:
 
 
 aminosee@1.30.1 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee_src
@@ -747,17 +747,17 @@ aminosee@1.30.1 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee_src
 │ │ └── ms@2.1.1 deduped
 │ ├─┬ doctrine@3.0.0
 │ │ └── esutils@2.0.2 deduped
-│ ├─┬ eslint-scope@5.0.0
+│ ├─┬ eslint-scope@5.1.0
 │ │ ├─┬ esrecurse@4.2.1
 │ │ │ └── estraverse@4.2.0 deduped
 │ │ └── estraverse@4.2.0
 │ ├─┬ eslint-utils@1.4.3
-│ │ └── eslint-visitor-keys@1.1.0 deduped
-│ ├── eslint-visitor-keys@1.1.0
+│ │ └── eslint-visitor-keys@1.3.0 deduped
+│ ├── eslint-visitor-keys@1.3.0
 │ ├─┬ espree@6.2.1
 │ │ ├── acorn@7.1.1
 │ │ ├── acorn-jsx@5.2.0
-│ │ └── eslint-visitor-keys@1.1.0 deduped
+│ │ └── eslint-visitor-keys@1.3.0 deduped
 │ ├─┬ esquery@1.0.1
 │ │ └── estraverse@4.2.0 deduped
 │ ├── esutils@2.0.2
@@ -778,10 +778,10 @@ aminosee@1.30.1 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee_src
 │ │ │ └── callsites@3.1.0
 │ │ └── resolve-from@4.0.0
 │ ├── imurmurhash@0.1.4
-│ ├─┬ inquirer@7.1.0
+│ ├─┬ inquirer@7.3.2
 │ │ ├─┬ ansi-escapes@4.3.1
 │ │ │ └── type-fest@0.11.0
-│ │ ├─┬ chalk@3.0.0
+│ │ ├─┬ chalk@4.1.0
 │ │ │ ├─┬ ansi-styles@4.2.1
 │ │ │ │ ├── @types/color-name@1.1.1 deduped
 │ │ │ │ └─┬ color-convert@2.0.1
@@ -793,7 +793,7 @@ aminosee@1.30.1 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee_src
 │ │ │   ├─┬ onetime@5.1.0
 │ │ │   │ └── mimic-fn@2.1.0
 │ │ │   └── signal-exit@3.0.2 deduped
-│ │ ├── cli-width@2.2.0
+│ │ ├── cli-width@3.0.0
 │ │ ├─┬ external-editor@3.1.0
 │ │ │ ├── chardet@0.7.0
 │ │ │ ├─┬ iconv-lite@0.4.24
@@ -802,12 +802,11 @@ aminosee@1.30.1 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee_src
 │ │ │   └── os-tmpdir@1.0.2 deduped
 │ │ ├─┬ figures@3.2.0
 │ │ │ └── escape-string-regexp@1.0.5 deduped
-│ │ ├── lodash@4.17.15
+│ │ ├── lodash@4.17.19
 │ │ ├── mute-stream@0.0.8
-│ │ ├─┬ run-async@2.4.0
-│ │ │ └── is-promise@2.1.0 deduped
-│ │ ├─┬ rxjs@6.5.5
-│ │ │ └── tslib@1.11.1
+│ │ ├── run-async@2.4.1
+│ │ ├─┬ rxjs@6.6.0
+│ │ │ └── tslib@1.13.0
 │ │ ├─┬ string-width@4.2.0
 │ │ │ ├── emoji-regex@8.0.0
 │ │ │ ├── is-fullwidth-code-point@3.0.0
@@ -846,7 +845,7 @@ aminosee@1.30.1 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee_src
 │ ├── semver@6.3.0
 │ ├─┬ strip-ansi@5.2.0
 │ │ └── ansi-regex@4.1.0
-│ ├── strip-json-comments@3.0.1
+│ ├── strip-json-comments@3.1.1
 │ ├─┬ table@5.4.6
 │ │ ├── ajv@6.12.0 deduped
 │ │ ├── lodash@4.17.14 deduped
@@ -860,7 +859,7 @@ aminosee@1.30.1 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee_src
 │ │   └─┬ strip-ansi@5.2.0
 │ │     └── ansi-regex@4.1.0
 │ ├── text-table@0.2.0
-│ └── v8-compile-cache@2.1.0
+│ └── v8-compile-cache@2.1.1
 ├─┬ eslint-config-rallycoding@3.2.0
 │ ├─┬ babel-eslint@6.1.2
 │ │ ├─┬ babel-traverse@6.26.0
@@ -944,7 +943,7 @@ aminosee@1.30.1 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee_src
 │ │ │ │ └─┬ restore-cursor@1.0.1
 │ │ │ │   ├── exit-hook@1.1.1 deduped
 │ │ │ │   └── onetime@1.1.0
-│ │ │ ├── cli-width@2.2.0 deduped
+│ │ │ ├── cli-width@2.2.0
 │ │ │ ├─┬ figures@1.7.0
 │ │ │ │ ├── escape-string-regexp@1.0.5 deduped
 │ │ │ │ └── object-assign@4.1.1 deduped
@@ -1992,7 +1991,7 @@ aminosee@1.30.1 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee_src
 │ │ └── setimmediate@1.0.5
 │ ├── string-kit@0.11.6
 │ └── tree-kit@0.6.2
-├── three@0.106.2
+├── UNMET DEPENDENCY three@0.106.2
 ├── through@2.3.8
 ├── uniq@1.0.1
 ├─┬ vows@0.8.3
@@ -2001,5 +2000,5 @@ aminosee@1.30.1 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee_src
 │ └── glob@7.1.3 deduped
 ├── webpack-node-externals@1.7.2
 ├── xmlhttprequest@1.8.0
-└── xterm@3.14.5
+└── UNMET DEPENDENCY xterm@3.14.5
 

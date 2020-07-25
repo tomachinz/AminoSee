@@ -446,16 +446,8 @@ function readLockPort(file) {
 }
 
 function start() { // return the port number
+	output(chalk.yellow(`Starting web server at ${chalk.underline(getServerURL())}`))
 
-
-	output(chalk.yellow(`Starting foreground web server at ${chalk.underline(getServerURL())}`))
-
-
-	starts++
-	if ( starts > 4 ) {
-		output("you seem to be trying to start the server too much. odd.")
-		return false
-	}
 	log("Attempting to start server with args:")
 	log( args)
 	if ( args.verbose ) {
