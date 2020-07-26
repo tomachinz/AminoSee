@@ -5089,25 +5089,25 @@ ${radMessage}
 
                   }
 
-                  this.pepTable[p].hilbert_master = imghil
+                  histogramJson.pepTable[p].hilbert_master = imghil
                   // let imglin = this.aminoFilenameIndex(p)[1] // second element is linear
-                  let imglin = this.pepTable[p].linear_master // second element is linear
+                  let imglin = histogramJson.pepTable[p].linear_master // second element is linear
                   bugtxt(`html table imghil [ ${imghil} ${p} ]`)
                   let style =  `border: 1px dotted rgba(${c}, 0.5);`
-                  if ( thePep == "Reference" ) {  this.pepTable[p].Histocount = this.genomeSize  }
+                  if ( thePep == "Reference" ) {  histogramJson.pepTable[p].Histocount = histogramJson.summary.genomeSize  }
                   if ( thePep == "Start Codons" || thePep == "Stop Codons" || thePep == "Non-coding NNN") {
                     html += `<!-- ${thePep} -->`
                   } else {
                     html += `
                     <!--  onmouseover="mover(this)" onmouseout="mout(this)" -->
                     <tr class="pepTable" id="row_${p}" style="tr { background-color: yellow; } tr:hover { background-color: rgb(${c}); }" onmouseover="mover(${p})" onmouseout="mout(${p})" onclick="mclick(${p})">
-                    <td>${p}. ${ this.pepTable[p].Codon} </td>
+                    <td>${p}. ${ histogramJson.pepTable[p].Codon} </td>
                     <td style="background-color: rgb(${richC});"><p class="fineprint" style="background-color: black; background-color: rgba(0,0,0,0.5); color: white;">${theHue}&#xB0;</p></td>
                     <td style="background-color: rgb(${c}); color: black; font-weight: bold; "> <p class="fineprint" style="background-color: white; background-color: rgba(255,255,255,0.5); color: black;">${c}</p></td>
-                    <td>${ this.pepTable[p].Histocount.toLocaleString()}</td>
-                    <td>${ this.pepTable[p].Description}</td>
-                    <td style="background-color: white; color: black; height: 16px;"><a href="images/${ imghil }" class="button" title="Amino filter: ${ thePep }"  onmouseover="mover(${p})" onmouseout="mout(${p})" style="${style}"><img width="32" height="32" class="blackback" src="images/${ imghil }" alt="${ this.justNameOfDNA } ${ thePep }"></a></td>
-                    <!-- <td style="background-color: white;"> <a href="images/${ imglin }" class="button" title="Amino filter: ${ thePep }"><img width="32" height="32" class="blackback 32piximg" src="images/${ imghil }" alt="${ this.justNameOfDNA } ${ thePep }"></a> </td> -->
+                    <td>${ histogramJson.pepTable[p].Histocount.toLocaleString()}</td>
+                    <td>${ histogramJson.pepTable[p].Description}</td>
+                    <td style="background-color: white; color: black; height: 16px;"><a href="images/${ imghil }" class="button" title="Amino filter: ${ thePep }"  onmouseover="mover(${p})" onmouseout="mout(${p})" style="${style}"><img width="32" height="32" class="blackback" src="images/${ imghil }" alt="${  histogramJson.summary.source } ${ thePep }"></a></td>
+                    <!-- <td style="background-color: white;"> <a href="images/${ imglin }" class="button" title="Amino filter: ${ thePep }"><img width="32" height="32" class="blackback 32piximg" src="images/${ imghil }" alt="${ histogramJson.summary.source } ${ thePep }"></a> </td> -->
                     </tr>
                     `
                   }
@@ -5128,7 +5128,7 @@ ${radMessage}
                 <div class="grid-item 32piximg">
                 <h2>Render Summary</h2>
                 <pre class="fineprint">
-                ${ this.renderObjToString( histogramJson )}
+                ${ histogramJson }
                 </pre>
                 </div>
                 </div>
@@ -5167,14 +5167,14 @@ ${radMessage}
                 <h2>Hilbert Projection</h2>
                 <a name="scrollHILBERT" ></a>
                 This is a curve that touches each pixel exactly once, without crossing over or breaking.
-                <a href="images/${ this.pepTable[0].hilbert_master }" ><img src="images/${ this.pepTable[0].hilbert_master  }" style="border: 4px black; background: black;" ></a>
+                <a href="images/${  histogramJson.summary.source.pepTable[0].hilbert_master }" ><img src="images/${  histogramJson.summary.source.pepTable[0].hilbert_master  }" style="border: 4px black; background: black;" ></a>
                 <br/>
 
                 <h2>Linear Projection</h2>
                 <a name="scrollLINEAR" ></a>
                 The following image is in raster order, top left to bottom right:
                 <a name="scrollLINEAR" ></a>
-                <a href="images/${ this.pepTable[0].linear_master }" ><img src="images/${ this.pepTable[0].linear_master  }" style="border: 4px black; background: black;" ></a>
+                <a href="images/${  histogramJson.summary.source.pepTable[0].linear_master }" ><img src="images/${  histogramJson.summary.source.pepTable[0].linear_master  }" style="border: 4px black; background: black;" ></a>
                 <br/>
 
                 <h2>About Start and Stop Codons</h2>
