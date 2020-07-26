@@ -92,27 +92,27 @@ printsourcedest() {
 	sleep 2
   dodu
 }
-removelocks() {
-  echo $1
-  cd $1
-  pwd
-  sleep 100
-  ls -la
-  sudo chown -v -R $USER .
-  echo
-  ls -la
-  pwd
-  echo "Removing bandwidth hogging linear files"
-	echo "=========================================="
-  echo
-  echo trimming $NUMTOREMOVE linear files from website public
-  FILESTOREMOVE=$( find  -L  * | grep AminoSee_BUSY )
-  NUMTOREMOVE=$( echo $FILESTOREMOVE | wc -l )
-  echo DELETING in 5 seconds
-  tail -n 32 $FILESTOREMOVE
-  sleep 5
-  echo $FILESTOREMOVE |  xargs -J $ rm -v $
-}
+# removelocks() {
+#   echo $1
+#   cd $1
+#   pwd
+#   sleep 100
+#   ls -la
+#   sudo chown -v -R $USER .
+#   echo
+#   ls -la
+#   pwd
+#   echo "Removing bandwidth hogging linear files"
+# 	echo "=========================================="
+#   echo
+#   echo trimming $NUMTOREMOVE linear files from website public
+#   FILESTOREMOVE=$( find  -L  * | grep AminoSee_BUSY )
+#   NUMTOREMOVE=$( echo $FILESTOREMOVE | wc -l )
+#   echo DELETING in 5 seconds
+#   tail -n 32 $FILESTOREMOVE
+#   sleep 5
+#   echo $FILESTOREMOVE |  xargs -J $ rm -v $
+# }
 runrsync() {
   # removelocks $SOURCE
   echo
@@ -153,7 +153,7 @@ runrsync() {
 
 twowayupdate /Users/tom/AminoSee_webroot/output/  /Volumes/HotelVermont/Users/tom/AminoSee_webroot/output/
 
-hardlinkeddirectory /Users/tom/AminoSee_webroot/output/ /Users/tom/Dropbox/Sites/funk.co.nz/aminosee/output/
+# hardlinkeddirectory /Users/tom/AminoSee_webroot/output/ /Users/tom/Dropbox/Sites/funk.co.nz/aminosee/output/
 
 # bsync ~/AminoSee_webroot /Volumes/HotelVermont/Users/tom/AminoSee_webroot
 # CLONECOMMAND="/usr/bin/rsync --update --archive --verbose --stats  --dry-run tom@cheese.funk.nz:/home/tom/Sites/AminoSee/dna/AminoSee_webroot/output/  /Users/tom/AminoSee_webroot/output/"

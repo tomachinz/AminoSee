@@ -7,8 +7,8 @@
 
 Thanks to Christos Georghiou who designed the 'See No Evil Hear No Evil Monkeys' http://christosgeorghiou.com/
 
-Checkout the music from the drummer who wrote    10646 of code for this app at https://www.funk.co.nz/tomachi
-10646 lines of code
+Checkout the music from the drummer who wrote    10670 of code for this app at https://www.funk.co.nz/tomachi
+10670 lines of code
 File drag and drop code by http://twitter.com/craigbuckler
 http://optimalworks.net/ http://sitepoint.com/
 File drag and drop code by http://twitter.com/craigbuckler Craig Buckler
@@ -17,12 +17,12 @@ http://optimalworks.net/ OptimalWorks.net http://sitepoint.com/
 Based on OpenShift guest https://github.com/mrdoob/three.js/blob/8413a860aa95ed29c79cbb7f857c97d7880d260f/examples/canvas_lines_colors.html
 
 Count of packages used:
-    1980
+    1984
 
-as at Sun 26 Jul 2020 04:51:37 NZST the following open source node npm packages used:
+as at Mon 27 Jul 2020 00:34:53 NZST the following open source node npm packages used:
 
 
-aminosee@1.30.1 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee_src
+aminosee@1.30.2 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee_src
 ├─┬ @gmod/indexedfasta@1.0.13
 │ ├─┬ @babel/runtime-corejs2@7.4.5
 │ │ ├── core-js@2.6.8
@@ -54,7 +54,7 @@ aminosee@1.30.1 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee_src
 │ │   └── has-flag@4.0.0
 │ ├─┬ cli-table3@0.5.1
 │ │ ├── colors@1.3.3
-│ │ ├── object-assign@4.1.1
+│ │ ├── object-assign@4.1.1 deduped
 │ │ └─┬ string-width@2.1.1
 │ │   ├── is-fullwidth-code-point@2.0.0
 │ │   └─┬ strip-ansi@4.0.0
@@ -1607,6 +1607,10 @@ aminosee@1.30.1 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee_src
 │     └── camelcase@4.1.0
 ├─┬ open@6.4.0
 │ └── is-wsl@1.1.0
+├─┬ parallax-js@3.1.0
+│ ├── object-assign@4.1.1
+│ └─┬ raf@3.4.1
+│   └── performance-now@2.1.0 deduped
 ├─┬ parse-apache-directory-index@1.2.1
 │ └─┬ cheerio@0.22.0
 │   ├─┬ css-select@1.2.0
@@ -1991,7 +1995,7 @@ aminosee@1.30.1 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee_src
 │ │ └── setimmediate@1.0.5
 │ ├── string-kit@0.11.6
 │ └── tree-kit@0.6.2
-├── UNMET DEPENDENCY three@0.106.2
+├── UNMET DEPENDENCY three@^0.118.3
 ├── through@2.3.8
 ├── uniq@1.0.1
 ├─┬ vows@0.8.3
@@ -2000,5 +2004,5 @@ aminosee@1.30.1 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee_src
 │ └── glob@7.1.3 deduped
 ├── webpack-node-externals@1.7.2
 ├── xmlhttprequest@1.8.0
-└── UNMET DEPENDENCY xterm@3.14.5
+└── UNMET DEPENDENCY xterm@^4.8.1
 

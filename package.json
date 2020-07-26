@@ -1,6 +1,6 @@
 {
   "name": "aminosee",
-  "version": "1.30.2",
+  "version": "1.30.3",
   "owner": "Thomas Bieder Atkinson",
   "author": "Tom Atkinson <tom@funk.co.nz>",
   "website": "http://aminosee.funk.nz",
@@ -75,6 +75,7 @@
     "http-server": "^0.12.1",
     "node-fetch": "^2.6.0",
     "open": "^6.4.0",
+    "parallax-js": "^3.1.0",
     "phoenix": "^1.4.16",
     "preferences": "^1.0.2",
     "terminal-kit": "^1.35.2",

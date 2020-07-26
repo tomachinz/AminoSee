@@ -9,7 +9,6 @@ const maxCanonical = 32 // max length of canonical name
 const hilbPixels = [ 64, 256, 1024, 4096, 16384, 65536, 262144, 1048576, 4194304, 16777216, 67108864 ] // I've personally never seen a mag 9 or 10 image, cos my computer breaks down. 67 Megapixel hilbert curve!! the last two are breaking nodes heap and call stack both.
 const widthMax = 960 // i wanted these to be tall and slim kinda like the most common way of diagrammatically showing chromosomes
 const defaultPort = 4321
-// const max32bitInteger = 2147483647
 const minUpdateTime = 2000
 const openLocalHtml = false // affects auto-open HTML.
 const fileLockingDelay = 2000
@@ -49,6 +48,7 @@ const settings = require("./aminosee-settings")
 const version = require("./aminosee-version")
 const server = require("./aminosee-server")
 const data = require("./aminosee-data")
+const template = require("./aminosee-html-template")
 
 // const StdInPipe = require('./aminosee-stdinpipe');
 const doesFileExist = data.doesFileExist
@@ -104,7 +104,7 @@ const tomachisBirthday = new Date(  ) // Epoch timestamp: 221962393 is Date and 
 // BigInt.prototype.toJSON = function() { return this.toString(); }; // shim for big int
 // BigInt.prototype.toBSON = function() { return this.toString(); }; // Add a `toBSON()` to enable MongoDB to store BigInts as strings
 let autoStartGui = true
-let cfile, streamLineNr, renderLock, jobArgs, killServersOnQuit, webserverEnabled, cliInstance, tx, ty, cliruns, gbprocessed, projectprefs, userprefs, genomesRendered, progato, commandString, batchSize, quiet, url, port, status, remain, lastHammered, darkenFactor, highlightFactor, loopCounter, webroot, tups,  opensFile , opensHtml , opensImage, previousImage, isHighlightSet, aminosee_json, hilpix, usersMagnitude, shrinkFactor, isPreview, codonsPerPixelHILBERT
+let cfile, streamLineNr, renderLock, jobArgs, killServersOnQuit, webserverEnabled, cliInstance, tx, ty, cliruns, gbprocessed, projectprefs, userprefs, genomesRendered, progato, commandString, batchSize, quiet, url, port, status, remain, lastHammered, darkenFactor, highlightFactor, loopCounter, webroot, tups,  opensFile , opensHtml , opensImage, previousImage, isHighlightSet, aminosee_json, hilpix, usersMagnitude, shrinkFactor, isPreview, codonsPerPixelHILBERT, ishighres
 // let theGUI
 tups = opensFile = opensHtml = opensImage = 0 // terminal flossing
 let opens = 0 // session local counter to avoid having way too many windows opened.
@@ -129,6 +129,7 @@ aminosee_json = status = "initialising"
 module.exports = () => {
   setupApp()
 }
+
 function startGUI() {
   cliInstance.gui = true
   cliInstance.keyboard = true
@@ -290,7 +291,7 @@ function pushCli(cs) {
       process.stdout.on("resize", () => {
         this.resized()
       })
-
+      ishighres = false
     }
 
 
@@ -370,9 +371,9 @@ function pushCli(cs) {
       batchSize = remain
       this.pepTable = data.pepTable
       this.args = args // populateArgs(procArgv); // this.args;
+      ishighres = this.genomeSize > hilbPixels[ defaultPreviewDimension ]
 
       this.setNextFile()
-
       if ( args.demo ) {
         this.demo = true
         this.test = true
@@ -1299,11 +1300,11 @@ function pushCli(cs) {
         this.pepTable[ p ].src = this.aminoFilenameIndex( p )[1]
 
         // IMAGE DATA ARRAYS
-        this.pepTable[ p ].mixRGBA  = [0,0,0,0]
-        this.pepTable[ p ].hm_array = [0,0,0,0]
-        this.pepTable[ p ].lm_array = [0,0,0,0]
+        this.pepTable[ p ].mixRGBA  = hsvToRgb(this.pepTable[p].Hue, 0.5, 1.0)
+        this.pepTable[ p ].hm_array = [] // garbage collect
+        this.pepTable[ p ].lm_array = []
         // FILENAMES
-        this.pepTable[ p ].linear_master = this.aminoFilenameIndex( p )[0]
+        this.pepTable[ p ].linear_master =  this.aminoFilenameIndex( p )[0]
         this.pepTable[ p ].linear_preview = this.aminoFilenameIndex( p )[1]
         this.pepTable[ p ].hilbert_master = this.aminoFilenameIndex( p )[2]
         this.pepTable[ p ].hilbert_preview = this.aminoFilenameIndex( p )[3]
@@ -2738,6 +2739,7 @@ function pushCli(cs) {
 
       this.savePNG()
       setImmediate( () => { this.saveHTML( () => { this.postRenderPoll(`save docs cb`) } ) })
+      this.saveHTML( () => { this.postRenderPoll(`save docs cb`) } )
       setImmediate( () => { this.postRenderPoll(`roger that`) })
     }
     compareHue(a,b) {
@@ -2757,16 +2759,14 @@ function pushCli(cs) {
     saveHistogram(cb) {
 
     }
-    isHighres() {
-      return this.genomeSize > hilbPixels[ defaultPreviewDimension ]
-    }
+
     saveHTML(cb) {
       mode("maybe save HTML")
       output(status)
       if ( this.isHilbertPossible == false ) { mode("not saving html - due to hilbert not possible"); this.isDiskFinHTML = true }
       // if ( this.report == false ) { mode("not saving html - due to report disabled. peptide: " + this.peptide); this.isDiskFinHTML = true }
       if ( this.test ) { mode("not saving html - due to test");  this.isDiskFinHTML = true  }
-      // if ( this.isHighres() && isPreview == true ) { mode("not outputting html due to this is preview") ; this.isDiskFinHTML = true }
+      // if ( ishighres && isPreview == true ) { mode("not outputting html due to this is preview") ; this.isDiskFinHTML = true }
       if ( this.willRecycleSavedImage == true && this.recycEnabled == true) {
         mode("Didnt save HTML report because the linear file was recycled.")
         this.isDiskFinHTML = true
@@ -2788,9 +2788,9 @@ function pushCli(cs) {
 
       let hypertext
       if ( this.test == true ) {
-        hypertext = this.htmlTemplate( this.testSummary() )
+        hypertext = htmlTemplate( this.testSummary() )
       } else {
-        hypertext = this.htmlTemplate( histogramJson )
+        hypertext = htmlTemplate( histogramJson )
       }
 
       let histotext = beautify( histogramJson , null, 2, 100);
@@ -2811,7 +2811,7 @@ function pushCli(cs) {
         this.index = true
       }
 
-      if ( this.index || !this.isHighres() ) { // if it wont make the users computer explode... set it as index page!
+      if ( this.index || !ishighres ) { // if it wont make the users computer explode... set it as index page!
         this.fileWrite(path.resolve( this.outputPath, this.justNameOfDNA, "index.html"), hypertext)
         log( blueWhite(`Writing default report for the directory ${this.justNameOfDNA}`))
       }
@@ -3529,233 +3529,7 @@ function pushCli(cs) {
       }
 
 
-      htmlTemplate(histogramJson) {
-        // let histogramJson;
-        if (typeof histogramJson === "undefined") {
-          histogramJson = this.getRenderObject()
-          // ;
-        }
-        const isHighRes = this.genomeSize > hilbPixels[ defaultPreviewDimension ]
 
-        const highres = (isHighRes ? `<a href="./">Standard-Res</a> | <a href="highres.html">High-Res</a>` : " " )
-        var html = `
-        <!DOCTYPE html>
-        <html lang="en">
-        <head>
-        <meta charset="utf-8"/>
-        <title>${ this.justNameOfDNA} :: AminoSee HTML Report :: DNA Viewer by Tom Atkinson :: ${ path.basename(this.currentFile) }</title>
-        <meta name="description" content="${ siteDescription }">
-        <link rel="stylesheet" type="text/css" href="../../public/AminoSee.css">
-        <link href='https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz:700,400,200,100' rel='stylesheet' type='text/css'>
-        <link href="https://www.funk.co.nz/css/menu.css" rel="stylesheet">
-        <!-- ////////////////////////////////////////
-        ${radMessage}
-        -->
-        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
-        <script>
-        (adsbygoogle = window.adsbygoogle || []).push({
-          google_ad_client: "ca-pub-0729228399056705",
-          enable_page_level_ads: true
-        });
-        </script>
-
-
-
-        <script async src="../../public/three.min.js"></script>
-        <script async src="../../public/jquery.min.js"></script>
-        <script async src="../../public/hilbert3D.js"></script>
-        <script async src="../../public/hilbert2D.js"></script>
-        <script async src="../../public/WebGL.js"></script>
-        <script async src="../../public/hammer.min.js"></script>
-        <script src="../../public/aminosee-gui-web.js"></script>
-        <style>
-        border: 1px black;
-        backround: black;
-        padding: 4px;
-        </style>
-        </head>
-        <body id="aminosee" class="aminosee">
-        <!-- Google Tag Manager -->
-        <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-P8JX"
-        height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-        <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-        new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-        j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-        'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f); })(window,document,'script','dataLayer','GTM-P8JX');</script>
-        <!-- End Google Tag Manager -->
-
-        <nav style="position: relative; padding: 32px;">
-        <div class="dark"  style="position: fixed; top: 8px; left: 8px; z-index:9999; background-color: #123456; padding: 16px; margin-bottom: 64px;">
-        <a href="../../" class="button">AminoSee Home</a> | <a href="../?C=M;O=D">Parent</a> ${highres}
-        </div>
-        </nav>
-        <h1>${ this.justNameOfDNA}</h1>
-        <h2>AminoSee DNA Render Summary</h2>
-        <h3>Hilbert curvers of dimension ${this.dimension} used, yielding images with ~${onesigbitTolocale(codonsPerPixelHILBERT)} codons per pixel including non-coding regions. Linear reference file shows exactly ${onesigbitTolocale( this.codonsPerPixel )} codons per pixel</h3>
-
-        <div id="render_summary" class="grid-container">
-        <div id="stack_wrapper">
-        ${( this.test ? " this.test " : this.imageStack( histogramJson ))}
-        </div>
-
-        <div class="grid-item 32piximg">
-        <a href="#scrollLINEAR" class="button" title="Click To Scroll Down To See LINEAR"><br />
-        <img id="oi" width="64" height="64" style="border: 4px black; background: black;" src="images/${ this.pepTable[0].linear_master }">
-        1D Linear Map Image
-        </a>
-        </div>
-        <div class="grid-item 32piximg">
-        <a href="#scrollHILBERT" class="button" title="Click To Scroll Down To See 2D Hilbert Map"><br />
-        <img width="64" height="64" style="border: 4px black background: black;" src="images/${ this.pepTable[0].hilbert_master }">
-        2D Hilbert Map Image
-        </a>
-        </div>
-        </div>
-
-        <table class="32piximg" style="background-color: white; color: black;">
-        <thead>
-        <tr class="light">
-        <th class="light" >Amino Acid</th>
-        <th>Hue&#xB0;</th>
-        <th>RGB</th>
-        <th>Count</th>
-        <th>Description</th>
-        <th>Hilbert PNG</th>
-        <!--	<th>Linear PNG</th> -->
-        </tr>
-        </thead>
-        <tbody>
-        `
-        // this.pepTable   = [Codon, Description, Hue, Alpha, Histocount]
-        for ( let p = 0; p < this.pepTable.length; p++ ) { // standard peptide loop
-          let thePep = this.pepTable[p].Codon
-          let theHue = this.pepTable[p].Hue
-          let c =      hsvToRgb( theHue / 360, 0.5, 1.0 )
-          let richC = hsvToRgb( theHue / 360, 0.95, 0.75 )
-          let imghil
-          if ( isPreview ) {
-            imghil = this.aminoFilenameIndex(p)[2]
-          } else {
-            imghil = this.aminoFilenameIndex(p)[0]
-          }
-
-          this.pepTable[p].hilbert_master = imghil
-          // let imglin = this.aminoFilenameIndex(p)[1] // second element is linear
-          let imglin = this.pepTable[p].linear_master // second element is linear
-          bugtxt(`html table imghil [ ${imghil} ${p} ]`)
-          let style =  `border: 1px dotted rgba(${c}, 0.5);`
-          if ( thePep == "Reference" ) {  this.pepTable[p].Histocount = this.genomeSize  }
-          if ( thePep == "Start Codons" || thePep == "Stop Codons" || thePep == "Non-coding NNN") {
-            html += `<!-- ${thePep} -->`
-          } else {
-            html += `
-            <!--  onmouseover="mover(this)" onmouseout="mout(this)" -->
-            <tr class="pepTable" id="row_${p}" style="tr { background-color: yellow; } tr:hover { background-color: rgb(${c}); }" onmouseover="mover(${p})" onmouseout="mout(${p})" onclick="mclick(${p})">
-            <td>${p}. ${ this.pepTable[p].Codon} </td>
-            <td style="background-color: rgb(${richC});"><p class="fineprint" style="background-color: black; background-color: rgba(0,0,0,0.5); color: white;">${theHue}&#xB0;</p></td>
-            <td style="background-color: rgb(${c}); color: black; font-weight: bold; "> <p class="fineprint" style="background-color: white; background-color: rgba(255,255,255,0.5); color: black;">${c}</p></td>
-            <td>${ this.pepTable[p].Histocount.toLocaleString()}</td>
-            <td>${ this.pepTable[p].Description}</td>
-            <td style="background-color: white; color: black; height: 16px;"><a href="images/${ imghil }" class="button" title="Amino filter: ${ thePep }"  onmouseover="mover(${p})" onmouseout="mout(${p})" style="${style}"><img width="32" height="32" class="blackback" src="images/${ imghil }" alt="${ this.justNameOfDNA } ${ thePep }"></a></td>
-            <!-- <td style="background-color: white;"> <a href="images/${ imglin }" class="button" title="Amino filter: ${ thePep }"><img width="32" height="32" class="blackback 32piximg" src="images/${ imghil }" alt="${ this.justNameOfDNA } ${ thePep }"></a> </td> -->
-            </tr>
-            `
-          }
-        }
-        html += `
-        </tbody>
-        <tfoot>
-        <tr>
-        <td>19 Amino Acids, 4 Start/Stop codes, 1 NNN</td>
-        <td>.</td>
-        <td>.</td>
-        <td>.</td>
-        <td>.</td>
-        </tr>
-        </tfoot>
-        </table>
-        <div class="grid-container">
-        <div class="grid-item 32piximg">
-        <h2>Render Summary</h2>
-        <pre class="fineprint">
-        ${ this.renderObjToString( histogramJson )}
-        </pre>
-        </div>
-        </div>
-        <div id="monkeys">
-
-
-
-
-
-        <div><a href="http://aminosee.funk.nz/">
-        <input type="button" value="VISIT WEBSITE" onclick="window.location = '#scrollHILBERT'"><br>
-
-        <img src="https://www.funk.co.nz/aminosee/public/seenoevilmonkeys.jpg">
-
-        <!-- <h1>AminoSeeNoEvil</h1> -->
-        <h1>Amino<span style="color: #888888;">See</span><span style="color: #dddddd;">NoEvil</span></h1>
-        <div class="hidable">
-        <h2 id="h2">DNA/RNA Chromosome Viewer</h2>
-        <p id="description" class="fineprint hidable">A new way to view DNA that attributes a colour hue to each Amino acid codon</p>
-
-
-
-        </div>
-        </a>
-        </div>
-        </div>
-
-        <div>`
-
-
-
-        html += `</div>
-
-        <br /><br />
-
-        <h2>Hilbert Projection</h2>
-        <a name="scrollHILBERT" ></a>
-        This is a curve that touches each pixel exactly once, without crossing over or breaking.
-        <a href="images/${ this.pepTable[0].hilbert_master }" ><img src="images/${ this.pepTable[0].hilbert_master  }" style="border: 4px black; background: black;" ></a>
-        <br/>
-
-        <h2>Linear Projection</h2>
-        <a name="scrollLINEAR" ></a>
-        The following image is in raster order, top left to bottom right:
-        <a name="scrollLINEAR" ></a>
-        <a href="images/${ this.pepTable[0].linear_master }" ><img src="images/${ this.pepTable[0].linear_master  }" style="border: 4px black; background: black;" ></a>
-        <br/>
-
-        <h2>About Start and Stop Codons</h2>
-        <p>The codon AUG is called the START codon as it the first codon in the transcribed mRNA that undergoes translation. AUG is the most common START codon and it codes for the amino acid methionine (Met) in eukaryotes and formyl methionine (fMet) in prokaryotes. During protein synthesis, the tRNA recognizes the START codon AUG with the help of some initiation factors and starts translation of mRNA.
-
-        Some alternative START codons are found in both eukaryotes and prokaryotes. Alternate codons usually code for amino acids other than methionine, but when they act as START codons they code for Met due to the use of a separate initiator tRNA.
-
-        Non-AUG START codons are rarely found in eukaryotic genomes. Apart from the usual Met codon, mammalian cells can also START translation with the amino acid leucine with the help of a leucyl-tRNA decoding the CUG codon. Mitochondrial genomes use AUA and AUU in humans and GUG and UUG in prokaryotes as alternate START codons.
-
-        In prokaryotes, E. coli is found to use AUG 83%, GUG 14%, and UUG 3% as START codons. The lacA and lacI coding this.regions in the E coli lac operon don’t have AUG START codon and instead use UUG and GUG as initiation codons respectively.</p>
-
-
-        <div id="googleads">
-
-        <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
-        <!-- AminoSee Reports -->
-        <ins class="adsbygoogle"
-        style="display:block"
-        data-ad-client="ca-pub-0729228399056705"
-        data-ad-slot="2513777969"
-        data-ad-format="auto"
-        data-full-width-responsive="true"></ins>
-        <script>
-        (adsbygoogle = window.adsbygoogle || []).push({});
-        </script>
-
-        </div>
-        </html>
-        `
-        return html
-      }
 
       isInProgress( fullPathOfLockFile ) { // return TRUE if locked.
         bugtxt("isInProgress RUNNING: " + fullPathOfLockFile)
@@ -5131,98 +4905,7 @@ function pushCli(cs) {
         // stream.pipe(tr).pipe(process.stdout);
 
 
-        imageStack(histogramJson) {
-          mode("imageStack")
-          let html = " "
-          // let summary = histogramJson.summary
-          // let pepTable = histogramJson.pepTable
-          let pepTable = this.pepTable
-          // output(beautify(summary))
 
-          html += `<ul id="stackOimages" class="stack">
-          `
-          for ( let p = 0; p < pepTable.length; p++ ) { // standard peptide loop
-            let item = pepTable[p]
-            let thePep = item.Codon
-            let theHue = item.Hue
-            let c =      hsvToRgb( theHue / 360, 0.5, 1.0 )
-            let name =   item.name
-            let proportion = (-0.5 + ((p+1) / pepTable.length )) * 2
-            // let proportion =  (p+1 / pepTable.length)
-
-            // output(`prop ${proportion}`)
-            let minimumSize = 64
-            let styleLi =  `
-            position: fixed;
-            top:  50%;
-            left: 50%;
-            transform: translate(
-              calc( -50% + var(--mouse-x, 0) * ${proportion*100}%),
-              calc( -50% + var(--mouse-y, 0) * ${proportion*100}%)
-            );
-            border-top:    1px solid rgba(255, 255, 255, 0.4);
-            border-left:   2px solid rgba(${c}), 0.8);
-            border-bottom: 1px solid rgba(0,0,0, 0.5);
-            border-right:  2px solid rgba(${c}), 0.2);
-            background: rgba(0,0,0,0.2);
-            z-index: ${p+1};
-            `
-            // let styleImg =  `
-            // width: calc(${proportion} * ${minimumSize})px;
-            // height: calc(${proportion} * ${minimumSize})px;
-            // ${styleLi}
-            // `
-            styleLi = styleLi.replace(`
-              `, " ")
-              let src = pepTable[p].hilbert_master
-              if (thePep == "Start Codons" || thePep == "Stop Codons" || thePep == "Non-coding NNN") {
-                html += `<!-- ${thePep.Codon}  width="20%" height="20%" -->`
-              } else {
-                html += `
-                <li  id="stack_${p}" onmouseover="mover(${p})" onmouseout="mout(${p})" onclick="mclick(${p})">
-                  <a href="images/${src}" title="${name} ${thePep}" style="${styleLi}">${p}. ${thePep} <br/>
-                <img src="images/${src}" alt="${name} ${thePep}" title="${name}" onmouseover="mover(${p})" onmouseout="mout(${p})">
-                </a>
-                </li>
-                `
-              }
-            }
-
-            // histogramJson.pepTable.forEach(function(item) {
-            //   // log(item.toString());
-            //   let thePep = item.Codon
-            //   let theHue = item.Hue
-            //   let c =      hsvToRgb( theHue/360, 0.5, 1.0 )
-            //   let z =      item.z
-            //   let i =      item.index + 1
-            //   let name =   item.name
-            //   let linear_master =    item.linear_master
-            //   let hilbert_master =    item.hilbert_master
-            //   let linear_preview =    item.linear_master
-            //   let hilbert_preview =    item.hilbert_master
-            //   let src = hilbert_master
-            //   // this.pepTable[ p ].hilbert_master = this.aminoFilenameIndex( p )[0];
-            //   // this.pepTable[ p ].linear_master = this.aminoFilenameIndex( p )[1];
-            //   // this.pepTable[ p ].hilbert_preview = this.aminoFilenameIndex( p )[0];
-            //   // this.pepTable[ p ].linear_preview = this.aminoFilenameIndex( p )[1];
-            //
-            //   let vector = i - (quant/2)
-            //   let zoom = 3
-            //   // bugtxt( src );
-            //   html +=  i +". "
-            //   if (thePep == "Start Codons" || thePep == "Stop Codons" || thePep == "Non-coding NNN") {
-            //     html += `<!-- ${thePep.Codon} -->`
-            //   } else {
-            //     html += `
-            //     <li>${i} <a href="images/${src}" title="${name} ${thePep}">${thePep} <br/>
-            //     <img src="images/${src}" id="stack_${i}" width="20%" height="20%" style="z-index: ${i}; position: fixed; z-index: ${i}; top: 50%; left: 50%; transform: translate(${(i*zoom)-100}px,${(i*zoom)-100}px)" alt="${name} ${thePep}" title="${name} ${thePep}" onmouseover="mover(${i})" onmouseout="mout(${i})"></a></li>
-            //     `
-            //   }
-            // })
-            html += "</ul> <!-- END stackOimages MA man -->"
-            bugtxt(html)
-            return html
-          }
 
 
 
@@ -5287,6 +4970,243 @@ function pushCli(cs) {
 
 
         } // <<< --- END OF CLASS
+
+        function htmlTemplate(histogramJson) {
+                // let histogramJson;
+                if (typeof histogramJson === "undefined") {
+                  error(`histogramJson === "undefined"`)
+                  histogramJson = cliInstance.getRenderObject()
+                  // ;
+                }
+                // const ishighres = this.genomeSize > hilbPixels[ defaultPreviewDimension ]
+
+                const highresnav = (ishighres ? `<a href="./">Standard-Res</a> | <a href="highres.html">High-Res</a>` : " " )
+                var html = `
+                <!DOCTYPE html>
+                <html lang="en">
+                <head>
+                <meta charset="utf-8"/>
+                <title>${ histogramJson.summary.original_source } :: AminoSee HTML Report :: DNA Viewer by Tom Atkinson ::</title>
+                <meta name="description" content="transcription of ${histogramJson.summary.full_path} ${ histogramJson.summary.blurb  } ${siteDescription}">
+                <link rel="stylesheet" type="text/css" href="../../public/AminoSee.css">
+                <link href='https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz:700,400,200,100' rel='stylesheet' type='text/css'>
+                <link href="https://www.funk.co.nz/css/menu.css" rel="stylesheet">
+
+                <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+                <script>
+                (adsbygoogle = window.adsbygoogle || []).push({
+                  google_ad_client: "ca-pub-0729228399056705",
+                  enable_page_level_ads: true
+                });
+                </script>
+
+
+
+                <script async src="../../public/three.min.js"></script>
+                <script async src="../../public/jquery.min.js"></script>
+                <script async src="../../public/hilbert3D.js"></script>
+                <script async src="../../public/hilbert2D.js"></script>
+                <script async src="../../public/WebGL.js"></script>
+                <script async src="../../public/hammer.min.js"></script>
+                <script src="../../public/aminosee-gui-web.js"></script>
+                <style>
+                border: 1px black;
+                backround: black;
+                padding: 4px;
+                </style>
+                </head>
+                <body id="aminosee" class="aminosee">
+                <!-- Google Tag Manager -->
+                <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-P8JX"
+                height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+                <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+                new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+                j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+                'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f); })(window,document,'script','dataLayer','GTM-P8JX');</script>
+                <!-- End Google Tag Manager -->
+
+                <nav style="position: relative; padding: 32px;">
+                <div id="scene" class="dark"  style="position: fixed; top: 8px; left: 8px; z-index:9999; background-color: #123456; padding: 16px; margin-bottom: 64px;">
+                <a href="../../" class="button">AminoSee Home</a> | <a href="../?C=M;O=D">Parent</a> ${highresnav}
+                </div>
+                </nav>
+                <h1>${ histogramJson.summary.original_source}</h1>
+                <h2>AminoSee DNA Render Summary</h2>
+                <h3>Hilbert curvers of dimension ${histogramJson.summary.dimension} used, yielding images with ~${onesigbitTolocale(histogramJson.summary.codonsPerPixelHILBERT)} codons per pixel including non-coding regions. Linear reference file shows exactly ${onesigbitTolocale( histogramJson.summary.codonsPerPixel )} codons per pixel</h3>
+
+                <div id="render_summary" class="grid-container">
+                <div id="stack_wrapper">
+                ${( histogramJson.test ? " this.test " : imageStack( histogramJson ))}
+                </div>
+
+                <div class="grid-item 32piximg">
+                <a href="#scrollLINEAR" class="button" title="Click To Scroll Down To See LINEAR"><br />
+                <img id="oi" width="64" height="64" style="border: 4px black; background: black;" src="images/${ histogramJson.pepTable.linear_master }">
+                1D Linear Map Image
+                </a>
+                </div>
+                <div class="grid-item 32piximg">
+                <a href="#scrollHILBERT" class="button" title="Click To Scroll Down To See 2D Hilbert Map"><br />
+                <img width="64" height="64" style="border: 4px black background: black;" src="images/${ histogramJson.pepTable.hilbert_master }">
+                2D Hilbert Map Image
+                </a>
+                </div>
+                </div>
+
+<pre>
+
+${radMessage}
+
+</pre>
+
+                <table class="32piximg" style="background-color: white; color: black;">
+                <thead>
+                <tr class="light">
+                <th class="light" >Amino Acid</th>
+                <th>Hue&#xB0;</th>
+                <th>RGB</th>
+                <th>Count</th>
+                <th>Description</th>
+                <th>Hilbert PNG</th>
+                <!--	<th>Linear PNG</th> -->
+                </tr>
+                </thead>
+                <tbody>
+                `
+                // histogramJson.pepTable   = [Codon, Description, Hue, Alpha, Histocount]
+                for ( let p = 0; p < histogramJson.pepTable.length; p++ ) { // standard peptide loop
+                  let thePep = histogramJson.pepTable[p].Codon
+                  let theHue = histogramJson.pepTable[p].Hue
+                  let c =      hsvToRgb( theHue / 360, 0.5, 1.0 )
+                  let richC = hsvToRgb( theHue / 360, 0.95, 0.75 )
+                  let imghil
+                  if ( isPreview ) {
+                    imghil = histogramJson.pepTable[p].hilbert_preview
+                    // imghil = this.aminoFilenameIndex(p)[2]
+                  } else {
+                    // imghil = this.aminoFilenameIndex(p)[0]
+                    imghil = histogramJson.pepTable[p].hilbert_master
+
+                  }
+
+                  this.pepTable[p].hilbert_master = imghil
+                  // let imglin = this.aminoFilenameIndex(p)[1] // second element is linear
+                  let imglin = this.pepTable[p].linear_master // second element is linear
+                  bugtxt(`html table imghil [ ${imghil} ${p} ]`)
+                  let style =  `border: 1px dotted rgba(${c}, 0.5);`
+                  if ( thePep == "Reference" ) {  this.pepTable[p].Histocount = this.genomeSize  }
+                  if ( thePep == "Start Codons" || thePep == "Stop Codons" || thePep == "Non-coding NNN") {
+                    html += `<!-- ${thePep} -->`
+                  } else {
+                    html += `
+                    <!--  onmouseover="mover(this)" onmouseout="mout(this)" -->
+                    <tr class="pepTable" id="row_${p}" style="tr { background-color: yellow; } tr:hover { background-color: rgb(${c}); }" onmouseover="mover(${p})" onmouseout="mout(${p})" onclick="mclick(${p})">
+                    <td>${p}. ${ this.pepTable[p].Codon} </td>
+                    <td style="background-color: rgb(${richC});"><p class="fineprint" style="background-color: black; background-color: rgba(0,0,0,0.5); color: white;">${theHue}&#xB0;</p></td>
+                    <td style="background-color: rgb(${c}); color: black; font-weight: bold; "> <p class="fineprint" style="background-color: white; background-color: rgba(255,255,255,0.5); color: black;">${c}</p></td>
+                    <td>${ this.pepTable[p].Histocount.toLocaleString()}</td>
+                    <td>${ this.pepTable[p].Description}</td>
+                    <td style="background-color: white; color: black; height: 16px;"><a href="images/${ imghil }" class="button" title="Amino filter: ${ thePep }"  onmouseover="mover(${p})" onmouseout="mout(${p})" style="${style}"><img width="32" height="32" class="blackback" src="images/${ imghil }" alt="${ this.justNameOfDNA } ${ thePep }"></a></td>
+                    <!-- <td style="background-color: white;"> <a href="images/${ imglin }" class="button" title="Amino filter: ${ thePep }"><img width="32" height="32" class="blackback 32piximg" src="images/${ imghil }" alt="${ this.justNameOfDNA } ${ thePep }"></a> </td> -->
+                    </tr>
+                    `
+                  }
+                }
+                html += `
+                </tbody>
+                <tfoot>
+                <tr>
+                <td>19 Amino Acids, 4 Start/Stop codes, 1 NNN</td>
+                <td>.</td>
+                <td>.</td>
+                <td>.</td>
+                <td>.</td>
+                </tr>
+                </tfoot>
+                </table>
+                <div class="grid-container">
+                <div class="grid-item 32piximg">
+                <h2>Render Summary</h2>
+                <pre class="fineprint">
+                ${ this.renderObjToString( histogramJson )}
+                </pre>
+                </div>
+                </div>
+                <div id="monkeys">
+
+
+
+
+
+                <div><a href="http://aminosee.funk.nz/">
+                <input type="button" value="VISIT WEBSITE" onclick="window.location = '#scrollHILBERT'"><br>
+
+                <img src="https://www.funk.co.nz/aminosee/public/seenoevilmonkeys.jpg">
+
+                <!-- <h1>AminoSeeNoEvil</h1> -->
+                <h1>Amino<span style="color: #888888;">See</span><span style="color: #dddddd;">NoEvil</span></h1>
+                <div class="hidable">
+                <h2 id="h2">DNA/RNA Chromosome Viewer</h2>
+                <p id="description" class="fineprint hidable">A new way to view DNA that attributes a colour hue to each Amino acid codon</p>
+
+
+
+                </div>
+                </a>
+                </div>
+                </div>
+
+                <div>`
+
+
+
+                html += `</div>
+
+                <br /><br />
+
+                <h2>Hilbert Projection</h2>
+                <a name="scrollHILBERT" ></a>
+                This is a curve that touches each pixel exactly once, without crossing over or breaking.
+                <a href="images/${ this.pepTable[0].hilbert_master }" ><img src="images/${ this.pepTable[0].hilbert_master  }" style="border: 4px black; background: black;" ></a>
+                <br/>
+
+                <h2>Linear Projection</h2>
+                <a name="scrollLINEAR" ></a>
+                The following image is in raster order, top left to bottom right:
+                <a name="scrollLINEAR" ></a>
+                <a href="images/${ this.pepTable[0].linear_master }" ><img src="images/${ this.pepTable[0].linear_master  }" style="border: 4px black; background: black;" ></a>
+                <br/>
+
+                <h2>About Start and Stop Codons</h2>
+                <p>The codon AUG is called the START codon as it the first codon in the transcribed mRNA that undergoes translation. AUG is the most common START codon and it codes for the amino acid methionine (Met) in eukaryotes and formyl methionine (fMet) in prokaryotes. During protein synthesis, the tRNA recognizes the START codon AUG with the help of some initiation factors and starts translation of mRNA.
+
+                Some alternative START codons are found in both eukaryotes and prokaryotes. Alternate codons usually code for amino acids other than methionine, but when they act as START codons they code for Met due to the use of a separate initiator tRNA.
+
+                Non-AUG START codons are rarely found in eukaryotic genomes. Apart from the usual Met codon, mammalian cells can also START translation with the amino acid leucine with the help of a leucyl-tRNA decoding the CUG codon. Mitochondrial genomes use AUA and AUU in humans and GUG and UUG in prokaryotes as alternate START codons.
+
+                In prokaryotes, E. coli is found to use AUG 83%, GUG 14%, and UUG 3% as START codons. The lacA and lacI coding this.regions in the E coli lac operon don’t have AUG START codon and instead use UUG and GUG as initiation codons respectively.</p>
+
+
+                <div id="googleads">
+
+                <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+                <!-- AminoSee Reports -->
+                <ins class="adsbygoogle"
+                style="display:block"
+                data-ad-client="ca-pub-0729228399056705"
+                data-ad-slot="2513777969"
+                data-ad-format="auto"
+                data-full-width-responsive="true"></ins>
+                <script>
+                (adsbygoogle = window.adsbygoogle || []).push({});
+                </script>
+
+                </div>
+                </html>
+                `
+                return html
+              }
+
 
         function bugtxt(txt) { // full debug output
           if (typeof cliInstance !== "undefined") {
@@ -6595,71 +6515,15 @@ function pushCli(cs) {
             .pipe(wstreamLINEAR)
             .on("finish", (err, resolve) => {
               if (err) { log(`not sure if that saved: ${err}`)}
-              if (resolve) { log(`saved: ${this.filePNG} ${ this.storage()} `) }
+              if (resolve) { log(`saved: ${cliInstance.filePNG} ${ cliInstance.storage()} `) }
               // this.isDiskFinHTML = true
               // this.isDiskFinLinear = true;
               runcb(cb)
             })
           }).then().catch()
-          // this.linearFinished()
+          cliInstance.linearFinished()
 
 
-          return
-
-
-
-
-
-
-
-
-
-
-
-
-          //
-          //
-          // const stringy = {
-          //   file: filename,
-          //   width: width,
-          //   height: height,
-          //   colorType: 6,
-          //   bgColor: {
-          //     red: 0,
-          //     green: 0,
-          //     blue: 0
-          //   }
-          // }
-          // log( stringy )
-          //
-          // const img_data = Uint8ClampedArray.from( imagedata )
-          // var img_png = new PNG({
-          //   width: width,
-          //   height: height,
-          //   colorType: 6,
-          //   bgColor: {
-          //     red: 0,
-          //     green: 0,
-          //     blue: 0
-          //   }
-          // })
-          //
-          //
-          // img_png.data = Buffer.from(img_data)
-          // let wstream = fs.createWriteStream( filename )
-          // var that = this.linearFinished
-          // let retProm =  new Promise(() => {
-          //   img_png.pack()
-          //   .pipe(wstream)
-          //   .on("finish", (err) => {
-          //     if (err) { log(`Could not create write stream: ${ that.filePNG } due to ${err}`) }
-          //     bugtxt("linear Save OK " +  that.storage())
-          //     that()
-          //     runcb(cb)
-          //   })
-          //   resolve();
-          // }).then().catch()
-          // return retProm
         }
         function error(err) {
           mode(`💩 Error during ${status}: [${ maxWidth(16,  err)}] ${cliInstance.justNameOfDNA} ${cliInstance.busy()}`)
@@ -6677,9 +6541,9 @@ function pushCli(cs) {
 
             throw new Error(err)
           } else {
-            cliInstance.raceDelay += 50
+            cliInstance.raceDelay += 150
             output()
-            output(`💩 Caught error: ${err} INCREASING DELAY BY 50 ms`)
+            output(`💩 Caught error: ${err} INCREASING DELAY BY 150 ms`)
             output()
           }
         }
@@ -6834,6 +6698,60 @@ function pushCli(cs) {
             // cliInstance.quit(13, status)
           }
         }
+        function imageStack(histogramJson) {
+          mode("imageStack")
+          let html = " "
+          let pepTable = histogramJson.pepTable
+
+          html += `<ul id="stackOimages" class="stack">
+          `
+          for ( let p = 0; p < pepTable.length; p++ ) { // standard peptide loop
+            let item = pepTable[p]
+            let thePep = item.Codon
+            let theHue = item.Hue
+            let c =      hsvToRgb( theHue / 360, 0.5, 1.0 )
+            let name =   item.name
+            let proportion = (-0.5 + ((p+1) / pepTable.length )) * 2
+            // let proportion =  (p+1 / pepTable.length)
+            // output(`prop ${proportion}`)
+            let minimumSize = 64
+            let styleLi =  `
+            position: fixed;
+            top:  50%;
+            left: 50%;
+            transform: translate(
+              calc( -50% + var(--mouse-x, 0) * ${proportion*100}%),
+              calc( -50% + var(--mouse-y, 0) * ${proportion*100}%)
+            );
+            border-top:    1px solid rgba(255, 255, 255, 0.4);
+            border-left:   2px solid rgba(${c}), 0.8);
+            border-bottom: 1px solid rgba(0,0,0, 0.5);
+            border-right:  2px solid rgba(${c}), 0.2);
+            background: rgba(0,0,0,0.2);
+            z-index: ${p+1};
+            `
+
+            styleLi = styleLi.replace(`
+              `, " ")
+              let src = pepTable[p].hilbert_master
+              if (thePep == "Start Codons" || thePep == "Stop Codons" || thePep == "Non-coding NNN") {
+                html += `<!-- ${thePep.Codon}  width="20%" height="20%" -->`
+              } else {
+                html += `
+                <li data-depth="${p}" id="stack_${p}" onmouseover="mover(${p})" onmouseout="mout(${p})" onclick="mclick(${p})">
+                  <a href="images/${src}" title="${name} ${thePep}" style="${styleLi}">${p}. ${thePep} <br/>
+                <img src="images/${src}" alt="${name} ${thePep}" title="${name}" onmouseover="mover(${p})" onmouseout="mout(${p})">
+                </a>
+                </li>
+                `
+              }
+            }
+
+
+            html += "</ul> <!-- END stackOimages MA man -->"
+            bugtxt(html)
+            return html
+          }
         module.exports.AminoSeeNoEvil = AminoSeeNoEvil
         module.exports.removeLocks = removeLocks
         module.exports.removeNonAscii = removeNonAscii
@@ -6845,6 +6763,8 @@ function pushCli(cs) {
         module.exports.fileWrite = (a,b,c) => { this.fileWrite(a,b,c) }
         module.exports.deleteFile = deleteFile
         module.exports.getArgs = getArgs
+        module.exports.ishighres = ishighres
+        module.exports.imageStack = imageStack
         module.exports.log = log
         module.exports.out = out
         module.exports.output = output

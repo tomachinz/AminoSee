@@ -129,6 +129,9 @@ function startup() {
 	el.addEventListener("touchend", handleEnd, false)
 	// el.addEventListener("touchcancel", handleCancel, false)
 	el.addEventListener("touchmove", handleMove, false)
+
+	var scene = document.getElementById('scene');
+	var parallaxInstance = new Parallax(scene);
 }
 
 
