@@ -5167,14 +5167,14 @@ ${radMessage}
                 <h2>Hilbert Projection</h2>
                 <a name="scrollHILBERT" ></a>
                 This is a curve that touches each pixel exactly once, without crossing over or breaking.
-                <a href="images/${  histogramJson.summary.source.pepTable[0].hilbert_master }" ><img src="images/${  histogramJson.summary.source.pepTable[0].hilbert_master  }" style="border: 4px black; background: black;" ></a>
+                <a href="images/${ histogramJson.summary.hilbert_master }" ><img src="images/${ histogramJson.summary.hilbert_master }" style="border: 4px black; background: black;" ></a>
                 <br/>
 
                 <h2>Linear Projection</h2>
                 <a name="scrollLINEAR" ></a>
                 The following image is in raster order, top left to bottom right:
                 <a name="scrollLINEAR" ></a>
-                <a href="images/${  histogramJson.summary.source.pepTable[0].linear_master }" ><img src="images/${  histogramJson.summary.source.pepTable[0].linear_master  }" style="border: 4px black; background: black;" ></a>
+                <a href="images/${  histogramJson.summary.linear_master }" ><img src="images/${ histogramJson.summary.linear_master  }" style="border: 4px black; background: black;" ></a>
                 <br/>
 
                 <h2>About Start and Stop Codons</h2>
