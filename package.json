@@ -109,7 +109,7 @@
     "json-beautify": "^1.1.1",
     "keypress": "^0.2.1",
     "lazyness": "^1.1.1",
-    "local-web-server": "^3.0.7",
+    "local-web-server": "^4.2.1",
     "minimist": "^1.2.5",
     "node-gyp": "^5.1.0",
     "node-pty": "^0.8.1",
