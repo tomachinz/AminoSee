@@ -4,7 +4,7 @@
 	<title>AminoSeeNoEvil DNA Visualisation :: a Pseudo-Hilbert Curve based WebGL 3D DNA Viewer Renderer :: AminoSee.Funk.NZ</title>
 	<meta name="description" content="Convert large ascii-triplet DNA files into png images. 25 unique colour hues represent the 4 start/stop codons plus 21 Amino acids. Supports any ASCII text based genome such as FASTA, GBK, .txt, .gff etc, if it has text like GTAGCCTAGTCGATTCAG or maybe UUGCUTGUTGUTGUTGTUCUT then AminoSee can render up a set of images of it!">
 	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-	<meta http-equiv="Content-Security-Policy" content="default-src http://127.0.0.1:8888 https://dev.funk.co.nz https://www.funk.co.nz  http://www.funk.co.nz * data: blob: 'unsafe-inline' 'unsafe-eval' ws: wss:;">
+	<meta http-equiv="Content-Security-Policy" content="default-src http://127.0.0.1:8888 http://localhost http://dev.funk.co.nz https://www.funk.co.nz  http://www.funk.co.nz * data: blob: 'unsafe-inline' 'unsafe-eval' ws: wss:;">
 	<script src="public/three.min.js"></script>
 	<script src="public/jquery.min.js"></script>
 	<script src="public/hilbert3D.js"></script>
@@ -12,7 +12,9 @@
 	<script src="public/WebGL.js"></script>
 	<script src="public/sprites.js"></script>
 	<script src="public/hammer.min.js"></script>
+	<script src="public/parallax.min.js"></script>
 	<script src="public/aminosee-gui-web.js"></script>
+
 	<!-- <script src="bundle.js"></script> -->
 	<link rel="stylesheet" type="text/css" href="public/AminoSee.css">
 	<link href='https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz:700,400,200,100' rel='stylesheet' type='text/css'>

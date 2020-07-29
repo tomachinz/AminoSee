@@ -809,22 +809,7 @@ function openMiniWebsite(f) {
 	stat("Control-C to quit")
 
 }
-function saveJSON() {
-	log( pepTable.sort( compareHistocount ) ) // least common amino acids in front
-	// var jsonObj = JSON.parse(jsonData);
-	// console.log(jsonObj);
-	// stringify JSON Object
-	let histoJSON =  path.resolve(`${currentOutputPath}/${justNameOfDNA}/${justNameOfDNA}_histogram.json`)
-	output(`currentOutputPath is ${currentOutputPath}`)
-	fs.writeFile(histoJSON, JSON.stringify(pepTable), "utf8", function (err) {
-		if (err) {
-			error("occured while writing JSON Object to File.")
-			return console.log(err)
-		}
-		console.log("Amino acid histogram JSON file has been saved to: " + histoJSON)
 
-	})
-}
 function welcomeMessage() {
 	output("usage:")
 	output("    aminosee [files/*] --flags            (to process all files)")

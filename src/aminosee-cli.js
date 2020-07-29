@@ -291,16 +291,18 @@ function pushCli(cs) {
       process.stdout.on("resize", () => {
         this.resized()
       })
-      ishighres = false
     }
 
 
     setupJob( args, reason ) {
-      if ( setuplock ) { output(`Id love to know why this fires twice`) }
+
+      if ( setuplock ) { error(`this should not fire more than once per genome?!`) }
       setuplock = true
       if ( typeof reason === "undefined") { error(`reason must not be undef`); }
       if ( renderLock === true ) { error("draining threads from setupJob"); return false }
+
       mode("setup job " + reason + this.busy())
+      ishighres = false
       // output( `setup job:  ${status}   ${reason} ${ maxWidth(32,   args.toString() ) }` )
       this.setupPrefs()
       // do stuff aside from creating any changes. eg if you just run "aminosee" by itself.
@@ -372,7 +374,7 @@ function pushCli(cs) {
       this.pepTable = data.pepTable
       this.args = args // populateArgs(procArgv); // this.args;
       ishighres = this.genomeSize > hilbPixels[ defaultPreviewDimension ]
-
+      output(blueWhite( `  ishighres = genomeSize > hilbPixels:   ${      ishighres } = ${this.genomeSize} > ${hilbPixels[ defaultPreviewDimension ]}`))
       this.setNextFile()
       if ( args.demo ) {
         this.demo = true
@@ -1634,27 +1636,25 @@ function pushCli(cs) {
 
     setNextFile() {
       remain = this.args._.length
-
       if ( this.args._.length > 0 ) {
         cfile = this.args._[0]
-        this.dnafile = path.resolve( cfile )
       } else {
-        // this.quit(0, `set next file`);
+        this.quit(0, `set next file`);
         return false;
       }
-
-      this.currentFile = cfile
-      this.dnafile = path.resolve( cfile )
-
-      mode( `loading up the next file ${cfile} then ${this.nextFile} ${batchProgress()}` )
-      notQuiet( `************************* ${status}` )
-      procTitle( `loading ${path.basename(cfile)}` )
       try {
         this.nextFile = this.args._[1] // not the last but the second to last
       } catch(e) {
         this.nextFile = "...Finito..."
-        return false
+        // return false
       }
+      this.currentFile = cfile
+      this.dnafile = path.resolve( cfile )
+
+      mode( `checking ${cfile} then ${this.nextFile} ${batchProgress()}` )
+      notQuiet( `************************* ${status}` )
+      procTitle( status )
+
       if ( typeof this.args._[1] === "undefined" ) {
         this.nextFile = "...Loading..."
         return false
@@ -2028,7 +2028,6 @@ function pushCli(cs) {
       mode( msg )
 
       try {
-        // var that = this
         let closure = path.resolve( this.dnafile )
         let readStream = fs.createReadStream( closure ).pipe(es.split()).pipe(es.mapSync(function(line){
           readStream.pause() // pause the readstream during processing
@@ -2042,33 +2041,29 @@ function pushCli(cs) {
           log(status)
         })
         .on("error", function(err){
-          mode(`stream error ${err} file: ${cliInstance.dnafile} closure ${closure}`)
-          error( `R: ${status} ` )
-          // output(`while starting stream: [${ closure }] renderLock: [${ renderLock}] storage: [${this.storage()}]`);
+          mode(`stream error ${err} file: ${cfile} while starting stream. renderLock: ${ renderLock } storage: ${this.storage()}`)
+          error( status )
         })
         .on("end", function() {
           mode("stream end " + cliInstance.busy())
-          log(status)
+          output(status)
         })
         .on("close", function() {
           mode("stream close " + cliInstance.busy())
-          log(status)
+          output(status)
           cliInstance.streamStopped()
-          bugtxt(`globalVariablesDoSuck: ${	cliInstance.peptide}`)
-          // this.streamStopped();
         }))
       } catch(e) {
         if ( e == "EISDIR") {
-          output("[EISDIR] Attempted to red a directory as if it were a file.")
+          mode("[EISDIR] Attempted to read a directory as if it were a file.")
         } else {
-          output("Unknown error was caught during streaming init " + e)
+          mode("Unknown error was caught during streaming init " + e)
         }
+        error( status )
       }
       this.streamStarted()
     }
     initialiseArrays() {
-      // if ( brute == false) { return false }
-
       for ( let p = 0; p < this.pepTable.length; p++ ) { // standard peptide loop
 
         this.pepTable[p].lm_array = [0,0,0,0]
@@ -2079,7 +2074,6 @@ function pushCli(cs) {
         bugtxt(`initialise ${p}`)
         bugtxt( this.pepTable[p] )
       }
-
     }
     diskStorm(cb) {
       log("WE BE STORMIN")
@@ -2169,8 +2163,10 @@ function pushCli(cs) {
       }, time)
     }
     streamStopped() {
-      mode("stream stopped")
-      log( blueWhite("Stream ending event"))
+      ishighres = this.genomeSize > hilbPixels[ defaultPreviewDimension ]
+
+      mode( (ishighres ? "highres" : "lowres") + " stream stopped")
+      output( blueWhite(status) )
       term.eraseDisplayBelow()
       this.percentComplete = 1
       this.calcUpdate()
@@ -2445,10 +2441,9 @@ function pushCli(cs) {
       mode(`focus ${focus} inside generateFilenamePNG`)
       if ( typeof focus === "undefined" ) {
         focus = this.usersPeptide
-        bugtxt(`focus ${focus}`)
       }
       this.justNameOfPNG = `${ this.justNameOfDNA}.${ this.extension }.aminosee_linear_c${ onesigbitTolocale( this.codonsPerPixel )}${ this.highlightFilename( focus ) }${this.getImageType() }.png`
-      bugtxt(this.justNameOfPNG)
+      output(`focus ${focus} ${this.justNameOfPNG}`)
       return this.justNameOfPNG
     }
 
@@ -4599,7 +4594,7 @@ function pushCli(cs) {
 
 
       drawHistogram() {
-        // return
+
         if ( isShuttingDown == true ) { output("closing...press U to update or Q to quit"); this.quit(0, "shutdown while drawing") }
         if ( this.test || this.demo ) { log("test or demo"); return }
         if ( renderLock == false ) {
@@ -6706,22 +6701,22 @@ ${radMessage}
           html += `<ul id="stackOimages" class="stack">
           `
           for ( let p = 0; p < pepTable.length; p++ ) { // standard peptide loop
-            let item = pepTable[p]
+            const item = pepTable[p]
+            const src = pepTable[p].hilbert_preview
+
             let thePep = item.Codon
             let theHue = item.Hue
             let c =      hsvToRgb( theHue / 360, 0.5, 1.0 )
             let name =   item.name
             let proportion = (-0.5 + ((p+1) / pepTable.length )) * 2
-            // let proportion =  (p+1 / pepTable.length)
-            // output(`prop ${proportion}`)
             let minimumSize = 64
             let styleLi =  `
             position: fixed;
             top:  50%;
             left: 50%;
             transform: translate(
-              calc( -50% + var(--mouse-x, 0) * ${proportion*100}%),
-              calc( -50% + var(--mouse-y, 0) * ${proportion*100}%)
+              calc( -50% + var(--mouse-x, 0) * ${proportion*100}% + ${p}px ),
+              calc( -50% + var(--mouse-y, 0) * ${proportion*100}% + ${p}px )
             );
             border-top:    1px solid rgba(255, 255, 255, 0.4);
             border-left:   2px solid rgba(${c}), 0.8);
@@ -6733,7 +6728,6 @@ ${radMessage}
 
             styleLi = styleLi.replace(`
               `, " ")
-              let src = pepTable[p].hilbert_master
               if (thePep == "Start Codons" || thePep == "Stop Codons" || thePep == "Non-coding NNN") {
                 html += `<!-- ${thePep.Codon}  width="20%" height="20%" -->`
               } else {

@@ -168,6 +168,7 @@ function mout(i) {
 	el.classList.remove("frontmost")
 	el.classList.remove("blackback")
 	el.style.zIndex =  i - 1
+	row.classList.remove("dark")
 	row.style.background = "white"
 	row.style.color = "black"
 }
