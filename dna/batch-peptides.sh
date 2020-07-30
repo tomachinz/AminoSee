@@ -1,5 +1,5 @@
 #!/bin/sh
-echo input was: $1
+echo script input was: $*
 echo
 
 
@@ -144,7 +144,7 @@ find_way_peptides () {
 
 
 	find  -L  * | grep -E "(txt|mfa|gbk|txt|fa)" | xargs -J $ aminosee --image $ $*
-	find  -L  * | grep -E "(txt|mfa|gbk|txt|fa)" | xargs -J $ nice aminosee $                     $* 
+	find  -L  * | grep -E "(txt|mfa|gbk|txt|fa)" | xargs -J $ nice aminosee $                     $*
   find  -L  * | grep -E "(txt|mfa|gbk|txt|fa)" | xargs -J $ nice aminosee $  --peptide=Glutamic_acid $*
   find  -L  * | grep -E "(txt|mfa|gbk|txt|fa)" | xargs -J $ nice aminosee $  --peptide=Aspartic_acid $*
   find  -L  * | grep -E "(txt|mfa|gbk|txt|fa)" | xargs -J $ nice aminosee $  --peptide=Ochre $*

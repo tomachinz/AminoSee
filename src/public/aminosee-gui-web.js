@@ -194,7 +194,7 @@ function fileInit(file) {
 
 	// let histoURL = `${urlprefix}/${file}`
 	// let histoURL = `${urlprefix}/${justNameOfDNA}/${file}`
-	let histoURL = `aminosee_histogram.json`
+	let histoURL = `output/${justNameOfDNA}/aminosee_histogram.json`
 	document.getElementById("oi").src = file
 	console.log(`click ${histoURL}`)
 	// alert(`histogram ${histoURL}`)
@@ -207,6 +207,7 @@ function fileChanged(file) { // http://127.0.0.1:8888/aminosee/output/Chimp_Clin
 	setupFNames()
 	loadImage()
 	history.pushState(stateObj, justNameOfFile, newURL)
+	alert(newURL)
 	return fileInit(file)
 }
 function loadHistogramJson(histoURL) {
