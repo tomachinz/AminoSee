@@ -1,4 +1,15 @@
 // "use strict";
+// <script type="module">
+  (async () => {
+    const moduleSpecifier = '../node_modules/parallax/parallax.min.js';
+    const {repeat, shout} = await import(moduleSpecifier);
+    repeat('hello');
+    // → 'hello hello'
+    shout('Dynamic import in action');
+    // → 'DYNAMIC IMPORT IN ACTION!'
+  })();
+// </script>
+
 
 let hilbertPoints, herbs, zoom, progress, mouseX, mouseY, windowHalfX, windowHalfY, camera, scene, renderer, hammertime, paused, spinning, perspective, distance, testTones, spectrumLines, spectrumCurves, color, geometry1, geometry2, geometry3, geometry4, geometry5, geometry6, justNameOfFile, selectedImage, verbose, spline, point, vertices, colorsReady, controlsShowing, devmode, fileUploadShowing, maxcolorpix, nextColors, cpu, subdivisions, userFeedback, contextBitmap, pauseIntent, linewidth, pepTable, isDetailsPage, willClear
 let sprites = []
@@ -130,8 +141,8 @@ function startup() {
 	// el.addEventListener("touchcancel", handleCancel, false)
 	el.addEventListener("touchmove", handleMove, false)
 
-	var scene = document.getElementById('scene');
-	var parallaxInstance = new Parallax(scene);
+	var scene = document.getElementById("scene")
+	// var parallaxInstance = new Parallax(scene)
 }
 
 
@@ -200,7 +211,7 @@ function fileInit(file) {
 	// alert(`histogram ${histoURL}`)
 	return  loadHistogramJson(histoURL)
 }
-function fileChanged(file) { // http://127.0.0.1:8888/aminosee/output/Chimp_Clint_chrY/aminosee_histogram.json
+function fileChanged(file) {
 	let path = window.location.pathname
 	let newURL = `${path}#?selectedImage=${file}`
 	// let image = `${file}/images/${justNameOfPNG}`
@@ -267,7 +278,6 @@ function attachHandlers(pepTable) {
 }
 function pageLoaded() {
 	let json = fileInit()
-	// fileChanged("output/Chimp_Clint_chrY/images/Chimp_Clint_chrY.fa_linear_c111_Reference_fix_sci.png") // http://localhost:8888/aminosee/output/Chimp_Clint_chrY/images/Chimp_Clint_chrY.fa_linear_c111_Reference_fix_sci.png
 	attachHandlers(json)
 	initVariables()
 

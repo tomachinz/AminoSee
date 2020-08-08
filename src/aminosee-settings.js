@@ -3,7 +3,6 @@ const aminosee = require('./aminosee-cli');
 let fs = require('fs');
 let path = require('path');
 // let log = aminosee.log;
-// module.exports.settings = settings;
 
 // console.log(pjson.version); // This will print the version
 const base = process.env.PWD;
