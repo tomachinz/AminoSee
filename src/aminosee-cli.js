@@ -1161,8 +1161,10 @@ function pushCli(cs) {
         this.pepTable[ p ].mixRGBA = this.tripletToRGBA(pep.Codon) // this will this.report this.alpha info
         bugtxt(`ext: ${ this.extension } this.pepTable[ ${p} ].src ${ this.pepTable[ p ].src} codons per pixel: ${codonsPerPixelHILBERT}` )
 
-        if ( isPreview ) {
+        if ( ishighres === false ) {
           this.pepTable[ p ].hilbert_preview = this.aminoFilenameIndex( p )[2]
+        } else {
+          this.pepTable[ p ].hilbert_preview = this.aminoFilenameIndex( p )[0]
         }
 
       }
@@ -1299,7 +1301,12 @@ function pushCli(cs) {
         this.pepTable[ p ].linear_master =  this.aminoFilenameIndex( p )[0]
         this.pepTable[ p ].linear_preview = this.aminoFilenameIndex( p )[1]
         this.pepTable[ p ].hilbert_master = this.aminoFilenameIndex( p )[2]
-        this.pepTable[ p ].hilbert_preview = this.aminoFilenameIndex( p )[3]
+        if ( ishighres === true ) {
+          this.pepTable[ p ].hilbert_preview = this.aminoFilenameIndex( p )[3]
+        } else {
+          this.pepTable[ p ].hilbert_preview = this.aminoFilenameIndex( p )[3]
+
+        }
       }
     }
 
@@ -1846,14 +1853,14 @@ function pushCli(cs) {
       mode(`Checking for previous render of ${ path.basename( this.filePNG )}`)
       log(status)
       if (doesFileExist(this.filePNG)) {
-        let msg = `${batchProgress()} Already rendered:: ${ path.basename(this.filePNG) } `
+        let msg = `${batchProgress()} Already rendered`
         mode(msg + ". ")
         termDrawImage(this.filePNG, msg, (msg) => {
           mode(status)
           if ( !cliInstance.force ) {
             // setTimeout( (msg) => {
             // msg = `already rendered`
-            log(status)
+            output(status)
             cliInstance.preRenderReset(status)
             // this.safelyPoll(msg)
             // }, this.raceDelay)
@@ -1975,7 +1982,7 @@ function pushCli(cs) {
       this.runid = new Date().getTime()
       mode(`Initialising Stream: ${cliruns.toLocaleString()} ${this.justNameOfPNG}`)
       notQuiet( chalk.rgb(64, 128, 255).bold( status ))
-      log(`Output folder --->> ${ blueWhite( blueWhite( path.normalize( this.outputPath )))}`)
+      log(`Output folder --->> ${ blueWhite( blueWhite( cfile ))}`)
       // this.timestamp = Math.round(+new Date()/1000)
 
       if ( isShuttingDown === true ) { output(`Shutting down after this render ${ blueWhite(this.justNameOfPNG)}`) }
@@ -1984,10 +1991,6 @@ function pushCli(cs) {
         return false
       }
       this.setupProgress()
-
-      // term.down( termDisplayHeight /4)
-      // this.termSize();
-      isPreview = false
       this.setIsDiskBusy( false )
       // this.mkRenderFolders() // create /images etc
       this.rawDNA = "@"
@@ -2042,11 +2045,11 @@ function pushCli(cs) {
         })
         .on("end", function() {
           mode("stream end " + cliInstance.busy())
-          output(status)
+          log(status)
         })
         .on("close", function() {
           mode("stream close " + cliInstance.busy())
-          output(status)
+          log(status)
           cliInstance.streamStopped()
         }))
       } catch(e) {
@@ -2162,12 +2165,14 @@ function pushCli(cs) {
       ishighres = this.genomeSize > hilbPixels[ defaultPreviewDimension ]
 
       mode( (ishighres ? "highres" : "lowres") + " stream stopped")
-      output( blueWhite(status) )
+      log( blueWhite(status) )
       term.eraseDisplayBelow()
       this.percentComplete = 1
       this.calcUpdate()
       this.percentComplete = 1
       streamLineNr = 0
+      ishighres = this.genomeSize > hilbPixels[ defaultPreviewDimension ]
+
       // clearTimeout( this.updatesTimer);
       // clearTimeout( this.progTimer);
       // clearTimeout( this.lockTimer);
@@ -2724,13 +2729,10 @@ function pushCli(cs) {
       // this.saveHilbert(this.savePNG(this.saveHTML(this.postRenderPoll(`roger that`)))) // <--- that's some callback hell right there!
       // this.saveHilbert(this.savePNG(this.saveHTML(this.postRenderPoll(`roger that`)))) // <--- that's some callback hell right there!
       // this.saveHilbert(this.savePNG(this.saveHTML(this.postRenderPoll(`roger that`)))) // <--- that's some callback hell right there!
-      this.saveHilbert() // <--- that's some callback hell right there!
-      // if ( !this.isDiskFinLinear ) { this.savePNG() } else { output(`not saving preview linear png isPreview: ${isPreview}`)}
+       // <--- that's some callback hell right there!
+       this.saveHilbert( this.savePNG( () => { this.postRenderPoll(`save png images cb`) })) // <--- that's some callback hell right there!
+       this.saveHTML( () => { this.postRenderPoll(`save docs cb`) })
 
-      this.savePNG()
-      setImmediate( () => { this.saveHTML( () => { this.postRenderPoll(`save docs cb`) } ) })
-      this.saveHTML( () => { this.postRenderPoll(`save docs cb`) } )
-      setImmediate( () => { this.postRenderPoll(`roger that`) })
     }
     compareHue(a,b) {
       if (a.Hue < b.Hue)
@@ -2756,7 +2758,6 @@ function pushCli(cs) {
       if ( this.isHilbertPossible == false ) { mode("not saving html - due to hilbert not possible"); this.isDiskFinHTML = true }
       // if ( this.report == false ) { mode("not saving html - due to report disabled. peptide: " + this.peptide); this.isDiskFinHTML = true }
       if ( this.test ) { mode("not saving html - due to test");  this.isDiskFinHTML = true  }
-      // if ( ishighres && isPreview === true ) { mode("not outputting html due to this is preview") ; this.isDiskFinHTML = true }
       if ( this.willRecycleSavedImage === true && this.recycEnabled === true) {
         mode("Didnt save HTML report because the linear file was recycled.")
         this.isDiskFinHTML = true
@@ -2947,6 +2948,7 @@ function pushCli(cs) {
       if ( this.test ) { return false; }
       renderLock = true
       isPreview = true
+      this.ratio = "sqr"
       this.hilbertImage = [] // wipe the memory!!
       this.antiAliasArray = []
       this.dimension = defaultMagnitude = defaultPreviewDimension // 5
@@ -2978,7 +2980,8 @@ function pushCli(cs) {
       this.isDiskFinLinear = true
       this.saveDocsSync( () => {
         this.dimension = defaultMagnitude = usersMagnitude // 5
-        output(`finished saving preview docs, setting dimension back to: ${usersMagnitude}`)
+        output(`finished saving PREVIEW docs, setting dimension back to: ${usersMagnitude}`)
+
       })
     }
     postRenderPoll(reason) { // renderLock on late, off early
@@ -3045,7 +3048,7 @@ function pushCli(cs) {
                     output(msg)
                     output(msg)
                   })
-                }, this.raceDelay * 2 )
+                }, this.raceDelay * 3 )
 
               } else {
                 output(`used standard resolution`)
@@ -3053,10 +3056,10 @@ function pushCli(cs) {
               this.preRenderReset(`resetting`)
 
             })
-            if ( remain < 1) {
-              isShuttingDown = true
-              this.quit(0, `normal ending`)
-            }
+            // if ( remain < 1) {
+            //   isShuttingDown = true
+            //   this.quit(0, `normal ending`)
+            // }
           }
         } else { //  disk is not finished
           log(` [ post render ${reason} wait on storage: ${chalk.inverse( this.storage() )}  ] `)
@@ -3511,7 +3514,7 @@ function pushCli(cs) {
 
         this.peptide = this.usersPeptide
         isHighlightSet = backupBoolean
-        return [ hilbert_master, linear_master, hilbert_preview ]
+        return [ hilbert_master, linear_master, hilbert_preview, linear_preview ]
       }
       getImageType() {
         let t = ""
@@ -3731,7 +3734,7 @@ function pushCli(cs) {
       // resample the large 760px wide linear image into a smaller square hilbert curve
       saveHilbert(cb) {
         mode(`save hilbert map`)
-        output( status )
+        log( status )
         if ( this.isDiskFinHilbert ) { error(`double thread trying to render hilbert maps jesus christo`)}
         if ( !this.isHilbertPossible ) {
           this.isDiskFinHilbert = true
@@ -3935,7 +3938,7 @@ function pushCli(cs) {
 
 
       savePNG(cb) {
-        output("savePNG: " + this.filePNG)
+        log("savePNG: " + this.filePNG)
         let width, height = 0
         let pwh = this.pixWidHeight()
 
@@ -5103,7 +5106,8 @@ function pushCli(cs) {
         }
         function blueWhite(txt) {
           bugtxt(`txt sent to blueWhite: ${txt}`)
-          return chalk.rgb(0,0,100).bgWhite.inverse.bold( maxWidth( tx * 0.7,  txt))
+          return chalk.rgb(0,0,100).bgWhite.inverse.bold( txt  )
+          // return chalk.rgb(0,0,100).bgWhite.inverse.bold( maxWidth( tx * 0.7,  txt))
         }
         function spaceTo_(str) {
           // log(str);
@@ -5640,8 +5644,7 @@ function pushCli(cs) {
             runcb(cb)
             return false
           }
-          output()
-
+          // output()
           term.saveCursor()
           log(`Terminal image: ${ chalk.inverse(  path.basename(fullpath) ) } ${ reason}`)
           term.drawImage( fullpath, { shrink: { width: tx * 0.8,  height: ty  * 0.8, left: tx/2, top: ty/2 } }, () => {
@@ -6036,10 +6039,10 @@ function pushCli(cs) {
           let msg = "cb "
           if( typeof cb !== "undefined") {
             if( typeof cb === "function") {
-              msg += blueWhite( "cb is a function")
+              msg +=  "cb is a function"
               bugtxt( cb )
             } else {
-              error(blueWhite( "cb is not a function?"))
+              error( "cb is not a function?")
               bugtxt( cb )
               return
             }
