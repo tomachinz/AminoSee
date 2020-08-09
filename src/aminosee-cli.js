@@ -26,14 +26,7 @@ const server = require("./aminosee-server")
 const data = require("./aminosee-data")
 const template = require("./aminosee-html-template")
 
-const radMessage = `
-🧬  MADE IN NEW ZEALAND
-╔═╗┌┬┐┬┌┐┌┌─┐╔═╗┌─┐┌─┐  ╔╦╗╔╗╔╔═╗  ╦  ╦┬┌─┐┬ ┬┌─┐┬─┐
-╠═╣││││││││ │╚═╗├┤ ├┤    ║║║║║╠═╣  ╚╗╔╝│├┤ │││├┤ ├┬┘
-╩ ╩┴ ┴┴┘└┘└─┘╚═╝└─┘└─┘  ═╩╝╝╚╝╩ ╩   ╚╝ ┴└─┘└┴┘└─┘┴└─
-by Tom Atkinson          aminosee.funk.nz
-ah-mee no-see      "I see it now...  I AminoSee it!"
-`
+
 const description = settings.description
 
 // const interactiveKeysGuide = `
@@ -53,10 +46,10 @@ const helixEmoji =" 🧬  "
 const htmlTemplate = template.htmlTemplate
 
 // const StdInPipe = require('./aminosee-stdinpipe');
+const asciiart = data.asciiart
 const doesFileExist = data.doesFileExist
 const doesFolderExist = data.doesFolderExist
 const createSymlink = data.createSymlink
-const asciiart = data.asciiart
 const extensions = data.extensions
 const saySomethingEpic = data.saySomethingEpic
 const onesigbitTolocale = data.onesigbitTolocale
@@ -82,7 +75,6 @@ const es = require("event-stream")
 const minimist = require("minimist")
 const fetch = require("node-fetch")
 const keypress = require("keypress")
-
 const fs = require("fs-extra") // drop in replacement = const fs = require('fs')
 const histogram = require("ascii-histogram")
 const bytes = require("bytes")
@@ -964,7 +956,7 @@ function pushCli(cs) {
 
       if ( remain > 0 ) {
         mode(remain + " Ω work remaining Ω  first command")
-        notQuiet(chalk.green(`${chalk.underline("Job items Ω ")} ${batchProgress()} ` ))
+        notQuiet(chalk.green(`${batchProgress()} ${chalk.underline("Job items Ω ")}` ))
         log(this.outputPath)
         this.dnafile = args._.toString()
         // this.preRenderReset("first command")
@@ -1242,7 +1234,7 @@ function pushCli(cs) {
 
     setupRender(file) { // blank all the variables
       if ( renderLock === true) { error("draining threads from render setup"); return false }
-      mode(`Checking ${batchProgress()} ${cfile}`)
+      mode(`${batchProgress()} setup render`)
       redoline(blueWhite(status))
       redoline(status)
       this.startDate = new Date() // required for touch locks.
@@ -1645,7 +1637,7 @@ function pushCli(cs) {
       }
 
       try {
-        this.nextFile = this.args._[1] // not the last but the second to last
+        this.nextFile = path.basename( path.resolve( this.args._[1] )) // not the last but the second to last
       } catch(e) {
         this.nextFile = "...Finito..."
       }
@@ -1653,7 +1645,6 @@ function pushCli(cs) {
       this.dnafile = path.resolve( cfile )
       this.genomeCanonicalisaton()
       mode( `checking ${cfile} then ${this.nextFile}` )
-      log( `****    ${status}` )
       procTitle( status )
 
       if ( typeof this.args._[1] === "undefined" ) {
@@ -1701,7 +1692,7 @@ function pushCli(cs) {
         return false
       }
 
-      mode(`Checking file ${batchProgress()}`)
+      mode(`polling file ${batchProgress()}`)
 
       if ( cfile.indexOf("...") !== -1 || cfile.indexOf("AminoSee_BUSY") !== -1 ) {
         mode( "Cant use files with three dots in the file ... (for some reason?)")
@@ -2485,7 +2476,8 @@ function pushCli(cs) {
     }
     genomeCanonicalisaton() {
       this.dnafile = path.resolve(cfile)
-      this.extension = this.getFileExtension( cfile )
+      this.extension = this.getFileExtension( this.dnafile )
+      cfile = path.basename(this.dnafile)
       this.justNameOfDNA = spaceTo_( this.removeFileExtension( cfile ))
       if ( this.justNameOfDNA.length > maxCanonical ) {
         this.justNameOfDNA = this.justNameOfDNA.replace("_", "")
@@ -2760,7 +2752,7 @@ function pushCli(cs) {
 
     saveHTML(cb) {
       mode("maybe save HTML")
-      output(status)
+      log(status)
       if ( this.isHilbertPossible == false ) { mode("not saving html - due to hilbert not possible"); this.isDiskFinHTML = true }
       // if ( this.report == false ) { mode("not saving html - due to report disabled. peptide: " + this.peptide); this.isDiskFinHTML = true }
       if ( this.test ) { mode("not saving html - due to test");  this.isDiskFinHTML = true  }
@@ -2770,7 +2762,7 @@ function pushCli(cs) {
         this.isDiskFinHTML = true
       }
       if (this.isDiskFinHTML === true ) { // set just above
-        output(`status ${status} not saving`)
+        log(`status ${status} not saving`)
         // runcb(cb)
         this.htmlFinished()
         cb()
@@ -2991,7 +2983,7 @@ function pushCli(cs) {
     }
     postRenderPoll(reason) { // renderLock on late, off early
       // if ( typeof reason === "undefined") { error("reason must be defined for postRenderPoll"); return false; }
-      output(`post render reason: ${ blueWhite( reason )}`)
+      log(`post render reason: ${ blueWhite( reason )}`)
       if ( this.verbose ) {
         log(chalk.inverse(`Finishing saving (${reason}), ${this.busy()} waiting on ${ this.storage() } ${ remain } files to go.`))
       }
@@ -3033,7 +3025,7 @@ function pushCli(cs) {
               // this.quit(0,"test "+ remain)
             }
           } else { // not test real DNA render
-            let msg = `${batchProgress()} Great success with render of (${this.justNameOfPNG}) ${this.justNameOfHILBERT}`
+            let msg = `${batchProgress()} Great success with render`
             mode(msg)
             notQuiet(status)
             saySomethingEpic()
@@ -3118,7 +3110,7 @@ function pushCli(cs) {
       }
 
       quit(code, reason) {
-        output(`received shutdown signal ${code} ${reason}`)
+        log(`received shutdown signal ${code} ${reason}`)
 
 
         if (killServersOnQuit == false) {
@@ -3818,7 +3810,6 @@ function pushCli(cs) {
 
         // renderLock = true
 
-        // let h = require("hilbert-2d")
         // MyManHilbert
         hilpix = hilbPixels[ this.dimension ]
         const testWidth = Math.round(Math.sqrt(hilpix))
@@ -4015,7 +4006,7 @@ function pushCli(cs) {
         return false
         mode("open files " + this.justNameOfPNG)
         log( blueWhite(  status ) )
-        if ( isShuttingDown ) { output(`Shutting down... ${batchProgress()}`); return false }
+        if ( isShuttingDown ) { output(`${batchProgress()} Shutting down... `); return false }
         if ( cfile == funknzlabel ) { return false }
         if ( this.devmode === true )  { log( this.renderObjToString() ) }
         log( closeBrowser ) // tell user process maybe blocked
@@ -4196,7 +4187,7 @@ function pushCli(cs) {
           return false
         }
 
-        output( blueWhite(`Test cycle ${loopCounter}   ${batchProgress()} remain`))
+        output( blueWhite(`${batchProgress()} Test cycle ${loopCounter} remain`))
         if ( loopCounter > 9 ) {
           output(  chalk.italic("Normally this level of nested curves will crash the node callstack!!!" ) )
         }
@@ -4931,7 +4922,7 @@ function pushCli(cs) {
         }
         function output(txt) {
           cpuhit++
-          if (typeof txt === "undefined" || typeof cliInstance === "undefined") { console.log("!!!"); return; }
+          if (typeof txt === "undefined" || typeof cliInstance === "undefined") { process.stdout.write(".") ; return; }
 
           wTitle(`${  txt }`) // put it on the terminal windowbar or in tmux
 
@@ -5501,12 +5492,12 @@ function pushCli(cs) {
           if (debug === true) {
             txt = `[${cpuhit} ${renderLock ? 'busy' : 'idle'}] ${ txt } ] `
           } else {
-            if (debounce(5)) {
+            // if (debounce(5)) {
               term.eraseLine()
-              console.log(txt)
+              console.log( maxWidth( tx/2 ,  txt))
               term.up( 1 )
               return
-            }
+            // }
           }
           // console.log(txt)
         }

@@ -57,7 +57,7 @@ function imageStack(histogramJson) {
 
 		styleLi = styleLi.replace(`
 			`, " ")
-			console.log(styleLi)
+			// console.log(styleLi)
 			if (thePep == "Start Codons" || thePep == "Stop Codons" || thePep == "Non-coding NNN") {
 				html += `<!-- ${thePep.Codon}  width="20%" height="20%" -->`
 			} else {
