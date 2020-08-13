@@ -1,8 +1,10 @@
+'use strict';
+
+
 const carlo = require("carlo")
 // const Terminal = require('xterm').Terminal;
 const term = require("terminal-kit").terminal
 const pty = require("node-pty")
-
 const os = require("os")
 const path = require("path")
 // const socket = require('./public/aminosee-web-socket')
@@ -117,15 +119,15 @@ async function run() {
 	try {
 		app = await carlo.launch(
 			{ //
-				localDataDir: path.join( os.homedir(), "/AminoSee_webroot"),
+				localDataDir: path.join( os.homedir(), "AminoSee_webroot"),
 				// userDataDir: path.join( __dirname, ".carlosysteminfo" ),
-				// userDataDir: path.join( os.homedir(), "/AminoSee_webroot"),
+				// userDataDir: path.join( os.homedir(), "AminoSee_webroot"),
 				bgcolor: "#012345",
 				title: "AminoSee DNA Viewer",
 				width: 1400,
 				height: 600,
 				channel: ["canary", "stable"],
-				icon: path.join(__dirname, "public/512_icon.png"),
+				icon: path.join(__dirname, "public", "512_icon.png"),
 				args: [ "--allow-insecure-localhost", "--webpack-dev-server"],
 				serveOrigin: `http://localhost:${port}`
 			})
@@ -144,7 +146,7 @@ async function run() {
 	// app.on('window', window => window.load('http://10.0.0.24:43210/public/'));
 	// app.on("window", window => window.load("public/systeminfo.html"))
 
-	// let o =  path.join(os.homedir(), "/AminoSee_webroot")
+	// let o =  path.join(os.homedir(), "AminoSee_webroot")
 	// let o = path.join(__dirname, 'public');
 	// let o = path.join(__dirname, 'public');
 	let o = path.resolve("/snapshot/aminosee/src")
@@ -158,9 +160,9 @@ async function run() {
 	await app.exposeFunction("path", path)
 
 	await app.load("src/public/systeminfo.html")
-	// await app.load('public/filedrag.html');
+	await app.load('public/filedrag.html');
 
-	// await app.runCarlo()
+	await app.runCarlo()
 	// await app.load('http://10.0.0.24:43210/public/');
 	// await app.load('public/aminosee-desktop.html');
 	return app

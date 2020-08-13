@@ -250,7 +250,7 @@ function pushCli(cs) {
   function setupApp() {
     // if ( renderLock === true) { error("draining thread from setupApp"); return false }
     // output(`Setting up`)
-    output( " " + logo() );
+    printlogo()
 
     lastHammered = new Date()
 
@@ -312,7 +312,7 @@ function pushCli(cs) {
       darkenFactor = 0.25 // if user has chosen to highlight an amino acid others are darkened
       highlightFactor = 4.0 // highten brightening.
       loopCounter = 0
-      this.raceDelay = 69 // so i learnt a lot on this project. one day this line shall disappear replaced by promises.
+      this.raceDelay = 169 // so i learnt a lot on this project. one day this line shall disappear replaced by promises.
       this.charClock = 0
       this.pixelClock = 0
       this.peptide = this.triplet = this.focusTriplet = "Reference" // used to be "none" is now "Reference"
@@ -407,7 +407,7 @@ function pushCli(cs) {
       this.termMarginTop = (term.height -  termDisplayHeight -   termHistoHeight ) / 4
       termSize()
       this.previousImage = this.justNameOfDNA
-      output(logo());
+      // printlogo()
 
       if ( args.quiet || args.q ) { // needs to be at top to cut back clutter during batch rendering
         this.quiet = true
@@ -1238,7 +1238,7 @@ function pushCli(cs) {
       if ( renderLock === true) { error("draining threads from render setup"); return false }
       mode(`${batchProgress()} setup render`)
       redoline(blueWhite(status))
-      redoline(status)
+      // redoline(status)
       this.startDate = new Date() // required for touch locks.
       this.started = this.startDate.getTime() // required for touch locks.
       this.baseChars =  this.genomeSize = this.charClock = this.codonsPerSec =  this.red  =  this.green  =  this.blue  = 0
@@ -1792,7 +1792,7 @@ function pushCli(cs) {
       }
       if (!this.checkFileExtension( this.dnafile )) {
         let msg = `${ batchProgress() } wrong file extension: ${cfile}. Must be one of ${ extensions }`
-        redoline(msg)
+        notQuiet(msg)
         if ( remain > 0 && !renderLock) {
           this.preRenderReset(msg)
         } else {
@@ -1853,32 +1853,23 @@ function pushCli(cs) {
       mode(`Checking for previous render of ${ path.basename( this.filePNG )}`)
       log(status)
       if (doesFileExist(this.filePNG)) {
-        let msg = `${batchProgress()} Already rendered`
-        mode(msg + ". ")
-        termDrawImage(this.filePNG, msg, (msg) => {
-          mode(status)
-          if ( !cliInstance.force ) {
-            // setTimeout( (msg) => {
-            // msg = `already rendered`
-            output(status)
-            cliInstance.preRenderReset(status)
-            // this.safelyPoll(msg)
-            // }, this.raceDelay)
-            return false
-          }
-        })
-        // output(msg)
+        let msg = `Already rendered.`
+        mode(msg)
         addToRendered(this.justNameOfDNA) // in case histogram file is deleted
         this.openOutputs()
         this.previousImage = this.filePNG
-
+        if ( this.verbose ) {
+          termDrawImage(this.filePNG, msg, (msg) => {
+            mode(status)
+          })
+        }
         if ( !this.force ) {
-          status += ` so skipping...`
+          mode( `${status} so skipping... ${batchProgress()} `)
+          cliInstance.preRenderReset(status)
           return false // flow goes via preRenderReset above
         } else {
-          status += " But lets render it again anyway...?!"
+          mode( `${status} But lets render it again anyway...?!`)
         }
-        redoline(status)
       }
 
 
@@ -1968,13 +1959,11 @@ function pushCli(cs) {
         if ( !renderLock ) {
           // mode("yabba not rendering")
           this.safelyPoll()
-
           // this.preRenderReset(`end of polling`)
         } else {
           mode("dabba do rendering")
-
         }
-      }, this.raceDelay)
+      }, 50)
     }
     initStream() {
       cpuhit = 0 // used to try and track down a race condition darn it
@@ -2926,7 +2915,7 @@ function pushCli(cs) {
 
 
     safelyPoll( reason ) { // get to Polling safely
-      mode(`${reason} ${batchProgress()} safely polling ${this.busy()}`)
+      mode(`${batchProgress()} safely polling ${reason}`)
       if ( renderLock ) {
         error("thread activated inside slow skip")
         return false
@@ -4930,9 +4919,9 @@ function pushCli(cs) {
           wTitle(`${  txt }`) // put it on the terminal windowbar or in tmux
 
           if (cliInstance.quiet === true) {
-            process.stdout.write(".")
+            // process.stdout.write(".")
+            redoline(txt)
           } else if (debug === true) {
-            term.column(0)
             console.log( `[${cpuhit} ${renderLock ? 'busy' : 'idle'}] ${txt}` )
           } else {
             term.column(0)
@@ -4947,9 +4936,9 @@ function pushCli(cs) {
           if (typeof txt === "undefined") { txt = `> ${cpuhit} ${status}
           ` }
           if ( debug === true ) {
-            process.stdout.write(chalk.blue(" [ ") + removeNonAscii( txt ) + chalk.blue(" ] "))
+            process.stdout.write( removeNonAscii( txt ) )
           } else {
-            process.stdout.write(notQuiet(txt + " "))
+            process.stdout.write( notQuiet(removeNonAscii( txt ) + " ") )
             // redoline(chalk.bold(`   [ `)  + chalk.rgb(64,80,100).inverse( fixedWidth( 50, removeNonAscii(txt)))  + chalk.bold(` ]`  ));
           }
         }
@@ -5229,9 +5218,8 @@ function pushCli(cs) {
         //
         //   return [ userprefs, projectprefs ]
         // }
-        function logo() {
-          return `${helixEmoji + chalk.rgb(255, 255, 255).inverse(" Amino")}${chalk.rgb(196,196,196).inverse("See")}${chalk.rgb(128,128,128).inverse("No")}${chalk.grey.inverse("Evil ") }  v${chalk.rgb(255,255,0)(version)} AminoSee DNA Viewer`
-          // process.stdout.write(`v${chalk.rgb(255,255,0).bgBlue(version)}`);
+        function printlogo() {
+          console.log(`${helixEmoji + chalk.rgb(255, 255, 255).inverse(" Amino")}${chalk.rgb(196,196,196).inverse("See")}${chalk.rgb(128,128,128).inverse("No")}${chalk.grey.inverse("Evil ") } DNA Visualisation v${chalk.rgb(255,255,0)(version)} by Tom Atkinson`)
         }
         function removeLineBreaks(txt) {
           return txt.replace(/(\r\n\t|\n|\r\t)/gm,"")
@@ -5639,9 +5627,13 @@ function pushCli(cs) {
           })
         })
         function termDrawImage(fullpath, reason, cb) {
-          if (!cliInstance.verbose || cliInstance.quiet || typeof fullpath === "undefined" || typeof fullpath === "undefined" || typeof reason === "undefined") {
-            log( `${cfile} ${reason}` )
+
+          setTimeout( ()=> {
             runcb(cb)
+          }, cliInstance.raceDelay*2)
+
+          if (cliInstance.quiet || typeof fullpath === "undefined" || typeof reason === "undefined") {
+            log( `${cfile} ${reason}` )
             return false
           }
           // output()
@@ -5649,7 +5641,7 @@ function pushCli(cs) {
           log(`Terminal image: ${ chalk.inverse(  path.basename(fullpath) ) } ${ reason}`)
           term.drawImage( fullpath, { shrink: { width: tx * 0.8,  height: ty  * 0.8, left: tx/2, top: ty/2 } }, () => {
             term.restoreCursor()
-            runcb(cb)
+            // runcb(cb)
           })
         }
         function nicePercent(percent) {
