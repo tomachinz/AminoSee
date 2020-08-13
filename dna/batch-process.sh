@@ -19,6 +19,8 @@ if [ -z "$1" ]; then
   sleep 2
   ./batch-peptides.sh &
   sleep 2
+  ./batch-peptides.sh $* &
+  sleep 2
   ./batch-peptides.sh *
 else
   echo processing $*
@@ -32,8 +34,9 @@ else
   sleep 2
   ./batch-peptides.sh  $* &
   sleep 2
-  ./batch-peptides.sh  $*
-  ./batch-peptides.sh
+  ./batch-peptides.sh     &
+  sleep 2
+  ./batch-peptides.sh *
 fi
 
 

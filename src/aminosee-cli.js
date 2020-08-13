@@ -25,8 +25,6 @@ const version = require("./aminosee-version")
 const server = require("./aminosee-server")
 const data = require("./aminosee-data")
 const template = require("./aminosee-html-template")
-
-
 const description = settings.description
 
 // const interactiveKeysGuide = `
@@ -99,6 +97,8 @@ const tomachisBirthday = new Date(  ) // Epoch timestamp: 221962393 is Date and 
 
 // BigInt.prototype.toJSON = function() { return this.toString(); }; // shim for big int
 // BigInt.prototype.toBSON = function() { return this.toString(); }; // Add a `toBSON()` to enable MongoDB to store BigInts as strings
+let internalIp = require("internal-ip").v4()
+
 let autoStartGui = true
 let cfile, streamLineNr, renderLock, jobArgs, killServersOnQuit, webserverEnabled, cliInstance, tx, ty, cliruns, gbprocessed, projectprefs, userprefs, genomesRendered, progato, commandString, batchSize, quiet, url, port, status, remain, lastHammered, darkenFactor, highlightFactor, loopCounter, webroot, tups,  opensFile , opensHtml , opensImage, previousImage, isHighlightSet, aminosee_json, hilpix, usersMagnitude, shrinkFactor, isPreview, codonsPerPixelHILBERT, ishighres, cpuhit
 // let theGUI
@@ -140,7 +140,8 @@ function startGUI() {
 }
 function generateTheArgs() {
   webroot = locateWebroot()
-
+  url = `http://${internalIp}:${port}`
+  log(`webroot: ${webroot} ${url}`)
   let theArgs = {
     verbose: false,
     webroot: webroot,
@@ -937,15 +938,16 @@ function pushCli(cs) {
         // output( theargs )
         // output(`starting server in a tick`)
         // runcb( () => {
-          output(`starting server now`)
+          log(`starting server now`)
           try {
+            // server( theargs )
             server.start( this.currentURL )
+
           } catch (err) {
             output(`error starting server: ${fixedWidth(tx/2, err)}`)
           }
         //   webserverEnabled = false
         // })
-        // server( theargs )
 
 
       } else {
@@ -1237,8 +1239,9 @@ function pushCli(cs) {
     setupRender(file) { // blank all the variables
       if ( renderLock === true) { error("draining threads from render setup"); return false }
       mode(`${batchProgress()} setup render`)
-      redoline(blueWhite(status))
-      // redoline(status)
+      // output(blueWhite(status))
+      // output(status)
+      redoline(status)
       this.startDate = new Date() // required for touch locks.
       this.started = this.startDate.getTime() // required for touch locks.
       this.baseChars =  this.genomeSize = this.charClock = this.codonsPerSec =  this.red  =  this.green  =  this.blue  = 0
@@ -1677,14 +1680,14 @@ function pushCli(cs) {
         error( `P: ${ maxWidth(24,  status)} ` )
         return false
       } else {
-        mode(`Polling for work... ${reason} ${cfile} ${batchProgress()} ${streamLineNr}`)
+        mode(`${batchProgress()} Polling for work... ${reason} ${streamLineNr}`)
       }
       if ( this.test === true || this.demo ) { // uses a loop not polling.
         // error("test is in look for work?")
         log("test is in look for work?")
         return false
       }
-      mode(`Validating file ${batchProgress()}`)
+      mode(`${batchProgress()} Validating file`)
       if ( this.isStorageBusy ) {
         error(`thread re-entry in prepare state ${this.justNameOfPNG}`)
         return false
@@ -1699,7 +1702,7 @@ function pushCli(cs) {
         return false
       }
 
-      mode(`polling file ${batchProgress()}`)
+      mode(`${batchProgress()} parsing file`)
 
       if ( cfile.indexOf("...") !== -1 || cfile.indexOf("AminoSee_BUSY") !== -1 ) {
         mode( "Cant use files with three dots in the file ... (for some reason?)")
@@ -1853,7 +1856,7 @@ function pushCli(cs) {
       mode(`Checking for previous render of ${ path.basename( this.filePNG )}`)
       log(status)
       if (doesFileExist(this.filePNG)) {
-        let msg = `Already rendered.`
+        let msg = `${batchProgress()} <-- Already rendered.`
         mode(msg)
         addToRendered(this.justNameOfDNA) // in case histogram file is deleted
         this.openOutputs()
@@ -1864,11 +1867,11 @@ function pushCli(cs) {
           })
         }
         if ( !this.force ) {
-          mode( `${status} so skipping... ${batchProgress()} `)
+          mode( `${status} so skipping.`)
           cliInstance.preRenderReset(status)
           return false // flow goes via preRenderReset above
         } else {
-          mode( `${status} But lets render it again anyway...?!`)
+          mode( `${status} But lets render it again anyway?!`)
         }
       }
 
@@ -1931,7 +1934,7 @@ function pushCli(cs) {
     //   return stream;
     // }
     preRenderReset(reason){
-      mode(`Pre render reset ${batchProgress()}`) //  (${ this.storage()} ${ this.busy()}) Reason ${reason} Storage:  current: ${ cfile } next: ${ this.nextFile}`)
+      mode(`${batchProgress()} Pre render reset`) //  (${ this.storage()} ${ this.busy()}) Reason ${reason} Storage:  current: ${ cfile } next: ${ this.nextFile}`)
       status = maxWidth( tx / 2, status)
       log( status)
 
@@ -1993,7 +1996,7 @@ function pushCli(cs) {
       this.initialiseArrays()
 
       // this.hilbertImage = [];
-      output(`🚄 Init stream of ${ this.dnafile } Filesize ${bytes( this.baseChars)} ${batchProgress()}`)
+      output(`${batchProgress()} 🚄 Init stream of ${ this.dnafile } Filesize ${bytes( this.baseChars)}`)
       // if ( this.quiet == false ) {
       //   term.up( termDisplayHeight +   termHistoHeight *2);
       //   term.eraseDisplayBelow();
@@ -2025,7 +2028,7 @@ function pushCli(cs) {
           })
         })
         .on("start", function(){
-          mode("on start " + this.batchProgress())
+          mode(`${batchProgress()} on start`)
           log(status)
         })
         .on("error", function(err){
@@ -2586,7 +2589,7 @@ function pushCli(cs) {
       output(`image: ${image}` )
       termDrawImage( image , "--help section", () => {
         output( blueWhite( chalk.bold.italic("Welcome to the AminoSee DNA Viewer!")))
-        output(siteDescription)
+        output(description)
         output(chalk.bgBlue ("USAGE:"))
         output("    aminosee [files/*] --flags            (to process all files")
         terminalRGB("TIP: if you need some DNA in a hurry try this random clipping of 1MB human DNA:", 255,255,200)
@@ -2719,7 +2722,7 @@ function pushCli(cs) {
       // this.saveHilbert(this.savePNG(this.saveHTML(this.postRenderPoll(`roger that`)))) // <--- that's some callback hell right there!
       // this.saveHilbert(this.savePNG(this.saveHTML(this.postRenderPoll(`roger that`)))) // <--- that's some callback hell right there!
        // <--- that's some callback hell right there!
-       this.saveHilbert( this.savePNG( () => { this.postRenderPoll(`save png images cb`) })) // <--- that's some callback hell right there!
+       this.saveHilbert( this.savePNG( () => { out(`save png images cb`) })) // <--- that's some callback hell right there!
        this.saveHTML( () => { this.postRenderPoll(`save docs cb`) })
 
     }
@@ -3026,21 +3029,20 @@ function pushCli(cs) {
             removeLocks( this.fileTouch, this.devmode, () => {
               if (this.dimension > defaultPreviewDimension) {
                 this.renderLock = true
-                output(`creating previews`)
+                out(`creating previews`)
                 this.hilbertImage = []
                 setTimeout( () => {
                   this.createPreviews( () => {
                     mode(`Previews created ${this.justNameOfPNG}`)
                     // this.dimension = -1
                     const msg = `Previews created. Not polling.`
-                    output(msg)
-                    output(msg)
-                    output(msg)
+                    out(msg)
+
                   })
                 }, this.raceDelay * 3 )
 
               } else {
-                output(`used standard resolution`)
+                out(`used standard resolution`)
               }
               this.preRenderReset(`resetting`)
 
@@ -3105,10 +3107,10 @@ function pushCli(cs) {
         log(`received shutdown signal ${code} ${reason}`)
 
 
-        if (killServersOnQuit == false) {
-          output(`Webserver running in foreground.`)
+        if (killServersOnQuit === false) {
+          out(`Webserver running in foreground. use control-c to kill.`)
           log("If you get a lot of servers running, use Control-C instead of [Q] to issues a 'killall node' command to kill all of them")
-          return
+          // return
         }
 
 
@@ -3762,32 +3764,31 @@ function pushCli(cs) {
       }
       htmlFinished() {
         mode(`HTML done (${this.justNameOfHTML}). Waiting on (${ this.storage()})`)
+        out( status )
         this.isDiskFinHTML = true
         this.postRenderPoll( `html done` )
       }
       hilbertFinished() {
         mode(`Hilbert curve done (${this.justNameOfHILBERT}). Waiting on (${ this.storage()})`)
-        output( `HF: ${status} ` )
+        out( status )
+        this.isDiskFinHilbert = true
 
         termDrawImage(this.fileHILBERT, "hilbert curve", () => {
-          this.isDiskFinHilbert = true
-          if ( this.test ) { this.isDiskFinHTML = true }
           this.postRenderPoll( "hilbert done" )
         })
       }
 
       linearFinished() {
         mode(`Finished writing linear image`)
-
         this.isDiskFinLinear = true
         if ( this.artistic || this.quiet == false ) {
           this.previousImage = this.filePNG
         }
         if ( this.test ) {
+          this.isDiskFinHTML = true
           mode(`Calibration linear generation done. Waiting on (${ this.storage()})`)
         } else {
-          // mode(`Waiting on (${ this.storage()})`)
-          mode( batchProgress() )
+          mode(`DNA transcode done, waiting on (${ this.storage()})`)
         }
         out(status)
         this.postRenderPoll( `linear done` )
@@ -4560,7 +4561,7 @@ function pushCli(cs) {
 
         if ( this.updates == false ) {
           if (debounce()){
-            const msg = renderLock + batchProgress() +  " / " + humanizeDuration( this.timeRemain)  +  " / "
+            const msg = `${batchProgress()} / ${humanizeDuration( this.timeRemain)} /`
             wTitle(msg)
             redoline(`[${chalk.bold( maxWidth(tx-6 , status + " " + this.justNameOfPNG  ))} / ${this.printRGB()}]`)
           }
@@ -4983,7 +4984,7 @@ function pushCli(cs) {
           } else {
             runid = cliInstance.runid
             cliInstance.progUpdate( this.percentComplete )
-            txt += ` Run:${cfile}@${hostname} ${batchProgress()} | ${ removeNonAscii( maxWidth( 48, txt ))} `
+            txt = `${batchProgress()} Run: ${cfile}@${hostname} | ${ removeNonAscii( maxWidth( 48, txt ))} `
           }
           term.windowTitle(helixEmoji + txt )
         }

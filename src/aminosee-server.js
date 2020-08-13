@@ -21,6 +21,7 @@ const appFilename = require.main.filename //     /bin/aminosee.js is 11 chars
 const defaultPort = 4321
 const backupPort = 43210
 // const useSymlinks = false
+let internalIp = require("internal-ip").v4()
 
 let debug = false
 let autoStartGui = false
@@ -465,9 +466,9 @@ function start() { // return the port number
 		output(`Server already started, using lock file port of (${port}) from: ${ path.normalize( filenameServerLock )}`)
 		output("Restarting server")
 		deleteFile(filenameServerLock)
-		// stop()
+		stop()
 		port = backupPort
-		// foregroundserver()
+		foregroundserver()
 
 
 	} else {
@@ -507,7 +508,6 @@ function openPage(relative) {
 }
 function getServerURL() {
 
-	let internalIp = require("internal-ip")
 	let indexfile = ""
 	// if ( args.devmode ) {
 	// indexfile = "aminosee-web.html"
@@ -518,7 +518,7 @@ function getServerURL() {
 	} else {
 		fragment = `/output/${fragment}/${indexfile}`
 	}
-	let serverURL = `http://${internalIp.v4.sync()}:${port}${fragment}`
+	let serverURL = `http://${internalIp}:${port}${fragment}`
 	output(`serverURL returns ${serverURL} and fragment ${fragment} the port ${port}`)
 
 	if ( serverURL !== url ) {
