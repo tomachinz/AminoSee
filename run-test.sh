@@ -14,18 +14,10 @@ rm src/dist
 
 pwd
 test_do () {
-  echo __________________________________________
+  echo ____________________ $*
   echo
-  echo
-  echo START $*
-  echo
-  echo aminosee $*
   nice aminosee $*
   echo
-  echo
-  echo
-  echo END
-  echo $*
 }
 echo STOPPPING SERVER
 aminosee --stop
@@ -50,7 +42,7 @@ test_do "USING INCORRECT SINGLE DASH FOR -help" -help $*  --no-image
 test_do "THREE OF SAME FILE IN A ROW: $FAST WITH PEPTIDE=AMBER" $FAST $FAST $FAST --peptide=amber $*  --no-image
 test_do "Wonky caps aspartic_ACID" $FAST  --force --peptide=aspartic_ACID $*  --no-image
 test_do "gluTAMIC_aCID" $FAST -fb --peptide="gluTAMIC_aCID" $*  --no-image
-test_do "PROGRESS BARS" $MEDIUM $FAST $*  --force --peptide=opal -q --progress --dnabg $*  --no-image
+test_do "PROGRESS BARS" $SLOW $MEDIUM $FAST $*  --force --peptide=opal -q --progress --dnabg $*  --no-image
 test_do "GARBAGE FILENAMES FUZZING like   txt.txt.txt etc" -q $SLOW actualFileToThelieftistoseeifbatchrendersthroughthis junk asdfadsf $FAST qwert txt.txt.txt $*  --no-image
 
 echo THE NEXT ONES RENDER NON-STANDARD

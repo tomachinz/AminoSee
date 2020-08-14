@@ -7,8 +7,8 @@
 
 Thanks to Christos Georghiou who designed the 'See No Evil Hear No Evil Monkeys' http://christosgeorghiou.com/
 
-Checkout the music from the drummer who wrote    10240 of code for this app at https://www.funk.co.nz/tomachi
-10240 lines of code
+Checkout the music from the drummer who wrote    10226 of code for this app at https://www.funk.co.nz/tomachi
+10226 lines of code
 File drag and drop code by http://twitter.com/craigbuckler
 http://optimalworks.net/ http://sitepoint.com/
 File drag and drop code by http://twitter.com/craigbuckler Craig Buckler
@@ -17,12 +17,12 @@ http://optimalworks.net/ OptimalWorks.net http://sitepoint.com/
 Based on OpenShift guest https://github.com/mrdoob/three.js/blob/8413a860aa95ed29c79cbb7f857c97d7880d260f/examples/canvas_lines_colors.html
 
 Count of packages used:
-    1786
+    1784
 
-as at Thu 13 Aug 2020 23:18:55 NZST the following open source node npm packages used:
+as at Fri 14 Aug 2020 16:34:45 NZST the following open source node npm packages used:
 
 
-aminosee@1.31.0 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee_src
+aminosee@1.31.1 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee_src
 ├─┬ @gmod/indexedfasta@1.0.13
 │ ├─┬ @babel/runtime-corejs2@7.4.5
 │ │ ├── core-js@2.6.8
@@ -448,12 +448,12 @@ aminosee@1.31.0 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee_src
 │   │ │ └─┬ es6-promisify@5.0.0
 │   │ │   └── es6-promise@4.2.8
 │   │ └── debug@3.2.6 deduped
-│   ├── mime@2.4.4
+│   ├── mime@2.4.4 deduped
 │   ├── progress@2.0.3 deduped
-│   ├── proxy-from-env@1.0.0
+│   ├── proxy-from-env@1.1.0
 │   ├── rimraf@2.6.3 deduped
 │   └─┬ ws@6.2.1
-│     └── async-limiter@1.0.0
+│     └── async-limiter@1.0.1
 ├─┬ chalk@2.4.2
 │ ├─┬ ansi-styles@3.2.1
 │ │ └─┬ color-convert@1.9.3
@@ -1348,8 +1348,6 @@ aminosee@1.31.0 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee_src
 │ │ ├── safe-buffer@5.1.2 deduped
 │ │ └── yallist@3.1.1
 │ └── which@1.3.1 deduped
-├─┬ node-pty@0.8.1
-│ └── nan@2.12.1
 ├─┬ npm-merge-driver@2.3.6
 │ ├─┬ mkdirp@0.5.1
 │ │ └── minimist@0.0.8

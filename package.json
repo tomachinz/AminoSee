@@ -1,6 +1,6 @@
 {
   "name": "aminosee",
-  "version": "1.31.0",
+  "version": "1.31.1",
   "owner": "Thomas Bieder Atkinson",
   "author": "Tom Atkinson <tom@funk.co.nz>",
   "website": "http://aminosee.funk.nz",
@@ -10,7 +10,7 @@
     "url": "git://github.com/tomachinz/AminoSee.git"
   },
   "description": "A unique visualisation of any large chunk of DNA or RNA residing in ASCII text files (such as FASTA, GBK etc and also just .txt like my hand-made test files), AminoSee is a way to render huge genomics files into a left-to-right top-bottom PNG linear image, a 2D infinite space filling square curve from 18th century, and a 3D hilbert curve from this century! Computation is done locally, without the files leaving your machine. A back-end terminal daemon cli command that can be scripted is combined with a front-end GUI using the Carlo, AminoSee features asynchronous streaming processing enabling arbitrary size files to be processed. It has been tested with files in excess of 4 GB and does not need the whole file in memory at any time. Try running 'aminosee *' in a directory with DNA files, or better run the batch script 'batch-peptides.sh'. The folder 'dna' is provided for bulk rendering it already has those scripts present. The GUI is not finished at this time. it is using THREEjs and a 3D Hilbert Curve, Carlo. Command line options allow one to filter by peptide, for example 'aminosee * --peptide=Ochre'. Allows genomics researchers to convert any file containing blocks of text format DNA (Fasta, GBK, .txt) into an interactive experience.",
-  "main": "bin/main.js",
+  "main": "src/aminosee-carlo.js.disabled",
   "bin": {
     "aminosee": "./bin/aminosee"
   },
