@@ -26,13 +26,6 @@ const server = require("./aminosee-server")
 const data = require("./aminosee-data")
 const template = require("./aminosee-html-template")
 const description = settings.description
-
-// const interactiveKeysGuide = `
-// Interactive control:    D (demo full RGB test)    T (short test)   Q (graceful quit next save)
-// V (toggle verbose mode) B (live DNA to screen)    Esc (graceful quit)    Control-C (fast quit)
-// W (webserver)           C (clear scrn)            U (updates stats)       X (search ~ for DNA)
-// O (open images after render)                      or [space]       G  (experimental carlo GUI)
-// `
 const interactiveKeysGuide = `
 Interactive control:    D (demo full RGB test)    T (short test)   Q (graceful quit next save)
 V (toggle verbose mode) B (live DNA to screen)    Esc (graceful quit)    Control-C (fast quit)
@@ -40,10 +33,7 @@ W (webserver)           C (clear scrn)            U (updates stats)       X (sea
 O (open images after render)                      or [space]
 `
 const helixEmoji =" 🧬  "
-
 const htmlTemplate = template.htmlTemplate
-
-// const StdInPipe = require('./aminosee-stdinpipe');
 const asciiart = data.asciiart
 const doesFileExist = data.doesFileExist
 const doesFolderExist = data.doesFolderExist
@@ -53,7 +43,6 @@ const saySomethingEpic = data.saySomethingEpic
 const onesigbitTolocale = data.onesigbitTolocale
 const hsvToRgb = data.hsvToRgb
 
-// const readParseJson = data.readParseJson
 // OPEN SOURCE PACKAGES FROM NPM
 const path = require("path")
 const open = require("open")
@@ -61,16 +50,10 @@ const Preferences = require("preferences")
 const beautify = require("json-beautify")
 const spawn = require("cross-spawn")
 const async = require("async-kit") // amazing lib
-const term = require("terminal-kit").terminal
+const termkit = require("terminal-kit") //.terminal
+const term = termkit.terminal
 const MyManHilbert = require("hilbert-2d") // also contains magic
 const exec = require("child_process").exec // node standard lib
-
-// const stream = require("stream")
-// const Readable = require('stream').Readable
-// const Writable = require('stream').Writable
-// const Transform = require('stream').Transform
-// const request = require('request');
-// const parse = require('parse-apache-directory-index');
 const es = require("event-stream")
 const minimist = require("minimist")
 const fetch = require("node-fetch")
@@ -83,7 +66,13 @@ const os = require("os")
 const humanizeDuration = require("humanize-duration")
 const chalk = require("chalk")
 const internalIp = require("internal-ip").v4()
-
+// const StdInPipe = require('./aminosee-stdinpipe');
+// const stream = require("stream")
+// const Readable = require('stream').Readable
+// const Writable = require('stream').Writable
+// const Transform = require('stream').Transform
+// const request = require('request');
+// const parse = require('parse-apache-directory-index');
 const hostname = os.hostname()
 const obviousFoldername = "AminoSee_webroot" // descriptive for users
 const netFoldername = "output" // terse for networks

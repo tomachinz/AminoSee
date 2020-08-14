@@ -1,18 +1,18 @@
-const aminosee = require('./aminosee-cli');
-// let pjson = require('../package.json');
-let fs = require('fs');
-let path = require('path');
-// let log = aminosee.log;
+const aminosee = require('./aminosee-cli')
+// let pjson = require('../package.json')
+// let packagefile = path.join(base, 'package.json')
+let fs = require('fs')
+let path = require('path')
+const fetch = require("node-fetch");
 
 // console.log(pjson.version); // This will print the version
 const base = process.env.PWD;
 
 // *********** SETTINGS FILE ENABLES CLIENT TO SEE VALUES IN package.json
-let packagefile = base + '/package.json';
 
 function gracefulShutdown() {
-  aminosee.log("[custom sigterm received] @Aminosee settings.js");
-  aminosee.gracefulQuit();
+  aminosee.log("[custom sigterm received] @Aminosee settings.js")
+  aminosee.gracefulQuit()
   // process.exit(); // now the "exit" event will fire
 }
 
@@ -54,7 +54,6 @@ module.exports.settings = settings;
 
 
 // https://www.valentinog.com/blog/http-requests-node-js-async-await/
-const fetch = require("node-fetch");
 const url = "https://raw.githubusercontent.com/tomachinz/AminoSee/master/package.json";
 const getData = async url => {
   try {
