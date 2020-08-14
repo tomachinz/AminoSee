@@ -21,7 +21,7 @@
     "icon": "src/public/favicon.png",
     "directories": [
       "src/public/*",
-      "src"
+      "src/*"
     ],
     "mac": {
       "category": [
@@ -160,6 +160,7 @@
       "node_modules/terminal-kit/lib/colorScheme",
       "node_modules/terminal-kit/lib/Palette.js",
       "node_modules/terminal-kit/lib/image.js",
+      "node_modules/opn/xdg-open",
       "src/*",
       "src/public/*",
       "package.json"

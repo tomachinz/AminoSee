@@ -33,7 +33,7 @@ video/
 test/
 build/
 AminoSee_Output
-images/
+images
 lib/
 
 # this kludge is so i can have a shell script in there "process-all-files-in-cd.sh"
