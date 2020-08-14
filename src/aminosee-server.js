@@ -21,7 +21,7 @@ const appFilename = require.main.filename //     /bin/aminosee.js is 11 chars
 const defaultPort = 4321
 const backupPort = 43210
 // const useSymlinks = false
-let internalIp = require("internal-ip").v4()
+const internalIp = require("internal-ip").v4()
 
 let debug = false
 let autoStartGui = false
