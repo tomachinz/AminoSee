@@ -1,6 +1,6 @@
 {
   "name": "aminosee",
-  "version": "1.31.2",
+  "version": "1.31.3",
   "owner": "Thomas Bieder Atkinson",
   "author": "Tom Atkinson <tom@funk.co.nz>",
   "website": "http://aminosee.funk.nz",
@@ -161,6 +161,7 @@
       "node_modules/terminal-kit/lib/Palette.js",
       "node_modules/terminal-kit/lib/image.js",
       "node_modules/opn/xdg-open",
+      "node_modules/hilbert-2d/hilbert.js",
       "src/*",
       "src/public/*",
       "package.json"
