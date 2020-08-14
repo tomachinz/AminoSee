@@ -3,6 +3,9 @@
 # AminoSee DNA Viewer
 by Tom Atkinson
 
+### Easy install ###
+```git clone https://github.com/tomachinz/AminoSee ; cd AminoiSee ; npm install ; ./installer.sh ; aminosee dna/* ; aminosee --test ```
+
 Convert large ascii-triplet DNA files into png images. 25 unique colour hues represent the 4 start/stop codons plus the 21 Amino acids. Supports any ASCII text based genome such as FASTA, GBK, .txt, .gff etc, if it has text like GTAGCCTAGTCGATTCAG or maybe UUGCUTGUTGUTGUTGTUCUT then AminoSee can render up a set of images of it! The triplet for Lyson AAA would render to this indigo colour at 313
 
 A node command to convert any DNA sequence into an abstract image, and a built-in web server to show your work to others. Your renders will end up in ~/AminoSee_Output or create a folder with that name in the same folder as your DNA to enable zero-conf cluster rendering (it uses lock files to synchronise the nodes).

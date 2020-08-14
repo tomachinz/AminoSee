@@ -5087,8 +5087,8 @@ function pushCli(cs) {
       function runDemo() {
         mode(`run demo`)
         var that = cliInstance
-        // async.parallel( [
-        async.waterfall( [
+        async.parallel( [
+        // async.waterfall( [
           function( cb ) {
             output("blue")
             that.openImage = true
