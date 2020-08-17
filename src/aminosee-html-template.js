@@ -26,7 +26,7 @@ function histogramToHTML( aminosee_histogram ) {
 function imageStack(histogramJson) {
 	let html = " "
 	let pepTable = histogramJson.pepTable
-
+	let name = histogramJson.summary.name
 	html += `<ul id="stackOimages" class="stack">
 	`
 	for ( let p = 0; p < pepTable.length; p++ ) { // standard peptide loop
@@ -36,16 +36,15 @@ function imageStack(histogramJson) {
 		let thePep = item.Codon
 		let theHue = item.Hue
 		let c =      hsvToRgb( theHue / 360, 0.5, 1.0 )
-		let name =   item.name
-		let proportion = (-0.5 + ((p+1) / pepTable.length )) * 2
+		let proportion = (0.5 + ((p+1) / pepTable.length ) * -1)
 		let minimumSize = 64
 		let styleLi =  `
 		position: fixed;
-		top:  50%;
-		left: 50%;
+		top:  25%;
+		left: 25%;
 		transform: translate(
-			calc( -50% + var(--mouse-x, 0) * ${proportion*100}% + ${p}px ),
-			calc( -50% + var(--mouse-y, 0) * ${proportion*100}% + ${p}px )
+			calc( 50% + var(--mouse-x, 0) * ${proportion*100}% + ${p}px ),
+			calc( 50% + var(--mouse-y, 0) * ${proportion*100}% + ${p}px )
 		);
 		border-top:    1px solid rgba(255, 255, 255, 0.4);
 		border-left:   2px solid rgba(${c}), 0.8);
@@ -64,7 +63,7 @@ function imageStack(histogramJson) {
 				html += `
 				<li data-depth="${p}" id="stack_${p}" onmouseover="mover(${p})" onmouseout="mout(${p})" onclick="mclick(${p})">
 					<a href="images/${src}" title="${name} ${thePep}" style="${styleLi}">${p}. ${thePep} <br/>
-				<img src="images/${src}" alt="${name} ${thePep}" title="${name}" onmouseover="mover(${p})" onmouseout="mout(${p})">
+				<img src="images/${src}" alt="${name} ${thePep}" onmouseover="mover(${p})" onmouseout="mout(${p})">
 				</a>
 				</li>
 				`
@@ -78,7 +77,10 @@ function imageStack(histogramJson) {
 	}
 
 function htmlTemplate(histogramJson) {
-				// let histogramJson;
+
+				let name = histogramJson.summary.name
+
+
 				if (typeof histogramJson === "undefined") {
 					error(`histogramJson === "undefined"`)
 					try {
@@ -107,6 +109,7 @@ function htmlTemplate(histogramJson) {
 				</script>
 
 
+				<script src="../../../node_modules/@glue42/web/dist/web.umd.js">
 
 				<script async src="../../public/three.min.js"></script>
 				<script async src="../../public/jquery.min.js"></script>
@@ -190,7 +193,7 @@ ${asciiart}
 						imghil = histogramJson.pepTable[p].hilbert_preview
 						// imghil = this.aminoFilenameIndex(p)[2]
 					} else {
-						// imghil = this.aminoFilenameIndex(p)[0]
+						// imghil = this.aminoFilenameIndex(÷p)[0]
 						imghil = histogramJson.pepTable[p].hilbert_master
 
 					}
@@ -212,8 +215,8 @@ ${asciiart}
 						<td style="background-color: rgb(${c}); color: black; font-weight: bold; "> <p class="fineprint" style="background-color: white; background-color: rgba(255,255,255,0.5); color: black;">${c}</p></td>
 						<td>${ histogramJson.pepTable[p].Histocount.toLocaleString()}</td>
 						<td>${ histogramJson.pepTable[p].Description}</td>
-						<td style="background-color: white; color: black; height: 16px;"><a href="images/${ imghil }" class="button" title="Amino filter: ${ thePep }"  onmouseover="mover(${p})" onmouseout="mout(${p})" style="${style}"><img width="32" height="32" class="blackback" src="images/${ imghil }" alt="${  histogramJson.summary.source } ${ thePep }"></a></td>
-						<!-- <td style="background-color: white;"> <a href="images/${ imglin }" class="button" title="Amino filter: ${ thePep }"><img width="32" height="32" class="blackback 32piximg" src="images/${ imghil }" alt="${ histogramJson.summary.source } ${ thePep }"></a> </td> -->
+						<td style="background-color: white; color: black; height: 16px;"><a href="images/${ imghil }" class="button" title="${name} ${ thePep }"  onmouseover="mover(${p})" onmouseout="mout(${p})" style="${style}"><img width="32" height="32" class="blackback" src="images/${ imghil }" alt="${ name } ${ thePep }"></a></td>
+						<!-- <td style="background-color: white;"> <a href="images/${ imglin }" class="button" title="${name} ${ thePep }"><img width="32" height="32" class="blackback 32piximg" src="images/${ imghil }" alt="${name } ${ thePep }"></a> </td> -->
 						</tr>
 						`
 					}

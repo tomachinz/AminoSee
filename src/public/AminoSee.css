@@ -32,8 +32,8 @@ body {
 }
 
 img.32piximg, img>.32piximg {
-  height: 16px;
-  width: 16px;
+  height: 32px;
+  width: 32px;
 }
 
 body.dark, html.dark, body.aminosee {
@@ -112,12 +112,14 @@ ul, li {
   list-style: none;
 }
 
-img.stack {
+img.stack, .stack {
   /* width: calc(var("--mouse-scale", 1)px); */
   /* height: calc(var("--mouse-scale", 1)px); */
+  width: auto;
+  object-fit: scale-down;
   padding: 16px 16px;
   background-color: #666666;
-  background-color: rgba(0, 0, 0, 0.3);
+  background-color: rgba(66, 66, 66, 0.1);
 }
 
 .behind {

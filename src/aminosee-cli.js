@@ -20,6 +20,7 @@ const wideScreen = 140 // shrinks terminal display
 const windows7 = 100 // shitty os, shitty terminal, ah well
 let termDisplayHeight = 15 // the stats about the file etc
 let termHistoHeight = 30 // this histrogram
+let raceDelay = 100 // so i learnt a lot on this project. one day this line shall disappear replaced by promises.
 const settings = require("./aminosee-settings")
 const version = require("./aminosee-version")
 const server = require("./aminosee-server")
@@ -46,6 +47,7 @@ const hsvToRgb = data.hsvToRgb
 // OPEN SOURCE PACKAGES FROM NPM
 const path = require("path")
 const open = require("open")
+// const open = require( path.join(__dirname, '../../node_modules/open/xdg-open') )
 const Preferences = require("preferences")
 const beautify = require("json-beautify")
 const spawn = require("cross-spawn")
@@ -91,7 +93,7 @@ const tomachisBirthday = new Date( 221962393 ) // Epoch timestamp: 221962393 is 
 // BigInt.prototype.toBSON = function() { return this.toString(); }; // Add a `toBSON()` to enable MongoDB to store BigInts as strings
 
 let autoStartGui = true
-let cfile, streamLineNr, renderLock, jobArgs, killServersOnQuit, webserverEnabled, cliInstance, tx, ty, cliruns, gbprocessed, projectprefs, userprefs, genomesRendered, progato, commandString, batchSize, quiet, url, port, status, remain, lastHammered, darkenFactor, highlightFactor, loopCounter, webroot, tups,  opensFile , opensHtml , opensImage, previousImage, isHighlightSet, aminosee_json, hilpix, usersMagnitude, shrinkFactor, isPreview, codonsPerPixelHILBERT, ishighres, cpuhit
+let cfile, streamLineNr, renderLock, jobArgs, killServersOnQuit, webserverEnabled, cliInstance, tx, ty, cliruns, gbprocessed, projectprefs, userprefs, genomesRendered, progato, commandString, batchSize, quiet, url, port, status, remain, lastHammered, darkenFactor, highlightFactor, loopCounter, webroot, tups,  opensFile , opensHtml , opensImage, previousImage, isHighlightSet, aminosee_json, hilpix, usersMagnitude, shrinkFactor, codonsPerPixelHILBERT, ishighres, ispreview, cpuhit, bruteRemain
 // let theGUI
 tups = opensFile = opensHtml = opensImage = 0 // terminal flossing
 let opens = 0 // session local counter to avoid having way too many windows opened.
@@ -107,7 +109,8 @@ let clear = false
 let debug = false // should be false for PRODUCTION
 let brute = false // used while accelerating the render 20x
 let setuplock = false // used while accelerating the render 20x
-isPreview = false
+let verbose = false
+ispreview = false
 webserverEnabled = false
 genomesRendered = []
 renderLock = false
@@ -134,7 +137,7 @@ function generateTheArgs() {
   url = `http://${internalIp}:${port}`
   log(`webroot: ${webroot} ${url}`)
   let theArgs = {
-    verbose: false,
+    verbose: verbose,
     webroot: webroot,
     outputPath: path.join( webroot, netFoldername ),
     openHtml: false,
@@ -151,7 +154,7 @@ function generateTheArgs() {
 
     theArgs = {
       port: defaultPort,
-      verbose: cliInstance.verbose,
+      verbose: verbose,
       output: cliInstance.outputPath,
       serve: true,
       gzip: true,
@@ -164,47 +167,48 @@ function generateTheArgs() {
     }
   }
   log("generateTheArgs")
-  if ( cliInstance.verbose ) {
-    console.log( theArgs )
-  }
+
   return theArgs
 }
 function populateArgs(procArgv) { // returns args
   const options = {
-    boolean: [ "artistic", "clear", "chrome", "devmode", "debug", "demo", "dnabg", "explorer", "file", "force", "fullscreen", "firefox", "gui", "html", "image", "keyboard", "list", "progress", "quiet", "reg", "recycle", "redraw", "slow", "serve", "safari", "test", "updates", "verbose", "view" ],
+    boolean: [ "artistic", "brute", "clear", "chrome", "devmode", "debug", "demo", "dnabg", "explorer", "file", "force", "fullscreen", "firefox", "gui", "html", "image", "keyboard", "list", "progress", "quiet", "reg", "recycle", "redraw", "slow", "serve", "safari", "test", "updates", "verbose", "view" ],
     string: [ "url", "output", "triplet", "peptide", "ratio" ],
-    alias: { a: "artistic", b: "dnabg", c: "codons", d: "devmode", f: "force", finder: "explorer", h: "help", k: "keyboard", m: "magnitude", o: "output", p: "peptide", i: "image", t: "triplet", u: "updates", q: "quiet", r: "reg", w: "width", v: "verbose", x: "explorer", view: "html" },
+    alias: { a: "artistic", b: "dnabg", c: "codons", d: "devmode", f: "force", finder: "explorer", h: "help", k: "keyboard", m: "magnitude", o: "output", p: "peptide", i: "image", t: "triplet", u: "updates", q: "quiet", r: "reg", w: "width", v: "verbose", x: "explorer", v: "verbose", view: "html" },
     default: { brute: false, debug: false, keyboard: false, progress: true, redraw: true, updates: true, stop: false, serve: false, fullscreen: false , html: true, image: false, index: false, clear: false, explorer: false, quiet: false, gui: false },
     stopEarly: false
   } // NUMERIC INPUTS: codons, magnitude, width, maxpix
   let args = minimist(procArgv.slice(2), options)
-  bugtxt( args )
+  // bugtxt( args )
   return args
 }
-// function bruteForce(cs) {
+function bruteForce(cs) {
+	let pepTable = data.pepTable
+  bruteRemain = pepTable.length
+  remain = cliInstance.args._.length
+  output( blueWhite( `Fast Batch Mode Enabled aka brute mode. Length: ${bruteRemain} x ${remain} = ${bruteRemain * remain}. Adding jobs to queue.`))
 
-// return false
-
-// 	let pepTable = data.pepTable
-// 	output("Fast Batch Enabled. Length: " + pepTable.length)
-// 	for (let i=1; i < data.pepTable.length-1; i++) {
-// 		let pep =  data.pepTable[i].Codon
-// 		setTimeout( () => {
-// 			output( " > " + pep)
-// 			let job = { _: [ cs ],
-// 				peptide: pep,
-// 				q: false,
-// 				gui: false,
-// 				keyboard: false,
-// 				k: false,
-// 				progress: false,
-// 				redraw: true,
-// 				updates: false,
-// 			}
-// 			// newJob( job );
-// 		}, 800 * i)
-// 	}
-// }
+  for (let gen = 0; gen < remain; gen++) {
+    cfile = cliInstance.args._.pop() // remove and add each in again 23 times! for each amino acid. focus pep will be set durign post render, and bruteRemain--
+    for (let i = 0; i < bruteRemain; i++) {
+      let pep =  data.pepTable[i].Codon
+        let job = { _: [ cfile ],
+          peptide: pep,
+          quiet: cliInstance.quiet,
+          gui: false,
+          keyboard: cliInstance.keyboard,
+          progress: cliInstance.progress,
+          redraw: true,
+          updates: cliInstance.updates,
+        }
+        log( `pushing job to stack: ${pep}` )
+        cliInstance.args._.push(cfile)
+    }
+  }
+  bugtxt( beautify(cliInstance.args._))
+  remain = cliInstance.args._.length
+  batchSize = remain
+}
 function pushCli(cs) {
   commandString = `aminosee ${cs}`// let commandArray = [`node`, `aminosee`, commandString];
   output(chalk.inverse(`Starting AminoSee now with pushClI:
@@ -240,7 +244,7 @@ function pushCli(cs) {
 
   }
   function setupApp() {
-    // if ( renderLock === true) { error("draining thread from setupApp"); return false }
+    if ( renderLock === true) { error("draining thread from setupApp"); return false }
     // output(`Setting up`)
     printlogo()
 
@@ -252,14 +256,14 @@ function pushCli(cs) {
     threads.push( cliInstance )
     // webroot = locateWebroot()
     // cliInstance.resized()
-    cliInstance.outputPath = path.join( webroot, netFoldername) // ~/AminoSee_webroot/output
-    cliInstance.setupJob( populateArgs( process.argv ), "module exports"  )
+    cliInstance.setupJob( populateArgs( process.argv ), "module exports", () => {
+        log(`done`)
+    })
 
   }
   // function newJob( job ) { // used node and CLI tool.
   //   let nuThread = new AminoSeeNoEvil()
   //   populateArgs( process.argv )
-  //   nuThread.setupJob( job, `new job ${job}` ) // do stuff that is needed even just to run "aminosee" with no options.
   //   return nuThread
   // }
 
@@ -282,15 +286,14 @@ function pushCli(cs) {
     }
 
 
-    setupJob( args, reason ) {
+    setupJob( args, reason, cb ) {
 
       if ( setuplock ) { error(`this should not fire more than once per genome?!`) }
       setuplock = true
-      if ( typeof reason === "undefined") { error(`reason must not be undef`); }
-      if ( renderLock === true ) { error("draining threads from setupJob"); return false }
+      if ( typeof reason === "undefined") { error(`reason must not be undef`); return false;}
+      if ( renderLock === true ) { error("setup job: draining threads"); return false }
 
       mode("setup job ")
-      ishighres = false
       this.setupPrefs()
       // do stuff aside from creating any changes. eg if you just run "aminosee" by itself.
       // for each render batch sent through newJob, here is where "this" be instantiated once per newJob
@@ -303,11 +306,9 @@ function pushCli(cs) {
       darkenFactor = 0.25 // if user has chosen to highlight an amino acid others are darkened
       highlightFactor = 4.0 // highten brightening.
       loopCounter = 0
-      this.raceDelay = 169 // so i learnt a lot on this project. one day this line shall disappear replaced by promises.
       this.charClock = 0
       this.pixelClock = 0
-      this.peptide = this.triplet = this.focusTriplet = "Reference" // used to be "none" is now "Reference"
-      this.aminoacid = this.usersPeptide = "not set"
+      this.peptide = this.triplet = this.focusTriplet = this.usersPeptide = "Reference" // used to be "none" is now "Reference"
       this.usersTriplet = "not set"
       this.rawDNA = "this aint sushi"
       this.startDate = new Date() // required for touch locks.
@@ -323,7 +324,7 @@ function pushCli(cs) {
       this.done = 0
       this.devmode = false // kills the auto opening of reports etc
       this.quiet = false
-      this.verbose = false // not recommended. will slow down due to console.
+      verbose = false // not recommended. will slow down due to console.
       this.force = false // this.force overwrite existing PNG and HTML reports
       this.artistic = false // for Charlie
       this.dnabg = false // firehose your screen with DNA!
@@ -338,7 +339,6 @@ function pushCli(cs) {
       this.openHtml = true
       opensHtml = 0 // how many times have we popped up a browser.
       this.highlightTriplets = []
-      isHighlightSet = false
       this.isHilbertPossible = true // set false if -c flags used.
       this.isDiskFinLinear = true // flag shows if saving png is complete
       this.isDiskFinHilbert = true // flag shows if saving hilbert png is complete
@@ -357,39 +357,31 @@ function pushCli(cs) {
       this.runningDuration = 1 // ms
       this.termMarginLeft = 2
       this.errorClock = 0
-      batchSize = remain
+      remain = args._.length
       this.pepTable = data.pepTable
       this.args = args // populateArgs(procArgv); // this.args;
-      ishighres = this.genomeSize > hilbPixels[ defaultPreviewDimension ]
-      log(blueWhite( `  ishighres = genomeSize > hilbPixels:   ${      ishighres } = ${this.genomeSize} > ${hilbPixels[ defaultPreviewDimension ]}`))
-      this.setNextFile()
+
       if ( args.demo ) {
         this.demo = true
         this.test = true
         remain++
-        batchSize++
       }
       if ( args.test  ) {
         this.test = true
         remain++
-        batchSize++
       }
-      remain = 0
-      batchSize = 0
-      try {
-        cfile = args._[0]
-        this.dnafile = path.resolve( cfile )
-      } catch(err) {
-        cfile = `initialising`
-        log(err)
-      }
-
-      remain = args._.length
+      // try {
+      //   cfile = args._[0]
+      //   this.dnafile = path.resolve( cfile )
+      // } catch(err) {
+      //   cfile = path.join( 'dna', '50KB_TestPattern' )
+      //   log(err)
+      // }
       batchSize = remain
-      this.justNameOfDNA = this.genomeCanonicalisaton()
-      log(`set to ${cfile} args length ${args._.length}`)
+
+
+      this.setNextFile()
       this.outputPath = path.join( webroot, netFoldername)
-      this.imgPath = path.resolve( this.outputPath, this.justNameOfDNA, "images")
       this.extension = this.getFileExtension( cfile)
       this.started = this.startDate.getTime() // required for touch locks.
       this.dimension = defaultMagnitude // var that the hilbert projection is be downsampled to
@@ -397,7 +389,7 @@ function pushCli(cs) {
       this.msPerUpdate  = minUpdateTime // min milliseconds per update its increased for long renders
       this.termMarginTop = (term.height -  termDisplayHeight -   termHistoHeight ) / 4
       termSize()
-      this.previousImage = this.justNameOfDNA
+      this.previousImage = this.shortnameGenome
       // printlogo()
 
       if ( args.quiet || args.q ) { // needs to be at top to cut back clutter during batch rendering
@@ -454,21 +446,22 @@ function pushCli(cs) {
         }
       }
       bugtxt(`output path: ${ this.outputPath }`)
-      if ( args.slow ) {
-        let amount = 3000
-        this.raceDelay += amount
-        output(`${humanizeDuration( amount )} delay time added between jobs`)
-      }
       if ( args.delay ) {
         let amount = Math.round( args.delay )
         if ( amount > 1 && amount << 60000) {
-          this.raceDelay = amount
+          raceDelay = amount
           output(`Custom delay between jobs of ${humanizeDuration( amount )}`)
         }
       }
-      if ( args.debug ) {
+      if ( args.slow ) {
+        let amount = 4000
+        raceDelay += amount
+        output(`${humanizeDuration( amount )} delay time added between jobs`)
+      }
+
+      if ( args.debug || debug === true) {
         debug = true
-        // output("💩 debug mode ENABLED 💩")
+        output("💩 debug mode ENABLED 💩")
       } else {
         debug = false
       }
@@ -503,7 +496,7 @@ function pushCli(cs) {
         log("💩 KEYBOARD MODE HAS SOME BUGS ATM SORRY 💩")
         this.keyboard = true
         termDisplayHeight += 4 // display bigger
-        if ( this.verbose === true) {
+        if ( verbose === true) {
           termDisplayHeight++
         }
       } else {
@@ -616,7 +609,7 @@ function pushCli(cs) {
           isHighlightSet = true
           output(`Custom triplet ${chalk.bgWhite.blue ( this.triplet )} set. Others will be mostly transparent.`)
         } else {
-          output(`Error could not lookup this.triplet: ${ this.triplet }`)
+          output(`Error could not lookup triplet: ${ this.triplet }`)
           this.triplet = "Reference"
         }
       } else {
@@ -628,20 +621,16 @@ function pushCli(cs) {
         if ( this.peptide !== "Reference"  ) { // this colour is a flag for  this.error
           isHighlightSet = true
           this.index = false // disable html report
-          notQuiet("No report is made when focussed on: " + blueWhite(`Custom peptide: ${ this.usersPeptide }`))
-        } else {
-          notQuiet(blueWhite(`Sorry, could not lookup users peptide: ${ this.usersPeptide } using ${ this.peptide }`))
         }
       } else {
         log("No custom peptide chosen. Will render standard reference type image")
-        this.peptide = "Reference"
+        this.peptide = this.usersPeptide = "Reference"
       }
       if ( this.peptide == "Reference" && this.triplet == "Reference") {
         isHighlightSet = false
-        // this.index = true // disable html report
+        this.index = true
         this.report = true
       } else {
-        // output(`Peptide  ${ chalk.inverse(this.peptide) } triplet ${ chalk.inverse( this.triplet )}`)
         isHighlightSet = true
         this.index = false // disable html report
         this.report = false
@@ -661,11 +650,11 @@ function pushCli(cs) {
         log("1:1 science mode enabled.")
         this.artistic = false
       }
-      if ( args.index && !isHighlightSet || args.magnitude <= defaultPreviewDimension) {
+      if ( args.index ) {
         notQuiet("INDEX.HTML will also be written out")
         this.index = true
         this.report = true
-      } else if ( isHighlightSet ) {
+      } else {
         log("Can not output index.html file when a focus flag is in use eg (like --peptide=Alanine or --triplet=AAA)")
         this.index = false
       }
@@ -673,11 +662,11 @@ function pushCli(cs) {
       if ( args.verbose || args.v) {
         output("verbose enabled. AminoSee version: " + version)
         bugtxt(`os.platform(): ${os.platform()} ${process.cwd()}`)
-        this.verbose = true
+        verbose = true
         termDisplayHeight -= 2
       } else {
         log("verbose mode disabled")
-        this.verbose = false
+        verbose = false
       }
       if ( args.html ) {
         output("will open html in firefox after render")
@@ -687,7 +676,7 @@ function pushCli(cs) {
         this.openHtml = false
       }
       if ( args.html === true || args.chrome || args.firefox  || args.safari  || args.report  || args.open) {
-        output(`opening html set true ${this.justNameOfDNA}`)
+        output(`opening html set true ${this.shortnameGenome}`)
         this.openHtml = true
       } else {
         log("not opening html")
@@ -720,9 +709,7 @@ function pushCli(cs) {
       if ( args.help ) {
         this.help = true
         autoStartGui = false
-        // setTimeout( () => {
         this.helpCmd()
-        // }, this.raceDelay)
       } else {
         this.help = false
       }
@@ -732,7 +719,7 @@ function pushCli(cs) {
         this.serve = true
         this.keyboard = true
         killServersOnQuit = false
-        countdown("shutdown in ", 360000, () => { out('foreground ended') } )
+        // countdown("shutdown in ", 360000, () => { out('foreground ended') } )
       }
 
       killServersOnQuit = true // aminosee --serve will quit after spawning foreground in background
@@ -818,23 +805,23 @@ function pushCli(cs) {
         listDNA()
       }
       if ( args.brute ) {
-        output("Using brute force")
+        output("Using brute force. And, ideally, Chuck Norris!")
         brute = true
-        // bruteForce( args._[0] )
+        bruteForce()
       } else {
         brute = false
+        bruteRemain = 0
       }
 
       if ( args.quiet || args.q ) { // needs to be at bottom so changes cant be overridden! but after debug .
         log("quiet mode enabled.")
         webserverEnabled = false
         this.quiet = true
-        this.verbose = false
+        verbose = false
         this.dnabg = false
         this.updates = false  //this.updates
         this.clear = false
         this.openImage = false
-        this.raceDelay = 100 // yeah it makes it go faster
       } else {
         this.quiet = false
         log("not using quiet mode. ")
@@ -842,10 +829,12 @@ function pushCli(cs) {
       if ( args.delay ) {
         let  n = Math.round( args.delay )
         if ( n > 1 ) {
-          this.raceDelay = n
+          raceDelay = n
           notQuiet(`Set custom delay to ${humanizeDuration( n) }`)
         }
       }
+
+
       /////////////////////////////////////////////////////
       /////////////////////////////////////////////////////
       /////////////////////////////////////////////////////
@@ -853,7 +842,7 @@ function pushCli(cs) {
 
       if (this.devmode === true) {
         this.quiet = false
-        this.verbose = true
+        verbose = true
         this.updates = false
         this.clear = false
         this.openHtml = false
@@ -863,15 +852,15 @@ function pushCli(cs) {
         this.progress = true // EXPERIMENTAL FEATURES
         this.keyboard = true // EXPERIMENTAL FEATURES
         termDisplayHeight++
-        this.raceDelay += 200 // this helps considerably!
+        raceDelay += 200 // this helps considerably!
         progressTime *= 0.5 // double it
         if (debug === true) {
-          this.raceDelay += 1000 // this helps considerably!
+          raceDelay += 1000 // this helps considerably!
         }
-        log("AminoSee has been slowed to " + blueWhite( this.raceDelay ))
+        log("AminoSee has been slowed to " + blueWhite( raceDelay ))
       } else {
-        // this.raceDelay -= 1000 // if you turn devmode on and off a lot it will slow down
-        // this.verbose = false
+        // raceDelay -= 1000 // if you turn devmode on and off a lot it will slow down
+        // verbose = false
         // this.updates = true
         // this.clear = false
         // this.openHtml = true
@@ -883,11 +872,10 @@ function pushCli(cs) {
       /////////////////////////////////////////////////////////////////
       /////////////////////////////////////////////////////////////////
 
-      // this.setupProgress()
 
       quiet = this.quiet
       bugtxt(`the args -->> ${this.args}`)
-      notQuiet(`Output folder:  ${ blueWhite( path.normalize( this.outputPath )) }`)
+      log(`Output folder:  ${ blueWhite( path.normalize( this.outputPath )) }`)
       remain = args._.length
 
       if ( this.test === true ) {
@@ -895,6 +883,7 @@ function pushCli(cs) {
         remain = this.dimension
         this.generateTestPatterns(() => {
           out(`finished with test pattern`)
+          runcb( cb )
           // this.quit(0, "test patterns")
         })
         return false
@@ -948,23 +937,18 @@ function pushCli(cs) {
 
       if ( remain > 0 ) {
         mode(remain + " Ω work remaining Ω  first command")
+        log("about to run linear names")
+
+        this.shortnameGenome = this.genomeCanonicalisaton()
+        this.imgPath = path.resolve( this.outputPath, this.shortnameGenome, "images")
+        this.setupProgress()
+
+        this.setupLinearNames()
+
         notQuiet(chalk.green(`${batchProgress()} ${chalk.underline("Job items Ω ")}` ))
         log(this.outputPath)
         this.dnafile = args._.toString()
-        // this.preRenderReset("first command")
-        this.pollForStream(`first command`)
-        // this.safelyPoll(status)
-        // if ( this.test !== true ) {
-        //   log("test polling")
-        //   // this.preRenderReset(`first command`)
-
-        // } else if ( this.demo ) {
-        //   runDemo()
-        // } else {
-        //   this.generateTestPatterns()
-        // }
-
-
+        this.pollForStream(`first command`) // <<<<<<<<<<<<--------------- THIS IS WHERE IT ALL HAPPENS
 
       } else {
         let time = 5000
@@ -990,7 +974,7 @@ function pushCli(cs) {
           this.quit(0, "no command")
           return
         }
-        if ( this.help || this.verbose ) {
+        if ( this.help || verbose ) {
           output(`Welcome... this is a CLI app run from the terminal, see above [Q] or [Esc] key to exit now `)
           output( interactiveKeysGuide )
           cliInstance.setupKeyboardUI()
@@ -1000,11 +984,11 @@ function pushCli(cs) {
             pushCli("--test")
             return true
           } else {
-            cliInstance.updatesTimer = countdown("closing in ", time, () => {
-              mode("time out from no command")
-              destroyKeyboardUI()
-              this.quit(0, "no command")
-            })
+            // cliInstance.updatesTimer = countdown("closing in ", time, () => {
+            //   mode("time out from no command")
+            //   destroyKeyboardUI()
+            //   this.quit(0, "no command")
+            // })
           }
         }
       }
@@ -1020,62 +1004,71 @@ function pushCli(cs) {
 
     }
     setupProgress() {
-
-
+      mode(`setup progress`)
+      notQuiet( status )
       if ( this.progress === true ) {
         progato = term.progressBar( {
-          width: 80 ,
-          title: "Starting:" ,
-          eta: true ,
-          percent: true ,
+          width: 80,
           inline: true,
-          items: remain
+          title: batchProgress() ,
+          eta: true ,
+          items: remain,
+          percent: true,
+          syncMode: true
         })
+        this.progressTick()
       }
-
-
-
-
     }
     startProgress() {
-      if ( remain < 0 ) { return false }
+      if ( remain < 0 ) {
+        return false
+      }
       let task = cfile
       progato.startItem( task )
-
-      // Finish the task in...
-      // setTimeout( this.doneProgress.bind( null , cfile ) , 500 + Math.random() * 1200 ) ;
-
-      // Start another parallel task in...
-      // setTimeout( this.startProgress , 400 + Math.random() * 400 ) ;
     }
-
-
+    progressTick() {
+      this.fastUpdate()
+      if ( progato && progato === "nullnuts" ) {
+        return
+      }
+      progato.update( this.percentComplete )
+      if (remain >= 0 ) {
+        clearTimeout( this.progTimer )
+        this.progTimer = setTimeout(() => {
+          if (  this.percentComplete < 0.99 &&  this.timeRemain > 2001) {
+            this.progressTick()
+          } else {
+            progato.stop()
+          }
+        }, progressTime)
+      }
+    }
     doneProgress( task ) {
       progato.itemDone( task )
-
       if ( remain < 0 ) {
         setTimeout( function() { term( "\n" )  } , 200 )
       }
     }
     destroyProgress() { // this.now thats a fucking cool name if ever there was!
+      mode(`removing progress`)
+
       if ( this.progress === true) {
-        if ( typeof progato !== "undefined" ) {
+        // if ( typeof progato !== "undefined" ) {
           try {
             progato.stop()
-            progato = null;
+            progato = "nullnuts";
           } catch(e) {}
-        }
+        // }
       }
       clearTimeout( this.updatesTimer)
       clearTimeout( this.progTimer)
       clearTimeout( this.lockTimer)
-      deleteFile( this.fileServerLock )
     }
     // bugtxt(txt) { // full debug output
-    //   if (this.quiet == false && debug === true && this.devmode === true && this.verbose === true)  {
+    //   if (this.quiet == false && debug === true && this.devmode === true && verbose === true)  {
     //     bugout(txt);
     //   } else {
-    //     if (this.verbose === true ) {
+    //     if (verbose === true ) {
     //       redoline(txt);
     //     }
     //   }
@@ -1125,49 +1118,44 @@ function pushCli(cs) {
     }
 
     getRenderObject() { // return part of the histogramJson obj
-      // if ( this.isDiskFinHTML === true) { error(`finished writing HTML how so!!?`); }
-      mode(`getRenderObject`)
+      if ( renderLock === false) { error(`must be rendering when called`); }
+      mode(`building render object`)
+
       for ( let p = 0; p < this.pepTable.length; p++ ) { // standard peptide loop
-        const pep =  this.pepTable[ p ]
-        this.peptide = pep.Codon
-        // if ( this.peptide == "Reference" ) { // index 0
-        //   this.pepTable[ p ].hilbert_master = hilbertimage
-        //   this.pepTable[ p ].linear_master = linearimage
-        //   this.pepTable[ p ].hilbert_preview = this.aminoFilenameIndex( p )[0]
-        //   this.pepTable[ p ].linear_preview = this.aminoFilenameIndex( p )[1]
-        //   this.pepTable[ p ].mixRGBA = this.tripletToRGBA(pep.Codon) // this will this.report this.alpha info
-        // }
-        if ( pep.Codon == "Reference" ) { this.pepTable[ p ].Histocount = this.genomeSize }
-        this.pepTable[ p ].src = this.aminoFilenameIndex( p )[1]
-        // this.pepTable[ p ].hilbert_master = this.aminoFilenameIndex( p )[0]
-        // this.pepTable[ p ].linear_master = this.aminoFilenameIndex( p )[1]
+        const codon =  this.pepTable[ p ].Codon
+        bugtxt(`codon = ${codon}`)
+        this.peptide = codon // for these filename generators below
 
-        this.pepTable[p].linear_master = this.generateFilenamePNG( this.pepTable[p].Codon )
-        this.pepTable[p].linear_preview = this.generateFilenamePNG( this.pepTable[p].Codon )
+        if ( codon == "Reference" ) { this.pepTable[ p ].Histocount = this.genomeSize }
+        this.pepTable[p].src = this.generateFilenamePNG( codon )
+        this.pepTable[p].mixRGBA = this.tripletToRGBA(codon)
+        this.pepTable[p].linear_master = this.generateFilenamePNG( codon )
+        this.pepTable[p].linear_preview = this.generateFilenamePNG( codon )
+        this.pepTable[p].hilbert_master =  this.generateFilenameHilbert( codon )
+        this.pepTable[p].hilbert_preview =  this.generateFilenameHilbert( codon )
 
-        this.pepTable[p].hilbert_master =  this.generateFilenameHilbert( this.pepTable[p].Codon )
-        this.pepTable[p].hilbert_preview =  this.generateFilenameHilbert( this.pepTable[p].Codon )
-
-        // this.pepTable[ p ].hilbert_preview = this.aminoFilenameIndex( p )[2]
-        // this.pepTable[ p ].linear_preview = this.aminoFilenameIndex( p )[3]
-        this.pepTable[ p ].mixRGBA = this.tripletToRGBA(pep.Codon) // this will this.report this.alpha info
-        bugtxt(`ext: ${ this.extension } this.pepTable[ ${p} ].src ${ this.pepTable[ p ].src} codons per pixel: ${codonsPerPixelHILBERT}` )
-
-        if ( ishighres === false ) {
-          this.pepTable[ p ].hilbert_preview = this.aminoFilenameIndex( p )[2]
+        if ( ishighres === false ) { // preview is the master for these
+          this.pepTable[ p ].hilbert_master = this.generateFilenameHilbert( codon )
+          this.pepTable[ p ].hilbert_preview = this.generateFilenameHilbert( codon )
         } else {
-          this.pepTable[ p ].hilbert_preview = this.aminoFilenameIndex( p )[0]
+          if ( ispreview ) {
+            this.pepTable[ p ].hilbert_preview = this.generateFilenameHilbert( codon )
+          } else {
+            this.pepTable[p].hilbert_master = this.generateFilenameHilbert( codon )
+          }
         }
-
+        log(`ext: ${ this.extension } codon ${codon} index ${p} codons per pixel: ${codonsPerPixelHILBERT}` )
       }
-
-      this.pepTable.sort( this.compareHue )
+      this.peptide = this.usersPeptide
+      this.filePNG = path.resolve( this.imgPath, this.generateFilenamePNG( this.usersPeptide )) // run this to fix nasty globals issue
+      this.fileHILBERT = path.resolve( this.generateFilenameHilbert( this.usersPeptide )) // run this to fix nasty globals issue
+      // this.pepTable.sort( this.compareHue )
 
       let zumari = {
         original_source: cfile,
         full_path: this.dnafile,
         maxpix:  this.maxpix,
-        name: this.justNameOfDNA,
+        name: this.shortnameGenome,
         hilbertimage:  this.fileHILBERT,
         linearimage:  this.filePNG,
         runid: this.timestamp,
@@ -1217,7 +1205,6 @@ function pushCli(cs) {
       }
       if ( debug === true && this.quiet == false) {
         // console.log( histogramJson  )
-        // output(`getRenderObject`)
         // output( beautify( histogramJson, null, 2, 100) )
 
       }
@@ -1228,10 +1215,9 @@ function pushCli(cs) {
 
     setupRender(file) { // blank all the variables
       if ( renderLock === true) { error("draining threads from render setup"); return false }
-      mode(`${batchProgress()} setup render`)
+      mode(`setup render`)
       // output(blueWhite(status))
       // output(status)
-      redoline(status)
       this.startDate = new Date() // required for touch locks.
       this.started = this.startDate.getTime() // required for touch locks.
       this.baseChars =  this.genomeSize = this.charClock = this.codonsPerSec =  this.red  =  this.green  =  this.blue  = 0
@@ -1258,11 +1244,11 @@ function pushCli(cs) {
       this.isDiskFinHilbert = true
       this.isDiskFinLinear = true
       this.isStorageBusy = false
+      ispreview = false // only set true after saving out highres docs
 
 
-
-      // this.dnafile = path.resolve( cfile )
-      // this.justNameOfDNA = this.genomeCanonicalisaton( this.dnafile )
+      this.dnafile = path.resolve( cfile )
+      this.shortnameGenome = this.genomeCanonicalisaton( this.dnafile )
       for (var h=0; h < dnaTriplets.length; h++) {
         dnaTriplets[h].Histocount = 0
       }
@@ -1273,14 +1259,14 @@ function pushCli(cs) {
         // output(`MAYBE DID I SKIP TEST`)
         // this.testInit()
         return false
-      } else {
-        this.setupLinearNames() // will not include Hilbert file name. Need to wait until after render and calcHilbertFilename
       }
       this.setNextFile()
 
 
       this.rgbArray = []
       this.antiAliasArray = []
+      mode(`setup render`)
+
       for ( let p = 0; p < this.pepTable.length; p++ ) { // standard peptide loop
         this.pepTable[ p ].Histocount = 0
         this.pepTable[ p ].z = p
@@ -1301,21 +1287,10 @@ function pushCli(cs) {
 
         }
       }
+       this.aminoFilenameIndex( 0 )[0]
     }
 
-    progUpdate(obj) {  // allows to disable all the prog bars in one place
-      // this.fastUpdate()
-      if ( this.progress === true) {
-        if ( typeof progato !== "undefined" && obj ) {
-          try {
-            progato.update(obj)
-          } catch (e) {}
-        }
-      } else {
-        out(`.`)
-        // redoline(`Progress ${ nicePercent( obj )}`)
-      }
-    }
+
 
     setupKeyboardUI() {
       this.keyboard = true
@@ -1365,7 +1340,7 @@ function pushCli(cs) {
           if ( key.ctrl && (key.name == "c" || key.name == "d"  )) {
             process.stdin.pause() // stop sending control-c here, send now to parent, which is gonna kill us on the second go with control-c
             status  = "TERMINATED WITH CONTROL-C"
-            cliInstance.gracefulQuit(0, "Control-c bo")
+            cliInstance.gracefulQuit(130, "Control-c bo")
             destroyKeyboardUI()
             if ( renderLock === true && this.timeRemain < 10000) {
               cliInstance.msPerUpdate = 800
@@ -1464,8 +1439,8 @@ function pushCli(cs) {
       log(`Will ${( this.openHtml ? "" : "not " )} open images, reports and file explorer when done.`)
     }
     toggleVerbose() {
-      this.verbose = !this.verbose
-      log(`verbose mode ${this.verbose}`)
+      verbose = !verbose
+      log(`verbose mode ${verbose}`)
     }
 
 
@@ -1493,12 +1468,12 @@ function pushCli(cs) {
     toggleDebug() {
       debug = !debug
       if (debug === true) {
-        this.raceDelay  += 1000 // this helps considerably!
+        raceDelay  += 1000 // this helps considerably!
       }
       if (debug == false) {
-        this.raceDelay  -= 100
+        raceDelay  -= 100
       }
-      output("AminoSee has been slowed to " + this.raceDelay )
+      output("AminoSee has been slowed to " + raceDelay )
     }
     toggleDevmode() {
       this.devmode = !this.devmode
@@ -1544,12 +1519,12 @@ function pushCli(cs) {
 
       server.stop()
 
-      if ( renderLock && this.isDiskFinHilbert) {
+      if ( this.isStorageBusy) {
         output( status + blueWhite( `${status} stopping rendering: ${this.justNameOfPNG}` ) )
       } else {
         output(`will terminate after saving this hilbert projection`)
+        setImmediate( () => { printRadMessage( `exiting` ); this.quit(0, "graceful"); })
       }
-      setImmediate( () => { printRadMessage( `exiting` ); this.quit(0, "graceful"); })
     }
 
     downloadMegabase(cb) {
@@ -1602,13 +1577,13 @@ function pushCli(cs) {
 
 
     aPeptideCodon(a) {
-      // output(a);
       return a.Codon.toUpperCase().substring(0, 4) == this.peptide.toUpperCase().substring(0, 4)
     }
     pepToColor(pep) {
       let temp = this.peptide
       this.peptide = pep // aPeptideCodon depends on this global
       let clean = this.pepTable.filter(aPeptideCodon)
+      this.peptide = this.usersPeptide
       if (clean.length > 0 ) {
         return hsvToRgb(clean[0].Hue, 0.5, 1.0)
       } else {
@@ -1642,9 +1617,10 @@ function pushCli(cs) {
       }
 
       this.dnafile = path.resolve( cfile )
-      this.genomeCanonicalisaton()
-      mode( `checking ${cfile} then ${this.nextFile}` )
-      procTitle( status )
+      cfile = path.basename( this.dnafile )
+      this.shortnameGenome = this.genomeCanonicalisaton()
+      // mode( `${batchProgress()} checking file ${cfile} ${remain}` )
+      // procTitle( status )
 
       if ( typeof this.args._[1] === "undefined" ) {
         this.nextFile = "...Loading..."
@@ -1660,22 +1636,23 @@ function pushCli(cs) {
     }
     pollForStream( reason ) {
       let msg
-      mode( batchProgress() + " pre-polling " + reason)
-      this.setNextFile()
+      mode( `pre-polling ${reason}`)
       redoline(status)
       if ( renderLock === true ) {
         mode(`removing thread ${ cfile } ${ this.busy() } ${ this.storage() } reason: ${reason}`)
         error( `P: ${ maxWidth(24,  status)} ` )
         return false
       } else {
-        mode(`${batchProgress()} Polling for work... ${reason} ${streamLineNr}`)
+        mode(`Polling for work... ${reason} ${streamLineNr}`)
       }
+      this.setNextFile()
+
       if ( this.test === true || this.demo ) { // uses a loop not polling.
         // error("test is in look for work?")
         log("test is in look for work?")
         return false
       }
-      mode(`${batchProgress()} Validating file`)
+      mode(`Validating file`)
       if ( this.isStorageBusy ) {
         error(`thread re-entry in prepare state ${this.justNameOfPNG}`)
         return false
@@ -1690,7 +1667,7 @@ function pushCli(cs) {
         return false
       }
 
-      mode(`${batchProgress()} parsing file`)
+      mode(`parsing file`)
 
       if ( cfile.indexOf("...") !== -1 || cfile.indexOf("AminoSee_BUSY") !== -1 ) {
         mode( "Cant use files with three dots in the file ... (for some reason?)")
@@ -1716,38 +1693,24 @@ function pushCli(cs) {
       redoline(status)
       this.genomeCanonicalisaton(cfile)
       remain = this.args._.length
-      // this.setNextFile()
 
-      // let msg =  `Checking job ${ batchProgress() }: ${ blueWhite(  this.highlightOrNothin() )} ${fixedWidth(tx /2, file)} verbose`
-      //
-      // if ( this.verbose ) {
-      //   output(msg)
-      // } else {
-      //   redoline(msg)
+      // try {
+      //   this.dnafile = path.resolve( cfile )
+      // } catch(err) {
+      //   mode(	"failed file system checks: " + cfile)
+      //   notQuiet( status )
+      //   this.preRenderReset( status )
+      //   return false
       // }
 
-      try {
-        this.dnafile = path.resolve( cfile )
-      } catch(err) {
-        mode(	"failed file system checks: " + cfile)
-        notQuiet( status )
-        this.preRenderReset( status )
-        return false
-      }
 
-
-
-
-
-
-      this.dnafile = path.resolve(cfile)
       webroot = locateWebroot( this.dnafile )
       this.outputPath = path.resolve( webroot, "output")
-      this.imgPath = path.resolve( this.outputPath, this.justNameOfDNA, "images")
+      this.imgPath = path.resolve( this.outputPath, this.shortnameGenome, "images")
 
       // see if we have writable folder:
       if ( this.mkdir() ) {
-        log("Success")
+        bugtxt("Success writable folder")
       } else {
         error("That's weird. Couldn't create a writable output folder at: " + this.outputPath + ". You can set custom output path with --output=~/newpath")
         this.preRenderReset("no write permission")
@@ -1815,14 +1778,14 @@ function pushCli(cs) {
       if ( this.checkFileExtension( cfile ) == false)  {
         msg = `File Format not supported: (${ this.getFileExtension( cfile)}) Please try: ${ extensions }`
         mode(msg)
-        output( msg )
+        log( msg )
         this.preRenderReset(msg)
         return false
       }
       if (doesFolderExist(this.dnafile ) ) {
         msg = `${cfile} is a folder not a file, will try to re-issue job as ${cfile}/* to process all in dir`
-        // pushCli( `${basename( cfile )}/*` );
-        this.safelyPoll(msg)
+        mode(msg)
+        this.preRenderReset(msg)
         return true
       }
 
@@ -1830,36 +1793,44 @@ function pushCli(cs) {
       ///////////////// BEGIN MODIFYING GLOBALS //////////////////////////////
       if ( renderLock ) { error("draining threads from reset"); return false }
       mode("setup render " + this.busy() + " " + cfile)
-      msg = `>>> PREFLIGHT <<< ${ remain } ${ path.normalize( cfile )} reason: ${reason}`
+      msg = `>>> PREFLIGHT <<< ${ remain } ${this.usersPeptide} ${ path.normalize( cfile )} reason: ${reason}`
       log(msg)
       redoline(msg)
-      if (this.extension == "zip") {
+      if (this.extension === "zip") {
         // streamingZip(this.dnafile )
-        msg = `${this.dnafile }  ZIP file`
-        this.safelyPoll(msg)
+        msg = `${cfile } is a ZIP file`
+        // this.safelyPoll(msg)
+        this.preRenderReset(msg)
+
         return false
       }
-
+      this.justNameOfPNG = this.generateFilenamePNG( this.usersPeptide )
+      this.filePNG = path.resolve( this.imgPath,  this.justNameOfPNG )
       this.setupRender( cfile )
-      mode(`Checking for previous render of ${ path.basename( this.filePNG )}`)
+      mode(`Checking for previous render of ${   this.filePNG } ${this.usersPeptide}`)
       log(status)
+
       if (doesFileExist(this.filePNG)) {
-        let msg = `${batchProgress()} <-- Already rendered.`
+        let msg = `Already rendered -->>  ${this.justNameOfPNG}`
         mode(msg)
-        addToRendered(this.justNameOfDNA) // in case histogram file is deleted
+        output( blueWhite( msg ))
+        addToRendered(this.shortnameGenome) // in case histogram file is deleted
         this.openOutputs()
         this.previousImage = this.filePNG
-        if ( this.verbose ) {
-          termDrawImage(this.filePNG, msg, (msg) => {
-            mode(status)
-          })
+        if ( verbose ) {
+          mode(`drawing image`)
+          termDrawImage(this.filePNG, msg, () => { log( status ) })
         }
         if ( !this.force ) {
           mode( `${status} so skipping.`)
-          cliInstance.preRenderReset(status)
+          // notQuiet(status)
+          setTimeout( () => {
+            cliInstance.preRenderReset(status)
+          }, raceDelay)
           return false // flow goes via preRenderReset above
         } else {
           mode( `${status} But lets render it again anyway?!`)
+          // output( status )
         }
       }
 
@@ -1874,19 +1845,22 @@ function pushCli(cs) {
         this.preRenderReset (msg)
         return false
       }
-      this.justNameOfPNG = this.generateFilenamePNG()
-      mode(`Lock OK proceeding to render ${ this.justNameOfPNG } in ${ humanizeDuration( fileLockingDelay ) }... ${ this.busy() }`)
+      mode(`Lock OK proceeding to render ${ this.justNameOfPNG } in ${ raceDelay } ms... ${ this.busy() }`)
       log( `S: ${status} ` )
       this.setupRender( cfile )
 
-      if ( renderLock == false) {
-        this.touchLockAndStartStream() // <<<<------------- THIS IS WHERE MAGIC STARTS!!!!
+      if ( renderLock === false) {
+        setTimeout( () => {
+          if ( renderLock === false) {
+            this.touchLockAndStartStream() // <<<<------------- THIS IS WHERE MAGIC STARTS!!!!
+          } else {
+            output(`wtf`)
+          }
+
+        }, raceDelay)
       } else {
-        output(`wtf`)
+        output(`double wtf`)
       }
-      // } else {
-      //   error("Stopped due to render lock")
-      // }
     }
 
     firstRun() {
@@ -1930,6 +1904,18 @@ function pushCli(cs) {
       if ( typeof reason === "undefined" ) { error("must set a reason when using reset") }
       if ( remain < 1 ) { this.quit(0, "finished") ; return false }
 
+      if ( brute ) { // incrementally render all amino acids via disk thrashing
+        bruteRemain--
+        if (bruteRemain <= 0 ) { // or set back to 24
+          bruteRemain = data.pepTable.length
+          output(`completed brute-disk rendering method!`)
+        } else {
+          this.peptide = this.usersPeptide = data.pepTable[ bruteRemain - 1 ].Codon // good ole off by one error
+          output(`brute remain ${bruteRemain}. Forcing change of usersPeptide to ${this.usersPeptide}`)
+        }
+      }
+
+
       this.setIsDiskBusy( false )
       killAllTimers()
       try {
@@ -1948,30 +1934,27 @@ function pushCli(cs) {
       setTimeout( () => {
 
         if ( !renderLock ) {
-          // mode("yabba not rendering")
-          this.safelyPoll()
-          // this.preRenderReset(`end of polling`)
+          this.safelyPoll(`>>> next file`)
         } else {
-          mode("dabba do rendering")
+          error("dabba do rendering")
         }
-      }, 50)
+      }, raceDelay)
     }
     initStream() {
-      cpuhit = 0 // used to try and track down a race condition darn it
-
-      this.runid = new Date().getTime()
-      mode(`Initialising Stream: ${cliruns.toLocaleString()} ${this.justNameOfPNG}`)
-      notQuiet( chalk.rgb(64, 128, 255).bold( status ))
-      log(`Output folder --->> ${ blueWhite( blueWhite( cfile ))}`)
-      // this.timestamp = Math.round(+new Date()/1000)
 
       if ( isShuttingDown === true ) { output(`Shutting down after this render ${ blueWhite(this.justNameOfPNG)}`) }
-      if ( renderLock == false) {
+      if ( renderLock === false ) {
         error("RENDER LOCK FAILED. This is an  error I'd like reported. Please run with --verbose --devmode option enabled and send the logs to aminosee@funk.co.nz")
         return false
       }
-      this.setupProgress()
-      this.setIsDiskBusy( false )
+      mode(`Initialising Stream: 🚄 ${this.usersPeptide} ${this.shortnameGenome} Filesize ${bytes( this.baseChars)}`)
+      notQuiet( chalk.rgb(64, 128, 255).bold( status ))
+      log(`Output folder --->> ${ blueWhite( blueWhite( cfile ))}`)
+      this.timestamp = Math.round(+new Date()/1000)
+      cpuhit = 0 // used to try and track down a race condition darn it
+      this.runid = new Date().getTime()
+
+
       // this.mkRenderFolders() // create /images etc
       this.rawDNA = "@"
       this.percentComplete = 0
@@ -1980,21 +1963,24 @@ function pushCli(cs) {
       this.pixelClock = 0 // which pixel are we painting?
       this.msElapsed  = 0
       this.rgbArray = []
+      this.hilbertImage = [];
       tups = 0
-      this.initialiseArrays()
+      killAllTimers()
 
-      // this.hilbertImage = [];
-      output(`${batchProgress()} 🚄 Init stream of ${ this.dnafile } Filesize ${bytes( this.baseChars)}`)
+
+      this.initialiseArrays()
+      // this.setupProgress()
+      this.setIsDiskBusy( false )
+
       // if ( this.quiet == false ) {
       //   term.up( termDisplayHeight +   termHistoHeight *2);
       //   term.eraseDisplayBelow();
       // }
 
-      killAllTimers()
-      this.progUpdate({ title: `Transcribe est. ${this.baseChars.toLocaleString()} nucleotides ${this.justNameOfDNA}`, items: remain, syncMode: true })
+      this.progressTick()
 
       if ( this.willRecycleSavedImage && this.recycEnabled) {
-        output(`Skipped DNA render stage of ${ this.justNameOfDNA}`)
+        output(`Skipped DNA render stage of ${ this.shortnameGenome}`)
         log("AM PLANNING TO RECYCLE TODAY (joy)")
         this.recycleOldImage( this.filePNG )
         return false
@@ -2028,7 +2014,7 @@ function pushCli(cs) {
           log(status)
         })
         .on("close", function() {
-          mode("stream close " + cliInstance.busy())
+          mode(`stream close ${cliInstance.busy()} ${cliInstance.justNameOfPNG} ${cliInstance.usersPeptide}`)
           log(status)
           cliInstance.streamStopped()
         }))
@@ -2043,21 +2029,24 @@ function pushCli(cs) {
       this.streamStarted()
     }
     initialiseArrays() {
+      mode(`initialise arrays ${this.usersPeptide}`)
       for ( let p = 0; p < this.pepTable.length; p++ ) { // standard peptide loop
-
         this.pepTable[p].lm_array = [0,0,0,0]
         this.pepTable[p].hm_array = [0,0,0,0]
         this.pepTable[p].mixRGBA  = [0,0,0,0]
-        this.pepTable[p].linear_master = this.generateFilenamePNG( this.pepTable[p].Codon )//  this.aminoFilenameIndex(p)[1]
-        this.pepTable[p].hilbert_master =  this.generateFilenameHilbert( this.pepTable[p].Codon )//  this.aminoFilenameIndex(p)[0]
-        bugtxt(`initialise ${p}`)
-        bugtxt( this.pepTable[p] )
+        this.pepTable[p].linear_master = this.generateFilenamePNG( this.aminoFilenameIndex(p)[1] )
+        this.pepTable[p].hilbert_master =  this.generateFilenameHilbert( this.aminoFilenameIndex(p)[0] )
+        // output(`${status} ${this.pepTable[p].linear_master}`)
+        // this.pepTable[p].linear_master = this.generateFilenamePNG( "Reference" )//  this.aminoFilenameIndex(p)[1]
+        // this.pepTable[p].hilbert_master =  this.generateFilenameHilbert( "Reference" )//  this.aminoFilenameIndex(p)[0]
+
       }
+      // this.filePNG = path.resolve( this.imgPath, )
     }
     diskStorm(cb) {
       log("WE BE STORMIN")
-      if ( brute == false) { runcb(cb); return false }
-      killAllTimers()
+      if ( brute === false) { runcb(cb); return false }
+      // killAllTimers()
       output("LIKE NORMAN")
 
       for ( let p = 1; p < this.pepTable.length; p++ ) { // standard peptide loop
@@ -2073,11 +2062,11 @@ function pushCli(cs) {
         width  = pwh[1]
         height = pwh[2]
 
-        let fullpath = path.resolve( this.outputPath, this.justNameOfDNA, "images", pep.linear_master)
+        let fullpath = path.resolve( this.outputPath, this.shortnameGenome, "images", pep.linear_master)
         log(`Saving amino acid layer ext ${ this.extension } cppH ${ codonsPerPixelHILBERT } ${ pep.Codon } ${pixels} ${width} ${height} size: ${currentLinearArray.length} ${fullpath}`)
         genericPNG( currentLinearArray, width, height, fullpath)
 
-        fullpath = path.resolve( this.outputPath, this.justNameOfDNA, "images", pep.hilbert_master)
+        fullpath = path.resolve( this.outputPath, this.shortnameGenome, "images", pep.hilbert_master)
         log(`saving to ${fullpath}`)
         if ( p == this.pepTable.length -1 ) { // trigger the callback on the last one
           genericPNG( currentHilbertArray, width, height, fullpath , () => {
@@ -2107,13 +2096,8 @@ function pushCli(cs) {
         if ( renderLock === true ) {
           this.drawHistogram()
         } else {
-          if ( renderLock == false ) {
-            log("streaming")
-            return false
-          } else {
-            output(`render finished too fast for stats ${ this.justNameOfPNG }`)
-          }
-
+          out("streaming")
+          error(`render finished too fast for stats ${ this.justNameOfPNG }`)
         }
       })
     }
@@ -2141,28 +2125,26 @@ function pushCli(cs) {
         }
       }, time)
     }
+
     streamStopped() {
       ishighres = this.genomeSize > hilbPixels[ defaultPreviewDimension ]
+      this.setIsDiskBusy(true)
 
-      mode( (ishighres ? "highres" : "lowres") + " stream stopped")
-      log( blueWhite(status) )
+      mode( (ishighres ? "HIGH RESOLUTION" : "STANDARD ") + " resolution streaming disk read stopped.")
+      log( blueWhite( status ) )
       term.eraseDisplayBelow()
       this.percentComplete = 1
       this.calcUpdate()
       this.percentComplete = 1
       streamLineNr = 0
-      ishighres = this.genomeSize > hilbPixels[ defaultPreviewDimension ]
 
-      // clearTimeout( this.updatesTimer);
-      // clearTimeout( this.progTimer);
-      // clearTimeout( this.lockTimer);
       killAllTimers()
 
       let pixels // = 0;
-      mode(`Preparing to save ${ this.justNameOfPNG } to ${this.outputPath} ratio: ${this.ratio}`)
+      mode(`Preparing to save ${this.usersPeptide} ${ this.justNameOfPNG } to ${this.outputPath} ratio: ${this.ratio}`)
       procTitle(  "saving" )
       log( `S: ${status} ` )
-      if ( renderLock == false) {
+      if ( renderLock === false) {
         error("How is this even possible. renderLock should be true until all storage is complete. Jenkins!")
         return false
       }
@@ -2174,16 +2156,16 @@ function pushCli(cs) {
       }
       catch (err) {
         let msg = `EXCEPTION DURING this.rgbArray.length / 4 = ${err}`
-        rollbackFolder( path.resolve( this.outputPath, this.justNameOfDNA) )
+        rollbackFolder()
         error(msg)
-        removeLocks( this.fileTouch, this.devmode, () => { this.preRenderReset(msg) })
+        removeLocks( this.fileTouch, this.devmode, msg )
         return false
       }
-      redoline(chalk.inverse(`Finished linear render of ${ this.justNameOfDNA}. Array length: ${ pixels.toLocaleString() } = ${ this.pixelClock.toLocaleString() } saving images`))
+      redoline(chalk.inverse(`Finished linear render of ${ this.shortnameGenome}. Array length: ${ pixels.toLocaleString() } = ${ this.pixelClock.toLocaleString() } saving images`))
       if ( pixels < 64 ) {
         let msg = `less than 64 pixels produced: pixels = ${pixels}`
         mode(msg)
-        rollbackFolder( path.resolve( this.outputPath, this.justNameOfDNA) )
+        rollbackFolder()
         data.saySomethingEpic()
         if ( !renderLock ) {
           mode(`${batchProgress()} Either there is too little DNA in this file for render at ${ this.codonsPerPixel } codons per pixel, or less than 64 pixels rendered: ${pixels} pixels rendered from ${ cfile }` )
@@ -2191,7 +2173,9 @@ function pushCli(cs) {
           error("DRAINING surplus thread...")
         }
         out(blueWhite(`Less than 64 pixels`))
-        removeLocks( this.fileTouch, this.devmode, () => { this.preRenderReset(msg) })
+        this.setIsDiskBusy(false)
+        rollbackFolder()
+        removeLocks( this.fileTouch, this.devmode, msg )
         return false
       }
 
@@ -2203,21 +2187,20 @@ function pushCli(cs) {
         gbprocessed  = userprefs.aminosee.gbprocessed
         gbprocessed +=  this.baseChars / 1024 / 1024 / 1024 // increment disk counter.
         userprefs.aminosee.gbprocessed = gbprocessed // i have a superstition this way is less likely to conflict with other threads
-        addToRendered( this.justNameOfDNA )
+        addToRendered( this.shortnameGenome )
       }
 
-      this.setIsDiskBusy(true)
-      this.saveDocsSync( () => { output(`stream closed`) })
+      this.saveDocsSync( () => { log(`stream closed, saving to storage initiated`) })
 
     }
     showFlags() {
-      return `${(  this.force ? "F" : "-"    )}${( this.updates ? "U" : "-" )}C_${ this.userCPP }${( this.keyboard ? "K" : "-" )}${(  this.dnabg ? "B" : "-"  )}${( this.verbose ? "V" : "-"  )}${(  this.artistic ? "A" : "-"    )}${(  this.args.ratio || this.args.r ? `${ this.ratio }` : "---"    )}${( this.dimension ? "M" + this.dimension : "-")}${( this.reg?"REG":"")} C${ onesigbitTolocale( this.codonsPerPixel )}${( brute ? "BRUTE" : "-" )}${( this.index ? "I_" : "_" )}${ this.maxpix.toLocaleString() }`
+      return `${(  this.force ? "F" : "-"    )}${( this.updates ? "U" : "-" )}C_${ this.userCPP }${( this.keyboard ? "K" : "-" )}${(  this.dnabg ? "B" : "-"  )}${( verbose ? "V" : "-"  )}${(  this.artistic ? "A" : "-"    )}${(  this.args.ratio || this.args.r ? `${ this.ratio }` : "---"    )}${( this.dimension ? "M" + this.dimension : "-")}${( this.reg?"REG":"")} C${ onesigbitTolocale( this.codonsPerPixel )}${( brute ? "BRUTE" : "-" )}${( this.index ? "I_" : "_" )}${ this.maxpix.toLocaleString() }`
     }
     testSummary() {
       return `TEST
-      this.justNameOfDNA: <b>${ this.justNameOfDNA}</b>
+      this.shortnameGenome: <b>${ this.shortnameGenome}</b>
       Registration Marks: ${( this.reg ? true : false )}
-      ${ ( this.peptide || this.triplet ) ?  "Highlights: " + ( this.peptide || this.triplet) : " "}
+      ${ isHighlightSet ?  "Highlights: " + ( this.peptide || this.triplet) : " "}
       Your custom flags: TEST${(  this.force ? "F" : ""    )}${(  this.userCPP == "auto"  ? `C${ this.userCPP }` : ""    )}${(  this.devmode ? "D" : ""    )}${(  this.args.ratio || this.args.r ? `${ this.ratio }` : ""    )}${(  this.args.magnitude || this.args.m ? `M${ this.dimension }` : ""    )}
       ${(  this.artistic ? " Artistic this.mode" : " Science this.mode"    )}
       Max magnitude: ${ this.dimension } / 10 Max pix: ${ this.maxpix.toLocaleString()}
@@ -2227,7 +2210,7 @@ function pushCli(cs) {
     renderObjToString() {
       const unknown = "unknown until render complete"
       return `
-      Canonical Name: ${ this.justNameOfDNA }
+      Canonical Name: ${ this.shortnameGenome }
       Canonical PNG: ${ this.justNameOfPNG }
       Source: ${ cfile}
       Full path: ${this.dnafile }
@@ -2282,11 +2265,12 @@ function pushCli(cs) {
           this.dimension = optimumDimension ( this.estimatedPixels, "auto" )
         } else {
           let msg = "Not enough pixels to form image"
-          log(msg)
+          output(msg)
           this.preRenderReset(msg)
           return false
         }
       }
+
 
       if ( this.estimatedPixels < this.maxpix ) { // for sequence smaller than the screen
         if ( this.userCPP !== "auto" )  {
@@ -2301,7 +2285,7 @@ function pushCli(cs) {
         output(`Manual zoom level override enabled at: ${ this.userCPP } codons per pixel.`)
         this.codonsPerPixel = this.userCPP
       } else {
-        log("Automatic codons per pixel setting")
+        bugtxt("Automatic codons per pixel setting")
       }
 
       if ( this.estimatedPixels > this.maxpix ) { // for seq bigger than screen        this.codonsPerPixel = this.estimatedPixels /  this.maxpix*overSampleFactor;
@@ -2353,162 +2337,117 @@ function pushCli(cs) {
     removeFileExtension(f) {
       return f.substring(0, f.length - ( this.getFileExtension(f).length+1))
     }
-    highlightFilename(pep) { // return small fragment of the filename
-      if ( typeof pep === "undefined" ) { pep = "Reference" ; output(pep)}
-      let ret = "_"
-      if (pep == "not set" || pep == "Reference") {
-        ret += "Reference"
-      } else if ( pep  !== "Reference") {
-        ret += `_${spaceTo_( tidyPeptideName( pep ) )}`
-      } else if ( this.triplet !== "Reference") {
-        ret += `_${spaceTo_( this.triplet ).toUpperCase()}` // looks better uppercase
-      } else {
-        ret += "Reference"
-      }
-      bugtxt(`${isHighlightSet} this.triplet ${ this.triplet} return: ${ blueWhite( ret )} this.focusTriplet: ${this.focusTriplet} pep ${ pep}`)
-      return ret
-    }
+
     calcHilbertFilename() {
       mode(`calc hilbert filename`)
       // REQUIRES RENDERING TO MEMORY PRIOR
 
       // let { shrinkFactor, codonsPerPixelHILBERT } =
       calculateShrinkage( this.pixelClock, this.dimension, this.codonsPerPixel )
-      log(`calcHilbertFilename shrinkFactor, codonsPerPixelHILBERT ${shrinkFactor}, ${codonsPerPixelHILBERT}`)
+      // log(`calcHilbertFilename shrinkFactor, codonsPerPixelHILBERT ${shrinkFactor}, ${codonsPerPixelHILBERT}`)
 
-      for ( let p = 0; p < this.pepTable.length; p++ ) { // standard peptide loop
+      for ( let p = 0; p < this.pepTable.length; p++ ) { // add correct filenames to json file
         const pep =  spaceTo_( this.pepTable[p].Codon )
-        // this.pepTable[p].linear_preview  =
-        this.pepTable[p].hilbert_preview = this.generateFilenameHilbert( pep )
-        this.pepTable[p].hilbert_master = this.generateFilenameHilbert( pep )
-        bugtxt(`initialise ${p} ${pep} master ${this.pepTable[p].hilbert_master }`)
+        if ( ishighres ) {
+          this.pepTable[p].hilbert_preview = this.generateFilenameHilbert( pep )
+        } else {
+          this.pepTable[p].hilbert_preview = this.generateFilenameHilbert( pep )
+          this.pepTable[p].hilbert_master = this.generateFilenameHilbert( pep )
+        }
+        bugtxt(`calc Hilbert Filename ${p} ${pep} master ${this.pepTable[p].hilbert_master }`)
       }
 
-      bugtxt(`codons per pixel hilbert ${codonsPerPixelHILBERT}`)
+      // bugtxt(`codons per pixel hilbert ${codonsPerPixelHILBERT}`)
 
       this.justNameOfHILBERT =  this.generateFilenameHilbert( this.peptide )
-      this.fileHILBERT = path.resolve( this.outputPath, this.justNameOfDNA, "images", this.justNameOfHILBERT)
-      return this.fileHILBERT
+      this.fileHILBERT = path.resolve( this.imgPath, this.justNameOfHILBERT)
+      return this.justNameOfHILBERT
     }
     generateURL() {
       mode(`Generate URL ${this.justNameOfHTML}`)
       if ( this.index && !this.artistic ) {
-        this.currentURL = `${url}/output/${this.justNameOfDNA}/`
+        this.currentURL = `${url}/output/${this.shortnameGenome}/`
       } else if (this.artistic) {
-        this.currentURL = `${url}/output/${this.justNameOfDNA}/artistic.html`
+        this.currentURL = `${url}/output/${this.shortnameGenome}/artistic.html`
       } else {
-        this.currentURL = `${url}/output/${this.justNameOfDNA}/${this.justNameOfHTML}`
+        this.currentURL = `${url}/output/${this.shortnameGenome}/${this.justNameOfHTML}`
       }
       return this.currentURL
     }
 
     generateFilenameHistogram() {
-      http://10.0.2.3/aminosee/output///aminosee_histogram.json
-      return path.resolve( this.outputPath, this.justNameOfDNA, "aminosee_histogram.json")
+      mode(`Gen name histogram`)
+      // http://10.0.2.3/aminosee/output///aminosee_histogram.json
+      return path.resolve( this.outputPath, this.shortnameGenome, "aminosee_histogram.json")
     }
 
     generateFilenameTouch( focus ) { // we need the *fullpath* of this one
-      mode(`inside generateFilenameTouch function`)
+      // mode(`Gen name touch ${focus}`)
       if ( typeof focus === "undefined" ) {
-        focus = this.peptide
+        focus = "Reference"
       }
-      return `AminoSee_BUSY_LOCK_${ maxWidth(12, this.justNameOfPNG )}_c${ onesigbitTolocale( this.codonsPerPixel ) }${ this.highlightFilename( focus ) }${ this.getImageType() }.txt`
+      return `AminoSee_BUSY_LOCK_${ maxWidth(12, this.justNameOfPNG )}_c${ onesigbitTolocale( this.codonsPerPixel ) }${ highlightFilename( focus ) }${ this.getImageType() }.txt`
     }
     generateFilenamePNG( focus ) {
-      if ( typeof focus === "undefined" ) {
-        focus = this.usersPeptide
-        // focus = "Reference"
-        // this.usersPeptide
+      let ret
+      if ( typeof focus === "undefined" || focus === "not set" || focus === "") {
+        focus = "Reference"
       }
-      mode(`focus ${focus} inside generateFilenamePNG  ${this.justNameOfPNG} ${status}`)
-      this.justNameOfPNG = `${ this.justNameOfDNA}.${ this.extension }.aminosee_linear_c${ onesigbitTolocale( this.codonsPerPixel )}${ this.highlightFilename( focus ) }${this.getImageType() }.png`
-      bugtxt(status)
-      return this.justNameOfPNG
+      bugtxt(`focus is set to ${focus}`)
+      ret = `${ this.shortnameGenome}.${ this.extension }.aminosee_linear_c${ onesigbitTolocale( this.codonsPerPixel )}${ highlightFilename( focus ) }${this.getImageType() }.png`
+      return ret
     }
 
 
     generateFilenameHilbert( focus ) { // needs  this.dimension estimatedPixels
-      mode(`Generate filename for Hilbert proj ${focus}`)
+      mode(`Gen name Hilbert ${focus}`)
       let thename
       if ( typeof focus === "undefined" ) {
         focus = "Reference"
       }
-      if ( this.test) { // the this.dnafile should be set already fingers crossed.
-        thename = `${ this.justNameOfDNA}.${ this.extension }.aminosee_HILBERT_m${ this.dimension }_c${ onesigbitTolocale( codonsPerPixelHILBERT )}${ this.highlightFilename( focus ) }${ this.getRegmarks()}.png`
-      } else {
-        // output(`Generating filenames: n ${ this.pixelClock }  ${ this.justNameOfDNA} [${ codonsPerPixelHILBERT }] optimumDimension: this.magnitude: ${ this.magnitude } ${this.pixelClock} ${this.dimension}` )
-        thename = `${ this.justNameOfDNA}.${ this.extension }.aminosee_HILBERT_m${ this.dimension }_c${ onesigbitTolocale (codonsPerPixelHILBERT) }${ this.highlightFilename( focus ) }${ this.getRegmarks()}.png`
+      thename = `${ this.shortnameGenome}.${ this.extension }.aminosee_HILBERT_m${ this.dimension }_c${ onesigbitTolocale( codonsPerPixelHILBERT )}${ highlightFilename( focus ) }${ this.getRegmarks()}.png`
+      const pos = thename.substring("NaN")
+      if ( pos > 0 ) {
+        error(`thename contains NaN at pos ${pos}) ${thename}`)
       }
-      bugtxt(`thename: ${thename} focus: ${blueWhite(focus)} codonsPerPixelHILBERT ${codonsPerPixelHILBERT} `)
-      if ( thename.substring("NaN") !== -1) {
-        // error(`thename contains NaN this.justNameOfHILBERT.substring("NaN") !== -1) ${thename}`)
-        bugtxt(`ERROR: thename contains NaN this.justNameOfHILBERT.substring("NaN") !== -1) ${thename}`)
-      }
-      this.justNameOfHILBERT =  thename
-      this.fileHILBERT = path.resolve( this.imgPath, thename )
-      bugtxt(`thename ${thename}`)
-      // output(`generateFilenameHilbert ${focus} ${this.justNameOfDNA}` + blueWhite(` this.pixelClock ${this.pixelClock}  this.magnitude ${this.magnitude} codonsPerPixelHILBERT ${codonsPerPixelHILBERT}`))
-
+      // this.justNameOfHILBERT =  thename
+      // this.fileHILBERT = path.resolve( this.imgPath, thename )
       return thename
     }
     generateFilenameHTML() {
       mode(`Generate filename for HTML`)
-      this.justNameOfHTML =        `${ this.justNameOfDNA}.${ this.extension }.aminosee_m${ this.dimension }${ this.getRegmarks()}${ this.getImageType() }.html`
+      this.justNameOfHTML = `${ this.shortnameGenome}.${ this.extension }.aminosee_m${ this.dimension }${ this.getRegmarks()}${ this.getImageType() }.html`
       return this.justNameOfHTML
     }
     genomeCanonicalisaton() {
+      mode(`Generate shorter name based on input DNA filename: ${cfile}`)
+      bugtxt( status )
       this.dnafile = path.resolve(cfile)
       this.extension = this.getFileExtension( this.dnafile )
       cfile = path.basename(this.dnafile)
-      this.justNameOfDNA = spaceTo_( this.removeFileExtension( cfile ))
-      if ( this.justNameOfDNA.length > maxCanonical ) {
-        this.justNameOfDNA = this.justNameOfDNA.replace("_", "")
+      this.shortnameGenome = spaceTo_( this.removeFileExtension( cfile ))
+      if ( this.shortnameGenome.length > maxCanonical ) {
+        this.shortnameGenome = this.shortnameGenome.replace("_", "")
       }
-      if ( this.justNameOfDNA.length > maxCanonical ) {
-        this.justNameOfDNA = this.justNameOfDNA.substring( 0, maxCanonical/2 ) + this.justNameOfDNA.substring( this.justNameOfDNA.length - ( maxCanonical /2), this.justNameOfDNA.length)
+      if ( this.shortnameGenome.length > maxCanonical ) {
+        this.shortnameGenome = this.shortnameGenome.substring( 0, maxCanonical/2 ) + this.shortnameGenome.substring( this.shortnameGenome.length - ( maxCanonical /2), this.shortnameGenome.length)
       }
-      return this.justNameOfDNA
+      this.imgPath = path.resolve( this.outputPath, this.shortnameGenome, "images")
+      this.setupLinearNames()
+      return this.shortnameGenome
     }
     setupLinearNames() { // must not be called during creation of hilbert image
-      if ( renderLock ) {
-        error("thread re-entry inside setupLinearNames")
-        return false
-      }
-      let msg = `Setup linear names: ${ cfile } highlight set: ${isHighlightSet} peptide: ${this.peptide} focus: ${this.peptide} triplet ${this.triplet}`
-      mode(msg)
-      bugtxt(msg)
+      let msg = `Setup linear names: ${ cfile } highlight set: ${isHighlightSet} peptide: ${this.peptide} users focus: ${this.usersPeptide} triplet ${this.triplet}`
+      // mode(msg)
+      // output(msg)
 
-      // DNA CANONICALISATION
-      const cppBackup = this.codonsPerPixel
-      const hcpBackup = codonsPerPixelHILBERT
-
-      //
-      // if ( brute === true ) {
-      // for ( let p = 0; p < this.pepTable.length; p++ ) { // standard peptide loop
-      // 		// previewCodonsPerPixel
-      // 		// this.pepTable[p].linear_preview  =
-      // 		// this.pepTable[p].hilbert_preview =
-      // 		out(`initialise ${i}`)
-      // 	}
-      // }
-
-      this.justNameOfPNG = this.generateFilenamePNG()
-      this.fileTouch =   path.resolve( this.outputPath, this.justNameOfDNA, this.generateFilenameTouch()  )
-      this.fileHTML =    path.resolve( this.outputPath, this.justNameOfDNA, this.generateFilenameHTML()   )
-      this.filePNG =     path.resolve( this.imgPath, this.justNameOfPNG )
-      // this.fileHILBERT = this.calcHilbertFilename()
-      // this.fileHILBERT = `not set yet`
+      this.fileTouch =   path.resolve( this.outputPath, this.shortnameGenome, this.generateFilenameTouch( this.usersPeptide )  )
+      this.fileHTML =    path.resolve( this.outputPath, this.shortnameGenome, this.generateFilenameHTML()   )
+      this.filePNG =     path.resolve( this.outputPath, this.shortnameGenome, "images", this.generateFilenamePNG( this.usersPeptide ) )
       this.currentURL = this.generateURL()
-      // if ( this.index ) {
-      // 	this.currentURL = `${url}/output/${this.justNameOfDNA}/`
-      // } else {
-      // 	this.currentURL = `${url}/output/${this.justNameOfDNA}/${this.justNameOfHTML}`
-      // }
-
-      // this.fancyFilenames();
     }
     qualifyPath(f) {
-      return path.resolve( this.outputPath, this.justNameOfDNA, f  )
+      return path.resolve( this.outputPath, this.shortnameGenome, f  )
     }
 
 
@@ -2537,7 +2476,7 @@ function pushCli(cs) {
 
       // Spawn NPM asynchronously
       // const evilSpawn = spawn('npm', ['list', '-g', '-depth', '0'], { stdio: 'inherit' });
-      // const evilSpawn = spawn('http-server', [server.getServerURL( this.justNameOfDNA), '--port', port, '0'], { stdio: 'pipe' });
+      // const evilSpawn = spawn('http-server', [server.getServerURL( this.shortnameGenome), '--port', port, '0'], { stdio: 'pipe' });
       const evilSpawn = spawn("http-server", ["--directory", this.outputPath,  "--port", port, "0"], { stdio: "pipe" })
       evilSpawn.stdout.on("data", (data) => {
         output(`${chalk.inverse("aminosee serve")}${chalk(": ")}${data}`)
@@ -2659,29 +2598,29 @@ function pushCli(cs) {
       bugtxt(`Making render folders for ${ this.filePNG}`)
       this.mkdir() // create the webroot dir if it not exist
       this.mkdir( "output" )
-      this.mkdir( path.join( "output", this.justNameOfDNA ) ) // genome render dir
-      this.mkdir( path.join( "output", this.justNameOfDNA, "images" ) ) // genome render dir
-      bugtxt(`Done making render folders for ${ this.justNameOfDNA} ${reason}`)
+      this.mkdir( path.join( "output", this.shortnameGenome ) ) // genome render dir
+      this.mkdir( path.join( "output", this.shortnameGenome, "images" ) ) // genome render dir
+      bugtxt(`Done making render folders for ${ this.shortnameGenome} ${reason}`)
     }
     fancyFilenames() {
       output()
-      log(chalk.bold(`Render Filenames for ${ this.justNameOfDNA}:`))
-      output(chalk.rgb(255,255,255).inverse(    fixedWidth( this.colDebug*2.5,  `Input DNA File: ${ path.normalize( this.dnafile )} `)))
+      log(chalk.bold(`Render Filenames for ${ this.shortnameGenome}:`))
+      output(chalk.rgb(255,255,255).inverse(    fixedWidth( this.colDebug*2.5,  `Input DNA File: ${ cfile } `)))
       output(chalk.rgb(200,200,200).inverse(    fixedWidth( this.colDebug*2.5,  `Linear PNG: ${ this.justNameOfPNG }`      )))
       output(chalk.rgb(150,150,150).inverse(    fixedWidth( this.colDebug*2.5,  `Hilbert PNG: ${ this.justNameOfHILBERT }` )))
-      output(chalk.rgb(100,100,180).inverse(    fixedWidth( this.colDebug,  `HTML: ${ fixedWidth( this.colDebug, path.basename( this.fileHTML ))}`)))
-      log(chalk.white.bgBlue.inverse(           fixedWidth( this.colDebug*2.5,  `Lockfile: ${ path.basename( this.fileTouch )}`)))
+      output(chalk.rgb(100,100,180).inverse(    fixedWidth( this.colDebug,  `HTML: ${ fixedWidth( this.colDebug, this.fileHTML )}`)))
+      log(chalk.white.bgBlue.inverse(           fixedWidth( this.colDebug*2.5,  `Lockfile: ${ this.fileTouch }`)))
       output(blueWhite(`URL: ${ fixedWidth( this.colDebug,  this.currentURL )}`))
     }
     setIsDiskBusy(boolean) {
       if (boolean) { // busy!
-        mode(`locking storage (${status} saving ${this.justNameOfDNA} ${this.justNameOfPNG} ${this.justNameOfHILBERT})`)
+        mode(`locking storage (${status} saving ${this.shortnameGenome} ${this.justNameOfPNG} ${this.justNameOfHILBERT})`)
         this.isStorageBusy = true
         this.isDiskFinHTML = false
         this.isDiskFinHilbert = false
         this.isDiskFinLinear = false
       } else { // free!
-        mode(`storage unlocked (closing ${this.justNameOfDNA})`)
+        mode(`${batchProgress()} storage unlocked (closing ${this.shortnameGenome})`)
         // output(status)
         this.isStorageBusy = false
         this.isDiskFinHTML = true
@@ -2696,20 +2635,26 @@ function pushCli(cs) {
 
 
 
-
+      this.setIsDiskBusy(true)
       this.mkRenderFolders()
       this.calcHilbertFilename()
-      this.prepareHilbertArray()
-      this.fancyFilenames()
+      this.projectHilbertImage( () => { out(`Hilbert projection done.`) } )
+      // this.fancyFilenames()
       //
-      //
-      // this.saveHilbert(this.savePNG(this.saveHTML(this.postRenderPoll(`roger that`)))) // <--- that's some callback hell right there!
-      // this.saveHilbert(this.savePNG(this.saveHTML(this.postRenderPoll(`roger that`)))) // <--- that's some callback hell right there!
-      // this.saveHilbert(this.savePNG(this.saveHTML(this.postRenderPoll(`roger that`)))) // <--- that's some callback hell right there!
-      // <--- that's some callback hell right there!
-      this.saveHilbert( this.savePNG( () => { out(`save png images cb`) })) // <--- that's some callback hell right there!
-      this.saveHTML( () => { this.postRenderPoll(`save docs cb`) })
 
+
+
+      this.saveHTML( () => { log(`save html`) })
+
+
+      setTimeout(  () => {
+        this.saveHilbert( this.savePNG( () => {
+          log(`save png images cb`)
+        })) // <--- that's some callback hell right there!
+      }, raceDelay)
+
+      log(`saving ${ ishighres ? ispreview ? 'preview' : 'highres' : 'lowres'  }`)
+      cb()
     }
     compareHue(a,b) {
       if (a.Hue < b.Hue)
@@ -2729,29 +2674,27 @@ function pushCli(cs) {
 
     }
 
-    saveHTML(cb) {
-      mode("maybe save HTML")
-      log(status)
-      if ( this.isHilbertPossible == false ) { mode("not saving html - due to hilbert not possible"); this.isDiskFinHTML = true }
-      // if ( this.report == false ) { mode("not saving html - due to report disabled. peptide: " + this.peptide); this.isDiskFinHTML = true }
-      if ( this.test ) { mode("not saving html - due to test");  this.isDiskFinHTML = true  }
-      if ( this.willRecycleSavedImage === true && this.recycEnabled === true) {
-        mode("Didnt save HTML report because the linear file was recycled.")
-        this.isDiskFinHTML = true
-      }
-      if (this.isDiskFinHTML === true ) { // set just above
-        log(`status ${status} not saving`)
-        // runcb(cb)
-        this.htmlFinished()
-        cb()
-        return false
-      }
+    saveHTML( cb ) {
+      status = ""
+      if ( this.isHilbertPossible === false ) { status += "Hilbert not possible. "; this.report = false }
+      if ( this.report === false ) { status += "Report is disabled. "; this.report = false }
+      if ( this.test ) { status += "Test. ";  this.report = false  }
+      if ( this.isDiskFinHTML ) { status += "It was already saved. ";  this.report = false  }
+      if ( this.recycEnabled ) { status += "It was recycled. ";  this.report = false  }
+
+      // if (this.report === false ) { // set just above
+      //   output(`Not saving HTML due to ${status}`)
+      //   // runcb(cb)
+      //   this.htmlFinished()
+      //   cb()
+      //   return false
+      // }
       mode("Saving HTML")
 
-      this.pepTable.sort( this.compareHistocount )
+      // this.pepTable.sort( this.compareHistocount )
       let histogramJson =  this.getRenderObject()
       let histogramFile = this.generateFilenameHistogram()
-      bugtxt(`globalVariablesDoSuck: ${	this.peptide}`)
+      bugtxt(`globalVariablesDoSuck: ${	this.usersPeptide}`)
       // output( beautify( histogramJson , null, 2, 100) )
 
       let hypertext
@@ -2769,34 +2712,36 @@ function pushCli(cs) {
 
 
       if ( debug ) {
-        this.fileWrite(path.resolve( this.outputPath, this.justNameOfDNA, "debug.html"), hypertext)
+        this.fileWrite(path.resolve( this.outputPath, this.shortnameGenome, "debug.html"), hypertext)
       }
 
       if ( this.dimension > defaultPreviewDimension ) {
-        this.fileWrite(path.resolve( this.outputPath, this.justNameOfDNA, "highres.html"), hypertext)
-        log( blueWhite(`Writing high resolution report for the directory ${this.justNameOfDNA}`))
+        this.fileWrite(path.resolve( this.outputPath, this.shortnameGenome, "highres.html"), hypertext)
+        log( blueWhite(`Writing high resolution report for the directory ${this.shortnameGenome}`))
       } else if ( this.dimension = defaultPreviewDimension ) {
         this.index = true
       }
 
       if ( this.index || !ishighres ) { // if it wont make the users computer explode... set it as index page!
-        this.fileWrite(path.resolve( this.outputPath, this.justNameOfDNA, "index.html"), hypertext)
-        log( blueWhite(`Writing default report for the directory ${this.justNameOfDNA}`))
+        this.fileWrite(path.resolve( this.outputPath, this.shortnameGenome, "index.html"), hypertext)
+        log( blueWhite(`Writing default report for the directory ${this.shortnameGenome}`))
       }
 
       if ( this.artistic ) {
-        this.fileWrite( path.resolve( this.outputPath, this.justNameOfDNA, "artistic.html"), hypertext)
+        this.fileWrite( path.resolve( this.outputPath, this.shortnameGenome, "artistic.html"), hypertext)
       }
 
       this.fileWrite( this.fileHTML, hypertext )
 
-      if ( !doesFileExist( histogramFile ) ) {
         this.fileWrite( histogramFile, histotext, () => {
-          output("Writing " + histogramFile)
+          output("Finished Writing " + histogramFile)
+
+          this.htmlFinished()
+          runcb(cb)
+
         })
-      }
-      this.htmlFinished()
-      runcb(cb)
+      output("Writing " + histogramFile)
+
     }
     fileWrite(file, contents, cb) {
       this.mkRenderFolders()
@@ -2842,9 +2787,9 @@ function pushCli(cs) {
         if ( renderLock === true ) {
           this.initStream()
         } else {
-          error(`was put to sleep by another thread? ${cfile}`)
+          error(`was put to sleep by another thread that finished?! ${cfile}`)
         }
-      }, this.raceDelay)
+      }, raceDelay)
     }
     blurb() {
       let msg = `
@@ -2859,7 +2804,6 @@ function pushCli(cs) {
       return msg
     }
     tLock(cb) {
-      renderLock = true
       mode(`tLock`)
       this.calcUpdate()
       const outski = `
@@ -2903,11 +2847,11 @@ function pushCli(cs) {
 
 
     safelyPoll( reason ) { // get to Polling safely
-      mode(`${batchProgress()} safely polling ${reason}`)
       if ( renderLock ) {
         error("thread activated inside slow skip")
         return false
       }
+      mode(`safely polling ${reason}`)
 
       setTimeout( () => {
         this.fastUpdate()
@@ -2916,15 +2860,15 @@ function pushCli(cs) {
         // this.setNextFile()
         // log( `remain ${remain} ${cfile}`)
         this.pollForStream(`safe polling`)
-      }, this.raceDelay)
+      }, raceDelay)
     }
     createPreviews(cb) {
-      mode(`setting up previews ${this.justNameOfHILBERT}`)
-      printRadMessage([`setting up previews`, status])
+      mode(`Setting up previews ${this.justNameOfHILBERT}`)
+      // printRadMessage([`setting up previews`, status])
       output(status)
       if ( this.test ) { return false; }
       renderLock = true
-      isPreview = true
+      ispreview = true
       this.ratio = "sqr"
       this.hilbertImage = [] // wipe the memory!!
       this.antiAliasArray = []
@@ -2955,21 +2899,24 @@ function pushCli(cs) {
       output(codonsPerPixelHILBERT )
 
       this.isDiskFinLinear = true
-      this.saveDocsSync( () => {
-        this.dimension = defaultMagnitude = usersMagnitude // 5
-        output(`finished saving PREVIEW docs, setting dimension back to: ${usersMagnitude}`)
 
-      })
+      this.saveDocsSync( () => { log(`saving previews to storage initiated`) })
+
+
     }
     postRenderPoll(reason) { // renderLock on late, off early
+      mode(`Post render [${reason}] Waiting on (${ this.storage()})`)
+
       if ( typeof reason === "undefined") { error("reason must be defined for postRenderPoll"); return false; }
-      log(`post render reason: ${ blueWhite( reason )}`)
-      if ( this.verbose ) {
-        log(chalk.inverse(`Finishing saving (${reason}), ${this.busy()} waiting on ${ this.storage() } ${ remain } files to go.`))
-      }
+
+      log( status )
+      //
+      // if ( verbose ) {
+      //   redoline(chalk.inverse(`Finishing saving (${reason}), ${this.busy()} waiting on ${ this.storage() } ${ remain } files to go.`))
+      // }
 
       if ( renderLock === false ) { // re-entrancy filter
-        output(chalk.bgRed(`another thread has continued because: ${reason}`))
+        error(chalk.bgRed(`another thread has continued because: ${reason}`))
         if ( !this.test ) {
           return false
         }
@@ -2982,14 +2929,13 @@ function pushCli(cs) {
       if ( this.isDiskFinLinear === true && this.isDiskFinHilbert === true && this.isDiskFinHTML === true ) {
         log(`this.dimension ${this.dimension} > defaultPreviewDimension ${defaultPreviewDimension} is test: ${this.test}`)
         out(`Finished saving`)
-        log(` [ storage threads ready: ${chalk.inverse( this.storage() )} ] test: ${this.test} reason: ${reason}`)
         this.openOutputs()
         this.setIsDiskBusy( false )
-        addToRendered(this.justNameOfDNA) // in case histogram file is deleted
+        addToRendered(this.shortnameGenome) // in case histogram file is deleted
 
         if ( this.test === true ) {
           if ( remain > 1 && renderLock ) {
-            out(blueWhite( ` [ Starting another cycle in ${ humanizeDuration( this.raceDelay )}`))
+            out(blueWhite( ` [ Starting another cycle in ${ humanizeDuration( raceDelay )}`))
 
               setTimeout( () => {
                 if ( renderLock ) {
@@ -2998,47 +2944,46 @@ function pushCli(cs) {
                 } else {
                   out("not running")
                 }
-              }, this.raceDelay)
+              }, raceDelay)
             } else {
               out(`finished tests`)
               // remain--
               // this.quit(0,"test "+ remain)
             }
-          } else { // not test real DNA render
-            let msg = `${batchProgress()} Great success with render`
-            mode(msg)
-            notQuiet(status)
-            saySomethingEpic()
-            killAllTimers()
+            return
 
-            removeLocks( this.fileTouch, this.devmode, () => {
-              if (this.dimension > defaultPreviewDimension) {
-                this.renderLock = true
-                out(`creating previews`)
-                this.hilbertImage = []
-                setTimeout( () => {
-                  this.createPreviews( () => {
-                    mode(`Previews created ${this.justNameOfPNG}`)
-                    // this.dimension = -1
-                    const msg = `Previews created. Not polling.`
-                    out(msg)
+          }
+          let msg = `Great success with render`
+          mode(msg)
+          notQuiet(status)
+          saySomethingEpic()
+          killAllTimers()
 
-                  })
-                }, this.raceDelay * 3 )
+          if (ishighres && !ispreview) {
+            this.renderLock = true
+            mode(`Creating lowres previews in ${raceDelay} ms`)
+            output( status )
 
-              } else {
-                out(`used standard resolution`)
-              }
-              this.preRenderReset(`resetting`)
+            this.hilbertImage = []
+            // setTimeout( () => {
+              this.createPreviews( () => {
 
-            })
-            // if ( remain < 1) {
-            //   isShuttingDown = true
-            //   this.quit(0, `normal ending`)
-            // }
+                this.dimension = defaultMagnitude = usersMagnitude // 5
+                bugtxt(`finished saving PREVIEW docs, setting dimension back to: ${usersMagnitude}`)
+
+
+                mode(`Previews created from high res render ${this.justNameOfPNG}`)
+                removeLocks( this.fileTouch, this.devmode, status )
+                return
+              })
+            // }, raceDelay )
+          } else {
+            mode(`Used ${ishighres ? 'highres' : 'lowres'} output resolution for ${this.usersPeptide}`)
+            output( status )
+            removeLocks( this.fileTouch, this.devmode, status )
           }
         } else { //  disk is not finished
-          log(` [ post render ${reason} wait on storage: ${chalk.inverse( this.storage() )}  ] `)
+          output(` [ post render ${reason} wait on storage: ${chalk.inverse( this.storage() )}  ] `)
         }
       }
       getFilesizeInBytes(file) {
@@ -3051,7 +2996,7 @@ function pushCli(cs) {
           mode(msg)
           error( chalk.inverse(msg) )
           renderLock = false
-          this.safelyPoll(msg)
+          this.safelyPoll(`getFilesizeInBytes`)
           return -1 // -1 is signal for failure or unknown size (stream).
         }
       }
@@ -3114,7 +3059,6 @@ function pushCli(cs) {
         log(`Received quit(${code}) ${reason}`)
         killAllTimers()
         destroyKeyboardUI()
-        this.destroyProgress()
         if ( renderLock === true ) {
           output("halting render") // maybe this happens during graceful shutdown
         }
@@ -3123,7 +3067,7 @@ function pushCli(cs) {
           return
         }
         if ( !isShuttingDown ) {
-          log(`Not shutting down yet`)
+          bugtxt(`Not shutting down yet`)
           return
         }
 
@@ -3151,19 +3095,16 @@ function pushCli(cs) {
         // term.eraseDisplayBelow()
         this.destroyProgress()
         process.exitCode = code
-        deleteFile( this.fileTouch ) // removeLocks( this.fileTouch, this.devmode );
+        deleteFile( this.fileTouch )
         killAllTimers()
-
-
-        printRadMessage([ ` ${(killServersOnQuit ?  'AminoSee has shutdown' : ' ' )}`, `${( this.verbose ?  ' Exit code: '+ code : '' )}`,  (killServersOnQuit == false ? server.getServerURL() : ' '), remain ]);
-
+        printRadMessage([ ` ${(killServersOnQuit ?  'AminoSee has shutdown' : ' ' )}`, `${( verbose ?  ' Exit code: '+ code : '' )}`,  (killServersOnQuit == false ? server.getServerURL() : ' '), remain ]);
       }
       processLine(l) { // need to implement the format here: https://rdrr.io/rforge/seqTools/man/countGenomeKmers.html
         if ( renderLock === false ) { error("thread entered process line!")}
         renderLock = true
         streamLineNr++
         status = `Streaming line: ${streamLineNr}`
-        // if ( debounce(500 )) { this.progUpdate( this.percentComplete ) }
+        if ( debounce(500 )) { this.progressTick() }
 
 
         if (this.rawDNA.length < termPixels) {
@@ -3241,7 +3182,9 @@ function pushCli(cs) {
                 this.pepTable[ p ].mixRGBA[2] += parseFloat( this.codonRGBA[2].valueOf() * pixelGamma ) // * blue
                 this.pepTable[ p ].mixRGBA[3] += parseFloat( this.codonRGBA[3].valueOf() * pixelGamma ) // * blue
               }
+              this.peptide = this.usersPeptide
             }
+
             //  blends colour on one pixel
             if ( this.pixelStacking >= this.codonsPerPixel ) {
               this.renderPixel() // dont push to memory instead keep stacking adding to same values
@@ -3284,15 +3227,7 @@ function pushCli(cs) {
         this.blue  = bc[2]
         this.alpha = bc[3]
 
-        if ( debug && this.verbose ) {
-          if (debounce()) {
-            console.log( this.printRGB() )
-          }
-        }
-        // this.rgbArray.push(Math.round( this.red ))
-        // this.rgbArray.push(Math.round( this.green ))
-        // this.rgbArray.push(Math.round( this.blue ))
-        // this.rgbArray.push(Math.round( this.alpha))
+
 
         if ( brute === true ) {
           for ( let p = 0; p < this.pepTable.length; p++ ) { // standard peptide loop
@@ -3456,40 +3391,31 @@ function pushCli(cs) {
 
       }
       aminoFilenameIndex(id) { // return the png files for the report
-        // id = 0
-        // if ( renderLock === true ) { error(`removing thread from amino Filename Index`); }
-
-        mode(`creating filenames id ${id} ${this.pepTable[id].Codon}`)
-        bugtxt(status)
         let hilbert_master, linear_master, hilbert_preview, linear_preview
-        const backupHighlight = this.peptide
         const backupBoolean =  isHighlightSet
-        // hilbert_master = `not set by aminoFilenameIndex`
 
-        this.peptide = this.pepTable[id].Codon
+        this.peptide = data.pepTable[id].Codon
+        // bugtxt(`id = ${id} peptide = ${this.peptide}`)
 
-        if (typeof id === "undefined" || id < 1) { // for the reference image
-          isHighlightSet = false
-        } else {
-          isHighlightSet = true
-        }
+        // if (typeof id === "undefined" || id < 1) { // for the reference image
+        //   isHighlightSet = false
+        // } else {
+        //   isHighlightSet = true
+        // }
 
         // hilbert_master  =
-        linear_master = this.generateFilenamePNG() // isHighlightSet needs to be false for reference
+        linear_master = this.generateFilenamePNG( this.peptide ) // isHighlightSet needs to be false for reference
 
-        if ( isPreview ) { // master is high res, preview is low res file from this pass
+        if ( ispreview ) { // master is high res, preview is low res file from this pass
           hilbert_master = this.pepTable.hilbert_master
-          hilbert_preview =  this.generateFilenameHilbert(this.peptide)
+          hilbert_preview =  this.generateFilenameHilbert( this.peptide )
         } else {
-          hilbert_master = this.generateFilenameHilbert(this.peptide)
+          hilbert_master = this.generateFilenameHilbert( this.peptide )
           hilbert_preview = hilbert_master // prev and master are the same
         }
 
-        // output(`values for peptid and focus ${this.peptide} ${this.peptide}`)
-
-
-        this.peptide = this.usersPeptide
         isHighlightSet = backupBoolean
+        this.peptide = this.usersPeptide
         return [ hilbert_master, linear_master, hilbert_preview, linear_preview ]
       }
       getImageType() {
@@ -3497,7 +3423,7 @@ function pushCli(cs) {
         t += `_${ this.ratio }`
         this.artistic ? t += "_artistic" : t += "_sci"
         this.reg === true ? t += "_reg" : t += ""  // registration marks
-        bugtxt(`image type ${t}`)
+        // bugtxt(`image type ${t}`)
         return t
       }
 
@@ -3557,14 +3483,14 @@ function pushCli(cs) {
         }).catch()
       }
       recycleOldImage(pngfile) {
-        mode(`RECYCLING ${ this.justNameOfDNA }`)
+        mode(`RECYCLING ${ this.shortnameGenome }`)
 
         recycleHistogram( path.resolve( generateFilenameHistogram() ))
         log("recycled json")
 
         try {
           // var oldimage = new PNG.load(f);
-          output(chalk.inverse("RECYCLING EXISTING LINEAR FILE ") + chalk(" " + this.justNameOfDNA))
+          output(chalk.inverse("RECYCLING EXISTING LINEAR FILE ") + chalk(" " + this.shortnameGenome))
           this.rgbArray = decodePNG(pngfile, function () {
             this.isDiskFinHilbert = false
             this.isDiskFinHTML = true
@@ -3616,12 +3542,12 @@ function pushCli(cs) {
         }
         return txt
       }
-      prepareHilbertArray(cb) {
-        mode("maybe save hilbert "+ this.busy())
-        log(`H: ${status}`)
-        if ( renderLock == false ) { error("locks should be on during hilbert curve") }
+      projectHilbertImage(cb) {
+        mode(`Project hilbert image ${ ishighres ? 'high res' : 'low res' }`)
+        log( status )
+        if ( renderLock === false ) { error("locks should be on during hilbert curve") }
 
-        if ( this.isHilbertPossible  == false ) {
+        if ( this.isHilbertPossible === false ) {
           this.isDiskFinHilbert = true
           runcb(cb)
           return false
@@ -3635,13 +3561,12 @@ function pushCli(cs) {
         // }
 
         term.eraseDisplayBelow()
-        mode("save hilbert")
-        procTitle( `hilbert curve`)
+        mode("Hilbert Curve")
+        procTitle( status )
         hilpix = hilbPixels[ this.dimension ]
         calculateShrinkage( this.pixelClock, this.dimension, this.codonsPerPixel )
         output(chalk.bgBlue.red( " Getting in touch with my man from 1891...   ॐ    David Hilbert    ॐ    " + shrinkFactor) )
-        output()
-        bugtxt( this.justNameOfDNA)
+        // output()
 
         this.antiAliasArray = this.resampleByFactor()
         this.hWidth = Math.sqrt(hilpix)
@@ -3649,11 +3574,11 @@ function pushCli(cs) {
         this.hilbertImage = [ ] // wipe the memory
         this.percentComplete = 0
         this.debugFreq = Math.round(hilpix / 100)
-        this.progUpdate({ title: "Hilbert Curve", items: remain, syncMode: true })
+        this.progressTick()
         for (let i = 0; i < hilpix; i++) {
           if ( i % this.debugFreq == 0) {
             this.percentComplete = i/hilpix
-            this.progUpdate( this.percentComplete )
+            this.progressTick()
             // redoline(`Space filling ${nicePercent( this.percentComplete )} `)
           }
 
@@ -3699,8 +3624,9 @@ function pushCli(cs) {
         //   }
         // }
         // log("Done projected 100% of " + hilpix.toLocaleString())
-        // this.hilbertFinished()
-        // runcb(cb)
+
+        this.hilbertFinished()
+        cb()
 
       }
 
@@ -3711,7 +3637,7 @@ function pushCli(cs) {
       saveHilbert(cb) {
         mode(`save hilbert map`)
         log( status )
-        if ( this.isDiskFinHilbert ) { error(`double thread trying to render hilbert maps jesus christo`)}
+        // if ( this.isDiskFinHilbert ) { error(`double thread trying to render hilbert maps jesus christo`)}
         if ( !this.isHilbertPossible ) {
           this.isDiskFinHilbert = true
           return false
@@ -3748,19 +3674,18 @@ function pushCli(cs) {
         if (typeof cb !== "undefined") { runcb(cb) }
       }
       htmlFinished() {
-        mode(`HTML done (${this.justNameOfHTML}). Waiting on (${ this.storage()})`)
-        out( status )
         this.isDiskFinHTML = true
-        this.postRenderPoll( `html done` )
+        this.peptide = this.usersPeptide
+        this.postRenderPoll( `HTML done` )
       }
       hilbertFinished() {
         mode(`Hilbert curve done (${this.justNameOfHILBERT}). Waiting on (${ this.storage()})`)
         out( status )
         this.isDiskFinHilbert = true
 
-        termDrawImage(this.fileHILBERT, "hilbert curve", () => {
+        // termDrawImage(this.fileHILBERT, "hilbert curve", () => {
           this.postRenderPoll( "hilbert done" )
-        })
+        // })
       }
 
       linearFinished() {
@@ -3912,7 +3837,7 @@ function pushCli(cs) {
 
 
       savePNG(cb) {
-        log("savePNG: " + this.filePNG)
+        mode("savePNG: " + this.filePNG)
         let width, height = 0
         let pwh = this.pixWidHeight()
 
@@ -3936,7 +3861,6 @@ function pushCli(cs) {
             blue: 0
           }
         }
-        log( stringy )
 
         var img_data = Uint8ClampedArray.from( this.rgbArray )
         var img_png = new PNG({
@@ -4003,7 +3927,7 @@ function pushCli(cs) {
           notQuiet( status )
           opensHtml++
           projectprefs.aminosee.opens++ // increment open counter.
-          // open( server.getServerURL( this.justNameOfDNA), { wait: false } );
+          // open( server.getServerURL( this.shortnameGenome), { wait: false } );
           if (openLocalHtml === true) {
             open( this.fileHTML, {app: this.browser, wait: false}).then(() => {
               log("browser closed")
@@ -4011,7 +3935,7 @@ function pushCli(cs) {
               this.openError(err)
             })
           } else {
-            // url + "/" + this.justNameOfDNA + "/"
+            // url + "/" + this.shortnameGenome + "/"
             open(				this.currentURL , {app: this.browser, wait: false}).then(() => {
               log("browser closed")
             }).catch(function (err) {
@@ -4080,7 +4004,7 @@ function pushCli(cs) {
         if ( doesFolderExist(this.outputPath) == false ) {
           try {
             fs.mkdirSync(this.outputPath, function (err, result) {
-              if (result) { log(`Success: ${result}`) }
+              if (result) { bugtxt(`mkdir Success: ${result}`) }
               if (err) { log(`Could not create output folder: ${relative} ${err}`) }
             })
           } catch(e) {
@@ -4093,7 +4017,7 @@ function pushCli(cs) {
           log(`Creating fresh directory: ${dir2make}`)
           try {
             fs.mkdirSync(dir2make, function (err, result) {
-              if (result) { log(`Success: ${result}`); ret = true }
+              if (result) { bugtxt(`mkdir Success: ${result}`); ret = true }
               if (err) {  error(`Fail: ${err}`) }
             })
           } catch(e) { bugtxt(`${e} This is normal`); }
@@ -4245,9 +4169,10 @@ function pushCli(cs) {
         }
         // TEST INIT
         cfile = `AminoSee_Calibration${ highlight }${ regmarks }`
-        this.justNameOfDNA = cfile
-        this.justNameOfPNG = `${ cfile}_LINEAR_${  magnitude }.png`
-        this.justNameOfHILBERT = `${ cfile}_HILBERT_${  magnitude }.png`
+        this.shortnameGenome = cfile
+        this.justNameOfPNG = `${ cfile }_LINEAR_${  magnitude }.png`
+        this.justNameOfHILBERT = `${ cfile }_HILBERT_${  magnitude }.png`
+
         this.fileHTML    = path.resolve(testPath, cfile + ".html")
         this.filePNG     = path.resolve(testPath, this.justNameOfPNG)
         this.fileHILBERT = path.resolve(testPath, this.justNameOfHILBERT) //           cfile = `AminoSee_Calibration${ highlight }${ regmarks }`
@@ -4296,11 +4221,12 @@ function pushCli(cs) {
         log(`Resampling linear image of size in pixels ${this.pixelClock.toLocaleString()} to ${downsampleSize.toLocaleString()} by the factor ${ twosigbitsTolocale( shrinkFactor)}X brightness per amino acid ${brightness} destination hilbert curve pixels ${downsampleSize}`)
         this.debugFreq = Math.round(downsampleSize/100)
         // SHRINK LINEAR IMAGE:
-        this.progUpdate({ title: "Resample by X" + shrinkFactor, items: remain, syncMode: true })
+        mode( "Resample by X" + shrinkFactor )
+        this.progressTick()
         for (let z = 0; z<downsampleSize; z++) { // 2x AA this.pixelClock is the number of pixels in linear
           if ( z % this.debugFreq == 0) {
             this.percentComplete = z / downsampleSize
-            this.progUpdate(   this.percentComplete  )
+            this.progressTick()
             redoline(  this.percentComplete )
           }
           let sum = z*4
@@ -4474,9 +4400,6 @@ function pushCli(cs) {
         if ( isShuttingDown ) {
           msg = " SHUTTING DOWN " + msg
         }
-        if ( this.progress ) {
-          this.progUpdate( this.percentComplete )
-        }
         wTitle(msg)
         return msg
       }
@@ -4489,20 +4412,7 @@ function pushCli(cs) {
       }
 
 
-      drawProgress() {
-        this.fastUpdate()
-        progato.update(  this.percentComplete )
-        if (remain >= 0 ) {
-          clearTimeout( this.progTimer)
-          this.progTimer = setTimeout(() => {
-            if (  this.percentComplete < 0.99 &&  this.timeRemain > 2001) {
-              this.drawProgress()
-            } else {
-              progato.stop()
-            }
-          }, progressTime)
-        }
-      }
+
 
 
 
@@ -4511,10 +4421,9 @@ function pushCli(cs) {
         if ( isShuttingDown === true ) { output("closing...press U to update or Q to quit"); this.quit(0, "shutdown while drawing") }
         if ( this.test || this.demo ) { log("test or demo"); return }
         if ( renderLock === false ) {
-          output( blueWhite( "surprise! race condition from nam."))
-          output( blueWhite( "surprise! race condition from nam."))
+          error( "surprise! race condition from nam.")
           this.rawDNA = "!"
-          this.safelyPoll()
+          // this.safelyPoll(`drawHistogram`)
           return false
         }
         if ( this.updatesTimer) { clearTimeout( this.updatesTimer )}
@@ -4540,10 +4449,8 @@ function pushCli(cs) {
           },  this.msPerUpdate )
         } else { log("update finished") }
 
-        this.fastUpdate()
-        this.progUpdate( this.percentComplete )
-
-        if ( this.updates == false ) {
+        this.progressTick()
+        if ( this.updates === false ) {
           if (debounce()){
             const msg = `${batchProgress()} / ${humanizeDuration( this.timeRemain)} /`
             wTitle(msg)
@@ -4569,7 +4476,7 @@ function pushCli(cs) {
           `| Next file >>> ${maxWidth(24, this.nextFile)}`,
           `| Codons:${ fixedWidth(14, " " +  this.genomeSize.toLocaleString())}`,
           `  DNA Sample: ${ fixedWidth(tx/4, this.rawDNA) } ${ this.showFlags()}`,
-          `  RunID: ${chalk.rgb(128, 0, 0).bold( this.runid )} acids per pixel: ${ twosigbitsTolocale( this.codonsPerPixel )}   Term x,y: (${tx},${ty}) ${chalk.inverse( this.highlightOrNothin())} ${this.peptide} ${status}`
+          `  RunID: ${chalk.rgb(128, 0, 0).bold( this.runid )} acids per pixel: ${ twosigbitsTolocale( this.codonsPerPixel )}   Term x,y: (${tx},${ty}) ${chalk.inverse( highlightOrNothin())} ${this.peptide} ${status}`
         ]
         clearCheck()
         if ( this.fullscreen === true ) {
@@ -4592,10 +4499,10 @@ function pushCli(cs) {
         printRadMessage(array)
         output(`${chalk.rgb(128, 255, 128)( nicePercent(this.percentComplete) )} elapsed: ${ fixedWidth(12, humanizeDuration( this.msElapsed )) }  /  ${humanizeDuration( this.timeRemain)} remain`)
         output(`${ twosigbitsTolocale( gbprocessed )} GB All time total on ${chalk.yellow( hostname )} ${ cliruns.toLocaleString()} jobs run total`)
-        this.progUpdate( this.percentComplete )
+        this.progressTick()
         output(`Report URL:  ${chalk.underline(  blueWhite( maxWidth(tx - 16, this.currentURL )))}`)
         output(`Input file:  ${chalk.underline(  blueWhite( path.normalize( this.dnafile )))}`)
-        output(`Output path: ${chalk.underline(  blueWhite( path.join( this.outputPath, this.justNameOfDNA)))}`)
+        output(`Output path: ${chalk.underline(  blueWhite( path.join( this.outputPath, this.shortnameGenome)))}`)
         output( this.printRGB() )
         term.right( this.termMarginLeft )
         if ( this.clear === true ) {
@@ -4668,9 +4575,6 @@ function pushCli(cs) {
           const l1 = os.loadavg()[1]
           const l2 = os.loadavg()[2]
           return twosigbitsTolocale(l0) + " / " + twosigbitsTolocale(l1) + " / " + twosigbitsTolocale(l2)
-        }
-        highlightOrNothin() { // no highlight, no return!
-          return ( cliInstance.isHighlightSet ?  cliInstance.peptideOrNothing() + cliInstance.tripletOrNothing()  : "" )
         }
         peptideOrNothing() {
           return ( this.peptide == "Reference" ? "" : this.peptide )
@@ -4883,48 +4787,34 @@ function pushCli(cs) {
 
 
       function bugtxt(txt) { // full debug output
-        if (typeof cliInstance !== "undefined") {
-          if (cliInstance.quiet == false && cliInstance.debug === true && cliInstance.devmode === true && cliInstance.verbose === true)  {
-            bugout(txt)
-          } else {
-            if (cliInstance.verbose === true ) {
-              // redoline(txt);
-            }
-          }
-        } else if (debug === true){
-          log(`bugout: ${txt}`)
-        } else {
-          // redoline(txt)
-        }
+        // if (debug === true) {
+        //   bugout(txt)
+        // }
       }
       function output(txt) {
         cpuhit++
-        if (typeof txt === "undefined" || typeof cliInstance === "undefined") { process.stdout.write(".") ; return; }
+        if (typeof txt === "undefined" || typeof cliInstance === "undefined") { console.log() ; return; }
 
         wTitle(`${  txt }`) // put it on the terminal windowbar or in tmux
 
         if (cliInstance.quiet === true) {
-          // process.stdout.write(".")
           redoline(txt)
         } else if (debug === true) {
-          console.log( `[${cpuhit} ${renderLock ? 'busy' : 'idle'}] ${txt}` )
+          bugout( txt )
         } else {
           term.column(0)
-          console.log( `${txt}` )
+          term.eraseLine()
+          console.log( txt )
         }
-        // if ( debug ) {
-        //   bugout( txt )
-        // }
       }
       function out(txt) {
         cpuhit++
-        if (typeof txt === "undefined") { txt = `> ${cpuhit} ${status}
-        ` }
+        if (typeof txt === "undefined") { txt = ` > ${cpuhit} ${status} ` }
         if ( debug === true ) {
-          process.stdout.write( removeNonAscii( txt ) )
+          // process.stdout.write( removeNonAscii( txt ) )
+          bugout(txt)
         } else {
-          process.stdout.write( notQuiet(removeNonAscii( txt ) + " ") )
-          // redoline(chalk.bold(`   [ `)  + chalk.rgb(64,80,100).inverse( fixedWidth( 50, removeNonAscii(txt)))  + chalk.bold(` ]`  ));
+          process.stdout.write(".")
         }
       }
       function debounce( ms ) {
@@ -4937,46 +4827,31 @@ function pushCli(cs) {
         return false
       }
       function log(txt  ) {
-        if ( debug === true || typeof cliInstance !== "undefined") {
-          if (cliInstance) {
-            if (cliInstance.verbose && cliInstance.quiet == false) {
-              console.log( `${helixEmoji}: ${txt} `)
-            } else {
-              // wTitle(`${ txt  }`)
-            }
-          }
+        // return
+        if ( debug === true || verbose ) {
+          bugout( txt )
+        } else if (verbose) {
+          console.log( txt )
+        } else {
+          redoline( txt )
         }
       }
       function batchProgress() {
-        return `[${ 1 + batchSize - remain} / ${batchSize} ${nicePercent( cliInstance.percentComplete )} : ${streamLineNr} ${cfile}]`
+        return `[${ 1 + batchSize - remain} / ${batchSize} : ${cliInstance.usersPeptide} ${renderLock ? nicePercent( cliInstance.percentComplete ) + ' busy ' + streamLineNr : 'idle'} ${ highlightFilename (this.focus)} ${cfile} ${ brute ? 'brute force': ''}]`
       }
       function wTitle(txt) {
         terminateIfUndef(txt)
         if ( !debounce() || typeof cfile === "undefined" || typeof hostname === "undefined" || typeof txt === "undefined") {
           return false
         }
-
         runid = cliInstance.runid
-        cliInstance.progUpdate( this.percentComplete )
-        txt = `${helixEmoji}${ removeNonAscii( maxWidth( 48, txt ))}   |  ${batchProgress()} ${cfile}@${hostname} ${new Date().getTime()}`
+        txt = `${helixEmoji} ${ removeNonAscii( maxWidth( 48, txt ))} | ${batchProgress()} ${cfile}@${hostname} ${new Date().getTime()}`
         term.windowTitle( txt )
       }
       function bugout(txt) {
-        if (typeof txt === "undefined") { return  }
-        // let splitScreen = ""
-        // if (typeof cliInstance !== "undefined" ) {
-        //   let colWidth = Math.round(tx / 3) - 1
-        //   if (cliInstance.test === true) {
-        //     splitScreen += chalk.rgb(64,64,64).inverse( fixedWidth( colWidth - 10,  `[Test: ${remain} ${ nicePercent(cliInstance.percentComplete) } Highlt${( cliInstance.isHighlightSet ? cliInstance.peptide + " " : " ")} >>>    `))
-        //   } else {
-        //     splitScreen += chalk.rgb(64,64,64).inverse( fixedWidth( colWidth - 10,  `[ ${batchProgress()} ${new Date().getTime()} ${ status } ${ nicePercent(cliInstance.percentComplete) } ] >>>   `))
-        //   }
-        //   splitScreen += fixedWidth( colWidth*2,` ${ removeNonAscii( txt)} `)
-        // } else {
-        //   splitScreen += txt
-        // }
-        term.eraseLine()
-        console.log(txt)
+
+        console.log( `${helixEmoji}: ${cpuhit} ${maxWidth(16, status)} ${cliInstance.usersPeptide} ${remain} ${txt} `)
+
       }
       function deleteFile(file) {
         let ret = false
@@ -5019,7 +4894,7 @@ function pushCli(cs) {
         termPixels = (tx) * (ty-8)
       }
       function destroyKeyboardUI() {
-        log(`Disabling keyboard UI`)
+        // log(`Disabling keyboard UI`)
         process.stdin.pause() // stop eating the this.keyboard!
         try {
           process.stdin.setRawMode(false) // back to cooked this.mode
@@ -5068,7 +4943,6 @@ function pushCli(cs) {
         return str
       }
       function blueWhite(txt) {
-        bugtxt(`txt sent to blueWhite: ${txt}`)
         return chalk.rgb(0,0,100).bgWhite.inverse.bold( txt  )
         // return chalk.rgb(0,0,100).bgWhite.inverse.bold( maxWidth( tx * 0.7,  txt))
       }
@@ -5102,7 +4976,7 @@ function pushCli(cs) {
             })
             // setTimeout( () => {
 
-            // }, this.raceDelay )
+            // }, raceDelay )
 
           },
           function( cb ) {
@@ -5438,14 +5312,15 @@ function pushCli(cs) {
         }
       }
       function mode(txt) { // good for debugging
-        wTitle(txt)
         status = txt
-        if ( typeof cliInstance !== "undefined" && cliInstance.verbose || debug ) {
-          console.log(txt)
+        txt = batchProgress() + txt
+        wTitle(txt)
+        if ( cliInstance.devmode || debug ) {
+          // console.log(txt)
         } else if ( !cliInstance.quiet ) {
-          redoline(txt)
+          // redoline(txt)
         } else {
-          out(`.`);
+          // out(`.`);
         }
       }
       function gimmeDat() {
@@ -5459,14 +5334,14 @@ function pushCli(cs) {
         if (debug === true) {
           txt = `[${cpuhit} ${renderLock ? 'busy' : 'idle'}] ${ txt } ] `
         } else {
-          // if (debounce(5)) {
-          term.eraseLine()
-          console.log( maxWidth( tx/2 ,  txt))
-          term.up( 1 )
-          return
-          // }
-        }
-        // console.log(txt)
+          // if (debounce(25) === true) {
+            term.eraseLine()
+            console.log( maxWidth( tx/2, txt ))
+            term.eraseLine()
+            term.column( 0 )
+            term.up( 1 )
+          }
+        // }
       }
       function deresSeconds(ms){
         return Math.round(ms/1000) * 1000
@@ -5587,26 +5462,22 @@ function pushCli(cs) {
       //   cliInstance.quit(0, `sigterm`)
       //   // setTimeout( () => {
       //   //   process.exit() // this.now the "exit" event will fire
-      //   // }, cliInstance.raceDelay )
+      //   // }, raceDelay )
       //
       // })
       process.on("SIGINT", function() {
         let sig = "SIGINT"
         output(`Received ${sig} signal`)
-        cliInstance.destroyProgress()
+        output(`Received ${sig} signal`)
         cliInstance.gracefulQuit(130, sig)
         process.exitCode = 130
         cliInstance.quit(130, "SIGINT")
         setImmediate( () => {
+          cliInstance.destroyProgress()
           process.exit() // this.now the "exit" event will fire
         })
       })
-      function termDrawImage(fullpath, reason, cb) {
-
-        setTimeout( ()=> {
-          runcb(cb)
-        }, cliInstance.raceDelay*2)
-
+        function termDrawImage(fullpath, reason, cb) {
         if (cliInstance.quiet || typeof fullpath === "undefined" || typeof reason === "undefined") {
           log( `${cfile} ${reason}` )
           return false
@@ -5616,7 +5487,7 @@ function pushCli(cs) {
         log(`Terminal image: ${ chalk.inverse(  path.basename(fullpath) ) } ${ reason}`)
         term.drawImage( fullpath, { shrink: { width: tx * 0.8,  height: ty  * 0.8, left: tx/2, top: ty/2 } }, () => {
           term.restoreCursor()
-          // runcb(cb)
+          runcb(cb)
         })
       }
       function nicePercent(percent) {
@@ -5627,7 +5498,7 @@ function pushCli(cs) {
       }
       function tidyPeptideName(str) { // give it "OPAL" it gives "Opal". GIVE it aspartic_ACID or "gluTAMic acid". also it gives "Reference"
         if (typeof str === "undefined") {
-          log(`no str was set: ${str} will return "Reference"`)
+          error(`no str was set: ${str} will return "Reference" instead`)
           return "Reference"
         }
         try {
@@ -5949,9 +5820,9 @@ function pushCli(cs) {
           dimension = defaultMagnitude
         } else if (bestFit < 2) {
           dimension = 2 // its an array index
-          let msg = `That image is too small to make an image out of: ${linearpix}`
+          let msg = `That image is too small to make an image out of: ${linearpix} ispreview: ${ispreview}`
           output(blueWhite(msg))
-          rollbackFolder( path.resolve( cliInstance.outputPath, cliInstance.justNameOfDNA ) )
+          rollbackFolder()
           return false
         }
 
@@ -5984,7 +5855,7 @@ function pushCli(cs) {
           if (dim > defaultMagnitude) {
             if ( magauto == "custom"  ) {
               if ( dim > theoreticalMaxMagnitude) {
-                output(`Hilbert dimensions above 8 will likely exceed nodes heap memory and/or call stack. mag 11 sure does. spin up the fans. Capped your custom dimension to the ${ theoreticalMaxMagnitude }th order.`)
+                bugtxt(`Hilbert dimensions above 8 will likely exceed nodes heap memory and/or call stack. mag 11 sure does. spin up the fans. Capped your custom dimension to the ${ theoreticalMaxMagnitude }th order.`)
                 dim = theoreticalMaxMagnitude
               }
               break
@@ -5999,7 +5870,7 @@ function pushCli(cs) {
         shrinkFactor = pix / hilbPixels[ dim ]
         codonsPerPixelHILBERT = cliInstance.codonsPerPixel * shrinkFactor
         rtxt+= ` <<<--- chosen dimension: ${dim} shrinkFactor ${shrinkFactor} cpp: ${codonsPerPixelHILBERT} cpp ${cliInstance.codonsPerPixel}`
-        log(`rtxt ${rtxt}`)
+        bugtxt(`rtxt ${rtxt}`)
         return dim
       }
       function runcb( cb ) {
@@ -6013,10 +5884,10 @@ function pushCli(cs) {
             bugtxt( cb )
             return
           }
-          setImmediate( () => { cb() } )
-          // cb()
+          // setImmediate( () => { cb() } )
+          cb()
         } else {
-          error(`you didn't pass a callback?! its ${cb}`)
+          error(`you didn't pass a callback?! its undefined: ${cb}`)
         }
         bugtxt(msg)
       }
@@ -6031,18 +5902,21 @@ function pushCli(cs) {
       }
       function procTitle( txt ) {
         if ( typeof cliInstance.justNameOfPNG !== "undefined" && cliInstance.justNameOfPNG !== "unset" ) { // check if not set as a string called unset also
-          process.title = `aminosee.funk.nz (m${ cliInstance.dimension } ${cliInstance.highlightOrNothin()}${ maxWidth( 64, cliInstance.justNameOfPNG )} ${txt})`
+          process.title = `aminosee.funk.nz (m${ cliInstance.dimension }d${raceDelay} ${status} ${highlightOrNothin()}${ maxWidth( 32, cliInstance.justNameOfPNG )} ${txt})`
         } else {
-          process.title = `aminosee.funk.nz (server: ${url})`
+          process.title = `aminosee.funk.nz (startup ${url})`
         }
       }
-      function removeLocks(lockfile, devmode, cb) { // just remove the lock files.
+      function removeLocks(lockfile, devmode, reason) { // just remove the lock files.
         mode( "remove locks")
         bugtxt( "remove locks with " + remain + " files in queue. fileTouch: " + lockfile )
-        if (this.test || this.demo) {  return }
+        if (cliInstance.test || cliInstance.demo) {  return }
         renderLock = false
         procTitle( "remove locks")
+
         remain--
+
+
         if ( typeof devmode === "undefined" ) {
           devmode = false
         }
@@ -6056,26 +5930,30 @@ function pushCli(cs) {
         } else {
           deleteFile( lockfile )
         }
-        runcb( cb )
+        cliInstance.preRenderReset(reason)
+        // runcb( cb )
       }
       function notQuiet( txt ) {
-        if (cliInstance.verbose !== true || cliInstance.quiet || typeof txt === "undefined" ) {
+        if (cliInstance.quiet || typeof txt === "undefined" ) {
           txt = "."
-        }
-        process.stdout.write(txt)
+        } // verbose !== true ||
+        // process.stdout.write(txt)
+        bugtxt(txt)
+        // console.log(txt)
         return txt
       }
       function killAllTimers() {
+        // if ( renderLock || remain > 0 ) { return; }
         mode(`killing timers`)
-        if ( this.updatesTimer) {
-          clearTimeout( this.updatesTimer )
-        }
-        if ( this.progTimer) {
-          clearTimeout( this.progTimer )
-        }
-        if ( this.lockTimer) {
-          clearTimeout( this.lockTimer )
-        }
+        // if ( this.updatesTimer) {
+        //   clearTimeout( this.updatesTimer )
+        // }
+        // if ( this.progTimer) {
+        //   clearTimeout( this.progTimer )
+        // }
+        // if ( this.lockTimer) {
+        //   clearTimeout( this.lockTimer )
+        // }
         if ( cliInstance.updatesTimer) {
           clearTimeout( cliInstance.updatesTimer )
         }
@@ -6085,7 +5963,7 @@ function pushCli(cs) {
         if ( cliInstance.lockTimer) {
           clearTimeout( cliInstance.lockTimer )
         }
-        // progato
+        progato = "nullnuts"
       }
       function tripletToAminoAcid(triplet) {
         this.aminoacid = "error"
@@ -6097,21 +5975,18 @@ function pushCli(cs) {
         }
         return this.aminoacid
       }
-      function rollbackFolder(fullpath) {
+      function rollbackFolder() {
+        const fullpath = path.resolve( cliInstance.outputPath, cliInstance.shortnameGenome)
+
         output(`Rolling back folder ${path.basename(fullpath)}`)
-        if ( path.basename(fullpath) !== cliInstance.justNameOfDNA ) {
-          error(`internal state not consistent: ${path.basename(fullpath)} !== ${cliInstance.justNameOfDNA}`)
+        if ( path.basename(fullpath) !== cliInstance.shortnameGenome ) {
+          error(`Stopping, as internal state not consistent: ${ path.basename(fullpath)} !== ${cliInstance.shortnameGenome} `)
           return
-        } else {
-          notQuiet("here goes nothing, about to remove folder: "+ path.basename(fullpath))
         }
-        // deleteFile( cliInstance.filePNG )
-        // deleteFile( cliInstance.fileHILBERT )
         deleteFile( cliInstance.fileTouch )
         deleteFile( cliInstance.fileHistogram )
         deleteFile( cliInstance.fileHTML )
-        deleteFile( path.resolve(fullpath, "index.html" ) )
-        deleteDirectory( path.resolve(fullpath, "images" ) )
+        deleteDirectory( path.resolve( fullpath, "images" ) )
         deleteDirectory( fullpath )
       }
       function dot(i, x, t) {
@@ -6121,7 +5996,6 @@ function pushCli(cs) {
             t = `[ ${i} ]`
           }
           redoline(t)
-          // cliInstance.progUpdate(  cliInstance.percentComplete)
         }
       }
       function listGenomes() {
@@ -6180,7 +6054,7 @@ function pushCli(cs) {
 
       }
       function error(err) {
-        mode(`💩 Error during ${status}: [${ maxWidth(16,  err)}] ${cliInstance.justNameOfDNA} ${cliInstance.busy()}`)
+        mode(`💩 Error during ${status}: [${ maxWidth(16,  err)}] ${cliInstance.shortnameGenome} ${cliInstance.busy()}`)
         // output( `💩 error: ${status}` )
         cliInstance.calcUpdate()
         if ( debug === true ) {
@@ -6195,11 +6069,11 @@ function pushCli(cs) {
 
           throw new Error(err)
         } else {
-          cliInstance.raceDelay += 150
-          output()
-          output(`💩 Caught error: ${err} INCREASING DELAY BY 150 ms to ${cliInstance.raceDelay}`)
-          output()
+          raceDelay *= 1.5
+          // output()
+          // output()
         }
+        output(`💩 Caught error: ${err}. Increasing delay by 50% to ms to ${ onesigbitTolocale( raceDelay )} ms`)
       }
       function setupKeyboardUI2() {
 
@@ -6342,7 +6216,7 @@ function pushCli(cs) {
         genomesRendered.push( organism ) // add this sucka
         genomesRendered = dedupeArray( genomesRendered ) // de dupe in case of that slush above
         projectprefs.aminosee.genomes = genomesRendered // store it
-        log( blueWhite( `Completed Renders of ${genomesRendered.length} Genomes `) + cliInstance.justNameOfPNG)
+        log( `Completed Renders of ${genomesRendered.length} Genomes in total on this machine, including ${cliInstance.justNameOfPNG} ${cliInstance.usersPeptide}`)
         bugtxt( beautify( genomesRendered ) )
       }
       function terminateIfUndef(xx) {
@@ -6351,7 +6225,24 @@ function pushCli(cs) {
           // cliInstance.quit(13, status)
         }
       }
-
+      function highlightOrNothin() { // no highlight, no return!
+        return ( cliInstance.isHighlightSet ?  cliInstance.peptideOrNothing() + cliInstance.tripletOrNothing()  : "" )
+      }
+      function highlightFilename(pep) { // return small fragment of the filename
+        if ( typeof pep === "undefined" ) { pep = "Reference" ; bugtxt(pep)}
+        let ret = "_"
+        if (pep == "not set" || pep == "Reference") {
+          ret += "Reference"
+        } else if ( pep  !== "Reference") {
+          ret += `_${spaceTo_( tidyPeptideName( pep ) )}`
+        } else if ( this.triplet !== "Reference") {
+          ret += `_${spaceTo_( cliInstance.triplet ).toUpperCase()}` // looks better uppercase
+        } else {
+          ret += "Reference"
+        }
+        // bugtxt(`${isHighlightSet} this.triplet ${ cliInstance.triplet} return: ${ blueWhite( ret )} this.focusTriplet: ${cliInstance.focusTriplet} pep ${ pep}`)
+        return ret
+      }
       module.exports.AminoSeeNoEvil = AminoSeeNoEvil
       module.exports.removeLocks = removeLocks
       module.exports.removeNonAscii = removeNonAscii

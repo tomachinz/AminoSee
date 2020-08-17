@@ -127,71 +127,71 @@ find_way_peptides () {
 		# echo
 		# echo end of batch peptides
 
-
-
-
-  echo STARTING SERIAL DECODE FOR $*  $11 $12 $13 $14 $15 $16
-  if [ $(uname)="Darwin" ]; then
-    echo macos
-		# DASHF=" -f  "
-		DASHF=" -L  * | grep -E \"(txt|mfa|gbk|txt|fa)\""
-  fi
-
-  if [ $(uname)="Linux" ]; then
-    echo linux
-    DASHF=" "
-  fi
-
-
-	find  -L  * | grep -E "(txt|mfa|gbk|txt|fa)" | xargs -J $ aminosee --image $ $*
-	find  -L  * | grep -E "(txt|mfa|gbk|txt|fa)" | xargs -J $ nice aminosee $                     $*
-  find  -L  * | grep -E "(txt|mfa|gbk|txt|fa)" | xargs -J $ nice aminosee $  --peptide=Glutamic_acid $*
-  find  -L  * | grep -E "(txt|mfa|gbk|txt|fa)" | xargs -J $ nice aminosee $  --peptide=Aspartic_acid $*
-  find  -L  * | grep -E "(txt|mfa|gbk|txt|fa)" | xargs -J $ nice aminosee $  --peptide=Ochre $*
-  find  -L  * | grep -E "(txt|mfa|gbk|txt|fa)" | xargs -J $ nice aminosee $  --peptide=Amber $*
-  find  -L  * | grep -E "(txt|mfa|gbk|txt|fa)" | xargs -J $ nice aminosee $  --peptide=Cysteine $*
-  find  -L  * | grep -E "(txt|mfa|gbk|txt|fa)" | xargs -J $ nice aminosee $  --peptide=Glycine $*
-  find  -L  * | grep -E "(txt|mfa|gbk|txt|fa)" | xargs -J $ nice aminosee $  --peptide=Alanine $*
-  find  -L  * | grep -E "(txt|mfa|gbk|txt|fa)" | xargs -J $ nice aminosee $  --peptide=Methionine $*
-  find  -L  * | grep -E "(txt|mfa|gbk|txt|fa)" | xargs -J $ nice aminosee $  --peptide=Valine $*
-  find  -L  * | grep -E "(txt|mfa|gbk|txt|fa)" | xargs -J $ nice aminosee $  --peptide=Leucine $*
-  find  -L  * | grep -E "(txt|mfa|gbk|txt|fa)" | xargs -J $ nice aminosee $  --peptide=Isoleucine $*
-  find  -L  * | grep -E "(txt|mfa|gbk|txt|fa)" | xargs -J $ nice aminosee $  --peptide=Phenylalanine $*
-  find  -L  * | grep -E "(txt|mfa|gbk|txt|fa)" | xargs -J $ nice aminosee $  --peptide=Tryptophan $*
-  find  -L  * | grep -E "(txt|mfa|gbk|txt|fa)" | xargs -J $ nice aminosee $  --peptide=Serine $*
-  find  -L  * | grep -E "(txt|mfa|gbk|txt|fa)" | xargs -J $ nice aminosee $  --peptide=Threonine $*
-  find  -L  * | grep -E "(txt|mfa|gbk|txt|fa)" | xargs -J $ nice aminosee $  --peptide=Opal $*
-  find  -L  * | grep -E "(txt|mfa|gbk|txt|fa)" | xargs -J $ nice aminosee $  --peptide=Glutamine $*
-  find  -L  * | grep -E "(txt|mfa|gbk|txt|fa)" | xargs -J $ nice aminosee $  --peptide=Asparagine $*
-  find  -L  * | grep -E "(txt|mfa|gbk|txt|fa)" | xargs -J $ nice aminosee $  --peptide=Tyrosine $*
-  find  -L  * | grep -E "(txt|mfa|gbk|txt|fa)" | xargs -J $ nice aminosee $  --peptide=Arginine $*
-  find  -L  * | grep -E "(txt|mfa|gbk|txt|fa)" | xargs -J $ nice aminosee $  --peptide=Lysine $*
-  find  -L  * | grep -E "(txt|mfa|gbk|txt|fa)" | xargs -J $ nice aminosee $  --peptide=Histidine $*
-
-
-  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee                     $* "{}" \;
-  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee  --peptide=Glutamic_acid $* "{}" \;
-  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee  --peptide=Aspartic_acid $* "{}" \;
-  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee  --peptide=Ochre $* "{}" \;
-  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee  --peptide=Amber $* "{}" \;
-  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee  --peptide=Cysteine $* "{}" \;
-  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee  --peptide=Glycine $* "{}" \;
-  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee  --peptide=Alanine $* "{}" \;
-  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee  --peptide=Methionine $* "{}" \;
-  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee  --peptide=Valine $* "{}" \;
-  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee  --peptide=Leucine $* "{}" \;
-  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee  --peptide=Isoleucine $* "{}" \;
-  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee  --peptide=Phenylalanine $* "{}" \;
-  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee  --peptide=Tryptophan $* "{}" \;
-  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee  --peptide=Serine $* "{}" \;
-  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee  --peptide=Threonine $* "{}" \;
-  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee  --peptide=Opal $* "{}" \;
-  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee  --peptide=Glutamine $* "{}" \;
-  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee  --peptide=Asparagine $* "{}" \;
-  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee  --peptide=Tyrosine $* "{}" \;
-  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee  --peptide=Arginine $* "{}" \;
-  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee  --peptide=Lysine $* "{}" \;
-  find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee  --peptide=Histidine $* "{}" \;
+	#
+	#
+	#
+  # echo STARTING SERIAL DECODE FOR $*  $11 $12 $13 $14 $15 $16
+  # if [ $(uname)="Darwin" ]; then
+  #   echo macos
+	# 	# DASHF=" -f  "
+	# 	DASHF=" -L  * | grep -E \"(txt|mfa|gbk|txt|fa)\""
+  # fi
+	#
+  # if [ $(uname)="Linux" ]; then
+  #   echo linux
+  #   DASHF=" "
+  # fi
+	#
+	#
+	# find  -L  * | grep -E "(txt|mfa|gbk|txt|fa)" | xargs -J $ aminosee --image $ $*
+	# find  -L  * | grep -E "(txt|mfa|gbk|txt|fa)" | xargs -J $ nice aminosee $                     $*
+  # find  -L  * | grep -E "(txt|mfa|gbk|txt|fa)" | xargs -J $ nice aminosee $  --peptide=Glutamic_acid $*
+  # find  -L  * | grep -E "(txt|mfa|gbk|txt|fa)" | xargs -J $ nice aminosee $  --peptide=Aspartic_acid $*
+  # find  -L  * | grep -E "(txt|mfa|gbk|txt|fa)" | xargs -J $ nice aminosee $  --peptide=Ochre $*
+  # find  -L  * | grep -E "(txt|mfa|gbk|txt|fa)" | xargs -J $ nice aminosee $  --peptide=Amber $*
+  # find  -L  * | grep -E "(txt|mfa|gbk|txt|fa)" | xargs -J $ nice aminosee $  --peptide=Cysteine $*
+  # find  -L  * | grep -E "(txt|mfa|gbk|txt|fa)" | xargs -J $ nice aminosee $  --peptide=Glycine $*
+  # find  -L  * | grep -E "(txt|mfa|gbk|txt|fa)" | xargs -J $ nice aminosee $  --peptide=Alanine $*
+  # find  -L  * | grep -E "(txt|mfa|gbk|txt|fa)" | xargs -J $ nice aminosee $  --peptide=Methionine $*
+  # find  -L  * | grep -E "(txt|mfa|gbk|txt|fa)" | xargs -J $ nice aminosee $  --peptide=Valine $*
+  # find  -L  * | grep -E "(txt|mfa|gbk|txt|fa)" | xargs -J $ nice aminosee $  --peptide=Leucine $*
+  # find  -L  * | grep -E "(txt|mfa|gbk|txt|fa)" | xargs -J $ nice aminosee $  --peptide=Isoleucine $*
+  # find  -L  * | grep -E "(txt|mfa|gbk|txt|fa)" | xargs -J $ nice aminosee $  --peptide=Phenylalanine $*
+  # find  -L  * | grep -E "(txt|mfa|gbk|txt|fa)" | xargs -J $ nice aminosee $  --peptide=Tryptophan $*
+  # find  -L  * | grep -E "(txt|mfa|gbk|txt|fa)" | xargs -J $ nice aminosee $  --peptide=Serine $*
+  # find  -L  * | grep -E "(txt|mfa|gbk|txt|fa)" | xargs -J $ nice aminosee $  --peptide=Threonine $*
+  # find  -L  * | grep -E "(txt|mfa|gbk|txt|fa)" | xargs -J $ nice aminosee $  --peptide=Opal $*
+  # find  -L  * | grep -E "(txt|mfa|gbk|txt|fa)" | xargs -J $ nice aminosee $  --peptide=Glutamine $*
+  # find  -L  * | grep -E "(txt|mfa|gbk|txt|fa)" | xargs -J $ nice aminosee $  --peptide=Asparagine $*
+  # find  -L  * | grep -E "(txt|mfa|gbk|txt|fa)" | xargs -J $ nice aminosee $  --peptide=Tyrosine $*
+  # find  -L  * | grep -E "(txt|mfa|gbk|txt|fa)" | xargs -J $ nice aminosee $  --peptide=Arginine $*
+  # find  -L  * | grep -E "(txt|mfa|gbk|txt|fa)" | xargs -J $ nice aminosee $  --peptide=Lysine $*
+  # find  -L  * | grep -E "(txt|mfa|gbk|txt|fa)" | xargs -J $ nice aminosee $  --peptide=Histidine $*
+	#
+	#
+  # find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee                     $* "{}" \;
+  # find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee  --peptide=Glutamic_acid $* "{}" \;
+  # find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee  --peptide=Aspartic_acid $* "{}" \;
+  # find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee  --peptide=Ochre $* "{}" \;
+  # find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee  --peptide=Amber $* "{}" \;
+  # find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee  --peptide=Cysteine $* "{}" \;
+  # find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee  --peptide=Glycine $* "{}" \;
+  # find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee  --peptide=Alanine $* "{}" \;
+  # find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee  --peptide=Methionine $* "{}" \;
+  # find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee  --peptide=Valine $* "{}" \;
+  # find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee  --peptide=Leucine $* "{}" \;
+  # find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee  --peptide=Isoleucine $* "{}" \;
+  # find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee  --peptide=Phenylalanine $* "{}" \;
+  # find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee  --peptide=Tryptophan $* "{}" \;
+  # find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee  --peptide=Serine $* "{}" \;
+  # find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee  --peptide=Threonine $* "{}" \;
+  # find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee  --peptide=Opal $* "{}" \;
+  # find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee  --peptide=Glutamine $* "{}" \;
+  # find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee  --peptide=Asparagine $* "{}" \;
+  # find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee  --peptide=Tyrosine $* "{}" \;
+  # find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee  --peptide=Arginine $* "{}" \;
+  # find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee  --peptide=Lysine $* "{}" \;
+  # find $DASHF *.fa *.mfa *.gbk *.txt -exec  aminosee  --peptide=Histidine $* "{}" \;
 
   echo FINISHED SERIAL DECODE FOR  $*
 	#

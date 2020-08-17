@@ -54,13 +54,29 @@ twowayupdate() {
   runrsync
   COMMAND=" -arv --update --stats --exclude={$EXCLUDE} $DEST $SOURCE "
   runrsync
+
+  echo DONE! will now chown $DEST to $USER
+  echo
+  sudo chown -Rv $(whoami) $DEST
 }
 hardlinkeddirectory() {
   escapespace "$1" "$2"
-  COMMAND=" --hard-links --recursive  --stats --exclude={$EXCLUDE} $SOURCE $DEST "
-  runrsync
-  COMMAND=" -arv --update --stats --exclude={$EXCLUDE} $DEST $SOURCE "
-  runrsync
+
+  echo about to run
+  echo pax -rwlpe $SOURCE $DEST
+  cd $SOURCE
+  pax -rwlpe . $DEST
+
+  sleep 10
+
+  # COMMAND=" --hard-links --recursive  --stats --exclude={$EXCLUDE} $SOURCE $DEST "
+  # runrsync
+  # COMMAND=" -arv --update --stats --exclude={$EXCLUDE} $DEST $SOURCE "
+  # runrsync
+
+  echo DONE! will now chown $DEST to $USER
+  echo
+  # sudo chown -Rv $(whoami) $DEST
 }
 
 dodu() {
@@ -140,8 +156,7 @@ runrsync() {
 	eval "sudo rsync $COMMAND"
   echo
 	echo
-	echo DONE! will now chown to $USER
-  echo
+
   # cd ~/AminoSee_webroot
   # FILESTOREMOVE=$( find  -L  * | grep -E "AminoSee_BUSY|linear.*__" )
   # NUMTOREMOVE=$( echo $FILESTOREMOVE | wc -l )
@@ -150,10 +165,10 @@ runrsync() {
   # sleep 5
   # echo $FILESTOREMOVE |  xargs -J $ rm -v $
 }
+hardlinkeddirectory /Users/tom/AminoSee_webroot/output/ /Users/tom/Dropbox/Sites/funk.co.nz/aminosee/output/
 
 twowayupdate /Users/tom/AminoSee_webroot/output/  /Volumes/HotelVermont/Users/tom/AminoSee_webroot/output/
 
-# hardlinkeddirectory /Users/tom/AminoSee_webroot/output/ /Users/tom/Dropbox/Sites/funk.co.nz/aminosee/output/
 
 # bsync ~/AminoSee_webroot /Volumes/HotelVermont/Users/tom/AminoSee_webroot
 # CLONECOMMAND="/usr/bin/rsync --update --archive --verbose --stats  --dry-run tom@cheese.funk.nz:/home/tom/Sites/AminoSee/dna/AminoSee_webroot/output/  /Users/tom/AminoSee_webroot/output/"
