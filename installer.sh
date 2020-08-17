@@ -30,7 +30,7 @@ echo "npm run start --test -m8"
 echo
 whereis aminosee
 which aminosee
-locate aminosee  | grep aminosee$ &
+# locate aminosee  | grep aminosee$ &
 sleep 1
 echo about to run
 COMMMAND="sudo ln -s /usr/local/lib/node_modules/aminosee/bin/aminosee /usr/local/bin/aminosee"
