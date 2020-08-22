@@ -153,9 +153,7 @@
       "macos",
       "win"
     ],
-    "scripts": [
-
-    ],
+    "scripts": [],
     "assets": [
       "node_modules/terminal-kit/lib/termconfig",
       "node_modules/terminal-kit/lib/colorScheme",
