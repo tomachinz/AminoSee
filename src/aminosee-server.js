@@ -29,7 +29,7 @@ let starts = -1
 let outputPath, filenameServerLock, url, projectprefs, userprefs, port, cliruns, gbprocessed, args, theserver, genomes, webroot, fragment
 
 
-setArgs()
+// setArgs()
 
 module.exports = (options) => {
 	var tcpPortUsed = require("tcp-port-used")
@@ -39,7 +39,7 @@ module.exports = (options) => {
 	process.title = `aminosee.funk.nz_server ${fragment}`
 	output(`AminoSee built-in webserver ${ chalk.underline( fragment )}`)
 
-	setArgs(options);
+	// setArgs(options);
 	// [ userprefs, projectprefs ] = setupPrefs()
 	setupPrefs()
 	log(appFilename)
@@ -66,7 +66,7 @@ module.exports = (options) => {
 function setArgs( TheArgs ) {
 	webroot = path.resolve( os.homedir(), "AminoSee_webroot")
 	port = defaultPort
-	log("setArgs running")
+	output("setArgs running")
 	if ( typeof TheArgs === "undefined" ) {
 		args = {
 			verbose: false,
@@ -288,6 +288,7 @@ function foregroundserver() {
 	log( `webroot ${webroot}` )
 	try {
 		var server = httpserver.createServer({
+			path: webroot,
 			root: webroot,
 			robots: true,
 			directoryListing: true,
@@ -448,17 +449,12 @@ function readLockPort(file) {
 
 function start() { // return the port number
 	output(chalk.yellow(`Starting web server at ${chalk.underline(getServerURL())}`))
-
-	log("Attempting to start server with args:")
-	log( args)
-	if ( args.verbose ) {
-		log( args )
-	}
-	filenameServerLock = path.resolve( args.webroot, "output", "aminosee_server_lock.txt")
+	log( args )
+	filenameServerLock = path.join( args.webroot, "output", "aminosee_server_lock.txt")
 	if ( args.stop == true ) { stop(); return true }
 	setupPrefs()
 	buildServer()
-	notQuiet(`web root: ${webroot}`)
+	output(`web root: ${webroot}`)
 	let options = [ webroot, "-p", port, "-o", "--gzip", "-d" ] // -o open -i autoindex
 	// let options = [ webroot , "", "-p", port, "-o" ]
 	if ( serverLock() == true ) {
@@ -485,14 +481,13 @@ function start() { // return the port number
 				}).catch(function () {
 				})
 			} else {
-
+				output(`Not opening url ${url}`)
 			}
 
 		}
 		log(`filenameServerLock: ${filenameServerLock}`)
 	}
 	return args.openPage
-	// return port
 }
 
 

@@ -128,7 +128,6 @@ function startGUI() {
   // output("Starting carlo GUI - press Control-C to quit")
   // const carlo = require("./aminosee-carlo").run( generateTheArgs() )
   output("start gui.")
-  // server.start( generateTheArgs() )
   // destroyKeyboardUI()
   // return carlo
 }
@@ -138,6 +137,7 @@ function generateTheArgs() {
   log(`webroot: ${webroot} ${url}`)
   let theArgs = {
     verbose: verbose,
+    path: webroot,
     webroot: webroot,
     outputPath: path.join( webroot, netFoldername ),
     openHtml: false,
@@ -161,7 +161,7 @@ function generateTheArgs() {
       logip: true,
       webroot: webroot,
       openHtml: cliInstance.openHtml,
-      https: true,
+      https: false,
       background: cliInstance.background,
       currentURL: cliInstance.currentURL
     }
@@ -174,7 +174,7 @@ function populateArgs(procArgv) { // returns args
   const options = {
     boolean: [ "artistic", "brute", "clear", "chrome", "devmode", "debug", "demo", "dnabg", "explorer", "file", "force", "fullscreen", "firefox", "gui", "html", "image", "keyboard", "list", "progress", "quiet", "reg", "recycle", "redraw", "slow", "serve", "safari", "test", "updates", "verbose", "view" ],
     string: [ "url", "output", "triplet", "peptide", "ratio" ],
-    alias: { a: "artistic", b: "dnabg", c: "codons", d: "devmode", f: "force", finder: "explorer", h: "help", k: "keyboard", m: "magnitude", o: "output", p: "peptide", i: "image", t: "triplet", u: "updates", q: "quiet", r: "reg", w: "width", v: "verbose", x: "explorer", v: "verbose", view: "html" },
+    alias: { a: "artistic", b: "dnabg", c: "codons", d: "devmode", f: "force", finder: "explorer", h: "help", k: "keyboard", m: "magnitude", o: "output", p: "peptide", i: "image", t: "triplet", u: "updates", q: "quiet", r: "ratio", w: "width", v: "verbose", x: "explorer", v: "verbose", view: "html" },
     default: { brute: false, debug: false, keyboard: false, progress: true, redraw: true, updates: true, stop: false, serve: false, fullscreen: false , html: true, image: false, index: false, clear: false, explorer: false, quiet: false, gui: false },
     stopEarly: false
   } // NUMERIC INPUTS: codons, magnitude, width, maxpix
@@ -298,7 +298,6 @@ function pushCli(cs) {
       // do stuff aside from creating any changes. eg if you just run "aminosee" by itself.
       // for each render batch sent through newJob, here is where "this" be instantiated once per newJob
       // for each DNA file, run setupRender
-      // server.setArgs( args )
       isShuttingDown = false
       streamLineNr = 0
       loopCounter = 0
@@ -324,7 +323,6 @@ function pushCli(cs) {
       this.done = 0
       this.devmode = false // kills the auto opening of reports etc
       this.quiet = false
-      verbose = false // not recommended. will slow down due to console.
       this.force = false // this.force overwrite existing PNG and HTML reports
       this.artistic = false // for Charlie
       this.dnabg = false // firehose your screen with DNA!
@@ -464,6 +462,7 @@ function pushCli(cs) {
         output("💩 debug mode ENABLED 💩")
       } else {
         debug = false
+        log("💩 debug mode DISABLED 💩")
       }
 
       if ( args.url ) {
@@ -660,8 +659,8 @@ function pushCli(cs) {
       }
 
       if ( args.verbose || args.v) {
-        output("verbose enabled. AminoSee version: " + version)
-        bugtxt(`os.platform(): ${os.platform()} ${process.cwd()}`)
+        output("verbose output enabled. AminoSee version: " + version)
+        log(`os.platform(): ${os.platform()} ${process.cwd()}`)
         verbose = true
         termDisplayHeight -= 2
       } else {
@@ -898,36 +897,32 @@ function pushCli(cs) {
 
       // output(`webserverEnabled: ${webserverEnabled}`)
       if ( webserverEnabled === true ) {
-        output(`Starting webserver`)
         let theargs =  generateTheArgs()
-        bugtxt(theargs)
         server.stop() // kludge? maybe remove later
         url = projectprefs.aminosee.url
         output()
         this.setupKeyboardUI()
         autoStartGui = false
         // output(`Server running at: ${ chalk.underline( url ) } to stop use: aminosee --stop `)
-        server.setArgs(theargs)
+        // server.setArgs(theargs)
+
+        server.setArgs( theargs )
+
         // server()
         // this.currentURL = server.foregroundserver()
         // this.currentURL = this.generateURL()
-        // this.currentURL = server.start( theargs )
 
-        // server.start(theargs)
         // output( theargs )
         // output(`starting server in a tick`)
         // runcb( () => {
-        log(`starting server now`)
+        output(theargs)
+        output(args)
+        output(`Starting webserver...`)
         try {
-          // server( theargs )
-          server.start( this.currentURL )
-
+          server.start()
         } catch (err) {
-          output(`error starting server: ${fixedWidth(tx/2, err)}`)
+          output(`error starting server: ${err}`)
         }
-        //   webserverEnabled = false
-        // })
-
 
       } else {
         log("Not starting server")
@@ -1205,8 +1200,7 @@ function pushCli(cs) {
       }
       if ( debug === true && this.quiet == false) {
         // console.log( histogramJson  )
-        // output( beautify( histogramJson, null, 2, 100) )
-
+        output( beautify( histogramJson, null, 2, 100) )
       }
       aminosee_json = histogramJson
       return histogramJson
@@ -1457,7 +1451,6 @@ function pushCli(cs) {
 
         // pushCli('--serve');
         // output( server.foregroundserver() )
-        // server.start( generateTheArgs() )
         autoStartGui = false
 
       } else {
@@ -1917,6 +1910,7 @@ function pushCli(cs) {
 
 
       this.setIsDiskBusy( false )
+      output(`debug: was inside preRenderReset ${status}`)
       killAllTimers()
       try {
         remain = this.args._.length
@@ -2046,7 +2040,6 @@ function pushCli(cs) {
     diskStorm(cb) {
       log("WE BE STORMIN")
       if ( brute === false) { runcb(cb); return false }
-      // killAllTimers()
       output("LIKE NORMAN")
 
       for ( let p = 1; p < this.pepTable.length; p++ ) { // standard peptide loop
@@ -2675,7 +2668,8 @@ function pushCli(cs) {
     }
 
     saveHTML( cb ) {
-      status = ""
+      mode("Saving HTML")
+      // status = ""
       if ( this.isHilbertPossible === false ) { status += "Hilbert not possible. "; this.report = false }
       if ( this.report === false ) { status += "Report is disabled. "; this.report = false }
       if ( this.test ) { status += "Test. ";  this.report = false  }
@@ -2689,13 +2683,12 @@ function pushCli(cs) {
       //   cb()
       //   return false
       // }
-      mode("Saving HTML")
+
 
       // this.pepTable.sort( this.compareHistocount )
       let histogramJson =  this.getRenderObject()
       let histogramFile = this.generateFilenameHistogram()
-      bugtxt(`globalVariablesDoSuck: ${	this.usersPeptide}`)
-      // output( beautify( histogramJson , null, 2, 100) )
+      bugtxt( beautify( histogramJson , null, 2, 100) )
 
       let hypertext
       if ( this.test === true ) {
@@ -2716,14 +2709,22 @@ function pushCli(cs) {
       }
 
       if ( this.dimension > defaultPreviewDimension ) {
-        this.fileWrite(path.resolve( this.outputPath, this.shortnameGenome, "highres.html"), hypertext)
+        if ( this.reg ) {
+          this.fileWrite(path.resolve( this.outputPath, this.shortnameGenome, "highres-regmarks.html"), hypertext)
+        } else {
+          this.fileWrite(path.resolve( this.outputPath, this.shortnameGenome, "highres.html"), hypertext)
+        }
         log( blueWhite(`Writing high resolution report for the directory ${this.shortnameGenome}`))
       } else if ( this.dimension = defaultPreviewDimension ) {
         this.index = true
       }
 
       if ( this.index || !ishighres ) { // if it wont make the users computer explode... set it as index page!
-        this.fileWrite(path.resolve( this.outputPath, this.shortnameGenome, "index.html"), hypertext)
+        if ( this.reg ) {
+          this.fileWrite(path.resolve( this.outputPath, this.shortnameGenome, "regmarks.html"), hypertext)
+        } else {
+          this.fileWrite(path.resolve( this.outputPath, this.shortnameGenome, "index.html"), hypertext)
+        }
         log( blueWhite(`Writing default report for the directory ${this.shortnameGenome}`))
       }
 
@@ -3057,7 +3058,7 @@ function pushCli(cs) {
         mode("quit " + reason)
         if (typeof code == "undefined") { code = 0 } // dont terminate with 0
         log(`Received quit(${code}) ${reason}`)
-        killAllTimers()
+        // killAllTimers()
         destroyKeyboardUI()
         if ( renderLock === true ) {
           output("halting render") // maybe this happens during graceful shutdown
@@ -4787,15 +4788,15 @@ function pushCli(cs) {
 
 
       function bugtxt(txt) { // full debug output
-        // if (debug === true) {
-        //   bugout(txt)
-        // }
+        if (debug) {
+          bugout(txt)
+        }
       }
       function output(txt) {
         cpuhit++
         if (typeof txt === "undefined" || typeof cliInstance === "undefined") { console.log() ; return; }
 
-        wTitle(`${  txt }`) // put it on the terminal windowbar or in tmux
+        wTitle(`${ removeNonAscii( txt )}`) // put it on the terminal windowbar or in tmux
 
         if (cliInstance.quiet === true) {
           redoline(txt)
@@ -4830,7 +4831,7 @@ function pushCli(cs) {
         // return
         if ( debug === true || verbose ) {
           bugout( txt )
-        } else if (verbose) {
+        } else if ( verbose ) {
           console.log( txt )
         } else {
           redoline( txt )
@@ -4849,9 +4850,7 @@ function pushCli(cs) {
         term.windowTitle( txt )
       }
       function bugout(txt) {
-
-        console.log( `${helixEmoji}: ${cpuhit} ${maxWidth(16, status)} ${cliInstance.usersPeptide} ${remain} ${txt} `)
-
+        console.log( `${helixEmoji}: ${cpuhit} ${status} ${cliInstance.usersPeptide} ${remain} ${txt} `)
       }
       function deleteFile(file) {
         let ret = false
@@ -5336,7 +5335,7 @@ function pushCli(cs) {
         } else {
           // if (debounce(25) === true) {
             term.eraseLine()
-            console.log( maxWidth( tx/2, txt ))
+            console.log( maxWidth( tx/2,  removeNonAscii( txt )))
             term.eraseLine()
             term.column( 0 )
             term.up( 1 )
@@ -5723,7 +5722,6 @@ function pushCli(cs) {
       //   this.pollForStream();
       // },
       // function( cb ) {
-      //   server.start( this.args );
       //   this.mkRenderFolders();
       //   // symlinkGUI(cb);
       // }
@@ -5754,7 +5752,7 @@ function pushCli(cs) {
 
         // let  this.radMargin  = cliInstance.termMarginLeft
         this.radMargin = 16
-        output(" ")
+        output(`tx: ${tx}`)
         // term.right( this.radMargin )
         terminalRGB( helixEmoji + chalk.rgb(255, 32, 32).bgBlack(arr[0]) , 12, 34, 56)
         term.eraseLine()
@@ -5786,10 +5784,6 @@ function pushCli(cs) {
           terminalRGB(`${ prettyDate(new Date())} v${version} ${arr[6]} `, 220, 120,  70); term.right( this.radMargin ); term.eraseLine()
           terminalRGB(arr[7], 220, 80,   80); term.right( this.radMargin ); term.eraseLine()
           terminalRGB(arr[8], 255, 32,   32); term.eraseLine()
-
-
-
-
         }
 
       }

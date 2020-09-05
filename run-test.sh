@@ -28,6 +28,7 @@ aminosee --serve &
 echo aminosee $*  --no-image
 aminosee $*  --no-image
 test_do "KEYBOARD MODE" $FAST $*  --no-image  --peptide=Methionine --keyboard
+test_do "regmarks" $FAST $*  --reg
 test_do "Networked cluster render test $NETWORK" -fv --peptide=Phenylalanine $FAST $NETWORK $MEDIUM $*
 test_do "Test use of --maxpix=5000000" --maxpix=5000000 -v $SLOW $MEDIUM $FAST $NETWORK $*
 test_do "Forced re-render verbose no image" -fv $MEDIUM $FAST $*  --no-image
