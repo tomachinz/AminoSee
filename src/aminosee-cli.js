@@ -20,7 +20,7 @@ const wideScreen = 140 // shrinks terminal display
 const windows7 = 100 // shitty os, shitty terminal, ah well
 let termDisplayHeight = 15 // the stats about the file etc
 let termHistoHeight = 30 // this histrogram
-let raceDelay = 100 // so i learnt a lot on this project. one day this line shall disappear replaced by promises.
+let raceDelay = 10 // so i learnt a lot on this project. one day this line shall disappear replaced by promises.
 const settings = require("./aminosee-settings")
 const version = require("./aminosee-version")
 const server = require("./aminosee-server")
@@ -753,7 +753,7 @@ function pushCli(cs) {
         this.maxMsPerUpdate  = 5000
         this.clear = false
       }
-      if ( args.reg || args.r) { // NEEDS TO BE ABOVE TEST
+      if ( args.regmarks || args.reg || args.r) { // NEEDS TO BE ABOVE TEST
         this.reg = true
         notQuiet("using regmarks")
       } else {
@@ -814,7 +814,6 @@ function pushCli(cs) {
 
       if ( args.quiet || args.q ) { // needs to be at bottom so changes cant be overridden! but after debug .
         log("quiet mode enabled.")
-        webserverEnabled = false
         this.quiet = true
         verbose = false
         this.dnabg = false
@@ -895,7 +894,6 @@ function pushCli(cs) {
         return false
       }
 
-      // output(`webserverEnabled: ${webserverEnabled}`)
       if ( webserverEnabled === true ) {
         let theargs =  generateTheArgs()
         server.stop() // kludge? maybe remove later
@@ -925,10 +923,10 @@ function pushCli(cs) {
         }
 
       } else {
-        log("Not starting server")
+        log(`Not starting server ${webserverEnabled}`)
       }
 
-      if ( this.serve ) { return }
+      // if ( this.serve ) { return }
 
       if ( remain > 0 ) {
         mode(remain + " Ω work remaining Ω  first command")
@@ -957,7 +955,6 @@ function pushCli(cs) {
           log("not first run")
         }
         termSize()
-        log(`Your terminal size: (${tx},${ty})`)
 
         // output(`remain ${remain}`)
 
@@ -1503,7 +1500,7 @@ function pushCli(cs) {
       batchSize = 0
       // debug = true
       // this.devmode = true
-      this.updates = false
+      // this.updates = false
       if (this.devmode === true) {
         output("Because you are using --devmode, the lock file is not deleted. This is useful during development because I can quickly that.test new code by starting then interupting the render with Control-c. Then, when I use 'aminosee * -f -d' I can have new versions rende that.red  but skip super large genomes that would take 5 mins or more to render. I like to see that they begin to render then break and retry; this way AminoSee will skip the large genome becauyse it has a lock file, saving me CPU during development. Lock files are safe to delete.")
       } else {
@@ -1511,12 +1508,11 @@ function pushCli(cs) {
       }
 
       server.stop()
-
       if ( this.isStorageBusy) {
         output( status + blueWhite( `${status} stopping rendering: ${this.justNameOfPNG}` ) )
-      } else {
+      } else if ( code !== 130 ) {
         output(`will terminate after saving this hilbert projection`)
-        setImmediate( () => { printRadMessage( `exiting` ); this.quit(0, "graceful"); })
+        // setImmediate( () => { printRadMessage( `exiting` ); this.quit(0, "graceful"); })
       }
     }
 
@@ -1598,8 +1594,8 @@ function pushCli(cs) {
       remain = this.args._.length
       if ( this.args._.length > 0 ) {
         cfile = this.args._[0]
-      } else if ( !this.test ){
-        this.quit(0, `set next file`);
+      } else if ( !this.test && !webserverEnabled){
+        // this.quit(0, `set next file`);
         return false;
       }
 
@@ -1895,7 +1891,7 @@ function pushCli(cs) {
 
       if ( renderLock ) { error("draining threads from reset"); return false }
       if ( typeof reason === "undefined" ) { error("must set a reason when using reset") }
-      if ( remain < 1 ) { this.quit(0, "finished") ; return false }
+      if ( remain < 1 ) { this.quit(1, "finished") ; return false }
 
       if ( brute ) { // incrementally render all amino acids via disk thrashing
         bruteRemain--
@@ -1910,8 +1906,7 @@ function pushCli(cs) {
 
 
       this.setIsDiskBusy( false )
-      output(`debug: was inside preRenderReset ${status}`)
-      killAllTimers()
+
       try {
         remain = this.args._.length
       } catch(err) {
@@ -2735,7 +2730,7 @@ function pushCli(cs) {
       this.fileWrite( this.fileHTML, hypertext )
 
         this.fileWrite( histogramFile, histotext, () => {
-          output("Finished Writing " + histogramFile)
+          log("Finished Writing " + histogramFile)
 
           this.htmlFinished()
           runcb(cb)
@@ -2910,7 +2905,7 @@ function pushCli(cs) {
 
       if ( typeof reason === "undefined") { error("reason must be defined for postRenderPoll"); return false; }
 
-      log( status )
+      bugtxt( status )
       //
       // if ( verbose ) {
       //   redoline(chalk.inverse(`Finishing saving (${reason}), ${this.busy()} waiting on ${ this.storage() } ${ remain } files to go.`))
@@ -2928,8 +2923,8 @@ function pushCli(cs) {
       // if its the right this.extension go to sleep  <----- bug ?
       // check if all the disk is finished and if so change the locks
       if ( this.isDiskFinLinear === true && this.isDiskFinHilbert === true && this.isDiskFinHTML === true ) {
-        log(`this.dimension ${this.dimension} > defaultPreviewDimension ${defaultPreviewDimension} is test: ${this.test}`)
-        out(`Finished saving`)
+        bugtxt(`this.dimension ${this.dimension} > defaultPreviewDimension ${defaultPreviewDimension} is test: ${this.test}`)
+        notQuiet(`Finished saving`)
         this.openOutputs()
         this.setIsDiskBusy( false )
         addToRendered(this.shortnameGenome) // in case histogram file is deleted
@@ -2984,7 +2979,7 @@ function pushCli(cs) {
             removeLocks( this.fileTouch, this.devmode, status )
           }
         } else { //  disk is not finished
-          output(` [ post render ${reason} wait on storage: ${chalk.inverse( this.storage() )}  ] `)
+          log(` [ post render ${reason} wait on storage: ${chalk.inverse( this.storage() )}  ] `)
         }
       }
       getFilesizeInBytes(file) {
@@ -3058,11 +3053,9 @@ function pushCli(cs) {
         mode("quit " + reason)
         if (typeof code == "undefined") { code = 0 } // dont terminate with 0
         log(`Received quit(${code}) ${reason}`)
-        // killAllTimers()
+        killAllTimers()
         destroyKeyboardUI()
-        if ( renderLock === true ) {
-          output("halting render") // maybe this happens during graceful shutdown
-        }
+
         if ( this.isStorageBusy ) {
           output("still saving to storage - will exit after save") // maybe this happens during graceful shutdown
           return
@@ -3079,13 +3072,19 @@ function pushCli(cs) {
           log(chalk.bgWhite.red ("Goodbye"))
         }
 
-        if (remain > 0 ) {
-          error(`There is more work (${remain}). Rendering: ${this.justNameOfPNG} ${this.timeRemain}`)
-          if ( this.isStorageBusy ) {
-            output("shutdown halted due to saving")
-            return true
+        if ( code !== 130 ) {
+          if (remain > 0 ) {
+            error(`There is more work (${remain}). Rendering: ${this.justNameOfPNG} ${this.timeRemain}`)
+            if ( this.isStorageBusy ) {
+              output("shutdown halted due to saving")
+              return true
+            }
+          }
+          if ( renderLock === true ) {
+            output("halting batch render, will exist after this file") // maybe this happens during graceful shutdown
           }
         }
+
         ///////////////////// below here is defo gonna quit
 
         if (webserverEnabled === true) { // control-c kills server
@@ -3097,7 +3096,7 @@ function pushCli(cs) {
         this.destroyProgress()
         process.exitCode = code
         deleteFile( this.fileTouch )
-        killAllTimers()
+        // killAllTimers()
         printRadMessage([ ` ${(killServersOnQuit ?  'AminoSee has shutdown' : ' ' )}`, `${( verbose ?  ' Exit code: '+ code : '' )}`,  (killServersOnQuit == false ? server.getServerURL() : ' '), remain ]);
       }
       processLine(l) { // need to implement the format here: https://rdrr.io/rforge/seqTools/man/countGenomeKmers.html
@@ -3819,15 +3818,15 @@ function pushCli(cs) {
             }
           }
           while ( pix > wid * hite) {
-            log(`linear image hite: ${hite} pixels by 960`)
+            log(`linear image h: ${hite} pixels by 960`)
             hite++
           }
         } // GOLDEN RATIO
 
         if ( pix <= wid * hite) {
-          log("Image allocation is OK: " + pix + " <= width x hite = " + ( wid * hite ))
+          log(`Image allocation is OK: ${pix} <= width x height = ${( wid * hite )}`)
         } else {
-          let msg = `MEGA FAIL: TOO MANY ARRAY PIXELS NOT ENOUGH IMAGE SIZE: array pixels: ${pix} <  width x hite = ${wid * hite}`
+          let msg = `MEGA FAIL: TOO MANY ARRAY PIXELS NOT ENOUGH IMAGE SIZE: array pixels: ${pix} <  w x h = ${wid * hite}`
           error(msg)
           this.preRenderReset(msg)
           return false
@@ -3988,7 +3987,7 @@ function pushCli(cs) {
       }
 
       getRegmarks() {
-        return ( this.reg === true ? "_reg" : "" )
+        return ( this.reg ? "_reg" : "" )
       }
       mkdir(relative, cb) { // returns true if a fresh dir was created
         let dir2make
@@ -4442,10 +4441,10 @@ function pushCli(cs) {
           }
           this.updatesTimer = setTimeout(() => {
             if ( isShuttingDown ) {
-              output("Shutting down")
+              output(`Shutting down ${batchProgress()}`)
             } else {
               this.drawHistogram() // MAKE THE HISTOGRAM AGAIN LATER
-              log("drawing again if rendering in " +  this.msPerUpdate )
+              bugtxt("drawing again if rendering in " +  this.msPerUpdate )
             }
           },  this.msPerUpdate )
         } else { log("update finished") }
@@ -4834,7 +4833,8 @@ function pushCli(cs) {
         } else if ( verbose ) {
           console.log( txt )
         } else {
-          redoline( txt )
+          out('.')
+          // redoline( txt )
         }
       }
       function batchProgress() {
@@ -4891,6 +4891,7 @@ function pushCli(cs) {
         tx = term.width
         ty = term.height
         termPixels = (tx) * (ty-8)
+        log(`Your terminal size: (${tx},${ty})`)
       }
       function destroyKeyboardUI() {
         // log(`Disabling keyboard UI`)
@@ -5441,32 +5442,31 @@ function pushCli(cs) {
         // parse(txt)
       }
 
-      // process.on("SIGTERM", () => {
-      //   let sig = `${batchProgress()} SIGTERM RECEIVED`
-      //   output(sig)
-      //   if ( remain > 0 || streamLineNr > 0 ) {
-      //     sig += `ignoring but unlocking keyboard ${batchProgress()}`
-      //     destroyKeyboardUI()
-      //   } else {
-      //     sig += `not unlocking keyboard ${batchProgress()}`
-      //   }
-      //   if (debounce()) {
-      //     notQuiet(`${sig}`)
-      //   }
-      //   output(sig)
-      //   // cliInstance.gracefulQuit(130, sig)
-      //   // cliInstance.destroyProgress();
-      //   // process.exitCode = 130;
-      //   // cliInstance.quit(130, "SIGTERM");
-      //   cliInstance.quit(0, `sigterm`)
-      //   // setTimeout( () => {
-      //   //   process.exit() // this.now the "exit" event will fire
-      //   // }, raceDelay )
-      //
-      // })
+      process.on("SIGTERM", () => {
+        let sig = `SIGTERM`
+        output(`Received ${sig} signal`)
+        if ( remain > 0 || streamLineNr > 0 ) {
+          sig += `ignoring but unlocking keyboard ${batchProgress()}`
+          destroyKeyboardUI()
+        } else {
+          sig += `not unlocking keyboard ${batchProgress()}`
+        }
+        if (debounce()) {
+          notQuiet(`${sig}`)
+        }
+        // cliInstance.gracefulQuit(130, sig)
+        // cliInstance.destroyProgress();
+        // process.exitCode = 130;
+        // cliInstance.quit(130, "SIGTERM");
+        cliInstance.gracefulQuit(130, `SIGTERM`)
+        cliInstance.quit(130, `sigterm`)
+        setTimeout( () => {
+          process.exit() // this.now the "exit" event will fire
+        }, raceDelay )
+
+      })
       process.on("SIGINT", function() {
         let sig = "SIGINT"
-        output(`Received ${sig} signal`)
         output(`Received ${sig} signal`)
         cliInstance.gracefulQuit(130, sig)
         process.exitCode = 130

@@ -1,4 +1,4 @@
-const aminosee = require("./aminosee-cli")
+// const aminosee = require("./aminosee-cli")
 const settings = require("./aminosee-settings")
 const data =     require("./aminosee-data")
 const onesigbitTolocale = data.onesigbitTolocale

@@ -13,60 +13,38 @@ if [ -z "$1" ]; then
   echo
   echo processing all files in current directory: $(pwd)
   echo
-  sleep 2
-  ./batch-peptides.sh &
-  sleep 2
-  ./batch-peptides.sh &
-  sleep 2
-  ./batch-peptides.sh &
-  sleep 2
   ./batch-peptides.sh $* &
-  sleep 2
-  ./batch-peptides.sh *
+  sleep 1
+  ./batch-peptides.sh $* &
+  sleep 1
+  ./batch-peptides.sh $* &
+  sleep 1
+  ./batch-peptides.sh $*
 else
-  echo processing $*
+  echo batch processing:
   echo
-  echo Asterix:
+  echo ===========================
   echo $*
   echo ===========================
-  sleep 2
-
   ./batch-peptides.sh  $1 &
   sleep 1
   ./batch-peptides.sh  $1 &
   sleep 1
-  ./batch-peptides.sh  $1 &
-  sleep 1
-  ./batch-peptides.sh  $1 &
-  sleep 1
-  ./batch-peptides.sh  $1 &
-  sleep 1
-  ./batch-peptides.sh  $1 &
-  sleep 1
-  ./batch-peptides.sh  $1 &
-  sleep 1
-  ./batch-peptides.sh  $1 &
-  sleep 10
+  ./batch-peptides.sh  $1
 
   ./batch-peptides.sh  $2 &
-  sleep 2
-  ./batch-peptides.sh  $3 &
-  sleep 2
-  ./batch-peptides.sh  $4 &
-  sleep 2
-  ./batch-peptides.sh  $5 &
-  sleep 2
-  ./batch-peptides.sh  $6 &
-  sleep 2
+  sleep 1
+  ./batch-peptides.sh  $2 &
+  sleep 1
+  ./batch-peptides.sh  $2
+
   ./batch-peptides.sh  $* &
-  sleep 2
-  ./batch-peptides.sh  $*
-  sleep 2
+  sleep 1
   ./batch-peptides.sh  $* &
-  sleep 2
-  ./batch-peptides.sh &
-  sleep 2
-  ./batch-peptides.sh *
+  sleep 1
+  ./batch-peptides.sh  $* &
+  sleep 1
+  ./batch-peptides.sh
 fi
 
 

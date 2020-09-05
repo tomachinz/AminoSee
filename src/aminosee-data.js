@@ -1,4 +1,4 @@
-const aminosee = require("./aminosee-cli")
+// const aminosee = require("./aminosee-cli")
 // const aminosee.debug
 // const out = aminosee.out;
 const path = require("path")
