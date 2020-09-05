@@ -106,7 +106,7 @@
     "event-stream": "^4.0.1",
     "get-cursor-position": "^1.0.5",
     "humanize-duration": "^3.23.1",
-    "husky": "^3.1.0",
+    "husky": "^4.2.5",
     "internal-ip": "^4.3.0",
     "keypress": "^0.2.1",
     "lazyness": "^1.2.0",
