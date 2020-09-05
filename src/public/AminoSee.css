@@ -1,5 +1,5 @@
 html, body, form, input, textarea, a, p, h1, h2, h3, h4, h5, h6, div {
-  font-family: "Yanone Kaffeesatz";
+  /* font-family: "Yanone Kaffeesatz"; */
   /* color: red; */
 }
 
@@ -37,7 +37,7 @@ img.32piximg, img>.32piximg {
 }
 
 body.dark, html.dark, body.aminosee {
-  background-color: #012345;
+  /* background-color: #012345; */
   background-image: url("https://www.funk.co.nz/gif/bg-big-blue-gradient.gif");
   background-repeat: repeat-x;
   color: white;
@@ -54,8 +54,8 @@ body.dark, html.dark, body.aminosee {
 #handylinks a, #buttonlink a, a.button, .aminosee a, .aminosee>a, .button>a {
   color: white;
   text-decoration-color: white;
-  background-color: #012345;
-  background-color: rgba(200, 200, 255, 0.125);
+  /* background-color: #012345; */
+  /* background-color: rgba(200, 200, 255, 0.125); */
   border-top: 1px solid white;
   border-radius: 4px;
   margin: 2px 2px 2px 2px;
@@ -126,10 +126,10 @@ img.stack, .stack {
   z-index: -1;
 }
 
-.frontmost {
+.frontmost, li.frontmost, a.frontmost, .frontmost li, img.frontmost {
   z-index: 6969;
-  background-color: #000000;
-  background-color: rgba(0, 0, 0, 0.7);
+  background-color: #888888;
+  background-color: rgba(128, 128, 128, 0.95);
 }
 
 #stack_0, #stack_1, #stack_2, #stack_3, #stack_4, #stack_5, #stack_6, #stack_7, #stack_8, #stack_9, #stack_10, #stack_11, #stack_12, #stack_13, #stack_14, #stack_15, #stack_16, #stack_17, #stack_18, #stack_19, #stack_20, #stack_21, #stack_22, #stack_23, #stack_24 {
@@ -575,7 +575,7 @@ body {
   font-family: "Segoe UI", Tahoma, Helvetica, freesans, sans-serif;
   font-size: 90%;
   margin: 10px;
-  color: #333;
+  /* color: #333; */
   background-color: #fff;
 }
 

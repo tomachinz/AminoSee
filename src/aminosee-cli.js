@@ -93,7 +93,8 @@ const tomachisBirthday = new Date( 221962393 ) // Epoch timestamp: 221962393 is 
 // BigInt.prototype.toBSON = function() { return this.toString(); }; // Add a `toBSON()` to enable MongoDB to store BigInts as strings
 
 let autoStartGui = true
-let cfile, streamLineNr, renderLock, jobArgs, killServersOnQuit, webserverEnabled, cliInstance, tx, ty, cliruns, gbprocessed, projectprefs, userprefs, genomesRendered, progato, commandString, batchSize, quiet, url, port, status, remain, lastHammered, darkenFactor, highlightFactor, loopCounter, webroot, tups,  opensFile , opensHtml , opensImage, previousImage, isHighlightSet, aminosee_json, hilpix, usersMagnitude, shrinkFactor, codonsPerPixelHILBERT, ishighres, ispreview, cpuhit, bruteRemain
+let cfile = `No DNA or RNA text file provided`
+let streamLineNr, renderLock, jobArgs, killServersOnQuit, webserverEnabled, cliInstance, tx, ty, cliruns, gbprocessed, projectprefs, userprefs, genomesRendered, progato, commandString, batchSize, quiet, url, port, status, remain, lastHammered, darkenFactor, highlightFactor, loopCounter, webroot, tups,  opensFile , opensHtml , opensImage, previousImage, isHighlightSet, aminosee_json, hilpix, usersMagnitude, shrinkFactor, codonsPerPixelHILBERT, ishighres, ispreview, cpuhit, bruteRemain
 // let theGUI
 tups = opensFile = opensHtml = opensImage = 0 // terminal flossing
 let opens = 0 // session local counter to avoid having way too many windows opened.
@@ -156,6 +157,7 @@ function generateTheArgs() {
       port: defaultPort,
       verbose: verbose,
       output: cliInstance.outputPath,
+      path: webroot,
       serve: true,
       gzip: true,
       logip: true,
@@ -175,7 +177,7 @@ function populateArgs(procArgv) { // returns args
     boolean: [ "artistic", "brute", "clear", "chrome", "devmode", "debug", "demo", "dnabg", "explorer", "file", "force", "fullscreen", "firefox", "gui", "html", "image", "keyboard", "list", "progress", "quiet", "reg", "recycle", "redraw", "slow", "serve", "safari", "test", "updates", "verbose", "view" ],
     string: [ "url", "output", "triplet", "peptide", "ratio" ],
     alias: { a: "artistic", b: "dnabg", c: "codons", d: "devmode", f: "force", finder: "explorer", h: "help", k: "keyboard", m: "magnitude", o: "output", p: "peptide", i: "image", t: "triplet", u: "updates", q: "quiet", r: "ratio", w: "width", v: "verbose", x: "explorer", v: "verbose", view: "html" },
-    default: { brute: false, debug: false, keyboard: false, progress: true, redraw: true, updates: true, stop: false, serve: false, fullscreen: false , html: true, image: false, index: false, clear: false, explorer: false, quiet: false, gui: false },
+    default: { brute: false, debug: false, keyboard: true, progress: true, redraw: true, updates: true, stop: false, serve: false, fullscreen: false , html: true, image: false, index: false, clear: false, explorer: false, quiet: false, gui: false },
     stopEarly: false
   } // NUMERIC INPUTS: codons, magnitude, width, maxpix
   let args = minimist(procArgv.slice(2), options)
@@ -488,7 +490,7 @@ function pushCli(cs) {
         this.toggleDevmode() // make sure debug is set first above
       }
       if ( args.recycle ) { // needs to be at top so  changes can be overridden! but after debug.
-        output("♻ recycle mode enabled. (experimental)")
+        output("♻ recycle mode enabled ♻")
         this.recycEnabled = true
       } else { this.recycEnabled = false }
       if ( args.keyboard || args.k ) {
@@ -499,6 +501,7 @@ function pushCli(cs) {
           termDisplayHeight++
         }
       } else {
+        output(`interactive keyboard mode disabled`)
         this.keyboard = false
       }
       if ( args.port ) {
@@ -507,7 +510,7 @@ function pushCli(cs) {
         this.port = defaultPort
       }
       if ( this.keyboard === true) {
-        notQuiet("interactive keyboard mode enabled")
+        log("interactive keyboard mode enabled")
         this.setupKeyboardUI()
       } else {
         log("interactive keyboard mode disabled")
@@ -899,25 +902,19 @@ function pushCli(cs) {
         server.stop() // kludge? maybe remove later
         url = projectprefs.aminosee.url
         output()
-        this.setupKeyboardUI()
         autoStartGui = false
         // output(`Server running at: ${ chalk.underline( url ) } to stop use: aminosee --stop `)
         // server.setArgs(theargs)
 
         server.setArgs( theargs )
 
-        // server()
-        // this.currentURL = server.foregroundserver()
-        // this.currentURL = this.generateURL()
+        this.currentURL = server.foregroundserver()
 
-        // output( theargs )
-        // output(`starting server in a tick`)
-        // runcb( () => {
-        output(theargs)
-        output(args)
         output(`Starting webserver...`)
         try {
           server.start()
+          this.setupKeyboardUI()
+
         } catch (err) {
           output(`error starting server: ${err}`)
         }
@@ -931,18 +928,14 @@ function pushCli(cs) {
       if ( remain > 0 ) {
         mode(remain + " Ω work remaining Ω  first command")
         log("about to run linear names")
-
         this.shortnameGenome = this.genomeCanonicalisaton()
         this.imgPath = path.resolve( this.outputPath, this.shortnameGenome, "images")
         this.setupProgress()
-
         this.setupLinearNames()
-
         notQuiet(chalk.green(`${batchProgress()} ${chalk.underline("Job items Ω ")}` ))
         log(this.outputPath)
         this.dnafile = args._.toString()
         this.pollForStream(`first command`) // <<<<<<<<<<<<--------------- THIS IS WHERE IT ALL HAPPENS
-
       } else {
         let time = 5000
         mode("no command")
@@ -954,45 +947,26 @@ function pushCli(cs) {
         } else {
           log("not first run")
         }
-        termSize()
 
-        // output(`remain ${remain}`)
 
-        log(`will hold CLI for ${humanizeDuration(time)}`)
-        listGenomes()
-        if ( this.quiet ) {
-          time = 1000
-          log("exiting")
-          this.quit(0, "no command")
-          return
-        }
         if ( this.help || verbose ) {
+          termSize()
           output(`Welcome... this is a CLI app run from the terminal, see above [Q] or [Esc] key to exit now `)
+          listGenomes()
           output( interactiveKeysGuide )
-          cliInstance.setupKeyboardUI()
           if ( this.gui ) {
             log("GUI")
             startGUI()
             pushCli("--test")
             return true
-          } else {
-            // cliInstance.updatesTimer = countdown("closing in ", time, () => {
-            //   mode("time out from no command")
-            //   destroyKeyboardUI()
-            //   this.quit(0, "no command")
-            // })
           }
+        } else {
+          const image = path.resolve(path.dirname(__filename), "public", "favicon.png") // display logo in term
+          output()
+          termDrawImage( image , "--help section", () => { output(`Try: ${ chalk.italic( "aminosee --help ")}`) } )
         }
+        destroyKeyboardUI()
       }
-
-
-      // output("Hello. And this is where the module exits.")
-
-      // if ( this.gui === true && this.quiet == false ) {
-      // theGUI = startGUI()
-      // } else {
-      // log( "Try using  --gui for the graphical user interface!")
-      // }
 
     }
     setupProgress() {
@@ -1312,6 +1286,8 @@ function pushCli(cs) {
         if ( key ) {
 
           if ( key.name == "q" || key.name == "escape" ) {
+            destroyKeyboardUI()
+
             killServersOnQuit = false
             that.gracefulQuit(0, "Q esc")
           } else if ( !key.ctrl || key.name !== "c") {
@@ -1511,7 +1487,10 @@ function pushCli(cs) {
       if ( this.isStorageBusy) {
         output( status + blueWhite( `${status} stopping rendering: ${this.justNameOfPNG}` ) )
       } else if ( code !== 130 ) {
-        output(`will terminate after saving this hilbert projection`)
+        if ( remain > 0 ) {
+          output(`will terminate after this job (${cfile})`)
+        }
+
         // setImmediate( () => { printRadMessage( `exiting` ); this.quit(0, "graceful"); })
       }
     }
@@ -1799,7 +1778,8 @@ function pushCli(cs) {
       mode(`Checking for previous render of ${   this.filePNG } ${this.usersPeptide}`)
       log(status)
 
-      if (doesFileExist(this.filePNG)) {
+      if (doesFileExist(this.filePNG) && doesFileExist(this.fileHTML) ) {
+
         let msg = `Already rendered -->>  ${this.justNameOfPNG}`
         mode(msg)
         output( blueWhite( msg ))
@@ -1822,6 +1802,7 @@ function pushCli(cs) {
           // output( status )
         }
       }
+      output( blueWhite( `proceeding with render ${this.filePNG}` ))
 
 
       // if ( renderLock == false) {
@@ -2119,7 +2100,7 @@ function pushCli(cs) {
       this.setIsDiskBusy(true)
 
       mode( (ishighres ? "HIGH RESOLUTION" : "STANDARD ") + " resolution streaming disk read stopped.")
-      log( blueWhite( status ) )
+      output( blueWhite( status ) )
       term.eraseDisplayBelow()
       this.percentComplete = 1
       this.calcUpdate()
@@ -2497,9 +2478,7 @@ function pushCli(cs) {
 
     helpCmd() {
       mode("Showing help command --help")
-      const image = path.resolve(path.dirname(__filename), "public", "favicon.png") // display logo in term
-      output(`image: ${image}` )
-      termDrawImage( image , "--help section", () => {
+
         output( blueWhite( chalk.bold.italic("Welcome to the AminoSee DNA Viewer!")))
         output(description)
         output(chalk.bgBlue ("USAGE:"))
@@ -2557,9 +2536,8 @@ function pushCli(cs) {
         if ( this.quiet == false) {
           printRadMessage( [ `software version ${version}` ] )
         }
-      })
 
-      if ( this.keybaord ) {
+      if ( this.keyboard ) {
         this.setupKeyboardUI() // allows fast quit with [Q]
       }
 
@@ -2703,15 +2681,17 @@ function pushCli(cs) {
         this.fileWrite(path.resolve( this.outputPath, this.shortnameGenome, "debug.html"), hypertext)
       }
 
-      if ( this.dimension > defaultPreviewDimension ) {
+      if ( ishighres && !ispreview ) {
         if ( this.reg ) {
           this.fileWrite(path.resolve( this.outputPath, this.shortnameGenome, "highres-regmarks.html"), hypertext)
         } else {
           this.fileWrite(path.resolve( this.outputPath, this.shortnameGenome, "highres.html"), hypertext)
         }
-        log( blueWhite(`Writing high resolution report for the directory ${this.shortnameGenome}`))
+        output( blueWhite(`Writing high resolution report for the directory ${this.shortnameGenome}`))
       } else if ( this.dimension = defaultPreviewDimension ) {
         this.index = true
+        output( blueWhite(`Writing standard resolution report for the directory ${this.shortnameGenome}`))
+
       }
 
       if ( this.index || !ishighres ) { // if it wont make the users computer explode... set it as index page!
@@ -2883,10 +2863,6 @@ function pushCli(cs) {
       this.setIsDiskBusy(true)
 
       this.index = true // auto enable html report for preveiws
-      this.isDiskFinHilbert = false;
-      // this.isDiskFinLinear = true;
-      // this.isDiskFinHTML = true;
-      this.isStorageBusy = true;
       this.hWidth = Math.sqrt(pixels)
       this.hHeight  = this.hWidth
       this.index = true;
@@ -2942,9 +2918,8 @@ function pushCli(cs) {
                 }
               }, raceDelay)
             } else {
-              out(`finished tests`)
-              // remain--
-              // this.quit(0,"test "+ remain)
+              output(`Completed test pattern generation.`)
+              this.quit(0,"test "+ remain)
             }
             return
 
@@ -4896,10 +4871,11 @@ function pushCli(cs) {
       function destroyKeyboardUI() {
         // log(`Disabling keyboard UI`)
         process.stdin.pause() // stop eating the this.keyboard!
+        return
         try {
           process.stdin.setRawMode(false) // back to cooked this.mode
         } catch(err) {
-          log(`Could not disable raw mode this.keyboard: ${err}`)
+          output(`Could not disable raw mode keyboard: ${err}`)
           // process.stdin.resume() // DONT EVEN THINK ABOUT IT.
         }
       }
@@ -4961,17 +4937,17 @@ function pushCli(cs) {
       function runDemo() {
         mode(`run demo`)
         var that = cliInstance
-        async.parallel( [
-        // async.waterfall( [
+        // async.parallel( [
+        async.waterfall( [
           function( cb ) {
             output("blue")
-            that.openImage = true
-            that.peptide = "Opal" // Blue TESTS
-            // that.peptide = "Blue" // Blue TESTS
-            that.ratio = "sqr"
-            that.generateTestPatterns(() => {
+            cliInstance.openImage = true
+            cliInstance.peptide = "Opal" // Blue TESTS
+            // cliInstance.peptide = "Blue" // Blue TESTS
+            cliInstance.ratio = "sqr"
+            cliInstance.generateTestPatterns(() => {
               output("hello ghello")
-              that.openOutputs()
+              cliInstance.openOutputs()
               cb()
             })
             // setTimeout( () => {
@@ -4981,27 +4957,27 @@ function pushCli(cs) {
           },
           function( cb ) {
             output("RED")
-            that.openOutputs()
-            that.openImage = false
-            that.peptide = "Ochre" // Red TESTS
-            that.ratio = "sqr"
-            that.generateTestPatterns(cb)
+            cliInstance.openOutputs()
+            cliInstance.openImage = false
+            cliInstance.peptide = "Ochre" // Red TESTS
+            cliInstance.ratio = "sqr"
+            cliInstance.generateTestPatterns(cb)
           },
           function( cb ) {
             output("PURPLE")
-            that.openOutputs()
-            that.peptide = "Arginine" //  PURPLE TESTS
-            that.ratio = "sqr"
-            that.generateTestPatterns(cb)
+            cliInstance.openOutputs()
+            cliInstance.peptide = "Arginine" //  PURPLE TESTS
+            cliInstance.ratio = "sqr"
+            cliInstance.generateTestPatterns(cb)
           },
           function( cb ) {
-            that.openOutputs()
-            that.peptide = "Methionine" //  that.green  TESTS
-            that.ratio = "sqr"
-            that.generateTestPatterns(cb)
+            cliInstance.openOutputs()
+            cliInstance.peptide = "Methionine" //  cliInstance.green  TESTS
+            cliInstance.ratio = "sqr"
+            cliInstance.generateTestPatterns(cb)
           },
           function ( cb ) {
-            that.openOutputs()
+            cliInstance.openOutputs()
             cb()
           },
           function( cb ) {
@@ -5442,29 +5418,6 @@ function pushCli(cs) {
         // parse(txt)
       }
 
-      process.on("SIGTERM", () => {
-        let sig = `SIGTERM`
-        output(`Received ${sig} signal`)
-        if ( remain > 0 || streamLineNr > 0 ) {
-          sig += `ignoring but unlocking keyboard ${batchProgress()}`
-          destroyKeyboardUI()
-        } else {
-          sig += `not unlocking keyboard ${batchProgress()}`
-        }
-        if (debounce()) {
-          notQuiet(`${sig}`)
-        }
-        // cliInstance.gracefulQuit(130, sig)
-        // cliInstance.destroyProgress();
-        // process.exitCode = 130;
-        // cliInstance.quit(130, "SIGTERM");
-        cliInstance.gracefulQuit(130, `SIGTERM`)
-        cliInstance.quit(130, `sigterm`)
-        setTimeout( () => {
-          process.exit() // this.now the "exit" event will fire
-        }, raceDelay )
-
-      })
       process.on("SIGINT", function() {
         let sig = "SIGINT"
         output(`Received ${sig} signal`)
@@ -5483,8 +5436,8 @@ function pushCli(cs) {
         }
         // output()
         term.saveCursor()
-        log(`Terminal image: ${ chalk.inverse(  path.basename(fullpath) ) } ${ reason}`)
         term.drawImage( fullpath, { shrink: { width: tx * 0.8,  height: ty  * 0.8, left: tx/2, top: ty/2 } }, () => {
+          log(`Terminal image: ${ chalk.inverse(  path.basename(fullpath) ) } ${ reason}`)
           term.restoreCursor()
           runcb(cb)
         })

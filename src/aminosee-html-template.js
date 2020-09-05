@@ -43,16 +43,16 @@ function imageStack(histogramJson) {
 		top:  25%;
 		left: 25%;
 		transform: translate(
-			calc( 50% + var(--mouse-x, 0) * ${proportion*100}% + ${p}px ),
-			calc( 50% + var(--mouse-y, 0) * ${proportion*100}% + ${p}px )
+			calc( ( var(--mouse-x, 0)  * ${proportion*100}%  ) + ${p}px ),
+			calc( ( var(--mouse-y, 0)  *  ${proportion*100}%  ) + ${p}px )
 		);
 		border-top:    1px solid rgba(255, 255, 255, 0.4);
 		border-left:   2px solid rgba(${c}), 0.8);
 		border-bottom: 1px solid rgba(0,0,0, 0.5);
 		border-right:  2px solid rgba(${c}), 0.2);
 		background: rgba(0,0,0,0.2);
-		z-index: ${p+1};
-		`
+		z-index: ${100 - p};
+		` // + ${p}px // ${proportion*100}%
 
 		styleLi = styleLi.replace(`
 			`, " ")

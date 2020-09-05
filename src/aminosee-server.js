@@ -28,6 +28,7 @@ let autoStartGui = false
 let starts = -1
 let outputPath, filenameServerLock, url, projectprefs, userprefs, port, cliruns, gbprocessed, args, theserver, genomes, webroot, fragment
 
+output(chalk.yellow(`init web server`))
 
 // setArgs()
 
@@ -71,6 +72,7 @@ function setArgs( TheArgs ) {
 		args = {
 			verbose: false,
 			webroot: webroot,
+			path: webroot,
 			output: path.join( webroot, "output"),
 			serve: true,
 			openHtml: false,
@@ -206,7 +208,7 @@ function buildServer() {
 function selfSpawn() {
 	let didStart = false
 	process.title = "aminosee_evilspawn"
-	log( args )
+	output( `selfSpawn ${args}` )
 	let evilSpawn
 	try {
 		evilSpawn = spawn("aminosee", "--foreground", { stdio: "pipe" })
@@ -472,7 +474,7 @@ function start() { // return the port number
 		if ( args.background == true ) {
 			selfSpawn( options )
 		} else {
-			log("Foreground")
+			output("Foreground")
 			foregroundserver( options )
 			if ( args.html ) {
 				output(`Opening url ${url}`)
