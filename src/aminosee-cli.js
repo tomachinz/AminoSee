@@ -54,8 +54,8 @@ const spawn = require("cross-spawn")
 const async = require("async-kit") // amazing lib
 const termkit = require("terminal-kit") //.terminal
 const term = termkit.terminal
-// const MyManHilbert = require("hilbert-2d") // also contains magic
-const MyManHilbert = require("../node_modules/hilbert-2d/hilbert") // also contains magic
+const MyManHilbert = require("hilbert-2d") // also contains magic
+// const MyManHilbert = require("../node_modules/hilbert-2d/hilbert") // also contains magic
 const exec = require("child_process").exec // node standard lib
 const es = require("event-stream")
 const minimist = require("minimist")
@@ -109,7 +109,6 @@ let threads = [] // an array of AminoSeNoEvil instances.
 let clear = false
 let debug = false // should be false for PRODUCTION
 let brute = false // used while accelerating the render 20x
-let setuplock = false // used while accelerating the render 20x
 let verbose = false
 ispreview = false
 webserverEnabled = false
@@ -300,12 +299,10 @@ function pushCli(cs) {
 
     setupJob( args, reason, cb ) {
 
-      if ( setuplock ) { error(`this should not fire more than once per genome?!`) }
-      setuplock = true
       if ( typeof reason === "undefined") { error(`reason must not be undef`); return false;}
       if ( renderLock === true ) { error("setup job: draining threads"); return false }
 
-      mode("setup job ")
+      mode("setup job")
       this.setupPrefs()
       // do stuff aside from creating any changes. eg if you just run "aminosee" by itself.
       // for each render batch sent through newJob, here is where "this" be instantiated once per newJob
@@ -313,26 +310,25 @@ function pushCli(cs) {
       isShuttingDown = false
       streamLineNr = 0
       loopCounter = 0
-      // renderLock = false // not rendering right this.now obviously
+      renderLock = false // not rendering right this.now obviously
       darkenFactor = 0.25 // if user has chosen to highlight an amino acid others are darkened
       highlightFactor = 4.0 // highten brightening.
       loopCounter = 0
+      opensHtml = 0 // how many times have we popped up a browser.
       this.charClock = 0
       this.pixelClock = 0
-      this.peptide = this.triplet = this.focusTriplet = this.usersPeptide = "Reference" // used to be "none" is now "Reference"
-      this.usersTriplet = "not set"
-      this.rawDNA = "this aint sushi"
-      this.startDate = new Date() // required for touch locks.
-      this.timestamp = new Date()
-      this.now = this.startDate
-      this.percentComplete = 0
-      this.outFoldername = ""
       this.genomeSize = 0
       this.killServersOnQuit = true
       this.maxMsPerUpdate  = 15000 // milliseconds per update
       this.timeRemain = 1
       this.debugGears = 1
       this.done = 0
+      this.peptide = this.triplet = this.focusTriplet = this.usersPeptide = "Reference" // used to be "none" is now "Reference"
+      this.usersTriplet = "not set"
+      this.rawDNA = "this aint sushi"
+      this.percentComplete = 0
+      this.outFoldername = ""
+
       this.devmode = false // kills the auto opening of reports etc
       this.quiet = false
       this.force = false // this.force overwrite existing PNG and HTML reports
@@ -347,7 +343,6 @@ function pushCli(cs) {
       this.clear = true // this.clear the terminal screen while running
       this.openImage = true // open the png
       this.openHtml = true
-      opensHtml = 0 // how many times have we popped up a browser.
       this.highlightTriplets = []
       this.isHilbertPossible = true // set false if -c flags used.
       this.isDiskFinLinear = true // flag shows if saving png is complete
@@ -360,16 +355,20 @@ function pushCli(cs) {
       this.peakGreen  = 0.1010101010
       this.peakBlue  = 0.1010101010
       this.peakAlpha  = 0.1010101010
-      this.rawDNA ="...ACTCGGCTGATACG...GTGTGG" // this.debug
-      this.outFoldername = obviousFoldername
-      this.browser = "firefox"
-      termPixels = 69//Math.round((term.width) * (term.height-8));
+      // termPixels = 69//Math.round((term.width) * (term.height-8));
       this.runningDuration = 1 // ms
       this.termMarginLeft = 2
       this.errorClock = 0
-      remain = args._.length
+      this.rawDNA ="...ACTCGGCTGATACG...GTGTGG" // this.debug
+      this.browser = "firefox"
+      this.magnitude = "auto"
+      this.startDate = new Date() // required for touch locks.
+      this.timestamp = new Date()
+      this.now = this.startDate
+      this.outFoldername = obviousFoldername
       this.pepTable = data.pepTable
       this.args = args // populateArgs(procArgv); // this.args;
+      remain = args._.length
 
       if ( args.demo ) {
         this.demo = true
@@ -380,22 +379,13 @@ function pushCli(cs) {
         this.test = true
         remain++
       }
-      // try {
-      //   cfile = args._[0]
-      //   this.dnafile = path.resolve( cfile )
-      // } catch(err) {
-      //   cfile = path.join( 'dna', '50KB_TestPattern' )
-      //   log(err)
-      // }
       batchSize = remain
-
 
       this.setNextFile()
       this.outputPath = path.join( webroot, netFoldername)
       this.extension = this.getFileExtension( cfile)
       this.started = this.startDate.getTime() // required for touch locks.
       this.dimension = defaultMagnitude // var that the hilbert projection is be downsampled to
-      this.magnitude = "auto"
       this.msPerUpdate  = minUpdateTime // min milliseconds per update its increased for long renders
       this.termMarginTop = (term.height -  termDisplayHeight -   termHistoHeight ) / 4
       termSize()
@@ -1271,18 +1261,20 @@ function pushCli(cs) {
       this.keyboard = true
       // make `process.stdin` begin emitting "keypress" events
       keypress(process.stdin)
-      // keypress.enableMouse(process.stdout); // wow mouse events in the term?
-      // process.stdin.on('mousepress', function (info) {
-      //   bugout('got "mousepress" event at %d x %d', info.x, info.y);
-      // });
+      keypress.enableMouse(process.stdout); // wow mouse events in the term?
+      process.stdin.on('mousepress', function (info) {
+        bugout('got "mousepress" event at %d x %d', info.x, info.y);
+      });
       var that = this
       try {
         process.stdin.setRawMode(true)
       } catch(err) {
-        log(`Could not use interactive keyboard due to: ${err}`)
-        notQuiet("Probably you are running from a shell script. --keyboard mode requires interactive shell.")
+        error(`Could not use interactive keyboard due to: ${err}`)
+        output("Probably you are running from a shell script. --keyboard mode requires interactive shell.")
         destroyKeyboardUI()
+        return
       }
+      output(`        process.stdin.setRawMode(true)`)
       process.stdin.resume() // means start consuming
       // listen for the "keypress" event
       process.stdin.on("keypress", function (ch, key) {
@@ -1817,11 +1809,7 @@ function pushCli(cs) {
 
       // if ( renderLock == false) {
       if ( this.isInProgress( this.fileTouch )) {
-        let msg = "Render already in progress"
-        output( blueWhite( msg )) // <---  another node maybe working on, NO RENDER
-        mode(msg + this.justNameOfPNG)
-        log("Use --force to continue to replace the image or delete the touch file:")
-        log( chalk.italic(`rm ${path.normalize( this.fileTouch )}`) )
+
         this.preRenderReset (msg)
         return false
       }
@@ -3422,14 +3410,28 @@ function pushCli(cs) {
           log("Not checking locks - force mode enabled.")
           return false
         }
-        try {
+        const stats = fs.statSync( fullPathOfLockFile )
+        if ( stats && stats.isFile() ) {
           fs.lstatSync(fullPathOfLockFile).isDirectory()
           log("locked")
+          let msg = "Render already in progress"
+          output( blueWhite( msg )) // <---  another node maybe working on, NO RENDER
+          mode(msg + this.justNameOfPNG)
+          log("Use --force to continue to replace the image or delete the touch file:")
+          log( chalk.italic(`rm ${path.normalize( this.fileTouch )}`) )
           return true
-        } catch(e){
+        } else if ( stats && stats.isDirectory() ){
+          error(`lock file is a directory?`)
+          return false
+        } else {
           bugtxt("No lockfile found - proceeding to render" )
           return false
         }
+        // try {
+        //
+        // } catch(e){
+        //
+        // }
       }
       decodePNG(file, callback) {
         // var fs = require('fs'),
@@ -3666,10 +3668,10 @@ function pushCli(cs) {
       }
       hilbertFinished() {
         mode(`Hilbert curve done (${this.justNameOfHILBERT}). Waiting on (${ this.storage()})`)
-        out( status )
         this.isDiskFinHilbert = true
+        this.postRenderPoll( "hilbert done" )
         termDrawImage(this.fileHILBERT, "hilbert curve", () => {
-          this.postRenderPoll( "hilbert done" )
+          out( status )
         })
       }
 
@@ -5262,10 +5264,10 @@ function pushCli(cs) {
             })
           }
         } catch(e) {
-          output(chalk.inverse("Caught ERROR:") + e)
+          error( err )
         }
 
-        bugtxt(msg + ", and that is all.")
+        log(msg + ", and that is all.")
         return !problem
       }
       function terminalRGB(_text, _r, _g, _b) {
@@ -5328,7 +5330,7 @@ function pushCli(cs) {
           // if (debounce(25) === true) {
             term.eraseLine()
             console.log( maxWidth( tx/2,  removeNonAscii( txt )))
-            term.eraseLine()
+            // term.eraseLine()
             term.column( 0 )
             term.up( 1 )
           }
@@ -5435,8 +5437,8 @@ function pushCli(cs) {
 
 
         function termDrawImage(fullpath, reason, cb) {
-        if (cliInstance.quiet || typeof fullpath === "undefined" || typeof reason === "undefined") {
-          log( `${cfile} ${reason}` )
+          log( `${cfile} ${reason} open image: ${cliInstance.openImage}` )
+        if (cliInstance.quiet || typeof fullpath === "undefined" || typeof reason === "undefined" || !cliInstance.openImage) {
           return false
         }
         output()
@@ -6028,7 +6030,8 @@ function pushCli(cs) {
           // output()
           // output()
         }
-        output(`💩 Caught error: ${err}. Increasing delay by 50% to ms to ${ onesigbitTolocale( raceDelay )} ms`)
+        output(`💩 Caught error: ${chalk.inverse(this.justNameOfPNG)} --->> ${err}. Increasing delay by 50% to ms to ${ onesigbitTolocale( raceDelay )} ms`)
+
       }
       function setupKeyboardUI2() {
 

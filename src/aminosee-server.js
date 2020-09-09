@@ -453,7 +453,8 @@ function start() { // return the port number
 	output(chalk.yellow(`Starting web server at ${chalk.underline(getServerURL())}`))
 	log( args )
 	filenameServerLock = path.join( args.webroot, "output", "aminosee_server_lock.txt")
-	if ( args.stop == true ) { stop(); return true }
+	// if ( args.stop == true ) { stop(); return true }
+	stop(); // kludge
 	setupPrefs()
 	buildServer()
 	output(`web root: ${webroot}`)
