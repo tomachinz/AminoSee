@@ -3,8 +3,8 @@ FAST=megabase.fa
 QUICK=Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa
 
 aminosee_do () {
-  nice aminosee --quiet --ratio=sqr --reg --force $1 $2 $3 $4 $5 $6 &
-  sleep 20
+  nice aminosee --quiet --ratio=sqr --reg --force $*  &
+  sleep 2
 }
 
 
@@ -12,24 +12,24 @@ aminosee_do () {
 many_size_hilbert() {
   echo "                                         =///"
   echo "-------------------------------------------"
-  echo STARTING PARALLEL DECODE FOR $1 $2 $3 $4 $5 $6
+  echo STARTING PARALLEL DECODE FOR $*
   echo "-------------------------------------------"
   echo "                                         =///"
 
-  aminosee_do   -m3  $1 $2 $3 $4 $5 $6
-  aminosee_do   -m4  $1 $2 $3 $4 $5 $6
-  aminosee_do   -m5  $1 $2 $3 $4 $5 $6
-  aminosee_do   -m6  $1 $2 $3 $4 $5 $6
-  aminosee_do   -m7  $1 $2 $3 $4 $5 $6
-  nice aminosee --reg -m8  $1 $2 $3 $4 $5 $6
-  aminosee  --reg -m9  $1 $2 $3 $4 $5 $6
+  aminosee_do   -m3  $*
+  aminosee_do   -m4  $*
+  aminosee_do   -m5  $*
+  aminosee_do   -m6  $*
+  aminosee_do   -m7  $*
+  nice aminosee  --reg -m8 $*
+  nice aminosee  --reg -m9 $*
 
-    # aminosee_do $1 $2 $3 $4 $5 $6
-    # aminosee_do $1 $2 $3 $4 $5 $6       -c 10
-    # aminosee_do $1 $2 $3 $4 $5 $6       -c 50
-    # aminosee_do $1 $2 $3 $4 $5 $6       -c 100
-    # aminosee_do $1 $2 $3 $4 $5 $6       -c 500
-    # aminosee_do $1 $2 $3 $4 $5 $6       -c 1000 --ratio=gold
+    # aminosee_do $*
+    # aminosee_do $*        -c 10
+    # aminosee_do $*        -c 50
+    # aminosee_do $*        -c 100
+    # aminosee_do $*        -c 500
+    # aminosee_do $*        -c 1000 --ratio=gold
     #
 
 
@@ -37,7 +37,7 @@ many_size_hilbert() {
 
 
 
-many_size_hilbert $1 $1 $2 $3 $4 $5 $6
+many_size_hilbert $*
 # many_size_hilbert $FAST $QUICK
 # many_size_hilbert *
 

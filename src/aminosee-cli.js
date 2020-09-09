@@ -20,7 +20,7 @@ const wideScreen = 140 // shrinks terminal display
 const windows7 = 100 // shitty os, shitty terminal, ah well
 let termDisplayHeight = 15 // the stats about the file etc
 let termHistoHeight = 30 // this histrogram
-let raceDelay = 10 // so i learnt a lot on this project. one day this line shall disappear replaced by promises.
+let raceDelay = 369 // so i learnt a lot on this project. one day this line shall disappear replaced by promises.
 const settings = require("./aminosee-settings")
 const version = require("./aminosee-version")
 const server = require("./aminosee-server")
@@ -120,7 +120,17 @@ aminosee_json = status = "initialising"
 module.exports = () => {
   setupApp()
 }
-
+process.on("SIGINT", function() {
+  let sig = "SIGINT"
+  output(`Received ${sig} signal`)
+  cliInstance.gracefulQuit(130, sig)
+  process.exitCode = 130
+  cliInstance.quit(130, "SIGINT")
+  setImmediate( () => {
+    cliInstance.destroyProgress()
+    process.exit() // this.now the "exit" event will fire
+  })
+})
 function startGUI() {
   cliInstance.gui = true
   cliInstance.keyboard = true
@@ -1802,7 +1812,7 @@ function pushCli(cs) {
           // output( status )
         }
       }
-      output( blueWhite( `proceeding with render ${this.filePNG}` ))
+      output( blueWhite( `proceeding with render in ${ humanizeDuration( raceDelay )}.` ))
 
 
       // if ( renderLock == false) {
@@ -2158,8 +2168,9 @@ function pushCli(cs) {
         userprefs.aminosee.gbprocessed = gbprocessed // i have a superstition this way is less likely to conflict with other threads
         addToRendered( this.shortnameGenome )
       }
-
-      this.saveDocsSync( () => { log(`stream closed, saving to storage initiated`) })
+      setImmediate( () => {
+        this.saveDocsSync( () => { log(`stream closed, saving to storage initiated`) })
+      })
 
     }
     showFlags() {
@@ -2716,7 +2727,7 @@ function pushCli(cs) {
           runcb(cb)
 
         })
-      output("Writing " + histogramFile)
+      log("Writing " + histogramFile)
 
     }
     fileWrite(file, contents, cb) {
@@ -2840,7 +2851,7 @@ function pushCli(cs) {
     }
     createPreviews(cb) {
       mode(`Setting up previews ${this.justNameOfHILBERT}`)
-      // printRadMessage([`setting up previews`, status])
+      printRadMessage([`setting up previews`, status])
       output(status)
       if ( this.test ) { return false; }
       renderLock = true
@@ -2849,7 +2860,7 @@ function pushCli(cs) {
       this.hilbertImage = [] // wipe the memory!!
       this.antiAliasArray = []
       this.dimension = defaultMagnitude = defaultPreviewDimension // 5
-      this.magnitude = "auto"
+      this.magnitude = "custom"
       const pixels =  hilbPixels[ defaultPreviewDimension ] // 65536
       this.maxpix = pixels * overSampleFactor
       // let { shrinkFactor, codonsPerPixelHILBERT } =  calculateShrinkage( this.pixelClock, defaultPreviewDimension, this.codonsPerPixel ) // danger: can change this.file of Hilbert images!
@@ -2868,7 +2879,7 @@ function pushCli(cs) {
       this.index = true;
       this.args.magnitude = defaultPreviewDimension
       calculateShrinkage( this.pixelClock, this.dimension, this.codonsPerPixel )
-      output(codonsPerPixelHILBERT )
+      output(`codonsPerPixelHILBERT: ${codonsPerPixelHILBERT} preview dimension ${defaultPreviewDimension} in pixels ${hilbPixels[defaultPreviewDimension]}`)
 
       this.isDiskFinLinear = true
 
@@ -2877,7 +2888,7 @@ function pushCli(cs) {
 
     }
     postRenderPoll(reason) { // renderLock on late, off early
-      mode(`Post render [${reason}] Waiting on (${ this.storage()})`)
+      mode(`[ Post render reason: ${reason}  Waiting on ${ this.storage()} ]`)
 
       if ( typeof reason === "undefined") { error("reason must be defined for postRenderPoll"); return false; }
 
@@ -2933,7 +2944,7 @@ function pushCli(cs) {
           if (ishighres && !ispreview) {
             this.renderLock = true
             mode(`Creating lowres previews in ${raceDelay} ms`)
-            output( status )
+            output( blueWhite(status) )
 
             this.hilbertImage = []
             // setTimeout( () => {
@@ -3062,17 +3073,17 @@ function pushCli(cs) {
 
         ///////////////////// below here is defo gonna quit
 
-        if (webserverEnabled === true) { // control-c kills server
-          server.stop()
-        }
-
-
-        // term.eraseDisplayBelow()
+        deleteFile( this.fileTouch )
         this.destroyProgress()
         process.exitCode = code
-        deleteFile( this.fileTouch )
-        // killAllTimers()
+
+        killAllTimers()
         printRadMessage([ ` ${(killServersOnQuit ?  'AminoSee has shutdown' : ' ' )}`, `${( verbose ?  ' Exit code: '+ code : '' )}`,  (killServersOnQuit == false ? server.getServerURL() : ' '), remain ]);
+        setTimeout( () => {
+          setImmediate( () => {
+            process.exit()
+          })
+        }, raceDelay)
       }
       processLine(l) { // need to implement the format here: https://rdrr.io/rforge/seqTools/man/countGenomeKmers.html
         if ( renderLock === false ) { error("thread entered process line!")}
@@ -3540,7 +3551,7 @@ function pushCli(cs) {
         procTitle( status )
         hilpix = hilbPixels[ this.dimension ]
         calculateShrinkage( this.pixelClock, this.dimension, this.codonsPerPixel )
-        output(chalk.bgBlue.red( " Getting in touch with my man from 1891...   ॐ    David Hilbert    ॐ    " + shrinkFactor) )
+        output(chalk.inverse.red( " Getting in touch with my man from 1891...   ॐ    David Hilbert    ॐ    " + shrinkFactor) )
         // output()
 
         this.antiAliasArray = this.resampleByFactor()
@@ -3657,10 +3668,9 @@ function pushCli(cs) {
         mode(`Hilbert curve done (${this.justNameOfHILBERT}). Waiting on (${ this.storage()})`)
         out( status )
         this.isDiskFinHilbert = true
-
-        // termDrawImage(this.fileHILBERT, "hilbert curve", () => {
+        termDrawImage(this.fileHILBERT, "hilbert curve", () => {
           this.postRenderPoll( "hilbert done" )
-        // })
+        })
       }
 
       linearFinished() {
@@ -4253,6 +4263,7 @@ function pushCli(cs) {
           this.colDebug = term.width - 2
         }
         this.colDebug = Math.round(term.width  / 3)-1
+        output(`setDebugCols ${this.colDebug}`)
         return Math.round(term.width / 3)
       }
 
@@ -4394,7 +4405,7 @@ function pushCli(cs) {
       drawHistogram() {
 
         if ( isShuttingDown === true ) { output("closing...press U to update or Q to quit"); this.quit(0, "shutdown while drawing") }
-        if ( this.test || this.demo ) { log("test or demo"); return }
+        if ( this.test || this.demo ) { output("test or demo"); return }
         if ( renderLock === false ) {
           error( "surprise! race condition from nam.")
           this.rawDNA = "!"
@@ -4448,7 +4459,7 @@ function pushCli(cs) {
           `| i@${ fixedWidth(10, this.charClock.toLocaleString())} Breaks:${ fixedWidth(6, this.breakClock.toLocaleString())} Filesize:${ fixedWidth(7, bytes(  this.baseChars ))}`,
           `| Next update:${ fixedWidth(6,  this.msPerUpdate .toLocaleString())}ms Pixels:${ fixedWidth(10, " " + this.pixelClock.toLocaleString())}  Host: ${hostname}`,
           `| CPU: ${ fixedWidth(10, bytes( this.bytesPerMs*1000))} /sec ${ fixedWidth(5, this.codonsPerSec.toLocaleString())}K acids /sec`,
-          `| Next file >>> ${maxWidth(24, this.nextFile)}`,
+          `| ${batchProgress()} Next > ${maxWidth(24, this.nextFile)}`,
           `| Codons:${ fixedWidth(14, " " +  this.genomeSize.toLocaleString())}`,
           `  DNA Sample: ${ fixedWidth(tx/4, this.rawDNA) } ${ this.showFlags()}`,
           `  RunID: ${chalk.rgb(128, 0, 0).bold( this.runid )} acids per pixel: ${ twosigbitsTolocale( this.codonsPerPixel )}   Term x,y: (${tx},${ty}) ${chalk.inverse( highlightOrNothin())} ${this.peptide} ${status}`
@@ -4470,7 +4481,7 @@ function pushCli(cs) {
           term.moveTo(1 + this.termMarginLeft,1)
         }
         term.up( termDisplayHeight)
-
+        output(`the array: ${array.toString()}`)
         printRadMessage(array)
         output(`${chalk.rgb(128, 255, 128)( nicePercent(this.percentComplete) )} elapsed: ${ fixedWidth(12, humanizeDuration( this.msElapsed )) }  /  ${humanizeDuration( this.timeRemain)} remain`)
         output(`${ twosigbitsTolocale( gbprocessed )} GB All time total on ${chalk.yellow( hostname )} ${ cliruns.toLocaleString()} jobs run total`)
@@ -4793,6 +4804,7 @@ function pushCli(cs) {
         }
       }
       function debounce( ms ) {
+        cpuhit++
         if ( typeof ms === "undefined" ) { ms = 500 } // half second
         let d = new Date().getTime()
         if ( d + ms > lastHammered ) {
@@ -5290,14 +5302,17 @@ function pushCli(cs) {
       function mode(txt) { // good for debugging
         status = txt
         txt = batchProgress() + txt
-        wTitle(txt)
-        if ( cliInstance.devmode || debug ) {
-          // console.log(txt)
-        } else if ( !cliInstance.quiet ) {
-          // redoline(txt)
-        } else {
-          // out(`.`);
+        if (debounce()) {
+          wTitle(txt)
+          if ( cliInstance.devmode || debug ) {
+            console.log(txt)
+          } else if ( !cliInstance.quiet ) {
+            // redoline(txt)
+          } else {
+            // out(`.`);
+          }
         }
+
       }
       function gimmeDat() {
         let that
@@ -5418,27 +5433,17 @@ function pushCli(cs) {
         // parse(txt)
       }
 
-      process.on("SIGINT", function() {
-        let sig = "SIGINT"
-        output(`Received ${sig} signal`)
-        cliInstance.gracefulQuit(130, sig)
-        process.exitCode = 130
-        cliInstance.quit(130, "SIGINT")
-        setImmediate( () => {
-          cliInstance.destroyProgress()
-          process.exit() // this.now the "exit" event will fire
-        })
-      })
+
         function termDrawImage(fullpath, reason, cb) {
         if (cliInstance.quiet || typeof fullpath === "undefined" || typeof reason === "undefined") {
           log( `${cfile} ${reason}` )
           return false
         }
-        // output()
-        term.saveCursor()
+        output()
+        // term.saveCursor()
         term.drawImage( fullpath, { shrink: { width: tx * 0.8,  height: ty  * 0.8, left: tx/2, top: ty/2 } }, () => {
           log(`Terminal image: ${ chalk.inverse(  path.basename(fullpath) ) } ${ reason}`)
-          term.restoreCursor()
+          // term.restoreCursor()
           runcb(cb)
         })
       }
@@ -5585,9 +5590,12 @@ function pushCli(cs) {
             }
           }
         } else {
-          bugtxt("not expanding")
+          // bugtxt("not expanding")
         }
-        bugtxt(`expand: rgba [${red} ${green} ${blue}] mini [${mini}] maxi [${maxi}] scaleBlack [${scaleBlack}] blackPoint [${blackPoint}]`)
+        if (debounce() && debug ) {
+          redoline(`expand: rgba [${red} ${green} ${blue}] mini [${mini}] maxi [${maxi}] scaleBlack [${scaleBlack}] blackPoint [${blackPoint}]`)
+        }
+
         return [red, green, blue, alpha ]
       }
       function balanceColour( red, green, blue, alpha) {
@@ -5688,8 +5696,8 @@ function pushCli(cs) {
       function printRadMessage(arr) {
         // return
         // output( returnRadMessage(arr) );
-        if (typeof arr === "undefined" || typeof arr !== "Array") {
-          arr = ["    ", "    ", "    ", "    ", "    ", "", "Output path:", cliInstance.outputPath ]
+        if (typeof arr === "undefined" ) {
+          arr = ["   WANG! ", "    ", "    ", "    ", "    ", "", "Output path:", cliInstance.outputPath ]
           // arr = [ "    ________", "    ________", "    ________", "    ________", "    ________", "", "Output path:"," " ];
         }
         while ( arr.length < 9 ) {
@@ -5705,13 +5713,13 @@ function pushCli(cs) {
 
         // let  this.radMargin  = cliInstance.termMarginLeft
         this.radMargin = 16
-        output(`tx: ${tx}`)
+        // output(`tx: ${tx}`)
         // term.right( this.radMargin )
         terminalRGB( helixEmoji + chalk.rgb(255, 32, 32).bgBlack(arr[0]) , 12, 34, 56)
         term.eraseLine()
         term.right( this.radMargin )
-        if ( tx > wideScreen ) {
-          terminalRGB(`╔═╗┌┬┐┬┌┐┌┌─┐╔═╗┌─┐┌─┐  ╔╦╗╔╗╔╔═╗  ╦  ╦┬┌─┐┬ ┬┌─┐┬─┐  ${arr[1]}`, 255, 60,  250); term.right( this.radMargin ); term.eraseLine()
+        if ( tx > wideScreen ) { // THE OUTPUT IS COMING FROM    --->        ${arr[1]}
+          terminalRGB(`╔═╗┌┬┐┬┌┐┌┌─┐╔═╗┌─┐┌─┐  ╔╦╗╔╗╔╔═╗  ╦  ╦┬┌─┐┬ ┬┌─┐┬─┐  ${arr[1]}hello`, 255, 60,  250); term.right( this.radMargin ); term.eraseLine()
           terminalRGB(`╠═╣││││││││ │╚═╗├┤ ├┤    ║║║║║╠═╣  ╚╗╔╝│├┤ │││├┤ ├┬┘  ${arr[2]}`, 170, 150, 255); term.right( this.radMargin ); term.eraseLine()
           terminalRGB(`╩ ╩┴ ┴┴┘└┘└─┘╚═╝└─┘└─┘  ═╩╝╝╚╝╩ ╩   ╚╝ ┴└─┘└┴┘└─┘┴└─  ${arr[3]}`, 128, 240, 240); term.right( this.radMargin ); term.eraseLine()
           terminalRGB(` by Tom Atkinson          aminosee.funk.nz            ${arr[4]}`, 225, 225, 130); term.right( this.radMargin ); term.eraseLine()
