@@ -36,21 +36,21 @@ function imageStack(histogramJson) {
 		let thePep = item.Codon
 		let theHue = item.Hue
 		let c =      hsvToRgb( theHue / 360, 0.5, 1.0 )
-		let proportion = (0.5 + ((p+1) / pepTable.length ) * -1)
+		let proportion = (p+1) / pepTable.length * -1
 		let minimumSize = 64
 		let styleLi =  `
 		position: fixed;
-		top:  25%;
-		left: 25%;
+		top:  50%;
+		left: 50%;
 		transform: translate(
-			calc( ( var(--mouse-x, 0)  * ${proportion*100}%  ) + ${p}px ),
-			calc( ( var(--mouse-y, 0)  *  ${proportion*100}%  ) + ${p}px )
+			calc( ( var(--mouse-x, 0)  * ${proportion*50}%  ) + ${p}px ),
+			calc( ( var(--mouse-y, 0)  *  ${proportion*80}%  ) + ${p*2}px )
 		);
-		border-top:    1px solid rgba(255, 255, 255, 0.4);
-		border-left:   2px solid rgba(${c}), 0.8);
-		border-bottom: 1px solid rgba(0,0,0, 0.5);
-		border-right:  2px solid rgba(${c}), 0.2);
-		background: rgba(0,0,0,0.2);
+		border-top:    1px solid rgba(255, 255, 255, 0.6);
+		border-left:   2px solid rgba(${c}), 0.6);
+		border-bottom: 1px solid rgba(0,0,0, 0.6);
+		border-right:  2px solid rgba(${c}), 0.6);
+		background: rgba(0,0,0,0.1);
 		z-index: ${100 - p};
 		` // + ${p}px // ${proportion*100}%
 
