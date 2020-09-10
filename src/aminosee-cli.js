@@ -5369,7 +5369,7 @@ function pushCli(cs) {
         if ( typeof file === "undefined") { error("file must be supplied") }
         if ( typeof options === "undefined") { let options = { wait: false } }
         if ( typeof callback === "undefined") { open( file, options )  } else {
-          open( file, options, ()=> { out(`smooth op`)}  )
+          open( file, options, ()=> { callback(); out(`smooth op`);}  )
         }
         projectprefs.aminosee.opens++ // increment open counter.
       }
