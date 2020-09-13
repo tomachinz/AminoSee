@@ -20,7 +20,7 @@ const wideScreen = 140 // shrinks terminal display
 const windows7 = 100 // shitty os, shitty terminal, ah well
 let termDisplayHeight = 15 // the stats about the file etc
 let termHistoHeight = 30 // this histrogram
-let raceDelay = 69 // so i learnt a lot on this project. one day this line shall disappear replaced by promises.
+let raceDelay = 369 // so i learnt a lot on this project. one day this line shall disappear replaced by promises.
 const settings = require("./aminosee-settings")
 const version = require("./aminosee-version")
 const server = require("./aminosee-server")
@@ -82,7 +82,7 @@ const obviousFoldername = "AminoSee_webroot" // descriptive for users
 const netFoldername = "output" // terse for networks
 const funknzlabel = "aminosee.funk.nz"
 const dummyFilename = "50KB_TestPattern.txt"
-const closeBrowser = "If the process apears frozen, it's waiting for your this.browser or image viewer to quit. Escape with [ CONTROL-C ] or use --no-image --no-html"
+const closeBrowser = "If the process apears frozen, it's waiting for your browser or image viewer to quit. Escape with [ CONTROL-C ] or use --no-image --no-html"
 const tomachisBirthday = new Date( 221962393 ) // Epoch timestamp: 221962393 is Date and time (GMT): Thursday, January 13, 1977 12:13:13 AM or 1:13:13 PM GMT+13:00 DST in New Zealand Time.
 
 // const targetPixels = 1000000 // for web
@@ -122,12 +122,13 @@ module.exports = () => {
 }
 process.on("SIGINT", function() {
   let sig = "SIGINT"
-  output(`Received ${sig} signal`)
+  bugout(`Received ${sig} signal`)
   cliInstance.gracefulQuit(130, sig)
   process.exitCode = 130
   cliInstance.quit(130, "SIGINT")
   setImmediate( () => {
     cliInstance.destroyProgress()
+    cliInstance.destroyKeyboardUI
     process.exit() // this.now the "exit" event will fire
   })
 })
@@ -187,7 +188,7 @@ function populateArgs(procArgv) { // returns args
     boolean: [ "artistic", "brute", "clear", "chrome", "devmode", "debug", "demo", "dnabg", "explorer", "file", "force", "fullscreen", "firefox", "gui", "html", "image", "keyboard", "list", "progress", "quiet", "reg", "recycle", "redraw", "slow", "serve", "safari", "test", "updates", "verbose", "view" ],
     string: [ "url", "output", "triplet", "peptide", "ratio" ],
     alias: { a: "artistic", b: "dnabg", c: "codons", d: "devmode", f: "force", finder: "explorer", h: "help", k: "keyboard", m: "magnitude", o: "output", p: "peptide", i: "image", t: "triplet", u: "updates", q: "quiet", r: "ratio", w: "width", v: "verbose", x: "explorer", v: "verbose", view: "html" },
-    default: { brute: false, debug: false, keyboard: true, progress: true, redraw: true, updates: true, stop: false, serve: false, fullscreen: false , html: true, image: true, index: false, clear: false, explorer: false, quiet: false, gui: false },
+    default: { brute: false, debug: false, keyboard: true, progress: false, redraw: true, updates: true, stop: false, serve: false, fullscreen: false , html: true, image: true, index: false, clear: false, explorer: false, quiet: false, gui: false },
     stopEarly: false
   } // NUMERIC INPUTS: codons, magnitude, width, maxpix
   let args = minimist(procArgv.slice(2), options)
@@ -835,7 +836,6 @@ function pushCli(cs) {
 
       if (this.devmode === true) {
         this.quiet = false
-        verbose = true
         this.updates = false
         this.clear = false
         this.openHtml = false
@@ -891,7 +891,7 @@ function pushCli(cs) {
 
       if ( webserverEnabled === true ) {
         let theargs =  generateTheArgs()
-        server.stop() // kludge? maybe remove later
+        // server.stop() // kludge? maybe remove later
         url = projectprefs.aminosee.url
         output()
         autoStartGui = false
@@ -1251,7 +1251,6 @@ function pushCli(cs) {
 
     setupKeyboardUI() {
       this.keyboard = true
-      // make `process.stdin` begin emitting "keypress" events
       keypress(process.stdin)
       // keypress.enableMouse(process.stdout); // wow mouse events in the term?
       // process.stdin.on('mousepress', function (info) {
@@ -1261,12 +1260,12 @@ function pushCli(cs) {
       try {
         process.stdin.setRawMode(true)
       } catch(err) {
-        error(`Could not use interactive keyboard due to: ${err}`)
-        output("Probably you are running from a shell script. --keyboard mode requires interactive shell.")
-        destroyKeyboardUI()
+        // error(`Could not use interactive keyboard due to: ${err}`)
+        output("Could not use interactive keyboard due to: Probably you are running from a shell script. --keyboard mode requires interactive shell.")
+        // destroyKeyboardUI()
         return
       }
-      output(`        process.stdin.setRawMode(true)`)
+      bugtxt(`        process.stdin.setRawMode(true)`)
       process.stdin.resume() // means start consuming
       // listen for the "keypress" event
       process.stdin.on("keypress", function (ch, key) {
@@ -1485,7 +1484,7 @@ function pushCli(cs) {
           output(`will terminate after this job (${cfile})`)
         }
 
-        // setImmediate( () => { printRadMessage( `exiting` ); this.quit(0, "graceful"); })
+        setImmediate( () => { printRadMessage( `exiting` ); this.quit(1, "graceful"); })
       }
     }
 
@@ -1768,10 +1767,10 @@ function pushCli(cs) {
       this.justNameOfPNG = this.generateFilenamePNG( this.usersPeptide )
       this.filePNG = path.resolve( this.imgPath,  this.justNameOfPNG )
       this.setupRender( cfile )
-      mode(`Checking for previous render of ${   this.filePNG } ${this.usersPeptide}`)
+      mode(`Checking for previous render of ${   this.filePNG } ${this.usersPeptide} and ${this.fileHTML}`)
       log(status)
 
-      if (doesFileExist(this.filePNG) && doesFileExist(this.fileHTML) ) {
+      if (doesFileExist(this.filePNG) || !doesFileExist(this.fileHTML) ) {
 
         let msg = this.justNameOfPNG
         mode(msg)
@@ -1779,23 +1778,30 @@ function pushCli(cs) {
         addToRendered(this.shortnameGenome) // in case histogram file is deleted
         this.openOutputs()
         this.previousImage = this.filePNG
+
+
         if ( verbose ) {
-          mode(`drawing image`)
-          termDrawImage(this.filePNG, msg, () => { log( status ) })
+          mode(`terminal image`)
+          termDrawImage(this.filePNG, msg, () => {
+            setTimeout( () => {
+              mode( `image printed to term. rendering: ${renderLock}`)
+
+            }, raceDelay)
+          })
         }
         if ( !this.force ) {
-          mode( `${status} so skipping.`)
-          // notQuiet(status)
-          setTimeout( () => {
-            cliInstance.preRenderReset(status)
-          }, raceDelay)
+          mode( `resetting`)
+          output(status)
+          cliInstance.preRenderReset(status)
           return false // flow goes via preRenderReset above
         } else {
           mode( `${status} But lets render it again anyway?!`)
-          // output( status )
+          log( status )
         }
+      } else {
+        notQuiet( `html: ${doesFileExist(this.fileHTML)}` )
       }
-      redoline( `proceeding with render in ${ humanizeDuration( raceDelay )}.` )
+      output( `proceeding with render in ${ humanizeDuration( raceDelay )}.` )
 
 
       // if ( renderLock == false) {
@@ -1855,9 +1861,9 @@ function pushCli(cs) {
     //   return stream;
     // }
     preRenderReset(reason){
-      out(`${batchProgress()} Pre render reset`) //  (${ this.storage()} ${ this.busy()}) Reason ${reason} Storage:  current: ${ cfile } next: ${ this.nextFile}`)
-      status = maxWidth( tx / 2, status)
-      log( status)
+      status = maxWidth( tx / 2, `${batchProgress()} Pre render reset`)
+      mode(`reset ${status}`)
+      output( status )
 
       if ( renderLock ) { error("draining threads from reset"); return false }
       if ( typeof reason === "undefined" ) { error("must set a reason when using reset") }
@@ -1903,7 +1909,9 @@ function pushCli(cs) {
 
       if ( isShuttingDown === true ) { output(`Shutting down after this render ${ blueWhite(this.justNameOfPNG)}`) }
       if ( renderLock === false ) {
+        debug = true
         error("RENDER LOCK FAILED. This is an  error I'd like reported. Please run with --verbose --devmode option enabled and send the logs to aminosee@funk.co.nz")
+        // process.exit()
         return false
       }
       mode(`Initialising Stream: 🚄 ${this.usersPeptide} ${this.shortnameGenome} Filesize ${bytes( this.baseChars)}`)
@@ -1940,11 +1948,11 @@ function pushCli(cs) {
 
       if ( this.willRecycleSavedImage && this.recycEnabled) {
         output(`Skipped DNA render stage of ${ this.shortnameGenome}`)
-        log("AM PLANNING TO RECYCLE TODAY (joy)")
+        mode("AM PLANNING TO RECYCLE TODAY (joy)")
         this.recycleOldImage( this.filePNG )
         return false
       } else {
-        log("Not recycling")
+        mode("Not recycling")
       }
       // startStreamingPng();
       let msg = `Streaming ${this.usersPeptide} ${bytes( this.baseChars )} c${ this.codonsPerPixel } m${this.dimension}`
@@ -2744,7 +2752,7 @@ function pushCli(cs) {
     touchLockAndStartStream() { // saves CPU waste. delete lock when all files are saved, not just the png.
       mode("touchLockAndStartStream")
       log("I feel like touching a mutex lock and dancing")
-      if ( renderLock === true ) { error("draining threads while locking"); return false }
+      if ( renderLock === true ) { debug = true; error("draining threads while locking"); return false }
       redoline("Locking threads for render")
       renderLock = true
       this.tLock()
@@ -2752,6 +2760,7 @@ function pushCli(cs) {
         if ( renderLock === true ) {
           this.initStream()
         } else {
+          debug = args.debug
           error(`was put to sleep by another thread that finished?! ${cfile}`)
         }
       }, raceDelay)
@@ -2791,7 +2800,7 @@ function pushCli(cs) {
           outski
         )
       } else {
-        if (typeof cb === "Function") { runcb(cb) }
+        error(`lock active in tlock`)
       }
 
     }
@@ -2829,7 +2838,6 @@ function pushCli(cs) {
     }
     createPreviews(cb) {
       mode(`Setting up previews ${this.justNameOfHILBERT}`)
-      printRadMessage([`setting up previews`, status])
       output(status)
       if ( this.test ) { return false; }
       renderLock = true
@@ -3865,13 +3873,15 @@ function pushCli(cs) {
         error(`open( ${this.fileHTML} )`)
       }
       openOutputs() {
+        if (ispreview) { return false }
         // return false
         mode("open files " + this.justNameOfPNG)
         log( blueWhite(  status ) )
         if ( isShuttingDown ) { output(`${batchProgress()} Shutting down... `); return false }
         if ( cfile == funknzlabel ) { return false }
         if ( this.devmode === true )  { log( this.renderObjToString() ) }
-        log( closeBrowser ) // tell user process maybe blocked
+        if ( this.openImage == false ) { return false }
+        bugtxt( closeBrowser ) // tell user process maybe blocked
         bugtxt(" this.openHtml, this.openImage, this.openFileExplorer ", this.openHtml, this.openImage, this.openFileExplorer )
         if ( this.openFileExplorer === true) {
           opensFile++
@@ -4748,7 +4758,8 @@ function pushCli(cs) {
 
 
       function bugtxt(txt) { // full debug output
-        if (debug) {
+        cpuhit++
+        if (debug && verbose) {
           bugout(txt)
         }
       }
@@ -4789,7 +4800,8 @@ function pushCli(cs) {
         return false
       }
       function log(txt  ) {
-        // return
+        cpuhit++
+
         if ( debug === true || verbose ) {
           bugout( txt )
         } else if ( verbose ) {
@@ -4812,7 +4824,7 @@ function pushCli(cs) {
         term.windowTitle( txt )
       }
       function bugout(txt) {
-        console.log( `${helixEmoji}: ${cpuhit} ${status} ${cliInstance.usersPeptide} ${remain} ${txt} `)
+        console.log( chalk.gray( `${helixEmoji}: ${ ( renderLock ? chalk.red.inverse(cpuhit) : cpuhit )} ${fixedWidth(18, status)} ${fixedWidth( 10, cliInstance.justNameOfPNG)} ${remain} ${txt})`))
       }
       function deleteFile(file) {
         let ret = false
@@ -5413,7 +5425,7 @@ function pushCli(cs) {
         output()
         // term.saveCursor()
         term.drawImage( fullpath, { shrink: { width: tx * 0.8,  height: ty  * 0.8, left: tx/2, top: ty/2 } }, () => {
-          log(`Terminal image: ${ chalk.inverse(  path.basename(fullpath) ) } ${ reason}`)
+          output(`Terminal image: ${ chalk.inverse(  path.basename(fullpath) ) } ${ reason}`)
           // term.restoreCursor()
           runcb(cb)
         })
@@ -5667,7 +5679,7 @@ function pushCli(cs) {
       function printRadMessage(arr) {
         // return
         // output( returnRadMessage(arr) );
-        if (typeof arr === "undefined" ) {
+        if (typeof arr === "undefined" || !arr.push) {
           arr = ["   WANG! ", "    ", "    ", "    ", "    ", "", "Output path:", cliInstance.outputPath ]
           // arr = [ "    ________", "    ________", "    ________", "    ________", "    ________", "", "Output path:"," " ];
         }
@@ -5838,10 +5850,9 @@ function pushCli(cs) {
         bugtxt( "remove locks with " + remain + " files in queue. fileTouch: " + lockfile )
         if (cliInstance.test || cliInstance.demo) {  return }
         renderLock = false
-        procTitle( "remove locks")
-
+        procTitle( status )
         remain--
-
+        printRadMessage([ lockfile, status])
 
         if ( typeof devmode === "undefined" ) {
           devmode = false
@@ -5856,8 +5867,11 @@ function pushCli(cs) {
         } else {
           deleteFile( lockfile )
         }
-        cliInstance.preRenderReset(reason)
-        // runcb( cb )
+        setImmediate( () => {
+          setTimeout( () => {
+            cliInstance.preRenderReset(reason)
+          })
+        })
       }
       function notQuiet( txt ) {
         if (cliInstance.quiet || typeof txt === "undefined" ) {
@@ -5870,7 +5884,7 @@ function pushCli(cs) {
       }
       function killAllTimers() {
         // if ( renderLock || remain > 0 ) { return; }
-        mode(`killing timers`)
+        mode(`${status} killing timers`)
         // if ( this.updatesTimer) {
         //   clearTimeout( this.updatesTimer )
         // }

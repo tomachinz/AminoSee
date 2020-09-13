@@ -40,11 +40,11 @@ function imageStack(histogramJson) {
 		let minimumSize = 64
 		let styleLi =  `
 		position: fixed;
-		top:  50%;
-		left: 50%;
+		top:  30%;
+		left: 30%;
 		transform: translate(
-			calc( ( var(--mouse-x, 0)  * ${proportion*50}%  ) + ${p}px ),
-			calc( ( var(--mouse-y, 0)  *  ${proportion*80}%  ) + ${p*2}px )
+			calc( 50% - ( var(--mouse-x, 0)  * ${proportion*70}%  ) + ${p}px ),
+			calc( 50% - ( var(--mouse-y, 0)  *  ${proportion*100}%  ) + ${p*2}px )
 		);
 		border-top:    1px solid rgba(255, 255, 255, 0.6);
 		border-left:   2px solid rgba(${c}), 0.6);
