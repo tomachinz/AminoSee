@@ -12,15 +12,15 @@ const defaultPort = 4321
 const minUpdateTime = 2000
 const openLocalHtml = false // affects auto-open HTML.
 const fileLockingDelay = 2000
-const defaultPreviewDimension = 6 // was 500 MB per page before.
+const defaultPreviewDimension = 5 // was 500 MB per page before.
 const theoreticalMaxMagnitude = 10 // max for auto setting
-const overSampleFactor = 3 // your linear image divided by this will be the hilbert image size.
+const overSampleFactor = 2 // 4 your linear image divided by this will be the hilbert image size.
 const blackPoint = 128 // use 255 to remove effect, it increase colour saturation
 const wideScreen = 140 // shrinks terminal display
 const windows7 = 100 // shitty os, shitty terminal, ah well
 let termDisplayHeight = 15 // the stats about the file etc
 let termHistoHeight = 30 // this histrogram
-let raceDelay = 369 // so i learnt a lot on this project. one day this line shall disappear replaced by promises.
+let raceDelay = 10 // so i learnt a lot on this project. one day this line shall disappear replaced by promises.
 const settings = require("./aminosee-settings")
 const version = require("./aminosee-version")
 const server = require("./aminosee-server")
@@ -106,6 +106,7 @@ remain = 0 // files in the batch
 tx = ty = cliruns = gbprocessed = cpuhit = 0
 usersMagnitude = defaultMagnitude
 let isShuttingDown = false
+let imageOutput = [] // array of image paths to open
 let threads = [] // an array of AminoSeNoEvil instances.
 let clear = false
 let debug = false // should be false for PRODUCTION
@@ -114,6 +115,7 @@ let verbose = false
 ispreview = false
 webserverEnabled = false
 genomesRendered = []
+
 renderLock = false
 isHighlightSet = false
 aminosee_json = status = "initialising"
@@ -527,9 +529,9 @@ function pushCli(cs) {
       log(`Browser set to ${ this.browser } options: --chrome --firefox --safari`)
       if ( args.image || args.i ) {
         this.openImage = true
-        output("will automatically open image")
+        log("will automatically open image")
       } else {
-        log("will not open image")
+        output("will not open image")
         this.openImage = false
       }
       if ( args.any || args.a) {
@@ -1212,9 +1214,7 @@ function pushCli(cs) {
       this.outputPath = path.join( webroot, "output")
       this.setNextFile()
       this.autoconfCodonsPerPixel()
-      if (this.test) {
-        // output(`MAYBE DID I SKIP TEST`)
-        // this.testInit()
+      if (this.test) { // thats it for the /calibration/ images
         return false
       }
       this.setNextFile()
@@ -1767,16 +1767,16 @@ function pushCli(cs) {
       this.justNameOfPNG = this.generateFilenamePNG( this.usersPeptide )
       this.filePNG = path.resolve( this.imgPath,  this.justNameOfPNG )
       this.setupRender( cfile )
-      mode(`Checking for previous render of ${   this.filePNG } ${this.usersPeptide} and ${this.fileHTML}`)
+      mode(`Checking for previous render of ${   this.filePNG } ${this.usersPeptide} or the absence of ${this.fileHTML}`)
       log(status)
-
-      if (doesFileExist(this.filePNG) || !doesFileExist(this.fileHTML) ) {
+      output(`doesFileExist(this.filePNG)  ${   this.filePNG }
+       ${doesFileExist(this.filePNG) }  doesFileExist(this.fileHTML)  ${doesFileExist(this.fileHTML) }`)
+      if (doesFileExist(this.filePNG) == true || doesFileExist(this.fileHTML) == true )  {
 
         let msg = this.justNameOfPNG
         mode(msg)
         output( `Already rendered -->>  ${blueWhite( msg )}` )
-        addToRendered(this.shortnameGenome) // in case histogram file is deleted
-        this.openOutputs()
+      //  addToRendered(this.shortnameGenome) // in case histogram file is deleted
         this.previousImage = this.filePNG
 
 
@@ -1791,7 +1791,7 @@ function pushCli(cs) {
         }
         if ( !this.force ) {
           mode( `resetting`)
-          output(status)
+          bugtxt(status)
           cliInstance.preRenderReset(status)
           return false // flow goes via preRenderReset above
         } else {
@@ -1863,7 +1863,7 @@ function pushCli(cs) {
     preRenderReset(reason){
       status = maxWidth( tx / 2, `${batchProgress()} Pre render reset`)
       mode(`reset ${status}`)
-      output( status )
+      bugtxt( status )
 
       if ( renderLock ) { error("draining threads from reset"); return false }
       if ( typeof reason === "undefined" ) { error("must set a reason when using reset") }
@@ -1909,20 +1909,19 @@ function pushCli(cs) {
 
       if ( isShuttingDown === true ) { output(`Shutting down after this render ${ blueWhite(this.justNameOfPNG)}`) }
       if ( renderLock === false ) {
-        debug = true
+        debug = true // makes it crash
         error("RENDER LOCK FAILED. This is an  error I'd like reported. Please run with --verbose --devmode option enabled and send the logs to aminosee@funk.co.nz")
-        // process.exit()
         return false
       }
       mode(`Initialising Stream: 🚄 ${this.usersPeptide} ${this.shortnameGenome} Filesize ${bytes( this.baseChars)}`)
-      notQuiet( chalk.rgb(64, 128, 255).bold( status ))
+      output( chalk.rgb(64, 128, 255).bold( status ))
       log(`Output folder --->> ${ blueWhite( blueWhite( cfile ))}`)
       this.timestamp = Math.round(+new Date()/1000)
       cpuhit = 0 // used to try and track down a race condition darn it
       this.runid = new Date().getTime()
 
 
-      // this.mkRenderFolders() // create /images etc
+      this.mkRenderFolders() // create /images etc
       this.rawDNA = "@"
       this.percentComplete = 0
       this.genomeSize = 0 // number of codons.
@@ -2153,7 +2152,7 @@ function pushCli(cs) {
         gbprocessed  = userprefs.aminosee.gbprocessed
         gbprocessed +=  this.baseChars / 1024 / 1024 / 1024 // increment disk counter.
         userprefs.aminosee.gbprocessed = gbprocessed // i have a superstition this way is less likely to conflict with other threads
-        addToRendered( this.shortnameGenome )
+        // addToRendered( this.shortnameGenome )
       }
       setImmediate( () => {
         this.saveDocsSync( () => { out(`stream closed, saving to storage initiated`) })
@@ -2315,17 +2314,17 @@ function pushCli(cs) {
 
       for ( let p = 0; p < this.pepTable.length; p++ ) { // add correct filenames to json file
         const pep =  spaceTo_( this.pepTable[p].Codon )
+        this.pepTable[p].hilbert_preview = this.generateFilenameHilbert( pep )
+        this.pepTable[p].hilbert_master = this.generateFilenameHilbert( pep )
         if ( ishighres ) {
-          this.pepTable[p].hilbert_preview = this.generateFilenameHilbert( pep )
-        } else {
-          this.pepTable[p].hilbert_preview = this.generateFilenameHilbert( pep )
-          this.pepTable[p].hilbert_master = this.generateFilenameHilbert( pep )
+          if ( ispreview ) {
+            this.pepTable[p].hilbert_preview = this.generateFilenameHilbert( pep )
+          } else {
+            this.pepTable[p].hilbert_master = this.generateFilenameHilbert( pep )
+          }
         }
-        bugtxt(`calc Hilbert Filename ${p} ${pep} master ${this.pepTable[p].hilbert_master }`)
       }
-
-      // bugtxt(`codons per pixel hilbert ${codonsPerPixelHILBERT}`)
-
+      bugtxt(`codons per pixel hilbert ${codonsPerPixelHILBERT}`)
       this.justNameOfHILBERT =  this.generateFilenameHilbert( this.peptide )
       this.fileHILBERT = path.resolve( this.imgPath, this.justNameOfHILBERT)
       return this.justNameOfHILBERT
@@ -2408,9 +2407,10 @@ function pushCli(cs) {
       // mode(msg)
       // output(msg)
 
-      this.fileTouch =   path.resolve( this.outputPath, this.shortnameGenome, this.generateFilenameTouch( this.usersPeptide )  )
       this.fileHTML =    path.resolve( this.outputPath, this.shortnameGenome, this.generateFilenameHTML()   )
-      this.filePNG =     path.resolve( this.outputPath, this.shortnameGenome, "images", this.generateFilenamePNG( this.usersPeptide ) )
+      this.justNameOfPNG = this.generateFilenamePNG( this.usersPeptide )
+      this.filePNG =     path.resolve( this.outputPath, this.shortnameGenome, "images", this.justNameOfPNG )
+      this.fileTouch =   path.resolve( this.outputPath, this.shortnameGenome, `_LOCK_${this.dimension}_${this.justNameOfPNG}.txt` )
       this.currentURL = this.generateURL()
     }
     qualifyPath(f) {
@@ -2655,7 +2655,7 @@ function pushCli(cs) {
       // }
 
 
-      // this.pepTable.sort( this.compareHistocount )
+      this.pepTable.sort( this.compareHistocount )
       let histogramJson =  this.getRenderObject()
       let histogramFile = this.generateFilenameHistogram()
       bugtxt( beautify( histogramJson , null, 2, 100) )
@@ -2898,10 +2898,9 @@ function pushCli(cs) {
       if ( this.isDiskFinLinear === true && this.isDiskFinHilbert === true && this.isDiskFinHTML === true ) {
         bugtxt(`this.dimension ${this.dimension} > defaultPreviewDimension ${defaultPreviewDimension} is test: ${this.test}`)
         notQuiet(`Finished saving`)
-        this.openOutputs()
         this.setIsDiskBusy( false )
         addToRendered(this.shortnameGenome) // in case histogram file is deleted
-
+        imageOutput.push( this.fileHILBERT )
         if ( this.test === true ) {
           if ( remain > 1 && renderLock ) {
             out(blueWhite( ` [ Starting another cycle in ${ humanizeDuration( raceDelay )}`))
@@ -2927,7 +2926,7 @@ function pushCli(cs) {
           saySomethingEpic()
           killAllTimers()
 
-          if (ishighres && !ispreview) {
+          if (ishighres && !ispreview && this.magnitude == "auto") {
             this.renderLock = true
             mode(`Creating lowres previews in ${raceDelay} ms`)
             redoline(status)
@@ -3003,7 +3002,7 @@ function pushCli(cs) {
 
       quit(code, reason) {
         log(`received shutdown signal ${code} ${reason}`)
-
+        this.openOutputs()
 
         if (killServersOnQuit === false) {
           out(`Webserver running in foreground. use control-c to kill.`)
@@ -3365,17 +3364,13 @@ function pushCli(cs) {
       aminoFilenameIndex(id) { // return the png files for the report
         let hilbert_master, linear_master, hilbert_preview, linear_preview
         const backupBoolean =  isHighlightSet
-
         this.peptide = data.pepTable[id].Codon
-        // bugtxt(`id = ${id} peptide = ${this.peptide}`)
-
         // if (typeof id === "undefined" || id < 1) { // for the reference image
-        //   isHighlightSet = false
-        // } else {
-        //   isHighlightSet = true
+        //   error(`id must not be undefined ${id}`)
+        //   id = 0
         // }
 
-        // hilbert_master  =
+
         linear_master = this.generateFilenamePNG( this.peptide ) // isHighlightSet needs to be false for reference
 
         if ( ispreview ) { // master is high res, preview is low res file from this pass
@@ -3873,9 +3868,16 @@ function pushCli(cs) {
         error(`open( ${this.fileHTML} )`)
       }
       openOutputs() {
-        if (ispreview) { return false }
-        // return false
+        if ( this.quiet ) { return false }
+
+
         mode("open files " + this.justNameOfPNG)
+
+        for (let i=0; i < imageOutput.length; i++ ) {
+this.fileHILBERT = imageOutput.pop()
+
+        }
+
         log( blueWhite(  status ) )
         if ( isShuttingDown ) { output(`${batchProgress()} Shutting down... `); return false }
         if ( cfile == funknzlabel ) { return false }
@@ -3886,7 +3888,7 @@ function pushCli(cs) {
         if ( this.openFileExplorer === true) {
           opensFile++
           log(`Opening render output folder in File Manager ${ opensFile }th time ${ this.outputPath }`)
-          bgOpen()
+          // bgOpen()
           open(this.outputPath, () => {
             log("file manager closed")
           }).catch(function () { log(`open(${ this.outputPath })`) })
@@ -3898,6 +3900,7 @@ function pushCli(cs) {
           notQuiet( status )
           opensHtml++
           projectprefs.aminosee.opens++ // increment open counter.
+
           // open( server.getServerURL( this.shortnameGenome), { wait: false } );
           if (openLocalHtml === true) {
             open( this.fileHTML, {app: this.browser, wait: false}).then(() => {
@@ -3919,42 +3922,20 @@ function pushCli(cs) {
         if ( this.openImage === true ) {
           log(`Opening ${ this.justNameOfHILBERT} 2D hilbert space-filling image.`)
           opensImage++
-          projectprefs.aminosee.opens++ // increment open counter.
           open( this.fileHILBERT ).then(() => {
             log("hilbert image closed")
           }).catch(function () {  })
         }
-        if ( this.isHilbertPossible == false) { // open the linear if there is no hilbert, for art mode
+        if ( this.isHilbertPossible === false) { // open the linear if there is no hilbert, for art mode
           output(`Opening ${ this.justNameOfPNG} 1D linear projection image.`)
           opensImage++
-          projectprefs.aminosee.opens++ // increment open counter.
           open( this.filePNG ).then(() => {
             log("regular png image closed")
           }).catch(function () { })
         } else {
           log("Use --html or --image to automatically open files after render, and \"aminosee demo\" to generate this.test pattern and download a 1 MB DNA file from aminosee.funk.nz")
-          // log(`values of this.openHtml ${ this.openHtml }   this.openImage ${ this.openImage}`)
         }
-        // if (  opensFile  > 2) { // notice the s
-        //   log("no more windows")
-        //   this.openFileExplorer = false
-        //   return false
-        // }
-        // if (  opensImage > 2) {
-        //   log("no more windows")
-        //   this.openImage = false
-        //   return false
-        // }
-        // if (  opensHtml > 2) {
-        //   log("no more windows")
-        //   this.openHtml = false
-        //   return false
-        // }
-        // if ( opens == 0 ) {
-        //   log(`not opening ${opens} times`)
-        // } else {
-        //   log(`opening ${opens} times`)
-        // }
+
       }
 
       getRegmarks() {
@@ -4874,7 +4855,8 @@ function pushCli(cs) {
         try {
           process.stdin.setRawMode(false) // back to cooked this.mode
         } catch(err) {
-          output(`Could not disable raw mode keyboard: ${err}`)
+          notQuiet(`AminoSee has detected no interactive keyboard - running from a script?`)
+          // output(`Could not disable raw mode keyboard: ${err}`)
           // process.stdin.resume() // DONT EVEN THINK ABOUT IT.
         }
       }
@@ -5425,7 +5407,7 @@ function pushCli(cs) {
         output()
         // term.saveCursor()
         term.drawImage( fullpath, { shrink: { width: tx * 0.8,  height: ty  * 0.8, left: tx/2, top: ty/2 } }, () => {
-          output(`Terminal image: ${ chalk.inverse(  path.basename(fullpath) ) } ${ reason}`)
+          output(`Terminal image: ${ chalk.inverse(  path.basename(fullpath) ) }`)
           // term.restoreCursor()
           runcb(cb)
         })

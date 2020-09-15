@@ -20,6 +20,7 @@ const defaulturl = "http://localhost:4321"
 const appFilename = require.main.filename //     /bin/aminosee.js is 11 chars
 const defaultPort = 4321
 const backupPort = 43210
+
 // const useSymlinks = false
 const internalIp = require("internal-ip").v4()
 
@@ -287,7 +288,7 @@ function foregroundserver() {
 	process.title = "aminosee.funk.nz (server)"
 	let didStart = false
 	// var root = path.join(__dirname)
-	log( `webroot ${webroot}` )
+	output( `server launching in foreground at webroot ${webroot}`)
 	try {
 		var server = httpserver.createServer({
 			path: webroot,
@@ -309,18 +310,18 @@ function foregroundserver() {
 
 
 	output(`listen on port ${port}`)
-	stop()
-	try {
-		server.listen(port)
-		didStart = true
-	} catch(err) {
-		if ( err.indexOf("EADDRINUSE") !== -1 ) {
-			output(`port ${port} in use, trying backup port: ${backupPort}`)
-		} else {
-			// output(`unknown error starting server: ${err}`)
-			output(`probably the address is in use`)
-		}
-	}
+	// stop()
+	// try {
+	// 	server.listen(port)
+	// 	didStart = true
+	// } catch(err) {
+	// 	if ( err.indexOf("EADDRINUSE") !== -1 ) {
+	// 		output(`port ${port} in use, trying backup port: ${backupPort}`)
+	// 	} else {
+	// 		// output(`unknown error starting server: ${err}`)
+	// 		output(`probably the address is in use`)
+	// 	}
+	// }
 	if ( !didStart ) {
 		try {
 			try {

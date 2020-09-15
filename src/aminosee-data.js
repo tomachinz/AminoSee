@@ -147,13 +147,12 @@ function doesFolderExist(f) {
 function doesFileExist(f) {
 	let result = false
 
-	if (f === undefined) { return false } // adds stability to this rickety program!
+	if (typeof f === "undefined") { return false } // adds stability to this rickety program!
 	try {
 		f = path.resolve(f)
 		result = true //file exists
 	} catch(err) {
-		log(`File not found: ${f}`)
-		return false
+		result = false
 	}
 	try {
 		result = fs.existsSync(f)
@@ -165,6 +164,7 @@ function doesFileExist(f) {
 	} catch(err) {
 		result = false
 	}
+	bugtxt(`File not found: ${result} ${f}`)
 	return result
 }
 let dnaTriplets = [

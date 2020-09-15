@@ -27,6 +27,7 @@ function imageStack(histogramJson) {
 	let html = " "
 	let pepTable = histogramJson.pepTable
 	let name = histogramJson.summary.name
+	let resolution = Math.sqrt( histogramJson.summary.pixhilbert )
 	html += `<ul id="stackOimages" class="stack">
 	`
 	for ( let p = 0; p < pepTable.length; p++ ) { // standard peptide loop
@@ -40,11 +41,11 @@ function imageStack(histogramJson) {
 		let minimumSize = 64
 		let styleLi =  `
 		position: fixed;
-		top:  30%;
-		left: 30%;
+		top:  calc( 99% - ${ resolution }px );
+		left: calc( 99% - ${ resolution }px );
 		transform: translate(
-			calc( 50% - ( var(--mouse-x, 0)  * ${proportion*70}%  ) + ${p}px ),
-			calc( 50% - ( var(--mouse-y, 0)  *  ${proportion*100}%  ) + ${p*2}px )
+			calc( 50% + ( var(--mouse-x, 0)  * ${proportion*70}%  ) + ${p}px ),
+			calc( 50% + ( var(--mouse-y, 0)  *  ${proportion*100}%  ) + ${p*2}px )
 		);
 		border-top:    1px solid rgba(255, 255, 255, 0.6);
 		border-left:   2px solid rgba(${c}), 0.6);
