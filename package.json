@@ -83,7 +83,7 @@
     "phoenix": "^1.5.4",
     "preferences": "^1.0.2",
     "terminal-kit": "^1.43.0",
-    "three": "^0.118.3",
+    "three": "^0.121.0",
     "vows": "^0.8.3",
     "xterm": "^4.8.1"
   },
