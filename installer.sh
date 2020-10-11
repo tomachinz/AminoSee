@@ -30,10 +30,11 @@ echo "npm run start --test -m8"
 echo
 whereis aminosee
 which aminosee
+aminosee --test -m8
 # locate aminosee  | grep aminosee$ &
 sleep 1
-echo about to run
+echo about to create symlinks in /usr/local/bin
 COMMMAND="sudo ln -s /usr/local/lib/node_modules/aminosee/bin/aminosee /usr/local/bin/aminosee"
 echo $COMMAND
-sleep 5
-eval $($COMMAND)
+sleep 1
+eval $COMMAND

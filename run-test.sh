@@ -34,7 +34,7 @@ test_do "Test use of --maxpix=5000000" --maxpix=5000000 -v $SLOW $MEDIUM $FAST $
 test_do "Forced re-render verbose no image" -fv $MEDIUM $FAST $*  --no-image
 test_do "Demo -m4 no image" --demo -m4 --no-image $*
 test_do "Test -m5" --demo -m4 -q $*
-test_do "Test -m5" --test -p=Red -m4 $*
+test_do "Test -m5" --test -m5 
 test_do "Test -m5" --test -p=Green -m4 $*
 test_do 'Curious back walk bug debug' -d --debug $FAST Influenza-A-virus-H9N2-NC_004905.gbk Streptococcus_virus_2972.gbk $*
 test_do "QUIET MODE WITH PARAMS" -q $*  --no-image

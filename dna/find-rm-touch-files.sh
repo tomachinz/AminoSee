@@ -1,7 +1,7 @@
 #!/bin/bash
 # example: AminoSee_BUSY_LOCK_Pongoabelii._c11__Lysine_fix_sci.txt
 # COMMAND=" find   .  | grep AminoSee_BUSY_LOCK "
-COMMAND=" find   ~/AminoSee_webroot/  | grep AminoSee_BUSY_LOCK "
+COMMAND=" find   ~/AminoSee_webroot/  | grep LOCK "
 PREVIEW="$1 | xargs $XARGPARAM $ ls -laH $ "
 DELETE="$1  | xargs $XARGPARAM $ rm -v $ "
 
@@ -9,47 +9,17 @@ DELETE="$1  | xargs $XARGPARAM $ rm -v $ "
 
 if [ $(uname)=Darwin ]; then
    echo macos
-   find -f ~/AminoSee_webroot/ | grep AminoSee_BUSY_LOCK | xargs -J $ ls -laH $
+   find -f ~/AminoSee_webroot/ | grep LOCK | xargs -J $ ls -laH $
    echo "DELETING THE FILES ABOVE IN 7 SECONDS"
    sleep 7
-   find -f ~/AminoSee_webroot/ | grep AminoSee_BUSY_LOCK | xargs -J $ rm -v $
+   find -f ~/AminoSee_webroot/ | grep LOCK | xargs -J $ rm -v $
 fi
 
 if [ $(uname)=Linux ]; then
   echo linux
-  find   ~/AminoSee_webroot/  | grep AminoSee_BUSY_LOCK  | xargs -I $ ls -laH $
+  find   ~/AminoSee_webroot/  | grep LOCK  | xargs -I $ ls -laH $
   echo "DELETING THE FILES ABOVE IN 7 SECONDS"
   sleep 7
-  find   ~/AminoSee_webroot/  | grep AminoSee_BUSY_LOCK  | xargs -I $ rm -v $
+  find   ~/AminoSee_webroot/  | grep LOCK  | xargs -I $ rm -v $
 
 fi
-
-
-
-#
-#
-#
-#
-#
-#
-# pwd
-# echo find $DASHF . -name $LOCKFILES
-#      find $DASHF . -name $LOCKFILES
-#
-# echo "About to delete these touch files matching: $LOCKFILES"
-# sleep 5
-# echo "Deleting these touch files: $LOCKFILES"
-#     find $DASHF . -name $LOCKFILES -exec rm -v {} \;
-#     find ./output/ -name AminoSee_BUSY_LOCK*.txt  -exec rm -v {} \;
-#     find ./output/ -name AminoSee_BUSY_LOCK*.txt  -exec rm -v {} \;
-#     find  .  -name 'AminoSee_BUSY_LOCK*.txt' -exec rm -v {} \;
-# sleep 2
-
-# find -f ./output/  'AminoSee_BUSY_LOCK*.txt'
-# find -f ./output/ | grep linear | grep -E "linear_[ABCDEFGHIJKLMNOPQRSTUVWXYZ]"
-# macos
-# find ./output/ -name AminoSee_BUSY_LOCK*.txt  -exec rm -v {} \;
-# find   .  -name 'AminoSee_BUSY_LOCK*.txt'  -exec rm -v {} \;
-
-# linux
-# find   .  | grep AminoSee_BUSY_LOCK

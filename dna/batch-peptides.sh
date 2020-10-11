@@ -72,58 +72,58 @@ series_peptides () {
 find_way_peptides () {
 
 	echo
-	nice -n 1 aminosee  *
-	nice -n 2 aminosee  *  --peptide=Glutamic_acid
-	nice -n 2 aminosee  *  --peptide=Aspartic_acid
-	nice -n 2 aminosee  *  --peptide=Ochre
-	nice -n 2 aminosee  *  --peptide=Amber
-	nice -n 2 aminosee  *  --peptide=Opal
-	nice -n 2 aminosee  *  --peptide=Methionine
-	nice -n 2 aminosee  *  --peptide=Cysteine
-	nice -n 2 aminosee  *  --peptide=Glycine
-	nice -n 2 aminosee  *  --peptide=Alanine
-	nice -n 2 aminosee  *  --peptide=Valine
-	nice -n 2 aminosee         *  --peptide=Leucine
-	nice -n 2 aminosee  *  --peptide=Isoleucine
-	nice -n 2 aminosee  *  --peptide=Phenylalanine
-	nice -n 2 aminosee  *  --peptide=Proline
-	nice -n 2 aminosee  *  --peptide=Tryptophan
-	nice -n 2 aminosee  *  --peptide=Serine
-	nice -n 2 aminosee  *  --peptide=Threonine
-	nice -n 2 aminosee  *  --peptide=Glutamine
-	nice -n 2 aminosee  *  --peptide=Asparagine
-	nice -n 2 aminosee  *  --peptide=Tyrosine
-	nice -n 2 aminosee  *  --peptide=Arginine
-	nice -n 2 aminosee  *  --peptide=Lysine
-	nice -n 2 aminosee         *  --peptide=Histidine
+	nice -n 1 aminosee  $*
+	nice -n 2 aminosee  $*  --peptide=Glutamic_acid
+	nice -n 2 aminosee  $*  --peptide=Aspartic_acid
+	nice -n 2 aminosee  $*  --peptide=Ochre
+	nice -n 2 aminosee  $*  --peptide=Amber
+	nice -n 2 aminosee  $*  --peptide=Opal
+	nice -n 2 aminosee  $*  --peptide=Methionine
+	nice -n 2 aminosee  $*  --peptide=Cysteine
+	nice -n 2 aminosee  $*  --peptide=Glycine
+	nice -n 2 aminosee  $*  --peptide=Alanine
+	nice -n 2 aminosee  $*  --peptide=Valine
+	nice -n 2 aminosee         $*  --peptide=Leucine
+	nice -n 2 aminosee  $*  --peptide=Isoleucine
+	nice -n 2 aminosee  $*  --peptide=Phenylalanine
+	nice -n 2 aminosee  $*  --peptide=Proline
+	nice -n 2 aminosee  $*  --peptide=Tryptophan
+	nice -n 2 aminosee  $*  --peptide=Serine
+	nice -n 2 aminosee  $*  --peptide=Threonine
+	nice -n 2 aminosee  $*  --peptide=Glutamine
+	nice -n 2 aminosee  $*  --peptide=Asparagine
+	nice -n 2 aminosee  $*  --peptide=Tyrosine
+	nice -n 2 aminosee  $*  --peptide=Arginine
+	nice -n 2 aminosee  $*  --peptide=Lysine
+	nice -n 2 aminosee         $*  --peptide=Histidine
 	echo
 	echo end of batch peptides
 
 		# echo
-		# nice -n 1  aminosee --index -m5  *
-		# nice -n 2  aminosee -m5 --quiet *  --peptide=Glutamic_acid
-		# nice -n 2  aminosee -m5 --quiet *  --peptide=Aspartic_acid
-		# nice -n 2  aminosee -m5 --quiet *  --peptide=Ochre
-		# nice -n 2  aminosee -m5 --quiet *  --peptide=Amber
-		# nice -n 2  aminosee -m5 --quiet *  --peptide=Opal
-		# nice -n 2  aminosee -m5 --quiet *  --peptide=Methionine
-		# nice -n 2  aminosee -m5 --quiet *  --peptide=Cysteine
-		# nice -n 2  aminosee -m5 --quiet *  --peptide=Glycine
-		# nice -n 2  aminosee -m5 --quiet *  --peptide=Alanine
-		# nice -n 2  aminosee -m5 --quiet *  --peptide=Valine
-		# nice -n 2  aminosee --index -m5         *  --peptide=Leucine
-		# nice -n 2  aminosee -m5 --quiet *  --peptide=Isoleucine
-		# nice -n 2  aminosee -m5 --quiet *  --peptide=Phenylalanine
-		# nice -n 2  aminosee -m5 --quiet *  --peptide=Proline
-		# nice -n 2  aminosee -m5 --quiet *  --peptide=Tryptophan
-		# nice -n 2  aminosee -m5 --quiet *  --peptide=Serine
-		# nice -n 2  aminosee -m5 --quiet *  --peptide=Threonine
-		# nice -n 2  aminosee -m5 --quiet *  --peptide=Glutamine
-		# nice -n 2  aminosee -m5 --quiet *  --peptide=Asparagine
-		# nice -n 2  aminosee -m5 --quiet *  --peptide=Tyrosine
-		# nice -n 2  aminosee -m5 --quiet *  --peptide=Arginine
-		# nice -n 2  aminosee -m5 --quiet *  --peptide=Lysine
-		# nice -n 2  aminosee -m5         *  --peptide=Histidine
+		# nice -n 1  aminosee --index -m5  $*
+		# nice -n 2  aminosee -m5 --quiet $*  --peptide=Glutamic_acid
+		# nice -n 2  aminosee -m5 --quiet $*  --peptide=Aspartic_acid
+		# nice -n 2  aminosee -m5 --quiet $*  --peptide=Ochre
+		# nice -n 2  aminosee -m5 --quiet $*  --peptide=Amber
+		# nice -n 2  aminosee -m5 --quiet $*  --peptide=Opal
+		# nice -n 2  aminosee -m5 --quiet $*  --peptide=Methionine
+		# nice -n 2  aminosee -m5 --quiet $*  --peptide=Cysteine
+		# nice -n 2  aminosee -m5 --quiet $*  --peptide=Glycine
+		# nice -n 2  aminosee -m5 --quiet $*  --peptide=Alanine
+		# nice -n 2  aminosee -m5 --quiet $*  --peptide=Valine
+		# nice -n 2  aminosee --index -m5         $*  --peptide=Leucine
+		# nice -n 2  aminosee -m5 --quiet $*  --peptide=Isoleucine
+		# nice -n 2  aminosee -m5 --quiet $*  --peptide=Phenylalanine
+		# nice -n 2  aminosee -m5 --quiet $*  --peptide=Proline
+		# nice -n 2  aminosee -m5 --quiet $*  --peptide=Tryptophan
+		# nice -n 2  aminosee -m5 --quiet $*  --peptide=Serine
+		# nice -n 2  aminosee -m5 --quiet $*  --peptide=Threonine
+		# nice -n 2  aminosee -m5 --quiet $*  --peptide=Glutamine
+		# nice -n 2  aminosee -m5 --quiet $*  --peptide=Asparagine
+		# nice -n 2  aminosee -m5 --quiet $*  --peptide=Tyrosine
+		# nice -n 2  aminosee -m5 --quiet $*  --peptide=Arginine
+		# nice -n 2  aminosee -m5 --quiet $*  --peptide=Lysine
+		# nice -n 2  aminosee -m5         $*  --peptide=Histidine
 		# echo
 		# echo end of batch peptides
 
@@ -134,7 +134,7 @@ find_way_peptides () {
   # if [ $(uname)="Darwin" ]; then
   #   echo macos
 	# 	# DASHF=" -f  "
-	# 	DASHF=" -L  * | grep -E \"(txt|mfa|gbk|txt|fa)\""
+	# 	DASHF=" -L  $* | grep -E \"(txt|mfa|gbk|txt|fa)\""
   # fi
 	#
   # if [ $(uname)="Linux" ]; then
@@ -230,6 +230,7 @@ if [ -z "$1" ]; then
 	echo ow doing "find way" brute forcing it
   # exit
 	find_way_peptides
+	find_way_peptides --reg --index
 else
   series_peptides $*
 fi

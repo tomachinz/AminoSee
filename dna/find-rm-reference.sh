@@ -1,7 +1,7 @@
 #!/bin/bash
 # example: AminoSee_BUSY_LOCK_Pongoabelii._c11__Lysine_fix_sci.txt
 # COMMAND=" find   .  | grep AminoSee_BUSY_LOCK "
-MACCOMMAND="find  ~/AminoSee_webroot/output/  | grep Reference "
+MACCOMMAND="find  ~/AminoSee_webroot/output/*  | grep Reference "
 LINUXCOMMAND="find   ~/AminoSee_webroot/output/  | grep Reference "
 PREVIEW="$1 | xargs $XARGPARAM $ ls -laH $ "
 DELETE="$1  | xargs $XARGPARAM $ rm -v $ "

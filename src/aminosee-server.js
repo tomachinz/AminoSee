@@ -22,7 +22,8 @@ const defaultPort = 4321
 const backupPort = 43210
 
 // const useSymlinks = false
-const internalIp = require("internal-ip").v4()
+const iip = require("internal-ip")
+const internalIp = iip.v4()
 
 let debug = false
 let autoStartGui = false
@@ -351,9 +352,11 @@ function foregroundserver() {
 	// return server
 
 
-	if ( options === undefined ) {
-		options = [ webroot, "-p", port, "-o" ]
-	}
+	// if ( options === undefined ) {
+	// 	options = [ webroot, "-p", port, "-o" ]
+	// }
+	options = [ webroot, `-p${port}`, "-o", webroot, "--gzip", "-d" ]
+
 	log(`FOREGROUND server path: ${webroot} ${port} ${url}`)
 	theserver = httpserver.createServer(options)
 	return theserver

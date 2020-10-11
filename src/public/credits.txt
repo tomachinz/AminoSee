@@ -7,8 +7,8 @@
 
 Thanks to Christos Georghiou who designed the 'See No Evil Hear No Evil Monkeys' http://christosgeorghiou.com/
 
-Checkout the music from the drummer who wrote     9858 of code for this app at https://www.funk.co.nz/tomachi
-9858 lines of code
+Checkout the music from the drummer who wrote    10166 of code for this app at https://www.funk.co.nz/tomachi
+10166 lines of code
 File drag and drop code by http://twitter.com/craigbuckler
 http://optimalworks.net/ http://sitepoint.com/
 File drag and drop code by http://twitter.com/craigbuckler Craig Buckler
@@ -17,12 +17,12 @@ http://optimalworks.net/ OptimalWorks.net http://sitepoint.com/
 Based on OpenShift guest https://github.com/mrdoob/three.js/blob/8413a860aa95ed29c79cbb7f857c97d7880d260f/examples/canvas_lines_colors.html
 
 Count of packages used:
-    1726
+    1688
 
-as at Mon 14 Sep 2020 11:41:00 NZST the following open source node npm packages used:
+as at Sat 3 Oct 2020 02:53:08 NZDT the following open source node npm packages used:
 
 
-aminosee@1.31.8 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee_src
+aminosee@1.31.9 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee_src
 ├─┬ @gmod/indexedfasta@1.0.13
 │ ├─┬ @babel/runtime-corejs2@7.4.5
 │ │ ├── core-js@2.6.8
@@ -237,7 +237,7 @@ aminosee@1.31.8 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee_src
 │ ├── minimist@1.2.5 deduped
 │ ├── on-net-listen@1.1.2
 │ ├── pretty-bytes@5.3.0
-│ ├── progress@2.0.3 deduped
+│ ├── progress@2.0.3
 │ ├── reinterval@1.1.0
 │ ├── retimer@2.0.0
 │ └── timestring@6.0.0
@@ -708,7 +708,7 @@ aminosee@1.31.8 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee_src
 │ ├── is-stream@1.1.0
 │ ├─┬ knuth-shuffle-seeded@1.0.6
 │ │ └── seed-random@2.2.0
-│ ├── lodash@4.17.14 deduped
+│ ├── lodash@4.17.14
 │ ├─┬ mz@2.7.0
 │ │ ├── any-promise@1.3.0
 │ │ ├── object-assign@4.1.1 deduped
@@ -747,66 +747,6 @@ aminosee@1.31.8 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee_src
 │ ├── minimist@1.2.5 deduped
 │ ├── on-finished@2.3.0 deduped
 │ └── url-join@4.0.1
-├─┬ eslint@6.8.0 invalid
-│ ├─┬ @babel/code-frame@7.8.3
-│ │ └─┬ @babel/highlight@7.9.0
-│ │   ├── @babel/helper-validator-identifier@7.9.0
-│ │   ├── chalk@2.4.2 deduped
-│ │   └── js-tokens@4.0.0
-│ ├─┬ ajv@6.12.0
-│ │ ├── fast-deep-equal@3.1.1
-│ │ ├── fast-json-stable-stringify@2.1.0
-│ │ ├── json-schema-traverse@0.4.1
-│ │ └─┬ uri-js@4.2.2
-│ │   └── punycode@2.1.1
-│ ├── chalk@2.4.2 deduped
-│ ├── cross-spawn@6.0.5 deduped
-│ ├── debug@4.1.1 extraneous
-│ ├── doctrine@3.0.0 extraneous
-│ ├── eslint-scope@5.1.0 extraneous
-│ ├── eslint-utils@1.4.3 extraneous
-│ ├── eslint-visitor-keys@1.3.0 extraneous
-│ ├── espree@6.2.1 extraneous
-│ ├─┬ esquery@1.0.1
-│ │ └── estraverse@4.2.0
-│ ├── esutils@2.0.2
-│ ├── file-entry-cache@5.0.1 extraneous
-│ ├── functional-red-black-tree@1.0.1 extraneous
-│ ├─┬ glob-parent@5.1.1
-│ │ └── is-glob@4.0.1 deduped
-│ ├── globals@12.4.0 extraneous
-│ ├── ignore@4.0.6 extraneous
-│ ├── import-fresh@3.2.1 extraneous
-│ ├── imurmurhash@0.1.4
-│ ├── inquirer@7.3.2 extraneous
-│ ├─┬ is-glob@4.0.1
-│ │ └── is-extglob@2.1.1
-│ ├─┬ js-yaml@3.13.1
-│ │ ├─┬ argparse@1.0.10
-│ │ │ └── sprintf-js@1.0.3
-│ │ └── esprima@4.0.1
-│ ├── json-stable-stringify-without-jsonify@1.0.1 extraneous
-│ ├─┬ levn@0.3.0
-│ │ ├── prelude-ls@1.1.2
-│ │ └─┬ type-check@0.3.2
-│ │   └── prelude-ls@1.1.2 deduped
-│ ├── lodash@4.17.14
-│ ├─┬ minimatch@3.0.4
-│ │ └─┬ brace-expansion@1.1.11
-│ │   ├── balanced-match@1.0.0
-│ │   └── concat-map@0.0.1
-│ ├─┬ mkdirp@0.5.5
-│ │ └── minimist@1.2.5 deduped
-│ ├── natural-compare@1.4.0
-│ ├── optionator@0.8.3 extraneous
-│ ├── progress@2.0.3
-│ ├── regexpp@2.0.1 extraneous
-│ ├── semver@6.3.0 extraneous
-│ ├── strip-ansi@5.2.0 extraneous
-│ ├── strip-json-comments@3.1.1 extraneous
-│ ├── table@5.4.6 extraneous
-│ ├── text-table@0.2.0
-│ └── v8-compile-cache@2.1.1 extraneous
 ├─┬ eslint-config-rallycoding@3.2.0
 │ ├─┬ babel-eslint@6.1.2
 │ │ ├─┬ babel-traverse@6.26.0
@@ -823,7 +763,7 @@ aminosee@1.31.8 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee_src
 │ │ │ ├── globals@9.18.0
 │ │ │ ├─┬ invariant@2.2.4
 │ │ │ │ └─┬ loose-envify@1.4.0
-│ │ │ │   └── js-tokens@4.0.0 deduped
+│ │ │ │   └── js-tokens@4.0.0
 │ │ │ └── lodash@4.17.14 deduped
 │ │ ├─┬ babel-types@6.26.0
 │ │ │ ├── babel-runtime@6.26.0 deduped
@@ -870,9 +810,10 @@ aminosee@1.31.8 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee_src
 │ │ │ ├── acorn@5.7.3
 │ │ │ └─┬ acorn-jsx@3.0.1
 │ │ │   └── acorn@3.3.0
-│ │ ├── esquery@1.0.1 deduped
-│ │ ├── estraverse@4.2.0 deduped
-│ │ ├── esutils@2.0.2 deduped
+│ │ ├─┬ esquery@1.0.1
+│ │ │ └── estraverse@4.2.0 deduped
+│ │ ├── estraverse@4.2.0
+│ │ ├── esutils@2.0.2
 │ │ ├─┬ file-entry-cache@2.0.0
 │ │ │ ├─┬ flat-cache@1.3.4
 │ │ │ │ ├── circular-json@0.3.3
@@ -884,7 +825,7 @@ aminosee@1.31.8 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee_src
 │ │ ├── glob@7.1.3 deduped
 │ │ ├── globals@9.18.0
 │ │ ├── ignore@3.3.10
-│ │ ├── imurmurhash@0.1.4 deduped
+│ │ ├── imurmurhash@0.1.4
 │ │ ├─┬ inquirer@0.12.0
 │ │ │ ├── ansi-escapes@1.4.0
 │ │ │ ├── ansi-regex@2.1.1
@@ -924,10 +865,13 @@ aminosee@1.31.8 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee_src
 │ │ ├── js-yaml@3.13.1 deduped
 │ │ ├─┬ json-stable-stringify@1.0.1
 │ │ │ └── jsonify@0.0.0 deduped
-│ │ ├── levn@0.3.0 deduped
+│ │ ├─┬ levn@0.3.0
+│ │ │ ├── prelude-ls@1.1.2
+│ │ │ └─┬ type-check@0.3.2
+│ │ │   └── prelude-ls@1.1.2 deduped
 │ │ ├── lodash@4.17.14 deduped
 │ │ ├── mkdirp@0.5.5 deduped
-│ │ ├── natural-compare@1.4.0 deduped
+│ │ ├── natural-compare@1.4.0
 │ │ ├─┬ optionator@0.8.2
 │ │ │ ├── deep-is@0.1.3 deduped
 │ │ │ ├── fast-levenshtein@2.0.6
@@ -961,7 +905,7 @@ aminosee@1.31.8 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee_src
 │ │ │   ├── is-fullwidth-code-point@2.0.0
 │ │ │   └─┬ strip-ansi@4.0.0
 │ │ │     └── ansi-regex@3.0.0
-│ │ ├── text-table@0.2.0 deduped
+│ │ ├── text-table@0.2.0
 │ │ └─┬ user-home@2.0.0
 │ │   └── os-homedir@1.0.2 deduped
 │ ├─┬ eslint-plugin-class-property@1.1.0
@@ -1147,7 +1091,8 @@ aminosee@1.31.8 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee_src
 │ ├─┬ find-package@1.0.0
 │ │ └── parents@1.0.1 deduped
 │ ├── firstline@1.3.1
-│ └── mkdirp@0.5.5 deduped
+│ └─┬ mkdirp@0.5.5
+│   └── minimist@1.2.5 deduped
 ├── hammerjs@2.0.8
 ├── hilbert-2d@0.0.1
 ├─┬ http-server@0.12.3
@@ -1226,7 +1171,11 @@ aminosee@1.31.8 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee_src
 │ │ │     ├── spdx-exceptions@2.2.0
 │ │ │     └── spdx-license-ids@3.0.5 deduped
 │ │ ├─┬ parse-json@5.0.0
-│ │ │ ├── @babel/code-frame@7.8.3 deduped
+│ │ │ ├─┬ @babel/code-frame@7.8.3
+│ │ │ │ └─┬ @babel/highlight@7.9.0
+│ │ │ │   ├── @babel/helper-validator-identifier@7.9.0
+│ │ │ │   ├── chalk@2.4.2 deduped
+│ │ │ │   └── js-tokens@4.0.0 deduped
 │ │ │ ├── error-ex@1.3.2 deduped
 │ │ │ ├── json-parse-better-errors@1.0.2 deduped
 │ │ │ └── lines-and-columns@1.1.6
@@ -1242,7 +1191,7 @@ aminosee@1.31.8 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee_src
 ├── keypress@0.2.1
 ├── lazyness@1.2.0
 ├── minimist@1.2.5
-├── node-fetch@2.6.0
+├── node-fetch@2.6.1
 ├─┬ node-gyp@5.1.1
 │ ├── env-paths@2.2.0
 │ ├─┬ glob@7.1.6
@@ -1411,7 +1360,7 @@ aminosee@1.31.8 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee_src
 │ │ └─┬ supports-color@7.2.0
 │ │   └── has-flag@4.0.0
 │ ├─┬ escodegen@1.14.3
-│ │ ├── esprima@4.0.1 deduped
+│ │ ├── esprima@4.0.1
 │ │ ├── estraverse@4.2.0 deduped
 │ │ ├── esutils@2.0.2 deduped
 │ │ ├── optionator@0.8.2 deduped
@@ -1429,7 +1378,9 @@ aminosee@1.31.8 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee_src
 │ │ │ │ │ └── run-parallel@1.1.9
 │ │ │ │ └─┬ fastq@1.8.0
 │ │ │ │   └── reusify@1.0.4
-│ │ │ ├── glob-parent@5.1.1 deduped
+│ │ │ ├─┬ glob-parent@5.1.1
+│ │ │ │ └─┬ is-glob@4.0.1
+│ │ │ │   └── is-extglob@2.1.1
 │ │ │ ├── merge2@1.4.1 deduped
 │ │ │ ├─┬ micromatch@4.0.2
 │ │ │ │ ├─┬ braces@3.0.2
@@ -1503,7 +1454,10 @@ aminosee@1.31.8 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee_src
 ├── pngjs@3.4.0
 ├─┬ preferences@1.0.2
 │ ├── graceful-fs@4.1.15
-│ ├── js-yaml@3.13.1 deduped
+│ ├─┬ js-yaml@3.13.1
+│ │ ├─┬ argparse@1.0.10
+│ │ │ └── sprintf-js@1.0.3
+│ │ └── esprima@4.0.1 deduped
 │ ├── mkdirp@0.5.5 deduped
 │ ├── os-homedir@1.0.2
 │ └─┬ write-file-atomic@1.3.4
@@ -1529,7 +1483,11 @@ aminosee@1.31.8 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee_src
 │ │ ├── combined-stream@1.0.8 deduped
 │ │ └── mime-types@2.1.21 deduped
 │ ├─┬ har-validator@5.1.3
-│ │ ├── ajv@6.12.0 deduped
+│ │ ├─┬ ajv@6.12.0
+│ │ │ ├── fast-deep-equal@3.1.1
+│ │ │ ├── fast-json-stable-stringify@2.1.0 deduped
+│ │ │ ├── json-schema-traverse@0.4.1 deduped
+│ │ │ └── uri-js@4.2.2 deduped
 │ │ └── har-schema@2.0.0
 │ ├─┬ http-signature@1.2.0
 │ │ ├── assert-plus@1.0.0 deduped
@@ -1586,9 +1544,10 @@ aminosee@1.31.8 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee_src
 │ ├── @zeit/schemas@2.6.0
 │ ├─┬ ajv@6.5.3
 │ │ ├── fast-deep-equal@2.0.1
-│ │ ├── fast-json-stable-stringify@2.1.0 deduped
-│ │ ├── json-schema-traverse@0.4.1 deduped
-│ │ └── uri-js@4.2.2 deduped
+│ │ ├── fast-json-stable-stringify@2.1.0
+│ │ ├── json-schema-traverse@0.4.1
+│ │ └─┬ uri-js@4.2.2
+│ │   └── punycode@2.1.1
 │ ├── arg@2.0.0
 │ ├─┬ boxen@1.3.0
 │ │ ├─┬ ansi-align@2.0.0
@@ -1666,7 +1625,10 @@ aminosee@1.31.8 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee_src
 │ │ └── punycode@1.4.1 deduped
 │ ├─┬ mime-types@2.1.18
 │ │ └── mime-db@1.33.0
-│ ├── minimatch@3.0.4 deduped
+│ ├─┬ minimatch@3.0.4
+│ │ └─┬ brace-expansion@1.1.11
+│ │   ├── balanced-match@1.0.0
+│ │   └── concat-map@0.0.1
 │ ├── path-is-inside@1.0.2
 │ ├── path-to-regexp@2.2.1
 │ └── range-parser@1.2.0

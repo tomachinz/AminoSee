@@ -41,8 +41,8 @@ function imageStack(histogramJson) {
 		let minimumSize = 64
 		let styleLi =  `
 		position: fixed;
-		top:  calc( 99% - ${ resolution }px );
-		left: calc( 99% - ${ resolution }px );
+		top:  calc( 50% - ${ resolution/2 }px );
+		left: calc( 50% - ${ resolution/2 }px );
 		transform: translate(
 			calc( 50% + ( var(--mouse-x, 0)  * ${proportion*70}%  ) + ${p}px ),
 			calc( 50% + ( var(--mouse-y, 0)  *  ${proportion*100}%  ) + ${p*2}px )

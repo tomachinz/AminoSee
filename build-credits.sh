@@ -2,33 +2,37 @@
 CREDITS="src/public/credits.txt"
 TIMESTAMP=$(date +%s)
 DATE=$(date)
-TOMSSOURCE="toms_source_temp.txt"
-echo GENERATE CREDITS.TXT FILE
+TOMSSOURCE="build/temp_file_for_credits.txt"
+echo GENERATE CREDITS.TXT FILE at $CREDITS
+echo
 mkdir -p build
-rm -rf build/TOBEDELETED
-mv build/* build/TOBEDELETED
+
+rm -f $TOMSSOURCE
 rm -v $CREDITS
-
-
-cat src/public/aminosee-gui-web.js                                  >>       build/toms_source.txt
-cat src/public/aminosee-web-socket.js                               >>       build/toms_source.txt
-cat src/aminosee-server.js                                          >>       build/toms_source.txt
-cat src/aminosee-data.js                                            >>       build/toms_source.txt
-cat src/aminosee-cli.js                                             >>       build/toms_source.txt
-cat src/aminosee-carlo.js                                           >>       build/toms_source.txt
-cat src/aminosee-settings.js                                        >>       build/toms_source.txt
-cat src/aminosee-version.js                                         >>       build/toms_source.txt
-cat src/aminosee-stdinpipe.js                                       >>       build/toms_source.txt
-# cat src/main.js                                                     >>       build/toms_source.txt
-# cat src/renderer.js                                                 >>       build/toms_source.txt
-# cat src/console.js                                                  >>       build/toms_source.txt
-cat src/ascii-logo.txt                                              >>       build/toms_source.txt
-cat src/index.html                                                  >>       build/toms_source.txt
-
-LINES=$(cat build/toms_source.txt | wc -l)
-
+touch $TOMSSOURCE
+touch $CREDITS
 cp src/ascii-logo.txt $CREDITS
 tail -f $CREDITS &
+
+cat src/public/aminosee-gui-web.js                                  >>       $TOMSSOURCE
+cat src/public/aminosee-web-socket.js                               >>       $TOMSSOURCE
+cat src/aminosee-html-template.js                                          >>       $TOMSSOURCE
+cat src/aminosee-server.js                                          >>       $TOMSSOURCE
+cat src/aminosee-data.js                                            >>       $TOMSSOURCE
+cat src/aminosee-cli.js                                             >>       $TOMSSOURCE
+# cat src/aminosee-carlo.js                                           >>       $TOMSSOURCE
+cat src/aminosee-settings.js                                        >>       $TOMSSOURCE
+cat src/aminosee-version.js                                         >>       $TOMSSOURCE
+cat src/aminosee-stdinpipe.js                                       >>       $TOMSSOURCE
+# cat src/main.js                                                     >>       $TOMSSOURCE
+# cat src/renderer.js                                                 >>       $TOMSSOURCE
+# cat src/console.js                                                  >>       $TOMSSOURCE
+cat src/ascii-logo.txt                                              >>       $TOMSSOURCE
+cat src/index.html                                                  >>       $TOMSSOURCE
+
+LINES=$(cat $TOMSSOURCE | wc -l)
+
+
 echo >> $CREDITS
 echo "Thanks to Christos Georghiou who designed the 'See No Evil Hear No Evil Monkeys' http://christosgeorghiou.com/" >> $CREDITS
 echo >> $CREDITS
