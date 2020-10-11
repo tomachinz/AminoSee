@@ -76,7 +76,7 @@
     "hammerjs": "^2.0.8",
     "hilbert-2d": "0.0.1",
     "http-server": "^0.12.3",
-    "internal-ip": "^4.3.0",
+    "internal-ip": "^6.1.0",
     "json-beautify": "^1.1.1",
     "node-fetch": "^2.6.1",
     "open": "^6.4.0",
