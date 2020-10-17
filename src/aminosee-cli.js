@@ -1697,9 +1697,9 @@ function pushCli(cs) {
         return false
       }
       if (!this.checkFileExtension( this.dnafile )) {
-        let msg = `${ batchProgress() } wrong file extension: ${cfile}. Must be one of ${ extensions }`
-        output(msg)
-        if ( remain > 0 && !renderLock) {
+        let msg = ` ${ batchProgress() } wrong file extension: ${cfile}. Must be one of ${ extensions }`
+        output( maxWidth( tx-2,  msg) )
+        if ( remain >= 1 && !renderLock) {
           this.preRenderReset(msg)
         } else {
           error("Bargle!")
@@ -1777,10 +1777,7 @@ function pushCli(cs) {
         if ( verbose ) {
           mode(`terminal image`)
           termDrawImage(this.filePNG, msg, () => {
-            setTimeout( () => {
-              mode( `image printed to term. rendering: ${renderLock}`)
-
-            }, raceDelay)
+            out(status)
           })
         }
         if ( !this.force ) {
@@ -1805,8 +1802,6 @@ function pushCli(cs) {
         cliInstance.preRenderReset(status)
         return false
       }
-
-
 
 
 
@@ -4774,7 +4769,7 @@ function pushCli(cs) {
 
       }
       function batchProgress() {
-        return `[${ 1 + batchSize - remain} / ${batchSize} : ${cliInstance.usersPeptide} ${renderLock ? nicePercent( cliInstance.percentComplete ) + ' busy ' + streamLineNr : 'idle'} ${ highlightFilename (this.focus)} ${cfile} ${ brute ? 'brute force': ''}]`
+        return `[${ 1 + batchSize - remain} / ${batchSize} : ${cliInstance.usersPeptide} ${renderLock ? nicePercent( cliInstance.percentComplete ) + '_busy_' + streamLineNr : '_'} ${ highlightFilename (this.focus)} ${cfile} ${ brute ? 'brute force': ''}]`
       }
       function wTitle(txt) {
         terminateIfUndef(txt)
