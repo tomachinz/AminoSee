@@ -112,7 +112,7 @@
     "lazyness": "^1.2.0",
     "local-web-server": "^4.2.1",
     "minimist": "^1.2.5",
-    "node-gyp": "^5.1.1",
+    "node-gyp": "^7.1.2",
     "node-pty": "^0.8.1",
     "npm-merge-driver": "^2.3.6",
     "parse-apache-directory-index": "^1.2.1",
