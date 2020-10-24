@@ -118,7 +118,7 @@
     "parse-apache-directory-index": "^1.2.1",
     "pkg": "^4.4.9",
     "png.js": "^0.2.1",
-    "pngjs": "^3.4.0",
+    "pngjs": "^6.0.0",
     "remove": "^0.1.5",
     "request": "^2.88.2",
     "save": "^2.4.0",
