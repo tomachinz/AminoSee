@@ -13,7 +13,6 @@ const base = process.env.PWD;
 function gracefulShutdown() {
   aminosee.log("[custom sigterm received] @Aminosee settings.js")
   aminosee.gracefulQuit()
-  // process.exit(); // now the "exit" event will fire
 }
 
 

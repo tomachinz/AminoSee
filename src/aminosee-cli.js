@@ -14,7 +14,7 @@ const minUpdateTime = 2000
 const openLocalHtml = false // affects auto-open HTML.
 const fileLockingDelay = 2000
 const theoreticalMaxMagnitude = 10 // max for auto setting
-const overSampleFactor = 4 // 4 your linear image divided by this will be the hilbert image size.
+const overSampleFactor = 5 // 4 your linear image divided by this will be the hilbert image size.
 const blackPoint = 128 // use 255 to remove effect, it increase colour saturation
 const wideScreen = 140 // shrinks terminal display
 const windows7 = 100 // shitty os, shitty terminal, ah well
@@ -1572,8 +1572,8 @@ function pushCli(cs) {
       this.dnafile = path.resolve( cfile )
       cfile = path.basename( this.dnafile )
       this.shortnameGenome = this.genomeCanonicalisaton()
-      // mode( `${batchProgress()} checking file ${cfile} ${remain}` )
-      // procTitle( status )
+      mode( `checking file` )
+      procTitle( status )
 
       if ( typeof this.args._[1] === "undefined" ) {
         this.nextFile = "...Loading..."
@@ -2829,11 +2829,11 @@ function pushCli(cs) {
       }, raceDelay)
     }
     createPreviews(cb) {
+      renderLock = true
+      ispreview = true
       mode(`Setting up previews ${this.justNameOfHILBERT}`)
       output(status)
       if ( this.test ) { return false; }
-      renderLock = true
-      ispreview = true
       this.ratio = "sqr"
       this.hilbertImage = [] // wipe the memory!!
       this.antiAliasArray = []
@@ -2922,21 +2922,18 @@ function pushCli(cs) {
             redoline(status)
 
             this.hilbertImage = []
-            setTimeout( () => {
-              this.createPreviews( () => {
-
-                usersMagnitude = defaultMagnitude = usersMagnitude // 5
-                bugtxt(`finished saving PREVIEW docs, setting dimension back to: ${usersMagnitude}`)
-
-
-                mode(`Previews created from high res render ${this.justNameOfPNG}`)
+            // setTimeout( () => {
+              // this.createPreviews( () => {
+                // usersMagnitude = defaultMagnitude = usersMagnitude // 5
+                // bugtxt(`finished saving PREVIEW docs, setting dimension back to: ${usersMagnitude}`)
+                // mode(`Previews created from high res render ${this.justNameOfPNG}`)
                 removeLocks( this.fileTouch, this.devmode, status )
                 return
-              })
-            }, raceDelay * 2)
+              // })
+            // }, raceDelay * 2)
           } else {
-            mode(`Used ${ishighres ? 'highres' : 'lowres'} output resolution for ${this.usersPeptide}`)
-            redoline(status)
+            mode(`Not outputting previews. Used ${ishighres ? 'highres' : 'lowres'} output resolution for ${this.usersPeptide}`)
+            output(status)
             removeLocks( this.fileTouch, this.devmode, status )
           }
         } else { //  disk is not finished
@@ -4149,7 +4146,7 @@ function pushCli(cs) {
         let sampleClock = 0
         let brightness = 1/ shrinkFactor
         let downsampleSize = hilbPixels[ usersMagnitude ] // 2X over sampling high grade y'all!
-        let antiAliasArray = [ downsampleSize  * 4 ] // RGBA needs 4 cells per pixel
+        let antiAliasArray = [downsampleSize * overSampleFactor  ] // RGBA needs 4 cells per pixel
         notQuiet(`Resampling linear image of size in pixels ${this.pixelClock.toLocaleString()} to ${downsampleSize.toLocaleString()} by the factor ${ twosigbitsTolocale( shrinkFactor)}X brightness per amino acid ${brightness} destination hilbert curve pixels ${downsampleSize}`)
         this.debugFreq = Math.round(downsampleSize/100)
         // SHRINK LINEAR IMAGE:
@@ -4168,7 +4165,7 @@ function pushCli(cs) {
           antiAliasArray[sum+2] = this.rgbArray[clk+2]*brightness
           antiAliasArray[sum+3] = this.rgbArray[clk+3]*brightness
           // this.dot(z, this.debugFreq, `z: ${z.toLocaleString()}/${downsampleSize.toLocaleString()} samples remain: ${( this.pixelClock - sampleClock).toLocaleString()}`);
-          while(sampleClock  < z* shrinkFactor) {
+          while(sampleClock  < z * shrinkFactor * overSampleFactor) {
             clk = sampleClock*4
             antiAliasArray[sum+0] += this.rgbArray[clk+0]*brightness
             antiAliasArray[sum+1] += this.rgbArray[clk+1]*brightness
@@ -4769,7 +4766,7 @@ function pushCli(cs) {
 
       }
       function batchProgress() {
-        return `[${ 1 + batchSize - remain} / ${batchSize} : ${cliInstance.usersPeptide} ${renderLock ? nicePercent( cliInstance.percentComplete ) + '_busy_' + streamLineNr : '_'} ${ highlightFilename (this.focus)} ${cfile} ${ brute ? 'brute force': ''}]`
+        return `[${ 1 + batchSize - remain} / ${batchSize} : ${renderLock ? nicePercent( cliInstance.percentComplete ) + '_busy_' + streamLineNr : '_'} ${ highlightFilename (this.focus)} ${cfile} ${ brute ? 'brute force': ''}]`
       }
       function wTitle(txt) {
         terminateIfUndef(txt)
