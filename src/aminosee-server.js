@@ -18,8 +18,8 @@ const spawn = require("cross-spawn")
 const fs = require("fs-extra") // drop in replacement = const fs = require('fs')
 const defaulturl = "http://localhost:4321"
 const appFilename = require.main.filename //     /bin/aminosee.js is 11 chars
-const defaultPort = 4321
-const backupPort = 43210
+const defaultPort = 43210
+const backupPort = 4321
 
 // const useSymlinks = false
 const iip = require("internal-ip")
@@ -326,6 +326,7 @@ function foregroundserver() {
 	if ( !didStart ) {
 		try {
 			try {
+				output(`port ${port} in use, trying backup port: ${backupPort}`)
 				server.listen(backupPort)
 				didStart = true
 				port = backupPort

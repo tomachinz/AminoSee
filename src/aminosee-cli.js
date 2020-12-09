@@ -1253,7 +1253,7 @@ function pushCli(cs) {
         process.stdin.setRawMode(true)
       } catch(err) {
         // error(`Could not use interactive keyboard due to: ${err}`)
-        output("Could not use interactive keyboard due to: Probably you are running from a shell script. --keyboard mode requires interactive shell.")
+        notQuiet("Are you running from a shell script? --keyboard mode or -k (interactive keyboard mode) requires interactive shell.")
         // destroyKeyboardUI()
         return
       }
@@ -1573,7 +1573,7 @@ function pushCli(cs) {
       cfile = path.basename( this.dnafile )
       this.shortnameGenome = this.genomeCanonicalisaton()
       mode( `checking file` )
-      procTitle( status )
+      // procTitle( status )
 
       if ( typeof this.args._[1] === "undefined" ) {
         this.nextFile = "...Loading..."
@@ -1900,7 +1900,8 @@ function pushCli(cs) {
       }, raceDelay)
     }
     initStream() {
-
+      mode('init stream')
+      procTitle(`running`)
       if ( isShuttingDown === true ) { output(`Shutting down after this render ${ blueWhite(this.justNameOfPNG)}`) }
       if ( renderLock === false ) {
         debug = true // makes it crash
@@ -2817,15 +2818,14 @@ function pushCli(cs) {
         error("thread activated inside slow skip")
         return false
       }
-      // mode(`polling ${reason}`)
-
+      mode(`polling ${reason}`)
       setTimeout( () => {
         this.fastUpdate()
+        mode("safelyPoll Finished batch")
         if ( renderLock ) { error(reason); return false; }
-        if ( remain < 1 ) { this.quit(1, "Finished batch"); return false; }
-        // this.setNextFile()
-        // log( `remain ${remain} ${cfile}`)
-        this.pollForStream(`polling ${reason}`)
+        if ( remain < 1 ) { this.quit(1, status ); return false; } else {
+          this.pollForStream(`polling ${status}`)
+        }
       }, raceDelay)
     }
     createPreviews(cb) {
@@ -2903,11 +2903,12 @@ function pushCli(cs) {
                   out("not running")
                 }
               }, raceDelay)
+            return
+
             } else {
               output(`Completed test pattern generation.`)
               this.quit(0,"test "+ remain)
             }
-            return
 
           }
           let msg = `Great success with render`
@@ -3004,11 +3005,11 @@ function pushCli(cs) {
           }
         }
         mode("quit " + reason)
-        if (typeof code == "undefined") { code = 0 } // dont terminate with 0
-        log(`Received quit(${code}) ${reason}`)
+        if (typeof code === "undefined") { code = 0 } // dont terminate with 0
+        output(`Received quit(${code}) ${reason}`)
+       
         killAllTimers()
         destroyKeyboardUI()
-
         if ( this.isStorageBusy ) {
           output("still saving to storage - will exit after save") // maybe this happens during graceful shutdown
           return
@@ -3018,13 +3019,14 @@ function pushCli(cs) {
           return
         }
 
-        if (code == 0) {
-          log("CLI mode clean exit.")
+        if (code === 0) {
+          output("will not exit.")
+          this.postRenderPoll(`not exiting`)
           return true
         } else {
-          log(chalk.bgWhite.red ("Goodbye"))
+          output(chalk.bgWhite.red ("Goodbye"))
         }
-
+       
         if ( code !== 130 ) {
           if (remain > 0 ) {
             error(`There is more work (${remain}). Rendering: ${this.justNameOfPNG} ${this.timeRemain}`)
@@ -3685,17 +3687,17 @@ function pushCli(cs) {
           if ( this.reg ) {
             this.paintRegMarks(hilbertLinear, this.hilbertImage,  this.percentComplete)
           } else {
-            if ( this.peptide == "Opal") {
-              this.hilbertImage[hilbertLinear]  = 0 //  this.red
-              this.hilbertImage[hilbertLinear+1]  = 0 //  this.green
-            } else if ( this.peptide == "Ochre") {
-              this.hilbertImage[hilbertLinear+2]  = 0 //  this.blue
-              this.hilbertImage[hilbertLinear+1]  = 0 //  this.green
-            } else if ( this.peptide == "Methionine") {
-              this.hilbertImage[hilbertLinear]  = 0 //  this.red
-              this.hilbertImage[hilbertLinear+2]  = 0 //  this.blue
-            } else if ( this.peptide == "Arginine") { // PURPLE
-              this.hilbertImage[hilbertLinear+1]  = 0 //  this.blue
+            if (       this.peptide.toUpperCase() == "OPAL" || this.peptide.toUpperCase() == "BLUE" ) {
+              this.hilbertImage[hilbertLinear]  = 0 //  red
+              this.hilbertImage[hilbertLinear+1]  = 0 //  green
+            } else if (this.peptide.toUpperCase() == "OCHRE" || this.peptide.toUpperCase() == "RED") {
+              this.hilbertImage[hilbertLinear+2]  = 0 //  blue
+              this.hilbertImage[hilbertLinear+1]  = 0 //  green
+            } else if (this.peptide.toUpperCase() == "METHIONINE" || this.peptide.toUpperCase() == "GREEN") {
+              this.hilbertImage[hilbertLinear]  = 0 //  red
+              this.hilbertImage[hilbertLinear+2]  = 0 //  blue
+            } else if (this.peptide.toUpperCase() == "ARGININE" || this.peptide.toUpperCase() == "PURPLE") { 
+              this.hilbertImage[hilbertLinear+1]  = 0 //  GREEN
             }
           }
           this.rgbArray[cursorLinear+0] = this.hilbertImage[hilbertLinear+0]
@@ -3706,7 +3708,7 @@ function pushCli(cs) {
         bugtxt( chalk.bgWhite(`Math.sqrt(hilpix): [${Math.sqrt(hilpix)}])`))
         bugtxt( this.fileHILBERT )
 
-        log( `Completed hilbert curve of the ${ usersMagnitude }th dimension out of: ${remain}`)
+        notQuiet( `Completed hilbert curve of the ${ usersMagnitude }th dimension out of: ${remain}`)
 
 
 
@@ -4890,14 +4892,13 @@ function pushCli(cs) {
 
       function runDemo() {
         mode(`run demo`)
-        var that = cliInstance
         // async.parallel( [
         async.waterfall( [
           function( cb ) {
             output("blue")
             cliInstance.openImage = true
-            cliInstance.peptide = "Opal" // Blue TESTS
-            // cliInstance.peptide = "Blue" // Blue TESTS
+            // cliInstance.peptide = "Opal" // Blue TESTS
+            cliInstance.peptide = "Blue" // Blue TESTS
             cliInstance.ratio = "sqr"
             cliInstance.generateTestPatterns(() => {
               cliInstance.openOutputs()
@@ -4910,20 +4911,23 @@ function pushCli(cs) {
             output("RED")
             cliInstance.openOutputs()
             cliInstance.openImage = false
-            cliInstance.peptide = "Ochre" // Red TESTS
+            // cliInstance.peptide = "Ochre" // Red TESTS
+            cliInstance.peptide = "Red" // Red TESTS
             cliInstance.ratio = "sqr"
             cliInstance.generateTestPatterns(cb)
           },
+          // function( cb ) {
+          //   output("PURPLE")
+          //   cliInstance.openOutputs()
+          //   cliInstance.peptide = "Arginine" //  PURPLE TESTS
+          //   cliInstance.peptide = "Purple" //  PURPLE TESTS
+          //   cliInstance.ratio = "sqr"
+          //   cliInstance.generateTestPatterns(cb)
+          // },
           function( cb ) {
-            output("PURPLE")
             cliInstance.openOutputs()
-            cliInstance.peptide = "Arginine" //  PURPLE TESTS
-            cliInstance.ratio = "sqr"
-            cliInstance.generateTestPatterns(cb)
-          },
-          function( cb ) {
-            cliInstance.openOutputs()
-            cliInstance.peptide = "Methionine" //  cliInstance.green  TESTS
+            // cliInstance.peptide = "Methionine" //  cliInstance.green  TESTS
+            cliInstance.peptide = "Green" //  cliInstance.green  TESTS
             cliInstance.ratio = "sqr"
             cliInstance.generateTestPatterns(cb)
           },
@@ -5767,6 +5771,7 @@ function pushCli(cs) {
         return dim
       }
       function runcb( cb ) {
+        mode(`runcb`)
         let msg = "cb "
         if( typeof cb !== "undefined") {
           if( typeof cb === "function") {
@@ -5778,6 +5783,8 @@ function pushCli(cs) {
             return
           }
           // setImmediate( () => { cb() } )
+          bugtxt("running callback")
+
           cb()
         } else {
           error(`you didn't pass a callback?! its undefined: ${cb}`)
@@ -5802,8 +5809,8 @@ function pushCli(cs) {
       }
       function removeLocks(lockfile, devmode, reason) { // just remove the lock files.
         mode( "remove locks")
-        output(`remove locks with ${remain} files in queue. fileTouch: ${path.basename(lockfile)} cfile ${path.basename(cfile)}` )
-        if (cliInstance.test || cliInstance.demo) {  return }
+        if (cliInstance.test || cliInstance.demo) { output("test or demo mode");  return; }
+        output(`remove locks with ${remain} files in queue. fileTouch: ${path.basename(lockfile)} cfile ${path.basename(cfile)}`)
         renderLock = false
         procTitle( status )
         remain--
@@ -5812,11 +5819,11 @@ function pushCli(cs) {
         if ( typeof devmode === "undefined" ) {
           devmode = false
         }
-        if ( typeof cb === "undefined" ) {
-          cb = function(lockfile) {
-            log(`no callback sent when removing locks for: ${blueWhite(lockfile)}`)
-          }
-        }
+        // if ( typeof cb === "undefined" ) {
+        //   cb = function(lockfile) {
+        //     log(`no callback sent when removing locks for: ${blueWhite(lockfile)}`)
+        //   }
+        // }
         if ( devmode === true ) {
           notQuiet("Because you are using --devmode, the lock file is not deleted. This is useful during development of the app because when I interupt the render with Control-c, AminoSee will skip that file next time, unless I use --force. Lock files are safe to delete at any time.")
         } else {
