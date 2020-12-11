@@ -35,38 +35,6 @@ series_peptides () {
 	echo done
 	sleep 1
 
-
-	# echo START RENDER with ten parameters:
-	# echo $*
-	# echo
-  # nice -n 1 aminosee -m5 --index    $*
-  # nice -n 4 aminosee -m5     --peptide=Glutamic_acid $*
-  # nice -n 4 aminosee -m5     --peptide=Aspartic_acid $*
-  # nice -n 4 aminosee -m5     --peptide=Ochre $*
-  # nice -n 4 aminosee -m5     --peptide=Amber $*
-  # nice -n 4 aminosee -m5     --peptide=Opal $*
-  # nice -n 4 aminosee -m5     --peptide=Methionine $*
-  # nice -n 4 aminosee -m5     --peptide=Cysteine $*
-  # nice -n 4 aminosee -m5     --peptide=Glycine $*
-  # nice -n 4 aminosee -m5     --peptide=Alanine $*
-  # nice -n 4 aminosee -m5     --peptide=Valine $*
-  # nice -n 4 aminosee -m5     --peptide=Leucine $*
-  # nice -n 4 aminosee -m5     --peptide=Isoleucine $*
-  # nice -n 4 aminosee -m5     --peptide=Phenylalanine $*
-  # nice -n 4 aminosee -m5     --peptide=Proline $*
-  # nice -n 4 aminosee -m5     --peptide=Tryptophan $*
-  # nice -n 4 aminosee -m5     --peptide=Serine $*
-  # nice -n 4 aminosee -m5     --peptide=Threonine $*
-  # nice -n 4 aminosee -m5     --peptide=Glutamine $*
-  # nice -n 4 aminosee -m5     --peptide=Asparagine $*
-  # nice -n 4 aminosee -m5     --peptide=Tyrosine $*
-  # nice -n 4 aminosee -m5     --peptide=Arginine $*
-  # nice -n 4 aminosee -m5     --peptide=Lysine $*
-  # nice -n 4 aminosee -m5       --peptide=Histidine  $*
-	# echo
-	# echo done
-	# sleep 1
-
 }
 
 find_way_peptides () {
@@ -99,34 +67,7 @@ find_way_peptides () {
 	echo
 	echo end of batch peptides
 
-		# echo
-		# nice -n 1  aminosee --index -m5  $*
-		# nice -n 2  aminosee -m5 --quiet $*  --peptide=Glutamic_acid
-		# nice -n 2  aminosee -m5 --quiet $*  --peptide=Aspartic_acid
-		# nice -n 2  aminosee -m5 --quiet $*  --peptide=Ochre
-		# nice -n 2  aminosee -m5 --quiet $*  --peptide=Amber
-		# nice -n 2  aminosee -m5 --quiet $*  --peptide=Opal
-		# nice -n 2  aminosee -m5 --quiet $*  --peptide=Methionine
-		# nice -n 2  aminosee -m5 --quiet $*  --peptide=Cysteine
-		# nice -n 2  aminosee -m5 --quiet $*  --peptide=Glycine
-		# nice -n 2  aminosee -m5 --quiet $*  --peptide=Alanine
-		# nice -n 2  aminosee -m5 --quiet $*  --peptide=Valine
-		# nice -n 2  aminosee --index -m5         $*  --peptide=Leucine
-		# nice -n 2  aminosee -m5 --quiet $*  --peptide=Isoleucine
-		# nice -n 2  aminosee -m5 --quiet $*  --peptide=Phenylalanine
-		# nice -n 2  aminosee -m5 --quiet $*  --peptide=Proline
-		# nice -n 2  aminosee -m5 --quiet $*  --peptide=Tryptophan
-		# nice -n 2  aminosee -m5 --quiet $*  --peptide=Serine
-		# nice -n 2  aminosee -m5 --quiet $*  --peptide=Threonine
-		# nice -n 2  aminosee -m5 --quiet $*  --peptide=Glutamine
-		# nice -n 2  aminosee -m5 --quiet $*  --peptide=Asparagine
-		# nice -n 2  aminosee -m5 --quiet $*  --peptide=Tyrosine
-		# nice -n 2  aminosee -m5 --quiet $*  --peptide=Arginine
-		# nice -n 2  aminosee -m5 --quiet $*  --peptide=Lysine
-		# nice -n 2  aminosee -m5         $*  --peptide=Histidine
-		# echo
-		# echo end of batch peptides
-
+	
 	#
 	#
 	#
@@ -223,14 +164,14 @@ find_way_peptides () {
 
 
 if [ -z "$1" ]; then
-  echo usage: ./batch-peptides.sh [ASCII-DNA-File.txt]
-  echo
+	echo usage: ./batch-peptides.sh [ASCII-DNA-File.txt]
+	echo
 	echo will now run aminosee batch using the files:
 	echo *
 	echo ow doing "find way" brute forcing it
-  # exit
+	# exit
 	find_way_peptides
 	find_way_peptides --reg --index
 else
-  series_peptides $*
+	series_peptides $*
 fi
