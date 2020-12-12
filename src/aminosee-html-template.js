@@ -42,11 +42,11 @@ function imageStack(histogramJson) {
 		let minimumSize = 64
 		let styleLi =  `
 		position: fixed;
-		top:  calc( 50% - ${ resolution/2 }px );
-		left: calc( 50% - ${ resolution/2 }px );
+		top:  calc( 50% - ${ resolution/3 }px );
+		left: calc( 50% - ${ resolution/3 }px );
 		transform: translate(
-			calc( 50% + ( var(--mouse-x, 0)  * ${proportion*70}%  ) + ${p}px ),
-			calc( 50% + ( var(--mouse-y, 0)  *  ${proportion*100}%  ) + ${p*2}px )
+			calc( 50% + ( var(--mouse-x, 0)  * ${proportion*50}%  ) + ${p}px ),
+			calc( 50% + ( var(--mouse-y, 0)  *  ${proportion*50}%  ) + ${p*2}px )
 		);
 		border-top:    1px solid rgba(255, 255, 255, 0.6);
 		border-left:   2px solid rgba(${c}), 0.6);
@@ -790,6 +790,87 @@ pre {
 				'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f); })(window,document,'script','dataLayer','GTM-P8JX');</script>
 				<!-- End Google Tag Manager -->
 
+
+
+
+<nav id="nav">
+	<ul id="menu">
+		<li id="menuhomelink"><a href="/" title="Return to FUNK Homepage"><img src="//www.funk.co.nz/images/nav/funk-logo-140px.png" alt="Home" title="Home"/></a>
+			<ul>
+				<li>
+					<a class="menuhomelink" href="//www.funk.co.nz/" title="Return to FUNK Homepage">Return to FUNK Homepage</a>
+				</li>
+			</ul>
+		</li>
+		<li id="menuabout" class="children"><a href="//www.funk.co.nz/menu/about-author.php" title="About the author" class="children">About</a></li>
+		<li id="menugraphics"><a href="/blog/category/visuals" class="children">Graphics</a></li>
+		<li id="menubands" class="children"><a href="/tomachi/" class="children">Tomachi</a></li>
+	</ul>
+</nav>
+
+
+
+<script type="text/javascript">
+
+// see whether device supports touch events (a bit simplistic, but...)
+var hasTouch = ("ontouchstart" in window);
+var iOS5 = /iPad|iPod|iPhone/.test(navigator.platform) && "matchMedia" in window;
+
+// hook touch events for drop-down menus
+// NB: if has touch events, then has standards event handling too
+// but we don't want to run this code on iOS5+
+if (hasTouch && document.querySelectorAll && !iOS5) {
+	var i, len, element,
+	dropdowns = document.querySelectorAll("a.children");
+	// dropdowns = document.querySelectorAll("#menu");
+	// dropdowns = document.querySelectorAll("#menu li.children > a");
+	// alert("has touch!")
+	// alert("dropdowns: " + dropdowns.length)
+
+
+	function menuTouch(event) {
+		// toggle flag for preventing click for this link
+		var i, len, noclick = !(this.dataNoclick);
+
+		// reset flag on all links
+		for (i = 0, len = dropdowns.length; i < len; ++i) {
+			dropdowns[i].dataNoclick = false;
+		}
+
+		// set new flag value and focus on dropdown menu
+		this.dataNoclick = noclick;
+		this.focus();
+	}
+
+	function menuClick(event) {
+
+		// if click isn't wanted, prevent it
+		if (this.dataNoclick) {
+			event.preventDefault();
+			console.log("click prevented!")
+
+		}
+	}
+
+
+
+
+	for (i = 0, len = dropdowns.length; i < len; ++i) {
+		element = dropdowns[i];
+		element.dataNoclick = false;
+		element.addEventListener("touchstart", menuTouch, false);
+		element.addEventListener("click", menuClick, false);
+	}
+	document.body.addEventListener("load", setupTouch, false)
+
+}
+function setupTouch() {
+	alert("dropdowns: " + dropdowns.length)
+}
+</script>
+
+
+
 				<nav style="position: relative; padding: 32px;">
 				<div id="scene" class="dark"  style="position: fixed; top: 8px; left: 8px; z-index:9999; background-color: #123456; padding: 16px; margin-bottom: 64px;">
 				<a href="../../" class="button">AminoSee Home</a> | <a href="../">Parent</a> ${highresnav}
@@ -903,10 +984,9 @@ ${asciiart}
 
 
 
-				<div><a href="http://aminosee.funk.nz/">
-				<input type="button" value="VISIT WEBSITE" onclick="window.location = '#scrollHILBERT'"><br>
-
-				<img src="https://www.funk.co.nz/aminosee/public/seenoevilmonkeys.jpg">
+				<div><a href="http://aminosee.funk.nz/" title="Permolink">
+				<input type="button" value="VISIT WEBSITE" onclick="window.location = '#scrollHILBERT'"><br>\
+				<img src="//www.funk.co.nz/aminosee/public/seenoevilmonkeys.jpg">
 
 				<!-- <h1>AminoSeeNoEvil</h1> -->
 				<h1>Amino<span style="color: #888888;">See</span><span style="color: #dddddd;">NoEvil</span></h1>

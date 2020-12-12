@@ -3,7 +3,7 @@ const defaultPreviewDimension = 5 // was 500 MB per page before.
 let targetPixels = 8800000 // arbitrarily huge amount of pixels as target max resolution (8.8MP).
 // let targetPixels = 5000000 // arbitrarily huge amount of pixels as target max resolution (8.8MP).
 // if estimated pixels is less than this, the render will show 1 pixel per codon
-let defaultMagnitude = 7 // each +1 is 4x more pixels
+let defaultMagnitude = 8 // each +1 is 4x more pixels
 const defaultC = 1 // back when it could not handle 3+GB files.
 const artisticHighlightLength = 36 // px only use in artistic this.mode. must be 6 or 12 currently
 const maxCanonical = 32 // max length of canonical name
@@ -14,7 +14,7 @@ const minUpdateTime = 2000
 const openLocalHtml = false // affects auto-open HTML.
 const fileLockingDelay = 2000
 const theoreticalMaxMagnitude = 10 // max for auto setting
-const overSampleFactor = 4 // 4 your linear image divided by this will be the hilbert image size.
+const overSampleFactor = 5 // 4 your linear image divided by this will be the hilbert image size.
 const blackPoint = 128 // use 255 to remove effect, it increase colour saturation
 const wideScreen = 140 // shrinks terminal display
 const windows7 = 100 // shitty os, shitty terminal, ah well
@@ -187,7 +187,7 @@ function populateArgs(procArgv) { // returns args
     boolean: [ "artistic", "brute", "clear", "chrome", "devmode", "debug", "demo", "dnabg", "explorer", "file", "force", "fullscreen", "firefox", "gui", "html", "image", "keyboard", "list", "progress", "quiet", "reg", "recycle", "redraw", "slow", "serve", "safari", "test", "updates", "verbose", "view" ],
     string: [ "url", "output", "triplet", "peptide", "ratio" ],
     alias: { a: "artistic", b: "dnabg", c: "codons", d: "devmode", f: "force", finder: "explorer", h: "help", k: "keyboard", m: "magnitude", o: "output", p: "peptide", i: "image", t: "triplet", u: "updates", q: "quiet", r: "ratio", w: "width", v: "verbose", x: "explorer", v: "verbose", view: "html" },
-    default: { brute: false, debug: false, keyboard: true, progress: false, redraw: true, updates: true, stop: false, serve: false, fullscreen: false , html: true, image: true, index: false, clear: false, explorer: false, quiet: false, gui: false },
+    default: { brute: false, debug: false, keyboard: true, progress: true, redraw: true, updates: true, stop: false, serve: false, fullscreen: false , html: true, image: true, index: false, clear: false, explorer: false, quiet: false, gui: false },
     stopEarly: false
   } // NUMERIC INPUTS: codons, magnitude, width, maxpix
   let args = minimist(procArgv.slice(2), options)
@@ -551,21 +551,22 @@ function pushCli(cs) {
       if ( args.magnitude || args.m ) {
         usersMagnitude = Math.round( args.magnitude )
         this.magnitude = "custom"
-        if ( usersMagnitude < 3 ) {
+        if ( usersMagnitude < 1 ) {
           usersMagnitude = 3
           output("Magnitude must be an integer number between 3 and 9. Using -m 3 for 4096 pixel curve.")
         } else if ( usersMagnitude > theoreticalMaxMagnitude) {
           usersMagnitude = theoreticalMaxMagnitude
           output("Magnitude must be an integer number between 3 and 9 or so. 9 you may run out of memory.")
-        } else if (  usersMagnitude > 2 &&  usersMagnitude < 9) {
+        } else {
           output(`Using custom output magnitude: ${ usersMagnitude }`)
           defaultMagnitude = usersMagnitude
         }
       } else {
         this.magnitude = "auto"
         usersMagnitude = defaultMagnitude
-        log(`Using auto magnitude with limit ${defaultMagnitude}th dimension`)
+        output(`Using auto magnitude with limit ${defaultMagnitude}th dimension`)
       }
+      this.dimension = usersMagnitude
       log(`Max pixels: ${ this.maxpix } Hilbert curve dimension: ${ usersMagnitude } mag setting: ${ this.magnitude }`)
       if ( args.ratio || args.r ) {
         this.ratio = args.ratio.toLowerCase()
@@ -779,7 +780,8 @@ function pushCli(cs) {
       if ( args.demo ) {
         this.demo = true
         this.args._.push( "demo")
-        remain = args._.length
+        batchSize = remain = args._.length
+      
         output("Demo mode activated")
       } else {
         this.demo = false
@@ -1098,10 +1100,10 @@ function pushCli(cs) {
         bugtxt(`ext: ${ this.extension } codon ${codon} index ${p} codons per pixel: ${codonsPerPixelHILBERT}` )
       }
       this.peptide = this.usersPeptide
-      this.filePNG = path.resolve( this.imgPath, this.generateFilenamePNG( this.usersPeptide )) // run this to fix nasty globals issue
-      this.fileHILBERT = path.resolve( this.generateFilenameHilbert( this.usersPeptide )) // run this to fix nasty globals issue
+      this.filePNG = path.resolve( this.imgPath, this.generateFilenamePNG(  )) // run this to fix nasty globals issue
+      this.fileHILBERT = path.resolve( this.generateFilenameHilbert(  )) // run this to fix nasty globals issue
       this.pepTable.sort( this.compareHue )
-
+      output(`from get render obj ${ this.shortnameGenome } short genome name`)
       let zumari = {
         original_source: cfile,
         full_path: this.dnafile,
@@ -1130,12 +1132,12 @@ function pushCli(cs) {
         codonsPerPixel:  this.codonsPerPixel,
         codonsPerPixelHILBERT: codonsPerPixelHILBERT,
         pixelClock: this.pixelClock,
-        pixhilbert: hilbPixels[ usersMagnitude ],
+        pixhilbert: hilbPixels[ this.dimension ],
         shrinkFactor: shrinkFactor,
         overSampleFactor: overSampleFactor,
         opacity: this.opacity,
         magnitude:  this.magnitude,
-        dimension:  usersMagnitude,
+        dimension:  this.dimension,
         previewdimension: defaultPreviewDimension,
         blackPoint: blackPoint,
         darkenFactor: darkenFactor,
@@ -1638,11 +1640,11 @@ function pushCli(cs) {
       }
       if (fileSystemChecks(this.dnafile )  === false ) {
         mode(`Failed filesystem check: ${ this.dnafile } (probably file was not found)`)
-        bugtxt(status)
+        // bugtxt(status)
         this.preRenderReset( `R: ${status} ` )
         return false
       }
-      redoline(status)
+      log(status)
       this.genomeCanonicalisaton(this.dnafile)
       remain = this.args._.length
 
@@ -1904,6 +1906,7 @@ function pushCli(cs) {
       if ( isShuttingDown === true ) { output(`Shutting down after this render ${ blueWhite(this.justNameOfPNG)}`) }
       if ( renderLock === false ) {
         debug = true // makes it crash
+        bugtxt("crashing")
         error("RENDER LOCK FAILED. This is an  error I'd like reported. Please run with --verbose --devmode option enabled and send the logs to aminosee@funk.co.nz")
         return false
       }
@@ -1929,7 +1932,7 @@ function pushCli(cs) {
 
 
       this.initialiseArrays()
-      // this.setupProgress()
+      this.setupProgress()
       this.setIsDiskBusy( false )
 
       // if ( this.quiet == false ) {
@@ -2175,7 +2178,7 @@ function pushCli(cs) {
       Bandwidth: ${ bytes( this.bytesPerMs * 1000 ) } / sec DNA Filesize: ${ bytes( this.baseChars ) }
       Image Output bytes: ${ this.isStorageBusy === true ? bytes( this.rgbArray.length ) : "(busy)" }
       Pixels (linear): ${ this.pixelClock.toLocaleString()} Image aspect Ratio: ${ this.ratio }
-      Pixels (hilbert): ${hilbPixels[ usersMagnitude ]} ${(  usersMagnitude ? "(auto)" : "(manual -m)")} Dimension ${ usersMagnitude } Hilbert curve
+      Pixels (hilbert): ${hilbPixels[ this.dimension ]} ${(  this.dimension ? "(auto)" : "(manual -m)")} Dimension ${ this.dimension } Hilbert curve
       Linear to Hilbert reduction: ${ this.isStorageBusy ?  twosigbitsTolocale( shrinkFactor) : unknown } Oversampling: ${ twosigbitsTolocale(overSampleFactor)}
       Custom flags: ${ this.showFlags()} "${( this.artistic ? "Artistic mode" : "Science mode" )}" render style
       Estimated Codons: ${Math.round( this.estimatedPixels).toLocaleString()} (filesize % 3)
@@ -2217,7 +2220,7 @@ function pushCli(cs) {
         this.estimatedPixels =  this.baseChars / 3 // divide by 4 times 3
         if ( this.estimatedPixels > 1024 ) {
           log(`est pixels : ${this.estimatedPixels}` )
-          usersMagnitude = optimumDimension ( this.estimatedPixels, "auto" )
+          this.dimension = optimumDimension ( this.estimatedPixels, "auto" )
         } else {
           let msg = "Not enough pixels to form image"
           output(msg)
@@ -2282,9 +2285,9 @@ function pushCli(cs) {
       if ( this.magnitude == "custom" ) {
         let increase = defaultMagnitude - usersMagnitude
         this.codonsPerPixel = this.codonsPerPixel + increase
-        log(`Increased codons per pixel by ${increase} to ${this.codonsPerPixel}`)
+        output(`Increased codons per pixel config by ${increase} to ${this.codonsPerPixel}`)
       }
-      log(`Codons per pixel is ${this.codonsPerPixel}`)
+      output(`Codons per pixel is ${this.codonsPerPixel}`)
 
       return this.codonsPerPixel
     }
@@ -2333,7 +2336,7 @@ function pushCli(cs) {
 
     generateFilenameHistogram() {
       log(`Gen name histogram`)
-      // http://10.0.2.3/aminosee/output///aminosee_histogram.json
+      // http://www.funk.co.nz/aminosee/output/
       return path.resolve( this.outputPath, this.shortnameGenome, "aminosee_histogram.json")
     }
 
@@ -2676,7 +2679,7 @@ function pushCli(cs) {
           this.fileWrite(path.resolve( this.outputPath, this.shortnameGenome, "highres.html"), hypertext)
         }
         redoline( `Writing high resolution report ${this.shortnameGenome}`)
-      } else if ( usersMagnitude = defaultPreviewDimension ) {
+      } else if ( this.dimension = defaultPreviewDimension ) {
         redoline( `Writing standard resolution report ${this.shortnameGenome}`)
       }
 
@@ -2743,7 +2746,10 @@ function pushCli(cs) {
     touchLockAndStartStream() { // saves CPU waste. delete lock when all files are saved, not just the png.
       mode("touchLockAndStartStream")
       log("I feel like touching a mutex lock and dancing")
-      if ( renderLock === true ) { debug = true; error("draining threads while locking"); return false }
+      if ( renderLock === true ) { 
+        error("draining threads while locking"); 
+        return false 
+      }
       redoline("Locking threads for render")
       renderLock = true
       this.tLock()
@@ -2836,7 +2842,7 @@ function pushCli(cs) {
       this.ratio = "sqr"
       this.hilbertImage = [] // wipe the memory!!
       this.antiAliasArray = []
-      usersMagnitude = defaultPreviewDimension // 5
+      this.dimension = defaultPreviewDimension // 5
       this.magnitude = "custom"
       const pixels =  hilbPixels[ defaultPreviewDimension ] // 65536
       this.maxpix = pixels * overSampleFactor
@@ -2887,11 +2893,12 @@ function pushCli(cs) {
       // check if all the disk is finished and if so change the locks
       if ( this.isDiskFinLinear === true && this.isDiskFinHilbert === true && this.isDiskFinHTML === true ) {
         bugtxt(`usersMagnitude ${usersMagnitude} > defaultPreviewDimension ${defaultPreviewDimension} is test: ${this.test}`)
-        output(`Finished saving ${this.fileHILBERT}`)
+        log(`Finished saving ${this.fileHILBERT}`)
         this.setIsDiskBusy( false )
         addToRendered(this.shortnameGenome) // in case histogram file is deleted
         imageOutput.push( this.fileHILBERT )
         if ( this.test === true ) {
+          remain--
           if ( remain > 1 && renderLock ) {
             out(blueWhite( ` [ Starting another cycle in ${ humanizeDuration( raceDelay )}`))
 
@@ -2906,7 +2913,9 @@ function pushCli(cs) {
             return
 
             } else {
-              output(`Completed test pattern generation.`)
+              log(`Completed test pattern generation.`)
+              isShuttingDown = true
+              remain--
               this.quit(0,"test "+ remain)
             }
 
@@ -2924,17 +2933,16 @@ function pushCli(cs) {
 
             this.hilbertImage = []
             // setTimeout( () => {
-              this.createPreviews( () => {
-                usersMagnitude = defaultMagnitude = usersMagnitude // 5
-                bugtxt(`finished saving PREVIEW docs, setting dimension back to: ${usersMagnitude}`)
-                mode(`Previews created from high res render ${this.justNameOfPNG}`)
+              // this.createPreviews( () => {
+                // usersMagnitude = defaultMagnitude = usersMagnitude // 5
+                // bugtxt(`finished saving PREVIEW docs, setting dimension back to: ${usersMagnitude}`)
+                // mode(`Previews created from high res render ${this.justNameOfPNG}`)
                 removeLocks( this.fileTouch, this.devmode, status )
                 return
-              })
+              // })
             // }, raceDelay * 2)
           } else {
             mode(`Not outputting previews. Used ${ishighres ? 'highres' : 'lowres'} output resolution for ${this.usersPeptide}`)
-            output(status)
             removeLocks( this.fileTouch, this.devmode, status )
           }
         } else { //  disk is not finished
@@ -2984,9 +2992,15 @@ function pushCli(cs) {
       }
 
       quit(code, reason) {
-        log(`received shutdown signal ${code} ${reason}`)
+        notQuiet(`received shutdown signal ${code} ${reason}`)
         this.openOutputs()
-
+        if (code === 0 && remain > 0) {
+          output(`will not exit. code = ${code} remain ${remain}`)
+          // this.postRenderPoll(`not exiting`)
+          return true
+        } else {
+          output(chalk.bgWhite.red(remain))
+        }
         if (killServersOnQuit === false) {
           out(`Webserver running in foreground. use control-c to kill.`)
           log("If you get a lot of servers running, use Control-C instead of [Q] to issues a 'killall node' command to kill all of them")
@@ -3015,17 +3029,11 @@ function pushCli(cs) {
           return
         }
         if ( !isShuttingDown ) {
-          bugtxt(`Not shutting down yet`)
+          log(`Not shutting down yet`)
           return
         }
 
-        if (code === 0) {
-          output("will not exit.")
-          this.postRenderPoll(`not exiting`)
-          return true
-        } else {
-          output(chalk.bgWhite.red ("Goodbye"))
-        }
+    
        
         if ( code !== 130 ) {
           if (remain > 0 ) {
@@ -3036,7 +3044,7 @@ function pushCli(cs) {
             }
           }
           if ( renderLock === true ) {
-            output("halting batch render, will exist after this file") // maybe this happens during graceful shutdown
+            output("halting batch render, will exit after this render") // maybe this happens during graceful shutdown
           }
         }
 
@@ -3047,12 +3055,10 @@ function pushCli(cs) {
         process.exitCode = code
 
         killAllTimers()
-        printRadMessage([ ` ${(killServersOnQuit ?  'AminoSee has shutdown' : ' ' )}`, `${( verbose ?  ' Exit code: '+ code : '' )}`,  (killServersOnQuit == false ? server.getServerURL() : ' '), remain ]);
-        setTimeout( () => {
+        printRadMessage([ ` ${(killServersOnQuit ?  'AminoSee has shutdown' : ' ' )}`, `${( verbose ?  ' Exit code: '+ code : '' )}`, remain ]);
           setImmediate( () => {
             process.exit()
           })
-        }, raceDelay)
       }
       processLine(l) { // need to implement the format here: https://rdrr.io/rforge/seqTools/man/countGenomeKmers.html
         if ( renderLock === false ) { error("thread entered process line!")}
@@ -3638,11 +3644,11 @@ function pushCli(cs) {
           this.previousImage = this.filePNG
         }
         if ( this.test ) {
-          mode(`Calibration linear generation done. Waiting on (${ this.storage()})`)
+          mode(`Calibration linear generation done ${this.dimension}. Waiting on (${ this.storage()})`)
         } else {
           mode(`DNA transcode done, waiting on (${ this.storage()})`)
         }
-        output(status)
+        log(status)
         this.postRenderPoll( `linear done` )
       }
 
@@ -3651,12 +3657,12 @@ function pushCli(cs) {
           error("error render lock fail in test patterns")
           return false
         }
-        notQuiet( `Generating hilbert curve of the ${ usersMagnitude + 1 }th dimension with ${remain} remaining. File: ${this.fileHILBERT}`)
+        notQuiet(`Generating hilbert curve ${loopCounter} of the ${ this.dimension }th dimension with ${remain} remaining of ${batchSize}. File: ${this.fileHILBERT}`)
 
         // renderLock = true
 
         // MyManHilbert
-        hilpix = hilbPixels[ usersMagnitude ]
+        hilpix = hilbPixels[ loopCounter ]
         const testWidth = Math.round(Math.sqrt(hilpix))
         const linearWidth = Math.round(Math.sqrt(hilpix))
         const testPath = path.resolve(webroot , "calibration")
@@ -3966,10 +3972,10 @@ function pushCli(cs) {
         this.updates = true
         this.pngImageFlags = "_test_pattern"
         if ( this.magnitude == "auto") {
-          usersMagnitude = defaultMagnitude - 1
+          this.dimension = defaultMagnitude - 1
         } else {
           notQuiet(`using custom dimension: ${ usersMagnitude }`)
-          usersMagnitude = this.args.magnitude
+          this.dimension = this.args.magnitude
         }
         batchSize = usersMagnitude
         remain = usersMagnitude
@@ -4059,14 +4065,14 @@ function pushCli(cs) {
         this.charClock = -1 // gets around zero length check
         // this.pixelClock = -1; // gets around zero length check
         // this.quit(0, 'test stop');
-        // this.isShuttingDown = true
-        // renderLock = false
-        // killAllTimers()
+        this.isShuttingDown = true
+        renderLock = false
+        killAllTimers()
         this.destroyProgress()
         destroyKeyboardUI()
       }
       testInit ( magnitude ) {
-        magnitude--
+        // magnitude--
         // if ( renderLock === true ) { error(`threads inside test init`); return false; }
         // renderLock = true
         notQuiet(`webroot ${webroot} ${magnitude}`)
@@ -4074,7 +4080,7 @@ function pushCli(cs) {
         let testPath = path.resolve(webroot , "calibration")
         let regmarks = this.getRegmarks()
         let highlight = ""
-        usersMagnitude = remain = magnitude
+        this.dimension = remain = magnitude
 
         this.isHilbertPossible = true
         this.report = false
@@ -4144,9 +4150,10 @@ function pushCli(cs) {
       resampleByFactor() {
         let sampleClock = 0
         let brightness = 1/ shrinkFactor
-        let downsampleSize = hilbPixels[ usersMagnitude ] // 2X over sampling high grade y'all!
+        let downsampleSize = hilbPixels[ this.dimension ] // 2X over sampling high grade y'all!
         let antiAliasArray = [downsampleSize * overSampleFactor  ] // RGBA needs 4 cells per pixel
-        notQuiet(`Resampling linear image of size in pixels ${this.pixelClock.toLocaleString()} to ${downsampleSize.toLocaleString()} by the factor ${ twosigbitsTolocale( shrinkFactor)}X brightness per amino acid ${brightness} destination hilbert curve pixels ${downsampleSize}`)
+        notQuiet(`Resampling linear image of size in pixels ${this.pixelClock.toLocaleString()} to ${downsampleSize.toLocaleString()}`)
+        notQuiet(`by the factor ${ twosigbitsTolocale( shrinkFactor)}X brightness per amino acid ${brightness} destination hilbert curve pixels ${downsampleSize.toLocaleString()}`)
         this.debugFreq = Math.round(downsampleSize/100)
         // SHRINK LINEAR IMAGE:
         mode( "Resample by X" + shrinkFactor )
@@ -4452,7 +4459,7 @@ function pushCli(cs) {
           term.up(  termHistoHeight )
         } else {
           output(chalk.bold.italic(" Increase the size of your terminal for realtime histogram."))
-          output(`   Genome size: ${ this.genomeSize.toLocaleString()}`)
+          output(`   Genome size: ${ this.genomeSize.toLocaleString()} pixels`)
           if ( this.quiet == false && this.clear === true ) {
             term.up(  2 )
           }
@@ -4771,7 +4778,7 @@ function pushCli(cs) {
 
       }
       function batchProgress() {
-        return `[${1 + batchSize - remain} / ${batchSize} : ${renderLock ? nicePercent(cliInstance.percentComplete) + '_busy_' + streamLineNr : '_'} ${cliInstance.peptide} ${cfile} ${ brute ? 'brute force': ''}]`
+        return `[${1 + batchSize - remain} / ${batchSize} : ${renderLock ? nicePercent(cliInstance.percentComplete) + ' busy ' + streamLineNr : '_'} ${cliInstance.peptide} ${cfile} ${ brute ? 'brute force': ''}]`
       }
       function wTitle(txt) {
         terminateIfUndef(txt)
@@ -4833,7 +4840,7 @@ function pushCli(cs) {
         try {
           process.stdin.setRawMode(false) // back to cooked this.mode
         } catch(err) {
-          notQuiet(`AminoSee has detected no interactive keyboard - running from a script?`)
+          log(`keyboard UI already disabled - running from a script?`)
           // output(`Could not disable raw mode keyboard: ${err}`)
           // process.stdin.resume() // DONT EVEN THINK ABOUT IT.
         }
@@ -5418,20 +5425,20 @@ function pushCli(cs) {
       //   cliInstance.gracefulQuit(code);
       // }
       // hilDecode(i, dimension) {
-      //   let x, y;      // bugtxt(`i, usersMagnitude  ${i} ${ usersMagnitude }`)
+      //   let x, y;      // bugtxt(`i, this.dimension  ${i} ${ this.dimension }`)
       //   [x, y] = MyManHilbert.decode(16,i); // <-- THIS IS WHERE THE MAGIC HILBERT HAPPENS
-      //   if ( usersMagnitude % 2 == 0 ) { // if even number
-      //     let newY = x;      // ROTATE IMAGE CLOCKWISE 90 DEGREES IF usersMagnitude IS EVEN NUMBER FRAMES
+      //   if ( this.dimension % 2 == 0 ) { // if even number
+      //     let newY = x;      // ROTATE IMAGE CLOCKWISE 90 DEGREES IF this.dimension IS EVEN NUMBER FRAMES
       //     x = y
       //     y = newY;
       //   }
       //   return [ x, y ];
       // }
       function hilDecode(i, dimension) {
-        // bugtxt(`i, usersMagnitude  ${i} ${ usersMagnitude }`)
+        // bugtxt(`i, this.dimension  ${i} ${ this.dimension }`)
         let x, y;
         [x, y] = MyManHilbert.decode(16,i) // <-- THIS IS WHERE THE MAGIC HILBERT HAPPENS
-        // ROTATE IMAGE CLOCKWISE 90 DEGREES IF usersMagnitude IS EVEN NUMBER FRAMES
+        // ROTATE IMAGE CLOCKWISE 90 DEGREES IF this.dimension IS EVEN NUMBER FRAMES
         if ( dimension % 2 == 0 ) { // if even number
           let newY = x
           x = y
@@ -5715,7 +5722,7 @@ function pushCli(cs) {
         let bestFit = optimumDimension (linearpix, cliInstance.magnitude )
 
         if ( bestFit > defaultMagnitude ) {
-          output(`[${status}] This genome could be output at a higher resolution of ${hilbPixels[bestFit].toLocaleString()} than the default of ${bestFit}, you could try -m 8 or -m 9 if your machine is muscular, but it might core dump. -m10 would be 67,108,864 pixels but node runs out of stack before I get there on my 16 GB macOS. -Tom.`)
+          notQuiet(`[${status}] Genome best fit: ${hilbPixels[bestFit].toLocaleString()} default: dimension of ${bestFit}`)
           dimension = defaultMagnitude
         } else if (bestFit < 1) {
           // dimension = 2 // its an array index
@@ -5735,6 +5742,7 @@ function pushCli(cs) {
 
         hilpix = hilbPixels[ dim ]
         shrinkFactor = linearpix / hilpix // THE GUTS OF IT
+        // shrinkFactor = hilpix / linearpix
         codonsPerPixelHILBERT = cliInstance.codonsPerPixel * shrinkFactor
         log(`bestFit ${bestFit} shrinkFactor [${shrinkFactor}] codons per pixel [${codonsPerPixelHILBERT}]`)
         return shrinkFactor
@@ -5802,15 +5810,16 @@ function pushCli(cs) {
         return str.replace(/[^\x20-\x7E]/g, "")
       }
       function procTitle( txt ) {
-        if ( typeof cliInstance.justNameOfPNG !== "undefined" && cliInstance.justNameOfPNG !== "unset" ) { // check if not set as a string called unset also
+        // if ( typeof cliInstance.justNameOfPNG !== "undefined" && cliInstance.justNameOfPNG !== "unset" ) { // check if not set as a string called unset also
+        if (typeof cliInstance !== "undefined") { // check if not set as a string called unset also
           process.title = `aminosee.funk.nz (m${ cliInstance.dimension }d${raceDelay} ${status} ${highlightOrNothin()}${ maxWidth( 32, cliInstance.justNameOfPNG )} ${txt})`
         } else {
           process.title = `aminosee.funk.nz (startup ${url})`
         }
       }
       function removeLocks(lockfile, devmode, reason) { // just remove the lock files.
-        mode( "remove locks")
-        if (cliInstance.test || cliInstance.demo) { output("test or demo mode");  return; }
+        mode( `remove locks ${batchProgress()}`)
+        if (cliInstance.test || cliInstance.demo) { output("test or demo mode"); cliInstance.quit(0, `from removeLocks`); return false;}
         output(`remove locks with ${remain} files in queue. fileTouch: ${path.basename(lockfile)} cfile ${path.basename(cfile)}`)
         renderLock = false
         procTitle( status )
@@ -6011,7 +6020,7 @@ function pushCli(cs) {
 
             if ( key.name == "q" || key.name == "escape" ) {
               killServersOnQuit = false
-              // that.gracefulQuit(0, "Q esc")
+              that.gracefulQuit(0, "Q esc")
             } else if ( !key.ctrl || key.name !== "c") {
               if ( autoStartGui && key.name == "g") {
                 output(`Starting GUI from key command: ${key.name} ${status}`)
@@ -6127,7 +6136,7 @@ function pushCli(cs) {
       function terminateIfUndef(xx) {
         if (typeof xx === "undefined") {
           error(`xx is undef`)
-          // cliInstance.quit(13, status)
+          cliInstance.quit(13, status)
         }
       }
       function highlightOrNothin() { // no highlight, no return!

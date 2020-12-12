@@ -21,10 +21,14 @@ test_do () {
 }
 echo STOPPPING SERVER
 aminosee --stop
+echo STARTING SERVER TO RUN IN BACKGROUND
+echo 
+aminosee --serve &
+test_do "aminosee serve" --serve $MEDIUM --no-image & 
+sleep 1
+aminosee 
 echo QUIET MODE
 aminosee -q
-echo STARTING SERVER TO RUN IN BACKGROUND
-aminosee --serve &
 echo aminosee $*  --no-image
 aminosee $*  --no-image
 test_do "KEYBOARD MODE" $FAST $*  --no-image  --peptide=Methionine --keyboard
@@ -77,7 +81,6 @@ nice aminosee --help   --no-image $*  --no-image
 nice aminosee --demo --no-html --explorer $*  --no-image
 # echo calibration TESTS ARE KNOWN TO BE BUGGY AT PRESENT:
 test_do "Calibration" --test $* --no-image
-test_do "doing aminosee serve and opening a file" --serve $MEDIUM  $*  --no-image
 # open http://localhost:4321 &
 sleep 1
 echo KILLING ALL AMINOSEE SERVERS IN 5 seconds
