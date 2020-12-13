@@ -522,9 +522,9 @@ function pushCli(cs) {
       log(`Browser set to ${ this.browser } options: --chrome --firefox --safari`)
       if ( args.image || args.i ) {
         this.openImage = true
-        output("will automatically open image")
+        log("will automatically open image")
       } else {
-        log("will not open image")
+        output("will not open image")
         this.openImage = false
       }
       if ( args.any || args.a) {

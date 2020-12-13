@@ -12,16 +12,9 @@ test_do () {
   echo
 }
 
-
+aminosee 
 npm run genversion
 echo trying to get to root of project...:
-pwd
-# cd ../dna
-# cd ../
-pwd
-pwd
-pwd
-pwd
 pwd
 
 echo STOPPPING SERVER
@@ -38,14 +31,10 @@ ESLINT="test/eslint-errors.txt"
 rm $ESLINT >/dev/null
 touch $ESLINT
 tail -f $ESLINT &
-
 eslint src/aminosee-cli.js > $ESLINT
-
 vows --spec --isolate
 
 
-
-aminosee 
 echo QUIET MODE
 aminosee -q
 echo aminosee $*  --no-image
