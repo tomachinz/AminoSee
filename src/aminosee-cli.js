@@ -14,7 +14,7 @@ const minUpdateTime = 2000
 const openLocalHtml = false // affects auto-open HTML.
 const fileLockingDelay = 2000
 const theoreticalMaxMagnitude = 10 // max for auto setting
-const overSampleFactor = 5 // 4 your linear image divided by this will be the hilbert image size.
+const overSampleFactor = 4 // 4 your linear image divided by this will be the hilbert image size.
 const blackPoint = 128 // use 255 to remove effect, it increase colour saturation
 const wideScreen = 140 // shrinks terminal display
 const windows7 = 100 // shitty os, shitty terminal, ah well
@@ -374,10 +374,7 @@ function pushCli(cs) {
         this.test = true
         remain++
       }
-      if ( args.test  ) {
-        this.test = true
-        remain++
-      }
+    
       batchSize = remain
 
       this.setNextFile()
@@ -680,6 +677,12 @@ function pushCli(cs) {
         log("dnabg mode disabled.")
         this.dnabg = false
       }
+      if (args.test) {
+        this.test = true
+        this.dimension += 2
+        usersMagnitude += 2
+        remain++
+      }
       if ( cliruns > 69 || gbprocessed  > 0.2 || opens > 24 && Math.random() > 0.994) {
         log("Easter egg: enabling dnabg mode!!")
         this.dnabg = true // for laffs
@@ -869,10 +872,10 @@ function pushCli(cs) {
 
       if ( this.test === true ) {
         output("Ω Running test Ω")
-        remain = usersMagnitude
+        this.dimension = remain = usersMagnitude
         this.generateTestPatterns(() => {
-          out(`finished with test pattern`)
-          runcb( cb )
+          output(`finished with test pattern`)
+          // runcb( cb )
           // this.quit(0, "test patterns")
         })
         return false
@@ -2113,7 +2116,7 @@ function pushCli(cs) {
       this.percentComplete = 1 // to be sure it shows 100% complete
       this.calcUpdate()
       this.percentComplete = 1 // to be sure it shows 100% complete
-      log( `this.pixelClock ${this.pixelClock} `)
+      log(`pixels ${pixels} `)
 
       // try {
       // }
@@ -2124,7 +2127,7 @@ function pushCli(cs) {
       //   removeLocks( this.fileTouch, this.devmode, msg )
       //   return false
       // }
-      redoline(chalk.inverse(`Finished linear render of ${ this.shortnameGenome}. Array length: ${ pixels.toLocaleString() } = ${ this.pixelClock.toLocaleString() } saving images`))
+      redoline(chalk.inverse(`Finished linear render of ${this.shortnameGenome}. Array length: ${pixels.toLocaleString()} = ${pixels.toLocaleString() } saving images`))
       if ( pixels < 64 ) {
         let msg = `less than 64 pixels produced: pixels = ${pixels}`
         mode(msg)
@@ -2298,11 +2301,8 @@ function pushCli(cs) {
 
     calcHilbertFilename() {
       mode(`calc hilbert filename`)
-      // REQUIRES RENDERING TO MEMORY PRIOR
-
-      // let { shrinkFactor, codonsPerPixelHILBERT } =
-      log(status)
-      calculateShrinkage( this.pixelClock, usersMagnitude, this.codonsPerPixel )
+      // REQUIRES RENDERING TO MEMORY PRIOR!
+      calculateShrinkage( this.pixelClock, this.dimension, this.codonsPerPixel )
       // log(`calcHilbertFilename shrinkFactor, codonsPerPixelHILBERT ${shrinkFactor}, ${codonsPerPixelHILBERT}`)
 
       for ( let p = 0; p < this.pepTable.length; p++ ) { // add correct filenames to json file
@@ -2584,9 +2584,6 @@ function pushCli(cs) {
 
     saveDocsSync(cb) {
 
-
-
-
       this.setIsDiskBusy(true)
       this.mkRenderFolders()
       this.calcHilbertFilename()
@@ -2844,8 +2841,9 @@ function pushCli(cs) {
       this.antiAliasArray = []
       this.dimension = defaultPreviewDimension // 5
       this.magnitude = "custom"
-      const pixels =  hilbPixels[ defaultPreviewDimension ] // 65536
-      this.maxpix = pixels * overSampleFactor
+      this.maxpix = hilbPixels[defaultPreviewDimension] // 65536
+      const pixels = this.pixelClock  // used to be  hilbPixels[defaultPreviewDimension] // 65536
+      // this.maxpix = pixels * overSampleFactor
       // let { shrinkFactor, codonsPerPixelHILBERT } =  calculateShrinkage( this.pixelClock, defaultPreviewDimension, this.codonsPerPixel ) // danger: can change this.file of Hilbert images!
       // codonsPerPixelHILBERT = codonsPerPixelHILBERT
       // output(`previews codonsPerPixelHILBERT ${shrinkFactor}, ${codonsPerPixelHILBERT}`)
@@ -2855,7 +2853,7 @@ function pushCli(cs) {
       // output(blueWhite(`ShrinkFactor ${shrinkFactor}`) + `making smaller resolution previews from source pixels ${ this.pixelClock.toLocaleString()} codons per pixel ${this.codonsPerPixel} new codons per pixel ${shrinkFactor} ${usersMagnitude} to ${defaultPreviewDimension} `)
       // output(blueWhite(`Creating previews at magnitude ${this.magnitude} ${usersMagnitude}`) + ` from source pixels ${ this.pixelClock.toLocaleString()} codons per pixel ${this.codonsPerPixel} new codons per pixel ${codonsPerPixelHILBERT} ${usersMagnitude} to ${defaultPreviewDimension} `)
       this.setIsDiskBusy(true)
-      this.hWidth = Math.sqrt(pixels)
+      this.hWidth = Math.sqrt(this.maxpix )
       this.hHeight  = this.hWidth
       this.args.magnitude = defaultPreviewDimension
       // calculateShrinkage(this.pixelClock, usersMagnitude, this.codonsPerPixel)
@@ -5741,8 +5739,8 @@ function pushCli(cs) {
         // hilpix = hilbPixels[ cliInstance.dimension ]
 
         hilpix = hilbPixels[ dim ]
-        shrinkFactor = linearpix / hilpix // THE GUTS OF IT
-        // shrinkFactor = hilpix / linearpix
+        shrinkFactor = linearpix / ( hilpix * overSampleFactor ) // THE GUTS OF IT
+        // shrinkFactor = hilpix / ( linearpix * overSampleFactor )
         codonsPerPixelHILBERT = cliInstance.codonsPerPixel * shrinkFactor
         log(`bestFit ${bestFit} shrinkFactor [${shrinkFactor}] codons per pixel [${codonsPerPixelHILBERT}]`)
         return shrinkFactor

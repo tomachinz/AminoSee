@@ -123,3 +123,4 @@ sleep 20
 npm run _win64
 npm run runmac
 ln -s dist src/dist
+./gource.sh

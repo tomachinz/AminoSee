@@ -1,6 +1,4 @@
 #!/bin/sh
-FAST=megabase.fa
-QUICK=Caenorhabditis_elegans-WBcel235-dna-chromosome-V.fa
 
 aminosee_do () {
   echo $*
@@ -18,13 +16,16 @@ many_size_hilbert() {
   echo "                                         =///"
 
   aminosee_do --ratio sqr       $*
+  # aminosee_do --ratio sqr  -m9  $* 
   aminosee_do --ratio sqr  -m8  $* 
   aminosee_do --ratio sqr  -m7  $* 
   aminosee_do --ratio sqr  -m6  $* 
   aminosee_do --ratio sqr  -m5  $* 
-  aminosee_do --reg -c 4        $*
-  aminosee_do --reg -c 16       $* 
-  aminosee_do --reg -c 64       $* 
+  aminosee_do --ratio sqr  -m4  $* 
+
+  # aminosee_do --reg -c 4        $*
+  # aminosee_do --reg -c 16       $* 
+  # aminosee_do --reg -c 64       $* 
 }
 
 many_size_hilbert $*
