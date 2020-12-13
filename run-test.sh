@@ -4,28 +4,47 @@ FAST='dna/50KB_TestPattern.txt'
 MEDIUM='dna/3MB_TestPattern.txt'
 SLOW='dna/27MB_TestPattern.txt'
 NETWORK='/Volumes/aminosee/dna/3MB_TestPattern.txt'
-npm run genversion
-echo trying to get to root of project...:
-cd ../dna
-cd ../
-ls
-sleep 1
-rm src/dist
 
-pwd
 test_do () {
-  echo ____________________ $*
+  echo $*
   echo
   nice aminosee $*
   echo
 }
+
+
+npm run genversion
+echo trying to get to root of project...:
+pwd
+# cd ../dna
+# cd ../
+pwd
+pwd
+pwd
+pwd
+pwd
+
 echo STOPPPING SERVER
 aminosee --stop
+
 echo STARTING SERVER TO RUN IN BACKGROUND
 echo 
 aminosee --serve &
 test_do "aminosee serve" --serve $MEDIUM --no-image & 
 sleep 1
+lighthouse http://localhost:4321  --view --output-path="../test" --save-assets &
+sleep 10 
+ESLINT="test/eslint-errors.txt"
+rm $ESLINT >/dev/null
+touch $ESLINT
+tail -f $ESLINT &
+
+eslint src/aminosee-cli.js > $ESLINT
+
+vows --spec --isolate
+
+
+
 aminosee 
 echo QUIET MODE
 aminosee -q
@@ -77,7 +96,7 @@ sleep 1
 echo THIS SHOULD OPEN REPORT EVEN IF IT ALREADY EXISTS
 test_do "html PROLINE" $* $FAST --html
 nice aminosee --image -q --ratio=fix --peptide=Arginine $*  --no-image
-nice aminosee --help   --no-image $*  --no-image
+nice aminosee --help --no-image $*  --no-image
 nice aminosee --demo --no-html --explorer $*  --no-image
 # echo calibration TESTS ARE KNOWN TO BE BUGGY AT PRESENT:
 test_do "Calibration" --test $* --no-image
@@ -95,15 +114,7 @@ echo "                                         =///"
 # sleep 1
 
 clear
-lighthouse http://localhost:4321  --view --output-path=./test/ --save-assets
 
-ESLINT="test/eslint-errors.txt"
-rm $ESLINT >/dev/null
-touch $ESLINT
-tail -f $ESLINT &
-eslint src/aminosee-cli.js > $ESLINT
-
-vows --spec --isolate
 aminosee --stop
 echo Stopping server in 1 second
 sleep 1

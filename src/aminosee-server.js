@@ -301,6 +301,7 @@ function foregroundserver() {
 				"Access-Control-Allow-Credentials": "true"
 			}
 		})
+		didStart = true
 	} catch(err) {
 		if ( err.indexOf("EADDRINUSE") !== -1 ) {
 			output(`port ${port} in use, trying backup port: ${backupPort}`)
@@ -358,8 +359,8 @@ function foregroundserver() {
 	// }
 	options = [ webroot, `-p${port}`, "-o", webroot, "--gzip", "-d" ]
 
-	log(`FOREGROUND server path: ${webroot} ${port} ${url}`)
-	theserver = httpserver.createServer(options)
+	// log(`FOREGROUND server path: ${webroot} ${port} ${url}`)
+	// theserver = httpserver.createServer(options)
 	return theserver
 }
 function startServeHandler(o, port) {

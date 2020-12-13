@@ -522,9 +522,9 @@ function pushCli(cs) {
       log(`Browser set to ${ this.browser } options: --chrome --firefox --safari`)
       if ( args.image || args.i ) {
         this.openImage = true
-        log("will automatically open image")
+        output("will automatically open image")
       } else {
-        output("will not open image")
+        log("will not open image")
         this.openImage = false
       }
       if ( args.any || args.a) {
@@ -561,7 +561,7 @@ function pushCli(cs) {
       } else {
         this.magnitude = "auto"
         usersMagnitude = defaultMagnitude
-        output(`Using auto magnitude with limit ${defaultMagnitude}th dimension`)
+        log(`Using auto magnitude with limit ${defaultMagnitude}th dimension`)
       }
       this.dimension = usersMagnitude
       log(`Max pixels: ${ this.maxpix } Hilbert curve dimension: ${ usersMagnitude } mag setting: ${ this.magnitude }`)
@@ -3053,8 +3053,8 @@ function pushCli(cs) {
         process.exitCode = code
 
         killAllTimers()
-        printRadMessage([ ` ${(killServersOnQuit ?  'AminoSee has shutdown' : ' ' )}`, `${( verbose ?  ' Exit code: '+ code : '' )}`, remain ]);
           setImmediate( () => {
+            printRadMessage([` ${(killServersOnQuit ? 'AminoSee has shutdown' : ' ')}`, `${(verbose ? ' Exit code: ' + code : '')}`, remain]);
             process.exit()
           })
       }
