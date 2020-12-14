@@ -36,7 +36,7 @@ images
 lib/
 
 # this kludge is so i can have a shell script in there "process-all-files-in-cd.sh"
-test/reports
+test/reports/
 build
 .clinic
 
