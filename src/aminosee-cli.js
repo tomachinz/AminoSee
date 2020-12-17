@@ -187,7 +187,7 @@ function populateArgs(procArgv) { // returns args
     boolean: ["artistic", "brute", "clear", "chrome", "devmode", "debug", "demo", "dnabg", "explorer", "file", "force", "fullscreen", "firefox", "gui", "html", "image", "keyboard", "list", "progress", "quiet", "reg", "recycle", "redraw", "slow", "serve", "safari", "test", "updates", "verbose", "view"],
     string: ["url", "output", "triplet", "peptide", "ratio"],
     alias: { a: "artistic", b: "dnabg", c: "codons", d: "devmode", f: "force", finder: "explorer", h: "help", k: "keyboard", m: "magnitude", o: "output", p: "peptide", i: "image", t: "triplet", u: "updates", q: "quiet", r: "ratio", w: "width", v: "verbose", x: "explorer", v: "verbose", view: "html" },
-    default: { brute: false, debug: false, keyboard: true, progress: true, redraw: true, updates: true, stop: false, serve: false, fullscreen: false, html: true, image: true, index: false, clear: false, explorer: false, quiet: false, gui: false },
+    default: { brute: false, debug: false, keyboard: true, progress: true, redraw: true, updates: true, stop: false, serve: false, fullscreen: false, html: true, image: false, index: false, clear: false, explorer: false, quiet: false, gui: false },
     stopEarly: false
   } // NUMERIC INPUTS: codons, magnitude, width, maxpix
   let args = minimist(procArgv.slice(2), options)
@@ -521,9 +521,9 @@ class AminoSeeNoEvil {
     log(`Browser set to ${this.browser} options: --chrome --firefox --safari`)
     if (args.image || args.i) {
       this.openImage = true
-      log("will automatically open image")
+      output("will automatically open image")
     } else {
-      output("will not open image")
+      log("will not open image")
       this.openImage = false
     }
     if (args.any || args.a) {
@@ -1775,7 +1775,6 @@ class AminoSeeNoEvil {
       addToRendered(this.shortnameGenome) // in case histogram file is deleted
       this.previousImage = this.filePNG
 
-
       if (verbose) {
         mode(`terminal image`)
         termDrawImage(this.filePNG, msg, () => {
@@ -1783,16 +1782,13 @@ class AminoSeeNoEvil {
         })
       }
       if (!this.force) {
-        // mode( `resetting`)
+        mode( `resetting`)
         bugtxt(status)
         cliInstance.preRenderReset(status)
         return false // flow goes via preRenderReset above
       } else {
         mode(`${status} But lets render it again anyway?!`)
-        // log( status )
       }
-    } else {
-      output(`Files exist: ${this.fileHTML}`)
     }
     if (this.isInProgress(this.fileTouch)) {
       this.preRenderReset(msg)
@@ -2664,21 +2660,17 @@ class AminoSeeNoEvil {
     } else if (usersMagnitude == defaultPreviewDimension) {
       redoline(`Writing standard resolution report ${this.shortnameGenome}`)
     }
-
+    if (this.reg) {
+      this.fileWrite(path.resolve(this.outputPath, this.shortnameGenome, "regmarks.html"), hypertext)
+    }
     if (this.index) { // if it wont make the users computer explode... set it as index page!
-      if (this.reg) {
-        this.fileWrite(path.resolve(this.outputPath, this.shortnameGenome, "regmarks.html"), hypertext)
-      } else {
-        this.fileWrite(path.resolve(this.outputPath, this.shortnameGenome, "index.html"), hypertext)
-      }
       output(`Writing default report for the directory ${this.shortnameGenome}`)
+      this.fileWrite(path.resolve(this.outputPath, this.shortnameGenome, "index.html"), hypertext)
     }
 
     if (this.artistic) {
       this.fileWrite(path.resolve(this.outputPath, this.shortnameGenome, "artistic.html"), hypertext)
     }
-
-
 
     if (ispreview) {
       log(`Not writing ${histogramFile} dimension: ${usersMagnitude}`)
@@ -3699,10 +3691,6 @@ class AminoSeeNoEvil {
 
     notQuiet(`Completed hilbert curve of the ${usersMagnitude}th dimension out of: ${remain}`)
 
-
-
-    //
-    //
     saveIMAGE(this.filePNG, this.rgbArray, testWidth, testWidth, () => { this.linearFinished() })
     saveIMAGE(this.fileHILBERT, this.hilbertImage, testWidth, testWidth, () => { this.hilbertFinished() })
 
@@ -3981,13 +3969,11 @@ class AminoSeeNoEvil {
       return false
     }
     if (usersMagnitude > 10) { log("I think this will crash node, only one way to find out!") }
-    output(`TEST PATTERNS GENERATION    m${usersMagnitude} c${this.codonsPerPixel}`)
+    output(`TEST PATTERNS GENERATION    m${usersMagnitude}`)
     log("Use -m to try different dimensions. -m 9 requires 1.8 GB RAM")
     log("Use --no-reg to remove registration marks at 0%, 25%, 50%, 75%, 100%. It looks a little cleaner without them ")
-    bugtxt(`pix      ${hilbPixels[usersMagnitude]} `)
-
     this.runCycle() // runs in a callback loop
-    runcb(cb)
+    // runcb(cb)
   }
   runCycle() {
     if (renderLock === true) {
@@ -5699,16 +5685,13 @@ function prettyDate(today) {
   return today.toLocaleString(options) + "  " + today.toLocaleDateString(options) // Saturday, September 17, 2016
 }
 function calculateShrinkage(linearpix, dim, cpp) { // danger: can change this.file of Hilbert images!
-  output(`shrinkFactor, linearpix, dim, cpp [ ${[shrinkFactor, linearpix, dim, cpp]} ] calculateShrinkage: ${status}`)
-
   if (linearpix == 0 || dim == 0 || cpp == 0) { error(`division by zero`) }
  
   hilpix = hilbPixels[dim]
   // shrinkFactor = linearpix  / hilpix  // THE GUTS OF IT
   shrinkFactor = hilpix /  linearpix 
   codonsPerPixelHILBERT =  cpp * shrinkFactor 
-  output(`shrinkFactor, linearpix, dim, cpp [ ${[shrinkFactor, linearpix, dim, cpp]} ] calculateShrinkage: ${status}`)
-
+  log(`shrinkFactor, linearpix, dim, cpp [ ${[shrinkFactor, linearpix, dim, cpp]} ] calculateShrinkage: ${status}`)
   return shrinkFactor
 }
 function optimumDimension(pix) { // give it pix it returns a HILBERT dimension that fits inside it with good over-sampling margins
@@ -5716,10 +5699,8 @@ function optimumDimension(pix) { // give it pix it returns a HILBERT dimension t
     error(`zero values. ${streamLineNr}`)
     return 7
   }
-  // if (pix )
   let dim = 1
   while (pix / overSampleFactor > hilbPixels[dim] && hilbPixels[dim] < cliInstance.maxpix ) {
-    // output(`pix * overSampleFactor > hilbPixels[${dim}]  ${pix}  * ${overSampleFactor} > ${hilbPixels[dim]}  }`)
     if (dim >= usersMagnitude) {
         if (dim > theoreticalMaxMagnitude) {
           bugtxt(`Hilbert dimensions above 8 will likely exceed nodes heap memory and/or call stack. mag 11 sure does. spin up the fans. Capped your custom dimension to the ${theoreticalMaxMagnitude}th order.`)
@@ -5729,10 +5710,7 @@ function optimumDimension(pix) { // give it pix it returns a HILBERT dimension t
     }
     dim++
   }
-  // dim--
-
   log(`optimum dimension running dim, pix, maxpix ${dim} ${pix.toLocaleString()} ${cliInstance.maxpix.toLocaleString() }`)
-
   return dim
 }
 function runcb(cb) {

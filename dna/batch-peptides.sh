@@ -173,6 +173,6 @@ if [ -z "$1" ]; then
 	find_way_peptides
 	find_way_peptides --reg --index --maxpix 333333
 else
-	series_peptides $* &
-	series_peptides $* --reg --index --maxpix 333333
+	series_peptides $* --reg --index --maxpix 333333 --no-updates -q &
+	series_peptides $* 
 fi
