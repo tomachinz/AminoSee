@@ -171,7 +171,8 @@ if [ -z "$1" ]; then
 	echo ow doing "find way" brute forcing it
 	# exit
 	find_way_peptides
-	find_way_peptides --reg --index
+	find_way_peptides --reg --index --maxpix 333333
 else
-	series_peptides $*
+	series_peptides $* &
+	series_peptides $* --reg --index --maxpix 333333
 fi

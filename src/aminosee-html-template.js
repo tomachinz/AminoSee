@@ -79,7 +79,7 @@ function imageStack(histogramJson) {
 	}
 
 function htmlTemplate(histogramJson) {
-
+        // console.log( histogramJson )
 				let name = histogramJson.summary.name
 
 
