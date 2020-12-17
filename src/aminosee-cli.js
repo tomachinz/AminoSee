@@ -656,6 +656,7 @@ class AminoSeeNoEvil {
       log("verbose mode disabled")
       verbose = false
     }
+
     if (args.html) {
       output("will open html in firefox after render")
       this.openHtml = true
@@ -755,7 +756,11 @@ class AminoSeeNoEvil {
       log("no regmarks")
       this.reg = false
     }
-
+    if (args.output) {
+      webroot = args.output
+      this.outputPath = path.resolve(webroot, "output")
+      output(`using custom output folder ${this.outputPath}`)
+    } 
     if (args.stop) {
       output("GUI diabled. Use --gui to enable")
       server.stop()
@@ -2086,7 +2091,7 @@ class AminoSeeNoEvil {
     ishighres = pixels  > hilbPixels[defaultPreviewDimension]
 
     mode(`Finished ${ishighres ? 'high res' : 'standard res'} Stream: 🚄 ${this.usersPeptide} ${this.shortnameGenome} Filesize ${bytes(this.baseChars)} pixels ${pixels}`)
-    output(chalk.rgb(64, 128, 255).bold(status))
+    output(status)
     this.setIsDiskBusy(true)
 
     mode((ishighres ? "HIGH RESOLUTION" : "STANDARD ") + " resolution streaming disk read stopped.")
@@ -5463,6 +5468,7 @@ function locateWebroot(filename) {
   } else {
   }
   // log(`HOME FOLDER ENABLED: ${ blueWhite( path.normalize( webroot ))} for ${ path.normalize( filename )}`)
+
   return webroot
 }
 function shiznit(txt) {
