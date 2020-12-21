@@ -37,7 +37,7 @@ img.32piximg, img>.32piximg {
 }
 
 body.dark, html.dark, body.aminosee {
-  /* background-color: #012345; */
+  background-color: #012345;
   background-image: url("https://www.funk.co.nz/gif/bg-big-blue-gradient.gif");
   background-repeat: repeat-x;
   color: white;
@@ -54,8 +54,8 @@ body.dark, html.dark, body.aminosee {
 #handylinks a, #buttonlink a, a.button, .aminosee a, .aminosee>a, .button>a {
   color: white;
   text-decoration-color: white;
-  /* background-color: #012345; */
-  /* background-color: rgba(200, 200, 255, 0.125); */
+  background-color: #012345;
+  background-color: rgba(200, 200, 255, 0.125);
   border-top: 1px solid white;
   border-radius: 4px;
   margin: 2px 2px 2px 2px;
@@ -208,7 +208,8 @@ body {
 #supercontainer {
   padding: 0;
   margin: 0 0 0 0;
-  color: white;
+  /* color: white; */
+
 }
 
 form, input, textarea {

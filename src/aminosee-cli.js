@@ -1175,7 +1175,7 @@ class AminoSeeNoEvil {
 
   setupRender(file) { // blank all the variables
     if (renderLock === true) { error("draining threads from render setup"); return false }
-    mode(`setup render`)
+    mode(`setup render: ${file}`)
     // output(blueWhite(status))
     // output(status)
     this.startDate = new Date() // required for touch locks.
@@ -1321,6 +1321,7 @@ class AminoSeeNoEvil {
         }
         if (key.name == "t") {
           mode("pushing this.test onto render queue")
+          output(status)
           cliInstance.args._.push("test")
           cliInstance.howMany = cliInstance.args.length
           cliInstance.generateTestPatterns()
@@ -2817,8 +2818,7 @@ class AminoSeeNoEvil {
   createPreviews(cb) {
     renderLock = true
     ispreview = true
-    mode(`Setting up previews ${this.justNameOfHILBERT}`)
-    output(status)
+    
     if (this.test) { return false; }
     this.ratio = "sqr"
     this.hilbertImage = [] // wipe the memory!!
@@ -2841,11 +2841,15 @@ class AminoSeeNoEvil {
     this.args.magnitude = defaultPreviewDimension
     calculateShrinkage(this.pixelClock, usersMagnitude , this.codonsPerPixel)
     this.setupLinearNames()
-    log(`creating previews: codonsPerPixelHILBERT: ${codonsPerPixelHILBERT} preview dimension ${defaultPreviewDimension} in pixels ${hilbPixels[defaultPreviewDimension]}`)
-
+    // log(`creating previews: codonsPerPixelHILBERT: ${codonsPerPixelHILBERT} preview dimension ${defaultPreviewDimension} in pixels ${hilbPixels[defaultPreviewDimension]}`)
+    mode(`Setting up previews ${this.justNameOfHILBERT} c${codonsPerPixelHILBERT}...`)
+    this.index = true 
+    output(status)
     this.saveDocsSync(() => {
-      output(`saving previews to storage completed`)
-      termDrawImage(this.fileHILBERT, 'Preview', cb)
+      output(`...saving previews to storage completed.`)
+      // this.index = true 
+
+      // termDrawImage(this.fileHILBERT, 'Preview', cb)
     })
 
   }
@@ -2905,27 +2909,29 @@ class AminoSeeNoEvil {
       saySomethingEpic()
       killAllTimers()
 
-      if (ishighres && !ispreview && this.magnitude == "auto") {
+      if (ishighres && !ispreview) {
         this.renderLock = true
-        mode(`Creating lowres previews in ${raceDelay * 2} ms`)
+        mode(`Creating lowres previews in ${1000} ms`)
         redoline(status)
 
         this.hilbertImage = []
-        // setTimeout( () => {
-        // this.createPreviews( () => {
-        // usersMagnitude = defaultMagnitude = usersMagnitude // 5
-        // bugtxt(`finished saving PREVIEW docs, setting dimension back to: ${usersMagnitude}`)
-        // mode(`Previews created from high res render ${this.justNameOfPNG}`)
-        removeLocks(this.fileTouch, this.devmode, status)
-        return
-        // })
-        // }, raceDelay * 2)
+        setTimeout( () => {
+          this.createPreviews( () => {
+            // usersMagnitude = defaultMagnitude = usersMagnitude // 5
+            // bugtxt(`finished saving PREVIEW docs, setting dimension back to: ${usersMagnitude}`)
+            mode(`Previews created from high res render ${this.justNameOfPNG}`)
+            output(status)
+            removeLocks(this.fileTouch, this.devmode, status)
+            return
+          })
+        }, 1000)
       } else {
         mode(`Not outputting previews. Used ${ishighres ? 'highres' : 'lowres'} output resolution for ${this.usersPeptide}`)
+        output(status)
         raceDelay++
-        setTimeout( () => {
+        // setTimeout( () => {
           removeLocks(this.fileTouch, this.devmode, status)
-        }, raceDelay )
+        // }, raceDelay )
       }
     } else { //  disk is not finished
       log(` [ post render ${reason} wait on storage: ${chalk.inverse(this.storage())}  ] `)
@@ -3982,7 +3988,7 @@ class AminoSeeNoEvil {
   }
   runCycle() {
     if (renderLock === true) {
-      error(`Thread re-entered runCycle ${loopCounter}`)
+      error(`Thread re-entered --test runCycle ${loopCounter}`)
       return false
     }
     renderLock = true;
