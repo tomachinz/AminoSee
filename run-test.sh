@@ -4,7 +4,7 @@ FAST='dna/50KB_TestPattern.txt'
 MEDIUM='dna/3MB_TestPattern.txt'
 SLOW='dna/27MB_TestPattern.txt'
 NETWORK='/Volumes/aminosee/dna/3MB_TestPattern.txt'
-
+cd dna
 test_do () {
   echo $*
   echo
@@ -28,7 +28,6 @@ sleep 1
 lighthouse http://localhost:4321  --view --output-path="../test" --save-assets &
 sleep 10 
 ESLINT="test/eslint-errors.txt"
-rm $ESLINT >/dev/null
 touch $ESLINT
 tail -f $ESLINT &
 eslint src/aminosee-cli.js > $ESLINT
@@ -39,6 +38,7 @@ echo QUIET MODE
 aminosee -q
 echo aminosee $*  --no-image
 aminosee $*  --no-image
+test_do "asterix with debug on" * --no-image --debug --no-updates 
 test_do "KEYBOARD MODE" $FAST $*  --no-image  --peptide=Methionine --keyboard
 test_do "regmarks" $FAST $*  --reg
 test_do "Networked cluster render test $NETWORK" -fv --peptide=Phenylalanine $FAST $NETWORK $MEDIUM $*
@@ -107,7 +107,7 @@ clear
 aminosee --stop
 echo Stopping server in 1 second
 sleep 1
-killall node
+# killall node
 killall aminosee.funk.nz
 sleep 1
 
