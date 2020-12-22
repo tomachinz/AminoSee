@@ -1,5 +1,5 @@
 // strict
-const overSampleFactor = 1.1 // 4 your linear image divided by this will be the hilbert image size.
+const overSampleFactor = 1 // 4 your linear image divided by this will be the hilbert image size.
 const defaultPreviewDimension = 5 // was 500 MB per page before.
 const targetPixels = 8800000 // arbitrarily huge amount of pixels as target max resolution (8.8MP).
 // let targetPixels = 5000000 // arbitrarily huge amount of pixels as target max resolution (8.8MP).
@@ -95,7 +95,7 @@ const tomachisBirthday = new Date(221962393) // Epoch timestamp: 221962393 is Da
 
 let autoStartGui = true
 let cfile = `No DNA or RNA text file provided`
-let streamLineNr, renderLock, jobArgs, killServersOnQuit, webserverEnabled, cliInstance, tx, ty, cliruns, gbprocessed, projectprefs, userprefs, genomesRendered, progato, commandString, batchSize, quiet, url, port, status, remain, lastHammered, darkenFactor, highlightFactor, loopCounter, webroot, tups, opensFile, opensHtml, opensImage, previousImage, isHighlightSet, aminosee_json, hilpix, usersMagnitude, shrinkFactor, codonsPerPixelHILBERT, ishighres, ispreview, cpuhit, bruteRemain, isCustomCPP, endmsg, cx
+let streamLineNr, renderLock, jobArgs, killServersOnQuit, webserverEnabled, cliInstance, tx, ty, cliruns, gbprocessed, projectprefs, userprefs, genomesRendered, progato, commandString, batchSize, quiet, url, port, status, remain, lastHammered, darkenFactor, highlightFactor, loopCounter, webroot, tups, opensFile, opensHtml, opensImage, previousImage, isHighlightSet, aminosee_json, hilpix, usersMagnitude, shrinkFactor, codonsPerPixelHILBERT, ishighres, ispreview, cpuhit, bruteRemain, isCustomCPP, endmsg, cx, pixelClock
 // let theGUI
 tups = opensFile = opensHtml = opensImage = cx = 0 // terminal flossing
 let opens = 0 // session local counter to avoid having way too many windows opened.
@@ -103,7 +103,7 @@ let dnaTriplets = data.dnaTriplets
 let progressTime = 500 // ms
 let termPixels = 69 // chars
 remain = 0 // files in the batch
-tx = ty = cliruns = gbprocessed = cpuhit = 0
+pixelClock = tx = ty = cliruns = gbprocessed = cpuhit = 0
 let isShuttingDown = false
 let imageOutput = [] // array of image paths to open
 let threads = [] // an array of AminoSeNoEvil instances.
@@ -320,7 +320,7 @@ class AminoSeeNoEvil {
     opensHtml = 0 // how many times have we popped up a browser.
     this.codonsPerPixel = -1
     this.charClock = 0
-    this.pixelClock = 0
+    pixelClock = 0
     this.genomeSize = 0
     this.killServersOnQuit = true
     this.maxMsPerUpdate = 15000 // milliseconds per update
@@ -565,7 +565,6 @@ class AminoSeeNoEvil {
       usersMagnitude = defaultMagnitude
       log(`Using auto magnitude with limit ${defaultMagnitude}th dimension`)
     }
-    usersMagnitude = usersMagnitude
     log(`Max pixels: ${this.maxpix} Hilbert curve dimension: ${usersMagnitude} mag setting: ${this.magnitude}`)
     if (args.ratio || args.r) {
       this.ratio = args.ratio.toLowerCase()
@@ -1109,7 +1108,8 @@ class AminoSeeNoEvil {
     }
     this.peptide = this.usersPeptide
     this.filePNG = path.resolve(this.imgPath, this.generateFilenamePNG()) // run this to fix nasty globals issue
-    this.fileHILBERT = path.resolve(this.generateFilenameHilbert()) // run this to fix nasty globals issue
+    this.justNameOfHILBERT = this.generateFilenameHilbert()
+    this.fileHILBERT = path.resolve(this.imgPath, this.justNameOfHILBERT)
     this.pepTable.sort(this.compareHue)
     output(`from get render obj ${this.shortnameGenome} short genome name M${usersMagnitude}`)
     let zumari = {
@@ -1139,7 +1139,7 @@ class AminoSeeNoEvil {
       noncoding: this.errorClock,
       codonsPerPixel: this.codonsPerPixel,
       codonsPerPixelHILBERT: codonsPerPixelHILBERT,
-      pixelClock: this.pixelClock,
+      pixelClock: pixelClock,
       pixhilbert: hilbPixels[usersMagnitude],
       shrinkFactor: shrinkFactor,
       overSampleFactor: overSampleFactor,
@@ -1188,7 +1188,7 @@ class AminoSeeNoEvil {
     this.peakAlpha = this.alpha
     this.focusTriplet = "Reference"
     this.breakClock = 0
-    this.msElapsed = this.runningDuration = this.charClock = this.percentComplete = this.genomeSize = this.pixelClock = 0
+    this.msElapsed = this.runningDuration = this.charClock = this.percentComplete = this.genomeSize = pixelClock = 0
     this.codonRGBA = this.mixRGBA = [0, 0, 0, 0] // this.codonRGBA is colour of last codon,  this.mixRGBA is sum so far
     this.msPerUpdate = minUpdateTime // milliseconds per  update
     this.red = 0
@@ -1930,7 +1930,7 @@ class AminoSeeNoEvil {
     this.percentComplete = 0
     this.genomeSize = 0 // number of codons.
     this.pixelStacking = 0 // how we fit more than one codon on each pixel
-    // this.pixelClock = 0 // which pixel are we painting?
+    // pixelClock = 0 // which pixel are we painting?
     this.msElapsed = 0
     this.rgbArray = []
     this.hilbertImage = [];
@@ -2091,11 +2091,13 @@ class AminoSeeNoEvil {
   }
 
   streamStopped() {
-    const pixels = this.pixelClock
+    if (renderLock === false) {
+      error("How is this even possible. renderLock should be true until all storage is complete. Jenkins!")
+      return false
+    }
+    ishighres = pixelClock / overSampleFactor  > hilbPixels[ usersMagnitude ]
 
-    ishighres = pixels  > hilbPixels[defaultPreviewDimension]
-
-    mode(`Finished ${ishighres ? 'high res' : 'standard res'} Stream: 🚄 ${this.usersPeptide} ${this.shortnameGenome} Filesize ${bytes(this.baseChars)} pixels ${pixels}`)
+    mode(`Finished ${ishighres ? 'high res' : 'standard res'} Stream: 🚄 ${this.usersPeptide} ${this.shortnameGenome} Filesize ${bytes(this.baseChars)} pixels ${pixelClock}`)
     output(status)
     this.setIsDiskBusy(true)
 
@@ -2106,33 +2108,27 @@ class AminoSeeNoEvil {
     this.calcUpdate()
     this.percentComplete = 1
     streamLineNr = 0
-
     killAllTimers()
-
     mode(`Preparing to save ${this.usersPeptide} ${this.justNameOfPNG} to ${this.outputPath} ratio: ${this.ratio}`)
     procTitle("saving")
     bugtxt(`S: ${status} `)
-    if (renderLock === false) {
-      error("How is this even possible. renderLock should be true until all storage is complete. Jenkins!")
-      return false
-    }
     this.percentComplete = 1 // to be sure it shows 100% complete
     this.calcUpdate()
     this.percentComplete = 1 // to be sure it shows 100% complete
-    log(`pixels ${pixels} `)
+    log(`pixels ${pixelClock} `)
 
     // try {
     // }
     // catch (err) {
-    //   let msg = `EXCEPTION image array maybe too small? pixels ${pixels} ${err}`
+    //   let msg = `EXCEPTION image array maybe too small? pixels ${pixelClock} ${err}`
     //   output(msg)
     //   rollbackFolder()
     //   removeLocks( this.fileTouch, this.devmode, msg )
     //   return false
     // }
-    redoline(chalk.inverse(`Finished linear render of ${this.shortnameGenome}. Array length: ${pixels.toLocaleString()} = ${pixels.toLocaleString()} saving images`))
-    if (pixels < 64) {
-      let msg = `less than 64 pixels produced: pixels = ${pixels}`
+    redoline(chalk.inverse(`Finished linear render of ${this.shortnameGenome}. Array length: ${pixelClock.toLocaleString()} saving images`))
+    if (pixelClock < 64) {
+      let msg = `less than 64 pixels produced: pixels = ${pixelClock}`
       mode(msg)
       output(msg)
       rollbackFolder()
@@ -2151,7 +2147,7 @@ class AminoSeeNoEvil {
       gbprocessed = userprefs.aminosee.gbprocessed
       gbprocessed += this.baseChars / 1024 / 1024 / 1024 // increment disk counter.
       userprefs.aminosee.gbprocessed = gbprocessed // i have a superstition this way is less likely to conflict with other threads
-      // addToRendered( this.shortnameGenome )
+      addToRendered( this.shortnameGenome )
     }
     setImmediate(() => {
       this.saveDocsSync(() => { log(`stream closed, saving to storage completed`) })
@@ -2183,7 +2179,7 @@ class AminoSeeNoEvil {
       Machine load averages: ${this.loadAverages()}
       Bandwidth: ${bytes(this.bytesPerMs * 1000)} / sec DNA Filesize: ${bytes(this.baseChars)}
       Image Output bytes: ${this.isStorageBusy === true ? bytes(this.rgbArray.length) : "(busy)"}
-      Pixels (linear): ${this.pixelClock.toLocaleString()} Image aspect Ratio: ${this.ratio}
+      Pixels (linear): ${pixelClock.toLocaleString()} Image aspect Ratio: ${this.ratio}
       Pixels (hilbert): ${hilbPixels[usersMagnitude]} ${(usersMagnitude ? "(auto)" : "(manual -m)")} Dimension ${usersMagnitude} Hilbert curve
       Linear to Hilbert reduction: ${this.isStorageBusy ? twosigbitsTolocale(shrinkFactor) : unknown} Oversampling: ${twosigbitsTolocale(overSampleFactor)}
       Custom flags: ${this.showFlags()} "${(this.artistic ? "Artistic mode" : "Science mode")}" render style
@@ -2264,7 +2260,7 @@ class AminoSeeNoEvil {
     }
     ///////// ok i stopped messing with this.codonsPerPixel this.now
 
-    if (this.estimatedPixels > 18432000) { // if user has not set aspect, small bacteria and virus will be square this.ratio. big stuff is fixed.
+    if (this.estimatedPixels > this.maxpix) { // if user has not set aspect, small bacteria and virus will be square this.ratio. big stuff is fixed.
       if (this.userRatio == "auto") {
         log("For large genomes over 18,432,000 codons, I switch to fixed ratio for better comparison to the Hilbert images. Use --ratio=square or --ratio=golden to avoid this.")
         this.ratio = "fix" // small genomes like "the flu" look better square.
@@ -2272,11 +2268,11 @@ class AminoSeeNoEvil {
         this.ratio = "sqr" // small genomes like "the flu" look better square.
       }
     }
+    if (this.magnitude == "auto") {
+      usersMagnitude = optimumDimension( this.estimatedPixels, "estimated_" )
+    }
 
-    usersMagnitude = optimumDimension( this.estimatedPixels )
-
-    log(`dimension ${usersMagnitude} based on estimated pixels, Codons per pixel is ${this.codonsPerPixel} estimatedPixels ${this.estimatedPixels.toLocaleString()} maxpix ${this.maxpix.toLocaleString()} isCustomCPP ${isCustomCPP}`)
-
+    log(`based on estimated pixels, Codons per pixel is ${this.codonsPerPixel} ${shrinkFactor} ${usersMagnitude} ${this.estimatedPixels.toLocaleString()} maxpix ${this.maxpix.toLocaleString()} isCustomCPP ${isCustomCPP} ${cfile}`)
     return this.codonsPerPixel
   }
 
@@ -2287,13 +2283,13 @@ class AminoSeeNoEvil {
   calcHilbertFilename() {
     // REQUIRES RENDERING TO MEMORY PRIOR!
 
-    if ( this.magnitude !== "custom" ) {
-       usersMagnitude = optimumDimension(this.pixelClock )
-     }
+    // if ( this.magnitude !== "custom" ) {
+       usersMagnitude = optimumDimension(pixelClock, "pixelClock" )
+    //  }
     output(`dimension : ${usersMagnitude}`)
 
-    calculateShrinkage(this.pixelClock, usersMagnitude, this.codonsPerPixel)
-    mode(`pixels mag maxpix shrink ${[ this.pixelClock, usersMagnitude, this.maxpix, shrinkFactor]}`)
+    calculateShrinkage(pixelClock, usersMagnitude, this.codonsPerPixel)
+    mode(`pixels mag maxpix shrink ${[ pixelClock, usersMagnitude, this.maxpix, shrinkFactor]}`)
     // output(status)
 
     for (let p = 0; p < this.pepTable.length; p++) { // add correct filenames to json file
@@ -2748,7 +2744,7 @@ class AminoSeeNoEvil {
   blurb() {
     let msg = `
       Started DNA render ${this.justNameOfPNG} at ${formatAMPM(this.startDate)}, and after ${humanizeDuration(this.runningDuration)} completed ${nicePercent(this.percentComplete)} of the ${bytes(this.baseChars)} file at ${bytes(this.bytesPerMs * 1000)} per second.
-      Estimated ${humanizeDuration(this.timeRemain)} to go with ${this.genomeSize.toLocaleString()} r/DNA triplets decoded, and ${this.pixelClock.toLocaleString()} pixels painted.
+      Estimated ${humanizeDuration(this.timeRemain)} to go with ${this.genomeSize.toLocaleString()} r/DNA triplets decoded, and ${pixelClock.toLocaleString()} pixels painted.
       File ${remain} / ${batchSize} on ${os.platform()} on ${hostname}.
       ${this.memToString()} currently ${this.busy()}
       CPU load:    [ ${this.loadAverages()} ] ${version} ${this.timestamp} ${hostname}
@@ -2829,20 +2825,21 @@ class AminoSeeNoEvil {
     usersMagnitude = this.dimension = defaultPreviewDimension // 5
     this.magnitude = "auto"
     this.maxpix = 1 + ( hilbPixels[defaultPreviewDimension] * overSampleFactor ) // 65536
+    output(`maxpix ${this.maxpix}`)
     // this.maxpix = pixels * overSampleFactor
-    // let { shrinkFactor, codonsPerPixelHILBERT } =  calculateShrinkage( this.pixelClock, defaultPreviewDimension, this.codonsPerPixel ) // danger: can change this.file of Hilbert images!
+    // let { shrinkFactor, codonsPerPixelHILBERT } =  calculateShrinkage( pixelClock, defaultPreviewDimension, this.codonsPerPixel ) // danger: can change this.file of Hilbert images!
     // codonsPerPixelHILBERT = codonsPerPixelHILBERT
     // output(`previews codonsPerPixelHILBERT ${shrinkFactor}, ${codonsPerPixelHILBERT}`)
     // output(`previews codonsPerPixelHILBERT ${shrinkFactor}, ${codonsPerPixelHILBERT}`)
     // output(`previews codonsPerPixelHILBERT ${shrinkFactor}, ${codonsPerPixelHILBERT}`)
 
-    // output(blueWhite(`ShrinkFactor ${shrinkFactor}`) + `making smaller resolution previews from source pixels ${ this.pixelClock.toLocaleString()} codons per pixel ${this.codonsPerPixel} new codons per pixel ${shrinkFactor} ${usersMagnitude} to ${defaultPreviewDimension} `)
-    // output(blueWhite(`Creating previews at magnitude ${this.magnitude} ${usersMagnitude}`) + ` from source pixels ${ this.pixelClock.toLocaleString()} codons per pixel ${this.codonsPerPixel} new codons per pixel ${codonsPerPixelHILBERT} ${usersMagnitude} to ${defaultPreviewDimension} `)
+    // output(blueWhite(`ShrinkFactor ${shrinkFactor}`) + `making smaller resolution previews from source pixels ${ pixelClock.toLocaleString()} codons per pixel ${this.codonsPerPixel} new codons per pixel ${shrinkFactor} ${usersMagnitude} to ${defaultPreviewDimension} `)
+    // output(blueWhite(`Creating previews at magnitude ${this.magnitude} ${usersMagnitude}`) + ` from source pixels ${ pixelClock.toLocaleString()} codons per pixel ${this.codonsPerPixel} new codons per pixel ${codonsPerPixelHILBERT} ${usersMagnitude} to ${defaultPreviewDimension} `)
     this.setIsDiskBusy(true)
-    this.hWidth = Math.sqrt(this.pixelClock)
+    this.hWidth = Math.sqrt(pixelClock)
     this.hHeight = this.hWidth
     this.args.magnitude = defaultPreviewDimension
-    shrinkFactor =  calculateShrinkage(this.pixelClock, usersMagnitude  , this.codonsPerPixel)
+    shrinkFactor =  calculateShrinkage(pixelClock, usersMagnitude -1 , this.codonsPerPixel)
     this.setupLinearNames()
     // log(`creating previews: codonsPerPixelHILBERT: ${codonsPerPixelHILBERT} preview dimension ${defaultPreviewDimension} in pixels ${hilbPixels[defaultPreviewDimension]}`)
     mode(`Setting up previews ${this.justNameOfHILBERT} c${codonsPerPixelHILBERT}...`)
@@ -3728,7 +3725,7 @@ class AminoSeeNoEvil {
       this.preRenderReset(`NOT ENOUGH PIXELS ${err}`)
       return false
     }
-
+    output(`pixelClock, pix ${[ pixelClock, pix] } `)
     if (this.ratio == "sqr") {
       wid = Math.round(Math.sqrt(pix))
       hite = wid
@@ -4056,7 +4053,7 @@ class AminoSeeNoEvil {
     this.genomeSize = 0
     this.baseChars = 0
     this.charClock = -1 // gets around zero length check
-    // this.pixelClock = -1; // gets around zero length check
+    // pixelClock = -1; // gets around zero length check
     // this.quit(0, 'test stop');
     this.isShuttingDown = true
     renderLock = false
@@ -4111,7 +4108,7 @@ class AminoSeeNoEvil {
     this.genomeSize = this.baseChars
     this.estimatedPixels = this.baseChars
     this.charClock = this.baseChars
-    this.pixelClock = this.baseChars // DURING TEST PIXEL CLOCK = HILBERT CLOCK
+    pixelClock = this.baseChars // DURING TEST PIXEL CLOCK = HILBERT CLOCK
     remain = batchSize - magnitude
     bugtxt(`cfile ${cfile} magnitude ${magnitude} remain ${remain} batchSize ${batchSize}`)
     return true
@@ -4145,13 +4142,14 @@ class AminoSeeNoEvil {
     let brightness = 1 / shrinkFactor
     let downsampleSize = hilbPixels[usersMagnitude]// * overSampleFactor // 2X over sampling high grade y'all!
     let antiAliasArray = [downsampleSize * 4] // RGBA needs 4 cells per pixel
-    output(`Resampling linear image of size in pixels ${this.pixelClock.toLocaleString()} to ${downsampleSize.toLocaleString()}`)
+    output(`Resampling linear image of size in pixels ${pixelClock.toLocaleString()} to ${downsampleSize.toLocaleString()}`)
     log(`by the factor ${nicePercent(shrinkFactor)}X brightness per amino acid ${brightness} destination hilbert curve pixels ${downsampleSize.toLocaleString()}`)
     this.debugFreq = Math.round(downsampleSize / 100)
     // SHRINK LINEAR IMAGE:
     mode("Resample by X" + shrinkFactor)
     this.progressTick()
-    for (let z = 0; z < downsampleSize; z++) { // 2x AA this.pixelClock is the number of pixels in linear
+    termDrawImage( this.filePNG, () => { notQuiet(this.filepng)})
+    for (let z = 0; z < downsampleSize; z++) { // 2x AA pixelClock is the number of pixels in linear
       if (z % this.debugFreq == 0) {
         this.percentComplete = z / downsampleSize
         this.progressTick()
@@ -4162,7 +4160,7 @@ class AminoSeeNoEvil {
       antiAliasArray[sum + 1] = this.rgbArray[clk + 1] * brightness
       antiAliasArray[sum + 2] = this.rgbArray[clk + 2] * brightness
       antiAliasArray[sum + 3] = this.rgbArray[clk + 3] * brightness
-      // this.dot(z, this.debugFreq, `z: ${z.toLocaleString()}/${downsampleSize.toLocaleString()} samples remain: ${( this.pixelClock - sampleClock).toLocaleString()}`);
+      // this.dot(z, this.debugFreq, `z: ${z.toLocaleString()}/${downsampleSize.toLocaleString()} samples remain: ${( pixelClock - sampleClock).toLocaleString()}`);
       while (sampleClock < z * shrinkFactor ) {
         clk = sampleClock * 4
         antiAliasArray[sum + 0] += this.rgbArray[clk + 0] * brightness
@@ -4246,7 +4244,7 @@ class AminoSeeNoEvil {
 
 
   paintPixel() {
-    // let byteIndex = this.pixelClock * 4 // 4 bytes per pixel. RGBA.
+    // let byteIndex = pixelClock * 4 // 4 bytes per pixel. RGBA.
     this.rgbArray.push(Math.round(this.red))
     this.rgbArray.push(Math.round(this.green))
     this.rgbArray.push(Math.round(this.blue))
@@ -4256,7 +4254,7 @@ class AminoSeeNoEvil {
     this.peakBlue = this.blue
     this.peakAlpha = this.alpha
     this.pixelStacking = 0
-    this.pixelClock++
+    pixelClock++
 
     if (brute === true) {
       for (let p = 0; p < this.pepTable.length; p++) { // standard peptide loop
@@ -4399,7 +4397,7 @@ class AminoSeeNoEvil {
       ` Load: ${this.loadAverages()}  Files: ${remain}/${batchSize}`,
       `| File: ${chalk.bgWhite.inverse(this.justNameOfPNG)}.${this.extension}`,
       `| i@${fixedWidth(10, this.charClock.toLocaleString())} Breaks:${fixedWidth(6, this.breakClock.toLocaleString())} Filesize:${fixedWidth(7, bytes(this.baseChars))}`,
-      `| Next update:${fixedWidth(6, this.msPerUpdate.toLocaleString())}ms Pixels:${fixedWidth(10, " " + this.pixelClock.toLocaleString())}  Host: ${hostname}`,
+      `| Next update:${fixedWidth(6, this.msPerUpdate.toLocaleString())}ms Pixels:${fixedWidth(10, " " + pixelClock.toLocaleString())}  Host: ${hostname}`,
       `| CPU: ${fixedWidth(10, bytes(this.bytesPerMs * 1000))} /sec ${fixedWidth(5, this.codonsPerSec.toLocaleString())}K acids /sec`,
       `| ${batchProgress()} Next > ${maxWidth(24, this.nextFile)}`,
       `| Codons:${fixedWidth(14, " " + this.genomeSize.toLocaleString())}`,
@@ -5711,19 +5709,19 @@ function calculateShrinkage(linearpix, dim, cpp) { // danger: can change cliInst
   if (linearpix == 0 || dim == 0 || cpp == 0) { error(`division by zero`) }
  
   hilpix = hilbPixels[dim]
-  // shrinkFactor = linearpix  / hilpix  // THE GUTS OF IT
-  shrinkFactor = hilpix /  linearpix 
+  shrinkFactor = linearpix  / hilpix  // THE GUTS OF IT
+  // shrinkFactor = hilpix /  linearpix 
   codonsPerPixelHILBERT =  cpp * shrinkFactor 
   log(`shrinkFactor, linearpix, dim, cpp [ ${[shrinkFactor, linearpix, dim, cpp]} ] calculateShrinkage: ${status}`)
   return shrinkFactor
 }
-function optimumDimension(pix) { // give it pix it returns a HILBERT dimension that fits inside it with good over-sampling margins
+function optimumDimension(pix, source) { // give it pix it returns a HILBERT dimension that fits inside it with good over-sampling margins
   if (pix == 0) {
     error(`zero values. ${streamLineNr}`)
     return 7
   }
   let dim = 1
-  while (pix / overSampleFactor > hilbPixels[dim] && hilbPixels[dim] < cliInstance.maxpix ) {
+  while (pix > hilbPixels[dim] && hilbPixels[dim] < cliInstance.maxpix ) {
     if (dim >= usersMagnitude) {
         if (dim > theoreticalMaxMagnitude) {
           bugtxt(`Hilbert dimensions above 8 will likely exceed nodes heap memory and/or call stack. mag 11 sure does. spin up the fans. Capped your custom dimension to the ${theoreticalMaxMagnitude}th order.`)
@@ -5733,7 +5731,7 @@ function optimumDimension(pix) { // give it pix it returns a HILBERT dimension t
     }
     dim++
   }
-  log(`optimum dimension running dim, pix, maxpix ${dim} ${pix.toLocaleString()} ${cliInstance.maxpix.toLocaleString() }`)
+  bugtxt(`optimum dimension running source, dim, pix, maxpix file ${[ source, dim, pix.toLocaleString(), cliInstance.maxpix.toLocaleString(), cliInstance.fileHILBERT] }`)
   return dim
 }
 function runcb(cb) {
@@ -5753,7 +5751,7 @@ function runcb(cb) {
 
     cb()
   } else {
-    error(`you didn't pass a callback?! its undefined: ${cb}`)
+    log(`you didn't pass a callback?! its undefined: ${cb}`)
   }
   bugtxt(msg)
 }

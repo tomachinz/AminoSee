@@ -1,6 +1,9 @@
+// const Tabulator = require('tabulator-tables');
+const beautify = require("json-beautify")
 // const aminosee = require("./aminosee-cli")
 const settings = require("./aminosee-settings")
 const data = require("./aminosee-data")
+// const { default: beautify } = require("json-beautify")
 // const css = require("./public/aminosee.css")
 const onesigbitTolocale = data.onesigbitTolocale
 const hsvToRgb = data.hsvToRgb
@@ -101,9 +104,10 @@ function htmlTemplate(histogramJson) {
 				<link rel="stylesheet" type="text/css" href="../../public/aminosee.css">
 				<link href='https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz:700,400,200,100' rel='stylesheet' type='text/css'>
 				<link href="https://www.funk.co.nz/css/menu.css" rel="stylesheet">
-
+        <link href="../../public/dist/css/tabulator.css" rel="stylesheet">
+        <script type="text/javascript" src="../../public/dist/js/tabulator.js"></script>
 				<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
-				<script>
+        <script>
 				(adsbygoogle = window.adsbygoogle || []).push({
 					google_ad_client: "ca-pub-0729228399056705",
 					enable_page_level_ads: true
@@ -111,7 +115,7 @@ function htmlTemplate(histogramJson) {
 				</script>
 
 
-				<script src="../../../node_modules/@glue42/web/dist/web.umd.js">
+				<!-- script src="../../../node_modules/@glue42/web/dist/web.umd.js" -->
 
 				<script async src="../../public/three.min.js"></script>
 				<script async src="../../public/jquery.min.js"></script>
@@ -971,11 +975,12 @@ ${asciiart}
 				</tfoot>
 				</table>
 				<div class="grid-container">
-				<div class="grid-item 32piximg">
+        <div class="grid-item 32piximg">
+        <a name="summary"></a>
 				<h2>Render Summary</h2>
-				<pre class="fineprint">
-				${ histogramJson }
-				</pre>
+				<div  id="example-table">class="fineprint"
+				${ beautify( histogramJson ) }
+				</div>
 				</div>
 				</div>
 				<div id="monkeys">

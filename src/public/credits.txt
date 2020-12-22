@@ -7,8 +7,8 @@
 
 Thanks to Christos Georghiou who designed the 'See No Evil Hear No Evil Monkeys' http://christosgeorghiou.com/
 
-Checkout the music from the drummer who wrote    10151 of code for this app at https://www.funk.co.nz/tomachi
-10151 lines of code
+Checkout the music from the drummer who wrote    10856 of code for this app at https://www.funk.co.nz/tomachi
+10856 lines of code
 File drag and drop code by http://twitter.com/craigbuckler
 http://optimalworks.net/ http://sitepoint.com/
 File drag and drop code by http://twitter.com/craigbuckler Craig Buckler
@@ -17,76 +17,168 @@ http://optimalworks.net/ OptimalWorks.net http://sitepoint.com/
 Based on OpenShift guest https://github.com/mrdoob/three.js/blob/8413a860aa95ed29c79cbb7f857c97d7880d260f/examples/canvas_lines_colors.html
 
 Count of packages used:
-      68
+     160
 
-as at Thu 10 Dec 2020 00:39:57 NZDT the following open source node npm packages used:
+as at Wed 23 Dec 2020 01:41:15 NZDT the following open source node npm packages used:
 
 
-aminosee@1.32.3 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee_src
+aminosee@1.32.6 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee_src
 ├── @gmod/indexedfasta@1.0.13
 ├── @neutralinojs/neu@1.7.0
+├── @sindresorhus/is@0.14.0 extraneous
+├── @szmarczak/http-timer@1.1.2 extraneous
+├── @types/node@14.14.13 extraneous
+├── aminosee@1.32.6 extraneous -> /Users/tom/Dropbox/Sites/funk.co.nz/aminosee_src
 ├── ascii-histogram@1.2.1
 ├── async-kit@2.2.4
 ├── async@3.2.0
 ├── autocannon@4.6.0
+├── axe-core@3.5.5 extraneous
 ├── bcrypt@5.0.0
 ├── body-parser@1.19.0
 ├── browser-resolve@1.11.3
 ├── browserify@16.5.2
 ├── bytes@3.1.0
+├── cacheable-request@6.1.0 extraneous
+├── canonicalize@1.0.5 extraneous
 ├── carlo@0.9.46
 ├── chalk@2.4.2
+├── chardet@0.7.0 extraneous
+├── charenc@0.0.2 extraneous
+├── chrome-launcher@0.13.4 extraneous
+├── cliui@3.2.0 extraneous
+├── clone-response@1.0.2 extraneous
+├── cookie@0.3.1 extraneous
 ├── cross-spawn@6.0.5
+├── crypt@0.0.2 extraneous
+├── cssom@0.3.8 extraneous
+├── cssstyle@1.2.1 extraneous
 ├── cucumber@5.1.0
 ├── cypress@5.4.0
 ├── dat.gui@0.7.7
+├── decamelize@1.2.0 extraneous
+├── decompress-response@3.3.0 extraneous
+├── defer-to-connect@1.1.3 extraneous
 ├── describe@1.2.0
+├── details-element-polyfill@2.4.0 extraneous
+├── duplexer3@0.1.4 extraneous
 ├── ecstatic@4.1.4
+├── escalade@3.1.1 extraneous
+├── escape-goat@2.1.1 extraneous
 ├── eslint-config-rallycoding@3.2.0
 ├── eslint@7.11.0
 ├── event-stream@4.0.1
+├── external-editor@3.1.0 extraneous
 ├── fs-extra@8.1.0
 ├── genversion@2.2.1
-├── UNMET DEPENDENCY get-cursor-position@^1.0.5
+├── get-caller-file@2.0.5 extraneous
+├── get-cursor-position@1.0.5
+├── got@9.6.0 extraneous
 ├── hammerjs@2.0.8
+├── has-yarn@2.1.0 extraneous
 ├── hilbert-2d@0.0.1
+├── http-cache-semantics@4.1.0 extraneous
+├── http-link-header@0.8.0 extraneous
 ├── http-server@0.12.3
 ├── humanize-duration@3.24.0
 ├── husky@3.1.0
+├── image-ssim@0.2.0 extraneous
+├── import-lazy@2.1.0 extraneous
+├── inquirer@7.3.3 extraneous
 ├── internal-ip@4.3.0
+├── intl-messageformat-parser@1.8.1 extraneous
+├── intl-messageformat@4.4.0 extraneous
+├── intl-pluralrules@1.2.2 extraneous
+├── intl@1.2.5 extraneous
+├── invert-kv@ extraneous
+├── is-npm@4.0.0 extraneous
+├── is-yarn-global@0.3.0 extraneous
+├── js-library-detector@6.4.0 extraneous
 ├── json-beautify@1.1.1
+├── json-buffer@3.0.0 extraneous
+├── jsonld@1.8.1 extraneous
+├── jsonlint-mod@1.7.6 extraneous
+├── JSV@4.0.2 extraneous
 ├── keypress@0.2.1
+├── keyv@3.1.0 extraneous
+├── latest-version@5.1.0 extraneous
 ├── lazyness@1.2.0
-├── UNMET DEPENDENCY local-web-server@^4.2.1 deduped
+├── lcid@ extraneous
+├── lighthouse-logger@1.2.0 extraneous
+├── lighthouse-stack-packs@1.4.0 extraneous
+├── lighthouse@6.5.0 extraneous
+├── local-web-server@4.2.1
+├── lodash.get@4.4.2 extraneous
+├── lodash.isequal@4.5.0 extraneous
+├── lodash.set@4.3.2 extraneous
+├── lookup-closest-locale@6.0.4 extraneous
+├── lowercase-keys@1.0.1 extraneous
+├── marky@1.2.1 extraneous
+├── md5@2.3.0 extraneous
+├── mem@ extraneous
+├── metaviewport-parser@0.2.0 extraneous
+├── mimic-response@1.0.1 extraneous
 ├── minimist@1.2.5
+├── mute-stream@0.0.8 extraneous
 ├── node-fetch@2.6.1
+├── node-forge@0.10.0 extraneous
 ├── node-gyp@5.1.1
 ├── node-pty@0.8.1
+├── normalize-url@4.5.0 extraneous
 ├── npm-merge-driver@2.3.6
 ├── open@6.4.0
+├── os-locale@ extraneous
+├── p-cancelable@1.1.0 extraneous
+├── package-json@6.5.0 extraneous
 ├── parallax-js@3.1.0
 ├── parse-apache-directory-index@1.2.1
+├── parse-cache-control@1.0.1 extraneous
 ├── phoenix@1.5.6
 ├── pkg@4.4.9
 ├── png.js@0.2.1
 ├── pngjs@3.4.0
 ├── preferences@1.0.2
+├── prepend-http@2.0.0 extraneous
+├── ps-list@7.2.0 extraneous
+├── pupa@2.1.1 extraneous
+├── raven@2.6.4 extraneous
+├── rdf-canonize@1.2.0 extraneous
 ├── remove@0.1.5
 ├── request@2.88.2
+├── require-directory@2.1.1 extraneous
+├── responselike@1.0.2 extraneous
+├── robots-parser@2.1.1 extraneous
+├── run-async@2.4.1 extraneous
 ├── save@2.4.0
+├── semver-diff@3.1.1 extraneous
 ├── serve-handler@6.1.3
 ├── serve@11.3.2
 ├── sliced@1.0.1
 ├── spdy@4.0.2
+├── speedline-core@1.4.3 extraneous
+├── stack-trace@0.0.10 extraneous
 ├── stream-file@0.2.4
 ├── systeminformation@4.27.9
+├── tabulator-tables@4.9.2 extraneous
 ├── tcp-port-used@1.0.1
 ├── terminal-kit@1.43.0
+├── third-party-web@0.12.2 extraneous
 ├── three@0.118.3
 ├── through@2.3.8
+├── timed-out@4.0.1 extraneous
+├── to-readable-stream@1.0.0 extraneous
+├── ultron@1.1.1 extraneous
+├── underscore@1.12.0 extraneous
 ├── uniq@1.0.1
+├── update-notifier@4.1.3 extraneous
+├── url-parse-lax@3.0.0 extraneous
 ├── vows@0.8.3
 ├── webpack-node-externals@1.7.2
+├── window-size@0.1.4 extraneous
+├── xmldom@0.1.19 extraneous
 ├── xmlhttprequest@1.8.0
-└── xterm@4.9.0
+├── xterm@4.9.0
+├── y18n@3.2.1 extraneous
+├── yargs-parser@ extraneous
+└── yargs@3.32.0 extraneous
 

@@ -43,6 +43,9 @@ npm run genversion
 #
 
 cp -v node_modules/dat.gui/build/dat.gui.min.js src/public
+cp -v -r node_modules/tabulator-tables/dist src/public
+
+sleep 1
 # cp -v node_modules/sliced/index.js lib/node_modules/sliced
 # cp -v node_modules/deep-defaults/lib/index.js lib/node_modules/deep-defaults/lib
 # cp -v node_modules/get-cursor-position/build/Release/pos.node lib
