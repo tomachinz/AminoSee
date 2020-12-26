@@ -7,8 +7,8 @@
 
 Thanks to Christos Georghiou who designed the 'See No Evil Hear No Evil Monkeys' http://christosgeorghiou.com/
 
-Checkout the music from the drummer who wrote    10862 of code for this app at https://www.funk.co.nz/tomachi
-10862 lines of code
+Checkout the music from the drummer who wrote    10860 of code for this app at https://www.funk.co.nz/tomachi
+10860 lines of code
 File drag and drop code by http://twitter.com/craigbuckler
 http://optimalworks.net/ http://sitepoint.com/
 File drag and drop code by http://twitter.com/craigbuckler Craig Buckler
@@ -19,10 +19,10 @@ Based on OpenShift guest https://github.com/mrdoob/three.js/blob/8413a860aa95ed2
 Count of packages used:
     1972
 
-as at Sun 27 Dec 2020 03:26:36 NZDT the following open source node npm packages used:
+as at Sun 27 Dec 2020 03:41:26 NZDT the following open source node npm packages used:
 
 
-aminosee@1.32.7 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee_src
+aminosee@1.32.8 /Users/tom/Dropbox/Sites/funk.co.nz/aminosee_src
 ├─┬ @gmod/indexedfasta@1.0.13
 │ ├─┬ @babel/runtime-corejs2@7.4.5
 │ │ ├── core-js@2.6.8

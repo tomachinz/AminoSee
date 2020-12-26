@@ -2887,7 +2887,7 @@ class AminoSeeNoEvil {
 
         } else {
           log(`Completed test pattern generation.`)
-          isShuttingDown = true
+          // isShuttingDown = true
           remain--
           this.quit(1, "test " + remain)
         }
@@ -4894,8 +4894,6 @@ function runDemo() {
         cliInstance.openOutputs()
         cb()
       })
-
-
     },
     function (cb) {
       output("RED")
@@ -4906,14 +4904,14 @@ function runDemo() {
       cliInstance.ratio = "sqr"
       cliInstance.generateTestPatterns(cb)
     },
-    // function( cb ) {
-    //   output("PURPLE")
-    //   cliInstance.openOutputs()
-    //   cliInstance.peptide = "Arginine" //  PURPLE TESTS
-    //   cliInstance.peptide = "Purple" //  PURPLE TESTS
-    //   cliInstance.ratio = "sqr"
-    //   cliInstance.generateTestPatterns(cb)
-    // },
+    function( cb ) {
+      output("PURPLE")
+      cliInstance.openOutputs()
+      cliInstance.peptide = "Arginine" //  PURPLE TESTS
+      cliInstance.peptide = "Purple" //  PURPLE TESTS
+      cliInstance.ratio = "sqr"
+      cliInstance.generateTestPatterns(cb)
+    },
     function (cb) {
       cliInstance.openOutputs()
       cliInstance.peptide = "Methionine" //  cliInstance.green  TESTS

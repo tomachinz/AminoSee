@@ -194,9 +194,9 @@ function buildServer() {
 	data.saySomethingEpic()
 	let sFiles = [
 		{ "source": path.join( appPath, "public" ),                "dest": path.join( webroot , "public"  )},
-		{ "source": path.join( appPath, "aminosee-web.html"),"dest": path.join( webroot , "index.html")},
-		{ "source": path.join( appPath, "aminosee-web.html"),"dest": path.join( webroot , "404.html")},
-		{ "source": path.join( appPath, "favicon.ico"),  "dest": path.join( webroot , "favicon.ico")}
+		{ "source": path.join( appPath, "aminosee-desktop.html"),"dest": path.join( webroot , "index.html")},
+		{ "source": path.join( appPath, "aminosee-desktop.html"),"dest": path.join( webroot , "404.html")},
+		{ "source": path.join( appPath, "public", "favicon.ico"),  "dest": path.join( webroot , "favicon.ico")}
 	]
 	for (let i=0; i<sFiles.length; i++) {
 		let element = sFiles[i]
