@@ -1,6 +1,6 @@
 {
   "name": "aminosee",
-  "version": "1.32.6",
+  "version": "1.32.7",
   "owner": "Thomas Bieder Atkinson",
   "author": "Tom Atkinson <tom@funk.co.nz>",
   "website": "http://aminosee.funk.nz",
@@ -86,6 +86,7 @@
     "terminal-kit": "^1.43.0",
     "three": "^0.118.3",
     "vows": "^0.8.3",
+    "xmlhttprequest": "^1.8.0",
     "xterm": "^4.9.0"
   },
   "devDependencies": {
@@ -131,8 +132,7 @@
     "tcp-port-used": "^1.0.1",
     "through": "^2.3.8",
     "uniq": "^1.0.1",
-    "webpack-node-externals": "^1.7.2",
-    "xmlhttprequest": "^1.8.0"
+    "webpack-node-externals": "^1.7.2"
   },
   "keywords": [
     "dna",
