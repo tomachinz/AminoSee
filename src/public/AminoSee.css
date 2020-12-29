@@ -211,6 +211,11 @@ body {
   /* color: white; */
 
 }
+#aminoseenav nav {
+  top: 64px;
+  position: relative;
+  padding: 32px;
+}
 
 form, input, textarea {
   height: 36px;

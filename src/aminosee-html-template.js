@@ -875,10 +875,10 @@ function setupTouch() {
 
 
 
-				<nav style="position: relative; padding: 32px;">
-				<div id="scene" class="dark"  style="position: fixed; top: 8px; left: 8px; z-index:9999; background-color: #123456; padding: 16px; margin-bottom: 64px;">
-				<a href="../../" class="button">AminoSee Home</a> | <a href="../">Parent</a> ${highresnav}
-				</div>
+				<div id="scene" class="dark"  style="position: fixed; top: 8px; left: 8px; z-index:9999; background-color: #123456; padding: 16px; margin-bottom: 64px;"></div>
+
+        <nav id="aminoseenav">
+  				<a href="../../" class="button">AminoSee Home</a> | <a href="../">Parent</a> ${highresnav}
 				</nav>
 				<h1>${ histogramJson.summary.original_source}</h1>
 				<h2>AminoSee DNA Render Summary</h2>
