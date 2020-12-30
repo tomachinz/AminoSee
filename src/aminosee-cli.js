@@ -1,6 +1,6 @@
 // strict
 const overSampleFactor = 1 // 4 your linear image divided by this will be the hilbert image size.
-const defaultPreviewDimension = 5 // was 500 MB per page before.
+const defaultPreviewDimension = 3 // was 500 MB per page before.
 const maxPixels = 9800000 // arbitrarily huge amount of pixels as target max resolution (8.8MP).
 // let maxPixels = 5000000 // arbitrarily huge amount of pixels as target max resolution (8.8MP).
 // if estimated pixels is less than this, the render will show 1 pixel per codon
@@ -538,7 +538,7 @@ class AminoSeeNoEvil {
       isCustomCPP = false
       this.codonsPerPixel = this.usersCPP = defaultC
     }
-    output(`custom codons per pixel set ${isCustomCPP} ${this.usersCPP}`)
+    log(`custom codons per pixel set ${isCustomCPP} ${this.usersCPP}`)
 
     // --magnitude not set = "auto" 
     // --magnitude set     = "custom"
@@ -2204,7 +2204,7 @@ class AminoSeeNoEvil {
       // log("Could not get filesize, setting for image size of 696,969 pixels, maybe use --codons 1 this is rendered with --codons 696");
       // this.baseChars = 696969; // 696969 flags a missing value in debug
       this.codonsPerPixel = 696; // small images with _c69 in this.file
-      error(`this.baseChars < 0`)
+      error(`this.baseChars < 0. The file you supplied maybe is not containing DNA/RNA in ascii format. cfile: ${cfile}`)
       return this.codonsPerPixel
     } else { // use a file
       this.isStreamingPipe = false // cat Human.genome | aminosee
@@ -5916,27 +5916,16 @@ function saveIMAGE(filename, imagedata, width, height, cb) {
 
 }
 function error(err) {
-  mode(`💩 Error during ${status}: [${maxWidth(16, err)}] ${cliInstance.shortnameGenome} ${cliInstance.busy()}`)
-  // output( `💩 error: ${status}` )
+  mode(`💩 Caught error during ${status}: [${maxWidth(16, err)}] ${cliInstance.shortnameGenome} ${cliInstance.busy()}`)
   cliInstance.calcUpdate()
+  raceDelay *= 1.5
+  output(status)
+  log(`Increasing delay by 50% to ms to ${onesigbitTolocale(raceDelay)} ms`)
   if (debug === true) {
-    if (quiet == false) {
-      output()
-      output("💩 " + chalk.bgRed(status + ` /  error start {{{ ----------- ${chalk.inverse(err.toString())}  ----------- }}} `))
-      output()
-    }
-
+    output( beautify(aminosee_json) )
     output(`DEBUG MODE IS ENABLED. STOPPING: ${err}`)
-    // output( beautify(aminosee_json) )
-
     throw new Error(err)
-  } else {
-    raceDelay *= 1.5
-    // output()
-    // output()
   }
-  output(`💩 Caught error: ${chalk.inverse(cliInstance.justNameOfPNG)} --->> ${err}. Increasing delay by 50% to ms to ${onesigbitTolocale(raceDelay)} ms`)
-
 }
 function setupKeyboardUI2() {
 
