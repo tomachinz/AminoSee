@@ -1,4 +1,46 @@
 #!/bin/sh
+PACKAGER="brew install"
+
+if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+     echo linux-gnu detected
+     PACKAGER="sudo apt install"
+     apt update
+elif [[ "$OSTYPE" == "darwin"* ]]; then
+     echo macOS detected
+     PACKAGER="brew install"
+     brew update
+elif [[ "$OSTYPE" == "cygwin" ]]; then
+     echo detected cygwin POSIX compatibility layer and Linux environment emulation for Windows
+elif [[ "$OSTYPE" == "msys" ]]; then
+     echo detected Lightweight shell and GNU utilities compiled for Windows
+elif [[ "$OSTYPE" == "win32" ]]; then
+     echo detected Windows
+elif [[ "$OSTYPE" == "freebsd"* ]]; then
+     echo detected FreeBSD
+else
+     echo unknown os
+fi
+
+echo Installing linux dependencies: gource, ffmpeg, lighthouse
+
+install () {
+    echo installing $1 with
+    echo $PACKAGER $1
+    $PACKAGER $1
+    echo 
+    sleep 1
+}
+
+install gource
+install ffmpeg
+npm install lighthouse
+
+echo done
+
+echo running main 🧬 AminoSee installer
+sleep 1
+
+
 whereis aminosee
 which aminosee
 echo Current dir:

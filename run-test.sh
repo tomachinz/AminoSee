@@ -52,7 +52,7 @@ test_do 'Curious back walk bug debug' -d --debug $FAST Influenza-A-virus-H9N2-NC
 test_do "QUIET MODE WITH PARAMS" -q $*  --no-image
 test_do "VERBOSE MODE" -v  -p=Lysine  $*  --no-image
 test_do "USING INCORRECT SINGLE DASH FOR -help" -help $*  --no-image
-test_do "THREE OF SAME FILE IN A ROW: $FAST WITH PEPTIDE=AMBER" $FAST $FAST $FAST --peptide=amber $*  --no-image
+test_do "THREE OF THE SAME FILE IN A ROW: $FAST WITH PEPTIDE=AMBER" $FAST $FAST $FAST --PEPTIDE=AMBER $*  --no-image
 test_do "Wonky caps aspartic_ACID" $FAST  --force --peptide=aspartic_ACID $*  --no-image
 test_do "gluTAMIC_aCID" $FAST -fb --peptide="gluTAMIC_aCID" $*  --no-image
 test_do "PROGRESS BARS" $SLOW $MEDIUM $FAST $*  --force --peptide=opal -q --progress --dnabg $*  --no-image

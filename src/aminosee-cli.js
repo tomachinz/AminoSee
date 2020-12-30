@@ -81,9 +81,7 @@ const hostname = os.hostname()
 const obviousFoldername = "AminoSee_webroot" // descriptive for users
 const netFoldername = "output" // terse for networks
 const funknzlabel = "aminosee.funk.nz"
-const dummyFilename = "50KB_TestPattern.txt"
 const closeBrowser = "If the process apears frozen, it's waiting for your browser or image viewer to quit. Escape with [ CONTROL-C ] or use --no-image --no-html"
-const tomachisBirthday = new Date(221962393) // Epoch timestamp: 221962393 is Date and time (GMT): Thursday, January 13, 1977 12:13:13 AM or 1:13:13 PM GMT+13:00 DST in New Zealand Time.
 
 // const maxPixels = 1000000 // for web
 // let bodyParser = require('body-parser');
@@ -95,9 +93,9 @@ const tomachisBirthday = new Date(221962393) // Epoch timestamp: 221962393 is Da
 
 let autoStartGui = true
 let cfile = `No DNA or RNA text file provided`
-let streamLineNr, renderLock, jobArgs, killServersOnQuit, webserverEnabled, cliInstance, tx, ty, cliruns, gbprocessed, projectprefs, userprefs, genomesRendered, progato, commandString, batchSize, quiet, url, port, status, remain, lastHammered, darkenFactor, highlightFactor, loopCounter, webroot, tups, opensFile, opensHtml, opensImage, previousImage, isHighlightSet, aminosee_json, hilpix, usersMagnitude, shrinkFactor, codonsPerPixelHILBERT, ishighres, ispreview, cpuhit, bruteRemain, isCustomCPP, endmsg, cx, pixelClock, usersPix, args
+let streamLineNr, renderLock, jobArgs, killServersOnQuit, webserverEnabled, cliInstance, tx, ty, cliruns, gbprocessed, projectprefs, userprefs, genomesRendered, progato, commandString, batchSize, quiet, url, port, status, remain, lastHammered, darkenFactor, highlightFactor, loopCounter, webroot, tups, opensFile, opensImage, previousImage, isHighlightSet, aminosee_json, hilpix, usersMagnitude, shrinkFactor, codonsPerPixelHILBERT, ishighres, ispreview, cpuhit, bruteRemain, isCustomCPP, endmsg, cx, pixelClock, usersPix, args
 // let theGUI
-tups = opensFile = opensHtml = opensImage = cx = 0 // terminal flossing
+tups = opensFile = opensImage = cx = 0 // terminal flossing
 let opens = 0 // session local counter to avoid having way too many windows opened.
 let dnaTriplets = data.dnaTriplets
 let progressTime = 500 // ms
@@ -313,7 +311,6 @@ class AminoSeeNoEvil {
     darkenFactor = 0.25 // if user has chosen to highlight an amino acid others are darkened
     highlightFactor = 4.0 // highten brightening.
     loopCounter = 0
-    opensHtml = 0 // how many times have we popped up a browser.
     this.codonsPerPixel = -1
     this.charClock = 0
     pixelClock = 0
@@ -1248,7 +1245,6 @@ class AminoSeeNoEvil {
     // process.stdin.on('mousepress', function (info) {
     //   bugout('got "mousepress" event at %d x %d', info.x, info.y);
     // });
-    var that = this
     try {
       process.stdin.setRawMode(true)
     } catch (err) {
@@ -1274,7 +1270,7 @@ class AminoSeeNoEvil {
           destroyKeyboardUI()
 
           killServersOnQuit = false
-          that.gracefulQuit(0, "Q esc")
+          this.gracefulQuit(0, "Q esc")
         } else if (!key.ctrl || key.name !== "c") {
           if (autoStartGui && key.name == "g") {
             output(`Starting GUI from key command: ${key.name} ${status}`)
@@ -1321,52 +1317,52 @@ class AminoSeeNoEvil {
           clearCheck()
         }
         if (key.name == "d") {
-          runDemo()
-          // that.toggleDebug()
+          // runDemo()
+          cliInstance.toggleDebug()
         }
         if (key.name == "b") {
           clearCheck()
-          that.togglednabg()
+          cliInstance.togglednabg()
         }
         if (key.name == "g" || key.name == "enter") {
           startGUI()
         }
         if (key.name == "s") {
           clearCheck()
-          that.toggleServer()
+          cliInstance.toggleServer()
         }
         if (key.name == "f") {
-          that.toggleForce()
+          cliInstance.toggleForce()
         }
 
         if (key.name == "v") {
           clearCheck()
-          that.toggleVerbose()
+          cliInstance.toggleVerbose()
         }
         if (key.name == "o") {
           clearCheck()
-          that.toggleOpen()
+          cliInstance.toggleOpen()
         }
         if (key.name == "o") {
           clearCheck()
-          that.toggleOpen()
+          cliInstance.toggleOpen()
         }
         if (key.name == "w") {
           term.clear()
-          that.toggleClearScreen()
+          cliInstance.toggleClearScreen()
         }
         if (key.name == "space" || key.name == "enter") {
           clearCheck()
-          that.msPerUpdate = minUpdateTime
+          cliInstance.msPerUpdate = minUpdateTime
         }
         if (key.name == "u") {
-          that.msPerUpdate = minUpdateTime
-          if (that.updates === true) {
-            that.updates = false
+          cliInstance.msPerUpdate = minUpdateTime
+          if (cliInstance.updates === true) {
+            cliInstance.updates = false
             killAllTimers()
-            // clearTimeout( that.updatesTimer);
+            // clearTimeout( cliInstance.updatesTimer);
           } else {
-            that.updates = true
+            cliInstance.updates = true
           }
         }
       }
@@ -1464,7 +1460,7 @@ class AminoSeeNoEvil {
     // this.devmode = true
     // this.updates = false
     if (this.devmode === true) {
-      output("Because you are using --devmode, the lock file is not deleted. This is useful during development because I can quickly that.test new code by starting then interupting the render with Control-c. Then, when I use 'aminosee * -f -d' I can have new versions rende that.red  but skip super large genomes that would take 5 mins or more to render. I like to see that they begin to render then break and retry; this way AminoSee will skip the large genome becauyse it has a lock file, saving me CPU during development. Lock files are safe to delete.")
+      output("Because you are using --devmode, the lock file is not deleted. This is useful during development because I can quickly test new code by starting then interupting the render with Control-c. Then, when I use 'aminosee * -f -d' I can have new versions rende red  but skip super large genomes that would take 5 mins or more to render. I like to see that they begin to render then break and retry; this way AminoSee will skip the large genome becauyse it has a lock file, saving me CPU during development. Lock files are safe to delete.")
     } else {
       deleteFile(this.fileTouch) // removeLocks( this.fileTouch, this.devmode );
     }
@@ -3815,9 +3811,9 @@ class AminoSeeNoEvil {
       img_png.pack()
         .pipe(wstream)
         .on("finish", (err) => {
-          // if (err) { log(`Could not create write stream: ${ that.filePNG } due to ${err}`) }
-          bugtxt("linear Save OK " + that.storage())
-          that.linearFinished()
+          // if (err) { log(`Could not create write stream: ${ cliInstance.filePNG } due to ${err}`) }
+          bugtxt("linear Save OK " + cliInstance.storage())
+          cliInstance.linearFinished()
         })
       // resolve();
     }).then().catch()
@@ -3863,7 +3859,6 @@ class AminoSeeNoEvil {
       if (this.openHtml === true) {
         mode(`Opening ${this.justNameOfHTML} DNA render summary HTML report.`)
         notQuiet(status)
-        opensHtml++
         projectprefs.aminosee.opens++ // increment open counter.
 
         // open( server.getServerURL( this.shortnameGenome), { wait: false } );
@@ -4943,7 +4938,7 @@ function runDemo() {
 }
 // function setupPrefs(that) {
 //   locateWebroot()
-//   that.outputPath = path.resolve( webroot, "output")
+//   cliInstance.outputPath = path.resolve( webroot, "output")
 //
 //   projectprefs = new Preferences("nz.funk.aminosee.project", {
 //     aminosee: {
@@ -5579,8 +5574,8 @@ function genericPNG(rgbArray, width, height, filename, cb) {
       .pipe(wstream)
       .on("finish", (err) => {
         if (err) { log(`Could not create write stream: ${filename} due to ${err}`) }
-        // bugtxt("linear Save OK " +  that.storage());
-        that.linearFinished();
+        // bugtxt("linear Save OK " +  cliInstance.storage());
+        cliInstance.linearFinished();
         runcb(cb)
       })
     resolve()
@@ -5904,10 +5899,10 @@ function saveIMAGE(filename, imagedata, width, height, cb) {
     img_png.pack()
       .pipe(wstream)
       .on("finish", (err) => {
-        // if (err) { log(`Could not create write stream: ${ that.filePNG } due to ${err}`) }
+        // if (err) { log(`Could not create write stream: ${ cliInstance.filePNG } due to ${err}`) }
         bugtxt("linear Save OK ")
         runcb(cb)
-        // that.linearFinished()
+        // cliInstance.linearFinished()
       })
     // resolve();
   }).then().catch()
@@ -5957,7 +5952,7 @@ function setupKeyboardUI2() {
 
       if (key.name == "q" || key.name == "escape") {
         killServersOnQuit = false
-        that.gracefulQuit(130, "Q esc")
+        cliInstance.gracefulQuit(130, "Q esc")
       } else if (!key.ctrl || key.name !== "c") {
         if (autoStartGui && key.name == "g") {
           output(`Starting GUI from key command: ${key.name} ${status}`)
@@ -5977,14 +5972,14 @@ function setupKeyboardUI2() {
         cliInstance.gracefulQuit(0, "Control-c bo")
         destroyKeyboardUI()
         // if ( renderLock === true && cliInstance.timeRemain < 10000) {
-        //   that.msPerUpdate = 800
+        //   cliInstance.msPerUpdate = 800
         //   output("Closing in 5 seconds. Press [Esc] or [Q] key")
         //   setTimeout(()=> {
-        //     // that.gracefulQuit(130, "Control-c")
+        //     // cliInstance.gracefulQuit(130, "Control-c")
         //     output(blueWhite("Press control-c again to exit"))
         //   }, 5000)
         // } else {
-        //   // that.quit(130, "Control-c")
+        //   // cliInstance.quit(130, "Control-c")
         // }
       }
       if (key.name == "s") {
@@ -6003,51 +5998,51 @@ function setupKeyboardUI2() {
       }
       if (key.name == "d") {
         runDemo()
-        // that.toggleDebug()
+        // cliInstance.toggleDebug()
       }
       if (key.name == "b") {
         clearCheck()
-        that.togglednabg()
+        cliInstance.togglednabg()
       }
       if (key.name == "g" || key.name == "enter") {
         startGUI()
       }
       if (key.name == "s") {
         clearCheck()
-        that.toggleServer()
+        cliInstance.toggleServer()
       }
       if (key.name == "f") {
-        that.toggleForce()
+        cliInstance.toggleForce()
       }
 
       if (key.name == "v") {
         clearCheck()
-        that.toggleVerbose()
+        cliInstance.toggleVerbose()
       }
       if (key.name == "o") {
         clearCheck()
-        that.toggleOpen()
+        cliInstance.toggleOpen()
       }
       if (key.name == "o") {
         clearCheck()
-        that.toggleOpen()
+        cliInstance.toggleOpen()
       }
       if (key.name == "w") {
         term.clear()
-        that.toggleClearScreen()
+        cliInstance.toggleClearScreen()
       }
       if (key.name == "space" || key.name == "enter") {
         clearCheck()
-        that.msPerUpdate = minUpdateTime
+        cliInstance.msPerUpdate = minUpdateTime
       }
       if (key.name == "u") {
-        that.msPerUpdate = minUpdateTime
-        if (that.updates === true) {
-          that.updates = false
+        cliInstance.msPerUpdate = minUpdateTime
+        if (cliInstance.updates === true) {
+          cliInstance.updates = false
           // killAllTimers()
-          // clearTimeout( that.updatesTimer);
+          // clearTimeout( cliInstance.updatesTimer);
         } else {
-          that.updates = true
+          cliInstance.updates = true
         }
       }
     }
