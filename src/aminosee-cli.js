@@ -1,5 +1,5 @@
 // strict
-const overSampleFactor = 1 // 4 your linear image divided by this will be the hilbert image size.
+const overSampleFactor = 2 // 4 your linear image divided by this will be the hilbert image size.
 const defaultPreviewDimension = 3 // was 500 MB per page before.
 const maxPixels = 9800000 // arbitrarily huge amount of pixels as target max resolution (8.8MP).
 // let maxPixels = 5000000 // arbitrarily huge amount of pixels as target max resolution (8.8MP).
@@ -101,7 +101,8 @@ let dnaTriplets = data.dnaTriplets
 let progressTime = 500 // ms
 let termPixels = 69 // chars
 remain = 0 // files in the batch
-usersPix = pixelClock = tx = ty = cliruns = gbprocessed = cpuhit = 0
+pixelClock = tx = ty = cliruns = gbprocessed = cpuhit = 0
+usersPix = 1
 let isShuttingDown = false
 let imageOutput = [] // array of image paths to open
 let threads = [] // an array of AminoSeNoEvil instances.
@@ -128,7 +129,7 @@ process.on("SIGINT", function () {
   setImmediate(() => {
     cliInstance.quit(130, "SIGINT")
     // cliInstance.destroyProgress()
-    // cliInstance.destroyKeyboardUI
+    cliInstance.destroyKeyboardUI
     // process.exit() // this.now the "exit" event will fire
   })
 })
@@ -957,7 +958,7 @@ class AminoSeeNoEvil {
   }
   setupProgress() {
     mode(`setup progress`)
-    output(status)
+    log(status)
     if (this.progress === true) {
       progato = term.progressBar({
         width: 80,
@@ -1045,7 +1046,7 @@ class AminoSeeNoEvil {
     this.setDebugCols()
     tx = term.width
     ty = term.height
-    mode(`Terminal resized: ${tx} x ${ty} and has at least ${termPixels} chars. Fullscreen mode enabled, use --no-fullscreen to inline output`)
+    mode(`Terminal resized: ${tx} x ${ty} = ${termPixels} px.`)
 
     this.colDebug = this.setDebugCols() // Math.round(term.width / 3);
     this.msPerUpdate = minUpdateTime
@@ -1307,7 +1308,7 @@ class AminoSeeNoEvil {
           runDemo()
         }
         if (key.name == "t") {
-          mode("pushing this.test onto render queue")
+          mode("pushing test onto render queue")
           output(status)
           args._.push("test")
           cliInstance.howMany = args.length
@@ -1351,9 +1352,12 @@ class AminoSeeNoEvil {
           term.clear()
           cliInstance.toggleClearScreen()
         }
-        if (key.name == "space" || key.name == "enter") {
+        if (key.name == "space" ) {
           clearCheck()
           cliInstance.msPerUpdate = minUpdateTime
+        }
+        if (key.name == "enter") {
+          output()
         }
         if (key.name == "u") {
           cliInstance.msPerUpdate = minUpdateTime
@@ -1607,7 +1611,6 @@ class AminoSeeNoEvil {
       return false
     }
 
-    // terminateIfUndef(cfile)
     if (remain <= 0) {
       mode("Happiness.")
       data.saySomethingEpic()
@@ -1615,11 +1618,13 @@ class AminoSeeNoEvil {
       this.quit(0, status)
       return false
     }
+    terminateIfUndef(cfile)
 
     bugtxt(`parsing file`)
 
     if (this.dnafile.indexOf("...") !== -1 || cfile.indexOf("AminoSee_BUSY") !== -1) {
       mode("Cant use files with three dots in the file ... (for some reason?)")
+      output(status)
       this.preRenderReset(status)
       return false
     }
@@ -1759,7 +1764,7 @@ class AminoSeeNoEvil {
     this.fileJSON = this.generateFilenameHistogram()
 
     this.setupRender(cfile)
-    mode(`Checking for previous render of ${this.filePNG} ${this.usersPeptide} or the absence of ${this.fileHTML}`)
+    mode(`Checking for previous render of ${this.filePNG} or the absence of ${this.fileHTML}`)
     log(status)
     bugtxt(`doesFileExist(this.filePNG)  ${path.basename(this.filePNG)} ${path.basename(this.fileHTML)} ${doesFileExist(this.filePNG)}  doesFileExist(this.fileHTML)  ${doesFileExist(this.fileHTML)}`)
     
@@ -1850,8 +1855,8 @@ class AminoSeeNoEvil {
   // }
   preRenderReset(reason) {
     // status = maxWidth( tx / 2, `${batchProgress()} Pre render reset`)
-    // mode(`reset ${status}`)
-    // bugtxt( status )
+    mode(`pre-render reset ${status}`)
+    notQuiet( status )
 
     if (renderLock) { error("draining threads from reset"); return false }
     if (typeof reason === "undefined") { error("must set a reason when using reset") }
@@ -5235,6 +5240,7 @@ function mode(txt) { // good for debugging
   txt = batchProgress() + txt
   if (debounce()) {
     wTitle(txt)
+    procTitle(txt)
     // if ( cliInstance.devmode || debug ) {
     //   console.log(txt)
     // } else if ( cliInstance.verbose ) {
@@ -5806,7 +5812,7 @@ function notQuiet(txt) {
 }
 function killAllTimers() {
   // if ( renderLock || remain > 0 ) { return; }
-  mode(`${status} killing timers`)
+  mode(`killing timers`)
 
   if (cliInstance.updatesTimer) {
     clearTimeout(cliInstance.updatesTimer)
@@ -5988,7 +5994,7 @@ function setupKeyboardUI2() {
         runDemo()
       }
       if (key.name == "t") {
-        mode("pushing cliInstance.test onto render queue")
+        mode("pushing test onto render queue")
         args._.push("test")
         cliInstance.howMany = args.length
         cliInstance.generateTestPatterns()
