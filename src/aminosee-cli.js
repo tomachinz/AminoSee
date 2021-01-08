@@ -1,6 +1,6 @@
 // strict
-const overSampleFactor = 2 // 4 your linear image divided by this will be the hilbert image size.
-const defaultPreviewDimension = 3 // was 500 MB per page before.
+const overSampleFactor = 1 // 4 your linear image divided by this will be the hilbert image size.
+const defaultPreviewDimension = 5 // was 500 MB per page before.
 const maxPixels = 9800000 // arbitrarily huge amount of pixels as target max resolution (8.8MP).
 // let maxPixels = 5000000 // arbitrarily huge amount of pixels as target max resolution (8.8MP).
 // if estimated pixels is less than this, the render will show 1 pixel per codon
@@ -101,8 +101,8 @@ let dnaTriplets = data.dnaTriplets
 let progressTime = 500 // ms
 let termPixels = 69 // chars
 remain = 0 // files in the batch
-pixelClock = tx = ty = cliruns = gbprocessed = cpuhit = 0
-usersPix = 1
+tx = ty = cliruns = gbprocessed = cpuhit = 0
+pixelClock = usersPix = 1
 let isShuttingDown = false
 let imageOutput = [] // array of image paths to open
 let threads = [] // an array of AminoSeNoEvil instances.
@@ -266,9 +266,9 @@ function setupApp() {
   threads.push(cliInstance)
   webroot = locateWebroot()
   args = populateArgs(process.argv) // heavily used global
+  printlogo()
   cliInstance.setupJob(() => {
     output(`module exports setup done`)
-      printlogo()
   })
 
 }
@@ -314,7 +314,6 @@ class AminoSeeNoEvil {
     loopCounter = 0
     this.codonsPerPixel = -1
     this.charClock = 0
-    pixelClock = 0
     this.genomeSize = 0
     this.killServersOnQuit = true
     this.maxMsPerUpdate = 15000 // milliseconds per update
@@ -377,7 +376,7 @@ class AminoSeeNoEvil {
     this.outputPath = path.join(webroot, netFoldername)
     this.extension = getFileExtension(cfile)
     this.started = this.startDate.getTime() // required for touch locks.
-    usersMagnitude = defaultMagnitude // var that the hilbert projection is be downsampled to
+    // usersMagnitude = defaultMagnitude // var that the hilbert projection is be downsampled to
     this.msPerUpdate = minUpdateTime // min milliseconds per update its increased for long renders
     this.termMarginTop = (term.height - termDisplayHeight - termHistoHeight) / 4
     termSize()
@@ -542,7 +541,7 @@ class AminoSeeNoEvil {
     // --magnitude set     = "custom"
     if (args.magnitude || args.m) {
       usersMagnitude = Math.round(args.magnitude)
-      this.magnitude = "custom"
+			this.magnitude = "custom"
       if (usersMagnitude < 1) {
         usersMagnitude = 3
         output("Magnitude must be an integer number between 3 and 9. Using -m 3 for 4096 pixel curve.")
@@ -922,10 +921,10 @@ class AminoSeeNoEvil {
       log(this.outputPath)
       this.dnafile = args._.toString()
       this.pollForStream(`first command`) // <<<<<<<<<<<<--------------- THIS IS WHERE IT ALL HAPPENS
+
     } else {
       let time = 5000
       mode("no command")
-
       if (cliruns < 3) {
         output("FIRST RUN!!! Opening the demo... use the command aminosee demo to see this first run demo in future")
         this.firstRun()
@@ -933,7 +932,6 @@ class AminoSeeNoEvil {
       } else {
         log("not first run")
       }
-
       if (this.help) {
         output(`Welcome... this is a CLI app run from the terminal, see above [Q] or [Esc] key to exit now `)
         listGenomes()
@@ -1177,7 +1175,7 @@ class AminoSeeNoEvil {
     this.peakAlpha = this.alpha
     this.focusTriplet = "Reference"
     this.breakClock = 0
-    this.msElapsed = this.runningDuration = this.charClock = this.percentComplete = this.genomeSize = pixelClock = 0
+    this.msElapsed = this.runningDuration = this.charClock = this.percentComplete = this.genomeSize = 0
     this.codonRGBA = this.mixRGBA = [0, 0, 0, 0] // this.codonRGBA is colour of last codon,  this.mixRGBA is sum so far
     this.msPerUpdate = minUpdateTime // milliseconds per  update
     this.red = 0
@@ -1271,7 +1269,7 @@ class AminoSeeNoEvil {
           destroyKeyboardUI()
 
           killServersOnQuit = false
-          this.gracefulQuit(0, "Q esc")
+          cliInstance.gracefulQuit(0, "Q esc")
         } else if (!key.ctrl || key.name !== "c") {
           if (autoStartGui && key.name == "g") {
             output(`Starting GUI from key command: ${key.name} ${status}`)
@@ -1807,13 +1805,13 @@ class AminoSeeNoEvil {
     if (renderLock === false) {
       mode(`Lock OK proceeding to render ${this.justNameOfPNG} in ${raceDelay} ms... ${this.busy()}`)
       log(status)
-      setTimeout(() => {
+      // setTimeout(() => {
         if (renderLock === false) {
           this.touchLockAndStartStream() // <<<<------------- THIS IS WHERE MAGIC STARTS!!!!
         } else {
           output(`wtf`)
         }
-      }, raceDelay)
+      // }, raceDelay)
     } else {
       output(`double wtf`)
       //cliInstance.preRenderReset(status)
@@ -1855,7 +1853,7 @@ class AminoSeeNoEvil {
   // }
   preRenderReset(reason) {
     // status = maxWidth( tx / 2, `${batchProgress()} Pre render reset`)
-    mode(`pre-render reset ${status}`)
+    mode(`pre-render reset ${status} ${cfile}`)
     notQuiet( status )
 
     if (renderLock) { error("draining threads from reset"); return false }
@@ -1907,6 +1905,7 @@ class AminoSeeNoEvil {
       error("RENDER LOCK FAILED. This is an  error I'd like reported. Please run with --verbose --devmode option enabled and send the logs to aminosee@funk.co.nz")
       return false
     }
+    this.autoconfCodonsPerPixel()
     mode(`Initialising Stream: 🚄 ${this.usersPeptide} m${usersMagnitude} ${this.shortnameGenome} Filesize ${bytes(this.baseChars)} c${this.codonsPerPixel} maxpix ${usersPix}`)
     output(chalk.rgb(64, 128, 255).bold(status))
     log(`Output folder --->> ${blueWhite(blueWhite(cfile))}`)
@@ -1921,7 +1920,7 @@ class AminoSeeNoEvil {
     this.percentComplete = 0
     this.genomeSize = 0 // number of codons.
     this.pixelStacking = 0 // how we fit more than one codon on each pixel
-    // pixelClock = 0 // which pixel are we painting?
+    pixelClock = 0 // which pixel are we painting?
     this.msElapsed = 0
     this.rgbArray = []
     this.hilbertImage = [];
@@ -2193,7 +2192,7 @@ class AminoSeeNoEvil {
     mode(`configuring renderer ${this.baseChars < 0}`)
     out(blueWhite(status))
     // dont mess with globals if not appropriate
-    if (renderLock) { error("thread entered autoconf"); return false; }
+    // if (renderLock === true) { error("thread entered autoconf"); return false; }
     if (this.test) { log("Not configuring - due to test"); return false; }
     // grab an estimate based on file size
     this.baseChars = this.getFilesizeInBytes(this.dnafile) // returns -1 if streaming standard in infinitely
@@ -2220,9 +2219,10 @@ class AminoSeeNoEvil {
 
     }
 
-    if (this.estimatedPixels * overSampleFactor < usersPix) { // use value 1 for small genomes
-        this.codonsPerPixel = 1 // normally we want 1:1 for small genomes
-    }
+    // if (this.estimatedPixels * overSampleFactor < usersPix) { // use value 1 for small genomes
+    //     this.codonsPerPixel = 1 // normally we want 1:1 for small genomes
+    //     output(`small genome detected, using 1 CPP`)
+    // }
 
     if (this.estimatedPixels > usersPix) { // for seq bigger than screen        this.codonsPerPixel = this.estimatedPixels /  usersPix*overSampleFactor;
       this.codonsPerPixel = Math.round(this.estimatedPixels / usersPix) // THIS IS THE CORE FUNCTION
@@ -2259,6 +2259,7 @@ class AminoSeeNoEvil {
     }
     if (this.magnitude == "auto") {
       usersMagnitude = optimumDimension( this.estimatedPixels, "estimated_" )
+      output(`automatically set magnitude at ${usersMagnitude}`)
     } else {
       output(`custom magnitude set`)
     }
@@ -2274,9 +2275,9 @@ class AminoSeeNoEvil {
   calcHilbertFilename() {
     // REQUIRES RENDERING TO MEMORY PRIOR!
 
-    // if ( this.magnitude !== "custom" ) {
+    if ( this.magnitude !== "custom" ) {
        usersMagnitude = optimumDimension(pixelClock, "pixelClock" )
-    //  }
+     }
     output(`dimension: ${usersMagnitude} calcHilbertFilename`)
 
     calculateShrinkage(pixelClock, usersMagnitude, this.codonsPerPixel)
@@ -2578,6 +2579,8 @@ class AminoSeeNoEvil {
 
 
     setTimeout(() => {
+          this.calcHilbertFilename()
+
       this.saveHilbert(this.savePNG(() => {
         mode(`save png images cb`)
         this.postRenderPoll(status)
@@ -2618,8 +2621,7 @@ class AminoSeeNoEvil {
       runcb(cb)
       return false
     }
-
-
+    this.fileHTML = this.generateFilenameHTML()
     this.pepTable.sort(this.compareHistocount)
     let histogramJson = this.getRenderObject()
     let histogramFile = this.generateFilenameHistogram()
@@ -2637,8 +2639,8 @@ class AminoSeeNoEvil {
     // let histotext =  histogramJson.toString()
     bugtxt(histotext)
 
-
-    this.fileWrite(this.fileHTML, hypertext) // <<<<------- filename with flags in name
+    notQuiet(`writing out HTML: ${this.fileHTML}`)
+    this.fileWrite(path.resolve(this.fileHTML), hypertext) // <<<<------- filename with flags in name
 
     if (debug) {
       this.fileWrite(path.resolve(this.outputPath, this.shortnameGenome, "debug.html"), hypertext)
@@ -2720,14 +2722,14 @@ class AminoSeeNoEvil {
     redoline("Locking threads for render")
     renderLock = true
     this.tLock()
-    setTimeout(() => {
+    // setTimeout(() => {
       if (renderLock === true) {
         this.initStream()
       } else {
         debug = args.debug
         error(`was put to sleep by another thread that finished?! ${cfile}`)
       }
-    }, raceDelay )
+    // }, raceDelay )
   }
   blurb() {
     let msg = `
@@ -2803,10 +2805,13 @@ class AminoSeeNoEvil {
     }, raceDelay)
   }
   createPreviews(cb) {
+    usersMagnitude--
     if (this.test) { return false; }
     renderLock = true
     ispreview = true
-    
+    // output(this.hilbertImage)
+    this.rgbArray = this.hilbertImage
+    pixelClock = this.antiAliasArray.length / 4 // RGBA 4 per pixel. grab before wiping.
     this.ratio = "sqr"
     this.hilbertImage = [] // wipe the memory!!
     this.antiAliasArray = []
@@ -2815,7 +2820,6 @@ class AminoSeeNoEvil {
     usersPix = 1 + ( hilbPixels[usersMagnitude] ) // 65536
     output(`maxpix ${usersPix}`)
     // let { shrinkFactor, codonsPerPixelHILBERT } =  calculateShrinkage( pixelClock, defaultPreviewDimension, this.codonsPerPixel ) // danger: can change this.file of Hilbert images!
-    // codonsPerPixelHILBERT = codonsPerPixelHILBERT
     // output(`previews codonsPerPixelHILBERT ${shrinkFactor}, ${codonsPerPixelHILBERT}`)
     // output(`previews codonsPerPixelHILBERT ${shrinkFactor}, ${codonsPerPixelHILBERT}`)
     // output(`previews codonsPerPixelHILBERT ${shrinkFactor}, ${codonsPerPixelHILBERT}`)
@@ -2825,7 +2829,7 @@ class AminoSeeNoEvil {
     this.setIsDiskBusy(true)
     this.hWidth = Math.sqrt(pixelClock)
     this.hHeight = this.hWidth
-    args.magnitude = usersMagnitude
+    // args.magnitude = usersMagnitude
     shrinkFactor =  calculateShrinkage(pixelClock, usersMagnitude, this.codonsPerPixel)
     this.setupLinearNames()
     // log(`creating previews: codonsPerPixelHILBERT: ${codonsPerPixelHILBERT} preview dimension ${defaultPreviewDimension} in pixels ${hilbPixels[defaultPreviewDimension]}`)
@@ -2895,41 +2899,41 @@ class AminoSeeNoEvil {
       saySomethingEpic()
       killAllTimers()
 
-      if (ishighres && usersMagnitude > defaultPreviewDimension) {
-        usersMagnitude--
+      if ( usersMagnitude > defaultPreviewDimension ) {
         this.renderLock = true
-        mode(`Creating lowres previews in ${1000} ms`)
-        redoline(status)
+        mode(`Creating lowres previews in ${1000} ms ${pixelClock}px`)
+        output(status)
 
         this.hilbertImage = []
         setTimeout( () => {
-          this.createPreviews( () => {
+          cliInstance.createPreviews( () => {
             // usersMagnitude = defaultMagnitude = usersMagnitude // 5
             // bugtxt(`finished saving PREVIEW docs, setting dimension back to: ${usersMagnitude}`)
-            mode(`Previews created from high res render ${this.justNameOfPNG}`)
+            mode(`Previews created from high res render ${cliInstance.justNameOfPNG}`)
             output(status)
             output(`not removing locks now`)
             setTimeout( () => {
               this.postRenderPoll(`previews M${usersMagnitude}`)
               // removeLocks(this.fileTouch, this.devmode, status)
             }, raceDelay )
-            mode(`preview output done. Used ${ishighres ? 'highres' : '💩 lowres'} output resolution for ${this.usersPeptide}`)
+            mode(`preview output done. Used ${ishighres ? 'highres' : '💩 lowres'} output resolution for ${cliInstance.usersPeptide}`)
             log(status)
             return
           })
-        }, 1000)
+        }, 1000 + raceDelay)
         return
       } else if ( ispreview ) {
       } else { 
-        mode(`Not outputting previews. Used ${ishighres ? 'highres' : 'lowres'} output resolution for ${this.usersPeptide}`)
-
+        mode(`
+         Used ${ishighres ? 'highres' : 'lowres'} output resolution for ${cliInstance.usersPeptide}`)
       }
       output(status)
       setTimeout( () => {
-          removeLocks(this.fileTouch, this.devmode, status)
-        }, raceDelay )
+          removeLocks(cliInstance.fileTouch, cliInstance.devmode, status)
+          log(`removed locks`)
+        }, raceDelay)
     } else { //  disk is not finished
-      log(` [ post render ${reason} wait on storage: ${chalk.inverse(this.storage())}  ] `)
+      log(` [ post render ${reason} wait on storage: ${chalk.inverse(cliInstance.storage())}  ] `)
     }
   }
   getFilesizeInBytes(file) {
@@ -3017,10 +3021,10 @@ class AminoSeeNoEvil {
 
     killAllTimers()
     destroyKeyboardUI()
-    if (this.isStorageBusy) {
-      output("still saving to storage - will exit after save") // maybe this happens during graceful shutdown
-      return
-    }
+    // if (this.isStorageBusy) {
+    //   output("still saving to storage - will exit after save") // maybe this happens during graceful shutdown
+    //   return
+    // }
     if (!isShuttingDown) {
       log(`Not shutting down yet`)
       return
@@ -3501,8 +3505,8 @@ class AminoSeeNoEvil {
     // }
 
     term.eraseDisplayBelow()
-    
-    hilpix = hilbPixels[ usersMagnitude ]
+    // usersMagnitude--
+    hilpix = hilbPixels[ usersMagnitude-1 ]
     output(chalk.inverse.red(` Getting in touch with my man from 1891...   ॐ    David Hilbert    ॐ  ${usersMagnitude} dimension `))
     // output()
 
@@ -3520,14 +3524,14 @@ class AminoSeeNoEvil {
       if (i % this.debugFreq == 0) {
         this.percentComplete = i / hilpix
         this.progressTick()
-        redoline(`Space filling ${nicePercent( this.percentComplete )} ${i}/${hilpix}`)
+        redoline(`Space filling ${nicePercent( this.percentComplete )} ${i.toLocaleString()} / ${hilpix.toLocaleString()} ${pixelClock.toLocaleString()}px`)
       }
 
       let hilbX, hilbY;
       [hilbX, hilbY] = hilDecode(i, usersMagnitude, MyManHilbert)
       let cursorLinear = 4 * i
       let hilbertLinear = 4 * ((hilbX % this.hWidth) + (hilbY * this.hWidth))
-      this.percentComplete = i / hilpix
+      // this.percentComplete = i / hilpix
       // if ((Math.round(  this.percentComplete * 1000) % 100) === 0) {
       // }
 
@@ -3717,6 +3721,7 @@ class AminoSeeNoEvil {
       pix = (this.rgbArray.length / 4)
     }
     catch (err) {
+      output(`blarg`)
       this.preRenderReset(`NOT ENOUGH PIXELS ${err}`)
       return false
     }
@@ -4047,7 +4052,6 @@ class AminoSeeNoEvil {
     this.genomeSize = 0
     this.baseChars = 0
     this.charClock = -1 // gets around zero length check
-    // pixelClock = -1; // gets around zero length check
     // this.quit(0, 'test stop');
     this.isShuttingDown = true
     renderLock = false
@@ -4134,7 +4138,7 @@ class AminoSeeNoEvil {
   resampleByFactor() {
     let sampleClock = 0
     let brightness = 1 / shrinkFactor
-    let downsampleSize = hilbPixels[usersMagnitude]
+    let downsampleSize = hilbPixels[usersMagnitude - 1]
     let antiAliasArray = [downsampleSize * 4] // RGBA needs 4 cells per pixel
     output(`Resampling linear image of size in pixels ${pixelClock.toLocaleString()} to ${downsampleSize.toLocaleString()} Genome size: ${this.genomeSize.toLocaleString()}`)
     log(`by the factor ${nicePercent(shrinkFactor)}X brightness per amino acid ${brightness} destination hilbert curve pixels ${downsampleSize.toLocaleString()}`)
@@ -4155,8 +4159,8 @@ class AminoSeeNoEvil {
       antiAliasArray[sum + 1] = this.rgbArray[clk + 1] * brightness
       antiAliasArray[sum + 2] = this.rgbArray[clk + 2] * brightness
       antiAliasArray[sum + 3] = this.rgbArray[clk + 3] * brightness
-      dot(z, this.debugFreq, `z: ${z.toLocaleString()}/${downsampleSize.toLocaleString()} samples remain: ${( pixelClock - sampleClock).toLocaleString()}`);
-      while (sampleClock < z * shrinkFactor ) {
+      dot(z, this.debugFreq, `z: ${z.toLocaleString()}/${downsampleSize.toLocaleString()} re-samples remain: ${( pixelClock - sampleClock).toLocaleString()} ${pixelClock.toLocaleString()} ${nicePercent( shrinkFactor )}`);
+      while (sampleClock < z * shrinkFactor * 0.25 ) {
         clk = sampleClock * 4
         antiAliasArray[sum + 0] += this.rgbArray[clk + 0] * brightness
         antiAliasArray[sum + 1] += this.rgbArray[clk + 1] * brightness
@@ -4167,6 +4171,7 @@ class AminoSeeNoEvil {
       sampleClock++
     }
     this.rgbArray = antiAliasArray
+    pixelClock = antiAliasArray.length
     return antiAliasArray
   }
 
@@ -4728,7 +4733,7 @@ function out(txt) {
   if (debug === true) {
     // process.stdout.write( removeNonAscii( txt ) )
     bugout( txt )
-  } else if (cliInstance.verbose) {
+  } else if (verbose) {
     redoline( txt )
     // process.stdout.write(txt + " ")
   } else {
@@ -4773,7 +4778,7 @@ function wTitle(txt) {
   term.windowTitle( txt )
 }
 function bugout(txt) {
-  console.log(chalk.gray(`${helixEmoji}: ${(renderLock ? chalk.red.inverse(cpuhit) : cpuhit)} CPP_${cliInstance.codonsPerPixel} ${fixedWidth(18, status)} ${fixedWidth(10, cliInstance.justNameOfPNG)} ${remain} ${txt})`))
+  console.log(chalk.gray(`${helixEmoji}: ${(renderLock ? chalk.red.inverse(cpuhit) : cpuhit)} ${pixelClock.toLocaleString()}px c${cliInstance.codonsPerPixel} m${usersMagnitude} ${fixedWidth(18, status)} ${fixedWidth(10, cliInstance.justNameOfPNG)} ${remain} ${txt})`))
 }
 function deleteFile(file) {
   let ret = false
@@ -5243,7 +5248,7 @@ function mode(txt) { // good for debugging
     procTitle(txt)
     // if ( cliInstance.devmode || debug ) {
     //   console.log(txt)
-    // } else if ( cliInstance.verbose ) {
+    // } else if ( verbose ) {
     //   redoline(txt)
     // } else {
     // }
@@ -5702,13 +5707,14 @@ function prettyDate(today) {
 }
 function calculateShrinkage(linearpix, dim, cpp) { // danger: can change cliInstance.file of Hilbert images!
   if (linearpix == 0 || dim == 0 || cpp == 0) { error(`division by zero`) }
- 
+  if ( this.magnitude == "custom" ) { dim = usersMagnitude }
   hilpix = hilbPixels[dim]
   shrinkFactor = linearpix  / hilpix  // THE GUTS OF IT
   // shrinkFactor = hilpix /  linearpix 
-  shrinkFactor *= shrinkFactor
+  shrinkFactor *= shrinkFactor // square root
   codonsPerPixelHILBERT =  cpp * shrinkFactor 
-  output(`shrink, linpix, dim, mag, cpp [ ${[shrinkFactor, linearpix, dim, usersMagnitude, cpp]} ]`)
+  output(`CALC shrink, linpix, dim, mag, cpp [ ${[shrinkFactor, linearpix, dim, usersMagnitude, cpp]} ]`)
+  
   return shrinkFactor
 }
 function optimumDimension(pix, source) { // give it pix it returns a HILBERT dimension that fits inside it with good over-sampling margins
@@ -5763,7 +5769,7 @@ function removeNonAscii(str) {
 function procTitle(txt) {
   // if ( typeof cliInstance.justNameOfPNG !== "undefined" && cliInstance.justNameOfPNG !== "unset" ) { // check if not set as a string called unset also
   if (typeof cliInstance !== "undefined") { // check if not set as a string called unset also
-    process.title = `aminosee.funk.nz (m${ usersMagnitude } c${cliInstance.codonsPerPixel} ${pixelClock.toLocaleString()} ${status} ${txt})`
+    process.title = `aminosee.funk.nz (${cliInstance.shortnameGenome} ${nicePercent(cliInstance.percentComplete)}% m${ usersMagnitude } c${cliInstance.codonsPerPixel} ${pixelClock.toLocaleString()} ${status} ${txt})`
   } else {
     process.title = `aminosee.funk.nz (startup ${url})`
   }
@@ -5958,15 +5964,8 @@ function setupKeyboardUI2() {
 
       if (key.name == "q" || key.name == "escape") {
         killServersOnQuit = false
-        cliInstance.gracefulQuit(130, "Q esc")
-      } else if (!key.ctrl || key.name !== "c") {
-        if (autoStartGui && key.name == "g") {
-          output(`Starting GUI from key command: ${key.name} ${status}`)
-          if (status == "module exit") {
-            startGUI()
-          }
-        }
-      }
+        cliInstance.gracefulQuit(0, "Q esc")
+      } 
       // Interactive control:    D (demo full RGB test)    T (short test)   Q (graceful quit next save)
       // V (toggle verbose mode) B (live DNA to screen)    Esc (graceful quit)    Control-C (fast quit)
       // W (webserver)           C (clear scrn)            U (updates stats)       X (search ~ for DNA)
@@ -5975,7 +5974,7 @@ function setupKeyboardUI2() {
       if (key.ctrl && (key.name == "c" || key.name == "d")) {
         process.stdin.pause() // stop sending control-c here, send now to parent, which is gonna kill us on the second go with control-c
         status = "TERMINATED WITH CONTROL-C"
-        cliInstance.gracefulQuit(0, "Control-c bo")
+        cliInstance.gracefulQuit(130, "Control-c bo")
         destroyKeyboardUI()
         // if ( renderLock === true && cliInstance.timeRemain < 10000) {
         //   cliInstance.msPerUpdate = 800
@@ -6126,3 +6125,4 @@ module.exports.maxWidth = maxWidth
 module.exports.termSize = termSize
 module.exports.setupKeyboardUI2 = setupKeyboardUI2
 module.exports.stopWork = stopWork
+module.exports.verbose = verbose

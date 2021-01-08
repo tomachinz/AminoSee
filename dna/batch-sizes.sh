@@ -25,12 +25,12 @@ many_size_hilbert() {
   aminosee_do --reg --maxpix 4194304 $*
   # aminosee_do --reg --maxpix 16777216 $*
 
-  # sleep 2
-  # aminosee_do --ratio sqr  -m4  $* 
-  # aminosee_do --ratio sqr  -m5  $* 
-  # aminosee_do --ratio sqr  -m6  $* 
-  # aminosee_do --ratio sqr  -m7  $* 
-  # aminosee_do --ratio sqr  -m8  $* 
+  sleep 2
+  aminosee_do --ratio sqr  -m4  $* 
+  aminosee_do --ratio sqr  -m5  $* 
+  aminosee_do --ratio sqr  -m6  $* 
+  aminosee_do --ratio sqr  -m7  $* 
+  aminosee_do --ratio sqr  -m8  $* 
  
   # sleep 10
   # aminosee_do --ratio sqr  -m9  $* 

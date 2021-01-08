@@ -154,5 +154,5 @@ if [ -z "$1" ]; then
 else
 	# series_peptides $* --reg --index --maxpix 1000000 --no-updates -q &
 	echo series $*
-	series_peptides -q $* 
+	series_peptides $* 
 fi

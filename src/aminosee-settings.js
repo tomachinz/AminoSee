@@ -12,7 +12,7 @@ const base = process.env.PWD;
 
 function gracefulShutdown() {
   aminosee.log("[custom sigterm received] @Aminosee settings.js")
-  aminosee.gracefulQuit()
+  // aminosee.gracefulQuit()
 }
 
 
@@ -32,7 +32,8 @@ const settings = {
   description: process.env.npm_package_description,
   platform: process.platform,
   version: process.env.npm_package_version,
-  strap: process.env.npm_package_strap
+  strap: process.env.npm_package_strap,
+  verbose: false
 }
 
 module.exports.settings = settings;
