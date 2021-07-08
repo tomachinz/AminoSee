@@ -67,7 +67,7 @@
   "dependencies": {
     "@neutralinojs/neu": "^1.7.0",
     "async-kit": "^2.2.4",
-    "autocannon": "^4.6.0",
+    "autocannon": "^7.4.0",
     "bcrypt": "^5.0.0",
     "chalk": "^2.4.2",
     "describe": "^1.2.0",
