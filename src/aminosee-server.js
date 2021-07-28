@@ -1,5 +1,5 @@
 const open = require("open")
-const httpserver = require("http-server") // cant have - in js
+// const httpserver = require("http-server") // cant have - in js
 // const aminosee = require("./aminosee-cli")
 // const error = require("./aminosee-cli").error
 const data = require("./aminosee-data")

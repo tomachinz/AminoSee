@@ -3,7 +3,7 @@ const aminosee = require('./aminosee-cli')
 // let packagefile = path.join(base, 'package.json')
 let fs = require('fs')
 let path = require('path')
-const fetch = require("node-fetch");
+const fetch = require('node-fetch');
 
 // console.log(pjson.version); // This will print the version
 const base = process.env.PWD;
