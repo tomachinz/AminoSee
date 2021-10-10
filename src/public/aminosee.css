@@ -1,0 +1,656 @@
+html, body, form, input, textarea, a, p, h1, h2, h3, h4, h5, h6, div {
+  font-family: "Yanone Kaffeesatz";
+  /* color: red; */
+}
+
+#monkeys h1, #monkeys h1.a {
+  font-size: 23.4px;
+  grid-area: footer;
+}
+
+#monkeys h2, #monkeys h2.a {
+  font-size: 18px;
+}
+
+#webgl body {
+  background-color: #000000;
+  margin: 0;
+  overflow: hidden;
+}
+
+.blackback {
+  background-color: black;
+  color: white;
+  text-decoration-color: white;
+}
+
+/* body height 100vh width 100vw background transparent radial-gradient(at calc(var(--mouse-x, 0) * 100%) calc(var(--mouse-y, 0) * 100%), yellow, green) no-repeat 0 0 { */
+body {
+  height: 100vh;
+  width: 100vw;
+  /* background: transparent radial-gradient(at calc(var(--mouse-x, 0) * 100%) calc(var(--mouse-y, 0) * 100%), yellow, green) no-repeat 0 0; */
+}
+
+img.32piximg, img>.32piximg {
+  height: 32px;
+  width: 32px;
+}
+
+body.dark, html.dark, body.aminosee {
+  background-color: #012345;
+  background-image: url("https://www.funk.co.nz/gif/bg-big-blue-gradient.gif");
+  background-repeat: repeat-x;
+  color: white;
+  text-decoration-color: white;
+}
+
+#header a:hover, #handylinks a:hover, a:hover.button, .dark>a:hover, #omd a:hover, {
+  text-decoration: underline;
+  background: white;
+  color: black;
+  text-decoration-color: black;
+}
+
+#handylinks a, #buttonlink a, a.button, .aminosee a, .aminosee>a, .button>a {
+  color: white;
+  text-decoration-color: white;
+  background-color: #012345;
+  background-color: rgba(200, 200, 255, 0.125);
+  border-top: 1px solid white;
+  border-radius: 4px;
+  margin: 2px 2px 2px 2px;
+  padding: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 42px;
+}
+
+.small, button.small, form.small, input.small, textarea.small, a.small, p.small, div.small, span.small {
+  margin: 0;
+  padding: 0;
+}
+
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(4, 2fr);
+  grid-column-gap: 32px;
+  grid-template-rows: 40% 60%;
+}
+
+.grid-item {
+  display: inline-grid;
+  grid-column: span 1;
+}
+
+#stack_wrapper {
+  position: absolute;
+  /* left: 50%; */
+  top: 50%w;
+  /* transform: translateX(-50%); */
+  width: 99%;
+  height: 32px;
+  border: #666666 1px;
+  /* background-color: yellow; */
+}
+
+#stack0images ul {
+  position: relative;
+  z-index: 10;
+  background-color: #222222;
+}
+
+a.stack {
+  text-decoration: none;
+  /* visibility: hidden; */
+  /* display: none; */
+}
+
+ul, li {
+  /*visibility: hidden;*/
+  /*display: none;*/
+  list-style: none;
+}
+
+img.stack, .stack {
+  /* width: calc(var("--mouse-scale", 1)px); */
+  /* height: calc(var("--mouse-scale", 1)px); */
+  width: auto;
+  object-fit: scale-down;
+  padding: 16px 16px;
+  background-color: #666666;
+  background-color: rgba(66, 66, 66, 0.1);
+}
+
+.behind {
+  z-index: -1;
+}
+
+.frontmost, li.frontmost, a.frontmost, .frontmost li, img.frontmost {
+  z-index: 6969;
+  background-color: #888888;
+  background-color: rgba(128, 128, 128, 0.95);
+}
+
+#stack_0, #stack_1, #stack_2, #stack_3, #stack_4, #stack_5, #stack_6, #stack_7, #stack_8, #stack_9, #stack_10, #stack_11, #stack_12, #stack_13, #stack_14, #stack_15, #stack_16, #stack_17, #stack_18, #stack_19, #stack_20, #stack_21, #stack_22, #stack_23, #stack_24 {
+  visibility: visible;
+  position: relative;
+  /* width: calc(var("--mouse-scale", 1)/4)px; */
+  /* height: calc(var("--mouse-scale", 1)/4)px; */
+}
+
+input[type=button], input[type=submit], input[type=reset] {
+  min-width: 140px;
+  padding: 8px 8px;
+}
+
+/* .tinyButton input[type=button], tinyButton input[type=submit], tinyButton input[type=reset] {
+	min-width: 64px;
+	padding: 4px 4px;
+} */
+#hide {
+  position: relative;
+  transform: translateY(-64px);
+  font-size: 20px;
+  pading: 8px;
+  font-weight: bold;
+  color: black;
+  margin: 0 0 0 0;
+}
+
+input[type=number] {
+  font-size: 26px;
+}
+
+#bgCanvFixed {
+  position: fixed;
+  z-index: -1;
+  margin: 0 0 0 0;
+  padding: 0;
+}
+
+/* ********** USE FOR DEFAULT POS ******** */
+#status {
+  font-size: 18px;
+  position: fixed;
+  bottom: 32px;
+  z-index: 6969;
+  left: 32px;
+}
+
+.sidebar {
+  grid-area: sidebar;
+}
+
+.footer {
+  grid-area: footer;
+}
+
+.site {
+  display: grid;
+  grid-template-columns: 1fr 10fr 1fr;
+  grid-template-rows: auto 1fr 7fr 1fr;
+  grid-template-areas:
+    "title title title"
+    "main header header"
+    "main sidebar footer";
+}
+
+body {
+  padding: 0;
+  margin: 0 0 0 0;
+}
+
+/* DEBUG */
+/*div, span {*/
+/*border: 1px dotted white; */
+/*}*/
+#supercontainer {
+  padding: 0;
+  margin: 0 0 0 0;
+  /* color: white; */
+
+}
+#aminoseenav nav {
+  top: 96px;
+  position: relative;
+  padding: 32px;
+}
+
+form, input, textarea {
+  height: 36px;
+}
+
+#stats h6 {
+  padding: 1px;
+  margin: 1px 1px 1px 1px;
+}
+
+.small, a.small {
+  font-size: 16px;
+}
+
+#stats {
+  visibility: hidden;
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  color: #eeeeee;
+  font-size: 8px;
+  font-family: "Old-School-Adventures", "04B", "Yanone Kaffeesatz", fixed;
+  background-color: rgb(0, 0, 0);
+  background-color: rgba(0, 0, 0, 0.4);
+  width: 100%;
+  z-index: 5;
+  padding: 16px;
+  height: 256px;
+  text-align: left;
+}
+
+@font-face {
+  font-family: 'Old-School-Adventures';
+  font-style: normal;
+  font-weight: 200;
+  src: local('Old-School-Adventures'), local('Old-School-Adventures'), url(/css/Old-School-Adventures.woff) format('woff');
+  /* font-size: 12px; */
+}
+
+/* ********** USE TO GET ATTENTION ******** */
+.modalCentered, #colorPicker, div.modalCentered {
+  font-size: 26px;
+  position: relative;
+  /* text-align: center; */
+  z-index: 11;
+  top: 50%;
+  bottom: 50%;
+  left: 50%;
+  right: 50%;
+  width: 128px;
+  height: 64px;
+  background-color: rgb(255, 240, 50);
+  background-color: rgba(255, 240, 50, 0.7);
+  background-color: purple;
+  color: #003;
+  font-weight: bold;
+  padding: 64px;
+  border: dotted black 1px;
+  transform: translate(-128px, -64px);
+}
+
+#colorPicker {
+  /* z-index: 999; */
+  width: 40%;
+  height: 40%;
+  /* transform: translate(-50%, -50%); */
+  background-color: rgb(100, 240, 200);
+  background-color: rgba(100, 240, 200, 0.5);
+}
+
+#info {
+  /* white-space: nowrap; */
+  position: relative;
+  /* width: 70%; */
+  margin-left: 5%;
+  margin-right: 5%;
+  color: #ffffff;
+  padding: 32px;
+  font-family: Monospace;
+  /* text-align: right; */
+  z-index: 10;
+  /* height: 40%; */
+}
+
+#supercontainer {
+  position: absolute;
+  margin-top: 0;
+  width: 100%;
+  height: 90%;
+}
+
+#fileheader {
+  display: block;
+  visibility: hidden;
+  display: none;
+}
+
+.hidable {
+  /* display: block; */
+  visibility: visible;
+}
+
+.hidden {
+  visibility: hidden;
+  display: none;
+}
+
+.gridcontainer {
+  display: grid;
+  /* width: 100%; */
+  grid-template-columns: repeat(12, 1fr);
+  grid-template-rows: 120px 120px 120px 120px 120px 120px 120px 120px 120px 120px 120px 120px;
+  /* height: 16px; */
+}
+
+.shorthand {
+  -webkit-flex-wrap: wrap;
+  flex-wrap: wrap;
+  -webkit-flex-direction: row;
+  flex-direction: row;
+}
+
+.header, {
+  grid-column: span 12;
+}
+
+.gadgets {
+  grid-column: span 1;
+}
+
+.stats {
+  grid-column: span 8;
+}
+
+#butbar, #butbar div {
+  /*border: 1px dotted white;*/
+  /* background-color: rgb(25, 25, 0); */
+  /* background-color: rgba(255, 255, 0, 0.1); */
+  /* text-align: center; */
+  flex-direction: row;
+  /* | row-reverse | column | column-reverse; */
+  /* flex-flow: row wrap; */
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  -ms-box-orient: horizontal;
+  /* display: -webkit-box;
+  display: -moz-box;
+  display: -ms-flexbox;
+  display: -moz-flex;
+  display: -webkit-flex;
+  display: flex; */
+  /* display: grid; */
+}
+
+/* .tinyButton , , input.tinyButton {
+	font-size: 0.8rem;
+	max-width: 32px;
+} */
+#controls, input.controls {
+  position: fixed;
+  z-index: 10;
+  grid-column: span 8;
+  /* margin-left: 50%; */
+  transform: translateX(-50%);
+  height: 16px;
+  top: 32px;
+}
+
+/* {
+  height: 16px;
+  top: 32px;
+} */
+#monkeys img {
+  /* max-width: 220px; */
+}
+
+#monkeys h1, #monkeys b, #monkeys p, #monkeys h2, #monkeys input, #monkeys textarea, div.monkeys, pre.monkeys, #monkeys pre {
+  color: black;
+  background-color: white;
+}
+
+#monkeys.tiny h1, #monkeys.tiny b, #monkeys.tiny p, #monkeys.tiny h2 {
+  font-size: 12px;
+  /* display: inline; */
+}
+
+#monkeys.tiny img {
+  max-width: 64px;
+  padding: 2px;
+  margin: 2px;
+}
+
+/* 70PX IS HALF OF BUTTON WIDTH min-width: 140px; */
+@media screen and (min-width: 3000px) {
+  #monkeys h1 {
+    font-size: 26px;
+  }
+
+  #monkeys h2 {
+    font-size: 16px;
+  }
+
+  #monkeys img {
+    max-width: 400px;
+  }
+}
+
+@media screen and (min-width: 1440px) {
+  #monkeys img {
+    max-width: 320px;
+  }
+
+  .gadgets {
+    grid-column: span 1;
+  }
+}
+
+@media screen and (max-width: 1440px) {
+  #monkeys h1, #monkeys h2 {
+    display: inline;
+  }
+
+  #monkeys {
+    padding: 8px;
+  }
+
+  #monkeys h1 {
+    font-size: 26px;
+  }
+
+  #monkeys img {
+    /* max-width: 64px; */
+    max-width: 220px;
+  }
+
+  .gadgets {
+    grid-column: span 2;
+  }
+}
+
+@media screen and (max-width: 990px) {
+  .header {
+    grid-column: span 3;
+  }
+
+  .stats, .controls {
+    grid-column: span 3;
+  }
+
+  #controls {
+    top: 64px;
+  }
+
+  #monkeys h1, #monkeys h2 {
+    display: inline;
+  }
+
+  #monkeys {
+    padding: 1px;
+    /* background: teal; */
+  }
+
+  #monkeys img {
+    width: 50px;
+  }
+
+  .gadgets {
+    grid-column: span 3;
+  }
+}
+
+@media screen and (max-width: 990px) {
+  .gadgets {
+    grid-column: span 4;
+  }
+}
+
+@media screen and (max-width: 680px) {
+  body, html, #id.div {
+    background-color: rgb(64, 0, 0);
+  }
+
+  .grid-item {
+    grid-column: span 4;
+  }
+
+  #description, #h2, #butbar {
+    visibility: hidden;
+    display: none;
+  }
+}
+
+a {
+  color: white;
+  text-decoration-color: white;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+  color: orange;
+  text-decoration-color: orange;
+  background-color: black;
+}
+
+#progress_bar {
+  /* margin: 10px 0; */
+  padding: 3px;
+  border: 1px solid #000;
+  font-size: 14px;
+  clear: both;
+  opacity: 0;
+  -moz-transition: opacity 1s linear;
+  -o-transition: opacity 1s linear;
+  -webkit-transition: opacity 1s linear;
+}
+
+#progress_bar.loading {
+  opacity: 1.0;
+}
+
+#progress_bar .percent {
+  background-color: #99ccff;
+  height: auto;
+  width: 0;
+}
+
+#monkeys {
+  bottom: 0;
+  right: 0;
+  max-width: 295;
+  background-color: white;
+  padding: 16px;
+  white-space: nowrap;
+  /* text-align: center; */
+}
+
+#drag-file {
+  background-color: blue;
+  color: white;
+  /* text-align: center; */
+  width: 300px;
+  height: 300px;
+}
+
+.showdropzone {
+  border: 5px dashed white;
+  padding: 64px;
+}
+
+.frontmost {
+  z-index: 696969;
+}
+
+/*
+Styles for HTML5 File Drag & Drop demonstration
+Featured on SitePoint.com
+Developed by Craig Buckler (@craigbuckler) of OptimalWorks.net
+*/
+body {
+  font-family: "Segoe UI", Tahoma, Helvetica, freesans, sans-serif;
+  font-size: 90%;
+  margin: 10px;
+  /* color: #333; */
+  background-color: #fff;
+}
+
+h1, h2 {
+  font-size: 1.5em;
+  font-weight: normal;
+}
+
+h2 {
+  font-size: 1.3em;
+}
+
+legend {
+  font-weight: bold;
+  color: #333;
+}
+
+#filedrag {
+  display: none;
+  font-weight: bold;
+  /* text-align: center; */
+  padding: 2em 0;
+  margin: 1em 0;
+  color: #012345;
+  border: 2px dashed #555;
+  border-radius: 7px;
+  cursor: copy;
+}
+
+#filedrag.hover {
+  color: #f00;
+  border-color: #f00;
+  border-style: dashed;
+  box-shadow: inset 0 3px 4px #888;
+}
+
+img {
+  max-width: 100%;
+}
+
+pre {
+  font-family: monospace;
+  font-size: 0.9em;
+  padding: 1px 2px;
+  margin: 0 0 1em auto;
+  border: 1px inset #666;
+  overflow: scroll;
+}
+
+#messages {
+  padding: 0 10px;
+  margin: 1em 0;
+  border: 1px solid #999;
+}
+
+#progress p {
+  display: block;
+  width: 240px;
+  padding: 2px 5px;
+  margin: 2px 0;
+  border: 1px inset #446;
+  border-radius: 5px;
+  background: #eee url("progress.png") 100% 0 repeat-y;
+}
+
+#progress p.success {
+  background: #0c0 none 0 0 no-repeat;
+}
+
+#progress p.failed {
+  background: #c00 none 0 0 no-repeat;
+}

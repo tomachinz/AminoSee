@@ -1,0 +1,151 @@
+DEVELOP BRANCH
+
+History for AminoSee/src/public
+Commits on Jun 6, 2020
+
+    homepage and css
+    @tomachinz
+    tomachinz committed on 6 Jun 2020
+
+Commits on Jun 5, 2020
+
+    improved UI
+    @tomachinz
+    tomachinz committed on 5 Jun 2020
+
+Commits on Jun 4, 2020
+
+    improved batch script
+    @tomachinz
+    tomachinz committed on 4 Jun 2020
+
+fixed nasty typeof x === undef error
+@tomachinz
+tomachinz committed on 4 Jun 2020
+
+Commits on May 28, 2020
+
+    slightly smoother handling of built-in server
+    @tomachinz
+    tomachinz committed on 28 May 2020
+
+Commits on May 18, 2020
+
+    colour lookup table in markdown, logo icon ascii art, amino acid tabl… 
+
+@tomachinz
+tomachinz committed on 18 May 2020
+
+Commits on Apr 5, 2020
+
+    security update
+    @tomachinz
+    tomachinz committed on 5 Apr 2020
+
+dust off some cobwebs
+@tomachinz
+tomachinz committed on 5 Apr 2020
+
+Commits on Sep 19, 2019
+
+    dropped res to 1MP
+    @tomachinz
+    tomachinz committed on 19 Sep 2019
+
+Commits on Sep 16, 2019
+
+    remove debug msgs
+    @tomachinz
+    tomachinz committed on 16 Sep 2019
+
+Commits on Sep 15, 2019
+
+    better visuals, less movement, more transparent
+    @tomachinz
+    tomachinz committed on 15 Sep 2019
+
+lucky version
+@tomachinz
+tomachinz committed on 15 Sep 2019
+
+more solid
+@tomachinz
+tomachinz committed on 15 Sep 2019
+
+Commits on Sep 14, 2019
+
+    about to add nav menus
+    @tomachinz
+    tomachinz committed on 14 Sep 2019
+
+flossing gource, fix spelling typos
+@tomachinz
+tomachinz committed on 14 Sep 2019
+
+Commits on Sep 13, 2019
+
+    solid version
+    @tomachinz
+    tomachinz committed on 13 Sep 2019
+
+renamed brown kiwi example
+@tomachinz
+tomachinz committed on 13 Sep 2019
+
+html reports
+@tomachinz
+tomachinz committed on 13 Sep 2019
+
+getting tidy
+@tomachinz
+tomachinz committed on 13 Sep 2019
+
+Commits on Sep 12, 2019
+
+    user interface, stylesheets etc
+    @tomachinz
+    tomachinz committed on 12 Sep 2019
+
+lets get that server running
+@tomachinz
+tomachinz committed on 12 Sep 2019
+
+less chatty server
+@tomachinz
+tomachinz committed on 12 Sep 2019
+
+build script now includes xterm.js.map
+@tomachinz
+tomachinz committed on 12 Sep 2019
+
+much better reports
+@tomachinz
+tomachinz committed on 12 Sep 2019
+
+cool
+@tomachinz
+tomachinz committed on 12 Sep 2019
+
+well wicked
+@tomachinz
+tomachinz committed on 12 Sep 2019
+
+refined
+@tomachinz
+tomachinz committed on 12 Sep 2019
+
+Commits on Sep 11, 201
+    cool new report format
+tomachinz committed on 11 Sep 2019
+3d effect
+Commits on Sep 10, 2019
+    non blocking
+Commits on Sep 5, 2019
+    disabled reports wth custom peptides
+Commits on Sep 3, 2019
+    golden stable
+Commits on Aug 27, 2019
+    dark background for images
+
+
+    

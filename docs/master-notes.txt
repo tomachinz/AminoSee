@@ -1,0 +1,201 @@
+npm WARN EBADENGINE   required: { node: '>=12.13.0' },
+maybe this is the correct veresion for us????!!!!
+
+🧬   AminoSeeNoEvil  DNA Visualisation v1.31.9 by Tom Atkinson
+..........................no regmarks...... (this is master.sync-conflict-20201023-033200-CLUHI4H branch)
+
+
+🧬   AminoSeeNoEvil  DNA Visualisation v1.32.8
+this is master branch
+
+1.28.5 is develop in dropbox
+
+MASTER BRANCH
+
+History for AminoSee/src/public
+Commits on Jul 29, 2021
+    fingers crossed. trying to recover this project from backups.
+Commits on Jan 9, 2021
+    my mac crashed. this is the time machine backup commited on linux for…
+Commits on Dec 30, 2020
+    ripping into it
+Commits on Dec 29, 2020
+    beta version
+Commits on Dec 27, 2020
+    fixes bug creating web server
+
+hopefully fixes some package issues
+@tomachinz
+tomachinz committed on 27 Dec 2020
+
+Commits on Dec 24, 2020
+
+    major fixup
+    @tomachinz
+    tomachinz committed on 24 Dec 2020
+
+Commits on Dec 23, 2020
+
+    big update, variable refactoring, package updates
+    @tomachinz
+    tomachinz committed on 23 Dec 2020
+
+Commits on Dec 22, 2020
+
+    previews working, --maxpix now used to alter output size
+    @tomachinz
+    tomachinz committed on 22 Dec 2020
+
+Commits on Dec 11, 2020
+
+    superclean
+    @tomachinz
+    tomachinz committed on 11 Dec 2020
+
+Commits on Dec 10, 2020
+
+    a lot of fixups and improvements
+    @tomachinz
+    tomachinz committed on 10 Dec 2020
+
+Commits on Nov 7, 2020
+
+    fixes showstopper
+    @tomachinz
+    tomachinz committed on 7 Nov 2020
+
+fixed showstopper bug
+@tomachinz
+tomachinz committed on 7 Nov 2020
+
+Commits on Oct 12, 2020
+
+    html pages much improved
+    @tomachinz
+    tomachinz committed on 12 Oct 2020
+
+Commits on Sep 14, 2020
+
+    got the server working again, better image layering
+    @tomachinz
+    tomachinz committed on 14 Sep 2020
+
+Commits on Sep 10, 2020
+
+    some good bugfixes and terminal display works again
+    @tomachinz
+    tomachinz committed on 10 Sep 2020
+
+Commits on Sep 5, 2020
+
+    better html display, --regmarks working again, server nearly working
+    @tomachinz
+    tomachinz committed on 5 Sep 2020
+
+finally fixed terminal output bug
+@tomachinz
+tomachinz committed on 5 Sep 2020
+
+Commits on Aug 17, 2020
+
+    template has its own file now
+    @tomachinz
+    tomachinz committed on 17 Aug 2020
+
+Commits on Aug 14, 2020
+
+    maybe this will finally fix that dependency
+    @tomachinz
+    tomachinz committed on 14 Aug 2020
+
+floss
+@tomachinz
+tomachinz committed on 14 Aug 2020
+
+i think i accidentally deleted these
+@tomachinz
+tomachinz committed on 14 Aug 2020
+
+nice stable version
+@tomachinz
+tomachinz committed on 14 Aug 2020
+
+tidier, faster, better
+@tomachinz
+tomachinz committed on 14 Aug 2020
+
+less distracting CLI messages
+@tomachinz
+tomachinz committed on 14 Aug 2020
+
+Commits on Aug 10, 2020
+
+    much cleaner CLI output
+    @tomachinz
+    tomachinz committed on 10 Aug 2020
+
+Commits on Aug 9, 2020
+
+    fixed a lot of bugs, template in own file now
+    @tomachinz
+    tomachinz committed on 9 Aug 2020
+
+Commits on Jul 31, 2020
+
+    dependencies
+    @tomachinz
+    tomachinz committed on 31 Jul 2020
+
+fixed --test calibration mode, made less verbose
+@tomachinz
+tomachinz committed on 31 Jul 2020
+
+Commits on Jul 30, 2020
+
+    fixed bug: forgot to add json-beautify
+    @tomachinz
+    tomachinz committed on 30 Jul 2020
+
+Commits on Jul 27, 2020
+
+    tidy
+    @tomachinz
+    tomachinz committed on 27 Jul 2020
+
+Commits on Jul 26, 2020
+
+    experimental
+    @tomachinz
+    tomachinz committed on 26 Jul 2020
+
+Commits on Jul 18, 2020
+
+    v1.30.1 flossing
+    @tomachinz
+    tomachinz committed on 18 Jul 2020
+
+Commits on Jul 17, 2020
+
+    awesome js animations
+    @tomachinz
+    tomachinz committed on 17 Jul 2020
+
+Image parallax is working again
+@tomachinz
+tomachinz committed on 17 Jul 2020
+
+    © 2021 GitHub, Inc.
+    Terms
+    Privacy
+    Security
+    Status
+    Docs
+
+    Contact GitHub
+    Pricing
+    API
+    Training
+    Blog
+    About
+
+Loading complete
