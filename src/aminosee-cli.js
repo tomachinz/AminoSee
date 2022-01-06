@@ -58,7 +58,7 @@ const term = termkit.terminal
 const MyManHilbert = require("hilbert-2d") // also contains magic
 // const MyManHilbert = require("../node_modules/hilbert-2d/hilbert") // also contains magic
 const exec = require("child_process").exec // node standard lib
-const es = require("event-stream")
+// const estream = require("event-stream")
 const minimist = require("minimist")
 const fetch = require("node-fetch")
 const keypress = require("keypress")
@@ -92,7 +92,7 @@ const closeBrowser = "If the process apears frozen, it's waiting for your browse
 // BigInt.prototype.toBSON = function() { return this.toString(); }; // Add a `toBSON()` to enable MongoDB to store BigInts as strings
 
 let autoStartGui = true
-let cfile = `No DNA or RNA text file provided`
+let cfile = "No DNA or RNA text file provided"
 let streamLineNr, renderLock, jobArgs, killServersOnQuit, webserverEnabled, cliInstance, tx, ty, cliruns, gbprocessed, projectprefs, userprefs, genomesRendered, progato, commandString, batchSize, quiet, url, port, status, remain, lastHammered, darkenFactor, highlightFactor, loopCounter, webroot, tups, opensFile, opensImage, previousImage, isHighlightSet, aminosee_json, hilpix, usersMagnitude, shrinkFactor, codonsPerPixelHILBERT, ishighres, ispreview, cpuhit, bruteRemain, isCustomCPP, endmsg, cx, pixelClock, usersPix, args
 // let theGUI
 tups = opensFile = opensImage = cx = 0 // terminal flossing
@@ -647,7 +647,7 @@ class AminoSeeNoEvil {
     }
 
     if (args.verbose || args.v) {
-      output("verbose output enabled. AminoSee version: " + version)
+      output("verbose output enabled! AminoSee version: " + version)
       log(`os.platform(): ${os.platform()} ${process.cwd()}`)
       verbose = true
       termDisplayHeight -= 2

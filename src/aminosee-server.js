@@ -1,7 +1,7 @@
 const open = require("open")
 const httpserver = require("http-server") // cant have - in js
-    // const aminosee = require("./aminosee-cli")
-    // const error = require("./aminosee-cli").error
+// const aminosee = require("./aminosee-cli")
+// const error = require("./aminosee-cli").error
 const data = require("./aminosee-data")
 const doesFileExist = data.doesFileExist
     // const doesFolderExist = data.doesFolderExist
@@ -32,10 +32,11 @@ let outputPath, filenameServerLock, url, projectprefs, userprefs, port, cliruns,
 
 output(chalk.yellow(`init web server`))
 
+const portUsed = "tcp-port-used"
 // setArgs()
 
 module.exports = (options) => {
-    var tcpPortUsed = require("tcp-port-used")
+    var tcpPortUsed = require(portUsed)
     fragment = "not-set"
     port = defaultPort
         // fragment = aminosee.justNameOfDNA

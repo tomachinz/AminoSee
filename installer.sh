@@ -1,26 +1,26 @@
 #!/bin/sh
 PACKAGER="brew install"
 
-if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+if [ "$OSTYPE" == "linux-gnu"* ]; then
      echo linux-gnu detected
      PACKAGER="sudo apt install"
      apt update
-elif [[ "$OSTYPE" == "darwin"* ]]; then
+elif [ "$OSTYPE" == "darwin"* ]; then
      echo macOS detected
      PACKAGER="brew install"
      brew update
-elif [[ "$OSTYPE" == "cygwin" ]]; then
+elif [ "$OSTYPE" == "cygwin" ]; then
      echo detected cygwin POSIX compatibility layer and Linux environment emulation for Windows
-elif [[ "$OSTYPE" == "msys" ]]; then
+elif [ "$OSTYPE" == "msys" ]; then
      echo detected Lightweight shell and GNU utilities compiled for Windows
-elif [[ "$OSTYPE" == "win32" ]]; then
+elif [ "$OSTYPE" == "win32" ]; then
      echo detected Windows
-elif [[ "$OSTYPE" == "freebsd"* ]]; then
+elif [ "$OSTYPE" == "freebsd"* ]; then
      echo detected FreeBSD
 else
      echo unknown os
 fi
-
+exit 
 echo Installing linux dependencies: gource, ffmpeg, lighthouse
 
 install () {
@@ -40,17 +40,21 @@ echo done
 echo running main 🧬 AminoSee installer
 sleep 1
 
+sudo apt install node-pre-gyp
 
 whereis aminosee
 which aminosee
 echo Current dir:
 pwd
 echo This should be run from root the AminoSee repo
-echo "About to run: git log; npm install; npm link; sudo npm link aminosee; aminosee --demo"
-git log
-sleep 2
-git status
+echo "About to run: npm install; npm link; sudo npm link aminosee; aminosee --demo"
+echo
+# git status
+echo
+echo running admin this:
+echo npm i -g node-gyp@latest && npm config set node_gyp "/usr/local/lib/node_modules/node-gyp/bin/node-gyp.js"
 sleep 1
+sudo npm i -g node-gyp@latest && npm config set node_gyp "/usr/local/lib/node_modules/node-gyp/bin/node-gyp.js"
 npm install
 echo "If the following works, your source code install is up:"
 echo npm run start
