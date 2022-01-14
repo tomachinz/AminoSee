@@ -17,15 +17,15 @@ many_size_hilbert() {
 
   # aminosee_do --reg --maxpix 1024 $*
   # aminosee_do --reg --maxpix 4096 $*
-  aminosee_do --reg --maxpix 16384 $*
-  aminosee_do --reg --maxpix 65536 $*
-  aminosee_do --reg --maxpix 262144 $*
-  aminosee_do --reg --maxpix 999999 $*
-  aminosee_do --reg --maxpix 1048576 $*
-  aminosee_do --reg --maxpix 4194304 $*
+  # aminosee_do --reg --maxpix 16384 $*
+  # aminosee_do --reg --maxpix 65536 $*
+  # aminosee_do --reg --maxpix 262144 $*
+  # aminosee_do --reg --maxpix 999999 $*
+  # aminosee_do --reg --maxpix 1048576 $*
+  # aminosee_do --reg --maxpix 4194304 $*
   # aminosee_do --reg --maxpix 16777216 $*
 
-  sleep 2
+  # sleep 2
   aminosee_do --ratio sqr  -m4  $* 
   aminosee_do --ratio sqr  -m5  $* 
   aminosee_do --ratio sqr  -m6  $* 

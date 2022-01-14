@@ -27,7 +27,7 @@ function histogramToHTML( aminosee_histogram ) {
 	return epicQuotes[Math.floor( Math.random() * epicQuotes.length )]
 }
 function imageStack(histogramJson) {
-	console.log(histogramJson)
+	// console.log(histogramJson)
 	let html = " "
 	let pepTable = histogramJson.pepTable
 	let name = histogramJson.summary.name
