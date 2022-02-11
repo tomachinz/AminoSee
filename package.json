@@ -102,7 +102,7 @@
     "bytes": "^3.1.0",
     "carlo": "^0.9.46",
     "cross-spawn": "^6.0.5",
-    "cucumber": "^5.1.0",
+    "cucumber": "^6.0.5",
     "cypress": "^5.4.0",
     "dat.gui": "^0.7.7",
     "ecstatic": "^4.1.4",
