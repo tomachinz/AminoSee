@@ -111,7 +111,7 @@
     "event-stream": "^4.0.1",
     "hilbert-2d": "0.0.1",
     "humanize-duration": "^3.24.0",
-    "husky": "^3.1.0",
+    "husky": "^7.0.1",
     "internal-ip": "^4.3.0",
     "json-beautify": "^1.1.1",
     "keypress": "^0.2.1",
